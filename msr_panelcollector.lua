@@ -26,7 +26,9 @@ function PanelCollector.collect(ui, settings, page, hold_pos)
         end
     end
 
-    addPanel(hold_pos)
+    if hold_pos then
+        addPanel(hold_pos)
+    end
     for row = 1, rows do
         for col = 1, cols do
             addPanel({

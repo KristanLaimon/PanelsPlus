@@ -3,6 +3,7 @@ local Settings = {
     defaults = {
         enabled = true,
         mode = "manga",
+        invert_swipe = false,
         panel_grid_cols = 4,
         panel_grid_rows = 7,
     },

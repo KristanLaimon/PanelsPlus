@@ -6,6 +6,7 @@ single-panel zoom viewer with a direction-aware sequence viewer.
 --]]--
 
 local Dispatcher = require("dispatcher")
+local Event = require("ui/event")
 local InfoMessage = require("ui/widget/infomessage")
 local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
@@ -21,6 +22,8 @@ local MangaSmoothReading = WidgetContainer:extend{
 
 function MangaSmoothReading:init()
     self.settings = Settings.load()
+    self.panel_cache = {}
+    self.panel_cache_loading = {}
     self.ui.menu:registerToMainMenu(self)
     self:onDispatcherRegisterActions()
     self:patchNativePanelZoom()
@@ -43,7 +46,63 @@ end
 
 function MangaSmoothReading:setMode(mode)
     self.settings.mode = mode == "comic" and "comic" or "manga"
+    self:clearPanelCache()
     self:saveSettings()
+end
+
+function MangaSmoothReading:setInvertSwipe(invert_swipe)
+    self.settings.invert_swipe = invert_swipe and true or false
+    self:saveSettings()
+end
+
+function MangaSmoothReading:clearPanelCache()
+    self.panel_cache = {}
+    self.panel_cache_loading = {}
+end
+
+function MangaSmoothReading:getPanelCacheKey(page)
+    return tostring(page) .. ":" .. (self.settings.mode or "manga")
+end
+
+function MangaSmoothReading:getCachedPanels(page)
+    return self.panel_cache[self:getPanelCacheKey(page)]
+end
+
+function MangaSmoothReading:cachePanels(page, panels)
+    self.panel_cache[self:getPanelCacheKey(page)] = panels
+end
+
+function MangaSmoothReading:collectPanels(page, hold_pos)
+    local panels = PanelCollector.collect(self.ui, self.settings, page, hold_pos)
+    if #panels > 0 then
+        self:cachePanels(page, panels)
+    end
+    return panels
+end
+
+function MangaSmoothReading:preloadPanels(page)
+    if not page or page == 0 or self:getCachedPanels(page) then
+        return
+    end
+
+    local key = self:getPanelCacheKey(page)
+    if self.panel_cache_loading[key] then
+        return
+    end
+    self.panel_cache_loading[key] = true
+
+    UIManager:scheduleIn(0.25, function()
+        self.panel_cache_loading[key] = nil
+        if self:getCachedPanels(page) then
+            return
+        end
+        self:collectPanels(page)
+    end)
+end
+
+function MangaSmoothReading:preloadAdjacentPanels(page)
+    self:preloadPanels(self.ui.document:getNextPage(page))
+    self:preloadPanels(self.ui.document:getPrevPage(page))
 end
 
 function MangaSmoothReading:onDispatcherRegisterActions()
@@ -57,6 +116,18 @@ function MangaSmoothReading:onDispatcherRegisterActions()
         category = "none",
         event = "MangaSmoothReadingToggleMode",
         title = _("Manga smooth reading: manga/comic mode"),
+        reader = true,
+    })
+    Dispatcher:registerAction("manga_smooth_reading_set_manga", {
+        category = "none",
+        event = "MangaSmoothReadingSetManga",
+        title = _("Manga smooth reading: set manga mode"),
+        reader = true,
+    })
+    Dispatcher:registerAction("manga_smooth_reading_set_comic", {
+        category = "none",
+        event = "MangaSmoothReadingSetComic",
+        title = _("Manga smooth reading: set comic mode"),
         reader = true,
     })
 end
@@ -103,10 +174,37 @@ function MangaSmoothReading:onMangaSmoothReadingToggleMode()
     return true
 end
 
+function MangaSmoothReading:onMangaSmoothReadingSetManga()
+    self:setMode("manga")
+    UIManager:show(InfoMessage:new{
+        text = _("Manga mode: right to left"),
+        timeout = 2,
+    })
+    return true
+end
+
+function MangaSmoothReading:onMangaSmoothReadingSetComic()
+    self:setMode("comic")
+    UIManager:show(InfoMessage:new{
+        text = _("Comic mode: left to right"),
+        timeout = 2,
+    })
+    return true
+end
+
+function MangaSmoothReading:getModeText()
+    if self.settings.mode == "comic" then
+        return _("Manga smooth reading: comic mode")
+    end
+    return _("Manga smooth reading: manga mode")
+end
+
 function MangaSmoothReading:addToMainMenu(menu_items)
     menu_items.manga_smooth_reading = {
-        text = _("Manga smooth reading"),
-        sorting_hint = "more_tools",
+        text_func = function()
+            return self:getModeText()
+        end,
+        sorting_hint = "tools",
         sub_item_table = {
             {
                 text = _("Enable panel focus"),
@@ -138,9 +236,19 @@ function MangaSmoothReading:addToMainMenu(menu_items)
                 end,
             },
             {
-                text = _("Gesture actions available"),
+                text = _("Invert panel swipe direction"),
+                checked_func = function()
+                    return self.settings.invert_swipe == true
+                end,
+                callback = function()
+                    self:setInvertSwipe(not self.settings.invert_swipe)
+                end,
+                help_text = _("Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."),
+            },
+            {
+                text = _("Gesture actions"),
                 enabled = false,
-                help_text = _("Assign gestures to 'Manga smooth reading: toggle' or 'Manga smooth reading: manga/comic mode' from the gesture manager."),
+                help_text = _("Assign gestures to the Manga smooth reading actions from the gesture manager. Available actions: toggle, toggle manga/comic mode, set manga mode, set comic mode."),
             },
         },
     }
@@ -153,25 +261,65 @@ function MangaSmoothReading:showPanelSequence(reader_highlight, ges)
         return false
     end
 
-    local panels = PanelCollector.collect(self.ui, self.settings, hold_pos.page, hold_pos)
+    local panels = self:collectPanels(hold_pos.page, hold_pos)
     if #panels == 0 then
         return false
     end
 
-    local images = PanelCollector.buildImages(self.ui, hold_pos.page, panels)
     local start_idx = PanelCollector.startIndex(panels, hold_pos)
-    local viewer = PanelViewer:new{
+    return self:showPanelViewerForPage(hold_pos.page, panels, start_idx)
+end
+
+function MangaSmoothReading:showPanelViewerForPage(page, panels, start_idx)
+    local images = PanelCollector.buildImages(self.ui, page, panels)
+    local viewer
+    viewer = PanelViewer:new{
         image = images,
         image_disposable = false,
         images_list_nb = #images,
+        page = page,
         reading_mode = self.settings.mode,
+        invert_swipe = self.settings.invert_swipe == true,
         rotated = images.rotated,
+        boundary_callback = function(direction, current_viewer)
+            return self:onPanelViewerBoundary(direction, current_viewer)
+        end,
     }
 
     UIManager:show(viewer)
-    if start_idx > 1 then
+    if start_idx and start_idx > 1 then
         viewer:switchToImageNum(start_idx)
     end
+    self:preloadAdjacentPanels(page)
+    return true
+end
+
+function MangaSmoothReading:onPanelViewerBoundary(direction, current_viewer)
+    local next_page
+    if direction == "next" then
+        next_page = self.ui.document:getNextPage(current_viewer.page)
+    else
+        next_page = self.ui.document:getPrevPage(current_viewer.page)
+    end
+    if not next_page or next_page == 0 then
+        return true
+    end
+
+    self.ui:handleEvent(Event:new("GotoPage", next_page))
+    UIManager:close(current_viewer)
+    local panels = self:getCachedPanels(next_page)
+    if panels and #panels > 0 then
+        local start_idx = direction == "next" and 1 or #panels
+        return self:showPanelViewerForPage(next_page, panels, start_idx)
+    end
+
+    UIManager:tickAfterNext(function()
+        local loaded_panels = self:collectPanels(next_page)
+        if #loaded_panels > 0 then
+            local start_idx = direction == "next" and 1 or #loaded_panels
+            self:showPanelViewerForPage(next_page, loaded_panels, start_idx)
+        end
+    end)
     return true
 end
 

@@ -7,19 +7,42 @@ local _ = require("gettext")
 local PanelViewer = ImageViewer:extend{
     name = "manga_smooth_panel_viewer",
     reading_mode = "manga",
+    invert_swipe = false,
+    page = nil,
+    boundary_callback = nil,
     buttons_visible = true,
     with_title_bar = false,
     fullscreen = true,
     images_keep_pan_and_zoom = false,
 }
 
+function PanelViewer:getNextSwipeDirection()
+    local direction
+    if self.reading_mode == "comic" then
+        direction = "east"
+    else
+        direction = "west"
+    end
+    if self.invert_swipe then
+        return direction == "west" and "east" or "west"
+    end
+    return direction
+end
+
 function PanelViewer:onSwipe(arg, ges)
     if self._images_list and (ges.direction == "west" or ges.direction == "east") then
-        local next_direction = self.reading_mode == "comic" and "east" or "west"
-        if ges.direction == next_direction then
-            self:onShowNextImage()
+        if ges.direction == self:getNextSwipeDirection() then
+            if self._images_list_cur < self._images_list_nb then
+                self:onShowNextImage()
+            elseif self.boundary_callback then
+                return self.boundary_callback("next", self)
+            end
         else
-            self:onShowPrevImage()
+            if self._images_list_cur > 1 then
+                self:onShowPrevImage()
+            elseif self.boundary_callback then
+                return self.boundary_callback("previous", self)
+            end
         end
         return true
     end
@@ -63,20 +86,6 @@ function PanelViewer:replaceButtonTable()
             },
         },
         {
-            {
-                id = "zoom_out",
-                text = "-",
-                callback = function()
-                    self:onZoomOut()
-                end,
-            },
-            {
-                id = "zoom_in",
-                text = "+",
-                callback = function()
-                    self:onZoomIn()
-                end,
-            },
             {
                 id = "screenshot",
                 text = _("Screenshot"),
