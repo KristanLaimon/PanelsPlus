@@ -5,12 +5,16 @@ local ImageViewer = require("ui/widget/imageviewer")
 local _ = require("gettext")
 
 local PanelViewer = ImageViewer:extend{
-    name = "manga_smooth_panel_viewer",
+    name = "mangacomicsmoother_panel_viewer",
     reading_mode = "manga",
+    crop_mode = "strict",
     invert_swipe = false,
     page = nil,
+    panels = nil,
     boundary_callback = nil,
-    buttons_visible = true,
+    mode_toggle_callback = nil,
+    crop_toggle_callback = nil,
+    buttons_visible = false,
     with_title_bar = false,
     fullscreen = true,
     images_keep_pan_and_zoom = false,
@@ -49,6 +53,17 @@ function PanelViewer:onSwipe(arg, ges)
     return ImageViewer.onSwipe(self, arg, ges)
 end
 
+function PanelViewer:onTap(_, ges)
+    if ges.pos:notIntersectWith(self.main_frame.dimen) then
+        self:onClose()
+        return true
+    end
+
+    self.buttons_visible = not self.buttons_visible
+    self:update()
+    return true
+end
+
 function PanelViewer:init()
     ImageViewer.init(self)
     self:replaceButtonTable()
@@ -75,6 +90,32 @@ function PanelViewer:replaceButtonTable()
                 callback = function()
                     self.rotated = not self.rotated and true or false
                     self:update()
+                end,
+            },
+            {
+                id = "mode",
+                text = self.reading_mode == "comic" and _("Comic mode") or _("Manga mode"),
+                callback = function()
+                    if self.mode_toggle_callback then
+                        self.mode_toggle_callback(self)
+                    else
+                        self.reading_mode = self.reading_mode == "comic" and "manga" or "comic"
+                        self:replaceButtonTable()
+                        self:update()
+                    end
+                end,
+            },
+            {
+                id = "crop",
+                text = self.crop_mode == "loose" and _("Loose crop") or _("Strict crop"),
+                callback = function()
+                    if self.crop_toggle_callback then
+                        self.crop_toggle_callback(self)
+                    else
+                        self.crop_mode = self.crop_mode == "loose" and "strict" or "loose"
+                        self:replaceButtonTable()
+                        self:update()
+                    end
                 end,
             },
             {
