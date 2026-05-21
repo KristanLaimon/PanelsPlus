@@ -11,9 +11,9 @@ local Settings = {
         panel_bleed_ratio = 0.08,
         panel_bleed_min = 8,
         panel_prefetch_delay = 0.75,
-        panel_cache_pages = 3,
+        panel_cache_pages = 2,
         full_page_panel_ratio = 0.92,
-        performance_profile_version = 4,
+        performance_profile_version = 5,
     },
 }
 
