@@ -3,6 +3,23 @@ local Settings = require("msr_settings")
 
 local PanelCollector = {}
 
+local function expandRect(rect, page_size, settings)
+    local ratio = settings.panel_bleed_ratio or Settings.defaults.panel_bleed_ratio
+    local min_bleed = settings.panel_bleed_min or Settings.defaults.panel_bleed_min
+    local bleed = math.max(min_bleed, math.min(rect.w or 0, rect.h or 0) * ratio)
+    local x = math.max(0, (rect.x or 0) - bleed)
+    local y = math.max(0, (rect.y or 0) - bleed)
+    local right = math.min(page_size.w, (rect.x or 0) + (rect.w or 0) + bleed)
+    local bottom = math.min(page_size.h, (rect.y or 0) + (rect.h or 0) + bleed)
+
+    return {
+        x = x,
+        y = y,
+        w = math.max(1, right - x),
+        h = math.max(1, bottom - y),
+    }
+end
+
 function PanelCollector.collect(ui, settings, page, hold_pos)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
@@ -67,15 +84,21 @@ function PanelCollector.startIndex(panels, hold_pos)
     return best_idx
 end
 
-function PanelCollector.buildImages(ui, page, panels)
+function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
+    local page_size = document:getPageDimensions(page, 1, 0)
+    settings = settings or Settings.defaults
     local images = {
         image_disposable = false,
     }
 
     for _, rect in ipairs(panels) do
+        local image_rect = rect
+        if settings.crop_mode == "loose" and page_size then
+            image_rect = expandRect(rect, page_size, settings)
+        end
         table.insert(images, function()
-            local image, rotate = document:drawPagePart(page, rect, 0)
+            local image, rotate = document:drawPagePart(page, image_rect, 0)
             images.rotated = rotate
             return image
         end)

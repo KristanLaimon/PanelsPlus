@@ -1,7 +1,10 @@
 local ButtonTable = require("ui/widget/buttontable")
 local CenterContainer = require("ui/widget/container/centercontainer")
+local Event = require("ui/event")
 local Geom = require("ui/geometry")
 local ImageViewer = require("ui/widget/imageviewer")
+local Screenshoter = require("ui/widget/screenshoter")
+local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
 local PanelViewer = ImageViewer:extend{
@@ -61,6 +64,55 @@ function PanelViewer:onTap(_, ges)
 
     self.buttons_visible = not self.buttons_visible
     self:update()
+    return true
+end
+
+function PanelViewer:update()
+    if not self._hide_progress_for_screenshot then
+        return ImageViewer.update(self)
+    end
+
+    local images_list_nb = self._images_list_nb
+    self._images_list_nb = 1
+    local ok, err = pcall(ImageViewer.update, self)
+    self._images_list_nb = images_list_nb
+    if not ok then
+        error(err)
+    end
+end
+
+function PanelViewer:onSaveImageView()
+    self._hide_progress_for_screenshot = true
+
+    local restore_settings_func
+    if self.with_title_bar or self.buttons_visible or not self.fullscreen then
+        local with_title_bar = self.with_title_bar
+        local buttons_visible = self.buttons_visible
+        local fullscreen = self.fullscreen
+        restore_settings_func = function()
+            self.with_title_bar = with_title_bar
+            self.buttons_visible = buttons_visible
+            self.fullscreen = fullscreen
+            self._hide_progress_for_screenshot = false
+            self:update()
+        end
+        self.with_title_bar = false
+        self.buttons_visible = false
+        self.fullscreen = true
+        self:update()
+        UIManager:forceRePaint()
+    else
+        restore_settings_func = function()
+            self._hide_progress_for_screenshot = false
+            self:update()
+        end
+        self:update()
+        UIManager:forceRePaint()
+    end
+
+    local screenshot_dir = Screenshoter:getScreenshotDir()
+    local screenshot_name = os.date(screenshot_dir .. "/ImageViewer_%Y-%m-%d_%H%M%S.png")
+    UIManager:sendEvent(Event:new("Screenshot", screenshot_name, restore_settings_func))
     return true
 end
 
