@@ -123,7 +123,8 @@ function MangaComicSmoother:preloadPanels(page)
     end
     self.panel_cache_loading[key] = true
 
-    UIManager:scheduleIn(0.25, function()
+    local delay = self.settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay
+    UIManager:scheduleIn(delay, function()
         self.panel_cache_loading[key] = nil
         local scheduled_cached_panels = self:getCachedPanels(page)
         if scheduled_cached_panels then
@@ -374,7 +375,12 @@ function MangaComicSmoother:showPanelViewerForPage(page, panels, start_idx, opti
     if start_idx and start_idx > 1 then
         viewer:switchToImageNum(start_idx)
     end
-    self:preloadNextPanels(page)
+    if not options.defer_preload then
+        self:preloadNextPanels(page)
+    end
+    if options.return_viewer then
+        return viewer
+    end
     return true
 end
 

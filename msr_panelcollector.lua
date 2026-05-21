@@ -20,6 +20,18 @@ local function expandRect(rect, page_size, settings)
     }
 end
 
+--- Collect page panels by probing KOReader's native panel detector.
+---
+--- The detector call is relatively expensive on low-memory e-readers, so this
+--- skips grid probes that already fall inside a previously discovered panel.
+--- This keeps the 4x7 coverage that avoids merged manga panels while avoiding
+--- many duplicate native calls on typical pages.
+---
+--- @param ui table KOReader reader UI object.
+--- @param settings table Plugin settings.
+--- @param page number Document page number.
+--- @param hold_pos table|nil Optional page-space position from the user's hold.
+--- @return table[] Ordered panel rectangles.
 function PanelCollector.collect(ui, settings, page, hold_pos)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
@@ -32,7 +44,19 @@ function PanelCollector.collect(ui, settings, page, hold_pos)
     local panels_by_key = {}
     local panels = {}
 
-    local function addPanel(pos)
+    local function isKnownPanelPoint(pos)
+        for _, rect in ipairs(panels) do
+            if Geometry.rectContains(rect, pos) then
+                return true
+            end
+        end
+        return false
+    end
+
+    local function addPanel(pos, force)
+        if not force and isKnownPanelPoint(pos) then
+            return
+        end
         local ok, rect = pcall(document.getPanelFromPage, document, page, pos)
         if ok and rect and rect.w and rect.h and rect.w > 0 and rect.h > 0 then
             local key = Geometry.rectKey(rect)
@@ -44,7 +68,7 @@ function PanelCollector.collect(ui, settings, page, hold_pos)
     end
 
     if hold_pos then
-        addPanel(hold_pos)
+        addPanel(hold_pos, true)
     end
     for row = 1, rows do
         for col = 1, cols do
