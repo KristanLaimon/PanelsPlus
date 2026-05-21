@@ -1,0 +1,1 @@
+soon ill be writing out this readme.md but you can clone this repo and use "build.sh" to get the folder to copy to your koreader/plugin folder. 

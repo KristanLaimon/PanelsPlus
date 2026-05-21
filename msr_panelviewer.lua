@@ -7,6 +7,21 @@ local Screenshoter = require("ui/widget/screenshoter")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
+--- ImageViewer subclass for navigating one page's ordered panel sequence.
+---
+--- @class PanelViewer : ImageViewer
+--- @field reading_mode MCSReadingMode Current left/right panel order.
+--- @field crop_mode MCSCropMode Current crop rendering mode.
+--- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
+--- @field page number|nil Document page number represented by `panels`.
+--- @field panels MCSPanel[]|nil Ordered panel rectangles.
+--- @field boundary_callback fun(direction:MCSBoundaryDirection, viewer:PanelViewer):boolean|nil
+--- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field buttons_visible boolean Whether controls are currently shown.
+--- @field with_title_bar boolean Whether ImageViewer title bar is shown.
+--- @field fullscreen boolean Whether the viewer is fullscreen.
+--- @field images_keep_pan_and_zoom boolean Whether ImageViewer preserves pan/zoom.
 local PanelViewer = ImageViewer:extend{
     name = "mangacomicsmoother_panel_viewer",
     reading_mode = "manga",
@@ -23,6 +38,9 @@ local PanelViewer = ImageViewer:extend{
     images_keep_pan_and_zoom = false,
 }
 
+--- Return which horizontal swipe direction advances to the next panel.
+---
+--- @return '"west"'|'"east"' direction Swipe direction treated as next.
 function PanelViewer:getNextSwipeDirection()
     local direction
     if self.reading_mode == "comic" then
@@ -36,6 +54,11 @@ function PanelViewer:getNextSwipeDirection()
     return direction
 end
 
+--- Handle horizontal panel navigation before falling back to ImageViewer.
+---
+--- @param arg any KOReader gesture argument.
+--- @param ges table Gesture event with `direction`.
+--- @return boolean|nil handled Whether the gesture was consumed.
 function PanelViewer:onSwipe(arg, ges)
     if self._images_list and (ges.direction == "west" or ges.direction == "east") then
         if ges.direction == self:getNextSwipeDirection() then
@@ -56,6 +79,11 @@ function PanelViewer:onSwipe(arg, ges)
     return ImageViewer.onSwipe(self, arg, ges)
 end
 
+--- Toggle controls on inside taps and close on taps outside the frame.
+---
+--- @param _ any Unused KOReader tap argument.
+--- @param ges table Gesture event with a `pos` geometry object.
+--- @return boolean handled Always true after processing a tap.
 function PanelViewer:onTap(_, ges)
     if ges.pos:notIntersectWith(self.main_frame.dimen) then
         self:onClose()
@@ -67,6 +95,7 @@ function PanelViewer:onTap(_, ges)
     return true
 end
 
+--- Redraw the viewer, hiding the progress count during screenshot capture.
 function PanelViewer:update()
     if not self._hide_progress_for_screenshot then
         return ImageViewer.update(self)
@@ -81,6 +110,13 @@ function PanelViewer:update()
     end
 end
 
+--- Save a screenshot of the current panel view.
+---
+--- Temporarily hides controls and title chrome so screenshots contain only the
+--- rendered panel, then restores the previous viewer state through KOReader's
+--- screenshot callback.
+---
+--- @return boolean handled Always true for button callback dispatch.
 function PanelViewer:onSaveImageView()
     self._hide_progress_for_screenshot = true
 
@@ -116,12 +152,14 @@ function PanelViewer:onSaveImageView()
     return true
 end
 
+--- Initialize ImageViewer state, controls, and first render.
 function PanelViewer:init()
     ImageViewer.init(self)
     self:replaceButtonTable()
     self:update()
 end
 
+--- Rebuild the ImageViewer button table from current mode/crop state.
 function PanelViewer:replaceButtonTable()
     local buttons = {
         {
