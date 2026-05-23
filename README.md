@@ -126,3 +126,7 @@ Use KOReader's gesture manager to bind them to taps, swipes, or other gestures.
 When reading manga on an e-reader, some panels are too small to read comfortably on the full page. KOReader can detect panels, but the native flow often means zooming into one panel, leaving zoom, moving to the next panel, and repeating that cycle again and again.
 
 Panels+ keeps the full page available while making panel navigation feel like a normal reading flow. It also adds screenshot support while zoomed into panels, so you can capture the exact panel view instead of only taking full-page screenshots.
+
+
+## License
+MIT License, check "LICENSE" file in this repository.
