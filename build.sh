@@ -16,7 +16,3 @@ cp -Rp "$SCRIPT_DIR/src" "$PLUGIN_DIR/"
 echo "Created: $PLUGIN_DIR"
 echo "Copy this folder to your Kindle KOReader plugins folder:"
 echo "  /mnt/us/koreader/plugins/${PLUGIN_NAME}.koplugin"
-
-if command -v explorer.exe >/dev/null 2>&1; then
-    explorer.exe "$(wslpath -w "$PLUGIN_DIR")" >/dev/null 2>&1 &
-fi
