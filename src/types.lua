@@ -39,6 +39,7 @@
 --- @field mode PPReadingMode
 --- @field crop_mode PPCropMode
 --- @field invert_swipe boolean
+--- @field progress_bar_visible boolean
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer
 --- @field panel_bleed_ratio number

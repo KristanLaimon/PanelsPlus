@@ -57,6 +57,18 @@ function ViewerController:toggleViewerCropMode(viewer)
     return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
 end
 
+--- Toggle progress bar visibility from an open viewer.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:toggleViewerProgressBar(viewer)
+    self:setProgressBarVisible(viewer.progress_bar_visible == false)
+    viewer.progress_bar_visible = self.settings.progress_bar_visible ~= false
+    viewer:replaceButtonTable()
+    viewer:update()
+    return true
+end
+
 --- Start panel sequence viewing from a native panel-zoom hold gesture.
 ---
 --- @param reader_highlight table KOReader reader highlight module.
@@ -99,6 +111,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
         invert_swipe = self.settings.invert_swipe == true,
+        progress_bar_visible = self.settings.progress_bar_visible ~= false,
         buttons_visible = options.buttons_visible == true,
         rotated = images.rotated,
         boundary_callback = function(direction, current_viewer)
@@ -109,6 +122,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         crop_toggle_callback = function(current_viewer)
             return self:toggleViewerCropMode(current_viewer)
+        end,
+        progress_bar_toggle_callback = function(current_viewer)
+            return self:toggleViewerProgressBar(current_viewer)
         end,
     }
 

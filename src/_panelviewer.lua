@@ -13,12 +13,14 @@ local _ = require("gettext")
 --- @field reading_mode PPReadingMode Current left/right panel order.
 --- @field crop_mode PPCropMode Current crop rendering mode.
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
+--- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field page number|nil Document page number represented by `panels`.
 --- @field panels PPPanel[]|nil Ordered panel rectangles.
 --- @field reader_ui table|nil Reader UI that owns the normal document gesture zones.
 --- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field buttons_visible boolean Whether controls are currently shown.
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
 --- @field fullscreen boolean Whether the viewer is fullscreen.
@@ -28,12 +30,14 @@ local PanelViewer = ImageViewer:extend{
     reading_mode = "manga",
     crop_mode = "strict",
     invert_swipe = false,
+    progress_bar_visible = true,
     page = nil,
     panels = nil,
     reader_ui = nil,
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
+    progress_bar_toggle_callback = nil,
     buttons_visible = false,
     with_title_bar = false,
     fullscreen = true,
@@ -336,9 +340,9 @@ function PanelViewer:onShow()
     return true
 end
 
---- Redraw the viewer, hiding the progress count during screenshot capture.
+--- Redraw the viewer, optionally suppressing the progress bar.
 function PanelViewer:update()
-    if not self._hide_progress_for_screenshot then
+    if not self._hide_progress_for_screenshot and self.progress_bar_visible ~= false then
         return self:withGuardedImageViewerRefresh(function()
             return ImageViewer.update(self)
         end)
@@ -530,6 +534,19 @@ function PanelViewer:replaceButtonTable()
                 text = _("Screenshot"),
                 callback = function()
                     self:onSaveImageView()
+                end,
+            },
+            {
+                id = "progress_bar",
+                text = self.progress_bar_visible == false and _("Show progress") or _("Hide progress"),
+                callback = function()
+                    if self.progress_bar_toggle_callback then
+                        self.progress_bar_toggle_callback(self)
+                    else
+                        self.progress_bar_visible = not self.progress_bar_visible
+                        self:replaceButtonTable()
+                        self:update()
+                    end
                 end,
             },
         },

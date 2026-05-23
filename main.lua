@@ -107,6 +107,14 @@ function PanelsPlus:setInvertSwipe(invert_swipe)
     self:saveSettings()
 end
 
+--- Set whether the panel viewer bottom progress bar is visible.
+---
+--- @param visible any Truthy value shows the progress bar.
+function PanelsPlus:setProgressBarVisible(visible)
+    self.settings.progress_bar_visible = visible and true or false
+    self:saveSettings()
+end
+
 --- KOReader save hook: persist current settings.
 function PanelsPlus:onSaveSettings()
     self:saveSettings()
