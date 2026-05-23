@@ -27,7 +27,7 @@ It keeps KOReader's native panel detection, then adds ordered panel navigation, 
 
 ## Download
 
-Download the latest release from the [BetterPanels releases page](https://github.com/KristanLaimon/BetterPanels/releases/latest), unzip it, then follow the [installation steps](#installation).
+Download the latest release from the [releases page](https://github.com/KristanLaimon/BetterPanels/releases/latest), unzip it, then follow the [installation steps](#installation).
 
 If you want to build the plugin yourself instead, follow [building from source](#building-from-source).
 
