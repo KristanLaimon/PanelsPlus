@@ -227,9 +227,9 @@ end
 
 --- Build KOReader ImageViewer lazy image functions for a panel sequence.
 ---
---- This intentionally stores functions, not rendered blitbuffers. The current
---- panel is decoded by ImageViewer, and later panels are decoded only when the
---- user navigates to them.
+--- This intentionally stores functions, not rendered blitbuffers. Each visit
+--- gets a fresh private copy because drawPagePart() returns a renderPage tile
+--- buffer owned by KOReader's document/cache layer.
 ---
 --- @param ui table KOReader reader UI object.
 --- @param page number Document page number.
@@ -241,7 +241,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     local page_size = document:getPageDimensions(page, 1, 0)
     settings = settings or Settings.defaults
     local images = {
-        image_disposable = false,
+        image_disposable = true,
     }
 
     for _, rect in ipairs(panels) do
@@ -249,6 +249,9 @@ function PanelCollector.buildImages(ui, page, panels, settings)
         table.insert(images, function()
             local image, rotate = document:drawPagePart(page, image_rect, 0)
             images.rotated = rotate
+            if image and image.copy then
+                return image:copy()
+            end
             return image
         end)
     end

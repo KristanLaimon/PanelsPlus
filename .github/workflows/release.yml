@@ -22,6 +22,8 @@ jobs:
 
       - name: Resolve release tag
         id: release
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
 
@@ -33,12 +35,15 @@ jobs:
             tag="${GITHUB_REF_NAME}"
           elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
             tag="$(
-              git tag --list "v*.*.*-*" --sort=-version:refname |
-                head -n 1
+              gh api --paginate "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/v" \
+                --jq '.[] | .ref | sub("^refs/tags/"; "")' |
+                grep -E '^v[0-9]+\.[0-9]+\.[0-9]+-.+' |
+                sort -V |
+                tail -n 1 || true
             )"
 
             if [[ -z "${tag}" ]]; then
-              echo "::error::No fetched release tag matching v#.#.#-Whatever exists."
+              echo "::error::No GitHub release tag matching v#.#.#-Whatever exists."
               exit 1
             fi
           else
@@ -50,6 +55,7 @@ jobs:
             exit 1
           fi
 
+          git fetch --force origin "+refs/tags/${tag}:refs/tags/${tag}"
           commit="$(git rev-list -n 1 "${tag}^{commit}")"
 
           if ! git merge-base --is-ancestor "${commit}" origin/main; then

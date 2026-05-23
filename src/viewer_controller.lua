@@ -91,7 +91,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
     local viewer
     viewer = PanelViewer:new{
         image = images,
-        image_disposable = false,
+        image_disposable = true,
         images_list_nb = #images,
         page = page,
         panels = panels,

@@ -159,6 +159,52 @@ function PanelViewer:init()
     self:update()
 end
 
+--- Free a superseded panel image after ImageViewer has rebuilt its widget tree.
+---
+--- @param image any Owned panel blitbuffer.
+function PanelViewer:releasePreviousPanelImage(image)
+    if not image or not image.free then
+        return
+    end
+
+    UIManager:tickAfterNext(function()
+        if image ~= self.image then
+            image:free()
+            collectgarbage()
+        end
+    end)
+end
+
+--- Switch panel images after rendering the destination panel.
+---
+--- KOReader's base ImageViewer frees the current image before `update()`
+--- removes the old ImageWidget. That can segfault with drawPagePart() buffers
+--- on Kindle/SDL. This keeps the old buffer alive until the new widget is in
+--- place, then releases it on the next UI tick.
+---
+--- @param image_num integer 1-based image index.
+function PanelViewer:switchToImageNum(image_num)
+    if image_num == self._images_list_cur then
+        return
+    end
+
+    local old_image = self.image
+    self.image = self._images_list[image_num]
+    if type(self.image) == "function" then
+        self.image = self.image()
+    end
+    self._images_list_cur = image_num
+    if not self.images_keep_pan_and_zoom then
+        self._center_x_ratio = 0.5
+        self._center_y_ratio = 0.5
+        self.scale_factor = self._images_orig_scale_factor
+    end
+    self:update()
+    if self.image_disposable then
+        self:releasePreviousPanelImage(old_image)
+    end
+end
+
 --- Rebuild the ImageViewer button table from current mode/crop state.
 function PanelViewer:replaceButtonTable()
     local buttons = {

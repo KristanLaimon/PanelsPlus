@@ -3,3 +3,4 @@ dist/
 frontend/
 .agents/
 .codex/
+crash.log

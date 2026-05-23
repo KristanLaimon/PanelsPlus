@@ -56,7 +56,7 @@
 
 --- KOReader ImageViewer lazy image list.
 --- @class PPImageList : table
---- @field image_disposable boolean Whether ImageViewer owns decoded images.
+--- @field image_disposable boolean Whether ImageViewer owns decoded panel images.
 --- @field rotated boolean|nil Last rotation flag returned by `drawPagePart`.
 
 return {}
