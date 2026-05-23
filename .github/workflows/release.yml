@@ -4,16 +4,6 @@ on:
   push:
     tags:
       - "v*.*.*-*"
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: "Release tag, for example v1.2.3-Beta"
-        required: true
-        type: string
-      release_description:
-        description: "Initial release description"
-        required: false
-        type: string
 
 permissions:
   contents: write
@@ -31,24 +21,18 @@ jobs:
 
       - name: Resolve release tag
         id: release
-        env:
-          INPUT_TAG: ${{ inputs.tag }}
         run: |
           set -euo pipefail
 
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            tag="${INPUT_TAG}"
-          else
-            tag="${GITHUB_REF_NAME}"
-          fi
+          tag="${GITHUB_REF_NAME}"
 
           if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
             echo "::error::Release tags must look like v#.#.#-Whatever, for example v1.2.3-Beta."
             exit 1
           fi
 
-          git fetch --force origin main:refs/remotes/origin/main refs/tags/"${tag}":refs/tags/"${tag}"
-          commit="$(git rev-list -n 1 "${tag}")"
+          git fetch --force origin main:refs/remotes/origin/main
+          commit="$(git rev-list -n 1 "${tag}^{commit}")"
 
           if ! git merge-base --is-ancestor "${commit}" origin/main; then
             echo "::error::Tag ${tag} does not point to a commit reachable from origin/main."
@@ -56,10 +40,12 @@ jobs:
           fi
 
           git checkout --force "${commit}"
+          previous_tag="$(git describe --tags --abbrev=0 "${commit}^" 2>/dev/null || true)"
 
           echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
           echo "version=${tag#v}" >> "${GITHUB_OUTPUT}"
           echo "commit=${commit}" >> "${GITHUB_OUTPUT}"
+          echo "previous_tag=${previous_tag}" >> "${GITHUB_OUTPUT}"
 
       - name: Build plugin
         run: ./build.sh panels_plus
@@ -94,23 +80,25 @@ jobs:
         env:
           TAG: ${{ steps.release.outputs.tag }}
           VERSION: ${{ steps.release.outputs.version }}
-          RELEASE_DESCRIPTION: ${{ inputs.release_description }}
+          COMMIT: ${{ steps.release.outputs.commit }}
+          PREVIOUS_TAG: ${{ steps.release.outputs.previous_tag }}
         run: |
           set -euo pipefail
 
+          if [[ -n "${PREVIOUS_TAG}" ]]; then
+            range="${PREVIOUS_TAG}..${COMMIT}"
+          else
+            range="${COMMIT}"
+          fi
+
           {
-            echo "# Panels+ ${VERSION}"
-            echo
-            if [[ -n "${RELEASE_DESCRIPTION}" ]]; then
-              echo "${RELEASE_DESCRIPTION}"
-              echo
-            else
-              echo "Add the release description here before publishing."
-              echo
-            fi
-            echo "Add the release hero image in the GitHub release editor before publishing."
-            echo
             echo "Built from tag: ${TAG}"
+            echo
+            echo "## Commits"
+            git log --format="- %h %s (%an)" "${range}"
+            echo
+            echo "## Authors"
+            git log --format="%an" "${range}" | sort -u | sed 's/^/- /'
           } > release-notes.md
 
       - name: Create draft release
@@ -130,7 +118,7 @@ jobs:
 
           gh release create "${TAG}" "${PACKAGE_PATH}" \
             --draft \
-            --title "Panels+ ${VERSION}" \
+            --title "${VERSION}" \
             --notes-file release-notes.md
 
           release_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
@@ -155,6 +143,4 @@ jobs:
             echo "- Asset: \`${PACKAGE_NAME}\`"
             echo "- Release: ${RELEASE_URL}"
             echo "- Edit before publishing: ${EDIT_URL}"
-            echo
-            echo "Use the edit link to add the final release description and hero image, then publish the draft release."
           } >> "${GITHUB_STEP_SUMMARY}"
