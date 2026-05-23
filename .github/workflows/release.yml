@@ -131,7 +131,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}
           VERSION: ${{ steps.release.outputs.version }}
-          PACKAGE_PATH: ${{ steps.package.outputs.path }}
         run: |
           set -euo pipefail
 
@@ -140,7 +139,7 @@ jobs:
             exit 1
           fi
 
-          gh release create "${TAG}" "${PACKAGE_PATH}" \
+          gh release create "${TAG}" \
             --draft \
             --title "${VERSION}" \
             --notes-file release-notes.md
@@ -150,6 +149,23 @@ jobs:
 
           echo "release_url=${release_url}" >> "${GITHUB_OUTPUT}"
           echo "edit_url=${edit_url}" >> "${GITHUB_OUTPUT}"
+
+      - name: Upload release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          PACKAGE_NAME: ${{ steps.package.outputs.name }}
+          PACKAGE_PATH: ${{ steps.package.outputs.path }}
+        run: |
+          set -euo pipefail
+
+          test -s "${PACKAGE_PATH}"
+          gh release upload "${TAG}" "${PACKAGE_PATH}" --clobber
+
+          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${PACKAGE_NAME}" >/dev/null; then
+            echo "::error::Release asset ${PACKAGE_NAME} was not uploaded."
+            exit 1
+          fi
 
       - name: Link release editor
         env:
