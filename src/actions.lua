@@ -13,7 +13,7 @@ function Actions:onDispatcherRegisterActions()
     Dispatcher:registerAction("panels_plus_toggle", {
         category = "none",
         event = "PanelsPlusToggle",
-        title = _("Panels+: toggle"),
+        title = _("Panels+: toggle panel focusing"),
         reader = true,
     })
     Dispatcher:registerAction("panels_plus_toggle_mode", {
@@ -36,13 +36,13 @@ function Actions:onDispatcherRegisterActions()
     })
 end
 
---- Toggle the plugin and show a short status message.
+--- Toggle between Panels+ and native panel focusing and show a short status message.
 ---
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusToggle()
     self:setEnabled(not self:isEnabled())
     UIManager:show(InfoMessage:new{
-        text = self:isEnabled() and _("Panels+ enabled") or _("Panels+ disabled"),
+        text = self:isEnabled() and _("Panels+ panel focusing enabled") or _("Native panel focusing enabled"),
         timeout = 2,
     })
     return true

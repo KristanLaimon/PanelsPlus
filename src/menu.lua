@@ -26,13 +26,14 @@ function Menu:addToMainMenu(menu_items)
         sorting_hint = "tools",
         sub_item_table = {
             {
-                text = _("Enable panel focus"),
+                text = _("Disable plugin panel focusing"),
                 checked_func = function()
-                    return self:isEnabled()
+                    return not self:isEnabled()
                 end,
                 callback = function()
                     self:setEnabled(not self:isEnabled())
                 end,
+                help_text = _("Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."),
             },
             {
                 text = _("Manga mode (right to left)"),
@@ -63,11 +64,6 @@ function Menu:addToMainMenu(menu_items)
                     self:setInvertSwipe(not self.settings.invert_swipe)
                 end,
                 help_text = _("Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."),
-            },
-            {
-                text = _("Gesture actions"),
-                enabled = false,
-                help_text = _("Assign gestures to the Panels+ actions from the gesture manager. Available actions: toggle, toggle manga/comic mode, set manga mode, set comic mode."),
             },
         },
     }

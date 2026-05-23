@@ -21,10 +21,10 @@ function NativePanelZoom:patchNativePanelZoom()
     end
 end
 
---- Synchronize KOReader's native panel-zoom flags with the plugin setting.
+--- Keep KOReader panel zoom active so disabling Panels+ focusing falls back to native panel zoom.
 function NativePanelZoom:applyNativePanelSetting()
     if self.ui.highlight and self.ui.paging then
-        self.ui.highlight.panel_zoom_enabled = self:isEnabled()
+        self.ui.highlight.panel_zoom_enabled = true
         self.ui.highlight.panel_zoom_fallback_to_text_selection = false
     end
 end

@@ -66,16 +66,16 @@ function PanelsPlus:saveSettings()
     Settings.save(self.settings)
 end
 
---- Return whether panel focus is currently enabled.
+--- Return whether Panels+ panel focusing is currently enabled.
 ---
 --- @return boolean enabled `true` unless the stored setting is explicitly false.
 function PanelsPlus:isEnabled()
     return self.settings.enabled ~= false
 end
 
---- Enable or disable panel focus and synchronize KOReader's native setting.
+--- Enable or disable Panels+ panel focusing and synchronize KOReader's native setting.
 ---
---- @param enabled any Truthy value enables the feature.
+--- @param enabled any Truthy value enables Panels+ focusing; false uses native panel zoom.
 function PanelsPlus:setEnabled(enabled)
     self.settings.enabled = enabled and true or false
     self:saveSettings()
