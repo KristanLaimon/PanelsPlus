@@ -56,6 +56,58 @@ function PanelViewer:isImagePannable()
         or (viewport_h and self._image_wg:getCurrentHeight() > viewport_h + 1)
 end
 
+--- Return whether this viewer is still registered as a top-level UIManager window.
+---
+--- ImageViewer schedules repaint-region callbacks that may run after a fast
+--- panel/page switch has already closed the old viewer.
+---
+--- @return boolean open `true` while the viewer remains on the window stack.
+function PanelViewer:isOpen()
+    for _, window in ipairs(UIManager._window_stack or {}) do
+        if window.widget == self then
+            return true
+        end
+    end
+    return false
+end
+
+--- Wrap ImageViewer's deferred repaint callbacks so stale viewers cannot crash.
+---
+--- @param widget any Widget passed to `UIManager:setDirty`.
+--- @param refreshfunc function Deferred refresh callback from ImageViewer.
+--- @return function refreshfunc Guarded callback.
+function PanelViewer:guardRefreshFunc(widget, refreshfunc)
+    return function()
+        if widget == self and not self:isOpen() then
+            return nil
+        end
+        if not self.main_frame or not self.main_frame.dimen then
+            return nil
+        end
+        return refreshfunc()
+    end
+end
+
+--- Run a base ImageViewer method while guarding the repaint callbacks it queues.
+---
+--- @param callback function Method body to execute.
+function PanelViewer:withGuardedImageViewerRefresh(callback)
+    local original_set_dirty = UIManager.setDirty
+    UIManager.setDirty = function(manager, widget, refreshtype, refreshregion, refreshdither)
+        if type(refreshtype) == "function"
+                and (widget == self or (widget == nil and self._panels_plus_closing)) then
+            refreshtype = self:guardRefreshFunc(widget, refreshtype)
+        end
+        return original_set_dirty(manager, widget, refreshtype, refreshregion, refreshdither)
+    end
+
+    local ok, err = pcall(callback)
+    UIManager.setDirty = original_set_dirty
+    if not ok then
+        error(err)
+    end
+end
+
 --- Return whether a reader touch zone belongs to the configurable gestures plugin.
 ---
 --- Built-in reading zones such as page-turn taps are intentionally excluded so
@@ -256,7 +308,8 @@ end
 --- @param ges table Gesture event with a `pos` geometry object.
 --- @return boolean handled Always true after processing a tap.
 function PanelViewer:onTap(_, ges)
-    if ges.pos:notIntersectWith(self.main_frame.dimen) then
+    local frame_dimen = self.main_frame and self.main_frame.dimen
+    if frame_dimen and ges.pos:notIntersectWith(frame_dimen) then
         self:onClose()
         return true
     end
@@ -266,15 +319,34 @@ function PanelViewer:onTap(_, ges)
     return true
 end
 
+--- Schedule the initial full repaint without assuming layout already happened.
+function PanelViewer:onShow()
+    self._panels_plus_closed = nil
+    self.dithered = true
+    UIManager:setDirty(self, function()
+        if not self:isOpen() or not self.main_frame or not self.main_frame.dimen then
+            return nil
+        end
+        return "full", self.main_frame.dimen, true
+    end)
+    return true
+end
+
 --- Redraw the viewer, hiding the progress count during screenshot capture.
 function PanelViewer:update()
     if not self._hide_progress_for_screenshot then
-        return ImageViewer.update(self)
+        return self:withGuardedImageViewerRefresh(function()
+            return ImageViewer.update(self)
+        end)
     end
 
     local images_list_nb = self._images_list_nb
     self._images_list_nb = 1
-    local ok, err = pcall(ImageViewer.update, self)
+    local ok, err = pcall(function()
+        return self:withGuardedImageViewerRefresh(function()
+            return ImageViewer.update(self)
+        end)
+    end)
     self._images_list_nb = images_list_nb
     if not ok then
         error(err)
@@ -328,6 +400,21 @@ function PanelViewer:init()
     ImageViewer.init(self)
     self:replaceButtonTable()
     self:update()
+end
+
+--- Close ImageViewer resources while guarding its final dirty-region callback.
+function PanelViewer:onCloseWidget()
+    self._panels_plus_closed = true
+    self._panels_plus_closing = true
+    local ok, err = pcall(function()
+        return self:withGuardedImageViewerRefresh(function()
+            return ImageViewer.onCloseWidget(self)
+        end)
+    end)
+    self._panels_plus_closing = nil
+    if not ok then
+        error(err)
+    end
 end
 
 --- Free a superseded panel image after ImageViewer has rebuilt its widget tree.

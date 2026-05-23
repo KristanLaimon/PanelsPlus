@@ -131,6 +131,11 @@ end
 --- @param current_viewer PanelViewer Active panel viewer.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:onPanelViewerBoundary(direction, current_viewer)
+    if current_viewer._panels_plus_boundary_pending then
+        return true
+    end
+    current_viewer._panels_plus_boundary_pending = true
+
     local next_page
     if direction == "next" then
         next_page = self.ui.document:getNextPage(current_viewer.page)
@@ -138,6 +143,7 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
         next_page = self.ui.document:getPrevPage(current_viewer.page)
     end
     if not next_page or next_page == 0 then
+        current_viewer._panels_plus_boundary_pending = nil
         return true
     end
 
@@ -150,6 +156,9 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
     end
 
     UIManager:tickAfterNext(function()
+        if current_viewer._panels_plus_closed then
+            return
+        end
         local loaded_panels = self:collectPanels(next_page)
         if #loaded_panels > 0 then
             self.ui:handleEvent(Event:new("GotoPage", next_page))
