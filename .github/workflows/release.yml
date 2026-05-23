@@ -1,0 +1,160 @@
+name: Build and draft release
+
+on:
+  push:
+    tags:
+      - "v*.*.*-*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, for example v1.2.3-Beta"
+        required: true
+        type: string
+      release_description:
+        description: "Initial release description"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build zip and draft release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Resolve release tag
+        id: release
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          set -euo pipefail
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="${INPUT_TAG}"
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
+
+          if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
+            echo "::error::Release tags must look like v#.#.#-Whatever, for example v1.2.3-Beta."
+            exit 1
+          fi
+
+          git fetch --force origin main:refs/remotes/origin/main refs/tags/"${tag}":refs/tags/"${tag}"
+          commit="$(git rev-list -n 1 "${tag}")"
+
+          if ! git merge-base --is-ancestor "${commit}" origin/main; then
+            echo "::error::Tag ${tag} does not point to a commit reachable from origin/main."
+            exit 1
+          fi
+
+          git checkout --force "${commit}"
+
+          echo "tag=${tag}" >> "${GITHUB_OUTPUT}"
+          echo "version=${tag#v}" >> "${GITHUB_OUTPUT}"
+          echo "commit=${commit}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build plugin
+        run: ./build.sh panels_plus
+
+      - name: Package plugin
+        id: package
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+          PACKAGE_NAME: panels_plus-${{ steps.release.outputs.version }}.zip
+        run: |
+          set -euo pipefail
+
+          package_name="${PACKAGE_NAME}"
+          python3 - <<'PY'
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+          import os
+
+          package_name = os.environ["PACKAGE_NAME"]
+          source_dir = Path("dist/panels_plus.koplugin")
+
+          with ZipFile(package_name, "w", ZIP_DEFLATED) as archive:
+              for path in sorted(source_dir.rglob("*")):
+                  if path.is_file():
+                      archive.write(path, path.relative_to("dist"))
+          PY
+
+          echo "name=${package_name}" >> "${GITHUB_OUTPUT}"
+          echo "path=${package_name}" >> "${GITHUB_OUTPUT}"
+
+      - name: Write release notes draft
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+          RELEASE_DESCRIPTION: ${{ inputs.release_description }}
+        run: |
+          set -euo pipefail
+
+          {
+            echo "# Panels+ ${VERSION}"
+            echo
+            if [[ -n "${RELEASE_DESCRIPTION}" ]]; then
+              echo "${RELEASE_DESCRIPTION}"
+              echo
+            else
+              echo "Add the release description here before publishing."
+              echo
+            fi
+            echo "Add the release hero image in the GitHub release editor before publishing."
+            echo
+            echo "Built from tag: ${TAG}"
+          } > release-notes.md
+
+      - name: Create draft release
+        id: create_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.release.outputs.tag }}
+          VERSION: ${{ steps.release.outputs.version }}
+          PACKAGE_PATH: ${{ steps.package.outputs.path }}
+        run: |
+          set -euo pipefail
+
+          if gh release view "${TAG}" >/dev/null 2>&1; then
+            echo "::error::Release ${TAG} already exists. Edit it manually or delete it before rerunning."
+            exit 1
+          fi
+
+          gh release create "${TAG}" "${PACKAGE_PATH}" \
+            --draft \
+            --title "Panels+ ${VERSION}" \
+            --notes-file release-notes.md
+
+          release_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/tag/${TAG}"
+          edit_url="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/releases/edit/${TAG}"
+
+          echo "release_url=${release_url}" >> "${GITHUB_OUTPUT}"
+          echo "edit_url=${edit_url}" >> "${GITHUB_OUTPUT}"
+
+      - name: Link release editor
+        env:
+          TAG: ${{ steps.release.outputs.tag }}
+          PACKAGE_NAME: ${{ steps.package.outputs.name }}
+          RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
+          EDIT_URL: ${{ steps.create_release.outputs.edit_url }}
+        run: |
+          set -euo pipefail
+
+          {
+            echo "## Draft release created"
+            echo
+            echo "- Tag: \`${TAG}\`"
+            echo "- Asset: \`${PACKAGE_NAME}\`"
+            echo "- Release: ${RELEASE_URL}"
+            echo "- Edit before publishing: ${EDIT_URL}"
+            echo
+            echo "Use the edit link to add the final release description and hero image, then publish the draft release."
+          } >> "${GITHUB_STEP_SUMMARY}"
