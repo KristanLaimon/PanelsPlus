@@ -36,7 +36,52 @@ local PanelViewer = ImageViewer:extend{
     with_title_bar = false,
     fullscreen = true,
     images_keep_pan_and_zoom = false,
+    mousewheel_zoom_step = 0.2,
 }
+
+--- Return whether the current image overflows its viewport and can be panned.
+---
+--- @return boolean pannable `true` when at least one axis is larger than the viewport.
+function PanelViewer:isImagePannable()
+    if not self._image_wg then
+        return false
+    end
+
+    self._image_wg:getSize()
+    local viewport_w = self._image_wg.width
+    local viewport_h = self._image_wg.height
+    return (viewport_w and self._image_wg:getCurrentWidth() > viewport_w + 1)
+        or (viewport_h and self._image_wg:getCurrentHeight() > viewport_h + 1)
+end
+
+--- Pan the zoomed image using KOReader's 8-direction swipe gesture values.
+---
+--- @param ges table Gesture event with `direction` and `distance`.
+--- @return boolean handled Always true after processing a swipe.
+function PanelViewer:panBySwipe(ges)
+    local direction = ges.direction
+    local distance = ges.distance or 0
+    local sq_distance = math.sqrt(distance * distance / 2)
+
+    if direction == "north" then
+        self:panBy(0, distance)
+    elseif direction == "south" then
+        self:panBy(0, -distance)
+    elseif direction == "east" then
+        self:panBy(-distance, 0)
+    elseif direction == "west" then
+        self:panBy(distance, 0)
+    elseif direction == "northeast" then
+        self:panBy(-sq_distance, sq_distance)
+    elseif direction == "northwest" then
+        self:panBy(sq_distance, sq_distance)
+    elseif direction == "southeast" then
+        self:panBy(-sq_distance, -sq_distance)
+    elseif direction == "southwest" then
+        self:panBy(sq_distance, -sq_distance)
+    end
+    return true
+end
 
 --- Return which horizontal swipe direction advances to the next panel.
 ---
@@ -60,6 +105,10 @@ end
 --- @param ges table Gesture event with `direction`.
 --- @return boolean|nil handled Whether the gesture was consumed.
 function PanelViewer:onSwipe(arg, ges)
+    if self:isImagePannable() then
+        return self:panBySwipe(ges)
+    end
+
     if self._images_list and (ges.direction == "west" or ges.direction == "east") then
         if ges.direction == self:getNextSwipeDirection() then
             if self._images_list_cur < self._images_list_nb then
@@ -77,6 +126,37 @@ function PanelViewer:onSwipe(arg, ges)
         return true
     end
     return ImageViewer.onSwipe(self, arg, ges)
+end
+
+--- Treat mouse-wheel pan events from KOReader/SDL as image zoom in panel mode.
+---
+--- @param arg any KOReader gesture argument.
+--- @param ges table Gesture event.
+--- @return boolean handled Whether the gesture was consumed.
+function PanelViewer:onPan(arg, ges)
+    if ges and ges.mousewheel_direction then
+        if ges.mousewheel_direction > 0 then
+            self:onZoomIn(self.mousewheel_zoom_step)
+        elseif ges.mousewheel_direction < 0 then
+            self:onZoomOut(self.mousewheel_zoom_step)
+        end
+        self._panels_plus_mousewheel_zoomed = true
+        return true
+    end
+    return ImageViewer.onPan(self, arg, ges)
+end
+
+--- Consume the synthetic mouse-wheel pan release after zooming.
+---
+--- @param arg any KOReader gesture argument.
+--- @param ges table Gesture event.
+--- @return boolean handled Whether the gesture was consumed.
+function PanelViewer:onPanRelease(arg, ges)
+    if ges and ges.from_mousewheel then
+        self._panels_plus_mousewheel_zoomed = nil
+        return true
+    end
+    return ImageViewer.onPanRelease(self, arg, ges)
 end
 
 --- Toggle controls on inside taps and close on taps outside the frame.
