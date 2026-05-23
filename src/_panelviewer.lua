@@ -10,12 +10,12 @@ local _ = require("gettext")
 --- ImageViewer subclass for navigating one page's ordered panel sequence.
 ---
 --- @class PanelViewer : ImageViewer
---- @field reading_mode MCSReadingMode Current left/right panel order.
---- @field crop_mode MCSCropMode Current crop rendering mode.
+--- @field reading_mode PPReadingMode Current left/right panel order.
+--- @field crop_mode PPCropMode Current crop rendering mode.
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
 --- @field page number|nil Document page number represented by `panels`.
---- @field panels MCSPanel[]|nil Ordered panel rectangles.
---- @field boundary_callback fun(direction:MCSBoundaryDirection, viewer:PanelViewer):boolean|nil
+--- @field panels PPPanel[]|nil Ordered panel rectangles.
+--- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field buttons_visible boolean Whether controls are currently shown.
@@ -23,7 +23,7 @@ local _ = require("gettext")
 --- @field fullscreen boolean Whether the viewer is fullscreen.
 --- @field images_keep_pan_and_zoom boolean Whether ImageViewer preserves pan/zoom.
 local PanelViewer = ImageViewer:extend{
-    name = "mangacomicsmoother_panel_viewer",
+    name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
     invert_swipe = false,

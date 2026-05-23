@@ -1,11 +1,11 @@
 local Event = require("ui/event")
-local PanelCollector = require("msr_panelcollector")
-local PanelViewer = require("msr_panelviewer")
+local PanelCollector = require("src._panelcollector")
+local PanelViewer = require("src._panelviewer")
 local UIManager = require("ui/uimanager")
 
---- Panel viewer orchestration methods mixed into `MangaComicSmoother`.
+--- Panel viewer orchestration methods mixed into `PanelsPlus`.
 ---
---- @class MCSViewerControllerMethods
+--- @class PPViewerControllerMethods
 local ViewerController = {}
 
 --- Toggle reading order from an open viewer and keep the current panel position.
@@ -81,9 +81,9 @@ end
 --- Open a `PanelViewer` for an ordered page-panel sequence.
 ---
 --- @param page number Document page number.
---- @param panels MCSPanel[] Ordered panel rectangles.
+--- @param panels PPPanel[] Ordered panel rectangles.
 --- @param start_idx number|nil 1-based panel index to display first.
---- @param options MCSShowViewerOptions|nil Viewer behavior flags.
+--- @param options PPShowViewerOptions|nil Viewer behavior flags.
 --- @return boolean|PanelViewer result `true` by default, or viewer when requested.
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
@@ -126,7 +126,7 @@ end
 
 --- Move to the adjacent page when panel navigation crosses viewer boundaries.
 ---
---- @param direction MCSBoundaryDirection `"next"` or `"previous"`.
+--- @param direction PPBoundaryDirection `"next"` or `"previous"`.
 --- @param current_viewer PanelViewer Active panel viewer.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:onPanelViewerBoundary(direction, current_viewer)

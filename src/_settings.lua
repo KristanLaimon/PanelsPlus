@@ -1,12 +1,15 @@
 --- Settings persistence and default normalization.
 ---
---- @class MCSSettingsModule
+--- @class PPSettingsModule
 --- @field key string Current KOReader settings key.
---- @field legacy_key string Previous settings key used for migration.
---- @field defaults MCSSettings Default setting values.
+--- @field legacy_keys string[] Previous settings keys used for migration.
+--- @field defaults PPSettings Default setting values.
 local Settings = {
-    key = "mangacomicsmoother",
-    legacy_key = "manga_smooth_reading",
+    key = "panels_plus",
+    legacy_keys = {
+        "mangacomicsmoother",
+        "manga_smooth_reading",
+    },
     defaults = {
         enabled = true,
         mode = "manga",
@@ -29,8 +32,8 @@ local Settings = {
 --- the current profile, in which case detector-grid and cache tuning values are
 --- reset to the current low-cost defaults.
 ---
---- @param settings MCSSettings|nil Stored settings table.
---- @return MCSSettings settings Normalized settings table.
+--- @param settings PPSettings|nil Stored settings table.
+--- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
     local performance_profile_version = settings.performance_profile_version or 0
@@ -54,18 +57,21 @@ end
 
 --- Load settings from KOReader storage, falling back to the legacy key.
 ---
---- @return MCSSettings settings Normalized plugin settings.
+--- @return PPSettings settings Normalized plugin settings.
 function Settings.load()
     local settings = G_reader_settings:readSetting(Settings.key)
-    if not settings then
-        settings = G_reader_settings:readSetting(Settings.legacy_key)
+    for _, legacy_key in ipairs(Settings.legacy_keys) do
+        if settings then
+            break
+        end
+        settings = G_reader_settings:readSetting(legacy_key)
     end
     return Settings.withDefaults(settings)
 end
 
 --- Save plugin settings to KOReader storage.
 ---
---- @param settings MCSSettings Runtime settings table.
+--- @param settings PPSettings Runtime settings table.
 function Settings.save(settings)
     G_reader_settings:saveSetting(Settings.key, settings)
 end

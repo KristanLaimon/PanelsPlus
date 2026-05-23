@@ -1,10 +1,10 @@
-local PanelCollector = require("msr_panelcollector")
-local Settings = require("msr_settings")
+local PanelCollector = require("src._panelcollector")
+local Settings = require("src._settings")
 local UIManager = require("ui/uimanager")
 
---- Panel cache and prefetch methods mixed into `MangaComicSmoother`.
+--- Panel cache and prefetch methods mixed into `PanelsPlus`.
 ---
---- @class MCSCacheMethods
+--- @class PPCacheMethods
 local Cache = {}
 
 --- Clear all cached panel lists and pending prefetch guards.
@@ -25,7 +25,7 @@ end
 --- Return cached panels for a page in the current reading mode.
 ---
 --- @param page number Document page number.
---- @return MCSPanel[]|nil panels Cached panel list, if present.
+--- @return PPPanel[]|nil panels Cached panel list, if present.
 function Cache:getCachedPanels(page)
     return self.panel_cache[self:getPanelCacheKey(page)]
 end
@@ -33,7 +33,7 @@ end
 --- Store a page's ordered panel list and evict stale pages by LRU order.
 ---
 --- @param page number Document page number.
---- @param panels MCSPanel[] Ordered panel rectangles.
+--- @param panels PPPanel[] Ordered panel rectangles.
 function Cache:cachePanels(page, panels)
     local key = self:getPanelCacheKey(page)
     self.panel_cache[key] = panels
@@ -59,8 +59,8 @@ end
 --- position gets a chance to seed the native detector.
 ---
 --- @param page number Document page number.
---- @param hold_pos MCSPagePosition|nil Optional hold position in page space.
---- @return MCSPanel[] panels Ordered panel rectangles.
+--- @param hold_pos PPPagePosition|nil Optional hold position in page space.
+--- @return PPPanel[] panels Ordered panel rectangles.
 function Cache:collectPanels(page, hold_pos)
     local cached_panels = self:getCachedPanels(page)
     if cached_panels and (not hold_pos or #cached_panels > 0) then

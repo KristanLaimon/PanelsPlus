@@ -1,8 +1,8 @@
 local _ = require("gettext")
 
---- Main-menu methods mixed into `MangaComicSmoother`.
+--- Main-menu methods mixed into `PanelsPlus`.
 ---
---- @class MCSMenuMethods
+--- @class PPMenuMethods
 local Menu = {}
 
 --- Return the main-menu label for the current reading mode.
@@ -10,16 +10,16 @@ local Menu = {}
 --- @return string text Localized menu label.
 function Menu:getModeText()
     if self.settings.mode == "comic" then
-        return _("Manga/Comic Smoother: comic mode")
+        return _("Panels+: comic mode")
     end
-    return _("Manga/Comic Smoother: manga mode")
+    return _("Panels+: manga mode")
 end
 
 --- Add the plugin's submenu to KOReader's main menu.
 ---
 --- @param menu_items table<string, table> Mutable KOReader menu item table.
 function Menu:addToMainMenu(menu_items)
-    menu_items.mangacomicsmoother = {
+    menu_items.panels_plus = {
         text_func = function()
             return self:getModeText()
         end,
@@ -67,7 +67,7 @@ function Menu:addToMainMenu(menu_items)
             {
                 text = _("Gesture actions"),
                 enabled = false,
-                help_text = _("Assign gestures to the Manga/Comic Smoother actions from the gesture manager. Available actions: toggle, toggle manga/comic mode, set manga mode, set comic mode."),
+                help_text = _("Assign gestures to the Panels+ actions from the gesture manager. Available actions: toggle, toggle manga/comic mode, set manga mode, set comic mode."),
             },
         },
     }

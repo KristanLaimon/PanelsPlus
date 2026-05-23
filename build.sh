@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-PLUGIN_NAME="${1:-mangacomicsmoother}"
+PLUGIN_NAME="${1:-panels_plus}"
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 OUT_DIR="$SCRIPT_DIR/dist"
 PLUGIN_DIR="$OUT_DIR/${PLUGIN_NAME}.koplugin"
@@ -11,7 +11,7 @@ mkdir -p "$PLUGIN_DIR"
 
 find "$SCRIPT_DIR" -maxdepth 1 -type f \( -name "*.lua" -o -name "_meta.lua" \) \
     -exec cp -p {} "$PLUGIN_DIR/" \;
-cp -Rp "$SCRIPT_DIR/msr" "$PLUGIN_DIR/"
+cp -Rp "$SCRIPT_DIR/src" "$PLUGIN_DIR/"
 
 echo "Created: $PLUGIN_DIR"
 echo "Copy this folder to your Kindle KOReader plugins folder:"

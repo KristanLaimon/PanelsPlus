@@ -1,43 +1,43 @@
---- Shared LuaLS annotations for Manga/Comic Smoother.
+--- Shared LuaLS annotations for Panels+.
 ---
 --- This module is intentionally side-effect free. It exists so Sumneko/LuaLS can
 --- index the plugin's record shapes even when values originate from KOReader.
 
 --- Reading order used to sort panels and interpret horizontal swipes.
---- @alias MCSReadingMode '"manga"'|'"comic"'
+--- @alias PPReadingMode '"manga"'|'"comic"'
 
 --- Crop behavior for drawing panel image parts.
---- @alias MCSCropMode '"strict"'|'"loose"'
+--- @alias PPCropMode '"strict"'|'"loose"'
 
 --- Direction reported when the viewer crosses the first or last panel.
---- @alias MCSBoundaryDirection '"next"'|'"previous"'
+--- @alias PPBoundaryDirection '"next"'|'"previous"'
 
 --- Document page-space rectangle.
---- @class MCSRect
+--- @class PPRect
 --- @field x number Left coordinate.
 --- @field y number Top coordinate.
 --- @field w number Width.
 --- @field h number Height.
 
 --- Native panel rectangle returned by KOReader's document detector.
---- @class MCSPanel : MCSRect
+--- @class PPPanel : PPRect
 
 --- Document page dimensions.
---- @class MCSPageSize
+--- @class PPPageSize
 --- @field w number Page width.
 --- @field h number Page height.
 
 --- Position in page coordinates.
---- @class MCSPagePosition
+--- @class PPPagePosition
 --- @field page number Document page number.
 --- @field x number X coordinate on the page.
 --- @field y number Y coordinate on the page.
 
 --- Persisted plugin settings.
---- @class MCSSettings
+--- @class PPSettings
 --- @field enabled boolean
---- @field mode MCSReadingMode
---- @field crop_mode MCSCropMode
+--- @field mode PPReadingMode
+--- @field crop_mode PPCropMode
 --- @field invert_swipe boolean
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer
@@ -49,13 +49,13 @@
 --- @field performance_profile_version integer
 
 --- Options accepted by `showPanelViewerForPage`.
---- @class MCSShowViewerOptions
+--- @class PPShowViewerOptions
 --- @field buttons_visible boolean|nil Show viewer controls immediately.
 --- @field defer_preload boolean|nil Skip next-page prefetch when true.
 --- @field return_viewer boolean|nil Return the viewer instance instead of `true`.
 
 --- KOReader ImageViewer lazy image list.
---- @class MCSImageList : table
+--- @class PPImageList : table
 --- @field image_disposable boolean Whether ImageViewer owns decoded images.
 --- @field rotated boolean|nil Last rotation flag returned by `drawPagePart`.
 

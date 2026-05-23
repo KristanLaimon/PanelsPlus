@@ -4,6 +4,6 @@ local _ = require("gettext")
 ---
 --- @return table metadata Localized plugin name and description.
 return {
-    fullname = _("Manga/Comic Smoother"),
+    fullname = _("Panels+"),
     description = _([[Panel-focused reading for manga and comics with directional panel navigation, zoom controls, and screenshots.]]),
 }

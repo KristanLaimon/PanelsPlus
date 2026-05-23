@@ -1,17 +1,17 @@
-local Geometry = require("msr_geometry")
-local Settings = require("msr_settings")
+local Geometry = require("src._geometry")
+local Settings = require("src._settings")
 
 --- Panel detection, sorting, and lazy image-list construction.
 ---
---- @class MCSPanelCollectorModule
+--- @class PPPanelCollectorModule
 local PanelCollector = {}
 
 --- Expand a panel crop by the configured bleed while staying inside the page.
 ---
---- @param rect MCSPanel Native panel rectangle.
---- @param page_size MCSPageSize Page dimensions.
---- @param settings MCSSettings Plugin settings.
---- @return MCSPanel rect Expanded rectangle.
+--- @param rect PPPanel Native panel rectangle.
+--- @param page_size PPPageSize Page dimensions.
+--- @param settings PPSettings Plugin settings.
+--- @return PPPanel rect Expanded rectangle.
 local function expandRect(rect, page_size, settings)
     local ratio = settings.panel_bleed_ratio or Settings.defaults.panel_bleed_ratio
     local min_bleed = settings.panel_bleed_min or Settings.defaults.panel_bleed_min
@@ -31,7 +31,7 @@ end
 
 --- Add a detector probe point if its floored coordinate has not been used.
 ---
---- @param probes MCSPagePosition[] Mutable probe list.
+--- @param probes PPPagePosition[] Mutable probe list.
 --- @param seen table<string, boolean> Coordinate-key set.
 --- @param page number Document page number.
 --- @param x number Page-space x coordinate.
@@ -51,10 +51,10 @@ end
 
 --- Add the center point of one probe-grid cell.
 ---
---- @param probes MCSPagePosition[] Mutable probe list.
+--- @param probes PPPagePosition[] Mutable probe list.
 --- @param seen table<string, boolean> Coordinate-key set.
 --- @param page number Document page number.
---- @param page_size MCSPageSize Page dimensions.
+--- @param page_size PPPageSize Page dimensions.
 --- @param col integer 1-based grid column.
 --- @param row integer 1-based grid row.
 --- @param cols integer Total grid columns.
@@ -75,10 +75,10 @@ end
 --- reading-path cells before falling back to the complete grid.
 ---
 --- @param page number Document page number.
---- @param page_size MCSPageSize Page dimensions.
---- @param settings MCSSettings Plugin settings.
---- @param hold_pos MCSPagePosition|nil Optional hold position.
---- @return MCSPagePosition[] probes Ordered detector probe points.
+--- @param page_size PPPageSize Page dimensions.
+--- @param settings PPSettings Plugin settings.
+--- @param hold_pos PPPagePosition|nil Optional hold position.
+--- @return PPPagePosition[] probes Ordered detector probe points.
 local function buildProbePlan(page, page_size, settings, hold_pos)
     local cols = settings.panel_grid_cols or Settings.defaults.panel_grid_cols
     local rows = settings.panel_grid_rows or Settings.defaults.panel_grid_rows
@@ -122,10 +122,10 @@ end
 
 --- Expand or keep a panel rectangle for rendering.
 ---
---- @param rect MCSPanel Native panel rectangle.
---- @param page_size MCSPageSize|nil Page dimensions.
---- @param settings MCSSettings Plugin settings.
---- @return MCSPanel rect Rectangle passed to drawPagePart().
+--- @param rect PPPanel Native panel rectangle.
+--- @param page_size PPPageSize|nil Page dimensions.
+--- @param settings PPSettings Plugin settings.
+--- @return PPPanel rect Rectangle passed to drawPagePart().
 local function getImageRect(rect, page_size, settings)
     if settings.crop_mode == "loose" and page_size then
         return expandRect(rect, page_size, settings)
@@ -142,10 +142,10 @@ end
 --- safety net for pages with many small panels.
 ---
 --- @param ui table KOReader reader UI object.
---- @param settings MCSSettings Plugin settings.
+--- @param settings PPSettings Plugin settings.
 --- @param page number Document page number.
---- @param hold_pos MCSPagePosition|nil Optional page-space position from the user's hold.
---- @return MCSPanel[] panels Ordered panel rectangles.
+--- @param hold_pos PPPagePosition|nil Optional page-space position from the user's hold.
+--- @return PPPanel[] panels Ordered panel rectangles.
 function PanelCollector.collect(ui, settings, page, hold_pos)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
@@ -159,7 +159,7 @@ function PanelCollector.collect(ui, settings, page, hold_pos)
 
     --- Return whether a probe point is already covered by a found panel.
     ---
-    --- @param pos MCSPagePosition Probe point.
+    --- @param pos PPPagePosition Probe point.
     --- @return boolean known Whether the point can be skipped.
     local function isKnownPanelPoint(pos)
         for _, rect in ipairs(panels) do
@@ -172,7 +172,7 @@ function PanelCollector.collect(ui, settings, page, hold_pos)
 
     --- Probe the native detector and add a newly discovered panel.
     ---
-    --- @param pos MCSPagePosition Probe point.
+    --- @param pos PPPagePosition Probe point.
     --- @param force boolean Whether to probe even when already inside a panel.
     local function addPanel(pos, force)
         if not force and isKnownPanelPoint(pos) then
@@ -207,8 +207,8 @@ end
 
 --- Find the panel index that should open for a hold position.
 ---
---- @param panels MCSPanel[] Ordered panel rectangles.
---- @param hold_pos MCSPagePosition|{x:number,y:number} Page-space position.
+--- @param panels PPPanel[] Ordered panel rectangles.
+--- @param hold_pos PPPagePosition|{x:number,y:number} Page-space position.
 --- @return integer index 1-based index of containing or nearest panel.
 function PanelCollector.startIndex(panels, hold_pos)
     local best_idx, best_dist = 1, math.huge
@@ -233,9 +233,9 @@ end
 ---
 --- @param ui table KOReader reader UI object.
 --- @param page number Document page number.
---- @param panels MCSPanel[] Ordered panel rectangles.
---- @param settings MCSSettings Plugin settings.
---- @return MCSImageList images Lazy image list for ImageViewer.
+--- @param panels PPPanel[] Ordered panel rectangles.
+--- @param settings PPSettings Plugin settings.
+--- @return PPImageList images Lazy image list for ImageViewer.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
