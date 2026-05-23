@@ -120,6 +120,10 @@ function PanelViewer:isReaderGestureZone(zone_id, gestures)
     if not zone_id or not gestures then
         return false
     end
+    -- Keep panel ImageViewer pinch/spread zooming local.
+    if zone_id == "spread_gesture" or zone_id == "pinch_gesture" then
+        return false
+    end
     if zone_id == "multiswipe" then
         return true
     end
