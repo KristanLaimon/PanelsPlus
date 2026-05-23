@@ -3,7 +3,7 @@
   <br>
   <strong>Panels+</strong>
   <br>
-  <sub>Read manga and comics panel by panel, without losing the page and other panel zooming utilities!</sub>
+  <sub style="font-size:1rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities!</sub>
 </p>
 
 <table>
