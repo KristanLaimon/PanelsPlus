@@ -96,6 +96,12 @@ Clone or download this repository, then run:
 ./build.sh
 ```
 
+On Windows PowerShell, run:
+
+```powershell
+.\build.ps1
+```
+
 The script creates:
 
 ```text
@@ -103,22 +109,6 @@ dist/panels_plus.koplugin
 ```
 
 Copy that generated folder into your KOReader plugins directory, then restart KOReader.
-
-## Usage
-
-Open a document in KOReader, then open the main menu and select:
-
-```text
-Panels+
-```
-
-From there you can:
-
-- Enable or disable panel focus.
-- Choose Manga mode for right-to-left reading.
-- Choose Comic mode for left-to-right reading.
-- Invert panel swipe direction if needed.
-- Assign plugin actions from KOReader's gesture manager.
 
 ## Gesture Actions
 
@@ -136,7 +126,3 @@ Use KOReader's gesture manager to bind them to taps, swipes, or other gestures.
 When reading manga on an e-reader, some panels are too small to read comfortably on the full page. KOReader can detect panels, but the native flow often means zooming into one panel, leaving zoom, moving to the next panel, and repeating that cycle again and again.
 
 Panels+ keeps the full page available while making panel navigation feel like a normal reading flow. It also adds screenshot support while zoomed into panels, so you can capture the exact panel view instead of only taking full-page screenshots.
-
-## Notes
-
-Panels+ works inside KOReader's reader view and is intended for image-based manga, comics, manhwa, and similar books where panel-by-panel navigation is more comfortable than manual zooming.
