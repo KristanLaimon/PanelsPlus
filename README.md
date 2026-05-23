@@ -1,5 +1,5 @@
 <p align="center">
-  <img src=".github/panels+_logo.png" alt="Panels+ logo" width="180">
+  <img src=".github/panels+_logo.png" alt="Panels+ logo" width="250">
   <br>
   <strong>Panels+</strong>
   <br>
