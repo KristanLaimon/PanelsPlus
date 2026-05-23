@@ -25,16 +25,20 @@ jobs:
         run: |
           set -euo pipefail
 
-          git fetch --force origin main:refs/remotes/origin/main --tags
+          git fetch --force origin \
+            +refs/heads/main:refs/remotes/origin/main \
+            +refs/tags/*:refs/tags/*
 
-          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+          if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
+            tag="${GITHUB_REF_NAME}"
+          elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
             tag="$(
-              git tag --merged origin/main --list "v*.*.*-*" --sort=-version:refname |
+              git tag --list "v*.*.*-*" --sort=-version:refname |
                 head -n 1
             )"
 
             if [[ -z "${tag}" ]]; then
-              echo "::error::No release tag matching v#.#.#-Whatever exists on origin/main."
+              echo "::error::No fetched release tag matching v#.#.#-Whatever exists."
               exit 1
             fi
           else
