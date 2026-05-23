@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "v*.*.*-*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -24,14 +25,27 @@ jobs:
         run: |
           set -euo pipefail
 
-          tag="${GITHUB_REF_NAME}"
+          git fetch --force origin main:refs/remotes/origin/main --tags
+
+          if [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
+            tag="$(
+              git tag --merged origin/main --list "v*.*.*-*" --sort=-version:refname |
+                head -n 1
+            )"
+
+            if [[ -z "${tag}" ]]; then
+              echo "::error::No release tag matching v#.#.#-Whatever exists on origin/main."
+              exit 1
+            fi
+          else
+            tag="${GITHUB_REF_NAME}"
+          fi
 
           if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
             echo "::error::Release tags must look like v#.#.#-Whatever, for example v1.2.3-Beta."
             exit 1
           fi
 
-          git fetch --force origin main:refs/remotes/origin/main
           commit="$(git rev-list -n 1 "${tag}^{commit}")"
 
           if ! git merge-base --is-ancestor "${commit}" origin/main; then
