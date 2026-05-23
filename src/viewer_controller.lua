@@ -95,6 +95,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         images_list_nb = #images,
         page = page,
         panels = panels,
+        reader_ui = self.ui,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
         invert_swipe = self.settings.invert_swipe == true,

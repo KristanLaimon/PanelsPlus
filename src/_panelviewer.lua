@@ -15,6 +15,7 @@ local _ = require("gettext")
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
 --- @field page number|nil Document page number represented by `panels`.
 --- @field panels PPPanel[]|nil Ordered panel rectangles.
+--- @field reader_ui table|nil Reader UI that owns the normal document gesture zones.
 --- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
@@ -29,6 +30,7 @@ local PanelViewer = ImageViewer:extend{
     invert_swipe = false,
     page = nil,
     panels = nil,
+    reader_ui = nil,
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
@@ -52,6 +54,95 @@ function PanelViewer:isImagePannable()
     local viewport_h = self._image_wg.height
     return (viewport_w and self._image_wg:getCurrentWidth() > viewport_w + 1)
         or (viewport_h and self._image_wg:getCurrentHeight() > viewport_h + 1)
+end
+
+--- Return whether a reader touch zone belongs to the configurable gestures plugin.
+---
+--- Built-in reading zones such as page-turn taps are intentionally excluded so
+--- a normal panel tap still toggles controls instead of turning the hidden page.
+---
+--- @param zone_id string|nil KOReader touch zone id.
+--- @param gestures table Gestures plugin instance from the reader UI.
+--- @return boolean is_gesture_zone `true` when this is a user-configurable reader gesture.
+function PanelViewer:isReaderGestureZone(zone_id, gestures)
+    if not zone_id or not gestures then
+        return false
+    end
+    if zone_id == "multiswipe" then
+        return true
+    end
+    return gestures.gestures and gestures.gestures[zone_id] ~= nil
+end
+
+--- Execute one normal reader gesture while this fullscreen viewer is on top.
+---
+--- The gestures plugin dispatches actions through `UIManager:sendEvent()`. While
+--- Panels+ is open, those events would otherwise stop at this viewer, so this
+--- temporarily routes dispatched actions to the reader UI first.
+---
+--- @param handler function Gesture zone handler from KOReader's reader UI.
+--- @param ges table Gesture event to execute.
+--- @return boolean handled Whether the gesture action consumed the event.
+function PanelViewer:runReaderGestureHandler(handler, ges)
+    local reader_ui = self.reader_ui
+    if not reader_ui then
+        return false
+    end
+
+    local original_send_event = UIManager.sendEvent
+    UIManager.sendEvent = function(manager, event)
+        if reader_ui:handleEvent(event) then
+            return
+        end
+        return original_send_event(manager, event)
+    end
+
+    local ok, handled = pcall(handler, ges)
+    UIManager.sendEvent = original_send_event
+    if not ok then
+        error(handled)
+    end
+    return handled == true
+end
+
+--- Try handling a gesture through KOReader's normal reader gesture plugin.
+---
+--- @param ges table Gesture event.
+--- @return boolean handled Whether a configured reader gesture consumed it.
+function PanelViewer:dispatchReaderGesture(ges)
+    if self:isImagePannable() then
+        return false
+    end
+
+    local reader_ui = self.reader_ui
+    local gestures = reader_ui and reader_ui.gestures
+    local zones = reader_ui and reader_ui._ordered_touch_zones
+    if not gestures or not zones then
+        return false
+    end
+
+    for _, zone in ipairs(zones) do
+        local zone_id = zone.def and zone.def.id
+        if self:isReaderGestureZone(zone_id, gestures)
+                and zone.gs_range
+                and zone.handler
+                and zone.gs_range:match(ges)
+                and self:runReaderGestureHandler(zone.handler, ges) then
+            return true
+        end
+    end
+    return false
+end
+
+--- Let configured reader gestures run in focused-panel mode before local viewer gestures.
+---
+--- @param ges table Gesture event.
+--- @return boolean|nil handled Whether the gesture was consumed.
+function PanelViewer:onGesture(ges)
+    if self:dispatchReaderGesture(ges) then
+        return true
+    end
+    return ImageViewer.onGesture(self, ges)
 end
 
 --- Pan the zoomed image using KOReader's 8-direction swipe gesture values.
