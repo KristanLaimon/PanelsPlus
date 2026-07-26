@@ -12,6 +12,8 @@ local _ = require("gettext")
 --- @class PanelViewer : ImageViewer
 --- @field reading_mode PPReadingMode Current left/right panel order.
 --- @field crop_mode PPCropMode Current crop rendering mode.
+--- @field detector PPDetector Detector the displayed panels came from.
+--- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field page number|nil Document page number represented by `panels`.
@@ -31,6 +33,7 @@ local PanelViewer = ImageViewer:extend{
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
+    detector = "auto",
     invert_swipe = false,
     progress_bar_visible = true,
     page = nil,
@@ -38,6 +41,7 @@ local PanelViewer = ImageViewer:extend{
     image_rects = nil,
     reader_ui = nil,
     panel_prerender_callback = nil,
+    detector_cycle_callback = nil,
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
@@ -487,6 +491,22 @@ function PanelViewer:switchToImageNum(image_num)
     self:requestPanelPrerender()
 end
 
+--- Return the button label for the detector currently in use.
+---
+--- Named for what each mode gives the reader rather than for how it works:
+--- "Fast" always uses the quick detector, "Exact" always uses KOReader's slower
+--- but more literal one, and "Auto" runs Fast and falls back to Exact.
+---
+--- @return string text Localized detector label.
+function PanelViewer:getDetectorText()
+    if self.detector == "fast" then
+        return _("Fast mode")
+    elseif self.detector == "exact" then
+        return _("Exact mode")
+    end
+    return _("Auto mode")
+end
+
 --- Rebuild the ImageViewer button table from current mode/crop state.
 function PanelViewer:replaceButtonTable()
     local buttons = {
@@ -562,6 +582,15 @@ function PanelViewer:replaceButtonTable()
                         self.progress_bar_visible = not self.progress_bar_visible
                         self:replaceButtonTable()
                         self:update()
+                    end
+                end,
+            },
+            {
+                id = "detector",
+                text = self:getDetectorText(),
+                callback = function()
+                    if self.detector_cycle_callback then
+                        self.detector_cycle_callback(self)
                     end
                 end,
             },

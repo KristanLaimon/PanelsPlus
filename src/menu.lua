@@ -10,8 +10,11 @@ local Menu = {}
 --- @return PPDetector detector Current detector selection.
 function Menu:getDetector()
     local detector = self.settings.detector
-    if detector == "fast" or detector == "native" then
+    if detector == "fast" or detector == "exact" then
         return detector
+    end
+    if detector == "native" then
+        return "exact" -- pre-rename value, in case migration has not run yet
     end
     return "auto"
 end
@@ -81,7 +84,7 @@ function Menu:addToMainMenu(menu_items)
                 text = _("Panel detection"),
                 sub_item_table = {
                     {
-                        text = _("Automatic"),
+                        text = _("Auto mode"),
                         checked_func = function()
                             return self:getDetector() == "auto"
                         end,
@@ -89,10 +92,10 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setDetector("auto")
                         end,
-                        help_text = _("Use the fast Panels+ detector, falling back to KOReader's detector on layouts it cannot split."),
+                        help_text = _("Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."),
                     },
                     {
-                        text = _("Fast only"),
+                        text = _("Fast mode"),
                         checked_func = function()
                             return self:getDetector() == "fast"
                         end,
@@ -100,18 +103,18 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setDetector("fast")
                         end,
-                        help_text = _("Always use the Panels+ detector. Fastest, and the only one that works on pages with a dark background, but it cannot split interlocking panel layouts."),
+                        help_text = _("Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."),
                     },
                     {
-                        text = _("KOReader detector only"),
+                        text = _("Exact mode"),
                         checked_func = function()
-                            return self:getDetector() == "native"
+                            return self:getDetector() == "exact"
                         end,
                         radio = true,
                         callback = function()
-                            self:setDetector("native")
+                            self:setDetector("exact")
                         end,
-                        help_text = _("Always use KOReader's panel detector. Slower, and it cannot find panels on pages with a dark background."),
+                        help_text = _("Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges."),
                     },
                 },
             },

@@ -127,6 +127,39 @@ function ViewerController:toggleViewerCropMode(viewer)
     return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
 end
 
+--- Cycle Auto -> Fast -> Exact from an open viewer and re-detect the page.
+---
+--- Changing detector changes the panel list, so the viewer is rebuilt. The
+--- panel being read is kept by matching its centre against the new list, which
+--- is the same trick the reading-order toggle uses.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:cycleViewerDetector(viewer)
+    local order = { auto = "fast", fast = "exact", exact = "auto" }
+    self:setDetector(order[self:getDetector()] or "fast")
+
+    local current_rect = viewer.panels and viewer.panels[viewer._images_list_cur]
+    local panels = self:collectPanels(viewer.page)
+    if #panels == 0 then
+        viewer.detector = self.settings.detector
+        viewer:replaceButtonTable()
+        viewer:update()
+        return true
+    end
+
+    local start_idx = 1
+    if current_rect then
+        start_idx = PanelCollector.startIndex(panels, {
+            x = (current_rect.x or 0) + (current_rect.w or 0) / 2,
+            y = (current_rect.y or 0) + (current_rect.h or 0) / 2,
+        })
+    end
+
+    UIManager:close(viewer)
+    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
+end
+
 --- Toggle progress bar visibility from an open viewer.
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
@@ -185,6 +218,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         buttons_visible = options.buttons_visible == true,
@@ -200,6 +234,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         progress_bar_toggle_callback = function(current_viewer)
             return self:toggleViewerProgressBar(current_viewer)
+        end,
+        detector_cycle_callback = function(current_viewer)
+            return self:cycleViewerDetector(current_viewer)
         end,
     }
 

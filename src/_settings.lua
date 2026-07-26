@@ -58,6 +58,11 @@ local Settings = {
 function Settings.withDefaults(settings)
     settings = settings or {}
     local performance_profile_version = settings.performance_profile_version or 0
+    -- The precise detector was called "native" before it was surfaced in the
+    -- viewer, where it reads as "Exact".
+    if settings.detector == "native" then
+        settings.detector = "exact"
+    end
     for key, value in pairs(Settings.defaults) do
         if settings[key] == nil then
             settings[key] = value

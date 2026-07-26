@@ -34,7 +34,7 @@
 --- @field y number Y coordinate on the page.
 
 --- Which detector `PanelCollector.collect` should use.
---- @alias PPDetector '"auto"'|'"fast"'|'"native"'
+--- @alias PPDetector '"auto"'|'"fast"'|'"exact"'
 
 --- Persisted plugin settings.
 --- @class PPSettings

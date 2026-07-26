@@ -88,7 +88,7 @@ end
 function PanelCollector.collect(ui, settings, page, hold_pos)
     local detector = settings.detector or Settings.defaults.detector
 
-    if detector ~= "native" then
+    if detector ~= "exact" then
         local panels = segment(ui, settings, page)
         if panels then
             return panels

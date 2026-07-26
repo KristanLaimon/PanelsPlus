@@ -122,7 +122,7 @@ end
 ---
 --- @param detector PPDetector Requested detector; anything unknown maps to `"auto"`.
 function PanelsPlus:setDetector(detector)
-    self.settings.detector = (detector == "fast" or detector == "native") and detector or "auto"
+    self.settings.detector = (detector == "fast" or detector == "exact") and detector or "auto"
     self:clearPanelCache()
     self:saveSettings()
 end
