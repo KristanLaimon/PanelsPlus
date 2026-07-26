@@ -16,7 +16,9 @@ local _ = require("gettext")
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field page number|nil Document page number represented by `panels`.
 --- @field panels PPPanel[]|nil Ordered panel rectangles.
+--- @field image_rects PPPanel[]|nil Crop rectangles matching `_images_list`, for prerendering.
 --- @field reader_ui table|nil Reader UI that owns the normal document gesture zones.
+--- @field panel_prerender_callback fun(viewer:PanelViewer, index:integer)|nil
 --- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
@@ -33,7 +35,9 @@ local PanelViewer = ImageViewer:extend{
     progress_bar_visible = true,
     page = nil,
     panels = nil,
+    image_rects = nil,
     reader_ui = nil,
+    panel_prerender_callback = nil,
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
@@ -337,6 +341,7 @@ function PanelViewer:onShow()
         end
         return "full", self.main_frame.dimen, true
     end)
+    self:requestPanelPrerender()
     return true
 end
 
@@ -427,6 +432,10 @@ end
 
 --- Free a superseded panel image after ImageViewer has rebuilt its widget tree.
 ---
+--- `image:free()` releases the blitbuffer's C memory immediately, so there is
+--- deliberately no `collectgarbage()` here: a full collection on every panel
+--- switch stalls the UI for far longer than it reclaims.
+---
 --- @param image any Owned panel blitbuffer.
 function PanelViewer:releasePreviousPanelImage(image)
     if not image or not image.free then
@@ -436,9 +445,15 @@ function PanelViewer:releasePreviousPanelImage(image)
     UIManager:tickAfterNext(function()
         if image ~= self.image then
             image:free()
-            collectgarbage()
         end
     end)
+end
+
+--- Ask the owner to warm the following panel's render while the device is idle.
+function PanelViewer:requestPanelPrerender()
+    if self.panel_prerender_callback then
+        self.panel_prerender_callback(self, self._images_list_cur or 1)
+    end
 end
 
 --- Switch panel images after rendering the destination panel.
@@ -469,6 +484,7 @@ function PanelViewer:switchToImageNum(image_num)
     if self.image_disposable then
         self:releasePreviousPanelImage(old_image)
     end
+    self:requestPanelPrerender()
 end
 
 --- Rebuild the ImageViewer button table from current mode/crop state.

@@ -132,6 +132,7 @@ end
 --- @param panels PPPanel[] Ordered panel rectangles.
 --- @param settings PPSettings Plugin settings.
 --- @return PPImageList images Lazy image list for ImageViewer.
+--- @return PPPanel[] image_rects Crop rectangles matching `images`, for prerendering.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
@@ -139,9 +140,11 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     local images = {
         image_disposable = true,
     }
+    local image_rects = {}
 
     for _, rect in ipairs(panels) do
         local image_rect = getImageRect(rect, page_size, settings)
+        table.insert(image_rects, image_rect)
         table.insert(images, function()
             local image, rotate = document:drawPagePart(page, image_rect, 0)
             images.rotated = rotate
@@ -152,7 +155,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
         end)
     end
 
-    return images
+    return images, image_rects
 end
 
 return PanelCollector

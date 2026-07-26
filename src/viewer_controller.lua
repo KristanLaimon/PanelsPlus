@@ -1,12 +1,78 @@
 local Event = require("ui/event")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
+local Settings = require("src._settings")
+local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
+local util = require("util")
 
 --- Panel viewer orchestration methods mixed into `PanelsPlus`.
 ---
 --- @class PPViewerControllerMethods
 local ViewerController = {}
+
+--- Drop any panel prerender that has not run yet.
+function ViewerController:cancelPanelPrerender()
+    if self.panel_prerender_action then
+        UIManager:unschedule(self.panel_prerender_action)
+        self.panel_prerender_action = nil
+    end
+end
+
+--- Return whether there is room to warm one more panel tile.
+---
+--- @return boolean allowed Whether prerendering should proceed.
+function ViewerController:hasMemoryForPrerender()
+    local ok, memavailable = pcall(util.calcFreeMem)
+    if not ok or not memavailable then
+        -- /proc/meminfo is Linux-only; elsewhere assume there is headroom.
+        return true
+    end
+    local minimum = self.settings.prerender_min_free_kb or Settings.defaults.prerender_min_free_kb
+    return memavailable >= minimum
+end
+
+--- Warm the render of the panel after `index` while the reader sits idle.
+---
+--- Swiping to a panel otherwise pays for a synchronous `drawPagePart()`, which
+--- rasterizes that region of the page scaled up to the screen. Doing it ahead of
+--- time leaves the tile in KOReader's `DocCache`, so the swipe becomes a cache
+--- hit. The rendered buffer is deliberately discarded rather than kept: the
+--- cache already owns it, and holding a second copy would spend the memory this
+--- is meant to protect.
+---
+--- @param viewer PanelViewer Active panel viewer.
+--- @param index integer 1-based index of the panel currently shown.
+function ViewerController:prerenderNextPanel(viewer, index)
+    self:cancelPanelPrerender()
+    if self.settings.panel_prerender == false then
+        return
+    end
+
+    local next_rect = viewer.image_rects and viewer.image_rects[index + 1]
+    if not next_rect then
+        return
+    end
+
+    local delay = self.settings.panel_prerender_delay or Settings.defaults.panel_prerender_delay
+    local action
+    action = function()
+        if self.panel_prerender_action == action then
+            self.panel_prerender_action = nil
+        end
+        if viewer._panels_plus_closed or not self:hasMemoryForPrerender() then
+            return
+        end
+        local stop = Timing.span("prerender panel " .. (index + 1))
+        pcall(function()
+            self.ui.document:drawPagePart(viewer.page, next_rect, 0)
+        end)
+        stop()
+    end
+
+    self.panel_prerender_action = action
+    UIManager:scheduleIn(delay, action)
+end
 
 --- Toggle reading order from an open viewer and keep the current panel position.
 ---
@@ -99,7 +165,8 @@ end
 --- @return boolean|PanelViewer result `true` by default, or viewer when requested.
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
-    local images = PanelCollector.buildImages(self.ui, page, panels, self.settings)
+    self:cancelPanelPrerender()
+    local images, image_rects = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
     viewer = PanelViewer:new{
         image = images,
@@ -107,7 +174,11 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         images_list_nb = #images,
         page = page,
         panels = panels,
+        image_rects = image_rects,
         reader_ui = self.ui,
+        panel_prerender_callback = function(current_viewer, index)
+            return self:prerenderNextPanel(current_viewer, index)
+        end,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
         invert_swipe = self.settings.invert_swipe == true,

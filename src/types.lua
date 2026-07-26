@@ -50,6 +50,9 @@
 --- @field panel_bleed_min number
 --- @field panel_prefetch_delay number
 --- @field panel_cache_pages integer
+--- @field panel_prerender boolean Warm the next panel's tile while idle.
+--- @field panel_prerender_delay number Idle seconds before warming the next panel.
+--- @field prerender_min_free_kb integer Free memory below which prerendering is skipped.
 --- @field full_page_panel_ratio number
 --- @field segment_target_width integer Ink-map render width in pixels.
 --- @field segment_ink_delta integer Luminance distance from background counted as ink.
