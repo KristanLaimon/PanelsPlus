@@ -127,7 +127,7 @@ function ViewerController:toggleViewerCropMode(viewer)
     return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
 end
 
---- Cycle Auto -> Fast -> Exact from an open viewer and re-detect the page.
+--- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
 ---
 --- Changing detector changes the panel list, so the viewer is rebuilt. The
 --- panel being read is kept by matching its centre against the new list, which

@@ -59,7 +59,7 @@ function Settings.withDefaults(settings)
     settings = settings or {}
     local performance_profile_version = settings.performance_profile_version or 0
     -- The precise detector was called "native" before it was surfaced in the
-    -- viewer, where it reads as "Exact".
+    -- viewer, where it reads as "Outline".
     if settings.detector == "native" then
         settings.detector = "exact"
     end
