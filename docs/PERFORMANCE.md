@@ -138,6 +138,7 @@ Anything Panels+ holds makes that worse.
 | --- | --- | --- |
 | Panel rectangle lists | `panel_cache_pages` (12) pages | ~a few hundred bytes per page |
 | Ink map | during detection only | ~150KB, then collected |
+| Greyscale copy (colour pages only) | during detection only | ~150KB, freed immediately |
 | Panel image list | while the viewer is open | render *functions*, not bitmaps |
 | Current panel bitmap | one at a time | one screen-sized buffer |
 | Prerendered tile | owned by `DocCache` | not the plugin's |

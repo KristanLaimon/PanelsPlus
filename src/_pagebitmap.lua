@@ -88,13 +88,40 @@ local function renderSmall(document, page, target_width)
     return tile.bb, native
 end
 
---- Build the fastest available luminance accessor for a blitbuffer.
+--- Return a plain 8bpp greyscale buffer to sample from.
 ---
---- 8bpp greyscale is the common case for manga, and reading its bytes directly
---- avoids a Lua object allocation per pixel. Everything else goes through the
---- generic blitbuffer API.
+--- Only luminance matters here, and one C-side conversion is far cheaper than
+--- per-pixel colour conversion in Lua across a whole page. Rotated or inverted
+--- buffers are converted too, since the raw byte path below ignores both flags.
 ---
 --- @param bb table Rendered blitbuffer.
+--- @return table bb Buffer to sample.
+--- @return table|nil owned Buffer the caller must free, if one was allocated.
+local function toGreyscale(bb)
+    if bb:getType() == Blitbuffer.TYPE_BB8
+            and bb:getRotation() == 0
+            and bb:getInverse() == 0 then
+        return bb, nil
+    end
+
+    local ok, grey = pcall(function()
+        local target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
+        target:blitFrom(bb, 0, 0, 0, 0, bb.w, bb.h)
+        return target
+    end)
+    if ok and grey then
+        return grey, grey
+    end
+    return bb, nil
+end
+
+--- Build the fastest available luminance accessor for a blitbuffer.
+---
+--- Reading 8bpp bytes directly avoids a Lua object allocation per pixel, which
+--- matters across ~150k of them. The generic accessor stays as a fallback in
+--- case the raw pointer is unavailable.
+---
+--- @param bb table Buffer to sample.
 --- @return fun(x:integer, y:integer):integer sample Luminance accessor.
 --- @return string kind Accessor name, for timing logs.
 local function makeSampler(bb)
@@ -182,7 +209,7 @@ function PageBitmap.build(document, page, settings)
     local target_width = settings.segment_target_width or Settings.defaults.segment_target_width
     local ink_delta = settings.segment_ink_delta or Settings.defaults.segment_ink_delta
 
-    local map, reason
+    local map, reason, owned
     local ok, err = pcall(function()
         local bb, native = renderSmall(document, page, target_width)
         if not bb then
@@ -190,8 +217,10 @@ function PageBitmap.build(document, page, settings)
             return
         end
 
-        local src_w, src_h = bb.w, bb.h
-        local sample, kind = makeSampler(bb)
+        local work
+        work, owned = toGreyscale(bb)
+        local src_w, src_h = work.w, work.h
+        local sample, kind = makeSampler(work)
 
         -- Guard against a render path that ignored our zoom: subsample instead
         -- of scanning a full-resolution buffer cell by cell.
@@ -239,6 +268,11 @@ function PageBitmap.build(document, page, settings)
             w, h, kind, background, map.inverted and " inverted" or "",
             math.floor(ink * 100 / (w * h))))
     end)
+
+    -- The greyscale copy, if one was made, is ours; the rendered tile is not.
+    if owned then
+        pcall(owned.free, owned)
+    end
 
     if not ok then
         logger.warn("[Panels+] page bitmap failed:", err)
