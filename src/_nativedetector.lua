@@ -18,13 +18,29 @@ local logger = require("logger")
 --- @class PPNativeDetectorModule
 local NativeDetector = {}
 
---- Session flag set when the shared-context fast path proves unreliable.
+--- Per-document reliability state for the shared-context fast path.
 ---
 --- `kc:getPanelFromPage()` lives in koreader-base (a binary dependency), so
 --- whether it mutates the context's source bitmap cannot be verified by reading
---- code. It is verified at runtime instead; a failure here permanently falls
---- back to the slow one-render-per-probe path for the rest of the session.
-local batch_unsafe = false
+--- code. It is verified at runtime instead. A failure used to disable the fast
+--- path for the rest of the process lifetime; that turned one inconsistent
+--- page into every later page (any book) paying up to ~41 full-page renders
+--- instead of 1, which is what floods DocCache and OOM-kills low-memory
+--- devices. Failures are now scoped per document (weak-keyed, so closing a
+--- book drops its state) and retried periodically instead of forever.
+local RETRY_AFTER_CALLS = 20
+local doc_state = setmetatable({}, { __mode = "k" })
+
+--- @param document table KOReader document object.
+--- @return {unsafe:boolean, calls_since_failure:integer} state Mutable per-document state.
+local function getDocState(document)
+    local state = doc_state[document]
+    if not state then
+        state = { unsafe = false, calls_since_failure = 0 }
+        doc_state[document] = state
+    end
+    return state
+end
 
 --- Add a detector probe point if its floored coordinate has not been used.
 ---
@@ -175,8 +191,9 @@ end
 --- @param probes PPPagePosition[] Ordered probe points.
 --- @param hold_pos PPPagePosition|nil Optional hold position.
 --- @param state {panels:PPPanel[], by_key:table<string, boolean>} Mutable accumulator.
+--- @param dstate {unsafe:boolean, calls_since_failure:integer} Per-document reliability state.
 --- @return boolean ok Whether the batched pass completed and can be trusted.
-local function runBatchedProbes(document, page, probes, hold_pos, state)
+local function runBatchedProbes(document, page, probes, hold_pos, state, dstate)
     local koptinterface = document.koptinterface
     if not koptinterface or not document._document or #probes == 0 then
         return false
@@ -227,7 +244,8 @@ local function runBatchedProbes(document, page, probes, hold_pos, state)
         return false
     end
     if not consistent then
-        batch_unsafe = true
+        dstate.unsafe = true
+        dstate.calls_since_failure = 0
         logger.warn("[Panels+] shared detector context is not reusable, falling back to per-probe detection")
         return false
     end
@@ -251,10 +269,17 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
     local probes = NativeDetector.buildProbePlan(page, page_size, settings, hold_pos)
     local state = { panels = {}, by_key = {} }
     local stop = Timing.span("native detect")
+    local dstate = getDocState(document)
 
-    if not batch_unsafe and runBatchedProbes(document, page, probes, hold_pos, state) then
+    local try_batched = not dstate.unsafe or dstate.calls_since_failure >= RETRY_AFTER_CALLS
+    if try_batched and runBatchedProbes(document, page, probes, hold_pos, state, dstate) then
+        dstate.unsafe = false
+        dstate.calls_since_failure = 0
         stop(string.format("%d panels from %d probes, 1 page render", #state.panels, #probes))
         return Geometry.sortReadingOrder(state.panels, settings.mode)
+    end
+    if dstate.unsafe then
+        dstate.calls_since_failure = dstate.calls_since_failure + 1
     end
 
     -- Fallback: KOReader's own entry point, one full page render per probe.

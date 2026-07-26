@@ -494,15 +494,15 @@ end
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
---- "Fast" always uses the quick detector, "Exact" always uses KOReader's slower
---- but more literal one, and "Auto" runs Fast and falls back to Exact.
+--- "Gutter" always uses the quick detector, "Outline" always uses KOReader's
+--- slower but more literal one, and "Auto" runs Gutter and falls back to Outline.
 ---
 --- @return string text Localized detector label.
 function PanelViewer:getDetectorText()
     if self.detector == "fast" then
-        return _("Fast mode")
+        return _("Gutter mode")
     elseif self.detector == "exact" then
-        return _("Exact mode")
+        return _("Outline mode")
     end
     return _("Auto mode")
 end

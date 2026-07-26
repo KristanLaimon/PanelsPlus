@@ -4,6 +4,7 @@ How Panels+ is put together, and what happens between a long-hold on a page and
 a panel appearing on screen.
 
 See also: [DETECTION.md](DETECTION.md) for how panels are found,
+[MODES.md](MODES.md) for what the reader-facing detection modes mean,
 [PERFORMANCE.md](PERFORMANCE.md) for what each step costs.
 
 ## What the plugin actually replaces
@@ -169,11 +170,11 @@ stateDiagram-v2
     Panel --> [*]: tap outside frame, or Close
 ```
 
-The button bar carries a mode button showing **Auto**, **Fast** or **Exact**.
-Tapping it cycles detection mode, re-detects the page and reopens at the panel
-you were reading, matched by its centre — so a page one mode handles badly can be
-switched without leaving it. See [DETECTION.md](DETECTION.md) for what each mode
-does.
+The button bar carries a mode button showing **Auto mode**, **Gutter mode** or
+**Outline mode**. Tapping it cycles detection mode, re-detects the page and
+reopens at the panel you were reading, matched by its centre — so a page one
+mode handles badly can be switched without leaving it. See
+[MODES.md](MODES.md) for what each mode does and does not do.
 
 When a swipe runs off the end of a page, `onPanelViewerBoundary` turns the
 underlying reader page and reopens the viewer on the adjacent page — at panel 1

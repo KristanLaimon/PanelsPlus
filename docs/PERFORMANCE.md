@@ -3,7 +3,8 @@
 What panel reading actually costs, where the expensive parts were, and how to
 measure it on your own device.
 
-See also: [ARCHITECTURE.md](ARCHITECTURE.md), [DETECTION.md](DETECTION.md).
+See also: [ARCHITECTURE.md](ARCHITECTURE.md), [DETECTION.md](DETECTION.md),
+[MODES.md](MODES.md) for the reader-facing mode names used below.
 
 > **On the numbers below:** the operation counts are exact — they come from
 > reading KOReader's document code and counting calls. The millisecond figures
@@ -162,8 +163,9 @@ Deliberate choices behind that table:
 ## Measuring on your device
 
 Enable **Panels+ → Log panel timings**, reproduce the slowness, then read
-KOReader's log (`crash.log`, next to the KOReader directory). Every line is
-prefixed `[Panels+]`.
+KOReader's log (`crash.log`, next to your KOReader directory). Every line
+you'll find there is prefixed `[Panels+]`, so you can grep/filter it out from
+KOReader's own logging.
 
 A healthy page on the fast path:
 

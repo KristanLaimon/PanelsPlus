@@ -64,6 +64,7 @@ Other +Paneles features: (that for some reason aren't included in native koreade
 
 - [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
 - [Panel detection](docs/DETECTION.md) — how panels are found, why there are two detectors, and every tuning knob.
+- [Viewer modes](docs/MODES.md) — what Auto, Gutter and Outline mode mean for the reader, and where to change them.
 - [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
 
 ## Installation
