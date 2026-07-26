@@ -10,11 +10,12 @@ See also: [ARCHITECTURE.md](ARCHITECTURE.md), [PERFORMANCE.md](PERFORMANCE.md).
 Neither available detector is good enough alone, and they fail in different
 places — which is exactly why the default runs one and falls back to the other.
 
-| | Panels+ segmenter (`fast`) | KOReader detector (`native`) |
+| | Fast mode (`fast`) | Exact mode (`exact`) |
 | --- | --- | --- |
 | Cost per page | one render at ~1/3 scale | one full-resolution rasterization |
 | Panels found per pass | all of them | one per probe point |
 | Dark backgrounds | works | **fails** |
+| Tilted gutters (up to ~6°) | works | **fails** |
 | Interlocking / diagonal layouts | **cannot split them** | often handles them |
 | Reflow / page-optimization modes | unavailable | works |
 
@@ -33,7 +34,7 @@ detection collapses. This is not a tuning problem; it needs a different detector
 ```mermaid
 flowchart TD
     START(["collect(page)"]) --> MODE{"detector setting"}
-    MODE -->|native| NATIVE
+    MODE -->|exact| NATIVE
     MODE -->|auto / fast| BLOCK{"reflow or<br/>page optimization?"}
 
     BLOCK -->|yes| NATIVE
@@ -47,7 +48,7 @@ flowchart TD
     ACCEPT -->|trustworthy| SORT["sort into reading order"]
     ACCEPT -->|not trustworthy| FB{"detector setting"}
     FB -->|fast| EMPTY(["no panels"])
-    FB -->|auto| NATIVE["KOReader detector,<br/>batched over one rasterization<br/><i>_nativedetector.lua</i>"]
+    FB -->|auto| NATIVE["Exact: KOReader detector,<br/>batched over one rasterization<br/><i>_nativedetector.lua</i>"]
 
     NATIVE --> SORT
     SORT --> DONE(["ordered panels"])
@@ -207,7 +208,7 @@ through `performance_profile_version`.
 
 | Setting | Default | Effect |
 | --- | --- | --- |
-| `detector` | `"auto"` | `auto` segmenter with fallback, `fast` segmenter only, `native` KOReader only |
+| `detector` | `"auto"` | `auto` fast with fallback, `fast` only, `exact` only. Also on the viewer's mode button |
 | `segment_target_width` | `480` | Ink-map width. See the note below before changing it |
 | `segment_ink_delta` | `40` | Luminance distance from background counted as ink. Raise for noisy scans, lower for faint art |
 | `segment_gutter_ratio` | `0.005` | Shortest gutter, as a fraction of the map's smaller side. Raise if panels are being over-split |
@@ -219,6 +220,10 @@ through `performance_profile_version`.
 | `segment_coverage_min` | `0.5` | Least share of the spanned area the panels must retain |
 | `segment_page_coverage_min` | `0.4` | Least share of the page the panels must span |
 | `segment_single_panel_ratio` | `0.6` | Least share of the page a lone panel must cover to be believed |
+| `segment_shear` | `true` | Look for slanted gutters when no straight one exists |
+| `segment_shear_max_depth` | `4` | Deepest recursion level allowed to search for slanted gutters |
+| `segment_shear_trigger` | `0.35` | How empty a line must already be before a slanted search is worth running |
+| `segment_shear_step` | `2` | Sample every Nth line during a slanted search |
 | `panel_grid_cols` / `panel_grid_rows` | `4` / `7` | Native detector probe grid |
 | `panel_bleed_ratio` / `panel_bleed_min` | `0.08` / `8` | Crop padding in loose crop mode |
 
@@ -243,6 +248,49 @@ borders and a realistic ink distribution, splitting a row of three panels:
 480 / 0.005 is the default: it splits every gutter width tested without
 over-splitting splash pages, grids or full-height columns, at 2.25× the scan
 cost of 320. 640 buys nothing extra for 4× the cost.
+
+### Panels that are not square
+
+Panel edges are rarely drawn exactly square, and the straight cut is far less
+tolerant of that than it looks: a gutter tilted by **two degrees** already leaves
+no column empty from top to bottom, so a row of panels comes back grouped.
+
+When no straight gutter is found, the cut projects along slanted lines instead,
+over a ladder of 2 to 8 degrees either way:
+
+```mermaid
+flowchart TD
+    S["no straight gutter in this region"] --> T{"is any line<br/>already part-empty?"}
+    T -->|no| L["emit as one panel<br/><i>a splash page can never<br/>yield a slanted gutter</i>"]
+    T -->|yes| P["project along slanted lines,<br/>last working slope first"]
+    P --> G{"gutter found?"}
+    G -->|no, try next slope| P
+    G -->|yes| SP["split on the band's FULL extent,<br/>both sides get the whole band"]
+    SP --> R["each panel keeps all its own art<br/>plus a thin wedge of its neighbour"]
+
+    style P fill:#2d6cdf,color:#fff
+    style SP fill:#8a5cf6,color:#fff
+    style L fill:#3fa45b,color:#fff
+```
+
+Three details carry this:
+
+- **Every candidate is tried, not just the widest.** Projecting a slanted band
+  back onto the axis widens it by the drift, which often makes the widest
+  candidate unusable while a narrower one is fine. Taking only the widest also
+  made the search keep re-finding the gutter it had just split on.
+- **Both children get the whole band.** Splitting at the band's inner edge would
+  shave a corner off each panel; giving both the full band means a thin wedge of
+  the neighbour shows instead, which reads as ordinary panel bleed.
+- **The search is gated.** It only runs when some line already looks part-empty,
+  so pages that can never produce a slanted gutter skip it entirely.
+
+Measured on rendered pages, a row of three splits correctly from 0 to 6 degrees.
+At 7 to 8 degrees it tends to over-split, producing one panel too many rather
+than one grouped blob.
+
+Ink tolerance is deliberately *not* loosened for this search. Loosening it was
+tried and collapsed 22 of 23 test layouts, exactly as it does for straight cuts.
 
 ### Known limitation: panels with no gutter
 

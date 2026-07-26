@@ -169,6 +169,12 @@ stateDiagram-v2
     Panel --> [*]: tap outside frame, or Close
 ```
 
+The button bar carries a mode button showing **Auto**, **Fast** or **Exact**.
+Tapping it cycles detection mode, re-detects the page and reopens at the panel
+you were reading, matched by its centre — so a page one mode handles badly can be
+switched without leaving it. See [DETECTION.md](DETECTION.md) for what each mode
+does.
+
 When a swipe runs off the end of a page, `onPanelViewerBoundary` turns the
 underlying reader page and reopens the viewer on the adjacent page — at panel 1
 going forward, at the last panel going back, so reading order stays continuous.

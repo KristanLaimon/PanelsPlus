@@ -173,6 +173,17 @@ A healthy page on the fast path:
 [Panels+] prerender panel 2 88ms
 ```
 
+A page whose panels are not square:
+
+```
+[Panels+] page bitmap 74ms (480x720 bb8 bg=247 ink=26%)
+[Panels+] segment 190ms (5 panels, 2 of 3 slanted searches split)
+```
+
+The slanted search only runs where the straight cut found nothing, so it costs
+nothing on square pages. Where it does run it is the dominant cost of detection,
+and the reported ratio tells you whether the extra work is paying for itself.
+
 A page that fell back:
 
 ```
@@ -185,7 +196,7 @@ What the numbers tell you:
 | Observation | Meaning |
 | --- | --- |
 | `page bitmap` dominates | The small render is the cost. Lower `segment_target_width` |
-| `segment` dominates | Unusual; the cut is subdividing heavily. Lower `segment_max_depth` |
+| `segment` dominates | The slanted-gutter search is running. Expected on skewed pages; see the `slanted searches` count on the same line |
 | `native detect` appears often | The segmenter is declining these pages — see the rejection reason above it |
 | `per-probe renders` in the native line | The batching self-check failed and the slow path is in use. Worth reporting |
 | No `prerender` lines | Prerendering is off, or free memory is under `prerender_min_free_bytes` |
