@@ -48,8 +48,8 @@ If you want to build the plugin yourself instead, follow [building from source](
       <video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
       <br>
       <ul>
-        <li>Optional inverted swipe direction when navigation feels reversed on your device.</li>
-        <li>KOReader gesture actions for toggling the plugin and switching modes quickly.</li>
+        <li>You can customize the swipe direction when navigating trought the panels.</li>
+        <li>Included KOReader gesture actions for toggling the plugin and switching modes quickly.</li>
       </ul>
     </td>
   </tr>
