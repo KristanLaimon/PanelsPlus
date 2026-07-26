@@ -47,7 +47,7 @@
 --- @field detector PPDetector
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer
---- @field panel_bleed_ratio number
+--- @field panel_bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_bleed_min number
 --- @field panel_prefetch_delay number
 --- @field panel_cache_pages integer

@@ -120,6 +120,15 @@ function PanelsPlus:setMarginRatio(ratio)
     self:saveSettings()
 end
 
+--- Set how much page area outside each panel "Loose crop" reveals.
+---
+--- @param ratio number Requested bleed ratio; clamped to [0, 0.4].
+function PanelsPlus:setBleedRatio(ratio)
+    ratio = tonumber(ratio) or Settings.defaults.panel_bleed_ratio
+    self.settings.panel_bleed_ratio = math.max(0, math.min(0.4, ratio))
+    self:saveSettings()
+end
+
 --- Toggle whether swipe direction is inverted relative to reading order.
 ---
 --- @param invert_swipe any Truthy value inverts left/right panel navigation.

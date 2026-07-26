@@ -159,6 +159,34 @@ function ViewerController:setViewerMarginRatio(viewer, ratio, activate_margin_mo
     return true
 end
 
+--- Persist a new "Loose crop" bleed ratio from an open viewer's slider dialog.
+---
+--- Unlike the margin ratio, this changes the actual crop rectangle passed to
+--- `drawPagePart()`, so the viewer is rebuilt the same way `toggleViewerCropMode`
+--- rebuilds it after a mode change.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @param ratio number New bleed ratio in [0, 1].
+--- @param activate_loose_mode boolean|nil Also switch crop mode to "loose" so the change is visible.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setViewerBleedRatio(viewer, ratio, activate_loose_mode)
+    self:setBleedRatio(ratio)
+    if activate_loose_mode then
+        self:setCropMode("loose")
+    end
+    if not viewer.panels or #viewer.panels == 0 then
+        viewer.crop_mode = self.settings.crop_mode
+        viewer.bleed_ratio = self.settings.panel_bleed_ratio
+        viewer:replaceButtonTable()
+        viewer:update()
+        return true
+    end
+
+    local start_idx = viewer._images_list_cur or 1
+    UIManager:close(viewer)
+    return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
+end
+
 --- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
 ---
 --- Changing detector changes the panel list, so the viewer is rebuilt. The
@@ -254,6 +282,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
         margin_ratio = self.settings.panel_margin_ratio,
+        bleed_ratio = self.settings.panel_bleed_ratio,
         detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
@@ -270,6 +299,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)
             return self:setViewerMarginRatio(current_viewer, ratio, activate_margin_mode)
+        end,
+        bleed_ratio_callback = function(current_viewer, ratio, activate_loose_mode)
+            return self:setViewerBleedRatio(current_viewer, ratio, activate_loose_mode)
         end,
         progress_bar_toggle_callback = function(current_viewer)
             return self:toggleViewerProgressBar(current_viewer)

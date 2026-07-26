@@ -13,6 +13,7 @@ local _ = require("gettext")
 --- @field reading_mode PPReadingMode Current left/right panel order.
 --- @field crop_mode PPCropMode Current crop rendering mode.
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
+--- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
 --- @field detector PPDetector Detector the displayed panels came from.
 --- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
@@ -27,6 +28,7 @@ local _ = require("gettext")
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field margin_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_margin_mode:boolean|nil):boolean|nil
+--- @field bleed_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_loose_mode:boolean|nil):boolean|nil
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field buttons_visible boolean Whether controls are currently shown.
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
@@ -37,6 +39,7 @@ local PanelViewer = ImageViewer:extend{
     reading_mode = "manga",
     crop_mode = "strict",
     margin_ratio = 0.12,
+    bleed_ratio = 0.08,
     panel_is_full_page = nil,
     detector = "auto",
     invert_swipe = false,
@@ -51,6 +54,7 @@ local PanelViewer = ImageViewer:extend{
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
     margin_ratio_callback = nil,
+    bleed_ratio_callback = nil,
     progress_bar_toggle_callback = nil,
     buttons_visible = false,
     with_title_bar = false,
@@ -598,6 +602,40 @@ function PanelViewer:onAdjustMarginRatio()
     return true
 end
 
+--- Show a slider dialog to adjust how much extra page area "loose" crop reveals.
+---
+--- Applying a value also switches crop mode to "loose" so the change is
+--- visible immediately, since tuning a value you can't see would be useless.
+---
+--- @return boolean handled Always true for button hold-callback dispatch.
+function PanelViewer:onAdjustBleedRatio()
+    local SpinWidget = require("ui/widget/spinwidget")
+    local viewer = self
+    UIManager:show(SpinWidget:new{
+        title_text = _("Loose crop bleed"),
+        info_text = _("How much page area outside each panel's edges to reveal."),
+        value = math.floor((self.bleed_ratio or 0.08) * 100 + 0.5),
+        value_min = 0,
+        value_max = 40,
+        value_step = 1,
+        value_hold_step = 5,
+        unit = "%",
+        default_value = 8,
+        callback = function(spin)
+            local ratio = spin.value / 100
+            if viewer.bleed_ratio_callback then
+                viewer.bleed_ratio_callback(viewer, ratio, true)
+            else
+                viewer.bleed_ratio = ratio
+                viewer.crop_mode = "loose"
+                viewer:replaceButtonTable()
+                viewer:update()
+            end
+        end,
+    })
+    return true
+end
+
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
@@ -664,7 +702,11 @@ function PanelViewer:replaceButtonTable()
                     end
                 end,
                 hold_callback = function()
-                    self:onAdjustMarginRatio()
+                    if self.crop_mode == "loose" then
+                        self:onAdjustBleedRatio()
+                    elseif self.crop_mode == "margin" then
+                        self:onAdjustMarginRatio()
+                    end
                 end,
             },
             {
