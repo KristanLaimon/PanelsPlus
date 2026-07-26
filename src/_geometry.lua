@@ -46,4 +46,26 @@ function Geometry.sameRow(a, b)
     return math.abs(ay - by) <= math.max(a.h or 0, b.h or 0) * 0.45
 end
 
+--- Sort panels into reading order for a reading mode.
+---
+--- Panels within the same row run right-to-left in manga mode and left-to-right
+--- in comic mode; rows themselves always run top to bottom. Shared by every
+--- detector so panel order never depends on which one produced the rectangles.
+---
+--- @param panels PPPanel[] Unordered panel rectangles.
+--- @param mode PPReadingMode Reading order mode.
+--- @return PPPanel[] panels The same table, sorted in place.
+function Geometry.sortReadingOrder(panels, mode)
+    table.sort(panels, function(a, b)
+        if Geometry.sameRow(a, b) then
+            if mode == "comic" then
+                return a.x < b.x
+            end
+            return a.x > b.x
+        end
+        return a.y < b.y
+    end)
+    return panels
+end
+
 return Geometry

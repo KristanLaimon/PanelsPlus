@@ -33,6 +33,9 @@
 --- @field x number X coordinate on the page.
 --- @field y number Y coordinate on the page.
 
+--- Which detector `PanelCollector.collect` should use.
+--- @alias PPDetector '"auto"'|'"fast"'|'"native"'
+
 --- Persisted plugin settings.
 --- @class PPSettings
 --- @field enabled boolean
@@ -40,6 +43,7 @@
 --- @field crop_mode PPCropMode
 --- @field invert_swipe boolean
 --- @field progress_bar_visible boolean
+--- @field detector PPDetector
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer
 --- @field panel_bleed_ratio number
@@ -47,6 +51,17 @@
 --- @field panel_prefetch_delay number
 --- @field panel_cache_pages integer
 --- @field full_page_panel_ratio number
+--- @field segment_target_width integer Ink-map render width in pixels.
+--- @field segment_ink_delta integer Luminance distance from background counted as ink.
+--- @field segment_gutter_ratio number Shortest gutter, as a fraction of the map's smaller side.
+--- @field segment_gutter_ink_ratio number Ink fraction of a line still treated as empty.
+--- @field segment_min_panel_area number Smallest panel, as a fraction of page area.
+--- @field segment_min_panel_side number Smallest panel side, as a fraction of the map's smaller side.
+--- @field segment_max_depth integer Deepest recursion allowed in the X-Y cut.
+--- @field segment_max_panels integer Hard cap on panels produced per page.
+--- @field segment_coverage_min number Least share of the covered region the panels must retain.
+--- @field segment_page_coverage_min number Least share of the page the panels must span.
+--- @field segment_single_panel_ratio number Least share of the page a lone panel must cover.
 --- @field performance_profile_version integer
 
 --- Options accepted by `showPanelViewerForPage`.

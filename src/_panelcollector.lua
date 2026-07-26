@@ -1,8 +1,20 @@
 local Geometry = require("src._geometry")
 local NativeDetector = require("src._nativedetector")
+local PageBitmap = require("src._pagebitmap")
+local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
+local Timing = require("src._timing")
 
 --- Panel detection dispatch and lazy image-list construction.
+---
+--- Two detectors are available and they fail in different places, so the
+--- default is to run the cheap one and fall back:
+---
+--- * `src._segmenter` slices a low-resolution ink map. One page render, works on
+---   any background colour, but cannot separate interlocking layouts.
+--- * `src._nativedetector` drives KOReader's k2pdfopt detector. Handles awkward
+---   layouts, but only recognizes white gutters and costs a full-resolution
+---   page rasterization.
 ---
 --- @class PPPanelCollectorModule
 local PanelCollector = {}
@@ -43,6 +55,29 @@ local function getImageRect(rect, page_size, settings)
     return rect
 end
 
+--- Run the fast segmenter, returning nil when its result cannot be trusted.
+---
+--- @param ui table KOReader reader UI object.
+--- @param settings PPSettings Plugin settings.
+--- @param page number Document page number.
+--- @return PPPanel[]|nil panels Ordered panel rectangles, or nil to fall back.
+local function segment(ui, settings, page)
+    local map, reason = PageBitmap.build(ui.document, page, settings)
+    if not map then
+        Timing.log("segmenter skipped: " .. tostring(reason))
+        return nil
+    end
+
+    local panels = Segmenter.segment(map, settings)
+    local accepted, rejection = Segmenter.accept(panels, map, settings)
+    if not accepted then
+        Timing.log("segmenter rejected: " .. tostring(rejection))
+        return nil
+    end
+
+    return Geometry.sortReadingOrder(panels, settings.mode)
+end
+
 --- Collect a page's ordered panel rectangles.
 ---
 --- @param ui table KOReader reader UI object.
@@ -51,6 +86,18 @@ end
 --- @param hold_pos PPPagePosition|nil Optional page-space position from the user's hold.
 --- @return PPPanel[] panels Ordered panel rectangles.
 function PanelCollector.collect(ui, settings, page, hold_pos)
+    local detector = settings.detector or Settings.defaults.detector
+
+    if detector ~= "native" then
+        local panels = segment(ui, settings, page)
+        if panels then
+            return panels
+        end
+        if detector == "fast" then
+            return {}
+        end
+    end
+
     return NativeDetector.collect(ui, settings, page, hold_pos)
 end
 

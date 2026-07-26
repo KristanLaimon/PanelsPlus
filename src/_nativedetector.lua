@@ -234,24 +234,6 @@ local function runBatchedProbes(document, page, probes, hold_pos, state)
     return true
 end
 
---- Sort panels into reading order for the current mode.
----
---- @param panels PPPanel[] Unordered panel rectangles.
---- @param settings PPSettings Plugin settings.
---- @return PPPanel[] panels The same table, sorted in place.
-function NativeDetector.sort(panels, settings)
-    table.sort(panels, function(a, b)
-        if Geometry.sameRow(a, b) then
-            if settings.mode == "comic" then
-                return a.x < b.x
-            end
-            return a.x > b.x
-        end
-        return a.y < b.y
-    end)
-    return panels
-end
-
 --- Collect page panels using KOReader's native detector.
 ---
 --- @param ui table KOReader reader UI object.
@@ -272,7 +254,7 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
 
     if not batch_unsafe and runBatchedProbes(document, page, probes, hold_pos, state) then
         stop(string.format("%d panels from %d probes, 1 page render", #state.panels, #probes))
-        return NativeDetector.sort(state.panels, settings)
+        return Geometry.sortReadingOrder(state.panels, settings.mode)
     end
 
     -- Fallback: KOReader's own entry point, one full page render per probe.
