@@ -117,12 +117,15 @@ function ViewerController:toggleViewerMode(viewer)
     return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
 end
 
+--- Order the crop-mode button cycles through on tap.
+local CROP_MODE_CYCLE = { strict = "loose", loose = "margin", margin = "strict" }
+
 --- Toggle crop mode from an open viewer and reopen at the same image index.
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:toggleViewerCropMode(viewer)
-    self:setCropMode(self.settings.crop_mode == "loose" and "strict" or "loose")
+    self:setCropMode(CROP_MODE_CYCLE[self.settings.crop_mode] or "strict")
     if not viewer.panels or #viewer.panels == 0 then
         viewer.crop_mode = self.settings.crop_mode
         viewer:replaceButtonTable()
@@ -133,6 +136,27 @@ function ViewerController:toggleViewerCropMode(viewer)
     local start_idx = viewer._images_list_cur or 1
     UIManager:close(viewer)
     return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
+end
+
+--- Persist a new "With margin" zoom-out ratio from an open viewer's slider dialog.
+---
+--- Unlike crop mode itself, the ratio doesn't change any crop rectangle, so the
+--- viewer is updated in place instead of being rebuilt.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @param ratio number New margin ratio in [0, 1].
+--- @param activate_margin_mode boolean|nil Also switch crop mode to "margin" so the change is visible.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setViewerMarginRatio(viewer, ratio, activate_margin_mode)
+    self:setMarginRatio(ratio)
+    if activate_margin_mode then
+        self:setCropMode("margin")
+    end
+    viewer.margin_ratio = self.settings.panel_margin_ratio
+    viewer.crop_mode = self.settings.crop_mode
+    viewer:replaceButtonTable()
+    viewer:update()
+    return true
 end
 
 --- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
@@ -213,7 +237,7 @@ end
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
     self:cancelPanelPrerender()
-    local images, image_rects = PanelCollector.buildImages(self.ui, page, panels, self.settings)
+    local images, image_rects, full_page_flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
     viewer = PanelViewer:new{
         image = images,
@@ -222,12 +246,14 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         page = page,
         panels = panels,
         image_rects = image_rects,
+        panel_is_full_page = full_page_flags,
         reader_ui = self.ui,
         panel_prerender_callback = function(current_viewer, index)
             return self:prerenderNextPanel(current_viewer, index)
         end,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        margin_ratio = self.settings.panel_margin_ratio,
         detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
@@ -241,6 +267,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         crop_toggle_callback = function(current_viewer)
             return self:toggleViewerCropMode(current_viewer)
+        end,
+        margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)
+            return self:setViewerMarginRatio(current_viewer, ratio, activate_margin_mode)
         end,
         progress_bar_toggle_callback = function(current_viewer)
             return self:toggleViewerProgressBar(current_viewer)

@@ -7,7 +7,7 @@
 --- @alias PPReadingMode '"manga"'|'"comic"'
 
 --- Crop behavior for drawing panel image parts.
---- @alias PPCropMode '"strict"'|'"loose"'
+--- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'
 
 --- Direction reported when the viewer crosses the first or last panel.
 --- @alias PPBoundaryDirection '"next"'|'"previous"'
@@ -41,6 +41,7 @@
 --- @field enabled boolean
 --- @field mode PPReadingMode
 --- @field crop_mode PPCropMode
+--- @field panel_margin_ratio number Zoom-out fraction the "margin" crop mode applies to non-full-page panels.
 --- @field invert_swipe boolean
 --- @field progress_bar_visible boolean
 --- @field detector PPDetector

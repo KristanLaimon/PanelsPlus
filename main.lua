@@ -101,9 +101,22 @@ end
 
 --- Set how tightly panel crops are rendered in the viewer.
 ---
---- @param crop_mode PPCropMode Requested crop mode; anything except `"loose"` maps to `"strict"`.
+--- @param crop_mode PPCropMode Requested crop mode; anything except `"loose"`/`"margin"` maps to `"strict"`.
 function PanelsPlus:setCropMode(crop_mode)
-    self.settings.crop_mode = crop_mode == "loose" and "loose" or "strict"
+    if crop_mode == "loose" or crop_mode == "margin" then
+        self.settings.crop_mode = crop_mode
+    else
+        self.settings.crop_mode = "strict"
+    end
+    self:saveSettings()
+end
+
+--- Set the zoom-out amount the "With margin" crop mode applies.
+---
+--- @param ratio number Requested margin ratio; clamped to [0, 0.4].
+function PanelsPlus:setMarginRatio(ratio)
+    ratio = tonumber(ratio) or Settings.defaults.panel_margin_ratio
+    self.settings.panel_margin_ratio = math.max(0, math.min(0.4, ratio))
     self:saveSettings()
 end
 

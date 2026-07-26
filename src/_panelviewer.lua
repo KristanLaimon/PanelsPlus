@@ -12,6 +12,8 @@ local _ = require("gettext")
 --- @class PanelViewer : ImageViewer
 --- @field reading_mode PPReadingMode Current left/right panel order.
 --- @field crop_mode PPCropMode Current crop rendering mode.
+--- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
+--- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
 --- @field detector PPDetector Detector the displayed panels came from.
 --- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
@@ -24,6 +26,7 @@ local _ = require("gettext")
 --- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field margin_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_margin_mode:boolean|nil):boolean|nil
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field buttons_visible boolean Whether controls are currently shown.
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
@@ -33,6 +36,8 @@ local PanelViewer = ImageViewer:extend{
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
+    margin_ratio = 0.12,
+    panel_is_full_page = nil,
     detector = "auto",
     invert_swipe = false,
     progress_bar_visible = true,
@@ -45,6 +50,7 @@ local PanelViewer = ImageViewer:extend{
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
+    margin_ratio_callback = nil,
     progress_bar_toggle_callback = nil,
     buttons_visible = false,
     with_title_bar = false,
@@ -491,6 +497,107 @@ function PanelViewer:switchToImageNum(image_num)
     self:requestPanelPrerender()
 end
 
+--- Return the button label for the crop mode currently in use.
+---
+--- @return string text Localized crop-mode label.
+function PanelViewer:getCropModeText()
+    if self.crop_mode == "loose" then
+        return _("Loose crop")
+    elseif self.crop_mode == "margin" then
+        return _("With margin")
+    end
+    return _("Strict crop")
+end
+
+--- Return whether the panel currently shown spans nearly the whole page.
+---
+--- @return boolean full_page `true` when the shown panel is a full-page/splash panel.
+function PanelViewer:isCurrentPanelFullPage()
+    local flags = self.panel_is_full_page
+    if not flags then
+        return false
+    end
+    return flags[self._images_list_cur or 1] == true
+end
+
+--- Return the width/height multiplier "margin" crop mode should render at.
+---
+--- Full-page panels are excluded: shrinking a splash page to fake a margin
+--- would waste most of the screen for an effect the reader didn't ask for.
+---
+--- @return number|nil factor Multiplier in (0, 1), or nil when no shrink applies.
+function PanelViewer:getMarginShrinkFactor()
+    if self.crop_mode ~= "margin" then
+        return nil
+    end
+    if self:isCurrentPanelFullPage() then
+        return nil
+    end
+    local ratio = self.margin_ratio or 0.12
+    if ratio <= 0 then
+        return nil
+    end
+    return 1 - math.min(0.9, ratio)
+end
+
+--- Shrink the box ImageViewer renders the panel into, for "margin" crop mode.
+---
+--- The base implementation sizes both the ImageWidget and the CenterContainer
+--- that centers it from `self.width`/`self.img_container_h`. Temporarily
+--- shrinking those before delegating, then restoring the container's `dimen`
+--- to the full area afterward, keeps the centering but renders a smaller
+--- image inside it -- a cheap zoom-out that reads as breathing room around
+--- the panel without touching the actual crop rectangle.
+function PanelViewer:_new_image_wg()
+    local factor = self:getMarginShrinkFactor()
+    if not factor then
+        return ImageViewer._new_image_wg(self)
+    end
+
+    local orig_width, orig_container_h = self.width, self.img_container_h
+    self.width = orig_width * factor
+    self.img_container_h = orig_container_h * factor
+    ImageViewer._new_image_wg(self)
+    self.width = orig_width
+    self.img_container_h = orig_container_h
+    self.image_container.dimen.w = orig_width
+    self.image_container.dimen.h = orig_container_h
+end
+
+--- Show a slider dialog to adjust how much "margin" crop mode zooms out.
+---
+--- Applying a value also switches crop mode to "margin" so the change is
+--- visible immediately, since tuning a value you can't see would be useless.
+---
+--- @return boolean handled Always true for button hold-callback dispatch.
+function PanelViewer:onAdjustMarginRatio()
+    local SpinWidget = require("ui/widget/spinwidget")
+    local viewer = self
+    UIManager:show(SpinWidget:new{
+        title_text = _("Panel margin"),
+        info_text = _("Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."),
+        value = math.floor((self.margin_ratio or 0.12) * 100 + 0.5),
+        value_min = 0,
+        value_max = 40,
+        value_step = 1,
+        value_hold_step = 5,
+        unit = "%",
+        default_value = 12,
+        callback = function(spin)
+            local ratio = spin.value / 100
+            if viewer.margin_ratio_callback then
+                viewer.margin_ratio_callback(viewer, ratio, true)
+            else
+                viewer.margin_ratio = ratio
+                viewer.crop_mode = "margin"
+                viewer:replaceButtonTable()
+                viewer:update()
+            end
+        end,
+    })
+    return true
+end
+
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
@@ -545,15 +652,19 @@ function PanelViewer:replaceButtonTable()
             },
             {
                 id = "crop",
-                text = self.crop_mode == "loose" and _("Loose crop") or _("Strict crop"),
+                text = self:getCropModeText(),
                 callback = function()
                     if self.crop_toggle_callback then
                         self.crop_toggle_callback(self)
                     else
-                        self.crop_mode = self.crop_mode == "loose" and "strict" or "loose"
+                        local next_mode = { strict = "loose", loose = "margin", margin = "strict" }
+                        self.crop_mode = next_mode[self.crop_mode] or "strict"
                         self:replaceButtonTable()
                         self:update()
                     end
+                end,
+                hold_callback = function()
+                    self:onAdjustMarginRatio()
                 end,
             },
             {

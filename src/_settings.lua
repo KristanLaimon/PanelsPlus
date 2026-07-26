@@ -14,6 +14,7 @@ local Settings = {
         enabled = true,
         mode = "manga",
         crop_mode = "strict",
+        panel_margin_ratio = 0.12,
         invert_swipe = false,
         progress_bar_visible = true,
         detector = "auto",

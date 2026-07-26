@@ -121,6 +121,26 @@ function PanelCollector.startIndex(panels, hold_pos)
     return best_idx
 end
 
+--- Return whether a native panel rectangle spans nearly the whole page.
+---
+--- Reuses `full_page_panel_ratio`, the same threshold the segmenter uses to
+--- recognize a splash page, so "full page" means the same thing everywhere
+--- in the plugin.
+---
+--- @param rect PPPanel Native panel rectangle (pre-crop-mode expansion).
+--- @param page_size PPPageSize|nil Page dimensions.
+--- @param settings PPSettings Plugin settings.
+--- @return boolean is_full_page `true` when the panel covers most of the page.
+local function isFullPagePanel(rect, page_size, settings)
+    if not page_size or (page_size.w or 0) <= 0 or (page_size.h or 0) <= 0 then
+        return false
+    end
+    local full_ratio = settings.full_page_panel_ratio or Settings.defaults.full_page_panel_ratio
+    local page_area = page_size.w * page_size.h
+    local rect_area = (rect.w or 0) * (rect.h or 0)
+    return rect_area >= full_ratio * page_area
+end
+
 --- Build KOReader ImageViewer lazy image functions for a panel sequence.
 ---
 --- This intentionally stores functions, not rendered blitbuffers. Each visit
@@ -133,6 +153,7 @@ end
 --- @param settings PPSettings Plugin settings.
 --- @return PPImageList images Lazy image list for ImageViewer.
 --- @return PPPanel[] image_rects Crop rectangles matching `images`, for prerendering.
+--- @return boolean[] full_page_flags Per-panel flag matching `images`, for margin-mode gating.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
     local page_size = document:getPageDimensions(page, 1, 0)
@@ -141,10 +162,12 @@ function PanelCollector.buildImages(ui, page, panels, settings)
         image_disposable = true,
     }
     local image_rects = {}
+    local full_page_flags = {}
 
     for _, rect in ipairs(panels) do
         local image_rect = getImageRect(rect, page_size, settings)
         table.insert(image_rects, image_rect)
+        table.insert(full_page_flags, isFullPagePanel(rect, page_size, settings))
         table.insert(images, function()
             local image, rotate = document:drawPagePart(page, image_rect, 0)
             images.rotated = rotate
@@ -155,7 +178,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
         end)
     end
 
-    return images, image_rects
+    return images, image_rects, full_page_flags
 end
 
 return PanelCollector
