@@ -275,12 +275,18 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
         return true
     end
 
-    local panels = self:getCachedPanels(next_page)
-    if panels and #panels > 0 then
+    local cached_panels = self:getCachedPanels(next_page)
+    if cached_panels then
+        if #cached_panels > 0 then
+            self.ui:handleEvent(Event:new("GotoPage", next_page))
+            UIManager:close(current_viewer)
+            local start_idx = direction == "next" and 1 or #cached_panels
+            return self:showPanelViewerForPage(next_page, cached_panels, start_idx)
+        end
+        current_viewer:onClose()
         self.ui:handleEvent(Event:new("GotoPage", next_page))
-        UIManager:close(current_viewer)
-        local start_idx = direction == "next" and 1 or #panels
-        return self:showPanelViewerForPage(next_page, panels, start_idx)
+        self:preloadNextPanels(next_page)
+        return true
     end
 
     UIManager:tickAfterNext(function()
@@ -296,6 +302,7 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
         else
             current_viewer:onClose()
             self.ui:handleEvent(Event:new("GotoPage", next_page))
+            self:preloadNextPanels(next_page)
         end
     end)
     return true
