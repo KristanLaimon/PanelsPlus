@@ -3,7 +3,9 @@
 How Panels+ decides where the panels on a page are, why there are two detectors,
 and which knobs change the result.
 
-See also: [ARCHITECTURE.md](ARCHITECTURE.md), [PERFORMANCE.md](PERFORMANCE.md).
+See also: [MODES.md](MODES.md) for the reader-facing names of the modes this
+document describes, [ARCHITECTURE.md](ARCHITECTURE.md),
+[PERFORMANCE.md](PERFORMANCE.md).
 
 ## Two detectors, two failure modes
 
@@ -197,9 +199,10 @@ already inside a discovered panel is skipped.
 `kc:getPanelFromPage` lives in koreader-base, a binary dependency, so whether
 reusing one context is safe cannot be settled by reading source. It is checked at
 runtime instead: the first probe point is re-probed after the loop, and a
-different answer means the context was mutated. That permanently disables
-batching for the session and falls back to one render per probe — slow, but
-correct.
+different answer means the context was mutated. That disables batching for the
+current document and falls back to one render per probe — slow, but correct —
+retrying the batched path again after a cooldown, so one inconsistent page
+can't degrade every later page (or book) for the rest of the session.
 
 ## Tuning
 
@@ -208,7 +211,7 @@ through `performance_profile_version`.
 
 | Setting | Default | Effect |
 | --- | --- | --- |
-| `detector` | `"auto"` | `auto` fast with fallback, `fast` only, `exact` only. Also on the viewer's mode button |
+| `detector` | `"auto"` | `auto` fast with fallback, `fast` only, `exact` only. Also on the viewer's mode button — see [MODES.md](MODES.md) |
 | `segment_target_width` | `480` | Ink-map width. See the note below before changing it |
 | `segment_ink_delta` | `40` | Luminance distance from background counted as ink. Raise for noisy scans, lower for faint art |
 | `segment_gutter_ratio` | `0.005` | Shortest gutter, as a fraction of the map's smaller side. Raise if panels are being over-split |
@@ -301,8 +304,15 @@ Such a row is currently returned as one panel.
 
 ## Diagnosing a page
 
-Turn on **Panels+ → Log panel timings** and reopen the page. The log records
-which path ran and, when the segmenter declines, why:
+Turn on **Panels+ → Log panel timings** and reopen the page, and you'll see
+which path ran and, when the segmenter declines, why. This goes through
+KOReader's own `logger.info`, so you'll find it in KOReader's log —
+`crash.log`, next to your KOReader install directory, not anywhere inside the
+Panels+ plugin folder. Every line this plugin emits starts with the prefix
+`[Panels+]`, so you can grep/filter the logs easily — e.g.
+`grep '\[Panels+\]' crash.log`. See
+[PERFORMANCE.md → Measuring on your device](PERFORMANCE.md#measuring-on-your-device)
+for more on the log format and where `crash.log` lives on each platform.
 
 ```
 [Panels+] page bitmap 74ms (480x720 bb8 bg=12 inverted ink=38%)
@@ -317,5 +327,8 @@ like:
 [Panels+] native detect 780ms (5 panels from 29 probes, 1 page render)
 ```
 
-If a page detects badly, the setting to reach for first is `detector`: forcing
-`fast` or `native` tells you immediately which one is misreading it.
+If a page detects badly, the setting to reach for first is `detector` — or,
+from an open panel, the mode button described in
+[MODES.md](MODES.md#where-to-change-it). Forcing Gutter (`fast`) or Outline
+(`exact`) tells you immediately which one is misreading the page, before you
+touch any tuning value in the table above.
