@@ -22,7 +22,7 @@ local Settings = {
         panel_bleed_ratio = 0.08,
         panel_bleed_min = 8,
         panel_prefetch_delay = 0.75,
-        panel_cache_pages = 2,
+        panel_cache_pages = 12,
         panel_prerender = true,
         panel_prerender_delay = 0.25,
         prerender_min_free_kb = 40960,
@@ -38,7 +38,7 @@ local Settings = {
         segment_coverage_min = 0.5,
         segment_page_coverage_min = 0.4,
         segment_single_panel_ratio = 0.6,
-        performance_profile_version = 5,
+        performance_profile_version = 6,
     },
 }
 

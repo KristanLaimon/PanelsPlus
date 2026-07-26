@@ -29,8 +29,11 @@ function NativePanelZoom:applyNativePanelSetting()
     end
 end
 
---- KOReader close hook: restore the original native panel zoom handler.
-function NativePanelZoom:onCloseWidget()
+--- Restore the original native panel zoom handler.
+---
+--- Called from `PanelsPlus:onCloseWidget` rather than being one itself: mixin
+--- methods are copied by name, so only one module can own that hook.
+function NativePanelZoom:restoreNativePanelZoom()
     local highlight = self.ui and self.ui.highlight
     if highlight and highlight._panels_plus_original_panel_zoom then
         highlight.onPanelZoom = highlight._panels_plus_original_panel_zoom

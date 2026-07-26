@@ -7,11 +7,24 @@ local UIManager = require("ui/uimanager")
 --- @class PPCacheMethods
 local Cache = {}
 
---- Clear all cached panel lists and pending prefetch guards.
+--- Drop every prefetch that has been scheduled but has not run yet.
+---
+--- Prefetch closures capture the plugin and a page number, so leaving them on
+--- UIManager's queue keeps stale work alive across page turns and past document
+--- close. Turning pages quickly used to queue one detection per page visited and
+--- then run all of them.
+function Cache:cancelPanelPrefetch()
+    for _, action in pairs(self.panel_prefetch_actions or {}) do
+        UIManager:unschedule(action)
+    end
+    self.panel_prefetch_actions = {}
+end
+
+--- Clear all cached panel lists and pending prefetch work.
 function Cache:clearPanelCache()
+    self:cancelPanelPrefetch()
     self.panel_cache = {}
     self.panel_cache_order = {}
-    self.panel_cache_loading = {}
 end
 
 --- Build the cache key for a document page in the current reading mode.
@@ -82,26 +95,29 @@ function Cache:preloadPanels(page)
         return
     end
 
-    local cached_panels = self:getCachedPanels(page)
-    if cached_panels then
+    if self:getCachedPanels(page) then
         return
     end
 
     local key = self:getPanelCacheKey(page)
-    if self.panel_cache_loading[key] then
+    if self.panel_prefetch_actions[key] then
         return
     end
-    self.panel_cache_loading[key] = true
 
     local delay = self.settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay
-    UIManager:scheduleIn(delay, function()
-        self.panel_cache_loading[key] = nil
-        local scheduled_cached_panels = self:getCachedPanels(page)
-        if scheduled_cached_panels then
+    local action
+    action = function()
+        if self.panel_prefetch_actions[key] == action then
+            self.panel_prefetch_actions[key] = nil
+        end
+        if self:getCachedPanels(page) then
             return
         end
         self:collectPanels(page)
-    end)
+    end
+
+    self.panel_prefetch_actions[key] = action
+    UIManager:scheduleIn(delay, action)
 end
 
 --- Schedule delayed panel collection for the page after `page`.

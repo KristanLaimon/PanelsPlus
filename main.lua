@@ -27,7 +27,8 @@ local ViewerController = require("src.viewer_controller")
 --- @field settings PPSettings Runtime plugin settings.
 --- @field panel_cache table<string, PPPanel[]> Per-page panel cache.
 --- @field panel_cache_order string[] LRU cache key order.
---- @field panel_cache_loading table<string, boolean> Scheduled prefetch guards.
+--- @field panel_prefetch_actions table<string, function> Scheduled prefetch jobs, by cache key.
+--- @field panel_prerender_action function|nil Scheduled next-panel warm-up, if any.
 local PanelsPlus = WidgetContainer:extend{
     name = "panels_plus",
     is_doc_only = true,
@@ -54,7 +55,7 @@ function PanelsPlus:init()
     self.settings = Settings.load()
     self.panel_cache = {}
     self.panel_cache_order = {}
-    self.panel_cache_loading = {}
+    self.panel_prefetch_actions = {}
     self.ui.menu:registerToMainMenu(self)
     self:onDispatcherRegisterActions()
     self:patchNativePanelZoom()
@@ -118,6 +119,17 @@ end
 --- KOReader save hook: persist current settings.
 function PanelsPlus:onSaveSettings()
     self:saveSettings()
+end
+
+--- KOReader close hook: drop scheduled work and restore native panel zoom.
+---
+--- This lives here rather than in a mixin because `include()` copies methods by
+--- name: several modules need teardown, but only one could own the hook name.
+--- Every step must be safe to run when the matching feature never started.
+function PanelsPlus:onCloseWidget()
+    self:cancelPanelPrerender()
+    self:clearPanelCache()
+    self:restoreNativePanelZoom()
 end
 
 return PanelsPlus
