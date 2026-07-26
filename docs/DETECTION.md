@@ -1,0 +1,244 @@
+# Panel detection
+
+How Panels+ decides where the panels on a page are, why there are two detectors,
+and which knobs change the result.
+
+See also: [ARCHITECTURE.md](ARCHITECTURE.md), [PERFORMANCE.md](PERFORMANCE.md).
+
+## Two detectors, two failure modes
+
+Neither available detector is good enough alone, and they fail in different
+places — which is exactly why the default runs one and falls back to the other.
+
+| | Panels+ segmenter (`fast`) | KOReader detector (`native`) |
+| --- | --- | --- |
+| Cost per page | one render at ~1/5 scale | one full-resolution rasterization |
+| Panels found per pass | all of them | one per probe point |
+| Dark backgrounds | works | **fails** |
+| Interlocking / diagonal layouts | **cannot split them** | often handles them |
+| Reflow / page-optimization modes | unavailable | works |
+
+### Why the KOReader detector can't see a dark page
+
+`KoptInterface:getPanelFromPage` thresholds against *white* — the k2pdfopt code
+behind it looks for blank light-coloured bands and treats them as the gaps
+between panels. It has a white threshold and no inverse, and there is no way to
+hand it a pre-inverted bitmap.
+
+So on a page printed white-on-black there are no white gutters to find, and
+detection collapses. This is not a tuning problem; it needs a different detector.
+
+## The segmenter pipeline
+
+```mermaid
+flowchart TD
+    START(["collect(page)"]) --> MODE{"detector setting"}
+    MODE -->|native| NATIVE
+    MODE -->|auto / fast| BLOCK{"reflow or<br/>page optimization?"}
+
+    BLOCK -->|yes| NATIVE
+    BLOCK -->|no| RENDER["render page at ~1/5 scale<br/><i>_pagebitmap.lua</i>"]
+
+    RENDER --> BG["read the page border,<br/>take its median luminance<br/>= background"]
+    BG --> BIN["mark every cell whose luminance<br/>differs from background by<br/>more than segment_ink_delta"]
+    BIN --> CUT["recursive X-Y cut<br/><i>_segmenter.lua</i>"]
+    CUT --> ACCEPT{"Segmenter.accept"}
+
+    ACCEPT -->|trustworthy| SORT["sort into reading order"]
+    ACCEPT -->|not trustworthy| FB{"detector setting"}
+    FB -->|fast| EMPTY(["no panels"])
+    FB -->|auto| NATIVE["KOReader detector,<br/>batched over one rasterization<br/><i>_nativedetector.lua</i>"]
+
+    NATIVE --> SORT
+    SORT --> DONE(["ordered panels"])
+
+    style RENDER fill:#2d6cdf,color:#fff
+    style BG fill:#8a5cf6,color:#fff
+    style ACCEPT fill:#e8a33d,color:#000
+```
+
+### Background is measured, not assumed
+
+This one step is what makes dark pages work. The outer ~1% ring of the page is
+its own paper or its inked backdrop — never panel content — so the median
+luminance of that ring is a reliable reference for what "empty" looks like on
+*this* page.
+
+Everything downstream is then relative:
+
+```
+ink  ⇔  |luminance − background| > segment_ink_delta
+```
+
+A white page yields `background ≈ 255` and marks dark strokes as ink. A black
+page yields `background ≈ 0` and marks light strokes as ink. **The two produce
+identical ink maps**, so the rest of the pipeline never learns which kind of page
+it is looking at.
+
+### The recursive X-Y cut
+
+Comic pages are laid out as nested bands: a page splits into tiers, a tier splits
+into panels, and the separators are gutters of bare background. Slicing on the
+widest empty band, over and over, reproduces exactly that structure.
+
+For each region: count ink per row and per column, trim to the ink bounding box,
+find the widest *interior* run of near-empty lines, split there, and recurse.
+
+```mermaid
+flowchart TD
+    P["whole page"] --> P1["tier 1"]
+    P --> P2["tier 2"]
+    P --> P3["tier 3"]
+
+    P1 --> L1["panel"]
+    P2 --> L2["panel"]
+    P2 --> L3["panel"]
+    P2 --> L4["panel"]
+    P3 --> L5["panel"]
+
+    P -.->|"horizontal gutters"| P2
+    P2 -.->|"vertical gutters"| L3
+
+    style P fill:#2d6cdf,color:#fff
+    style L1 fill:#3fa45b,color:#fff
+    style L2 fill:#3fa45b,color:#fff
+    style L3 fill:#3fa45b,color:#fff
+    style L4 fill:#3fa45b,color:#fff
+    style L5 fill:#3fa45b,color:#fff
+```
+
+Three details matter more than they look:
+
+- **Interior gutters only.** A run of empty lines touching the edge of a region is
+  a margin, not a separator between two siblings. Splitting there produces one
+  empty half. Margins are removed by the trim step instead.
+- **Near-empty, not empty.** A line counts as gutter if its ink is at or below
+  `segment_gutter_ink_ratio` of the region's width. Scan noise, JPEG ringing and
+  dust would otherwise turn every real gutter into a non-gutter.
+- **Horizontal splits win ties.** Tiers stack vertically far more often than
+  panels sit in full-height columns, so preferring row cuts on equal-width
+  gutters follows the usual page structure.
+
+Rectangles come back in map cells and are scaled to native page coordinates, then
+grown by one cell in every direction: at 1/5 scale a single cell is several page
+pixels, and without the margin the crop shaves the outermost artwork.
+
+## Knowing when the cut is wrong
+
+An X-Y cut can only separate panels a straight line can separate. Diagonal splits
+and interlocking layouts have no such line. `Segmenter.accept()` catches those so
+the result is handed to the other detector instead of shown as-is:
+
+```mermaid
+flowchart TD
+    IN["segmented panels"] --> N{"how many?"}
+
+    N -->|0| R0(["reject: nothing found"])
+    N -->|1| ONE{"covers ≥ segment_single_panel_ratio<br/>of the page?"}
+    N -->|"2 or more"| SPAN{"panels span ≥ segment_page_coverage_min<br/>of the page?"}
+
+    ONE -->|yes| A1(["accept: splash page,<br/>or a page with no straight gutters"])
+    ONE -->|no| R1(["reject: found one blob,<br/>missed the rest"])
+
+    SPAN -->|no| R2(["reject: only found a corner"])
+    SPAN -->|yes| KEEP{"panels retain ≥ segment_coverage_min<br/>of the area they span?"}
+    KEEP -->|no| R3(["reject: too much dropped as noise"])
+    KEEP -->|yes| A2(["accept"])
+
+    style A1 fill:#3fa45b,color:#fff
+    style A2 fill:#3fa45b,color:#fff
+    style R0 fill:#d9534f,color:#fff
+    style R1 fill:#d9534f,color:#fff
+    style R2 fill:#d9534f,color:#fff
+    style R3 fill:#d9534f,color:#fff
+```
+
+The single-panel branch is deliberately generous. One rectangle spanning most of
+the page is the right answer twice over: it is what a splash page *is*, and it is
+also the best either detector can do on a page with no straight gutters. Falling
+back there would spend a full-resolution render to arrive at the same rectangle.
+A lone *small* rectangle is a different story and does get a second opinion.
+
+## The native detector, batched
+
+When the segmenter declines, `_nativedetector.lua` runs KOReader's detector — but
+not the way KOReader does.
+
+`Document:getPanelFromPage()` is the only uncached probe in `KoptInterface`:
+every call builds a context, rasterizes the whole page at full resolution, probes
+one point, and discards the rasterization. Probing a grid that way costs one page
+render per point.
+
+Panels+ drives the same primitives with the loop moved inside the rasterization:
+
+```mermaid
+flowchart LR
+    subgraph before ["KOReader: one render per probe"]
+        direction TB
+        B1["render page"] --> B2["probe 1"] --> B3["render page"] --> B4["probe 2"] --> B5["render page"] --> B6["probe 3 …"]
+    end
+
+    subgraph after ["Panels+: one render per page"]
+        direction TB
+        A1["render page"] --> A2["probe 1"] --> A3["probe 2"] --> A4["probe 3 …"]
+    end
+
+    style B1 fill:#d9534f,color:#fff
+    style B3 fill:#d9534f,color:#fff
+    style B5 fill:#d9534f,color:#fff
+    style A1 fill:#3fa45b,color:#fff
+```
+
+Probes run in a reading-order-aware plan — the hold position first, then the page
+centre, then likely reading-path cells, then the full grid — and any point
+already inside a discovered panel is skipped.
+
+`kc:getPanelFromPage` lives in koreader-base, a binary dependency, so whether
+reusing one context is safe cannot be settled by reading source. It is checked at
+runtime instead: the first probe point is re-probed after the loop, and a
+different answer means the context was mutated. That permanently disables
+batching for the session and falls back to one render per probe — slow, but
+correct.
+
+## Tuning
+
+All values live in `src/_settings.lua`. Existing installs pick up new defaults
+through `performance_profile_version`.
+
+| Setting | Default | Effect |
+| --- | --- | --- |
+| `detector` | `"auto"` | `auto` segmenter with fallback, `fast` segmenter only, `native` KOReader only |
+| `segment_target_width` | `320` | Ink-map width. Higher finds thinner gutters and costs more time |
+| `segment_ink_delta` | `40` | Luminance distance from background counted as ink. Raise for noisy scans, lower for faint art |
+| `segment_gutter_ratio` | `0.012` | Shortest gutter, as a fraction of the map's smaller side. Raise if panels are being over-split |
+| `segment_gutter_ink_ratio` | `0.005` | Ink a line may carry and still count as empty. Raise for dusty scans |
+| `segment_min_panel_area` | `0.005` | Smallest panel, as a fraction of page area. Rejects specks |
+| `segment_min_panel_side` | `0.03` | Smallest panel side. Rejects slivers |
+| `segment_max_depth` | `6` | Recursion limit, so up to 64 panels |
+| `segment_max_panels` | `40` | Hard cap per page |
+| `segment_coverage_min` | `0.5` | Least share of the spanned area the panels must retain |
+| `segment_page_coverage_min` | `0.4` | Least share of the page the panels must span |
+| `segment_single_panel_ratio` | `0.6` | Least share of the page a lone panel must cover to be believed |
+| `panel_grid_cols` / `panel_grid_rows` | `4` / `7` | Native detector probe grid |
+| `panel_bleed_ratio` / `panel_bleed_min` | `0.08` / `8` | Crop padding in loose crop mode |
+
+## Diagnosing a page
+
+Turn on **Panels+ → Log panel timings** and reopen the page. The log records
+which path ran and, when the segmenter declines, why:
+
+```
+[Panels+] page bitmap 41ms (320x480 bb8 bg=12 inverted ink=38%)
+[Panels+] segment 26ms (6 panels)
+```
+
+`bg=12 inverted` confirms the page was read as dark-background. A rejection looks
+like:
+
+```
+[Panels+] segmenter rejected: single partial panel
+[Panels+] native detect 780ms (5 panels from 29 probes, 1 page render)
+```
+
+If a page detects badly, the setting to reach for first is `detector`: forcing
+`fast` or `native` tells you immediately which one is misreading it.

@@ -55,11 +55,16 @@ If you want to build the plugin yourself instead, follow [building from source](
   </tr>
 </table>
 
-Additional details:
-
-- Lightweight panel cache and prefetch settings tuned for e-reader performance.
-- Built on KOReader's existing native panel detector instead of replacing it entirely.
+Other +Paneles features: (that for some reason aren't included in native koreader)
 - Adds zoom-friendly screenshot support while reading panels.
+- Finds panels on dark-background pages, where KOReader's own detector sees nothing.
+- Pre-renders the next panel while you read the current one, so swiping is instant.
+
+## Documentation
+
+- [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
+- [Panel detection](docs/DETECTION.md) — how panels are found, why there are two detectors, and every tuning knob.
+- [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
 
 ## Installation
 
@@ -123,10 +128,25 @@ Use KOReader's gesture manager to bind them to taps, swipes, or other gestures.
 
 ## Why This Exists
 
-When reading manga on an e-reader, some panels are too small to read comfortably on the full page. KOReader can detect panels, but the native flow often means zooming into one panel, leaving zoom, moving to the next panel, and repeating that cycle again and again.
+I'm a manga fan and I read a lot in my e-reader and found out some panels are too small to read comfortably on the full page, then I tried using ko-reader native zoom, but then I need to zoom out, change panel, zoom-in, read the panel, zoom-out, zoom-in, read, and so on... (ugh!).
 
-Panels+ keeps the full page available while making panel navigation feel like a normal reading flow. It also adds screenshot support while zoomed into panels, so you can capture the exact panel view instead of only taking full-page screenshots.
+KOReader can detect panels, but the native flow often means zooming into one panel, leaving zoom, moving to the next panel, and repeating that cycle.
 
+I wanted to create `Panels+` so (we manga-comic readers) could have the panel navigation we deserve with a normal reading flow!. 
+
+This supports screenshots while zoomed into panels, so you can capture the exact panel view instead of only taking full-page screenshots, and use them as screen savers, book covers, anything you want.
+
+
+# Contributions?
+Project is actually stable, and personally tested in:
+  - Kindle 12th Gen
+
+I don't see any more options to include, but contributions are welcome for:
+  - edge-cases bugs fixes
+  - performance improvements
+  - device-specific bugs fixes (this would help a lot)
+
+Thanks for using the plugin or at least, taking a look into this repo.
 
 ## License
 MIT License, check "LICENSE" file in this repository.
