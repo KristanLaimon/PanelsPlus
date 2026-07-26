@@ -27,12 +27,18 @@ function Cache:clearPanelCache()
     self.panel_cache_order = {}
 end
 
---- Build the cache key for a document page in the current reading mode.
+--- Build the cache key for a document page in the current reading mode and detector.
+---
+--- Mode changes panel order and detector changes the panel list itself, so
+--- both are part of the key. Keying on them (instead of clearing the whole
+--- cache on every switch) lets a page already detected under a given
+--- mode/detector combination stay cached when the reader switches away and
+--- back, and keeps other pages' cached results alive across the switch.
 ---
 --- @param page number Document page number.
---- @return string key Page-and-mode cache key.
+--- @return string key Page, mode, and detector cache key.
 function Cache:getPanelCacheKey(page)
-    return tostring(page) .. ":" .. (self.settings.mode or "manga")
+    return tostring(page) .. ":" .. (self.settings.mode or "manga") .. ":" .. self:getDetector()
 end
 
 --- Return cached panels for a page in the current reading mode.
@@ -81,9 +87,7 @@ function Cache:collectPanels(page, hold_pos)
     end
 
     local panels = PanelCollector.collect(self.ui, self.settings, page, hold_pos)
-    if #panels > 0 then
-        self:cachePanels(page, panels)
-    end
+    self:cachePanels(page, panels)
     return panels
 end
 

@@ -85,12 +85,15 @@ function PanelsPlus:setEnabled(enabled)
     self:applyNativePanelSetting()
 end
 
---- Set reading order mode and invalidate cached ordered panel lists.
+--- Set reading order mode.
+---
+--- The panel cache is keyed by mode (see `Cache:getPanelCacheKey`), so
+--- switching modes does not need to invalidate anything: pages already
+--- detected under the other mode simply stay cached under their own key.
 ---
 --- @param mode PPReadingMode Requested mode; anything except `"comic"` maps to `"manga"`.
 function PanelsPlus:setMode(mode)
     self.settings.mode = mode == "comic" and "comic" or "manga"
-    self:clearPanelCache()
     self:saveSettings()
 end
 
@@ -118,12 +121,17 @@ function PanelsPlus:setProgressBarVisible(visible)
     self:saveSettings()
 end
 
---- Choose which detector finds panels, invalidating results from the other one.
+--- Choose which detector finds panels.
+---
+--- The panel cache is keyed by detector (see `Cache:getPanelCacheKey`), so
+--- switching detectors does not need to invalidate anything: results from
+--- the other detector simply stay cached under their own key, and cycling
+--- back to a detector already used on this page returns instantly instead
+--- of paying for another detection pass.
 ---
 --- @param detector PPDetector Requested detector; anything unknown maps to `"auto"`.
 function PanelsPlus:setDetector(detector)
     self.settings.detector = (detector == "fast" or detector == "exact") and detector or "auto"
-    self:clearPanelCache()
     self:saveSettings()
 end
 
