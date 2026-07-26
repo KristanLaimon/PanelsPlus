@@ -18,6 +18,21 @@ local ffi = require("ffi")
 --- @class PPSegmenterModule
 local Segmenter = {}
 
+--- Slopes tried when no straight gutter exists, as dx per unit y.
+---
+--- Panels are rarely drawn perfectly square, and a gutter tilted by even two
+--- degrees leaves no column empty from top to bottom, which is enough to stop
+--- the straight cut entirely. The ladder covers 2 to 8 degrees either way; the
+--- spacing matters, since a coarser ladder straddles 5 degrees and misses the
+--- most common case.
+Segmenter.SHEAR_SLOPES = {
+    0.035, -0.035,   -- 2.0 degrees
+    0.061, -0.061,   -- 3.5
+    0.087, -0.087,   -- 5.0
+    0.115, -0.115,   -- 6.5
+    0.141, -0.141,   -- 8.0
+}
+
 --- Accumulate ink counts per row and per column over a sub-rectangle.
 ---
 --- @param map PPPageMap Page ink map.
@@ -102,6 +117,200 @@ local function findWidestGutter(projection, from, to, span, ink_ratio, min_lengt
     return best_start, best_stop, best_length
 end
 
+--- Collect every interior gutter run in a projection, widest first.
+---
+--- Unlike the straight cut, the sheared search cannot just take the widest run:
+--- projecting a slanted band back onto the axis widens it by `drift`, which
+--- often makes the widest candidate unusable while a narrower one is fine. It
+--- also keeps re-finding the gutter it just split on, now sitting against the
+--- region border, so it has to be able to look past it.
+---
+--- @param projection table Row or column accumulator.
+--- @param from integer Inclusive start index.
+--- @param to integer Inclusive end index.
+--- @param span number Perpendicular extent, used to scale the ink tolerance.
+--- @param ink_ratio number Fraction of `span` still counted as empty.
+--- @param min_length integer Shortest run accepted as a gutter.
+--- @return {from:integer, to:integer, length:integer}[] gutters Sorted widest first.
+local function collectGutters(projection, from, to, span, ink_ratio, min_length)
+    local max_ink = span * ink_ratio
+    local gutters = {}
+    local run_start = nil
+
+    for index = from, to do
+        if projection[index] <= max_ink then
+            if not run_start then
+                run_start = index
+            end
+        else
+            if run_start and run_start > from then
+                local length = index - run_start
+                if length >= min_length then
+                    table.insert(gutters, {
+                        from = run_start,
+                        to = index - 1,
+                        length = length,
+                    })
+                end
+            end
+            run_start = nil
+        end
+    end
+
+    table.sort(gutters, function(a, b)
+        return a.length > b.length
+    end)
+    return gutters
+end
+
+--- Accumulate column ink counts along lines sheared by `slope`.
+---
+--- Only the y loop may be stepped. Every x must still be visited, or the
+--- columns that were skipped read as empty and become phantom gutters.
+---
+--- @param map PPPageMap Page ink map.
+--- @param x0 integer Inclusive left cell.
+--- @param y0 integer Inclusive top cell.
+--- @param x1 integer Inclusive right cell.
+--- @param y1 integer Inclusive bottom cell.
+--- @param slope number Shear, as dx per unit y.
+--- @param cols ffi.cdata* Column accumulator.
+--- @param step integer Sample every `step`-th row.
+local function projectColumnsSheared(map, x0, y0, x1, y1, slope, cols, step)
+    for x = x0, x1 do
+        cols[x] = 0
+    end
+
+    local data, map_w = map.data, map.w
+    local ymid = math.floor((y0 + y1) / 2)
+    for y = y0, y1, step do
+        local shift = math.floor(slope * (y - ymid) + 0.5)
+        local base = y * map_w
+        local lo = x0 + shift
+        if lo < x0 then
+            lo = x0
+        end
+        local hi = x1 + shift
+        if hi > x1 then
+            hi = x1
+        end
+        for x = lo, hi do
+            if data[base + x] == 1 then
+                local target = x - shift
+                cols[target] = cols[target] + 1
+            end
+        end
+    end
+end
+
+--- Accumulate row ink counts along lines sheared by `slope`.
+---
+--- Mirror of the column pass: here only the x loop may be stepped.
+---
+--- @param map PPPageMap Page ink map.
+--- @param x0 integer Inclusive left cell.
+--- @param y0 integer Inclusive top cell.
+--- @param x1 integer Inclusive right cell.
+--- @param y1 integer Inclusive bottom cell.
+--- @param slope number Shear, as dy per unit x.
+--- @param rows ffi.cdata* Row accumulator.
+--- @param step integer Sample every `step`-th column.
+local function projectRowsSheared(map, x0, y0, x1, y1, slope, rows, step)
+    for y = y0, y1 do
+        rows[y] = 0
+    end
+
+    local data, map_w = map.data, map.w
+    local xmid = math.floor((x0 + x1) / 2)
+    for y = y0, y1 do
+        local base = y * map_w
+        for x = x0, x1, step do
+            if data[base + x] == 1 then
+                local target = y - math.floor(slope * (x - xmid) + 0.5)
+                if target >= y0 and target <= y1 then
+                    rows[target] = rows[target] + 1
+                end
+            end
+        end
+    end
+end
+
+--- Return the smallest value in a projection range.
+---
+--- @param projection ffi.cdata* Row or column accumulator.
+--- @param from integer Inclusive start index.
+--- @param to integer Inclusive end index.
+--- @return number smallest Lowest ink count in the range.
+local function minInRange(projection, from, to)
+    local smallest = math.huge
+    for index = from, to do
+        if projection[index] < smallest then
+            smallest = projection[index]
+        end
+    end
+    return smallest
+end
+
+--- Look for a split along slanted lines, for panels that are not square.
+---
+--- Returns the axis to split on plus the band's full extent once projected back
+--- to the axis. Both children are given the whole band, so each panel keeps all
+--- of its own artwork and gains a thin wedge of its neighbour rather than losing
+--- a corner.
+---
+--- @param map PPPageMap Page ink map.
+--- @param left integer Inclusive left cell.
+--- @param top integer Inclusive top cell.
+--- @param right integer Inclusive right cell.
+--- @param bottom integer Inclusive bottom cell.
+--- @param ctx table Segmentation limits and shared scratch buffers.
+--- @return '"cols"'|'"rows"'|nil axis Axis to split on, or nil when none works.
+--- @return integer|nil lo Lower edge of the band.
+--- @return integer|nil hi Upper edge of the band.
+local function findShearedSplit(map, left, top, right, bottom, ctx)
+    local width = right - left + 1
+    local height = bottom - top + 1
+    local step = ctx.shear_step
+
+    -- Whichever slope worked last is overwhelmingly likely to work again on the
+    -- same page, so it is worth trying before the rest of the ladder.
+    local order = {}
+    if ctx.slope_hint then
+        table.insert(order, ctx.slope_hint)
+    end
+    for _, slope in ipairs(ctx.slopes) do
+        if slope ~= ctx.slope_hint then
+            table.insert(order, slope)
+        end
+    end
+
+    for _, slope in ipairs(order) do
+        projectColumnsSheared(map, left, top, right, bottom, slope, ctx.cols, step)
+        local drift = math.floor(math.abs(slope) * height / 2) + 1
+        for _, gutter in ipairs(collectGutters(ctx.cols, left, right, height / step,
+                ctx.ink_ratio, ctx.min_gutter)) do
+            local lo, hi = gutter.from - drift, gutter.to + drift
+            if lo > left and hi < right then
+                ctx.slope_hint = slope
+                return "cols", lo, hi
+            end
+        end
+
+        projectRowsSheared(map, left, top, right, bottom, slope, ctx.rows, step)
+        drift = math.floor(math.abs(slope) * width / 2) + 1
+        for _, gutter in ipairs(collectGutters(ctx.rows, top, bottom, width / step,
+                ctx.ink_ratio, ctx.min_gutter)) do
+            local lo, hi = gutter.from - drift, gutter.to + drift
+            if lo > top and hi < bottom then
+                ctx.slope_hint = slope
+                return "rows", lo, hi
+            end
+        end
+    end
+
+    return nil
+end
+
 --- Record a terminal region as a panel candidate, in map cells.
 ---
 --- @param x0 integer Inclusive left cell.
@@ -160,6 +369,27 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
             cut(map, col_stop + 1, top, right, bottom, depth + 1, ctx, out)
             return
         end
+
+        -- Nothing straight. The panels may simply not be square, so look along
+        -- slanted lines -- but only when something already looks part-empty. A
+        -- splash page has no such line and skips a search that cannot succeed.
+        if ctx.slopes and depth <= ctx.shear_max_depth
+                and (minInRange(ctx.cols, left, right) <= height * ctx.shear_trigger
+                    or minInRange(ctx.rows, top, bottom) <= width * ctx.shear_trigger) then
+            local axis, lo, hi = findShearedSplit(map, left, top, right, bottom, ctx)
+            ctx.shear_searches = ctx.shear_searches + 1
+            if axis == "cols" then
+                ctx.shear_splits = ctx.shear_splits + 1
+                cut(map, left, top, hi, bottom, depth + 1, ctx, out)
+                cut(map, lo, top, right, bottom, depth + 1, ctx, out)
+                return
+            elseif axis == "rows" then
+                ctx.shear_splits = ctx.shear_splits + 1
+                cut(map, left, top, right, hi, depth + 1, ctx, out)
+                cut(map, left, lo, right, bottom, depth + 1, ctx, out)
+                return
+            end
+        end
     end
 
     emitLeaf(left, top, right, bottom, ctx, out)
@@ -192,6 +422,13 @@ function Segmenter.segment(map, settings)
             * (settings.segment_min_panel_area or defaults.segment_min_panel_area)),
         max_depth = settings.segment_max_depth or defaults.segment_max_depth,
         max_panels = settings.segment_max_panels or defaults.segment_max_panels,
+        slopes = settings.segment_shear ~= false and Segmenter.SHEAR_SLOPES or nil,
+        shear_max_depth = settings.segment_shear_max_depth or defaults.segment_shear_max_depth,
+        shear_trigger = settings.segment_shear_trigger or defaults.segment_shear_trigger,
+        shear_step = settings.segment_shear_step or defaults.segment_shear_step,
+        slope_hint = nil,
+        shear_searches = 0,
+        shear_splits = 0,
     }
 
     local cells = {}
@@ -213,7 +450,12 @@ function Segmenter.segment(map, settings)
         })
     end
 
-    stop(#panels .. " panels")
+    if ctx.shear_searches > 0 then
+        stop(string.format("%d panels, %d of %d slanted searches split",
+            #panels, ctx.shear_splits, ctx.shear_searches))
+    else
+        stop(#panels .. " panels")
+    end
     return panels
 end
 

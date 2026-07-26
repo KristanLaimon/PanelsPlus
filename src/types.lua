@@ -65,6 +65,10 @@
 --- @field segment_coverage_min number Least share of the covered region the panels must retain.
 --- @field segment_page_coverage_min number Least share of the page the panels must span.
 --- @field segment_single_panel_ratio number Least share of the page a lone panel must cover.
+--- @field segment_shear boolean Look for slanted gutters when no straight one exists.
+--- @field segment_shear_max_depth integer Deepest recursion level allowed to search for slanted gutters.
+--- @field segment_shear_trigger number Emptiest line, as a fraction of span, that triggers a slanted search.
+--- @field segment_shear_step integer Sample every Nth line while searching for slanted gutters.
 --- @field debug_timing boolean Write panel pipeline timings to the KOReader log.
 --- @field performance_profile_version integer
 
