@@ -81,6 +81,7 @@ end
 --- @param enabled any Truthy value enables Panels+ focusing; false uses native panel zoom.
 function PanelsPlus:setEnabled(enabled)
     self.settings.enabled = enabled and true or false
+    Timing.log("enabled -> " .. tostring(self.settings.enabled))
     self:saveSettings()
     self:applyNativePanelSetting()
 end
@@ -94,6 +95,7 @@ end
 --- @param mode PPReadingMode Requested mode; anything except `"comic"` maps to `"manga"`.
 function PanelsPlus:setMode(mode)
     self.settings.mode = mode == "comic" and "comic" or "manga"
+    Timing.log("mode -> " .. self.settings.mode)
     self:saveSettings()
 end
 
@@ -132,6 +134,9 @@ end
 --- @param detector PPDetector Requested detector; anything unknown maps to `"auto"`.
 function PanelsPlus:setDetector(detector)
     self.settings.detector = (detector == "fast" or detector == "exact") and detector or "auto"
+    Timing.log("detector -> " .. self.settings.detector .. string.format(
+        " (cache: %d pages)", #(self.panel_cache_order or {})
+    ))
     self:saveSettings()
 end
 

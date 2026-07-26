@@ -264,9 +264,11 @@ function PageBitmap.build(document, page, settings)
             background = background,
             inverted = background < 128,
         }
-        stop(string.format("%dx%d %s bg=%d%s ink=%d%%",
+        local free_mb = Timing.enabled and Timing.freeMB() or nil
+        stop(string.format("%dx%d %s bg=%d%s ink=%d%%%s",
             w, h, kind, background, map.inverted and " inverted" or "",
-            math.floor(ink * 100 / (w * h))))
+            math.floor(ink * 100 / (w * h)),
+            free_mb and (" free=" .. free_mb .. "MB") or ""))
     end)
 
     -- The greyscale copy, if one was made, is ours; the rendered tile is not.

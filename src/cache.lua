@@ -1,5 +1,6 @@
 local PanelCollector = require("src._panelcollector")
 local Settings = require("src._settings")
+local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 
 --- Panel cache and prefetch methods mixed into `PanelsPlus`.
@@ -69,6 +70,7 @@ function Cache:cachePanels(page, panels)
     while #self.panel_cache_order > max_pages do
         local stale_key = table.remove(self.panel_cache_order, 1)
         self.panel_cache[stale_key] = nil
+        Timing.log("cache evict " .. stale_key .. string.format(" (%d pages cached)", #self.panel_cache_order))
     end
 end
 

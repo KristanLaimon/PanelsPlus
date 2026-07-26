@@ -1,5 +1,6 @@
 local logger = require("logger")
 local time = require("ui/time")
+local util = require("util")
 
 --- Opt-in timing instrumentation for the panel pipeline.
 ---
@@ -46,6 +47,43 @@ function Timing.log(message)
         return
     end
     logger.info("[Panels+] " .. message)
+end
+
+--- Read current free system memory, in whole megabytes.
+---
+--- `util.calcFreeMem()` is Linux-only (parses `/proc/meminfo`) and reports
+--- bytes already discounted to 85% of MemAvailable. This is the only figure
+--- available from Lua that tracks the OOM killer's own view of headroom, which
+--- matters because a SIGKILL from the kernel leaves no Lua traceback behind:
+--- a memory trend logged in the run-up is the only postmortem evidence left.
+---
+--- @return integer|nil free_mb Free memory in MB, or nil off Linux.
+function Timing.freeMB()
+    local ok, free_bytes = pcall(util.calcFreeMem)
+    if not ok or not free_bytes then
+        return nil
+    end
+    return math.floor(free_bytes / (1024 * 1024))
+end
+
+--- Log a one-off message annotated with current free memory and Lua heap size.
+---
+--- Intended for points that precede known OOM-risk work (large caches, batch
+--- renders, rapid re-detection) so a crash log shows the memory trend leading
+--- up to a kill, not just the last timing span that happened to run.
+---
+--- @param label string Message body; annotated with memory figures.
+function Timing.memory(label)
+    if not Timing.enabled then
+        return
+    end
+    local free_mb = Timing.freeMB()
+    logger.info(string.format(
+        "[Panels+] memory %s free=%s lua=%dKB",
+        label,
+        free_mb and (free_mb .. "MB") or "?",
+        math.floor(collectgarbage("count"))
+    ))
 end
 
 return Timing

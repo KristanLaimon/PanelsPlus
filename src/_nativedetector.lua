@@ -273,6 +273,9 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
 
     local try_batched = not dstate.unsafe or dstate.calls_since_failure >= RETRY_AFTER_CALLS
     if try_batched and runBatchedProbes(document, page, probes, hold_pos, state, dstate) then
+        if dstate.unsafe then
+            Timing.log(string.format("native detector recovered after %d calls", dstate.calls_since_failure))
+        end
         dstate.unsafe = false
         dstate.calls_since_failure = 0
         stop(string.format("%d panels from %d probes, 1 page render", #state.panels, #probes))
@@ -283,11 +286,16 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
     end
 
     -- Fallback: KOReader's own entry point, one full page render per probe.
+    -- This is the path flagged in the module doc comment as the one that
+    -- floods DocCache on low-memory devices, so it gets its own memory
+    -- snapshot before and after rather than sharing the generic span detail.
+    Timing.memory(string.format("native detect fallback start (page %d, %d probes)", page, #probes))
     state.panels, state.by_key = {}, {}
     runProbes(probes, hold_pos, state, function(pos)
         return document:getPanelFromPage(page, pos)
     end)
     stop(string.format("%d panels from %d probes, per-probe renders", #state.panels, #probes))
+    Timing.memory("native detect fallback end")
     return NativeDetector.sort(state.panels, settings)
 end
 

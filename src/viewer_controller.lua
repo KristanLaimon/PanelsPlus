@@ -33,7 +33,15 @@ function ViewerController:hasMemoryForPrerender()
     end
     local minimum = self.settings.prerender_min_free_bytes
         or Settings.defaults.prerender_min_free_bytes
-    return free_bytes >= minimum
+    local allowed = free_bytes >= minimum
+    if not allowed then
+        Timing.log(string.format(
+            "prerender skipped: low memory (free=%dMB min=%dMB)",
+            math.floor(free_bytes / (1024 * 1024)),
+            math.floor(minimum / (1024 * 1024))
+        ))
+    end
+    return allowed
 end
 
 --- Warm the render of the panel after `index` while the reader sits idle.
@@ -137,7 +145,9 @@ end
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:cycleViewerDetector(viewer)
     local order = { auto = "fast", fast = "exact", exact = "auto" }
-    self:setDetector(order[self:getDetector()] or "fast")
+    local next_detector = order[self:getDetector()] or "fast"
+    Timing.memory("detector cycle -> " .. next_detector)
+    self:setDetector(next_detector)
 
     local current_rect = viewer.panels and viewer.panels[viewer._images_list_cur]
     local panels = self:collectPanels(viewer.page)
