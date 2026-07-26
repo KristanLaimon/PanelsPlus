@@ -720,6 +720,8 @@ function PanelViewer:replaceButtonTable()
                     end
                 end,
             },
+        },
+        {
             {
                 id = "detector",
                 text = self:getDetectorText(),
