@@ -62,6 +62,7 @@ Other +Paneles features: (that for some reason aren't included in native koreade
 
 ## Documentation
 
+- [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
 - [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
 - [Panel detection](docs/DETECTION.md) — how panels are found, why there are two detectors, and every tuning knob.
 - [Viewer modes](docs/MODES.md) — what Auto, Gutter and Outline mode mean for the reader, and where to change them.
