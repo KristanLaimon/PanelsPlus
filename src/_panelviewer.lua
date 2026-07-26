@@ -503,12 +503,15 @@ end
 
 --- Return the button label for the crop mode currently in use.
 ---
+--- Loose and margin modes are hinted as configurable since long-pressing the
+--- button opens a slider for them; strict crop has nothing to configure.
+---
 --- @return string text Localized crop-mode label.
 function PanelViewer:getCropModeText()
     if self.crop_mode == "loose" then
-        return _("Loose crop")
+        return _("Loose crop") .. " " .. _("(Long press config)")
     elseif self.crop_mode == "margin" then
-        return _("With margin")
+        return _("With margin") .. " " .. _("(Long press config)")
     end
     return _("Strict crop")
 end
