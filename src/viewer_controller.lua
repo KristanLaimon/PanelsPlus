@@ -21,15 +21,19 @@ end
 
 --- Return whether there is room to warm one more panel tile.
 ---
+--- `util.calcFreeMem()` reports **bytes**, already discounted to 85% of
+--- MemAvailable, despite parsing `/proc/meminfo`'s kB fields.
+---
 --- @return boolean allowed Whether prerendering should proceed.
 function ViewerController:hasMemoryForPrerender()
-    local ok, memavailable = pcall(util.calcFreeMem)
-    if not ok or not memavailable then
+    local ok, free_bytes = pcall(util.calcFreeMem)
+    if not ok or not free_bytes then
         -- /proc/meminfo is Linux-only; elsewhere assume there is headroom.
         return true
     end
-    local minimum = self.settings.prerender_min_free_kb or Settings.defaults.prerender_min_free_kb
-    return memavailable >= minimum
+    local minimum = self.settings.prerender_min_free_bytes
+        or Settings.defaults.prerender_min_free_bytes
+    return free_bytes >= minimum
 end
 
 --- Warm the render of the panel after `index` while the reader sits idle.

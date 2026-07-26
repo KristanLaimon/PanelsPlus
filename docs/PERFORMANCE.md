@@ -118,7 +118,7 @@ sequenceDiagram
     V-->>U: panel N shown
     V->>VC: requestPanelPrerender(N)
     Note over VC: wait panel_prerender_delay
-    VC->>VC: free memory ≥ prerender_min_free_kb?
+    VC->>VC: free memory ≥ prerender_min_free_bytes?
     VC->>D: render panel N+1, discard the buffer
     Note over D: tile stays cached,<br/>plugin owns nothing
 ```
@@ -152,7 +152,7 @@ Deliberate choices behind that table:
   `DocCache` frees evicted tiles immediately via its eviction callback, so a
   borrowed tile could be freed underneath the viewer.
 - **Prerendering yields under pressure.** If `util.calcFreeMem()` reports less
-  than `prerender_min_free_kb` (40MB) available, the warm-up is skipped and
+  than `prerender_min_free_bytes` (40MB) available, the warm-up is skipped and
   behaviour degrades to rendering on demand.
 - **Scheduled work is cancellable.** Prefetch jobs and the prerender job are held
   by handle and unscheduled on cache clear and on close, so closures do not keep
@@ -187,7 +187,7 @@ What the numbers tell you:
 | `segment` dominates | Unusual; the cut is subdividing heavily. Lower `segment_max_depth` |
 | `native detect` appears often | The segmenter is declining these pages — see the rejection reason above it |
 | `per-probe renders` in the native line | The batching self-check failed and the slow path is in use. Worth reporting |
-| No `prerender` lines | Prerendering is off, or free memory is under `prerender_min_free_kb` |
+| No `prerender` lines | Prerendering is off, or free memory is under `prerender_min_free_bytes` |
 
 Leave the setting off for normal reading; it writes a few lines per page.
 
