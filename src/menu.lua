@@ -129,14 +129,14 @@ function Menu:addToMainMenu(menu_items)
                 help_text = _("Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."),
             },
             {
-                text = _("Log panel timings"),
+                text = _("Enable debugging logs"),
                 checked_func = function()
-                    return self.settings.debug_timing == true
+                    return self.settings.debug_mode == true
                 end,
                 callback = function()
-                    self:setDebugTiming(not self.settings.debug_timing)
+                    self:setDebugMode(not self.settings.debug_mode)
                 end,
-                help_text = _("Write panel detection and render timings to KOReader's log. Useful for diagnosing slowness, otherwise leave off."),
+                help_text = _("Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."),
             },
         },
     }

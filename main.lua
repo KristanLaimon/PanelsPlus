@@ -54,7 +54,7 @@ include(PanelsPlus, NativePanelZoom)
 --- Initialize settings, panel cache state, menu registration, actions, and hook.
 function PanelsPlus:init()
     self.settings = Settings.load()
-    Timing.enabled = self.settings.debug_timing == true
+    Timing.enabled = self.settings.debug_mode == true
     self.panel_cache = {}
     self.panel_cache_order = {}
     self.panel_prefetch_actions = {}
@@ -151,12 +151,12 @@ function PanelsPlus:setPanelPrerender(enabled)
     self:saveSettings()
 end
 
---- Enable or disable timing logs for the panel pipeline.
+--- Enable or disable debugging logs for the panel pipeline.
 ---
---- @param enabled any Truthy value writes timings to the KOReader log.
-function PanelsPlus:setDebugTiming(enabled)
-    self.settings.debug_timing = enabled and true or false
-    Timing.enabled = self.settings.debug_timing
+--- @param enabled any Truthy value writes debugging logs to the KOReader log.
+function PanelsPlus:setDebugMode(enabled)
+    self.settings.debug_mode = enabled and true or false
+    Timing.enabled = self.settings.debug_mode
     self:saveSettings()
 end
 

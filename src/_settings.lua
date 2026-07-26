@@ -42,7 +42,7 @@ local Settings = {
         segment_shear_max_depth = 4,
         segment_shear_trigger = 0.35,
         segment_shear_step = 2,
-        debug_timing = false,
+        debug_mode = false,
         performance_profile_version = 7,
     },
 }
@@ -63,6 +63,12 @@ function Settings.withDefaults(settings)
     if settings.detector == "native" then
         settings.detector = "exact"
     end
+    -- "debug_timing" was renamed "debug_mode" once it started covering memory
+    -- logging too, not just pipeline timings.
+    if settings.debug_mode == nil and settings.debug_timing ~= nil then
+        settings.debug_mode = settings.debug_timing
+    end
+    settings.debug_timing = nil
     for key, value in pairs(Settings.defaults) do
         if settings[key] == nil then
             settings[key] = value

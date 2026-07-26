@@ -69,7 +69,7 @@
 --- @field segment_shear_max_depth integer Deepest recursion level allowed to search for slanted gutters.
 --- @field segment_shear_trigger number Emptiest line, as a fraction of span, that triggers a slanted search.
 --- @field segment_shear_step integer Sample every Nth line while searching for slanted gutters.
---- @field debug_timing boolean Write panel pipeline timings to the KOReader log.
+--- @field debug_mode boolean Write panel pipeline timings and memory usage to the KOReader log.
 --- @field performance_profile_version integer
 
 --- Options accepted by `showPanelViewerForPage`.

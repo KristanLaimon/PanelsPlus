@@ -8,7 +8,7 @@ local util = require("util")
 --- that cannot be measured from a desktop build, so the plugin needs a way to
 --- report real timings from the e-reader itself. Spans are no-ops (and allocate
 --- nothing beyond a shared closure) unless `Timing.enabled` is set from the
---- `debug_timing` setting.
+--- `debug_mode` setting.
 ---
 --- @class PPTimingModule
 --- @field enabled boolean Whether spans log their duration.
