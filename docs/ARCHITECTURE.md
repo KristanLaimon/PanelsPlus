@@ -46,7 +46,7 @@ the class in `main.lua` rather than in the module that needs it.
 
 ```mermaid
 flowchart TD
-    subgraph class ["PanelsPlus class (main.lua)"]
+    subgraph pluginclass ["PanelsPlus class (main.lua)"]
         MAIN["main.lua<br/><i>settings, lifecycle, teardown</i>"]
         CACHE["cache.lua<br/><i>panel cache, prefetch</i>"]
         VC["viewer_controller.lua<br/><i>open, navigate, prerender</i>"]
@@ -66,10 +66,18 @@ flowchart TD
         TIM["_timing.lua"]
     end
 
-    MAIN -.->|include| CACHE & VC & ACT & MENU & NPZ
+    MAIN -.->|include| CACHE
+    MAIN -.->|include| VC
+    MAIN -.->|include| ACT
+    MAIN -.->|include| MENU
+    MAIN -.->|include| NPZ
     CACHE --> PC
-    VC --> PC & PV
-    PC --> SEG & PB & ND & GEO
+    VC --> PC
+    VC --> PV
+    PC --> SEG
+    PC --> PB
+    PC --> ND
+    PC --> GEO
     SEG --> SET
     PB --> SET
 
