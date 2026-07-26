@@ -1,3 +1,7 @@
+
+
+
+
 <p align="center">
   <img src=".github/panels+_logo.png" alt="Panels+ logo" width="250">
   <br>
@@ -8,22 +12,37 @@
 
 <table>
   <tr>
-    <td align="center" width="50%">
+    <td align="center" width="30%">
       <img src=".github/manga_fullscreen.png" alt="Panels+ running in KOReader" width="420">
       <br>
       <sub>Full-page reading stays one tap away.</sub>
     </td>
-    <td align="center" width="50%">
+    <td align="center" width="40%">
       <video src="https://github.com/user-attachments/assets/446c71c6-a8f7-47ce-ae44-0fc885ed3241" controls width="420"></video>
       <br>
-      <sub>Panel-by-panel navigation in KOReader.</sub>
+      <sub>Core feature: Panel by panel smooth travelling.</sub>
+    </td>
+    <td align="center" width="30%">
+      <video src="https://github.com/user-attachments/assets/aa34d5db-8e47-4b68-bd5b-fc90d3da6493" controls width="420"></video>
+      <br>
+      <sub>Additional Features: Manga/Comic direction, cropping, precision, and much more!. Margin and Loose cropping are configurable by just long-pressing those buttons.</sub>
     </td>
   </tr>
 </table>
 
+
+
+
+
+
+
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default single-panel zoom flow with a direction-aware panel reader.
 
-It keeps KOReader's native panel detection, then adds ordered panel navigation, manga/comic reading modes, swipe tuning, and gesture-friendly actions so pages feel smoother on e-readers.
+It keeps KOReader's native panel detection, then adds ordered panel navigation, manga/comic reading modes, swipe tuning, and gesture-friendly actions so pages feel smoother on e-readers, plus:
+
+- Zoom-friendly screenshot support while reading panels.
+- Panels finding on dark-background pages, where KOReader's own detector sees nothing.
+- Pre-fetching the next panels while you read the current one, so swiping is instant (or at least very fast).
 
 ## Download
 
@@ -31,34 +50,21 @@ Download the latest release from the [releases page](https://github.com/KristanL
 
 If you want to build the plugin yourself instead, follow [building from source](#building-from-source).
 
-## Features
+## Config
 
-<table>
-  <tr>
-    <td width="50%" valign="top" align="center">
-      <video src="https://github.com/user-attachments/assets/446c71c6-a8f7-47ce-ae44-0fc885ed3241" controls width="420"></video>
-      <br>
-      <ul>
-        <li>Panel-focused reading for manga, comics, manhwa, and other image-heavy books.</li>
-        <li>Manga mode for right-to-left panel order.</li>
-        <li>Comic mode for left-to-right panel order.</li>
-      </ul>
-    </td>
-    <td width="50%" valign="top" align="center">
-      <video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
-      <br>
-      <ul>
-        <li>You can customize the swipe direction when navigating trought the panels.</li>
-        <li>Included KOReader gesture actions for toggling the plugin and switching modes quickly.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
+<div align="center">
 
-Other +Paneles features: (that for some reason aren't included in native koreader)
-- Adds zoom-friendly screenshot support while reading panels.
-- Finds panels on dark-background pages, where KOReader's own detector sees nothing.
-- Pre-renders the next panel while you read the current one, so swiping is instant.
+<video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
+
+<div align="center" style="display: inline-block; text-align: left;">
+
+* You can customize the swipe direction when navigating trought the panels.
+* Included KOReader gesture actions for toggling the plugin and switching modes quickly.
+
+</div>
+</div>
+
+
 
 ## Documentation
 
