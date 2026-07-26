@@ -11,6 +11,7 @@ local Cache = require("src.cache")
 local Menu = require("src.menu")
 local NativePanelZoom = require("src.native_panel_zoom")
 local Settings = require("src._settings")
+local Timing = require("src._timing")
 local ViewerController = require("src.viewer_controller")
 
 --- KOReader plugin that replaces native panel zoom with ordered panel reading.
@@ -53,6 +54,7 @@ include(PanelsPlus, NativePanelZoom)
 --- Initialize settings, panel cache state, menu registration, actions, and hook.
 function PanelsPlus:init()
     self.settings = Settings.load()
+    Timing.enabled = self.settings.debug_timing == true
     self.panel_cache = {}
     self.panel_cache_order = {}
     self.panel_prefetch_actions = {}
@@ -113,6 +115,35 @@ end
 --- @param visible any Truthy value shows the progress bar.
 function PanelsPlus:setProgressBarVisible(visible)
     self.settings.progress_bar_visible = visible and true or false
+    self:saveSettings()
+end
+
+--- Choose which detector finds panels, invalidating results from the other one.
+---
+--- @param detector PPDetector Requested detector; anything unknown maps to `"auto"`.
+function PanelsPlus:setDetector(detector)
+    self.settings.detector = (detector == "fast" or detector == "native") and detector or "auto"
+    self:clearPanelCache()
+    self:saveSettings()
+end
+
+--- Enable or disable warming the next panel's render while idle.
+---
+--- @param enabled any Truthy value pre-renders the next panel.
+function PanelsPlus:setPanelPrerender(enabled)
+    self.settings.panel_prerender = enabled and true or false
+    if not self.settings.panel_prerender then
+        self:cancelPanelPrerender()
+    end
+    self:saveSettings()
+end
+
+--- Enable or disable timing logs for the panel pipeline.
+---
+--- @param enabled any Truthy value writes timings to the KOReader log.
+function PanelsPlus:setDebugTiming(enabled)
+    self.settings.debug_timing = enabled and true or false
+    Timing.enabled = self.settings.debug_timing
     self:saveSettings()
 end
 

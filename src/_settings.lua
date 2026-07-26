@@ -38,6 +38,7 @@ local Settings = {
         segment_coverage_min = 0.5,
         segment_page_coverage_min = 0.4,
         segment_single_panel_ratio = 0.6,
+        debug_timing = false,
         performance_profile_version = 6,
     },
 }

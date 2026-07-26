@@ -65,6 +65,7 @@
 --- @field segment_coverage_min number Least share of the covered region the panels must retain.
 --- @field segment_page_coverage_min number Least share of the page the panels must span.
 --- @field segment_single_panel_ratio number Least share of the page a lone panel must cover.
+--- @field debug_timing boolean Write panel pipeline timings to the KOReader log.
 --- @field performance_profile_version integer
 
 --- Options accepted by `showPanelViewerForPage`.
