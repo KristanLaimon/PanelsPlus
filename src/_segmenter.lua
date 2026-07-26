@@ -175,6 +175,10 @@ function Segmenter.segment(map, settings)
     local defaults = Settings.defaults
     local stop = Timing.span("segment")
 
+    -- Note that min_gutter is a fraction of the *map*, so it stays a fixed
+    -- fraction of the page whatever the map resolution is. Raising the
+    -- resolution alone therefore does not make narrow gutters detectable; the
+    -- ratio has to come down with it. The two are reset together on migration.
     local min_dimension = math.min(map.w, map.h)
     local ctx = {
         rows = ffi.new("int32_t[?]", map.h),

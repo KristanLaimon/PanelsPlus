@@ -27,9 +27,9 @@ local Settings = {
         panel_prerender_delay = 0.25,
         prerender_min_free_bytes = 40 * 1024 * 1024,
         full_page_panel_ratio = 0.92,
-        segment_target_width = 320,
+        segment_target_width = 480,
         segment_ink_delta = 40,
-        segment_gutter_ratio = 0.012,
+        segment_gutter_ratio = 0.005,
         segment_gutter_ink_ratio = 0.005,
         segment_min_panel_area = 0.005,
         segment_min_panel_side = 0.03,
@@ -39,7 +39,7 @@ local Settings = {
         segment_page_coverage_min = 0.4,
         segment_single_panel_ratio = 0.6,
         debug_timing = false,
-        performance_profile_version = 6,
+        performance_profile_version = 7,
     },
 }
 
@@ -67,6 +67,10 @@ function Settings.withDefaults(settings)
         settings.panel_prefetch_delay = math.max(settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay, Settings.defaults.panel_prefetch_delay)
         settings.panel_cache_pages = Settings.defaults.panel_cache_pages
         settings.full_page_panel_ratio = Settings.defaults.full_page_panel_ratio
+        -- Gutter sensitivity is tied to the map resolution it was measured at,
+        -- so these two only make sense reset together.
+        settings.segment_target_width = Settings.defaults.segment_target_width
+        settings.segment_gutter_ratio = Settings.defaults.segment_gutter_ratio
         settings.performance_profile_version = Settings.defaults.performance_profile_version
     end
     return settings

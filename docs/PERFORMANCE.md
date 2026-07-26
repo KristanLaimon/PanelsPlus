@@ -66,7 +66,7 @@ flowchart TD
     end
 
     subgraph new ["After"]
-        N1["1 render at ~1/5 scale<br/>+ an in-memory cut"]
+        N1["1 render at ~1/3 scale<br/>+ an in-memory cut"]
         N2["fallback: 1 full-resolution<br/>rasterization, all probes reuse it"]
         N1 -.->|"only if the cut<br/>is not trustworthy"| N2
     end
@@ -79,9 +79,9 @@ flowchart TD
 ```
 
 - **The segmenter** ([DETECTION.md](DETECTION.md)) replaces probing entirely on
-  the common path. One render at `segment_target_width` (320px) is roughly 1/25th
+  the common path. One render at `segment_target_width` (480px) is roughly 1/11th
   the pixels of a full-resolution page, and the cut that follows is integer
-  arithmetic over a ~150KB byte map.
+  arithmetic over a ~340KB byte map.
 - **Batching** moves the probe loop *inside* the rasterization on the fallback
   path, so even a page the segmenter declines costs one page render rather than
   up to 29.
@@ -137,8 +137,8 @@ Anything Panels+ holds makes that worse.
 | What | Lifetime | Size |
 | --- | --- | --- |
 | Panel rectangle lists | `panel_cache_pages` (12) pages | ~a few hundred bytes per page |
-| Ink map | during detection only | ~150KB, then collected |
-| Greyscale copy (colour pages only) | during detection only | ~150KB, freed immediately |
+| Ink map | during detection only | ~340KB, then collected |
+| Greyscale copy (colour pages only) | during detection only | ~340KB, freed immediately |
 | Panel image list | while the viewer is open | render *functions*, not bitmaps |
 | Current panel bitmap | one at a time | one screen-sized buffer |
 | Prerendered tile | owned by `DocCache` | not the plugin's |
@@ -168,8 +168,8 @@ prefixed `[Panels+]`.
 A healthy page on the fast path:
 
 ```
-[Panels+] page bitmap 41ms (320x480 bb8 bg=247 ink=22%)
-[Panels+] segment 26ms (7 panels)
+[Panels+] page bitmap 74ms (480x720 bb8 bg=247 ink=22%)
+[Panels+] segment 48ms (7 panels)
 [Panels+] prerender panel 2 88ms
 ```
 

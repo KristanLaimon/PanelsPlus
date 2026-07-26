@@ -12,7 +12,7 @@ places — which is exactly why the default runs one and falls back to the other
 
 | | Panels+ segmenter (`fast`) | KOReader detector (`native`) |
 | --- | --- | --- |
-| Cost per page | one render at ~1/5 scale | one full-resolution rasterization |
+| Cost per page | one render at ~1/3 scale | one full-resolution rasterization |
 | Panels found per pass | all of them | one per probe point |
 | Dark backgrounds | works | **fails** |
 | Interlocking / diagonal layouts | **cannot split them** | often handles them |
@@ -37,7 +37,7 @@ flowchart TD
     MODE -->|auto / fast| BLOCK{"reflow or<br/>page optimization?"}
 
     BLOCK -->|yes| NATIVE
-    BLOCK -->|no| RENDER["render page at ~1/5 scale<br/><i>_pagebitmap.lua</i>"]
+    BLOCK -->|no| RENDER["render page at ~1/3 scale<br/><i>_pagebitmap.lua</i>"]
 
     RENDER --> BG["read the page border,<br/>take its median luminance<br/>= background"]
     BG --> BIN["mark every cell whose luminance<br/>differs from background by<br/>more than segment_ink_delta"]
@@ -120,7 +120,7 @@ Three details matter more than they look:
   gutters follows the usual page structure.
 
 Rectangles come back in map cells and are scaled to native page coordinates, then
-grown by one cell in every direction: at 1/5 scale a single cell is several page
+grown by one cell in every direction: at 1/3 scale a single cell is several page
 pixels, and without the margin the crop shaves the outermost artwork.
 
 ## Knowing when the cut is wrong
@@ -208,9 +208,9 @@ through `performance_profile_version`.
 | Setting | Default | Effect |
 | --- | --- | --- |
 | `detector` | `"auto"` | `auto` segmenter with fallback, `fast` segmenter only, `native` KOReader only |
-| `segment_target_width` | `320` | Ink-map width. Higher finds thinner gutters and costs more time |
+| `segment_target_width` | `480` | Ink-map width. See the note below before changing it |
 | `segment_ink_delta` | `40` | Luminance distance from background counted as ink. Raise for noisy scans, lower for faint art |
-| `segment_gutter_ratio` | `0.012` | Shortest gutter, as a fraction of the map's smaller side. Raise if panels are being over-split |
+| `segment_gutter_ratio` | `0.005` | Shortest gutter, as a fraction of the map's smaller side. Raise if panels are being over-split |
 | `segment_gutter_ink_ratio` | `0.005` | Ink a line may carry and still count as empty. Raise for dusty scans |
 | `segment_min_panel_area` | `0.005` | Smallest panel, as a fraction of page area. Rejects specks |
 | `segment_min_panel_side` | `0.03` | Smallest panel side. Rejects slivers |
@@ -222,14 +222,43 @@ through `performance_profile_version`.
 | `panel_grid_cols` / `panel_grid_rows` | `4` / `7` | Native detector probe grid |
 | `panel_bleed_ratio` / `panel_bleed_min` | `0.08` / `8` | Crop padding in loose crop mode |
 
+### Resolution and gutter width are one setting, not two
+
+`segment_gutter_ratio` is a fraction of the **map**, so it stays a fixed fraction
+of the *page* no matter what resolution the map is built at. Raising
+`segment_target_width` on its own therefore detects no extra gutters — the
+minimum gutter grows in cells by exactly as much as the map does.
+
+Both have to move together. Measured against rendered pages with 4px panel
+borders and a realistic ink distribution, splitting a row of three panels:
+
+| Map width | `gutter_ratio` | Minimum gutter | Narrowest gutter split |
+| --- | --- | --- | --- |
+| 320 | 0.012 | ~15px | 24px |
+| 320 | 0.005 | ~10px | 16px |
+| 480 | 0.012 | ~17px | 24px |
+| **480** | **0.005** | **~7px** | **8px** |
+| 640 | 0.006 | ~8px | 8px |
+
+480 / 0.005 is the default: it splits every gutter width tested without
+over-splitting splash pages, grids or full-height columns, at 2.25× the scan
+cost of 320. 640 buys nothing extra for 4× the cost.
+
+### Known limitation: panels with no gutter
+
+Some pages separate panels with a single shared border line and no background
+gap at all. There is no empty band to find, so the cut merges them — and the
+native detector, which also looks for blank bands, cannot split them either.
+Such a row is currently returned as one panel.
+
 ## Diagnosing a page
 
 Turn on **Panels+ → Log panel timings** and reopen the page. The log records
 which path ran and, when the segmenter declines, why:
 
 ```
-[Panels+] page bitmap 41ms (320x480 bb8 bg=12 inverted ink=38%)
-[Panels+] segment 26ms (6 panels)
+[Panels+] page bitmap 74ms (480x720 bb8 bg=12 inverted ink=38%)
+[Panels+] segment 48ms (6 panels)
 ```
 
 `bg=12 inverted` confirms the page was read as dark-background. A rejection looks
