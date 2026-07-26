@@ -1,3 +1,7 @@
+
+
+
+
 <p align="center">
   <img src=".github/panels+_logo.png" alt="Panels+ logo" width="250">
   <br>
@@ -19,7 +23,7 @@
       <sub>Core feature: Panel by panel smooth travelling.</sub>
     </td>
     <td align="center" width="30%">
-      <video src="https://github.com/user-attachments/assets/9cf0ea56-23ce-4e17-8bb5-6241fec56548" controls width="420"></video>
+      <video src="https://github.com/user-attachments/assets/aa34d5db-8e47-4b68-bd5b-fc90d3da6493" controls width="420"></video>
       <br>
       <sub>Additional Features: Manga/Comic direction, cropping, precision, and much more!. Margin and Loose cropping are configurable by just long-pressing those buttons.</sub>
     </td>
@@ -48,18 +52,17 @@ If you want to build the plugin yourself instead, follow [building from source](
 
 ## Config
 
-<table>
-  <tr>
-    <td width="60%" valign="top" align="center">
-      <video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
-      <br>
-      <ul>
-        <li>You can customize the swipe direction when navigating trought the panels.</li>
-        <li>Included KOReader gesture actions for toggling the plugin and switching modes quickly.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
+<div align="center">
+
+<video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
+
+<div align="center" style="display: inline-block; text-align: left;">
+
+* You can customize the swipe direction when navigating trought the panels.
+* Included KOReader gesture actions for toggling the plugin and switching modes quickly.
+
+</div>
+</div>
 
 
 
