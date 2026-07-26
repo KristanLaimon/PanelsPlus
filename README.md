@@ -8,17 +8,17 @@
 
 <table>
   <tr>
-    <td align="center" width="33%">
+    <td align="center" width="30%">
       <img src=".github/manga_fullscreen.png" alt="Panels+ running in KOReader" width="420">
       <br>
       <sub>Full-page reading stays one tap away.</sub>
     </td>
-    <td align="center" width="28%">
+    <td align="center" width="40%">
       <video src="https://github.com/user-attachments/assets/446c71c6-a8f7-47ce-ae44-0fc885ed3241" controls width="420"></video>
       <br>
       <sub>Core feature: Panel by panel smooth travelling.</sub>
     </td>
-    <td align="center" width="33%">
+    <td align="center" width="30%">
       <video src="https://github.com/user-attachments/assets/9cf0ea56-23ce-4e17-8bb5-6241fec56548" controls width="420"></video>
       <br>
       <sub>Additional Features: Manga/Comic direction, cropping, precision, and much more!. Margin and Loose cropping are configurable by just long-pressing those buttons.</sub>
