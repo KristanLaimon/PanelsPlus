@@ -692,27 +692,6 @@ function PanelViewer:replaceButtonTable()
                 end,
             },
             {
-                id = "crop",
-                text = self:getCropModeText(),
-                callback = function()
-                    if self.crop_toggle_callback then
-                        self.crop_toggle_callback(self)
-                    else
-                        local next_mode = { strict = "loose", loose = "margin", margin = "strict" }
-                        self.crop_mode = next_mode[self.crop_mode] or "strict"
-                        self:replaceButtonTable()
-                        self:update()
-                    end
-                end,
-                hold_callback = function()
-                    if self.crop_mode == "loose" then
-                        self:onAdjustBleedRatio()
-                    elseif self.crop_mode == "margin" then
-                        self:onAdjustMarginRatio()
-                    end
-                end,
-            },
-            {
                 id = "close",
                 text = _("Close"),
                 callback = function()
@@ -747,6 +726,27 @@ function PanelViewer:replaceButtonTable()
                 callback = function()
                     if self.detector_cycle_callback then
                         self.detector_cycle_callback(self)
+                    end
+                end,
+            },
+            {
+                id = "crop",
+                text = self:getCropModeText(),
+                callback = function()
+                    if self.crop_toggle_callback then
+                        self.crop_toggle_callback(self)
+                    else
+                        local next_mode = { strict = "loose", loose = "margin", margin = "strict" }
+                        self.crop_mode = next_mode[self.crop_mode] or "strict"
+                        self:replaceButtonTable()
+                        self:update()
+                    end
+                end,
+                hold_callback = function()
+                    if self.crop_mode == "loose" then
+                        self:onAdjustBleedRatio()
+                    elseif self.crop_mode == "margin" then
+                        self:onAdjustMarginRatio()
                     end
                 end,
             },
