@@ -174,7 +174,7 @@ stateDiagram-v2
     Panel --> [*]: tap outside frame, or Close
 ```
 
-The button bar carries a mode button showing **Auto mode**, **Gutter mode** or
+The button bar carries a mode button showing **Auto Mode**, **Gutter mode** or
 **Outline mode**. Tapping it cycles detection mode, re-detects the page and
 reopens at the panel you were reading, matched by its centre — so a page one
 mode handles badly can be switched without leaving it. See

@@ -175,11 +175,12 @@ function PanelsPlus:setNavTransitionCrossPage(enabled)
     self:saveSettings()
 end
 
---- Set dummy boolean configuration B.
+--- Set how many steps the smooth-navigation camera pan is split into.
 ---
---- @param enabled any Truthy value enables dummy option B.
-function PanelsPlus:setNavTransitionDummyB(enabled)
-    self.settings.nav_transition_dummy_b = enabled and true or false
+--- @param frames number Requested step count; clamped to [2, 24].
+function PanelsPlus:setNavTransitionFrames(frames)
+    frames = tonumber(frames) or Settings.defaults.nav_transition_frames
+    self.settings.nav_transition_frames = math.max(2, math.min(24, math.floor(frames + 0.5)))
     self:saveSettings()
 end
 

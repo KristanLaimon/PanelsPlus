@@ -84,7 +84,7 @@ function Menu:addToMainMenu(menu_items)
                 text = _("Panel detection"),
                 sub_item_table = {
                     {
-                        text = _("Auto mode"),
+                        text = _("Auto Mode"),
                         checked_func = function()
                             return self:getDetector() == "auto"
                         end,

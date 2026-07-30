@@ -62,7 +62,7 @@ because they fail in different places:
 - **Outline mode** drives KOReader's own native detector directly, probing a
   grid of points against one shared page rasterization. Handles awkward
   layouts the segmenter cannot, at the cost of a full-resolution page render.
-- **Auto mode** runs Gutter first and falls back to Outline only on pages
+- **Auto Mode** runs Gutter first and falls back to Outline only on pages
   the segmenter rejects, which is why it is the default.
 
 Full detail, including the acceptance test that decides when a segmenter

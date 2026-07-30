@@ -124,9 +124,10 @@ function ViewerController:toggleViewerCropMode(viewer)
         return true
     end
 
+    local panels = viewer.panels
     local start_idx = viewer._images_list_cur or 1
     UIManager:close(viewer)
-    return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
+    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
 end
 
 --- Persist a new "With margin" zoom-out ratio from an open viewer's slider dialog.
@@ -173,9 +174,10 @@ function ViewerController:setViewerBleedRatio(viewer, ratio, activate_loose_mode
         return true
     end
 
+    local panels = viewer.panels
     local start_idx = viewer._images_list_cur or 1
     UIManager:close(viewer)
-    return self:showPanelViewerForPage(viewer.page, viewer.panels, start_idx, { buttons_visible = true })
+    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
 end
 
 --- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
@@ -251,6 +253,17 @@ function ViewerController:setViewerNavTransitionDuration(viewer, seconds)
     return true
 end
 
+--- Persist a new smooth-navigation frame count from an open viewer's slider dialog.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @param frames integer New step count the camera pan is split into.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setViewerNavTransitionFrames(viewer, frames)
+    self:setNavTransitionFrames(frames)
+    viewer.nav_transition_frames = self.settings.nav_transition_frames
+    return true
+end
+
 --- Show a multi-options menu popup for navigation transition configuration.
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
@@ -286,15 +299,17 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
             help_text = _("Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."),
         },
         {
-            text = _("Dummy Config B (Demo flag)"),
-            checked_func = function()
-                return controller.settings.nav_transition_dummy_b == true
-            end,
+            text = _("Transition frames (Actual: ")
+                .. tostring(controller.settings.nav_transition_frames or Settings.defaults.nav_transition_frames) .. _(" fps)"),
             callback = function()
-                controller:setNavTransitionDummyB(not controller.settings.nav_transition_dummy_b)
-                viewer.nav_transition_dummy_b = controller.settings.nav_transition_dummy_b
+                viewer:onAdjustNavTransitionFrames(function()
+                    -- Rebuild the menu so the "(Actual: ...)" label in the
+                    -- text reflects the new value immediately.
+                    UIManager:close(menu)
+                    controller:showNavTransitionOptionsMenu(viewer)
+                end)
             end,
-            help_text = _("Second boolean configuration flag demo option."),
+            help_text = _("How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."),
         },
     }
 
@@ -366,7 +381,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
         nav_transition_cross_page = self.settings.nav_transition_cross_page == true,
-        nav_transition_dummy_b = self.settings.nav_transition_dummy_b == true,
+        nav_transition_frames = self.settings.nav_transition_frames or Settings.defaults.nav_transition_frames,
         buttons_visible = options.buttons_visible == true,
         rotated = images.rotated,
         boundary_callback = function(direction, current_viewer)
@@ -392,6 +407,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         nav_transition_duration_callback = function(current_viewer, seconds)
             return self:setViewerNavTransitionDuration(current_viewer, seconds)
+        end,
+        nav_transition_frames_callback = function(current_viewer, frames)
+            return self:setViewerNavTransitionFrames(current_viewer, frames)
         end,
         nav_transition_options_callback = function(current_viewer)
             return self:showNavTransitionOptionsMenu(current_viewer)

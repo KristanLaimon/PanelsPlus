@@ -13,8 +13,9 @@ local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 local logger = require("logger")
 
---- Steps the smooth-navigation pan animation is split into.
-local NAV_TRANSITION_STEPS = 8
+--- Default number of steps the smooth-navigation pan animation is split into,
+--- used when a viewer has no `nav_transition_frames` of its own.
+local NAV_TRANSITION_STEPS_DEFAULT = 1
 --- Hard cap on the shared transition bitmap's area, as a multiple of the screen's
 --- area, to bound the one-shot render/upscale cost when the destination panel
 --- needs a much higher zoom than the two panels' combined bounding box.
@@ -46,7 +47,7 @@ end
 --- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
 --- @field nav_transition_cross_page boolean Whether smooth navigation also animates across page boundaries.
---- @field nav_transition_dummy_b boolean Second demo boolean configuration flag.
+--- @field nav_transition_frames integer Number of discrete steps a smooth camera pan is split into.
 --- @field page number|nil Document page number represented by `panels`.
 --- @field panels PPPanel[]|nil Ordered panel rectangles.
 --- @field image_rects PPPanel[]|nil Crop rectangles matching `_images_list`, for prerendering.
@@ -60,6 +61,7 @@ end
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_transition_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_transition_duration_callback fun(viewer:PanelViewer, seconds:number):boolean|nil
+--- @field nav_transition_frames_callback fun(viewer:PanelViewer, frames:integer):boolean|nil
 --- @field nav_transition_options_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_boundary_peek_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):PPBoundaryResolution|nil
 --- @field nav_boundary_commit_callback fun(viewer:PanelViewer, direction:PPBoundaryDirection, resolved:PPBoundaryResolution):boolean|nil
@@ -80,7 +82,7 @@ local PanelViewer = ImageViewer:extend{
     nav_transition_mode = "classic",
     nav_transition_duration = 0.4,
     nav_transition_cross_page = true,
-    nav_transition_dummy_b = true,
+    nav_transition_frames = NAV_TRANSITION_STEPS_DEFAULT,
     page = nil,
     panels = nil,
     image_rects = nil,
@@ -95,6 +97,7 @@ local PanelViewer = ImageViewer:extend{
     progress_bar_toggle_callback = nil,
     nav_transition_toggle_callback = nil,
     nav_transition_duration_callback = nil,
+    nav_transition_frames_callback = nil,
     nav_transition_options_callback = nil,
     nav_boundary_peek_callback = nil,
     nav_boundary_commit_callback = nil,
@@ -741,7 +744,7 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
     local start_offset_x, start_offset_y = self._image_wg._offset_x, self._image_wg._offset_y
     local target_offset_x = math.floor(target_ratio_x * bb_w - viewport_w / 2)
     local target_offset_y = math.floor(target_ratio_y * bb_h - viewport_h / 2)
-    local steps = NAV_TRANSITION_STEPS
+    local steps = self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT
     local step_delay = (self.nav_transition_duration or 0.4) / steps
 
     local step_n = 0
@@ -821,6 +824,8 @@ function PanelViewer:animateBoundaryTransition(direction)
 
     Timing.log("animateBoundaryTransition: direction=%s target_page=%s (crop_mode=%s)", direction, resolved and tostring(resolved.next_page) or "none", tostring(self.crop_mode))
     Timing.memory("smooth_boundary_transition")
+
+    local target_zoom = canvasFitZoom(rect_b)
 
     local ok_a, tile_a, rotated_a = pcall(function()
         if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
@@ -1131,6 +1136,41 @@ function PanelViewer:onAdjustNavTransitionDuration()
     return true
 end
 
+--- Show a slider dialog to adjust how many steps the smooth-navigation camera
+--- pan is split into.
+---
+--- @param on_committed fun()|nil Called after a new value is applied, so a
+---   caller showing this from a settings menu can refresh a label reflecting
+---   the current value.
+--- @return boolean handled Always true for button hold-callback dispatch.
+function PanelViewer:onAdjustNavTransitionFrames(on_committed)
+    local SpinWidget = require("ui/widget/spinwidget")
+    local viewer = self
+    UIManager:show(SpinWidget:new{
+        title_text = _("Smooth navigation frames"),
+        info_text = _("How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."),
+        value = self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT,
+        value_min = 1,
+        value_max = 24,
+        value_step = 1,
+        value_hold_step = 4,
+        unit = _("frames"),
+        default_value = NAV_TRANSITION_STEPS_DEFAULT,
+        callback = function(spin)
+            local frames = spin.value
+            if viewer.nav_transition_frames_callback then
+                viewer.nav_transition_frames_callback(viewer, frames)
+            else
+                viewer.nav_transition_frames = frames
+            end
+            if on_committed then
+                on_committed()
+            end
+        end,
+    })
+    return true
+end
+
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
@@ -1144,7 +1184,7 @@ function PanelViewer:getDetectorText()
     elseif self.detector == "exact" then
         return _("Outline mode")
     end
-    return _("Auto mode")
+    return _("Auto Mode")
 end
 
 --- Rebuild the ImageViewer button table from current mode/crop state.

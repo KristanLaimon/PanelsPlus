@@ -50,7 +50,7 @@
 --- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
 --- @field nav_transition_cross_page boolean Whether smooth navigation also animates across page boundaries.
---- @field nav_transition_dummy_b boolean Second demo boolean configuration flag.
+--- @field nav_transition_frames integer Number of discrete steps a smooth camera pan is split into.
 --- @field detector PPDetector
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer

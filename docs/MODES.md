@@ -16,7 +16,7 @@ mode does for the reader instead:
 
 | Menu / button label | `detector` value | What it always uses |
 | --- | --- | --- |
-| **Auto mode** | `auto` | Gutter, falling back to Outline per-page when Gutter can't be trusted |
+| **Auto Mode** | `auto` | Gutter, falling back to Outline per-page when Gutter can't be trusted |
 | **Gutter mode** | `fast` | The gutter-finding segmenter only |
 | **Outline mode** | `exact` | KOReader's own detector only |
 
@@ -59,7 +59,7 @@ and probed at many points, instead of once per probe. See
   modes are active, since the small-render pipeline Gutter mode needs is
   unavailable there.
 
-## Auto mode
+## Auto Mode
 
 Runs Gutter first. [`Segmenter.accept()`](DETECTION.md#knowing-when-the-cut-is-wrong)
 checks the result against a few sanity thresholds (how many panels, how much
