@@ -7,7 +7,7 @@
 --- @alias PPReadingMode '"manga"'|'"comic"'
 
 --- Crop behavior for drawing panel image parts.
---- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'
+--- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'|'"none"'
 
 --- Direction reported when the viewer crosses the first or last panel.
 --- @alias PPBoundaryDirection '"next"'|'"previous"'

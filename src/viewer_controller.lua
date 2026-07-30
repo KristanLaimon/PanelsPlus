@@ -118,7 +118,7 @@ function ViewerController:toggleViewerMode(viewer)
 end
 
 --- Order the crop-mode button cycles through on tap.
-local CROP_MODE_CYCLE = { strict = "loose", loose = "margin", margin = "strict" }
+local CROP_MODE_CYCLE = { strict = "loose", loose = "margin", margin = "none", none = "strict" }
 
 --- Toggle crop mode from an open viewer and reopen at the same image index.
 ---
@@ -454,12 +454,13 @@ function ViewerController:resolveBoundaryTarget(direction, current_viewer)
     end
 
     local start_idx = direction == "next" and 1 or #cached_panels
-    local _, image_rects = PanelCollector.buildImages(self.ui, next_page, cached_panels, self.settings)
+    local next_images, image_rects = PanelCollector.buildImages(self.ui, next_page, cached_panels, self.settings)
     return {
         next_page = next_page,
         panels = cached_panels,
         start_idx = start_idx,
         target_rect = image_rects[start_idx],
+        next_images = next_images,
     }
 end
 

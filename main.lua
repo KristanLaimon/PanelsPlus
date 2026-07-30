@@ -101,9 +101,9 @@ end
 
 --- Set how tightly panel crops are rendered in the viewer.
 ---
---- @param crop_mode PPCropMode Requested crop mode; anything except `"loose"`/`"margin"` maps to `"strict"`.
+--- @param crop_mode PPCropMode Requested crop mode; anything except `"loose"`/`"margin"`/`"none"` maps to `"strict"`.
 function PanelsPlus:setCropMode(crop_mode)
-    if crop_mode == "loose" or crop_mode == "margin" then
+    if crop_mode == "loose" or crop_mode == "margin" or crop_mode == "none" then
         self.settings.crop_mode = crop_mode
     else
         self.settings.crop_mode = "strict"

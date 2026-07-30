@@ -593,7 +593,12 @@ function PanelViewer:animateSwitchToImageNum(target)
 
     local union = Geometry.rectUnion(rect_a, rect_b)
     local target_zoom = canvasFitZoom(rect_b)
-    local bx, by = Geometry.rectCenter(rect_b)
+    local bx, by
+    if self.crop_mode == "none" and self.panels and self.panels[target] then
+        bx, by = Geometry.rectCenter(self.panels[target])
+    else
+        bx, by = Geometry.rectCenter(rect_b)
+    end
 
     -- Half-extents (page space) of the canvas, symmetric around (bx, by): at
     -- least half the screen (target's own normal letterboxed framing), extended
@@ -642,7 +647,13 @@ function PanelViewer:animateSwitchToImageNum(target)
     -- content_image itself is a DocCache-owned tile (never copied out), so it is
     -- never freed here -- only its pixels were read into the newly-owned canvas.
 
-    local ax, ay = Geometry.rectCenter(rect_a)
+    local ax, ay
+    if self.crop_mode == "none" and self.panels and self.panels[cur] then
+        ax, ay = Geometry.rectCenter(self.panels[cur])
+    else
+        ax, ay = Geometry.rectCenter(rect_a)
+    end
+
     local ratio_ax, ratio_ay = (ax - (bx - half_w)) / (2 * half_w), (ay - (by - half_h)) / (2 * half_h)
     local ratio_bx, ratio_by = 0.5, 0.5 -- target's center sits at the canvas center by construction
 
@@ -767,12 +778,22 @@ function PanelViewer:animateBoundaryTransition(direction)
     local target_zoom = canvasFitZoom(rect_b)
 
     local ok_a, tile_a, rotated_a = pcall(function()
+        if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
+            local img = self._images_list[self._images_list_cur]
+            if type(img) == "function" then return img() end
+            return img
+        end
         return self.reader_ui.document:drawPagePart(self.page, rect_a, 0)
     end)
     if not ok_a or not tile_a then
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
     local ok_b, tile_b, rotated_b = pcall(function()
+        if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
+            local img = resolved.next_images[resolved.start_idx]
+            if type(img) == "function" then return img() end
+            return img
+        end
         return self.reader_ui.document:drawPagePart(resolved.next_page, rect_b, 0)
     end)
     if not ok_b or not tile_b then
@@ -888,6 +909,8 @@ function PanelViewer:getCropModeText()
         return _("Loose crop") .. " " .. _("(Long press config)")
     elseif self.crop_mode == "margin" then
         return _("With margin") .. " " .. _("(Long press config)")
+    elseif self.crop_mode == "none" then
+        return _("No crop")
     end
     return _("Strict crop")
 end
@@ -1174,7 +1197,7 @@ function PanelViewer:replaceButtonTable()
                     if self.crop_toggle_callback then
                         self.crop_toggle_callback(self)
                     else
-                        local next_mode = { strict = "loose", loose = "margin", margin = "strict" }
+                        local next_mode = { strict = "loose", loose = "margin", margin = "none", none = "strict" }
                         self.crop_mode = next_mode[self.crop_mode] or "strict"
                         self:replaceButtonTable()
                         self:update()

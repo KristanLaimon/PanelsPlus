@@ -1,9 +1,11 @@
+local Blitbuffer = require("ffi/blitbuffer")
 local Geometry = require("src._geometry")
 local NativeDetector = require("src._nativedetector")
 local PageBitmap = require("src._pagebitmap")
 local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
+local Screen = require("device").screen
 
 --- Panel detection dispatch and lazy image-list construction.
 ---
@@ -63,6 +65,105 @@ local function getImageRect(rect, page_size, settings)
         return expandRect(rect, page_size, settings)
     end
     return rect
+end
+
+--- Build a centered canvas image for "No crop" mode.
+---
+--- Centers the panel's width (`rect.w`) to fill the screen width (`Screen:getWidth()`),
+--- and centers its height vertically in the screen. Any region outside the document
+--- page boundaries is filled with a white background.
+---
+--- @param document table KOReader document instance.
+--- @param page number Document page number.
+--- @param rect PPPanel Native panel rectangle.
+--- @param page_size PPPageSize Page dimensions.
+--- @return function image_func Lazy function returning the composite Blitbuffer image.
+--- @return PPPanel image_rect Bounding rectangle used for transition math.
+local function buildNoCropImage(document, page, rect, page_size)
+    local rx = rect.x or 0
+    local ry = rect.y or 0
+    local rw = math.max(1, rect.w or 0)
+    local rh = math.max(1, rect.h or 0)
+    local pw = page_size and page_size.w or 0
+    local ph = page_size and page_size.h or 0
+
+    local screen_w = Screen:getWidth()
+    local screen_h = Screen:getHeight()
+
+    if screen_w <= 0 or screen_h <= 0 or pw <= 0 or ph <= 0 then
+        local image_rect = rect
+        return function()
+            local img, rotate = document:drawPagePart(page, image_rect, 0)
+            if img and img.copy then return img:copy() end
+            return img
+        end, image_rect
+    end
+
+    local scale = math.min(screen_w / rw, screen_h / rh)
+    local box_w = screen_w / scale
+    local box_h = screen_h / scale
+    local cx = rx + rw / 2
+    local cy = ry + rh / 2
+
+    local box_x = cx - box_w / 2
+    local box_y = cy - box_h / 2
+
+    local union_x = math.max(0, box_x)
+    local union_y = math.max(0, box_y)
+    local union_right = math.min(pw, box_x + box_w)
+    local union_bottom = math.min(ph, box_y + box_h)
+    local union_w = math.max(0, union_right - union_x)
+    local union_h = math.max(0, union_bottom - union_y)
+
+    local image_rect = {
+        x = union_x,
+        y = union_y,
+        w = math.max(1, union_w),
+        h = math.max(1, union_h),
+    }
+
+    local image_func = function()
+        if union_w <= 0 or union_h <= 0 then
+            local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
+            canvas:fill(Blitbuffer.COLOR_WHITE)
+            return canvas
+        end
+
+        local content_image, rotate = document:drawPagePart(page, image_rect, 0)
+        if not content_image then
+            local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
+            canvas:fill(Blitbuffer.COLOR_WHITE)
+            return canvas
+        end
+
+        local canvas_w = screen_w
+        local canvas_h = screen_h
+        local ok, canvas = pcall(function()
+            local cb = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
+            cb:fill(Blitbuffer.COLOR_WHITE)
+
+            local paste_x = math.max(0, math.floor((union_x - box_x) * scale + 0.5))
+            local paste_y = math.max(0, math.floor((union_y - box_y) * scale + 0.5))
+            local blit_w = math.min(content_image:getWidth(), canvas_w - paste_x)
+            local blit_h = math.min(content_image:getHeight(), canvas_h - paste_y)
+
+            if blit_w > 0 and blit_h > 0 then
+                cb:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
+            end
+            return cb
+        end)
+
+        if ok and canvas then
+            return canvas
+        end
+
+        if content_image and content_image.copy then
+            return content_image:copy()
+        end
+        return content_image
+    end
+
+    return image_func, image_rect
 end
 
 --- Run the fast segmenter, returning nil when its result cannot be trusted.
@@ -175,17 +276,23 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     local full_page_flags = {}
 
     for _, rect in ipairs(panels) do
-        local image_rect = getImageRect(rect, page_size, settings)
-        table.insert(image_rects, image_rect)
         table.insert(full_page_flags, isFullPagePanel(rect, page_size, settings))
-        table.insert(images, function()
-            local image, rotate = document:drawPagePart(page, image_rect, 0)
-            images.rotated = rotate
-            if image and image.copy then
-                return image:copy()
-            end
-            return image
-        end)
+        if settings.crop_mode == "none" then
+            local image_func, image_rect = buildNoCropImage(document, page, rect, page_size)
+            table.insert(image_rects, image_rect)
+            table.insert(images, image_func)
+        else
+            local image_rect = getImageRect(rect, page_size, settings)
+            table.insert(image_rects, image_rect)
+            table.insert(images, function()
+                local image, rotate = document:drawPagePart(page, image_rect, 0)
+                images.rotated = rotate
+                if image and image.copy then
+                    return image:copy()
+                end
+                return image
+            end)
+        end
     end
 
     return images, image_rects, full_page_flags
