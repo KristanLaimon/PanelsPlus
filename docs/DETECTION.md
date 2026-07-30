@@ -196,13 +196,15 @@ Probes run in a reading-order-aware plan — the hold position first, then the p
 centre, then likely reading-path cells, then the full grid — and any point
 already inside a discovered panel is skipped.
 
-`kc:getPanelFromPage` lives in koreader-base, a binary dependency, so whether
-reusing one context is safe cannot be settled by reading source. It is checked at
-runtime instead: the first probe point is re-probed after the loop, and a
-different answer means the context was mutated. That disables batching for the
-current document and falls back to one render per probe — slow, but correct —
-retrying the batched path again after a cooldown, so one inconsistent page
-can't degrade every later page (or book) for the rest of the session.
+If building the shared context fails for any reason, the module falls back to
+KOReader's own entry point — one full-resolution render per probe, up to the
+whole grid. Both the shared-context attempt and that fallback are skipped
+outright when free memory is below `native_detect_min_free_bytes`: a
+full-resolution rasterization is this plugin's single largest allocation, and
+retrying with ~29 of them right after one already failed is how a
+low-memory device goes from tight to OOM-killed. When skipped, the page is
+reported as having no panels, the same outcome as a segmenter rejection with
+no native fallback available.
 
 ## Tuning
 
@@ -228,6 +230,7 @@ through `performance_profile_version`.
 | `segment_shear_trigger` | `0.35` | How empty a line must already be before a slanted search is worth running |
 | `segment_shear_step` | `2` | Sample every Nth line during a slanted search |
 | `panel_grid_cols` / `panel_grid_rows` | `4` / `7` | Native detector probe grid |
+| `native_detect_min_free_bytes` | `100MB` | Free memory below which native (Outline) detection is skipped entirely |
 | `panel_bleed_ratio` / `panel_bleed_min` | `0.08` / `8` | Crop padding in loose crop mode |
 
 ### Resolution and gutter width are one setting, not two

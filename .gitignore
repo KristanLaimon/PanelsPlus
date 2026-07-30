@@ -3,5 +3,7 @@ frontend/
 .agents/
 .codex/
 crash.log
+crash.old.donotread.log
 
 koreader/
+panels_plus.stable.koplugin/

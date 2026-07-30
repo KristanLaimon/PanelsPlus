@@ -156,6 +156,11 @@ Deliberate choices behind that table:
 - **Prerendering yields under pressure.** If `util.calcFreeMem()` reports less
   than `prerender_min_free_bytes` (40MB) available, the warm-up is skipped and
   behaviour degrades to rendering on demand.
+- **Native detection yields under pressure too.** Below
+  `native_detect_min_free_bytes` (100MB) free, both the single shared-context
+  render and its up-to-29-render per-probe fallback are skipped outright and
+  the page is treated as having no panels, rather than risking an OOM kill on
+  what is this plugin's single largest allocation.
 - **Scheduled work is cancellable.** Prefetch jobs and the prerender job are held
   by handle and unscheduled on cache clear and on close, so closures do not keep
   a closed document alive.
@@ -201,6 +206,8 @@ What the numbers tell you:
 | `segment` dominates | The slanted-gutter search is running. Expected on skewed pages; see the `slanted searches` count on the same line |
 | `native detect` appears often | The segmenter is declining these pages — see the rejection reason above it |
 | `per-probe renders` in the native line | The batching self-check failed and the slow path is in use. Worth reporting |
+| `native detect skipped: low memory` | Free memory was under `native_detect_min_free_bytes`; the page is reported as having no panels |
+| `native detect fallback skipped: low memory after batched failure` | The shared-context render failed and memory was too tight to retry with the per-probe fallback |
 | No `prerender` lines | Prerendering is off, or free memory is under `prerender_min_free_bytes` |
 
 Leave the setting off for normal reading; it writes a few lines per page.

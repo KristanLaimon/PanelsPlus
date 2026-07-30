@@ -41,11 +41,19 @@ end
 
 --- Log a one-off message through the same prefix as spans.
 ---
---- @param message string Message body.
-function Timing.log(message)
+--- Accepts an optional `string.format` argument list. Formatting is deferred
+--- until after the enabled check, so hot paths (gesture dispatch, panel
+--- transitions) that always pass a format call don't pay for it when logging
+--- is off, matching the "allocate nothing beyond a shared closure" contract
+--- spans already have.
+---
+--- @param fmt string Message body, or a `string.format` pattern.
+--- @param ... any Optional `string.format` arguments.
+function Timing.log(fmt, ...)
     if not Timing.enabled then
         return
     end
+    local message = select("#", ...) > 0 and string.format(fmt, ...) or fmt
     logger.info("[Panels+] " .. message)
 end
 
@@ -72,11 +80,16 @@ end
 --- renders, rapid re-detection) so a crash log shows the memory trend leading
 --- up to a kill, not just the last timing span that happened to run.
 ---
---- @param label string Message body; annotated with memory figures.
-function Timing.memory(label)
+--- Accepts an optional `string.format` argument list, deferred the same way
+--- `Timing.log` defers it.
+---
+--- @param fmt string Message body, or a `string.format` pattern.
+--- @param ... any Optional `string.format` arguments.
+function Timing.memory(fmt, ...)
     if not Timing.enabled then
         return
     end
+    local label = select("#", ...) > 0 and string.format(fmt, ...) or fmt
     local free_mb = Timing.freeMB()
     logger.info(string.format(
         "[Panels+] memory %s free=%s lua=%dKB",

@@ -61,6 +61,7 @@
 --- @field panel_prerender boolean Warm the next panel's tile while idle.
 --- @field panel_prerender_delay number Idle seconds before warming the next panel.
 --- @field prerender_min_free_bytes integer Free bytes below which prerendering is skipped.
+--- @field native_detect_min_free_bytes integer Free bytes below which native (Outline) detection is skipped entirely.
 --- @field full_page_panel_ratio number
 --- @field segment_target_width integer Ink-map render width in pixels.
 --- @field segment_ink_delta integer Luminance distance from background counted as ink.

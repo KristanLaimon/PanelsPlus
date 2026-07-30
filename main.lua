@@ -231,9 +231,10 @@ end
 --- name: several modules need teardown, but only one could own the hook name.
 --- Every step must be safe to run when the matching feature never started.
 function PanelsPlus:onCloseWidget()
-    self:cancelPanelPrerender()
+    self:cancelPanelPrefetch()
     self:clearPanelCache()
     self:restoreNativePanelZoom()
+    collectgarbage("collect")
 end
 
 return PanelsPlus

@@ -31,6 +31,7 @@ local Settings = {
         panel_prerender = true,
         panel_prerender_delay = 0.25,
         prerender_min_free_bytes = 40 * 1024 * 1024,
+        native_detect_min_free_bytes = 100 * 1024 * 1024,
         full_page_panel_ratio = 0.92,
         segment_target_width = 480,
         segment_ink_delta = 40,

@@ -1,10 +1,10 @@
 local Event = require("ui/event")
+local Memory = require("src._memory")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
-local util = require("util")
 
 --- Panel viewer orchestration methods mixed into `PanelsPlus`.
 ---
@@ -21,25 +21,16 @@ end
 
 --- Return whether there is room to warm one more panel tile.
 ---
---- `util.calcFreeMem()` reports **bytes**, already discounted to 85% of
---- MemAvailable, despite parsing `/proc/meminfo`'s kB fields.
----
 --- @return boolean allowed Whether prerendering should proceed.
 function ViewerController:hasMemoryForPrerender()
-    local ok, free_bytes = pcall(util.calcFreeMem)
-    if not ok or not free_bytes then
-        -- /proc/meminfo is Linux-only; elsewhere assume there is headroom.
-        return true
-    end
     local minimum = self.settings.prerender_min_free_bytes
         or Settings.defaults.prerender_min_free_bytes
-    local allowed = free_bytes >= minimum
+    local allowed = Memory.hasHeadroom(minimum)
     if not allowed then
-        Timing.log(string.format(
-            "prerender skipped: low memory (free=%dMB min=%dMB)",
-            math.floor(free_bytes / (1024 * 1024)),
-            math.floor(minimum / (1024 * 1024))
-        ))
+        local free_bytes = Memory.freeBytes()
+        Timing.log("prerender skipped: low memory (free=%dMB min=%dMB)",
+            math.floor((free_bytes or 0) / (1024 * 1024)),
+            math.floor(minimum / (1024 * 1024)))
     end
     return allowed
 end
@@ -329,10 +320,13 @@ function ViewerController:showPanelSequence(reader_highlight, ges)
 
     local panels = self:collectPanels(hold_pos.page, hold_pos)
     if #panels == 0 then
+        Timing.log("showPanelSequence: page %d had no panels detected at hold position", hold_pos.page)
         return false
     end
 
     local start_idx = PanelCollector.startIndex(panels, hold_pos)
+    Timing.log("showPanelSequence: page %d panels=%d start_idx=%d", hold_pos.page, #panels, start_idx)
+    Timing.memory("show_panel_sequence")
     return self:showPanelViewerForPage(hold_pos.page, panels, start_idx)
 end
 
@@ -346,6 +340,8 @@ end
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
     self:cancelPanelPrerender()
+    Timing.log("showPanelViewerForPage: page=%d panels=%d start_idx=%d crop_mode=%s transition_mode=%s", page, #panels, start_idx or 1, tostring(self.settings.crop_mode), tostring(self.settings.nav_transition_mode))
+    Timing.memory("show_panel_viewer")
     local images, image_rects, full_page_flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
     viewer = PanelViewer:new{
@@ -472,6 +468,7 @@ end
 --- @param resolved PPBoundaryResolution Result of a prior `resolveBoundaryTarget` call.
 --- @return boolean|PanelViewer result Whatever `showPanelViewerForPage` returns.
 function ViewerController:commitBoundaryTransition(direction, current_viewer, resolved)
+    Timing.log("commitBoundaryTransition: direction=%s page=%d -> %d target_panel=%d", direction, current_viewer and current_viewer.page or -1, resolved.next_page, resolved.start_idx)
     self.ui:handleEvent(Event:new("GotoPage", resolved.next_page))
     UIManager:close(current_viewer)
     return self:showPanelViewerForPage(resolved.next_page, resolved.panels, resolved.start_idx)
@@ -494,6 +491,7 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
     else
         next_page = self.ui.document:getPrevPage(current_viewer.page)
     end
+    Timing.log("onPanelViewerBoundary: direction=%s page=%d next_page=%s", direction, current_viewer and current_viewer.page or -1, tostring(next_page))
     if not next_page or next_page == 0 then
         current_viewer._panels_plus_boundary_pending = nil
         return true

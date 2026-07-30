@@ -65,6 +65,7 @@ flowchart TD
         GEO["_geometry.lua"]
         SET["_settings.lua"]
         TIM["_timing.lua"]
+        MEM["_memory.lua<br/><i>free-memory headroom check</i>"]
     end
 
     MAIN -.->|include| CACHE
@@ -75,10 +76,12 @@ flowchart TD
     CACHE --> PC
     VC --> PC
     VC --> PV
+    VC --> MEM
     PC --> SEG
     PC --> PB
     PC --> ND
     PC --> GEO
+    ND --> MEM
     SEG --> SET
     PB --> SET
 
@@ -100,6 +103,7 @@ flowchart TD
 | `src/_geometry.lua` | Rectangle helpers and reading-order sorting |
 | `src/_settings.lua` | Defaults, persistence and profile migration |
 | `src/_timing.lua` | Opt-in timing spans |
+| `src/_memory.lua` | Free-memory headroom check, shared by prerender and native detection |
 
 ## Opening a panel sequence
 
@@ -184,9 +188,9 @@ no-op, which otherwise opened two viewers.
 
 Because the viewer is a fullscreen window, it would normally swallow your
 configured reader gestures. `PanelViewer:onGesture` walks the reader's own touch
-zones first and runs a matching *user-configured* gesture through the reader UI,
-while leaving built-in zones such as page-turn taps alone — so a tap on a panel
-still toggles the controls instead of turning the hidden page underneath.
+zones first and dispatches matching touch zone handlers (including side tap page-turn
+actions) through the reader UI, while horizontal swipes continue navigating panels
+and zoomed images within the viewer.
 
 ## Lifecycle
 

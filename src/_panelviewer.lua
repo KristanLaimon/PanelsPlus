@@ -8,8 +8,10 @@ local ImageViewer = require("ui/widget/imageviewer")
 local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
+local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
+local logger = require("logger")
 
 --- Steps the smooth-navigation pan animation is split into.
 local NAV_TRANSITION_STEPS = 8
@@ -170,14 +172,15 @@ function PanelViewer:withGuardedImageViewerRefresh(callback)
     end
 end
 
---- Return whether a reader touch zone belongs to the configurable gestures plugin.
+--- Return whether a reader touch zone should be passed through to KOReader.
 ---
---- Built-in reading zones such as page-turn taps are intentionally excluded so
---- a normal panel tap still toggles controls instead of turning the hidden page.
+--- Only user-configured gesture plugin zones (like multiswipe gestures) are
+--- passed through to KOReader. Normal page navigation and highlight zones are
+--- captured by PanelViewer.
 ---
 --- @param zone_id string|nil KOReader touch zone id.
---- @param gestures table Gestures plugin instance from the reader UI.
---- @return boolean is_gesture_zone `true` when this is a user-configurable reader gesture.
+--- @param gestures table|nil Gestures plugin instance from the reader UI.
+--- @return boolean is_gesture_zone `true` when this touch zone should be dispatched to KOReader.
 function PanelViewer:isReaderGestureZone(zone_id, gestures)
     if not zone_id or not gestures then
         return false
@@ -194,8 +197,8 @@ end
 
 --- Execute one normal reader gesture while this fullscreen viewer is on top.
 ---
---- The gestures plugin dispatches actions through `UIManager:sendEvent()`. While
---- Panels+ is open, those events would otherwise stop at this viewer, so this
+--- Touch handlers and gesture plugins dispatch actions through `UIManager:sendEvent()`.
+--- While Panels+ is open, those events would otherwise stop at this viewer, so this
 --- temporarily routes dispatched actions to the reader UI first.
 ---
 --- @param handler function Gesture zone handler from KOReader's reader UI.
@@ -207,9 +210,20 @@ function PanelViewer:runReaderGestureHandler(handler, ges)
         return false
     end
 
+    local page_before = reader_ui.page
+        or (reader_ui.paging and reader_ui.paging.current_page)
+        or (reader_ui.view and reader_ui.view.state and reader_ui.view.state.page)
+        or (reader_ui.document and type(reader_ui.document.getCurrentPage) == "function" and reader_ui.document:getCurrentPage())
+    local page_changed = false
+
     local original_send_event = UIManager.sendEvent
     UIManager.sendEvent = function(manager, event)
         if reader_ui:handleEvent(event) then
+            if event and (event.cmd == "GotoNextPage" or event.cmd == "GotoPrevPage"
+               or event.cmd == "PageForward" or event.cmd == "PageBackward"
+               or event.cmd == "GotoPage") then
+                page_changed = true
+            end
             return
         end
         return original_send_event(manager, event)
@@ -218,15 +232,25 @@ function PanelViewer:runReaderGestureHandler(handler, ges)
     local ok, handled = pcall(handler, ges)
     UIManager.sendEvent = original_send_event
     if not ok then
+        logger.warn("[Panels+] reader touch zone / gesture handler failed:", tostring(handled))
         error(handled)
+    end
+
+    local page_after = reader_ui.page
+        or (reader_ui.paging and reader_ui.paging.current_page)
+        or (reader_ui.view and reader_ui.view.state and reader_ui.view.state.page)
+        or (reader_ui.document and type(reader_ui.document.getCurrentPage) == "function" and reader_ui.document:getCurrentPage())
+    if (page_changed or (page_after and page_before and page_after ~= page_before)) and self:isOpen() then
+        Timing.log("reader gesture/touch zone triggered page turn (%s -> %s); closing viewer", tostring(page_before), tostring(page_after))
+        self:onClose()
     end
     return handled == true
 end
 
---- Try handling a gesture through KOReader's normal reader gesture plugin.
+--- Try handling a gesture or touch zone through KOReader's normal reader UI touch zones.
 ---
 --- @param ges table Gesture event.
---- @return boolean handled Whether a configured reader gesture consumed it.
+--- @return boolean handled Whether a configured reader touch zone or gesture consumed it.
 function PanelViewer:dispatchReaderGesture(ges)
     if self:isImagePannable() then
         return false
@@ -244,9 +268,11 @@ function PanelViewer:dispatchReaderGesture(ges)
         if self:isReaderGestureZone(zone_id, gestures)
                 and zone.gs_range
                 and zone.handler
-                and zone.gs_range:match(ges)
-                and self:runReaderGestureHandler(zone.handler, ges) then
-            return true
+                and zone.gs_range:match(ges) then
+            Timing.log("dispatchReaderGesture: passing gesture (type=%s) to reader zone '%s'", tostring(ges and ges.type), tostring(zone_id))
+            if self:runReaderGestureHandler(zone.handler, ges) then
+                return true
+            end
         end
     end
     return false
@@ -503,6 +529,12 @@ function PanelViewer:onCloseWidget()
     if self.image_disposable and active_image and active_image.free then
         active_image:free()
     end
+    self.image = nil
+    self._images_list = nil
+    self.image_rects = nil
+    self.panels = nil
+    self.panel_is_full_page = nil
+    collectgarbage("collect")
     if not ok then
         error(err)
     end
@@ -595,6 +627,9 @@ function PanelViewer:animateSwitchToImageNum(target)
         return self:switchToImageNum(target)
     end
 
+    Timing.log("animateSwitchToImageNum: panel %d -> %d (crop_mode=%s, duration=%.2fs)", cur, target, tostring(self.crop_mode), self.nav_transition_duration or 0)
+    Timing.memory("smooth_transition")
+
     local union = Geometry.rectUnion(rect_a, rect_b)
     local target_zoom = canvasFitZoom(rect_b)
 
@@ -612,11 +647,6 @@ function PanelViewer:animateSwitchToImageNum(target)
         ax, ay = Geometry.rectCenter(rect_a)
     end
 
-    -- Half-extents (page space) of the canvas, symmetric around (bx, by): at
-    -- least half the screen (target's own normal letterboxed framing) plus the
-    -- distance between panel centers (so the starting frame offset is valid and
-    -- never clamped by ImageWidget), extended as needed to also cover the union
-    -- so the pan crosses real content.
     local half_w = math.max(
         Screen:getWidth() / (2 * target_zoom) + math.abs(ax - bx),
         bx - union.x,
@@ -630,9 +660,7 @@ function PanelViewer:animateSwitchToImageNum(target)
 
     local screen_area = Screen:getWidth() * Screen:getHeight()
     if (2 * half_w) * (2 * half_h) * target_zoom * target_zoom > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
-        -- rect_b needs a much higher zoom than the union as a whole (e.g. a tiny
-        -- inset panel far from a large one under the Outline detector): rendering
-        -- a canvas this size at that zoom would be an oversized one-shot bitmap.
+        Timing.log("animateSwitchToImageNum: canvas area cap exceeded for panel %d -> %d, falling back to instant swap", cur, target)
         return self:switchToImageNum(target)
     end
 
@@ -640,6 +668,7 @@ function PanelViewer:animateSwitchToImageNum(target)
         return self.reader_ui.document:drawPagePart(self.page, union, 0)
     end)
     if not ok or not content_image then
+        logger.warn("[Panels+] smooth transition page draw failed, falling back to instant swap:", tostring(content_image))
         return self:switchToImageNum(target)
     end
 
@@ -790,7 +819,8 @@ function PanelViewer:animateBoundaryTransition(direction)
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 
-    local target_zoom = canvasFitZoom(rect_b)
+    Timing.log("animateBoundaryTransition: direction=%s target_page=%s (crop_mode=%s)", direction, resolved and tostring(resolved.next_page) or "none", tostring(self.crop_mode))
+    Timing.memory("smooth_boundary_transition")
 
     local ok_a, tile_a, rotated_a = pcall(function()
         if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
@@ -801,6 +831,7 @@ function PanelViewer:animateBoundaryTransition(direction)
         return self.reader_ui.document:drawPagePart(self.page, rect_a, 0)
     end)
     if not ok_a or not tile_a then
+        logger.warn("[Panels+] boundary transition tile A render failed, falling back:", tostring(tile_a))
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
     local ok_b, tile_b, rotated_b = pcall(function()
@@ -812,6 +843,7 @@ function PanelViewer:animateBoundaryTransition(direction)
         return self.reader_ui.document:drawPagePart(resolved.next_page, rect_b, 0)
     end)
     if not ok_b or not tile_b then
+        logger.warn("[Panels+] boundary transition tile B render failed, falling back:", tostring(tile_b))
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
     if (rotated_a and true or false) ~= (rotated_b and true or false) then

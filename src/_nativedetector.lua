@@ -1,5 +1,6 @@
 local Document = require("document/document")
 local Geometry = require("src._geometry")
+local Memory = require("src._memory")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
 local logger = require("logger")
@@ -13,34 +14,14 @@ local logger = require("logger")
 --- per point.
 ---
 --- This module drives the same primitives directly so a whole probe plan runs
---- against a single rasterization.
+--- against a single rasterization. Both the single shared rasterization and its
+--- per-probe fallback are skipped outright when free memory is below
+--- `native_detect_min_free_bytes` -- a full-resolution render is this plugin's
+--- single largest allocation, and on a low-memory device it is safer to report
+--- no panels than to risk an OOM kill.
 ---
 --- @class PPNativeDetectorModule
 local NativeDetector = {}
-
---- Per-document reliability state for the shared-context fast path.
----
---- `kc:getPanelFromPage()` lives in koreader-base (a binary dependency), so
---- whether it mutates the context's source bitmap cannot be verified by reading
---- code. It is verified at runtime instead. A failure used to disable the fast
---- path for the rest of the process lifetime; that turned one inconsistent
---- page into every later page (any book) paying up to ~41 full-page renders
---- instead of 1, which is what floods DocCache and OOM-kills low-memory
---- devices. Failures are now scoped per document (weak-keyed, so closing a
---- book drops its state) and retried periodically instead of forever.
-local RETRY_AFTER_CALLS = 20
-local doc_state = setmetatable({}, { __mode = "k" })
-
---- @param document table KOReader document object.
---- @return {unsafe:boolean, calls_since_failure:integer} state Mutable per-document state.
-local function getDocState(document)
-    local state = doc_state[document]
-    if not state then
-        state = { unsafe = false, calls_since_failure = 0 }
-        doc_state[document] = state
-    end
-    return state
-end
 
 --- Add a detector probe point if its floored coordinate has not been used.
 ---
@@ -191,9 +172,8 @@ end
 --- @param probes PPPagePosition[] Ordered probe points.
 --- @param hold_pos PPPagePosition|nil Optional hold position.
 --- @param state {panels:PPPanel[], by_key:table<string, boolean>} Mutable accumulator.
---- @param dstate {unsafe:boolean, calls_since_failure:integer} Per-document reliability state.
---- @return boolean ok Whether the batched pass completed and can be trusted.
-local function runBatchedProbes(document, page, probes, hold_pos, state, dstate)
+--- @return boolean ok Whether the batched pass completed.
+local function runBatchedProbes(document, page, probes, hold_pos, state)
     local koptinterface = document.koptinterface
     if not koptinterface or not document._document or #probes == 0 then
         return false
@@ -204,7 +184,7 @@ local function runBatchedProbes(document, page, probes, hold_pos, state, dstate)
         return false
     end
 
-    local kc, native_page, consistent
+    local kc, native_page
     local ok, err = pcall(function()
         kc = koptinterface:createContext(document, page, {
             x0 = 0,
@@ -220,18 +200,10 @@ local function runBatchedProbes(document, page, probes, hold_pos, state, dstate)
             return kc:getPanelFromPage(pos)
         end
 
-        -- Re-probing the same point before and after the loop is what proves the
-        -- shared context is reusable. If the detector mutated the source bitmap,
-        -- the second answer would differ and every panel found here is suspect.
-        local before = probe(probes[1])
         runProbes(probes, hold_pos, state, probe)
-        local after = probe(probes[1])
-
-        consistent = (before == nil and after == nil)
-            or (before ~= nil and after ~= nil and Geometry.rectKey(before) == Geometry.rectKey(after))
     end)
 
-    -- Both handles own C memory; leaking one on a 500MB device is fatal, not slow.
+    -- Both handles own C memory; free explicitly immediately after probing.
     if native_page then
         pcall(native_page.close, native_page)
     end
@@ -241,12 +213,6 @@ local function runBatchedProbes(document, page, probes, hold_pos, state, dstate)
 
     if not ok then
         logger.warn("[Panels+] batched panel detection failed:", err)
-        return false
-    end
-    if not consistent then
-        dstate.unsafe = true
-        dstate.calls_since_failure = 0
-        logger.warn("[Panels+] shared detector context is not reusable, falling back to per-probe detection")
         return false
     end
     return true
@@ -266,37 +232,55 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
         return {}
     end
 
+    local min_free = settings.native_detect_min_free_bytes
+        or Settings.defaults.native_detect_min_free_bytes
+
+    -- A full-resolution page rasterization is the single largest allocation
+    -- this plugin makes. On a low-memory device it is worth skipping outright
+    -- rather than risking an OOM kill, which leaves no Lua traceback -- only
+    -- the memory trend in the log, if debug_mode was already on.
+    if not Memory.hasHeadroom(min_free) then
+        Timing.memory("native detect skipped: low memory (need >=%dMB)",
+            math.floor(min_free / (1024 * 1024)))
+        return {}
+    end
+
     local probes = NativeDetector.buildProbePlan(page, page_size, settings, hold_pos)
     local state = { panels = {}, by_key = {} }
     local stop = Timing.span("native detect")
-    local dstate = getDocState(document)
 
-    local try_batched = not dstate.unsafe or dstate.calls_since_failure >= RETRY_AFTER_CALLS
-    if try_batched and runBatchedProbes(document, page, probes, hold_pos, state, dstate) then
-        if dstate.unsafe then
-            Timing.log(string.format("native detector recovered after %d calls", dstate.calls_since_failure))
-        end
-        dstate.unsafe = false
-        dstate.calls_since_failure = 0
+    if runBatchedProbes(document, page, probes, hold_pos, state) then
         stop(string.format("%d panels from %d probes, 1 page render", #state.panels, #probes))
+        collectgarbage("collect")
         return Geometry.sortReadingOrder(state.panels, settings.mode)
     end
-    if dstate.unsafe then
-        dstate.calls_since_failure = dstate.calls_since_failure + 1
+
+    -- Fallback: KOReader's own entry point, one full page render per probe --
+    -- up to buildProbePlan's full grid size, each one its own full-resolution
+    -- rasterization. Cascading into ~29 of these right after the single
+    -- shared-context render above just failed is exactly how a low-memory
+    -- device gets pushed from "tight" to "killed", so memory is re-checked
+    -- here too rather than assuming the single-render check above still
+    -- holds. Collecting first reflects the memory the failed attempt's
+    -- kc:free()/native_page:close() just released, instead of a stale
+    -- pre-attempt reading.
+    collectgarbage("collect")
+    if not Memory.hasHeadroom(min_free) then
+        Timing.memory("native detect fallback skipped: low memory after batched failure (need >=%dMB)",
+            math.floor(min_free / (1024 * 1024)))
+        stop("skipped fallback: low memory")
+        return {}
     end
 
-    -- Fallback: KOReader's own entry point, one full page render per probe.
-    -- This is the path flagged in the module doc comment as the one that
-    -- floods DocCache on low-memory devices, so it gets its own memory
-    -- snapshot before and after rather than sharing the generic span detail.
-    Timing.memory(string.format("native detect fallback start (page %d, %d probes)", page, #probes))
+    Timing.memory("native detect fallback start (page %d, %d probes)", page, #probes)
     state.panels, state.by_key = {}, {}
     runProbes(probes, hold_pos, state, function(pos)
         return document:getPanelFromPage(page, pos)
     end)
     stop(string.format("%d panels from %d probes, per-probe renders", #state.panels, #probes))
     Timing.memory("native detect fallback end")
-    return NativeDetector.sort(state.panels, settings)
+    collectgarbage("collect")
+    return Geometry.sortReadingOrder(state.panels, settings.mode)
 end
 
 return NativeDetector
