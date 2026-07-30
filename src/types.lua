@@ -49,6 +49,8 @@
 --- @field progress_bar_visible boolean
 --- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
+--- @field nav_transition_cross_page boolean Whether smooth navigation also animates across page boundaries.
+--- @field nav_transition_dummy_b boolean Second demo boolean configuration flag.
 --- @field detector PPDetector
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer
@@ -88,5 +90,12 @@
 --- @class PPImageList : table
 --- @field image_disposable boolean Whether ImageViewer owns decoded panel images.
 --- @field rotated boolean|nil Last rotation flag returned by `drawPagePart`.
+
+--- Result of a side-effect-free adjacent-page lookup for boundary crossings.
+--- @class PPBoundaryResolution
+--- @field next_page number Adjacent document page number.
+--- @field panels PPPanel[] Adjacent page's ordered panel rectangles.
+--- @field start_idx integer 1-based panel index the crossing should land on.
+--- @field target_rect PPPanel Crop rectangle (post crop-mode expansion) for the landing panel.
 
 return {}

@@ -163,6 +163,26 @@ function PanelsPlus:setNavTransitionDuration(seconds)
     self:saveSettings()
 end
 
+--- Enable or disable animating panel transitions across page boundaries.
+---
+--- Only takes effect when the adjacent page's panels are already cached at the
+--- moment of the swipe; otherwise the crossing always falls back to the
+--- classic instant cut, so this never blocks a gesture on detection.
+---
+--- @param enabled any Truthy value animates page-boundary crossings too.
+function PanelsPlus:setNavTransitionCrossPage(enabled)
+    self.settings.nav_transition_cross_page = enabled and true or false
+    self:saveSettings()
+end
+
+--- Set dummy boolean configuration B.
+---
+--- @param enabled any Truthy value enables dummy option B.
+function PanelsPlus:setNavTransitionDummyB(enabled)
+    self.settings.nav_transition_dummy_b = enabled and true or false
+    self:saveSettings()
+end
+
 --- Choose which detector finds panels.
 ---
 --- The panel cache is keyed by detector (see `Cache:getPanelCacheKey`), so

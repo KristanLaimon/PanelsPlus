@@ -5,6 +5,7 @@ local Event = require("ui/event")
 local Geom = require("ui/geometry")
 local Geometry = require("src._geometry")
 local ImageViewer = require("ui/widget/imageviewer")
+local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
 local UIManager = require("ui/uimanager")
@@ -42,6 +43,8 @@ end
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
+--- @field nav_transition_cross_page boolean Whether smooth navigation also animates across page boundaries.
+--- @field nav_transition_dummy_b boolean Second demo boolean configuration flag.
 --- @field page number|nil Document page number represented by `panels`.
 --- @field panels PPPanel[]|nil Ordered panel rectangles.
 --- @field image_rects PPPanel[]|nil Crop rectangles matching `_images_list`, for prerendering.
@@ -55,6 +58,9 @@ end
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_transition_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_transition_duration_callback fun(viewer:PanelViewer, seconds:number):boolean|nil
+--- @field nav_transition_options_callback fun(viewer:PanelViewer):boolean|nil
+--- @field nav_boundary_peek_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):PPBoundaryResolution|nil
+--- @field nav_boundary_commit_callback fun(viewer:PanelViewer, direction:PPBoundaryDirection, resolved:PPBoundaryResolution):boolean|nil
 --- @field buttons_visible boolean Whether controls are currently shown.
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
 --- @field fullscreen boolean Whether the viewer is fullscreen.
@@ -71,6 +77,8 @@ local PanelViewer = ImageViewer:extend{
     progress_bar_visible = true,
     nav_transition_mode = "classic",
     nav_transition_duration = 0.4,
+    nav_transition_cross_page = true,
+    nav_transition_dummy_b = true,
     page = nil,
     panels = nil,
     image_rects = nil,
@@ -85,6 +93,9 @@ local PanelViewer = ImageViewer:extend{
     progress_bar_toggle_callback = nil,
     nav_transition_toggle_callback = nil,
     nav_transition_duration_callback = nil,
+    nav_transition_options_callback = nil,
+    nav_boundary_peek_callback = nil,
+    nav_boundary_commit_callback = nil,
     buttons_visible = false,
     with_title_bar = false,
     fullscreen = true,
@@ -312,13 +323,13 @@ function PanelViewer:onSwipe(arg, ges)
             if self._images_list_cur < self._images_list_nb then
                 self:onShowNextImage()
             elseif self.boundary_callback then
-                return self.boundary_callback("next", self)
+                return self:onPanelBoundary("next")
             end
         else
             if self._images_list_cur > 1 then
                 self:onShowPrevImage()
             elseif self.boundary_callback then
-                return self.boundary_callback("previous", self)
+                return self:onPanelBoundary("previous")
             end
         end
         return true
@@ -645,24 +656,39 @@ function PanelViewer:animateSwitchToImageNum(target)
         self:releasePreviousPanelImage(old_image)
     end
 
+    self:runNavPanAnimation(ratio_bx, ratio_by, function()
+        self:switchToImageNum(target)
+    end)
+end
+
+--- Run the smooth-navigation pan from the widget's current offset to a target
+--- ratio, then invoke `on_complete`.
+---
+--- Assumes the caller has already set `self.image`/`self._center_x_ratio`/
+--- `self._center_y_ratio`/`self.scale_factor` to the *starting* frame and
+--- called `self:update()`. Each step re-targets an absolute offset for that
+--- point in the animation, computed from the widget's *actual* current offset
+--- rather than a fixed per-step delta. `panBy()` floors its result every call,
+--- so fixed deltas silently lose a fraction of a pixel each step; over several
+--- steps that drifts away from the target, and the final hand-off then has to
+--- snap the last bit of distance in one jump. Recomputing the delta from the
+--- real current offset each time folds any prior drift into the next step
+--- instead of letting it accumulate, and the last step targets the exact final
+--- offset, so the pan always lands precisely on the target ratio.
+---
+--- @param target_ratio_x number Final `center_x_ratio` to land on.
+--- @param target_ratio_y number Final `center_y_ratio` to land on.
+--- @param on_complete fun() Called on the last step, instead of a hardcoded handoff.
+function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_complete)
     self._image_wg:getSize() -- primes _render() so getCurrentWidth/Height are valid
     local bb_w, bb_h = self._image_wg:getCurrentWidth(), self._image_wg:getCurrentHeight()
     local viewport_w, viewport_h = self._image_wg.width, self._image_wg.height
     local start_offset_x, start_offset_y = self._image_wg._offset_x, self._image_wg._offset_y
-    local target_offset_x = math.floor(ratio_bx * bb_w - viewport_w / 2)
-    local target_offset_y = math.floor(ratio_by * bb_h - viewport_h / 2)
+    local target_offset_x = math.floor(target_ratio_x * bb_w - viewport_w / 2)
+    local target_offset_y = math.floor(target_ratio_y * bb_h - viewport_h / 2)
     local steps = NAV_TRANSITION_STEPS
     local step_delay = (self.nav_transition_duration or 0.4) / steps
 
-    -- Each step re-targets an absolute offset for that point in the animation,
-    -- computed from the widget's *actual* current offset rather than a fixed
-    -- per-step delta. panBy() floors its result every call, so fixed deltas
-    -- silently lose a fraction of a pixel each step; over several steps that
-    -- drifts away from the target, and the final hand-off then has to snap the
-    -- last bit of distance in one jump. Recomputing the delta from the real
-    -- current offset each time folds any prior drift into the next step instead
-    -- of letting it accumulate, and the last step targets the exact final
-    -- offset, so the pan always lands precisely on `target`'s centered position.
     local step_n = 0
     local walkStep
     walkStep = function()
@@ -682,10 +708,173 @@ function PanelViewer:animateSwitchToImageNum(target)
             UIManager:scheduleIn(step_delay, walkStep)
         else
             self._panels_plus_transition_active = nil
-            self:switchToImageNum(target)
+            on_complete()
         end
     end
     UIManager:scheduleIn(step_delay, walkStep)
+end
+
+--- Dispatch a first/last-panel boundary crossing, animating it when smooth
+--- navigation and cross-page transitions are both enabled.
+---
+--- @param direction PPBoundaryDirection `"next"` or `"previous"`.
+--- @return boolean|nil handled Whether the crossing was handled.
+function PanelViewer:onPanelBoundary(direction)
+    if self.nav_transition_mode == "smooth" and self.nav_transition_cross_page then
+        return self:animateBoundaryTransition(direction)
+    end
+    return self.boundary_callback and self.boundary_callback(direction, self)
+end
+
+--- Animate a camera pan across a page boundary when the adjacent page's
+--- panels are already cached; otherwise, or on any failure at any stage,
+--- falls straight back to the classic instant boundary crossing.
+---
+--- Renders the current page's edge panel and the adjacent page's landing
+--- panel independently (there is no shared coordinate space across pages),
+--- rescales the current-page slice to the landing panel's own zoom (a single
+--- one-shot rescale, not per-frame), and composites both into one canvas
+--- side-by-side in the swipe direction -- continuing the pan and letting the
+--- reveal read as one continuous strip rather than a distinct "page turn".
+--- Both slices are centered vertically within a shared canvas height, so the
+--- resulting pan is purely horizontal by construction. The actual page turn
+--- (GotoPage, closing this viewer, opening the adjacent one) only happens
+--- after the pan completes, via `nav_boundary_commit_callback`.
+---
+--- @param direction PPBoundaryDirection `"next"` or `"previous"`.
+--- @return boolean|nil handled Whether the crossing was handled (always true
+---   once a resolution exists, since failure paths fall back to the classic
+---   callback which itself always handles the crossing).
+function PanelViewer:animateBoundaryTransition(direction)
+    if self._panels_plus_transition_active then
+        return true -- swallow a re-entrant swipe while a pan is already in flight
+    end
+    if not self.nav_boundary_peek_callback then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    local resolved = self.nav_boundary_peek_callback(direction, self)
+    if not resolved then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    local rect_a = self.image_rects and self.image_rects[self._images_list_cur]
+    local rect_b = resolved.target_rect
+    if not rect_a or not rect_b then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    local target_zoom = canvasFitZoom(rect_b)
+
+    local ok_a, tile_a, rotated_a = pcall(function()
+        return self.reader_ui.document:drawPagePart(self.page, rect_a, 0)
+    end)
+    if not ok_a or not tile_a then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+    local ok_b, tile_b, rotated_b = pcall(function()
+        return self.reader_ui.document:drawPagePart(resolved.next_page, rect_b, 0)
+    end)
+    if not ok_b or not tile_b then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+    if (rotated_a and true or false) ~= (rotated_b and true or false) then
+        -- Mismatched auto-rotation between the two pages' slices can't be
+        -- composited safely -- rare (differing panel aspect ratios right at
+        -- the boundary); not worth reconciling for this iteration.
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    -- Bring page A's slice to the SAME zoom page B's slice already has
+    -- (drawPagePart(rect_b) is bare, so tile_b is already at target_zoom).
+    -- This is a single one-shot rescale, not a per-frame cost.
+    local zoom_a = canvasFitZoom(rect_a)
+    local scale_a = target_zoom / zoom_a
+    local ok_scale, tile_a_scaled = pcall(function()
+        if scale_a == 1 then
+            return tile_a
+        end
+        local new_w = math.max(1, math.floor(tile_a:getWidth() * scale_a + 0.5))
+        local new_h = math.max(1, math.floor(tile_a:getHeight() * scale_a + 0.5))
+        return RenderImage:scaleBlitBuffer(tile_a, new_w, new_h, false)
+    end)
+    if not ok_scale or not tile_a_scaled then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    -- Deliberately independent of `getNextSwipeDirection()`/`invert_swipe`: this
+    -- is about which screen-side pages enter from, tied purely to manga (right
+    -- to left) vs comic (left to right) reading order, not the swipe-gesture
+    -- preference.
+    local manga_next_is_west = self.reading_mode ~= "comic"
+    local travel_west = (direction == "next") == manga_next_is_west
+
+    local viewport_w, viewport_h = Screen:getWidth(), Screen:getHeight()
+    local half_w_a = math.max(viewport_w / 2, tile_a_scaled:getWidth() / 2)
+    local half_h_a = math.max(viewport_h / 2, tile_a_scaled:getHeight() / 2)
+    local half_w_b = math.max(viewport_w / 2, tile_b:getWidth() / 2)
+    local half_h_b = math.max(viewport_h / 2, tile_b:getHeight() / 2)
+
+    local canvas_w = math.max(1, math.ceil(2 * half_w_a + 2 * half_w_b))
+    local canvas_h = math.max(1, math.ceil(math.max(2 * half_h_a, 2 * half_h_b)))
+
+    local screen_area = viewport_w * viewport_h
+    if canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
+        if tile_a_scaled ~= tile_a and tile_a_scaled.free then
+            tile_a_scaled:free()
+        end
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    local a_left = travel_west and (2 * half_w_b) or 0
+    local b_left = travel_west and 0 or (2 * half_w_a)
+
+    local ok_canvas, canvas_image = pcall(function()
+        local canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
+        canvas:fill(Blitbuffer.COLOR_WHITE)
+        local a_x = math.max(0, math.floor(a_left + half_w_a - tile_a_scaled:getWidth() / 2))
+        local a_y = math.max(0, math.floor(canvas_h / 2 - tile_a_scaled:getHeight() / 2))
+        local a_w = math.min(tile_a_scaled:getWidth(), canvas_w - a_x)
+        local a_h = math.min(tile_a_scaled:getHeight(), canvas_h - a_y)
+        if a_w > 0 and a_h > 0 then
+            canvas:blitFrom(tile_a_scaled, a_x, a_y, 0, 0, a_w, a_h)
+        end
+        local b_x = math.max(0, math.floor(b_left + half_w_b - tile_b:getWidth() / 2))
+        local b_y = math.max(0, math.floor(canvas_h / 2 - tile_b:getHeight() / 2))
+        local b_w = math.min(tile_b:getWidth(), canvas_w - b_x)
+        local b_h = math.min(tile_b:getHeight(), canvas_h - b_y)
+        if b_w > 0 and b_h > 0 then
+            canvas:blitFrom(tile_b, b_x, b_y, 0, 0, b_w, b_h)
+        end
+        return canvas
+    end)
+    if tile_a_scaled ~= tile_a and tile_a_scaled.free then
+        tile_a_scaled:free() -- pixels already copied into canvas_image; tile_a itself is DocCache-owned
+    end
+    if not ok_canvas or not canvas_image then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+
+    local ratio_ax = (a_left + half_w_a) / canvas_w
+    local ratio_bx = (b_left + half_w_b) / canvas_w
+    local ratio_ay, ratio_by = 0.5, 0.5 -- each slice is centered vertically in the shared canvas_h
+
+    self._panels_plus_transition_active = true
+    local old_image = self.image
+    self.image = canvas_image
+    self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
+    self.scale_factor = 1 -- both slices already share target_zoom; no further scale needed
+    self:update()
+    if self.image_disposable then
+        self:releasePreviousPanelImage(old_image)
+    end
+
+    self:runNavPanAnimation(ratio_bx, ratio_by, function()
+        if self.nav_boundary_commit_callback then
+            self.nav_boundary_commit_callback(self, direction, resolved)
+        end
+    end)
+    return true
 end
 
 --- Return the button label for the crop mode currently in use.
@@ -959,7 +1148,11 @@ function PanelViewer:replaceButtonTable()
                 end,
                 hold_callback = function()
                     if self.nav_transition_mode == "smooth" then
-                        self:onAdjustNavTransitionDuration()
+                        if self.nav_transition_options_callback then
+                            self.nav_transition_options_callback(self)
+                        else
+                            self:onAdjustNavTransitionDuration()
+                        end
                     end
                 end,
             },

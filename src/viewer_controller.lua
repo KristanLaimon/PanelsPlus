@@ -260,6 +260,61 @@ function ViewerController:setViewerNavTransitionDuration(viewer, seconds)
     return true
 end
 
+--- Show a multi-options menu popup for navigation transition configuration.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:showNavTransitionOptionsMenu(viewer)
+    local Menu = require("ui/widget/menu")
+    local _ = require("gettext")
+    local controller = self
+    local menu
+
+    local menu_items = {
+        {
+            text = _("Pan animation duration..."),
+            callback = function()
+                viewer:onAdjustNavTransitionDuration()
+            end,
+            help_text = _("Adjust how long the camera pan between panels takes in milliseconds."),
+        },
+        {
+            text = _("Animate page-to-page transitions (Actual: ")
+                .. (controller.settings.nav_transition_cross_page == true and _("true") or _("false")) .. ")",
+            checked_func = function()
+                return controller.settings.nav_transition_cross_page == true
+            end,
+            callback = function()
+                controller:setNavTransitionCrossPage(not controller.settings.nav_transition_cross_page)
+                viewer.nav_transition_cross_page = controller.settings.nav_transition_cross_page
+                -- Rebuild the menu so the "(Actual: ...)" label in the text
+                -- reflects the new value immediately, not just the checkmark.
+                UIManager:close(menu)
+                controller:showNavTransitionOptionsMenu(viewer)
+            end,
+            help_text = _("Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."),
+        },
+        {
+            text = _("Dummy Config B (Demo flag)"),
+            checked_func = function()
+                return controller.settings.nav_transition_dummy_b == true
+            end,
+            callback = function()
+                controller:setNavTransitionDummyB(not controller.settings.nav_transition_dummy_b)
+                viewer.nav_transition_dummy_b = controller.settings.nav_transition_dummy_b
+            end,
+            help_text = _("Second boolean configuration flag demo option."),
+        },
+    }
+
+    menu = Menu:new{
+        title = _("Navigation Transition Settings"),
+        item_table = menu_items,
+    }
+    UIManager:show(menu)
+    return true
+end
+
 --- Start panel sequence viewing from a native panel-zoom hold gesture.
 ---
 --- @param reader_highlight table KOReader reader highlight module.
@@ -314,6 +369,8 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
+        nav_transition_cross_page = self.settings.nav_transition_cross_page == true,
+        nav_transition_dummy_b = self.settings.nav_transition_dummy_b == true,
         buttons_visible = options.buttons_visible == true,
         rotated = images.rotated,
         boundary_callback = function(direction, current_viewer)
@@ -340,6 +397,15 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         nav_transition_duration_callback = function(current_viewer, seconds)
             return self:setViewerNavTransitionDuration(current_viewer, seconds)
         end,
+        nav_transition_options_callback = function(current_viewer)
+            return self:showNavTransitionOptionsMenu(current_viewer)
+        end,
+        nav_boundary_peek_callback = function(direction, current_viewer)
+            return self:resolveBoundaryTarget(direction, current_viewer)
+        end,
+        nav_boundary_commit_callback = function(current_viewer, direction, resolved)
+            return self:commitBoundaryTransition(direction, current_viewer, resolved)
+        end,
         detector_cycle_callback = function(current_viewer)
             return self:cycleViewerDetector(current_viewer)
         end,
@@ -356,6 +422,58 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         return viewer
     end
     return true
+end
+
+--- Look up the adjacent page's panels for a boundary crossing, if already
+--- cached, without any side effects (no GotoPage, no closing/opening viewers,
+--- no triggering detection).
+---
+--- Callers must fall back to the classic instant boundary crossing when this
+--- returns `nil` -- it deliberately never waits for detection, so an animated
+--- crossing only ever happens when `preloadNextPanels` has already warmed the
+--- adjacent page in the background.
+---
+--- @param direction PPBoundaryDirection `"next"` or `"previous"`.
+--- @param current_viewer PanelViewer Active panel viewer.
+--- @return PPBoundaryResolution|nil resolved `nil` when there is no next/prev
+---   page, or its panels are not (yet) cached.
+function ViewerController:resolveBoundaryTarget(direction, current_viewer)
+    local next_page
+    if direction == "next" then
+        next_page = self.ui.document:getNextPage(current_viewer.page)
+    else
+        next_page = self.ui.document:getPrevPage(current_viewer.page)
+    end
+    if not next_page or next_page == 0 then
+        return nil
+    end
+
+    local cached_panels = self:getCachedPanels(next_page)
+    if not cached_panels or #cached_panels == 0 then
+        return nil
+    end
+
+    local start_idx = direction == "next" and 1 or #cached_panels
+    local _, image_rects = PanelCollector.buildImages(self.ui, next_page, cached_panels, self.settings)
+    return {
+        next_page = next_page,
+        panels = cached_panels,
+        start_idx = start_idx,
+        target_rect = image_rects[start_idx],
+    }
+end
+
+--- Perform the actual page turn for a boundary crossing: GotoPage, close the
+--- current viewer, open the adjacent one at the resolved panel.
+---
+--- @param direction PPBoundaryDirection `"next"` or `"previous"`.
+--- @param current_viewer PanelViewer Active panel viewer being replaced.
+--- @param resolved PPBoundaryResolution Result of a prior `resolveBoundaryTarget` call.
+--- @return boolean|PanelViewer result Whatever `showPanelViewerForPage` returns.
+function ViewerController:commitBoundaryTransition(direction, current_viewer, resolved)
+    self.ui:handleEvent(Event:new("GotoPage", resolved.next_page))
+    UIManager:close(current_viewer)
+    return self:showPanelViewerForPage(resolved.next_page, resolved.panels, resolved.start_idx)
 end
 
 --- Move to the adjacent page when panel navigation crosses viewer boundaries.
@@ -380,14 +498,14 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
         return true
     end
 
+    local resolved = self:resolveBoundaryTarget(direction, current_viewer)
+    if resolved then
+        return self:commitBoundaryTransition(direction, current_viewer, resolved)
+    end
+
     local cached_panels = self:getCachedPanels(next_page)
     if cached_panels then
-        if #cached_panels > 0 then
-            self.ui:handleEvent(Event:new("GotoPage", next_page))
-            UIManager:close(current_viewer)
-            local start_idx = direction == "next" and 1 or #cached_panels
-            return self:showPanelViewerForPage(next_page, cached_panels, start_idx)
-        end
+        -- cached, but empty: nothing detected on the adjacent page.
         current_viewer:onClose()
         self.ui:handleEvent(Event:new("GotoPage", next_page))
         self:preloadNextPanels(next_page)
