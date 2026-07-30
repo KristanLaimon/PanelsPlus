@@ -234,6 +234,32 @@ function ViewerController:toggleViewerProgressBar(viewer)
     return true
 end
 
+--- Cycle nav transition mode from an open viewer, in place.
+---
+--- Unlike crop mode or detector, this doesn't change the panel list or any
+--- rendered rectangle, so the viewer is updated in place instead of rebuilt.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:toggleViewerNavTransitionMode(viewer)
+    self:setNavTransitionMode(self.settings.nav_transition_mode == "smooth" and "classic" or "smooth")
+    viewer.nav_transition_mode = self.settings.nav_transition_mode
+    viewer:replaceButtonTable()
+    viewer:update()
+    return true
+end
+
+--- Persist a new smooth-navigation pan duration from an open viewer's slider dialog.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @param seconds number New transition duration in seconds.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setViewerNavTransitionDuration(viewer, seconds)
+    self:setNavTransitionDuration(seconds)
+    viewer.nav_transition_duration = self.settings.nav_transition_duration
+    return true
+end
+
 --- Start panel sequence viewing from a native panel-zoom hold gesture.
 ---
 --- @param reader_highlight table KOReader reader highlight module.
@@ -286,6 +312,8 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
+        nav_transition_mode = self.settings.nav_transition_mode or "classic",
+        nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
         buttons_visible = options.buttons_visible == true,
         rotated = images.rotated,
         boundary_callback = function(direction, current_viewer)
@@ -305,6 +333,12 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         progress_bar_toggle_callback = function(current_viewer)
             return self:toggleViewerProgressBar(current_viewer)
+        end,
+        nav_transition_toggle_callback = function(current_viewer)
+            return self:toggleViewerNavTransitionMode(current_viewer)
+        end,
+        nav_transition_duration_callback = function(current_viewer, seconds)
+            return self:setViewerNavTransitionDuration(current_viewer, seconds)
         end,
         detector_cycle_callback = function(current_viewer)
             return self:cycleViewerDetector(current_viewer)

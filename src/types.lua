@@ -36,6 +36,9 @@
 --- Which detector `PanelCollector.collect` should use.
 --- @alias PPDetector '"auto"'|'"fast"'|'"exact"'
 
+--- Panel-to-panel navigation transition style.
+--- @alias PPNavTransitionMode '"classic"'|'"smooth"'
+
 --- Persisted plugin settings.
 --- @class PPSettings
 --- @field enabled boolean
@@ -44,6 +47,8 @@
 --- @field panel_margin_ratio number Zoom-out fraction the "margin" crop mode applies to non-full-page panels.
 --- @field invert_swipe boolean
 --- @field progress_bar_visible boolean
+--- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
+--- @field nav_transition_duration number Seconds the smooth camera pan takes.
 --- @field detector PPDetector
 --- @field panel_grid_cols integer
 --- @field panel_grid_rows integer

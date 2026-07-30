@@ -145,6 +145,24 @@ function PanelsPlus:setProgressBarVisible(visible)
     self:saveSettings()
 end
 
+--- Set whether panel-to-panel navigation animates a camera pan or swaps instantly.
+---
+--- @param mode PPNavTransitionMode Requested mode; anything except "smooth" maps to "classic".
+function PanelsPlus:setNavTransitionMode(mode)
+    self.settings.nav_transition_mode = mode == "smooth" and "smooth" or "classic"
+    Timing.log("nav_transition_mode -> " .. self.settings.nav_transition_mode)
+    self:saveSettings()
+end
+
+--- Set how long the smooth-navigation camera pan takes.
+---
+--- @param seconds number Requested duration; clamped to [0.15, 0.9].
+function PanelsPlus:setNavTransitionDuration(seconds)
+    seconds = tonumber(seconds) or Settings.defaults.nav_transition_duration
+    self.settings.nav_transition_duration = math.max(0.15, math.min(0.9, seconds))
+    self:saveSettings()
+end
+
 --- Choose which detector finds panels.
 ---
 --- The panel cache is keyed by detector (see `Cache:getPanelCacheKey`), so

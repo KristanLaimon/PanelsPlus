@@ -25,6 +25,19 @@ function Geometry.rectCenter(rect)
     return (rect.x or 0) + (rect.w or 0) / 2, (rect.y or 0) + (rect.h or 0) / 2
 end
 
+--- Return the smallest rectangle containing both `a` and `b`.
+---
+--- @param a PPRect First rectangle.
+--- @param b PPRect Second rectangle.
+--- @return PPRect union Bounding box of both rectangles.
+function Geometry.rectUnion(a, b)
+    local x = math.min(a.x or 0, b.x or 0)
+    local y = math.min(a.y or 0, b.y or 0)
+    local right = math.max((a.x or 0) + (a.w or 0), (b.x or 0) + (b.w or 0))
+    local bottom = math.max((a.y or 0) + (a.h or 0), (b.y or 0) + (b.h or 0))
+    return { x = x, y = y, w = right - x, h = bottom - y }
+end
+
 --- Test whether a point is inside a rectangle, including the edges.
 ---
 --- @param rect PPRect Rectangle-like table.
