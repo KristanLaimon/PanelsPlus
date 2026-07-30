@@ -493,12 +493,16 @@ end
 function PanelViewer:onCloseWidget()
     self._panels_plus_closed = true
     self._panels_plus_closing = true
+    local active_image = self.image
     local ok, err = pcall(function()
         return self:withGuardedImageViewerRefresh(function()
             return ImageViewer.onCloseWidget(self)
         end)
     end)
     self._panels_plus_closing = nil
+    if self.image_disposable and active_image and active_image.free then
+        active_image:free()
+    end
     if not ok then
         error(err)
     end
@@ -593,6 +597,7 @@ function PanelViewer:animateSwitchToImageNum(target)
 
     local union = Geometry.rectUnion(rect_a, rect_b)
     local target_zoom = canvasFitZoom(rect_b)
+
     local bx, by
     if self.crop_mode == "none" and self.panels and self.panels[target] then
         bx, by = Geometry.rectCenter(self.panels[target])
@@ -600,11 +605,28 @@ function PanelViewer:animateSwitchToImageNum(target)
         bx, by = Geometry.rectCenter(rect_b)
     end
 
+    local ax, ay
+    if self.crop_mode == "none" and self.panels and self.panels[cur] then
+        ax, ay = Geometry.rectCenter(self.panels[cur])
+    else
+        ax, ay = Geometry.rectCenter(rect_a)
+    end
+
     -- Half-extents (page space) of the canvas, symmetric around (bx, by): at
-    -- least half the screen (target's own normal letterboxed framing), extended
-    -- as needed to also cover the union so the pan crosses real content.
-    local half_w = math.max(Screen:getWidth() / (2 * target_zoom), bx - union.x, union.x + union.w - bx)
-    local half_h = math.max(Screen:getHeight() / (2 * target_zoom), by - union.y, union.y + union.h - by)
+    -- least half the screen (target's own normal letterboxed framing) plus the
+    -- distance between panel centers (so the starting frame offset is valid and
+    -- never clamped by ImageWidget), extended as needed to also cover the union
+    -- so the pan crosses real content.
+    local half_w = math.max(
+        Screen:getWidth() / (2 * target_zoom) + math.abs(ax - bx),
+        bx - union.x,
+        union.x + union.w - bx
+    )
+    local half_h = math.max(
+        Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by),
+        by - union.y,
+        union.y + union.h - by
+    )
 
     local screen_area = Screen:getWidth() * Screen:getHeight()
     if (2 * half_w) * (2 * half_h) * target_zoom * target_zoom > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
@@ -646,13 +668,6 @@ function PanelViewer:animateSwitchToImageNum(target)
     end
     -- content_image itself is a DocCache-owned tile (never copied out), so it is
     -- never freed here -- only its pixels were read into the newly-owned canvas.
-
-    local ax, ay
-    if self.crop_mode == "none" and self.panels and self.panels[cur] then
-        ax, ay = Geometry.rectCenter(self.panels[cur])
-    else
-        ax, ay = Geometry.rectCenter(rect_a)
-    end
 
     local ratio_ax, ratio_ay = (ax - (bx - half_w)) / (2 * half_w), (ay - (by - half_h)) / (2 * half_h)
     local ratio_bx, ratio_by = 0.5, 0.5 -- target's center sits at the canvas center by construction
@@ -870,7 +885,15 @@ function PanelViewer:animateBoundaryTransition(direction)
         return canvas
     end)
     if tile_a_scaled ~= tile_a and tile_a_scaled.free then
-        tile_a_scaled:free() -- pixels already copied into canvas_image; tile_a itself is DocCache-owned
+        tile_a_scaled:free() -- pixels already copied into canvas_image
+    end
+    if self.crop_mode == "none" then
+        if tile_a and tile_a.free then
+            tile_a:free()
+        end
+        if tile_b and tile_b.free then
+            tile_b:free()
+        end
     end
     if not ok_canvas or not canvas_image then
         return self.boundary_callback and self.boundary_callback(direction, self)
