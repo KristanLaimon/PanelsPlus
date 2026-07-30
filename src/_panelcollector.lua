@@ -28,11 +28,21 @@ local PanelCollector = {}
 local function expandRect(rect, page_size, settings)
     local ratio = settings.panel_bleed_ratio or Settings.defaults.panel_bleed_ratio
     local min_bleed = settings.panel_bleed_min or Settings.defaults.panel_bleed_min
-    local bleed = math.max(min_bleed, math.min(rect.w or 0, rect.h or 0) * ratio)
-    local x = math.max(0, (rect.x or 0) - bleed)
-    local y = math.max(0, (rect.y or 0) - bleed)
-    local right = math.min(page_size.w, (rect.x or 0) + (rect.w or 0) + bleed)
-    local bottom = math.min(page_size.h, (rect.y or 0) + (rect.h or 0) + bleed)
+
+    local rx = rect.x or 0
+    local ry = rect.y or 0
+    local rw = rect.w or 0
+    local rh = rect.h or 0
+    local pw = page_size.w or 0
+    local ph = page_size.h or 0
+
+    local panel_dim = math.max(rw, rh)
+    local bleed = math.max(min_bleed, panel_dim * ratio)
+
+    local x = math.max(0, rx - bleed)
+    local y = math.max(0, ry - bleed)
+    local right = math.min(pw, rx + rw + bleed)
+    local bottom = math.min(ph, ry + rh + bleed)
 
     return {
         x = x,
@@ -180,5 +190,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
 
     return images, image_rects, full_page_flags
 end
+
+PanelCollector._getImageRect = getImageRect
 
 return PanelCollector

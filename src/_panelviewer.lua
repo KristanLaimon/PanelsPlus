@@ -1005,7 +1005,7 @@ function PanelViewer:onAdjustBleedRatio()
         info_text = _("How much page area outside each panel's edges to reveal."),
         value = math.floor((self.bleed_ratio or 0.08) * 100 + 0.5),
         value_min = 0,
-        value_max = 40,
+        value_max = 100,
         value_step = 1,
         value_hold_step = 5,
         unit = "%",

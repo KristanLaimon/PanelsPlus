@@ -122,10 +122,10 @@ end
 
 --- Set how much page area outside each panel "Loose crop" reveals.
 ---
---- @param ratio number Requested bleed ratio; clamped to [0, 0.4].
+--- @param ratio number Requested bleed ratio; clamped to [0, 1.0].
 function PanelsPlus:setBleedRatio(ratio)
     ratio = tonumber(ratio) or Settings.defaults.panel_bleed_ratio
-    self.settings.panel_bleed_ratio = math.max(0, math.min(0.4, ratio))
+    self.settings.panel_bleed_ratio = math.max(0, math.min(1.0, ratio))
     self:saveSettings()
 end
 
