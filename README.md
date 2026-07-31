@@ -11,7 +11,14 @@
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!. Install and forget</span>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!.</span>
+  <br><br>
+  <a href="https://github.com/KristanLaimon/BetterPanels/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/BetterPanels?color=blue&style=flat-square" alt="Latest Release"></a>
+  <a href="https://github.com/KristanLaimon/BetterPanels/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/BetterPanels/total?color=brightgreen&style=flat-square" alt="Downloads"></a>
+  <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.03%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/github/license/KristanLaimon/BetterPanels?color=informational&style=flat-square" alt="MIT License"></a>
+  <a href="https://github.com/KristanLaimon/BetterPanels/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/BetterPanels?style=flat-square" alt="GitHub Stars"></a>
+  <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=flat-square" alt="Sponsor on GitHub"></a>
 </p>
 
 
@@ -91,6 +98,15 @@ Configuration is as easy as just using the plugin itself!
 - [Viewer modes](docs/MODES.md) — what Smart, Quick and Deep mode mean for the reader, and where to change them.
 - [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
 - [Known Limitations](docs/KNOWN-LIMITATIONS.md) — current edge cases and known-behaviour (a todo-list to fix at the same time).
+
+## Compatibility
+
+This plugin is compatible with KOReader across the following version range:
+
+| Environment | Supported Version |
+| --- | --- |
+| **Oldest Supported Version** | KOReader `v2025.04` *"Full Moon"* |
+| **Newest Tested Version** | KOReader `v2026.03` *"SnowFlake"* & Newer |
 
 ## Installation
 
@@ -173,6 +189,12 @@ I don't see any more options to include, but contributions are welcome for:
   - device-specific bugs fixes (this would help a lot)
 
 Thanks for using the plugin or at least, taking a look into this repo.
+
+## Support
+
+If you find Panels+ helpful and would like to support its development, consider sponsoring the project on GitHub:
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=for-the-badge)](https://github.com/sponsors/KristanLaimon)
 
 ## License
 MIT License, check "LICENSE" file in this repository.
