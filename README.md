@@ -2,25 +2,32 @@
 
 
 
+
+
+
+
 <p align="center">
   <img src=".github/panels+_logo.png" alt="Panels+ logo" width="250">
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities!</span>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!. Install and forget</span>
 </p>
+
+
 
 <table>
   <tr>
     <td align="center" width="30%">
-      <img src=".github/manga_fullscreen.png" alt="Panels+ running in KOReader" width="420">
+      <video src="https://github.com/user-attachments/assets/23353a47-4038-4361-8536-a907c25b981e" controls width="420"></video>
       <br>
-      <sub>Full-page reading stays one tap away.</sub>
+      <sub>Do not like the cropping and want to see the surroundings as well?, Want to see the panels flow fully animated from one panel to another?, granted and
+        fully customizable. (Works better in non e-ink based devices)</sub>
     </td>
     <td align="center" width="40%">
       <video src="https://github.com/user-attachments/assets/446c71c6-a8f7-47ce-ae44-0fc885ed3241" controls width="420"></video>
       <br>
-      <sub>Core feature: Panel by panel smooth travelling.</sub>
+      <sub>Core feature: Panel by panel smooth travelling. Battle-tested for performance on low-specs e-readers and old Koreaders versions support.</sub>
     </td>
     <td align="center" width="30%">
       <video src="https://github.com/user-attachments/assets/aa34d5db-8e47-4b68-bd5b-fc90d3da6493" controls width="420"></video>
@@ -36,7 +43,8 @@
 
 
 
-Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default single-panel zoom flow with a direction-aware panel reader.
+Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default single-panel zoom flow with a direction-aware panel reader, fully automatized and scans in-live your
+mangas layouts. No complex pre-mangas-scanning setup required, install and works for everything.
 
 It keeps KOReader's native panel detection, then adds ordered panel navigation, manga/comic reading modes, swipe tuning, and gesture-friendly actions so pages feel smoother on e-readers, plus:
 
@@ -51,22 +59,31 @@ Download the latest release from the [releases page](https://github.com/KristanL
 If you want to build the plugin yourself instead, follow [building from source](#building-from-source).
 
 ## Config
+Configuration is as easy as just using the plugin itself!
 
-<div align="center">
+<table>
+  <tr>
+    <td align="center" width="30%">
+      <video src="https://github.com/user-attachments/assets/b66a725e-a8f2-42a4-933e-dc9d625f660b" controls width="420"></video>
+      <br>
+      <sub>All your important config, straight in the zooming view!. No more looking over many hidden config screens.</sub>
+    </td>
+    <td align="center" width="30%">
+      <video src="https://github.com/user-attachments/assets/9368e8f4-a898-446f-bf8a-c084147dfbc1" controls width="420"></video>
+      <br>
+      <sub>If you still need more advanced config, you can find it here</sub>
+    </td>
+  </tr>
+</table>
 
-<video src="https://github.com/user-attachments/assets/a2215310-da64-4e05-886f-27451c12fe7d" controls width="420"></video>
-
-<div align="center" style="display: inline-block; text-align: left;">
-
-* You can customize the swipe direction when navigating trought the panels.
-* Included KOReader gesture actions for toggling the plugin and switching modes quickly.
-
-</div>
-</div>
+* You can customize:
+    - The swipe direction
+    - Cropped panel? No cropped? Margin?, already got in.
+    - Smooth animations (Recommended in no ink-devices)
+    - Included KOReader gesture actions for toggling the plugin and switching modes quickly.
 
 
-
-## Documentation
+## Documentation (For developers and contributions)
 
 - [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
 - [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
