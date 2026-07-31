@@ -84,7 +84,7 @@ function Menu:addToMainMenu(menu_items)
                 text = _("Panel detection"),
                 sub_item_table = {
                     {
-                        text = _("Auto Mode"),
+                        text = _("Smart Mode"),
                         checked_func = function()
                             return self:getDetector() == "auto"
                         end,
@@ -95,7 +95,7 @@ function Menu:addToMainMenu(menu_items)
                         help_text = _("Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."),
                     },
                     {
-                        text = _("Gutter mode"),
+                        text = _("Quick mode"),
                         checked_func = function()
                             return self:getDetector() == "fast"
                         end,
@@ -106,7 +106,7 @@ function Menu:addToMainMenu(menu_items)
                         help_text = _("Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."),
                     },
                     {
-                        text = _("Outline mode"),
+                        text = _("Deep mode"),
                         checked_func = function()
                             return self:getDetector() == "exact"
                         end,

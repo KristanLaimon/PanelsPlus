@@ -54,15 +54,15 @@ for the whole page's panels up front.
 Panel detection has two independent implementations behind one entry point,
 because they fail in different places:
 
-- **Gutter mode** renders the page small, measures its border to learn
+- **Quick mode** renders the page small, measures its border to learn
   whether it is a light or dark page, and recursively slices the resulting
   ink map along its widest empty band. Cheap, and the only mode that works
   on dark backgrounds, but it cannot separate panels that interlock without
   a clean gutter between them.
-- **Outline mode** drives KOReader's own native detector directly, probing a
+- **Deep mode** drives KOReader's own native detector directly, probing a
   grid of points against one shared page rasterization. Handles awkward
   layouts the segmenter cannot, at the cost of a full-resolution page render.
-- **Auto Mode** runs Gutter first and falls back to Outline only on pages
+- **Smart Mode** runs Quick first and falls back to Deep only on pages
   the segmenter rejects, which is why it is the default.
 
 Full detail, including the acceptance test that decides when a segmenter
@@ -121,7 +121,7 @@ since the later `include()` call would silently win.
   sequence diagram for opening a panel view, and the plugin lifecycle.
 - [DETECTION.md](DETECTION.md) — the complete detection pipeline and every
   tuning knob it exposes.
-- [MODES.md](MODES.md) — what Auto, Gutter, and Outline mean for the
+- [MODES.md](MODES.md) — what Smart, Quick, and Deep mean for the
   reading experience, mapped onto the internal `detector` values.
 - [PERFORMANCE.md](PERFORMANCE.md) — what each step costs, the memory
   budget, and how to measure it on a given device.

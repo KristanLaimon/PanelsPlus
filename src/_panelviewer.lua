@@ -1174,17 +1174,17 @@ end
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
---- "Gutter" always uses the quick detector, "Outline" always uses KOReader's
---- slower but more literal one, and "Auto" runs Gutter and falls back to Outline.
+--- "Quick" always uses the fast detector, "Deep" always uses KOReader's
+--- slower but more literal one, and "Smart" runs Quick and falls back to Deep.
 ---
 --- @return string text Localized detector label.
 function PanelViewer:getDetectorText()
     if self.detector == "fast" then
-        return _("Gutter mode")
+        return _("Quick mode")
     elseif self.detector == "exact" then
-        return _("Outline mode")
+        return _("Deep mode")
     end
-    return _("Auto Mode")
+    return _("Smart Mode")
 end
 
 --- Rebuild the ImageViewer button table from current mode/crop state.
