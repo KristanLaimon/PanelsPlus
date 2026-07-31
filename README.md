@@ -22,7 +22,7 @@
       <video src="https://github.com/user-attachments/assets/23353a47-4038-4361-8536-a907c25b981e" controls width="420"></video>
       <br>
       <sub>Do not like the cropping and want to see the surroundings as well?, Want to see the panels flow fully animated from one panel to another?, granted and
-        fully customizable.</sub>
+        fully customizable. (Works better in non e-ink based devices)</sub>
     </td>
     <td align="center" width="40%">
       <video src="https://github.com/user-attachments/assets/446c71c6-a8f7-47ce-ae44-0fc885ed3241" controls width="420"></video>
