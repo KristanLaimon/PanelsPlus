@@ -71,7 +71,7 @@ Configuration is as easy as just using the plugin itself!
     <td align="center" width="30%">
       <video src="https://github.com/user-attachments/assets/9368e8f4-a898-446f-bf8a-c084147dfbc1" controls width="420"></video>
       <br>
-      <sub>If you still need more advanced config, you can found it here</sub>
+      <sub>If you still need more advanced config, you can find it here</sub>
     </td>
   </tr>
 </table>
