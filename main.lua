@@ -177,10 +177,10 @@ end
 
 --- Set how many steps the smooth-navigation camera pan is split into.
 ---
---- @param frames number Requested step count; clamped to [2, 24].
+--- @param frames number Requested step count; clamped to [1, 24].
 function PanelsPlus:setNavTransitionFrames(frames)
     frames = tonumber(frames) or Settings.defaults.nav_transition_frames
-    self.settings.nav_transition_frames = math.max(2, math.min(24, math.floor(frames + 0.5)))
+    self.settings.nav_transition_frames = math.max(1, math.min(24, math.floor(frames + 0.5)))
     self:saveSettings()
 end
 
