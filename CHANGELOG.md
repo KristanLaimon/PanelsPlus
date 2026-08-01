@@ -6,6 +6,19 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Added
 
+- **Comic-Lettering-Aware Word Finder & OCR Segmentation**
+  - **Local Line Height & Gap Thresholding**: Scoped vertical line extent detection (`row_ink`) to a local horizontal column band (~60px around tap point) in `src/_wordfinder.lua`. Prevents multi-word lines (e.g., "what's for dinner?") from merging into giant multi-line blocks that break Tesseract OCR.
+  - **Tight Box Bounds**: Reduced internal padding (`PAD_RATIO` -> `0.02`) so KOReader's native `getNativeOCRWord` 30% expansion produces clean, tight crops without bleeding into neighboring words (fixing "uh?" -> "are" and "not" -> "o").
+  - **Robust Background & Polarity Estimation**: Used 75th percentile crop luminance to accurately identify paper background vs text ink for both standard and inverted (white-on-dark) comic text.
+
+- **Diagnostic Logging & On-Screen Visual Toasts**
+  - **Programmatic Log File (`/tmp/panels_wordfinder.log`)**: Appends tap coordinates, background/polarity, line height, calibrated gap threshold, resulting box dimensions, final OCR text, and text-art column ink maps (e.g. `|###..#####..###|`) for easy copy/pasting and troubleshooting.
+  - **KOReader Logger Integration**: Tagged entries with `[Panels+ WordFinder]` in KOReader `logger.info` output.
+  - **On-Screen Notification Toast**: Displays transient `[WordFinder] 'recognized_word' (120x35)` toast on text selection for instant visual confirmation.
+
+- **Tesseract OCR Memory Leak Prevention**
+  - **Cleanup & Purging**: Added `WordFinder.cleanup()` and integrated it into `PanelViewer:onClose` and document teardown. Explicitly evicts cached `OCREngine` objects from `DocCache` and calls `freeOCR()`, releasing all Tesseract DAWGs (`eng.traineddatapunc-dawg`, `eng.traineddataword-dawg`, etc.) and eliminating C++ `ObjectCache` leak warnings on KOReader shutdown.
+
 - **Comic-Mode Panel Border Detection (bleed layouts, dark/colored panels)**
   - **Problem**: the fast segmenter only ever looked for blank (background-coloured) gutters between panels. Western comics routinely bleed differently-coloured, dark, or grey panels edge to edge with no blank gutter at all -- only the artist's drawn black border stroke -- which the old search had nothing to find and either mis-split or gave up on, falling back to the native detector that explicitly can't handle dark backgrounds either. Verified against a dark, multi-colour CBR (Deadpool) with heavy bleed panels.
   - **Border-stroke ink map**: `src/_pagebitmap.lua` now builds a second, absolute-luminance flag array (`map.border`) alongside the existing background-relative ink map, marking near-black cells regardless of the page's own background colour. Built only when `mode == "comic"`; manga pages never pay for it.

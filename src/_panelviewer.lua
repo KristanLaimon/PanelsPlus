@@ -10,6 +10,8 @@ local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
+local PageBitmap = require("src._pagebitmap")
+local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
 local logger = require("logger")
 
@@ -723,6 +725,64 @@ function PanelViewer:paintTo(bb, x, y)
     self:paintHighlights(bb, x, y)
 end
 
+--- Re-locate the word KOReader's native `highlight.onHold` just selected,
+--- using a comic-lettering-aware box finder, and re-point the selection at
+--- the tighter box before OCR/dictionary lookup runs.
+---
+--- KOReader's own word box comes from a generic gap-detection pass tuned for
+--- justified prose (see `src._wordfinder`); it routinely mis-splits or
+--- merges words in stylized comic lettering. This only touches paging
+--- documents that OCR on the fly in the first place -- reflow mode and
+--- documents whose page-optimization pass is running are left untouched,
+--- matching `PageBitmap.getBlockReason`'s guard for the same reason.
+---
+--- @param highlight table KOReader `ReaderHighlight` module instance.
+--- @param page_pos PPPagePosition Tap position in unrotated page coordinates.
+function PanelViewer:_refineWordSelection(highlight, page_pos)
+    local reader_ui = self.reader_ui
+    local document = reader_ui and reader_ui.document
+    if not document or not page_pos or not page_pos.page then
+        return
+    end
+    if PageBitmap.getBlockReason(document) then
+        return
+    end
+
+    local ok, box = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
+    if not ok or not box then
+        return
+    end
+
+    WordFinder.evictOCRWordCache(document, page_pos.page, box)
+    local ok2, word = pcall(document.getOCRWord, document, page_pos.page, { sbox = box })
+    if not ok2 or not word or not word:match("%w") then
+        return
+    end
+
+    if not highlight.selected_text then
+        return
+    end
+
+    local orig_word = highlight.selected_text.text or ""
+    highlight.selected_text.text = word
+    highlight.selected_text.sboxes = { box }
+    highlight.selected_text.pboxes = { box }
+
+    WordFinder.logDiagnostic(string.format("Refined selection: '%s' -> '%s'", orig_word, tostring(word)), {
+        box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", box.x, box.y, box.w, box.h)
+    })
+
+    local ok_notif, Notification = pcall(require, "ui/widget/notification")
+    if ok_notif and Notification and Notification.new then
+        pcall(function()
+            UIManager:show(Notification:new{
+                text = string.format("[WordFinder] '%s' (%dx%d)", word, math.floor(box.w), math.floor(box.h)),
+                timeout = 2,
+            })
+        end)
+    end
+end
+
 --- Delegate touch and hold gestures to KOReader's native text selection / dictionary.
 ---
 --- @param arg any Gesture argument.
@@ -759,6 +819,9 @@ function PanelViewer:onHold(arg, ges)
 
     if ok and handled then
         self._panels_plus_text_holding = true
+        if highlight.is_word_selection then
+            self:_refineWordSelection(highlight, page_pos)
+        end
         UIManager:setDirty(self, "ui")
         return true
     end
@@ -948,6 +1011,7 @@ function PanelViewer:onCloseWidget()
     self.image_rects = nil
     self.panels = nil
     self.panel_is_full_page = nil
+    pcall(WordFinder.cleanup)
     collectgarbage("collect")
     if not ok then
         error(err)

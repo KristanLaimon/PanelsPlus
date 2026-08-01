@@ -16,6 +16,7 @@ local spec_modules = {
     "tests.spec.panelviewer_leftedge_spec",
     "tests.spec.panelviewer_transform_spec",
     "tests.spec.panelviewer_highlight_spec",
+    "tests.spec.wordfinder_spec",
 }
 
 for _, mod in ipairs(spec_modules) do

@@ -90,6 +90,35 @@ preload("ffi/blitbuffer", function()
     return Blitbuffer
 end)
 
+-- ffi: LuaJIT-only, unavailable under the plain-Lua test runner. Only
+-- referenced inside function bodies of `src._pagebitmap`/`src._wordfinder`
+-- (never at module scope), so a stub that's merely loadable is enough --
+-- those functions aren't exercised by the current specs.
+preload("ffi", function()
+    return {
+        new = function() return nil end,
+        cast = function() return nil end,
+    }
+end)
+
+-- document/document: only `Document.getNativePageDimensions` is used, by
+-- `src._pagebitmap` and `src._wordfinder`, as a static (non-colon) call.
+preload("document/document", function()
+    local Document = {}
+    -- Real KOReader calls this as `Document.getNativePageDimensions(doc, page)`
+    -- (module-qualified, not `doc:getNativePageDimensions(page)`). Specs that
+    -- need real dimensions supply their own `document.getNativePageDimensions`
+    -- and this delegates to it; specs that don't care get nil, matching the
+    -- "can't map this page" bail-out path.
+    function Document.getNativePageDimensions(document, pageno)
+        if document and document.getNativePageDimensions then
+            return document.getNativePageDimensions(document, pageno)
+        end
+        return nil
+    end
+    return Document
+end)
+
 -- ui/uimanager: no-op stubs for every method the plugin calls; specs that
 -- care about scheduling/painting can override `UIManager.<method>` with a
 -- `framework.spy()` before requiring/exercising the code under test.
