@@ -91,12 +91,22 @@ preload("ffi/blitbuffer", function()
 end)
 
 -- ffi: LuaJIT-only, unavailable under the plain-Lua test runner. Only
--- referenced inside function bodies of `src._pagebitmap`/`src._wordfinder`
--- (never at module scope), so a stub that's merely loadable is enough --
--- those functions aren't exercised by the current specs.
+-- referenced inside function bodies (never at module scope), so a stub is
+-- enough -- but `src._segmenter` genuinely runs under the specs, so
+-- `ffi.new("<type>[?]", n)` has to behave like the array it stands in for:
+-- zero-filled and 0-based, since every index the segmenter uses is a map cell
+-- offset. The element type is irrelevant here; nothing the specs exercise
+-- depends on width or overflow. `ffi.cast` stays a nil stub -- its only caller
+-- is `_pagebitmap`'s raw-pointer sampler, which the specs never reach.
 preload("ffi", function()
     return {
-        new = function() return nil end,
+        new = function(_, count)
+            local array = {}
+            for index = 0, (count or 0) - 1 do
+                array[index] = 0
+            end
+            return array
+        end,
         cast = function() return nil end,
     }
 end)

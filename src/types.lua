@@ -65,6 +65,7 @@
 --- @field full_page_panel_ratio number
 --- @field segment_target_width integer Ink-map render width in pixels.
 --- @field segment_ink_delta integer Luminance distance from background counted as ink.
+--- @field segment_border_split boolean Comic mode only: split panels on the drawn border stroke between edge-to-edge panels. Experimental and off by default; also splits panels containing a drawn black line.
 --- @field segment_border_luminance_max integer Comic mode only: absolute luminance at/below which a cell is a candidate drawn panel-border stroke, regardless of the page background.
 --- @field segment_border_line_ratio number Comic mode only: fraction of a line's span that must be border cells for it to count as a drawn separator.
 --- @field segment_border_width_ratio number Comic mode only: widest run, as a fraction of the map's smaller side, still accepted as a border stroke rather than a filled panel interior.
@@ -72,6 +73,8 @@
 --- @field segment_gutter_ink_ratio number Ink fraction of a line still treated as empty.
 --- @field segment_min_panel_area number Smallest panel, as a fraction of page area.
 --- @field segment_min_panel_side number Smallest panel side, as a fraction of the map's smaller side.
+--- @field segment_sliver_aspect number Long-to-short side ratio at or above which a panel is elongated enough to be checked against `segment_sliver_ink`.
+--- @field segment_sliver_ink number Least share of the page's total ink an elongated panel must contain, rejecting page furniture that clears the size floors.
 --- @field segment_max_depth integer Deepest recursion allowed in the X-Y cut.
 --- @field segment_max_panels integer Hard cap on panels produced per page.
 --- @field segment_coverage_min number Least share of the covered region the panels must retain.

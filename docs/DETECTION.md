@@ -220,6 +220,12 @@ through `performance_profile_version`.
 | `segment_gutter_ink_ratio` | `0.005` | Ink a line may carry and still count as empty. Raise for dusty scans |
 | `segment_min_panel_area` | `0.005` | Smallest panel, as a fraction of page area. Rejects specks |
 | `segment_min_panel_side` | `0.03` | Smallest panel side. Rejects slivers |
+| `segment_sliver_aspect` | `4` | Long-to-short side ratio past which a panel is checked for content — see below |
+| `segment_sliver_ink` | `0.02` | Least share of the page's ink such an elongated panel must hold |
+| `segment_border_split` | `false` | Comic mode: split panels on drawn border strokes. Experimental — see below |
+| `segment_border_luminance_max` | `60` | Luminance at/below which a cell is a border-stroke candidate |
+| `segment_border_line_ratio` | `0.97` | Share of a line that must be border cells to count as a drawn separator |
+| `segment_border_width_ratio` | `0.01` | Widest run still read as a stroke rather than a filled panel interior |
 | `segment_max_depth` | `6` | Recursion limit, so up to 64 panels |
 | `segment_max_panels` | `40` | Hard cap per page |
 | `segment_coverage_min` | `0.5` | Least share of the spanned area the panels must retain |
@@ -298,12 +304,62 @@ than one grouped blob.
 Ink tolerance is deliberately *not* loosened for this search. Loosening it was
 tried and collapsed 22 of 23 test layouts, exactly as it does for straight cuts.
 
+### Page furniture is not a panel
+
+Size floors alone do not describe a panel. A scanlation credit strip, a footer
+rule, a row of page furniture — all of them clear `segment_min_panel_area` and
+`segment_min_panel_side` comfortably. At 182×20 cells on a 480×720 map a credit
+line is 3640 cells against a 1728-cell area floor, and both its sides beat the
+14-cell side floor. It would then be shown to the reader as a panel holding no
+artwork.
+
+Neither half of what gives it away is enough on its own:
+
+| Leaf | Ink share | Aspect | |
+| --- | --- | --- | --- |
+| credit strip 182×20 | 0.96% | 9.1:1 | furniture |
+| inset panel 60×60 | 1.51% | 1:1 | panel |
+| letterbox panel 458×60 | 7.95% | 7.6:1 | panel |
+| strip panel 40×600 | 6.94% | 15:1 | panel |
+
+An ink floor on its own would take the inset panel before it took the credit
+strip. An aspect limit on its own would take both legitimately elongated
+panels. Only the **conjunction** isolates furniture: a leaf is rejected when it
+is *both* stretched past `segment_sliver_aspect` **and** holds less than
+`segment_sliver_ink` of the page's ink. That is what a strip of page furniture
+is, and what none of the real panels are.
+
+The ink floor is deliberately a *share* of the page rather than an absolute
+count, so a mostly-blank page with one small drawing still gives that drawing
+~100% of the page's ink and keeps it.
+
 ### Known limitation: panels with no gutter
 
 Some pages separate panels with a single shared border line and no background
 gap at all. There is no empty band to find, so the cut merges them — and the
 native detector, which also looks for blank bands, cannot split them either.
-Such a row is currently returned as one panel.
+Such a row is returned as one panel.
+
+Comic mode can try to split on that drawn stroke instead of a blank band, under
+**Panels+ → Panel detection → "Split on drawn panel borders"**. It is off by
+default, and the reason is worth stating plainly: **the pattern is not unique to
+a panel border.** A stroke shared between two bled panels and a black line drawn
+*through* a single panel — a horizon, a caption rule, a pole, a letterbox band —
+both appear in the ink map as a thin, full-span, densely dark run flanked by
+artwork. Nothing left in the map tells them apart, so no amount of tuning
+separates the two.
+
+That makes it a straight trade, not a bug to be fixed:
+
+| | Off (default) | On |
+| --- | --- | --- |
+| Bled panels | merged into one | split correctly |
+| Panel with a drawn black line | intact | **cut in half** |
+
+Off is the default because a merged pair still shows the reader all the
+artwork, while a panel cut in half does not — and drawn black lines are far more
+common than fully bled layouts. Turn it on if your particular comic leans the
+other way.
 
 ## Diagnosing a page
 

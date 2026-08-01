@@ -51,6 +51,20 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
   - Added `rungeneric.sh`: Easily launches KOReader Flatpak in standard desktop mode.
   - Added `runkobo.sh`: Launches KOReader Flatpak pre-configured with Kobo reader characteristics (632x840 resolution, 300 DPI, and e-ink grayscale rendering) for easy local testing.
 
+### Fixed
+
+- **Comic mode split single panels in two**
+  - **Cause**: the drawn-border search keys on a thin, full-span, densely dark run. That is what a stroke shared between two edge-to-edge panels looks like -- and also exactly what a horizon, a caption rule, a letterbox band or a pole drawn *inside* one panel looks like. In the ink map the two are byte-identical, so no threshold separates them, and every page carrying such a line had a real panel cut in half.
+  - **Fix**: the search is now opt-in via `segment_border_split` (default off) and a new **Panels+ → Panel detection → "Split on drawn panel borders (experimental)"** toggle, enabled only in comic mode. Off, those pages read correctly and genuinely bled layouts fall back to the already-documented "panels with no gutter" limitation -- one panel instead of two, which costs far less than half a panel. `src/_pagebitmap.lua` also skips building the border plane entirely when it is off, dropping a per-cell comparison and a full `w*h` allocation from every comic page.
+  - The panel cache is keyed on the toggle, so flipping it re-detects rather than serving stale panels, and flipping back is instant.
+
+- **Tiny "panels" containing no artwork** (both modes)
+  - **Cause**: `emitLeaf` only had shape floors. A scanlation credit strip clears them comfortably -- at 182x20 on a 480x720 map it is 3640 cells against a 1728-cell area floor, and both sides beat the 14-cell side floor -- so it was emitted as a panel the reader then had to swipe through.
+  - **Fix**: a leaf is now rejected when it is *both* elongated past `segment_sliver_aspect` (default `4`) **and** holds less than `segment_sliver_ink` (default `0.02`) of the page's total ink. The conjunction matters: measured on a typical page a credit strip is 0.96% of the page's ink at 9.1:1, but a legitimate 60x60 inset panel is only 1.51% and a 458x60 letterbox panel is 7.6:1 -- so an ink floor alone would drop the inset before the strip, and an aspect limit alone would drop both real panels. Only "stretched out **and** nearly empty" describes furniture and nothing else.
+  - The ink floor is a share of the page rather than an absolute count, so a near-blank page with one small drawing still keeps it.
+
+- **Test coverage**: added `tests/spec/segmenter_spec.lua`, driving the real `Segmenter.segment()` over synthetic maps built at the 480x720 size `_pagebitmap` actually produces, so the cut's fraction-of-map floors are exercised at the values real pages hit. Pins the grid and splash baselines, both fixes above, and the drawn-border ambiguity in both toggle states.
+
 ---
 
 ## [v1.1.0]

@@ -30,16 +30,18 @@ end
 
 --- Build the cache key for a document page in the current reading mode and detector.
 ---
---- Mode changes panel order and detector changes the panel list itself, so
---- both are part of the key. Keying on them (instead of clearing the whole
---- cache on every switch) lets a page already detected under a given
---- mode/detector combination stay cached when the reader switches away and
---- back, and keeps other pages' cached results alive across the switch.
+--- Mode changes panel order, detector changes the panel list itself, and the
+--- drawn-border split changes how comic pages divide, so all three are part of
+--- the key. Keying on them (instead of clearing the whole cache on every
+--- switch) lets a page already detected under a given combination stay cached
+--- when the reader switches away and back, and keeps other pages' cached
+--- results alive across the switch.
 ---
 --- @param page number Document page number.
---- @return string key Page, mode, and detector cache key.
+--- @return string key Page, mode, detector, and border-split cache key.
 function Cache:getPanelCacheKey(page)
     return tostring(page) .. ":" .. (self.settings.mode or "manga") .. ":" .. self:getDetector()
+        .. (self.settings.segment_border_split == true and ":bs" or "")
 end
 
 --- Return cached panels for a page in the current reading mode.

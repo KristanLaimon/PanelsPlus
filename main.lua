@@ -220,6 +220,24 @@ function PanelsPlus:setDetector(detector)
     self:saveSettings()
 end
 
+--- Enable or disable splitting comic panels on their drawn border strokes.
+---
+--- Experimental, and off by default: the stroke between two edge-to-edge
+--- panels and a black line drawn through a single panel are indistinguishable
+--- in the ink map, so turning this on splits real panels in half on any page
+--- with a horizon, caption rule or letterbox band. See `src._segmenter`.
+---
+--- The panel cache is keyed on this (see `Cache:getPanelCacheKey`), so pages
+--- already detected under the other setting stay cached under their own key
+--- and toggling back returns them instantly.
+---
+--- @param enabled any Truthy value splits comic panels on drawn border strokes.
+function PanelsPlus:setBorderSplit(enabled)
+    self.settings.segment_border_split = enabled and true or false
+    Timing.log("border split -> " .. tostring(self.settings.segment_border_split))
+    self:saveSettings()
+end
+
 --- Enable or disable warming the next panel's render while idle.
 ---
 --- @param enabled any Truthy value pre-renders the next panel.

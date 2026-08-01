@@ -214,9 +214,12 @@ function PageBitmap.build(document, page, settings)
     -- map already separates panels cleanly there. Western comics routinely
     -- bleed differently-coloured or dark panels edge to edge with no blank
     -- gutter at all, only a drawn black border stroke between them -- which
-    -- needs its own absolute (not background-relative) signal to find. That
-    -- extra pass is only worth its cost in comic mode.
-    local detect_borders = settings.mode == "comic"
+    -- needs its own absolute (not background-relative) signal to find.
+    --
+    -- Only built when the reader has opted into splitting on those strokes
+    -- (see `src._segmenter` for why that is off by default). Skipping it drops
+    -- a per-cell comparison and a whole w*h allocation from every page.
+    local detect_borders = settings.mode == "comic" and settings.segment_border_split == true
     local border_luminance_max = settings.segment_border_luminance_max
         or Settings.defaults.segment_border_luminance_max
 

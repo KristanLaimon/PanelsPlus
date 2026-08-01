@@ -15,15 +15,27 @@ local ffi = require("ffi")
 --- line runs cleanly between two panels. `Segmenter.accept()` exists to detect
 --- that case so the caller can fall back to the native detector.
 ---
---- Comic mode adds a second kind of separator search. Western comics routinely
---- bleed differently-coloured, dark, or grey panels edge to edge with no blank
---- gutter between them at all -- only the artist's drawn black border stroke.
---- That stroke is invisible to the background-relative gutter search (there is
---- no empty band to find) but stands out as a thin, densely dark run against
---- whatever fills the panels either side of it, so it gets its own pass over
---- `map.border` (see `src._pagebitmap`), tried only when that map is present.
---- Manga mode never builds `map.border`, so this pass and its cost do not
---- apply there.
+--- Comic mode can add a second kind of separator search, off by default behind
+--- `segment_border_split`. Western comics routinely bleed differently-coloured,
+--- dark, or grey panels edge to edge with no blank gutter between them at all
+--- -- only the artist's drawn black border stroke. That stroke is invisible to
+--- the background-relative gutter search (there is no empty band to find) but
+--- stands out as a thin, densely dark run against whatever fills the panels
+--- either side of it, so it gets its own pass over `map.border` (see
+--- `src._pagebitmap`). Manga mode never builds `map.border`, so neither the
+--- pass nor its cost apply there.
+---
+--- It is opt-in because at ink-map resolution the pattern it keys on is not
+--- unique to a panel border. A shared border between two bled panels and a
+--- black line drawn *through* one panel -- a horizon, a caption rule, a pole,
+--- a letterbox band -- produce byte-identical maps: a thin, full-width, densely
+--- dark run flanked by artwork. Nothing left in the map distinguishes them, so
+--- no amount of tuning separates the two and the pass splits real panels in
+--- half on any page carrying such a line. Off, those pages read correctly and
+--- genuinely bled layouts fall back to the documented "panels with no gutter"
+--- limitation -- one panel instead of two, which costs the reader far less than
+--- a panel cut in half. On, bled layouts split at the price of that
+--- false-positive rate.
 ---
 --- @class PPSegmenterModule
 local Segmenter = {}
@@ -421,18 +433,54 @@ end
 
 --- Record a terminal region as a panel candidate, in map cells.
 ---
+--- The size floors alone do not describe a panel. A scanlation credit strip, a
+--- footer rule or a row of page furniture clears both of them comfortably --
+--- on a 480x720 map a 182x20 credit line is 3640 cells against a 1728-cell
+--- area floor, and both its sides beat the 14-cell side floor -- and then gets
+--- shown to the reader as a panel holding no artwork.
+---
+--- Neither half of what gives it away is sufficient alone. Measured against a
+--- typical page:
+---
+--- | leaf | ink share | aspect | |
+--- | --- | --- | --- | --- |
+--- | credit strip 182x20 | 0.96% | 9.1:1 | furniture |
+--- | inset panel 60x60 | 1.51% | 1:1 | panel |
+--- | letterbox panel 458x60 | 7.95% | 7.6:1 | panel |
+--- | strip panel 40x600 | 6.94% | 15:1 | panel |
+---
+--- An ink floor on its own would take the inset panel (1.51%) before it took
+--- the credit strip (0.96%); an aspect limit on its own would take both
+--- legitimately elongated panels. Only the *conjunction* isolates furniture:
+--- a leaf has to be both stretched out and nearly empty to be rejected, which
+--- is what a strip of page furniture is and what none of the real panels are.
+---
+--- The ink floor is deliberately a share of the page rather than an absolute
+--- count, so a mostly-blank page with one small drawing still gives that
+--- drawing ~100% of the page's ink and keeps it.
+---
 --- @param x0 integer Inclusive left cell.
 --- @param y0 integer Inclusive top cell.
 --- @param x1 integer Inclusive right cell.
 --- @param y1 integer Inclusive bottom cell.
+--- @param ink integer Ink cells inside the region.
 --- @param ctx table Segmentation limits.
 --- @param out table[] Mutable candidate list.
-local function emitLeaf(x0, y0, x1, y1, ctx, out)
+local function emitLeaf(x0, y0, x1, y1, ink, ctx, out)
     local w = x1 - x0 + 1
     local h = y1 - y0 + 1
     if w < ctx.min_side or h < ctx.min_side or w * h < ctx.min_area then
         return
     end
+
+    local long_side, short_side = w, h
+    if h > w then
+        long_side, short_side = h, w
+    end
+    if long_side >= short_side * ctx.sliver_aspect and ink < ctx.sliver_ink then
+        return
+    end
+
     table.insert(out, { x = x0, y = y0, w = w, h = h })
 end
 
@@ -460,6 +508,15 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
     local left, right = trimRange(ctx.cols, x0, x1)
     if bottom < top or right < left then
         return -- region is entirely background
+    end
+
+    -- Summed here, while the projections still describe *this* region: the
+    -- sheared search below overwrites both buffers, and the recursive calls
+    -- overwrite them again. Rows outside the trimmed range carry no ink by
+    -- definition, so this is the region's exact ink count for O(height).
+    local region_ink = 0
+    for y = top, bottom do
+        region_ink = region_ink + ctx.rows[y]
     end
 
     if depth < ctx.max_depth then
@@ -529,7 +586,7 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
         end
     end
 
-    emitLeaf(left, top, right, bottom, ctx, out)
+    emitLeaf(left, top, right, bottom, region_ink, ctx, out)
 end
 
 --- Segment a page ink map into panel rectangles in native page coordinates.
@@ -541,6 +598,11 @@ function Segmenter.segment(map, settings)
     settings = settings or Settings.defaults
     local defaults = Settings.defaults
     local stop = Timing.span("segment")
+
+    -- The drawn-border pass is opt-in, and gated here as well as in
+    -- `src._pagebitmap` so a map carrying a border plane built for some other
+    -- reason can never silently re-enable it.
+    local border = settings.segment_border_split == true and map.border or nil
 
     -- Note that min_gutter is a fraction of the *map*, so it stays a fixed
     -- fraction of the page whatever the map resolution is. Raising the
@@ -557,11 +619,16 @@ function Segmenter.segment(map, settings)
             * (settings.segment_min_panel_side or defaults.segment_min_panel_side))),
         min_area = math.floor(map.w * map.h
             * (settings.segment_min_panel_area or defaults.segment_min_panel_area)),
+        sliver_aspect = settings.segment_sliver_aspect or defaults.segment_sliver_aspect,
+        -- Zero when the map did not report its ink total, which disables the
+        -- content floor rather than rejecting every sliver on the page.
+        sliver_ink = math.floor((map.ink or 0)
+            * (settings.segment_sliver_ink or defaults.segment_sliver_ink)),
         max_depth = settings.segment_max_depth or defaults.segment_max_depth,
         max_panels = settings.segment_max_panels or defaults.segment_max_panels,
-        border = map.border,
-        brows = map.border and ffi.new("int32_t[?]", map.h) or nil,
-        bcols = map.border and ffi.new("int32_t[?]", map.w) or nil,
+        border = border,
+        brows = border and ffi.new("int32_t[?]", map.h) or nil,
+        bcols = border and ffi.new("int32_t[?]", map.w) or nil,
         border_ratio = settings.segment_border_line_ratio or defaults.segment_border_line_ratio,
         border_max_width = math.max(2, math.floor(min_dimension
             * (settings.segment_border_width_ratio or defaults.segment_border_width_ratio))),

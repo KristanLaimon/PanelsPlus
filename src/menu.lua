@@ -128,6 +128,20 @@ function Menu:addToMainMenu(menu_items)
                             self:setDetector("exact")
                         end,
                         help_text = _("Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."),
+                        separator = true,
+                    },
+                    {
+                        text = _("Split on drawn panel borders (experimental)"),
+                        checked_func = function()
+                            return self.settings.segment_border_split == true
+                        end,
+                        enabled_func = function()
+                            return self.settings.mode == "comic"
+                        end,
+                        callback = function()
+                            self:setBorderSplit(self.settings.segment_border_split ~= true)
+                        end,
+                        help_text = _("Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."),
                     },
                 },
             },
