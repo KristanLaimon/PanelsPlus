@@ -748,30 +748,46 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         return
     end
 
-    local ok, box = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
+    local ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
     if not ok or not box then
         return
     end
 
-    WordFinder.evictOCRWordCache(document, page_pos.page, box)
-    local ok2, word = pcall(document.getOCRWord, document, page_pos.page, { sbox = box })
-    if not ok2 or not word or not word:match("%w") then
+    local ok2, word = pcall(WordFinder.readWord, document, page_pos.page, box, native)
+    if not ok2 or not word then
         return
     end
 
-    if not highlight.selected_text then
+    local selected_text = highlight.selected_text
+    if not selected_text then
         return
     end
 
-    local orig_word = highlight.selected_text.text or ""
-    highlight.selected_text.text = word
-    highlight.selected_text.sboxes = { box }
-    highlight.selected_text.pboxes = { box }
+    local orig_word = selected_text.text or ""
+    selected_text.text = word
+    selected_text.sboxes = { box }
+    selected_text.pboxes = { box }
+
+    -- Re-point ReaderView's temporary highlight at the refined box too.
+    -- `ReaderHighlight:onHold` stored a *reference* to the selection's
+    -- previous `sboxes` table in `view.highlight.temp[page]`, and that table
+    -- -- not `selected_text.sboxes` -- is what `paintHighlights` draws.
+    -- Replacing `sboxes` above therefore leaves the painted box behind on
+    -- KOReader's original one, whose y/h come from the whole *text line*
+    -- rather than the word (`KoptInterface:getWordFromBoxes` takes them from
+    -- the line box), so the underline lands off the word it just looked up.
+    local view_highlight = reader_ui.view and reader_ui.view.highlight
+    if view_highlight and view_highlight.temp and view_highlight.temp[page_pos.page] then
+        view_highlight.temp[page_pos.page] = selected_text.sboxes
+    end
 
     WordFinder.logDiagnostic(string.format("Refined selection: '%s' -> '%s'", orig_word, tostring(word)), {
         box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", box.x, box.y, box.w, box.h)
     })
 
+    if not Timing.enabled then
+        return
+    end
     local ok_notif, Notification = pcall(require, "ui/widget/notification")
     if ok_notif and Notification and Notification.new then
         pcall(function()

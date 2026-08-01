@@ -51,24 +51,34 @@ end
 --- native page dimensions, and `renderPage`/`transformRect` produce a
 --- greyscale-sampleable fake blitbuffer over `pixels`, cropped/zoomed the
 --- same way `_wordfinder` expects a real `Document:renderPage()` call to.
-local function newFakeDocument(native_w, native_h, pixels, zoom)
+--- `transformRect` and `renderPage` reproduce real KOReader's tile geometry
+--- exactly, because the word finder depends on it: `Geom:transformByScale`
+--- *floors* the scaled origin and `Document:renderPage` then draws the page
+--- offset by that floored value, so tile pixel (x, y) is page pixel
+--- ((scaled.x + x) / zoom, (scaled.y + y) / zoom) -- not (rect.x + x / zoom).
+local function newFakeDocument(native_w, native_h, pixels)
     return {
         getNativePageDimensions = function() return { w = native_w, h = native_h } end,
         transformRect = function(_, rect, z)
-            return { w = math.floor(rect.w * z), h = math.floor(rect.h * z) }
+            return {
+                x = math.floor(rect.x * z + 0.001),
+                y = math.floor(rect.y * z + 0.001),
+                w = math.ceil(rect.w * z - 0.001),
+                h = math.ceil(rect.h * z - 0.001),
+            }
         end,
         renderPage = function(_, _pageno, rect, z)
-            local crop_w, crop_h = rect.scaled_rect.w, rect.scaled_rect.h
-            local cx0, cy0 = rect.x, rect.y
+            local scaled = rect.scaled_rect
+            local origin_x, origin_y = scaled.x, scaled.y
             local bb = {
-                w = crop_w,
-                h = crop_h,
+                w = scaled.w,
+                h = scaled.h,
                 getType = function() return nil end, -- matches the test Blitbuffer mock's nil TYPE_BB8
                 getRotation = function() return 0 end,
                 getInverse = function() return 0 end,
                 getPixel = function(_, x, y)
-                    local src_x = cx0 + x / z
-                    local src_y = cy0 + y / z
+                    local src_x = (origin_x + x) / z
+                    local src_y = (origin_y + y) / z
                     local v = (pixels[math.floor(src_y)] or {})[math.floor(src_x)] or 255
                     return { getColor8 = function() return { a = v } end }
                 end,
@@ -76,6 +86,27 @@ local function newFakeDocument(native_w, native_h, pixels, zoom)
             return { bb = bb }
         end,
     }
+end
+
+--- A `pixels[y][x]` grid of plain white, ready to draw ink blocks into.
+local function blankPixels(w, h)
+    local pixels = {}
+    for y = 0, h - 1 do
+        pixels[y] = {}
+        for x = 0, w - 1 do
+            pixels[y][x] = 255
+        end
+    end
+    return pixels
+end
+
+--- Fill a rectangular block of `pixels` with ink.
+local function fillInk(pixels, x0, y0, x1, y1, value)
+    for y = y0, y1 do
+        for x = x0, x1 do
+            pixels[y][x] = value or 0
+        end
+    end
 end
 
 describe("WordFinder:findWordBox word-vs-letter gap threshold", function()
@@ -262,6 +293,192 @@ describe("WordFinder:findWordBox background estimation with dense surrounding ar
         assert.is_true(box.x >= bubble.x0 - 5, "box should stay inside the bubble, not the surrounding art (x=" .. tostring(box.x) .. ")")
         assert.is_true(box.x + box.w <= bubble.x1 + 5, "box should not spill past the bubble's right edge (x+w=" .. tostring(box.x + box.w) .. ")")
         assert.is_true(box.w < (bubble.x1 - bubble.x0), "box should be word-sized, not swallow the whole bubble/art region (w=" .. tostring(box.w) .. ")")
+    end)
+end)
+
+describe("WordFinder:findWordBox ink that runs off the render crop", function()
+    -- The failure behind "it looks up a word that isn't there": when the
+    -- tapped line's rows are covered edge to edge by something the ink test
+    -- can't tell from lettering (screentone, a solid bubble border, a black
+    -- panel gutter), no gap ever reaches the word-boundary threshold and the
+    -- horizontal hunt simply runs to both edges of the render crop. The old
+    -- code returned that crop-wide box and OCRed it, and Tesseract dutifully
+    -- transcribed the noise into a plausible-looking word.
+    local native_w, native_h = 1000, 1000
+
+    it("returns nil instead of a crop-wide box when nothing bounds the run", function()
+        local pixels = blankPixels(native_w, native_h)
+        -- A solid black band across the entire page width at the tapped rows.
+        fillInk(pixels, 0, 100, native_w - 1, 125)
+        local document = newFakeDocument(native_w, native_h, pixels)
+
+        local box = WordFinder.findWordBox(document, 1, 500, 112)
+
+        assert.is_nil(box, "unbounded ink should fall back to KOReader's own box, not be OCRed")
+    end)
+
+    it("still finds a word whose blank margin is narrower than the gap threshold", function()
+        -- Distinguishes "ran off the edge still on ink" from "ended in blank
+        -- space that merely happened to be short": a long word can legitimately
+        -- reach close to the crop edge, and that must not be rejected.
+        local pixels = blankPixels(native_w, native_h)
+        fillInk(pixels, 100, 100, 200, 125)
+        local document = newFakeDocument(native_w, native_h, pixels)
+
+        local box = WordFinder.findWordBox(document, 1, 150, 112)
+
+        assert.is_not_nil(box, "a word bounded by blank space should still be found")
+        assert.is_true(box.x >= 95 and box.x <= 105, "box should start at the word's left edge (x=" .. tostring(box.x) .. ")")
+    end)
+end)
+
+describe("WordFinder:findWordBox ascender outside the tap band (regression: clipped glyphs)", function()
+    -- The tapped line's vertical extent is measured over a fixed band around
+    -- the tap (+/-30 native px), which is narrower than most words. A tall
+    -- letter belonging to the same word but sitting outside that band was
+    -- invisible to the measurement, so the box cropped straight through it --
+    -- and Tesseract reads a beheaded glyph as a different letter, or drops
+    -- it, which is what "it only found part of the word" looks like.
+    local native_w, native_h = 1000, 1000
+
+    it("covers a tall letter at the far end of the word", function()
+        local pixels = blankPixels(native_w, native_h)
+        -- x-height body across the whole word...
+        fillInk(pixels, 100, 100, 200, 125)
+        -- ...plus an ascender at the word's right end, 60 native px away from
+        -- the tap and therefore outside the band the line height came from.
+        fillInk(pixels, 170, 80, 200, 99)
+        local document = newFakeDocument(native_w, native_h, pixels)
+
+        local box = WordFinder.findWordBox(document, 1, 115, 112)
+
+        assert.is_not_nil(box, "expected a word box")
+        assert.is_true(box.y <= 85, "box should reach up to the ascender (y=" .. tostring(box.y) .. ")")
+        assert.is_true(box.y + box.h >= 120, "box should still cover the x-height body (y+h=" .. tostring(box.y + box.h) .. ")")
+    end)
+end)
+
+describe("WordFinder:findWordBox bounded snapping onto ink", function()
+    -- A tap that lands on background used to snap to the nearest ink anywhere
+    -- in the render crop, so a tap in a bubble's margin could silently jump to
+    -- a different line entirely and describe the wrong word with confidence.
+    local native_w, native_h = 1000, 1000
+
+    it("gives up rather than snapping to a line far from the tap", function()
+        local pixels = blankPixels(native_w, native_h)
+        fillInk(pixels, 100, 100, 250, 125)
+        local document = newFakeDocument(native_w, native_h, pixels)
+
+        -- 40 native px below the line's last ink row: inside the render crop,
+        -- but further than one maximum line height away.
+        local box = WordFinder.findWordBox(document, 1, 150, 165)
+
+        assert.is_nil(box, "a tap this far from any line should not be resolved to a word")
+    end)
+
+    it("still snaps to a line just above the tap", function()
+        local pixels = blankPixels(native_w, native_h)
+        fillInk(pixels, 100, 100, 250, 125)
+        local document = newFakeDocument(native_w, native_h, pixels)
+
+        -- 5 native px below the line: a normal "just missed the glyph" tap.
+        local box = WordFinder.findWordBox(document, 1, 150, 130)
+
+        assert.is_not_nil(box, "a near miss should still resolve to the line under it")
+        assert.is_true(box.y + box.h <= 130, "box should be the line above the tap (y+h=" .. tostring(box.y + box.h) .. ")")
+    end)
+end)
+
+describe("WordFinder.normalizeWord Tesseract output cleanup", function()
+    it("strips the trailing newline getTOCRWord returns", function()
+        assert.equals("shift", WordFinder.normalizeWord("shift\n"))
+    end)
+
+    it("collapses embedded control characters and padding into single spaces", function()
+        assert.equals("my shift", WordFinder.normalizeWord("  my\t\nshift  "))
+    end)
+
+    it("returns nil for output with nothing left in it", function()
+        assert.is_nil(WordFinder.normalizeWord("\n \t"))
+        assert.is_nil(WordFinder.normalizeWord(nil))
+    end)
+
+    it("leaves a clean word untouched", function()
+        assert.equals("dinner", WordFinder.normalizeWord("dinner"))
+    end)
+end)
+
+describe("WordFinder.isPlausibleWord OCR result validation", function()
+    it("accepts ordinary words, including punctuated and accented ones", function()
+        assert.is_true(WordFinder.isPlausibleWord("shift"))
+        assert.is_true(WordFinder.isPlausibleWord("don't"))
+        assert.is_true(WordFinder.isPlausibleWord("dinner?"))
+        assert.is_true(WordFinder.isPlausibleWord("a"))
+        -- Lua's %a is ASCII-only, so non-ASCII letters must not read as junk.
+        assert.is_true(WordFinder.isPlausibleWord("año"))
+        assert.is_true(WordFinder.isPlausibleWord("ここ"))
+    end)
+
+    it("rejects the punctuation soup Tesseract returns for an unreadable crop", function()
+        assert.is_false(WordFinder.isPlausibleWord("|_-"))
+        assert.is_false(WordFinder.isPlausibleWord("»«"))
+        assert.is_false(WordFinder.isPlausibleWord(""))
+        assert.is_false(WordFinder.isPlausibleWord(nil))
+    end)
+
+    it("rejects a multi-word result, which means the box straddled a boundary", function()
+        assert.is_false(WordFinder.isPlausibleWord("my shift"))
+    end)
+end)
+
+describe("WordFinder.readWord OCR retry on an unreadable tight box", function()
+    local box = { x = 100, y = 100, w = 50, h = 20 }
+    local native = { w = 1000, h = 1000 }
+
+    --- A document whose OCR returns `results` in call order, recording the
+    --- box each call was given.
+    local function newOCRDocument(results)
+        local seen = {}
+        return {
+            file = "book.cbz",
+            getOCRWord = function(_, _pageno, wbox)
+                table.insert(seen, wbox.sbox)
+                return results[#seen]
+            end,
+        }, seen
+    end
+
+    it("uses the tight box's result when it reads as a word", function()
+        local document, seen = newOCRDocument({ "shift\n" })
+
+        assert.equals("shift", WordFinder.readWord(document, 1, box, native))
+        assert.equals(1, #seen, "a readable tight box should not pay for a second OCR pass")
+    end)
+
+    it("retries with a padded box when the tight crop comes back unreadable", function()
+        local document, seen = newOCRDocument({ "|_", "shift\n" })
+
+        assert.equals("shift", WordFinder.readWord(document, 1, box, native))
+        assert.equals(2, #seen)
+        assert.is_true(seen[2].w > seen[1].w, "retry box should be wider than the tight one")
+        assert.is_true(seen[2].h > seen[1].h, "retry box should be taller than the tight one")
+    end)
+
+    it("returns nil when neither pass reads as a word, leaving the selection alone", function()
+        local document = newOCRDocument({ "|_", "»«" })
+
+        assert.is_nil(WordFinder.readWord(document, 1, box, native))
+    end)
+
+    it("keeps the retry box inside the page", function()
+        local document, seen = newOCRDocument({ "", "edge" })
+        local corner = { x = 0, y = 0, w = 40, h = 20 }
+
+        WordFinder.readWord(document, 1, corner, { w = 30, h = 30 })
+
+        assert.is_true(seen[2].x >= 0 and seen[2].y >= 0, "retry box must not start off-page")
+        assert.is_true(seen[2].x + seen[2].w <= 30, "retry box must not extend past the page width")
+        assert.is_true(seen[2].y + seen[2].h <= 30, "retry box must not extend past the page height")
     end)
 end)
 

@@ -12,6 +12,11 @@ kobo.koplugin/ # Documentation for kobo devices
 
 
 
+# Word finder debug artifacts, written only while debug mode is on
+panels_wordfinder.log
+wordfinder_crop.pgm
+wordfinder_crop_box.pgm
+
 # Tests files
 beastars.manga.PDF
 deadpool.comic.cbr
