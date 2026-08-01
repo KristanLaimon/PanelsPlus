@@ -29,6 +29,22 @@ function NativePanelZoom:applyNativePanelSetting()
     end
 end
 
+--- KOReader hook: reapply the native panel-zoom override after document load.
+---
+--- `ReaderHighlight:onReadSettings` only defaults `panel_zoom_enabled` to true
+--- for cbz/cbt (false for pdf/cbr) and `panel_zoom_fallback_to_text_selection`
+--- to true for pdf, then assigns those onto `self.ui.highlight` from the
+--- per-document/per-extension settings. That assignment runs as part of the
+--- same `ReadSettings` broadcast that follows plugin init, and since
+--- `highlight` is registered before plugins it always runs first -- so it
+--- silently overwrites the values `applyNativePanelSetting` set in `init()`,
+--- which made pdf/cbr hold gestures fall through to dictionary/OCR lookup
+--- instead of ever reaching `onPanelZoom`. Reapplying here, after that
+--- broadcast reaches this module, restores the override.
+function NativePanelZoom:onReadSettings()
+    self:applyNativePanelSetting()
+end
+
 --- Restore the original native panel zoom handler.
 ---
 --- Called from `PanelsPlus:onCloseWidget` rather than being one itself: mixin
