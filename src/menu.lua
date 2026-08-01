@@ -78,6 +78,16 @@ function Menu:addToMainMenu(menu_items)
                     self:setInvertSwipe(not self.settings.invert_swipe)
                 end,
                 help_text = _("Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."),
+            },
+            {
+                text = _("Touch & hold text selection in zoom"),
+                checked_func = function()
+                    return self.settings.hold_text_selection ~= false
+                end,
+                callback = function()
+                    self:setHoldTextSelection(self.settings.hold_text_selection == false)
+                end,
+                help_text = _("Allow touch and hold on text inside zoomed panels to select text and trigger dictionary lookups."),
                 separator = true,
             },
             {

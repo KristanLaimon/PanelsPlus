@@ -378,6 +378,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
+        hold_text_selection = self.settings.hold_text_selection ~= false,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
         nav_transition_cross_page = self.settings.nav_transition_cross_page == true,

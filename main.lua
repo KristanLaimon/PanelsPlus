@@ -145,6 +145,14 @@ function PanelsPlus:setProgressBarVisible(visible)
     self:saveSettings()
 end
 
+--- Set whether touch and hold on text in zoomed panels triggers text selection / dictionary.
+---
+--- @param enabled any Truthy value enables text selection & dictionary lookup on hold.
+function PanelsPlus:setHoldTextSelection(enabled)
+    self.settings.hold_text_selection = enabled and true or false
+    self:saveSettings()
+end
+
 --- Set whether panel-to-panel navigation animates a camera pan or swaps instantly.
 ---
 --- @param mode PPNavTransitionMode Requested mode; anything except "smooth" maps to "classic".

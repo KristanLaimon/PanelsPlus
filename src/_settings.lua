@@ -17,6 +17,7 @@ local Settings = {
         panel_margin_ratio = 0.12,
         invert_swipe = false,
         progress_bar_visible = true,
+        hold_text_selection = true,
         nav_transition_mode = "classic",
         nav_transition_duration = 0.4,
         nav_transition_cross_page = true,

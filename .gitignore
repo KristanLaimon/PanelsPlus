@@ -9,3 +9,10 @@ panels_plus.stable.koplugin/
 
 koreader/ # Essential koreader documentation folder  
 kobo.koplugin/ # Documentation for kobo devices
+
+
+
+# Tests files
+beastars.manga.PDF
+deadpool.comic.cbr
+kobayashi.manga.cbz

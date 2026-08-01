@@ -79,6 +79,7 @@ local PanelViewer = ImageViewer:extend{
     detector = "auto",
     invert_swipe = false,
     progress_bar_visible = true,
+    hold_text_selection = true,
     nav_transition_mode = "classic",
     nav_transition_duration = 0.4,
     nav_transition_cross_page = true,
@@ -413,37 +414,26 @@ function PanelViewer:onShowPrevImage()
     return true
 end
 
---- Page-forward event handlers for physical buttons and Bluetooth page turners.
-function PanelViewer:onGotoNextPage()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onPageForward()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onShowNextPage()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onPhysicalPageForward()
-    return self:onShowNextImage()
-end
-
---- Page-backward event handlers for physical buttons and Bluetooth page turners.
-function PanelViewer:onGotoPrevPage()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onPageBackward()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onShowPrevPage()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onPhysicalPageBackward()
+--- Dispatch KOReader's standard relative page-turn event to panel navigation.
+---
+--- `GotoViewRel` is what physical page-turn keys (via `ImageViewer`'s own
+--- key_events when `self.image` isn't a table), Bluetooth page-turner
+--- plugins (e.g. `kobo.koplugin`'s "next_page"/"prev_page" bindings), the
+--- dispatcher's "Turn pages" action, and `autoturn.koplugin` all actually
+--- fire. `diff` isn't guaranteed to be exactly ±1 (the dispatcher action
+--- allows -100..100, and autoturn can use other step sizes), so only its
+--- sign is used: any positive value advances one panel (or crosses the
+--- page boundary), any negative value goes back one.
+---
+--- @param diff number Signed relative page delta from the `GotoViewRel` event.
+--- @return boolean|nil handled Whether the event was consumed.
+function PanelViewer:onGotoViewRel(diff)
+    if not diff or diff == 0 then
+        return true
+    end
+    if diff > 0 then
+        return self:onShowNextImage()
+    end
     return self:onShowPrevImage()
 end
 
@@ -476,6 +466,366 @@ function PanelViewer:onPanRelease(arg, ges)
         return true
     end
     return ImageViewer.onPanRelease(self, arg, ges)
+end
+
+--- Convert a screen coordinate inside this zoomed viewer to document page coordinates.
+---
+--- @param pos table Screen position `{x = number, y = number}`.
+--- @return PPPagePosition|nil page_pos Unrotated document page position `{x, y, page}`.
+function PanelViewer:screenToPageTransform(pos)
+    if not pos or not pos.x or not pos.y or not self.page then
+        return nil
+    end
+
+    local cur_idx = self._images_list_cur or 1
+    local rect = self.image_rects and self.image_rects[cur_idx]
+    if not rect or not self._image_wg then
+        return nil
+    end
+
+    self._image_wg:getSize()
+    local bb_w = self._image_wg:getCurrentWidth()
+    local bb_h = self._image_wg:getCurrentHeight()
+    if not bb_w or bb_w <= 0 or not bb_h or bb_h <= 0 then
+        return nil
+    end
+
+    local widget_x = self._image_wg.dimen and self._image_wg.dimen.x or 0
+    local widget_y = self._image_wg.dimen and self._image_wg.dimen.y or 0
+    local offset_x = self._image_wg._offset_x or 0
+    local offset_y = self._image_wg._offset_y or 0
+
+    local px = (pos.x - widget_x) + offset_x
+    local py = (pos.y - widget_y) + offset_y
+
+    local norm_x = math.max(0, math.min(1, px / bb_w))
+    local norm_y = math.max(0, math.min(1, py / bb_h))
+
+    local page_x, page_y
+    if self.rotated == 90 or self.rotated == true then
+        page_x = (rect.x or 0) + norm_y * (rect.w or 0)
+        page_y = (rect.y or 0) + (1 - norm_x) * (rect.h or 0)
+    elseif self.rotated == 180 then
+        page_x = (rect.x or 0) + (1 - norm_x) * (rect.w or 0)
+        page_y = (rect.y or 0) + (1 - norm_y) * (rect.h or 0)
+    elseif self.rotated == 270 then
+        page_x = (rect.x or 0) + (1 - norm_y) * (rect.w or 0)
+        page_y = (rect.y or 0) + norm_x * (rect.h or 0)
+    else
+        page_x = (rect.x or 0) + norm_x * (rect.w or 0)
+        page_y = (rect.y or 0) + norm_y * (rect.h or 0)
+    end
+
+    return {
+        x = page_x,
+        y = page_y,
+        page = self.page,
+    }
+end
+
+--- Convert a page-space rectangle on the current page to screen coordinates inside this zoomed viewer.
+---
+--- @param box table Page-space rectangle `{x, y, w, h}` or `{x0, y0, x1, y1}`.
+--- @return PPRect|nil screen_rect Screen position `{x, y, w, h}` or nil if outside crop.
+function PanelViewer:pageToScreenTransform(box)
+    if not box or not self.page then
+        return nil
+    end
+
+    local cur_idx = self._images_list_cur or 1
+    local rect = self.image_rects and self.image_rects[cur_idx]
+    if not rect or not self._image_wg then
+        return nil
+    end
+
+    local bx = box.x or box.x0 or 0
+    local by = box.y or box.y0 or 0
+    local bw = box.w or ((box.x1 or bx) - bx)
+    local bh = box.h or ((box.y1 or by) - by)
+    if bw <= 0 or bh <= 0 then
+        return nil
+    end
+
+    local rx = rect.x or 0
+    local ry = rect.y or 0
+    local rw = rect.w or 1
+    local rh = rect.h or 1
+
+    local ix0 = math.max(bx, rx)
+    local iy0 = math.max(by, ry)
+    local ix1 = math.min(bx + bw, rx + rw)
+    local iy1 = math.min(by + bh, ry + rh)
+
+    if ix1 <= ix0 or iy1 <= iy0 then
+        return nil
+    end
+
+    local norm_x0 = (ix0 - rx) / rw
+    local norm_y0 = (iy0 - ry) / rh
+    local norm_x1 = (ix1 - rx) / rw
+    local norm_y1 = (iy1 - ry) / rh
+
+    self._image_wg:getSize()
+    local bb_w = self._image_wg:getCurrentWidth()
+    local bb_h = self._image_wg:getCurrentHeight()
+    if not bb_w or bb_w <= 0 or not bb_h or bb_h <= 0 then
+        return nil
+    end
+
+    local widget_x = self._image_wg.dimen and self._image_wg.dimen.x or 0
+    local widget_y = self._image_wg.dimen and self._image_wg.dimen.y or 0
+    local offset_x = self._image_wg._offset_x or 0
+    local offset_y = self._image_wg._offset_y or 0
+
+    local px0, py0, px1, py1
+    if self.rotated == 90 or self.rotated == true then
+        px0 = (1 - norm_y1) * bb_w
+        py0 = norm_x0 * bb_h
+        px1 = (1 - norm_y0) * bb_w
+        py1 = norm_x1 * bb_h
+    elseif self.rotated == 180 then
+        px0 = (1 - norm_x1) * bb_w
+        py0 = (1 - norm_y1) * bb_h
+        px1 = (1 - norm_x0) * bb_w
+        py1 = (1 - norm_y0) * bb_h
+    elseif self.rotated == 270 then
+        px0 = norm_y0 * bb_w
+        py0 = (1 - norm_x1) * bb_h
+        px1 = norm_y1 * bb_w
+        py1 = (1 - norm_x0) * bb_h
+    else
+        px0 = norm_x0 * bb_w
+        py0 = norm_y0 * bb_h
+        px1 = norm_x1 * bb_w
+        py1 = norm_y1 * bb_h
+    end
+
+    local screen_x0 = widget_x + px0 - offset_x
+    local screen_y0 = widget_y + py0 - offset_y
+    local screen_x1 = widget_x + px1 - offset_x
+    local screen_y1 = widget_y + py1 - offset_y
+
+    local sx = math.floor(math.min(screen_x0, screen_x1))
+    local sy = math.floor(math.min(screen_y0, screen_y1))
+    local sw = math.max(1, math.ceil(math.abs(screen_x1 - screen_x0)))
+    local sh = math.max(1, math.ceil(math.abs(screen_y1 - screen_y0)))
+
+    return { x = sx, y = sy, w = sw, h = sh }
+end
+
+--- Default: skip a full-fill highlight paint when a page-space box would
+--- cover this much or more of the current panel crop's area. A box this
+--- large relative to the visible panel is very likely a spurious/coarse
+--- text-layer bounding box -- OCR on comic/manga art (stylized fonts,
+--- speech bubbles, vertical text) commonly produces oversized word or line
+--- boxes, whether from the document's own embedded OCR text layer (PDF) or
+--- KOReader's on-the-fly OCR fallback (CBZ/CBR, which carry no text layer
+--- at all) -- rather than a genuine single word. Filling a box this size
+--- with the "invert" drawer would otherwise read as a big solid black
+--- rectangle over the panel art.
+local HIGHLIGHT_BOX_AREA_RATIO_THRESHOLD = 0.6
+
+--- Whether a page-space highlight box looks anomalously large relative to
+--- the currently displayed panel crop.
+---
+--- @param box table Page-space box `{x,y,w,h}` or `{x0,y0,x1,y1}`.
+--- @param rect table Current panel crop rect `{x,y,w,h}`.
+--- @return boolean is_anomalous
+local function isAnomalousHighlightBox(box, rect)
+    local bw = box.w or ((box.x1 or 0) - (box.x0 or box.x or 0))
+    local bh = box.h or ((box.y1 or 0) - (box.y0 or box.y or 0))
+    local rw, rh = rect.w or 0, rect.h or 0
+    if bw <= 0 or bh <= 0 or rw <= 0 or rh <= 0 then
+        return false
+    end
+    return (bw * bh) / (rw * rh) >= HIGHLIGHT_BOX_AREA_RATIO_THRESHOLD
+end
+
+--- Paint a thin border around a screen rect instead of a full fill, used
+--- when `isAnomalousHighlightBox` flags the source box as spurious --
+--- marks the selection's extent without obscuring the panel art beneath it.
+---
+--- @param bb table Blitbuffer canvas.
+--- @param rect PPRect Screen rect `{x, y, w, h}`.
+local function paintHighlightOutline(bb, rect)
+    local t = math.max(1, math.min(2, math.floor(rect.w / 3), math.floor(rect.h / 3)))
+    bb:invertRect(rect.x, rect.y, rect.w, t)
+    bb:invertRect(rect.x, rect.y + rect.h - t, rect.w, t)
+    bb:invertRect(rect.x, rect.y, t, rect.h)
+    bb:invertRect(rect.x + rect.w - t, rect.y, t, rect.h)
+end
+
+--- Render temporary text selection highlights over the zoomed panel.
+---
+--- @param bb table Blitbuffer canvas.
+--- @param x number Canvas X offset.
+--- @param y number Canvas Y offset.
+function PanelViewer:paintHighlights(bb, x, y)
+    local reader_ui = self.reader_ui
+    if not reader_ui or not reader_ui.view or not reader_ui.highlight then
+        return
+    end
+
+    local temp_highlights = reader_ui.view.highlight and reader_ui.view.highlight.temp
+    local selected_text = reader_ui.highlight and reader_ui.highlight.selected_text
+
+    local boxes_to_draw = {}
+
+    if temp_highlights and self.page and temp_highlights[self.page] then
+        for _, box in ipairs(temp_highlights[self.page]) do
+            table.insert(boxes_to_draw, box)
+        end
+    end
+
+    if #boxes_to_draw == 0 and selected_text then
+        if selected_text.sboxes then
+            for _, box in ipairs(selected_text.sboxes) do
+                table.insert(boxes_to_draw, box)
+            end
+        elseif selected_text.pboxes then
+            for _, box in ipairs(selected_text.pboxes) do
+                table.insert(boxes_to_draw, box)
+            end
+        end
+    end
+
+    if #boxes_to_draw == 0 then
+        return
+    end
+
+    local drawer = reader_ui.view.highlight and reader_ui.view.highlight.temp_drawer or "invert"
+    local cur_idx = self._images_list_cur or 1
+    local crop_rect = self.image_rects and self.image_rects[cur_idx]
+
+    for _, box in ipairs(boxes_to_draw) do
+        local rect = self:pageToScreenTransform(box)
+        if rect then
+            if crop_rect and isAnomalousHighlightBox(box, crop_rect) then
+                logger.dbg("[Panels+] anomalous highlight box, drawing outline only:",
+                    "box=", box.x or box.x0, box.y or box.y0, box.w, box.h,
+                    "crop=", crop_rect.x, crop_rect.y, crop_rect.w, crop_rect.h)
+                paintHighlightOutline(bb, rect)
+            elseif reader_ui.view.drawHighlightRect then
+                pcall(reader_ui.view.drawHighlightRect, reader_ui.view, bb, 0, 0, rect, drawer)
+            else
+                if drawer == "invert" then
+                    bb:invertRect(rect.x, rect.y, rect.w, rect.h)
+                else
+                    bb:darkenRect(rect.x, rect.y, rect.w, rect.h, 0.3)
+                end
+            end
+        end
+    end
+end
+
+function PanelViewer:paintTo(bb, x, y)
+    ImageViewer.paintTo(self, bb, x, y)
+    self:paintHighlights(bb, x, y)
+end
+
+--- Delegate touch and hold gestures to KOReader's native text selection / dictionary.
+---
+--- @param arg any Gesture argument.
+--- @param ges table Gesture event with `pos`.
+--- @return boolean handled Whether text selection or dictionary lookup consumed the event.
+function PanelViewer:onHold(arg, ges)
+    if self.hold_text_selection == false then
+        return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
+    end
+
+    local reader_ui = self.reader_ui
+    local highlight = reader_ui and reader_ui.highlight
+    if not highlight or not reader_ui.view then
+        return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
+    end
+
+    local page_pos = self:screenToPageTransform(ges and ges.pos)
+    if not page_pos then
+        return true
+    end
+
+    local orig_screenToPage = reader_ui.view.screenToPageTransform
+    local orig_panel_zoom_enabled = highlight.panel_zoom_enabled
+
+    reader_ui.view.screenToPageTransform = function(view, pos)
+        return page_pos
+    end
+    highlight.panel_zoom_enabled = false
+
+    local ok, handled = pcall(highlight.onHold, highlight, arg, ges)
+
+    reader_ui.view.screenToPageTransform = orig_screenToPage
+    highlight.panel_zoom_enabled = orig_panel_zoom_enabled
+
+    if ok and handled then
+        self._panels_plus_text_holding = true
+        UIManager:setDirty(self, "ui")
+        return true
+    end
+
+    return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
+end
+
+--- Forward touch drag during text selection inside a zoomed panel.
+---
+--- @param arg any Gesture argument.
+--- @param ges table Gesture event.
+--- @return boolean handled Whether the drag was handled.
+function PanelViewer:onHoldPan(arg, ges)
+    if not self._panels_plus_text_holding then
+        return ImageViewer.onHoldPan and ImageViewer.onHoldPan(self, arg, ges)
+    end
+
+    local reader_ui = self.reader_ui
+    local highlight = reader_ui and reader_ui.highlight
+    if not highlight or not reader_ui.view or type(highlight.onHoldPan) ~= "function" then
+        return true
+    end
+
+    local page_pos = self:screenToPageTransform(ges and ges.pos)
+    if not page_pos then
+        return true
+    end
+
+    local orig_screenToPage = reader_ui.view.screenToPageTransform
+    reader_ui.view.screenToPageTransform = function(view, pos)
+        return page_pos
+    end
+
+    pcall(highlight.onHoldPan, highlight, arg, ges)
+
+    reader_ui.view.screenToPageTransform = orig_screenToPage
+    UIManager:setDirty(self, "ui")
+    return true
+end
+
+--- Forward touch release after hold to complete text selection or dictionary lookup.
+---
+--- @param arg any Gesture argument.
+--- @param ges table Gesture event.
+--- @return boolean handled Whether the release was handled.
+function PanelViewer:onHoldRelease(arg, ges)
+    if not self._panels_plus_text_holding then
+        return ImageViewer.onHoldRelease and ImageViewer.onHoldRelease(self, arg, ges)
+    end
+
+    self._panels_plus_text_holding = nil
+    local reader_ui = self.reader_ui
+    local highlight = reader_ui and reader_ui.highlight
+    if highlight and type(highlight.onHoldRelease) == "function" then
+        pcall(highlight.onHoldRelease, highlight, arg, ges)
+    end
+    UIManager:setDirty(self, "ui")
+    return true
+end
+
+--- Forward touch release after dragging text selection inside a zoomed panel.
+---
+--- @param arg any Gesture argument.
+--- @param ges table Gesture event.
+--- @return boolean handled Whether the release was handled.
+function PanelViewer:onHoldPanRelease(arg, ges)
+    return self:onHoldRelease(arg, ges)
 end
 
 --- Toggle controls on inside taps and close on taps outside the frame.
