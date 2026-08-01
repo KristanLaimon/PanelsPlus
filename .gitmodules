@@ -1,3 +1,0 @@
-[submodule "tests/dependencies/busted"]
-	path = tests/dependencies/busted
-	url = https://github.com/lunarmodules/busted.git

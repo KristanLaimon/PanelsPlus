@@ -15,6 +15,16 @@ local ffi = require("ffi")
 --- line runs cleanly between two panels. `Segmenter.accept()` exists to detect
 --- that case so the caller can fall back to the native detector.
 ---
+--- Comic mode adds a second kind of separator search. Western comics routinely
+--- bleed differently-coloured, dark, or grey panels edge to edge with no blank
+--- gutter between them at all -- only the artist's drawn black border stroke.
+--- That stroke is invisible to the background-relative gutter search (there is
+--- no empty band to find) but stands out as a thin, densely dark run against
+--- whatever fills the panels either side of it, so it gets its own pass over
+--- `map.border` (see `src._pagebitmap`), tried only when that map is present.
+--- Manga mode never builds `map.border`, so this pass and its cost do not
+--- apply there.
+---
 --- @class PPSegmenterModule
 local Segmenter = {}
 
@@ -59,6 +69,49 @@ local function project(map, x0, y0, x1, y1, rows, cols)
             end
         end
         rows[y] = count
+    end
+end
+
+--- Accumulate ink and border-stroke-candidate counts per row and column
+--- together, over a sub-rectangle.
+---
+--- Comic mode only. Folds the border pass into the same traversal as the ink
+--- pass so a region costs one scan instead of two; `project()` above is used
+--- everywhere `map.border` is nil, so manga mode never runs this.
+---
+--- @param map PPPageMap Page ink map, with `border` populated.
+--- @param x0 integer Inclusive left cell.
+--- @param y0 integer Inclusive top cell.
+--- @param x1 integer Inclusive right cell.
+--- @param y1 integer Inclusive bottom cell.
+--- @param rows ffi.cdata* `int32_t[map.h]` ink row accumulator.
+--- @param cols ffi.cdata* `int32_t[map.w]` ink column accumulator.
+--- @param brows ffi.cdata* `int32_t[map.h]` border row accumulator.
+--- @param bcols ffi.cdata* `int32_t[map.w]` border column accumulator.
+local function projectWithBorder(map, x0, y0, x1, y1, rows, cols, brows, bcols)
+    local data, border, map_w = map.data, map.border, map.w
+
+    for x = x0, x1 do
+        cols[x] = 0
+        bcols[x] = 0
+    end
+
+    for y = y0, y1 do
+        local base = y * map_w
+        local count, bcount = 0, 0
+        for x = x0, x1 do
+            local idx = base + x
+            if data[idx] == 1 then
+                count = count + 1
+                cols[x] = cols[x] + 1
+            end
+            if border[idx] == 1 then
+                bcount = bcount + 1
+                bcols[x] = bcols[x] + 1
+            end
+        end
+        rows[y] = count
+        brows[y] = bcount
     end
 end
 
@@ -107,6 +160,61 @@ local function findWidestGutter(projection, from, to, span, ink_ratio, min_lengt
             if run_start and run_start > from then
                 local length = index - run_start
                 if length >= min_length and length > best_length then
+                    best_start, best_stop, best_length = run_start, index - 1, length
+                end
+            end
+            run_start = nil
+        end
+    end
+
+    return best_start, best_stop, best_length
+end
+
+--- Find the narrowest interior run of densely bordered lines.
+---
+--- The comic-mode counterpart to `findWidestGutter`: instead of a blank gap,
+--- this looks for a thin drawn separator stroke. A real border line is dense
+--- (mostly border cells) *and* narrow; a wide dense run is a filled panel
+--- interior (a black or near-black background), not a separator, so
+--- `max_length` rejects it. The narrowest qualifying run is preferred over the
+--- widest, since thinness is exactly what tells the two cases apart.
+---
+--- Runs touching either end of the range are excluded for the same reason as
+--- in `findWidestGutter`: they are the region's own edge, not a separator
+--- between two siblings inside it. `min_child` goes further and rejects a run
+--- sitting *close* to either end too: a thin off-cut sliver (a page-footer
+--- rule, a caption strip) would otherwise pass every other check and still
+--- get emitted as its own spurious "panel", the same size floor
+--- `emitLeaf` would reject it by, applied before the split happens instead of
+--- after.
+---
+--- @param projection ffi.cdata* Row or column border-cell accumulator.
+--- @param from integer Inclusive start index.
+--- @param to integer Inclusive end index.
+--- @param span integer Perpendicular extent, used to scale the density floor.
+--- @param ratio number Fraction of `span` that must be border cells.
+--- @param max_length integer Widest run still accepted as a separator line.
+--- @param min_child integer Smallest cell count either resulting side may have.
+--- @return integer|nil start First line of the border run.
+--- @return integer|nil stop Last line of the border run.
+--- @return integer length Width of the run, 0 when there is none.
+local function findBorderLine(projection, from, to, span, ratio, max_length, min_child)
+    local min_count = span * ratio
+    local best_start, best_stop, best_length = nil, nil, 0
+    local run_start = nil
+
+    for index = from, to do
+        if projection[index] >= min_count then
+            if not run_start then
+                run_start = index
+            end
+        else
+            if run_start and run_start > from then
+                local length = index - run_start
+                local left_child = run_start - from
+                local right_child = to - (index - 1)
+                if length <= max_length and left_child >= min_child and right_child >= min_child
+                        and (best_length == 0 or length < best_length) then
                     best_start, best_stop, best_length = run_start, index - 1, length
                 end
             end
@@ -343,7 +451,11 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
         return
     end
 
-    project(map, x0, y0, x1, y1, ctx.rows, ctx.cols)
+    if ctx.border then
+        projectWithBorder(map, x0, y0, x1, y1, ctx.rows, ctx.cols, ctx.brows, ctx.bcols)
+    else
+        project(map, x0, y0, x1, y1, ctx.rows, ctx.cols)
+    end
     local top, bottom = trimRange(ctx.rows, y0, y1)
     local left, right = trimRange(ctx.cols, x0, x1)
     if bottom < top or right < left then
@@ -368,6 +480,31 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
             cut(map, left, top, col_start - 1, bottom, depth + 1, ctx, out)
             cut(map, col_stop + 1, top, right, bottom, depth + 1, ctx, out)
             return
+        end
+
+        -- No blank gutter. Comic panels are routinely bled edge to edge with
+        -- only a drawn border stroke between them, which never shows up as an
+        -- empty band -- but it stands out as a thin, densely dark run against
+        -- whatever colour fills the panels either side of it. Prefer the
+        -- thinner of the two axes: thinness is the signal that it is really a
+        -- drawn line and not a wide, uniformly dark panel interior.
+        if ctx.border then
+            local brow_start, brow_stop, brow_length =
+                findBorderLine(ctx.brows, top, bottom, width, ctx.border_ratio, ctx.border_max_width, ctx.min_side)
+            local bcol_start, bcol_stop, bcol_length =
+                findBorderLine(ctx.bcols, left, right, height, ctx.border_ratio, ctx.border_max_width, ctx.min_side)
+
+            if brow_length > 0 and (bcol_length == 0 or brow_length <= bcol_length) then
+                ctx.border_splits = ctx.border_splits + 1
+                cut(map, left, top, right, brow_start - 1, depth + 1, ctx, out)
+                cut(map, left, brow_stop + 1, right, bottom, depth + 1, ctx, out)
+                return
+            elseif bcol_length > 0 then
+                ctx.border_splits = ctx.border_splits + 1
+                cut(map, left, top, bcol_start - 1, bottom, depth + 1, ctx, out)
+                cut(map, bcol_stop + 1, top, right, bottom, depth + 1, ctx, out)
+                return
+            end
         end
 
         -- Nothing straight. The panels may simply not be square, so look along
@@ -422,6 +559,12 @@ function Segmenter.segment(map, settings)
             * (settings.segment_min_panel_area or defaults.segment_min_panel_area)),
         max_depth = settings.segment_max_depth or defaults.segment_max_depth,
         max_panels = settings.segment_max_panels or defaults.segment_max_panels,
+        border = map.border,
+        brows = map.border and ffi.new("int32_t[?]", map.h) or nil,
+        bcols = map.border and ffi.new("int32_t[?]", map.w) or nil,
+        border_ratio = settings.segment_border_line_ratio or defaults.segment_border_line_ratio,
+        border_max_width = math.max(2, math.floor(min_dimension
+            * (settings.segment_border_width_ratio or defaults.segment_border_width_ratio))),
         slopes = settings.segment_shear ~= false and Segmenter.SHEAR_SLOPES or nil,
         shear_max_depth = settings.segment_shear_max_depth or defaults.segment_shear_max_depth,
         shear_trigger = settings.segment_shear_trigger or defaults.segment_shear_trigger,
@@ -429,6 +572,7 @@ function Segmenter.segment(map, settings)
         slope_hint = nil,
         shear_searches = 0,
         shear_splits = 0,
+        border_splits = 0,
     }
 
     local cells = {}
@@ -450,9 +594,9 @@ function Segmenter.segment(map, settings)
         })
     end
 
-    if ctx.shear_searches > 0 then
-        stop(string.format("%d panels, %d of %d slanted searches split",
-            #panels, ctx.shear_splits, ctx.shear_searches))
+    if ctx.shear_searches > 0 or ctx.border_splits > 0 then
+        stop(string.format("%d panels, %d of %d slanted searches split, %d border-line splits",
+            #panels, ctx.shear_splits, ctx.shear_searches, ctx.border_splits))
     else
         stop(#panels .. " panels")
     end

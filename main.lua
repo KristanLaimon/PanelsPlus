@@ -92,9 +92,20 @@ end
 --- switching modes does not need to invalidate anything: pages already
 --- detected under the other mode simply stay cached under their own key.
 ---
+--- Deep mode (the "exact" detector) only recognizes white gutters and gives up
+--- entirely on a dark background -- exactly what comic pages routinely have --
+--- so switching into comic mode while it is active would silently strand the
+--- reader on a detector that cannot work there. Comic mode forces the
+--- detector back to "auto" instead; the menu also greys Deep mode out while
+--- comic mode is on so it cannot be selected again by mistake.
+---
 --- @param mode PPReadingMode Requested mode; anything except `"comic"` maps to `"manga"`.
 function PanelsPlus:setMode(mode)
     self.settings.mode = mode == "comic" and "comic" or "manga"
+    if self.settings.mode == "comic" and self.settings.detector == "exact" then
+        self.settings.detector = "auto"
+        Timing.log("detector -> auto (forced by comic mode, was exact)")
+    end
     Timing.log("mode -> " .. self.settings.mode)
     self:saveSettings()
 end

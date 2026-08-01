@@ -120,11 +120,14 @@ function Menu:addToMainMenu(menu_items)
                         checked_func = function()
                             return self:getDetector() == "exact"
                         end,
+                        enabled_func = function()
+                            return self.settings.mode ~= "comic"
+                        end,
                         radio = true,
                         callback = function()
                             self:setDetector("exact")
                         end,
-                        help_text = _("Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges."),
+                        help_text = _("Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."),
                     },
                 },
             },

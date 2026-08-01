@@ -65,6 +65,9 @@
 --- @field full_page_panel_ratio number
 --- @field segment_target_width integer Ink-map render width in pixels.
 --- @field segment_ink_delta integer Luminance distance from background counted as ink.
+--- @field segment_border_luminance_max integer Comic mode only: absolute luminance at/below which a cell is a candidate drawn panel-border stroke, regardless of the page background.
+--- @field segment_border_line_ratio number Comic mode only: fraction of a line's span that must be border cells for it to count as a drawn separator.
+--- @field segment_border_width_ratio number Comic mode only: widest run, as a fraction of the map's smaller side, still accepted as a border stroke rather than a filled panel interior.
 --- @field segment_gutter_ratio number Shortest gutter, as a fraction of the map's smaller side.
 --- @field segment_gutter_ink_ratio number Ink fraction of a line still treated as empty.
 --- @field segment_min_panel_area number Smallest panel, as a fraction of page area.

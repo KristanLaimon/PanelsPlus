@@ -31,6 +31,7 @@ local PageBitmap = {}
 --- @field scale_y number Native units per map cell, vertically.
 --- @field background integer Estimated page background luminance (0-255).
 --- @field inverted boolean Whether the page background is dark.
+--- @field border ffi.cdata*|nil `uint8_t[w*h]` of 0/1 border-stroke candidate flags, comic mode only.
 
 --- Return why the segmenter cannot run on this document, if it cannot.
 ---
@@ -209,6 +210,16 @@ function PageBitmap.build(document, page, settings)
     local target_width = settings.segment_target_width or Settings.defaults.segment_target_width
     local ink_delta = settings.segment_ink_delta or Settings.defaults.segment_ink_delta
 
+    -- Manga pages are near-uniformly two-tone, so a background-relative ink
+    -- map already separates panels cleanly there. Western comics routinely
+    -- bleed differently-coloured or dark panels edge to edge with no blank
+    -- gutter at all, only a drawn black border stroke between them -- which
+    -- needs its own absolute (not background-relative) signal to find. That
+    -- extra pass is only worth its cost in comic mode.
+    local detect_borders = settings.mode == "comic"
+    local border_luminance_max = settings.segment_border_luminance_max
+        or Settings.defaults.segment_border_luminance_max
+
     local map, reason, owned
     local ok, err = pcall(function()
         local bb, native = renderSmall(document, page, target_width)
@@ -234,20 +245,45 @@ function PageBitmap.build(document, page, settings)
 
         local background = estimateBackground(sample, src_w, src_h)
         local data = ffi.new("uint8_t[?]", w * h)
+        local border = detect_borders and ffi.new("uint8_t[?]", w * h) or nil
         local ink = 0
+        local border_cells = 0
 
-        for y = 0, h - 1 do
-            local src_y = y * step
-            local row = y * w
-            for x = 0, w - 1 do
-                local value = sample(x * step, src_y)
-                local delta = value - background
-                if delta < 0 then
-                    delta = -delta
+        if border then
+            for y = 0, h - 1 do
+                local src_y = y * step
+                local row = y * w
+                for x = 0, w - 1 do
+                    local value = sample(x * step, src_y)
+                    local delta = value - background
+                    if delta < 0 then
+                        delta = -delta
+                    end
+                    local idx = row + x
+                    if delta > ink_delta then
+                        data[idx] = 1
+                        ink = ink + 1
+                    end
+                    if value <= border_luminance_max then
+                        border[idx] = 1
+                        border_cells = border_cells + 1
+                    end
                 end
-                if delta > ink_delta then
-                    data[row + x] = 1
-                    ink = ink + 1
+            end
+        else
+            for y = 0, h - 1 do
+                local src_y = y * step
+                local row = y * w
+                for x = 0, w - 1 do
+                    local value = sample(x * step, src_y)
+                    local delta = value - background
+                    if delta < 0 then
+                        delta = -delta
+                    end
+                    if delta > ink_delta then
+                        data[row + x] = 1
+                        ink = ink + 1
+                    end
                 end
             end
         end
@@ -256,6 +292,7 @@ function PageBitmap.build(document, page, settings)
             w = w,
             h = h,
             data = data,
+            border = border,
             ink = ink,
             native_w = native.w,
             native_h = native.h,
@@ -265,9 +302,10 @@ function PageBitmap.build(document, page, settings)
             inverted = background < 128,
         }
         local free_mb = Timing.enabled and Timing.freeMB() or nil
-        stop(string.format("%dx%d %s bg=%d%s ink=%d%%%s",
+        stop(string.format("%dx%d %s bg=%d%s ink=%d%%%s%s",
             w, h, kind, background, map.inverted and " inverted" or "",
             math.floor(ink * 100 / (w * h)),
+            border and string.format(" border=%d%%", math.floor(border_cells * 100 / (w * h))) or "",
             free_mb and (" free=" .. free_mb .. "MB") or ""))
     end)
 
