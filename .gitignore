@@ -5,5 +5,7 @@ frontend/
 crash.log
 crash.old.donotread.log
 
-koreader/
 panels_plus.stable.koplugin/
+
+koreader/ # Essential koreader documentation folder  
+kobo.koplugin/ # Documentation for kobo devices

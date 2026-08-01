@@ -337,53 +337,114 @@ function PanelViewer:getNextSwipeDirection()
     return direction
 end
 
---- Handle horizontal panel navigation before falling back to ImageViewer.
+--- Return whether a gesture started near the left edge of the screen.
+---
+--- @param ges table Gesture event.
+--- @return boolean is_left_edge `true` when the touch starts within the left 25% of screen width.
+local function isLeftEdgeGesture(ges)
+    if not ges or not ges.pos or not ges.pos.x then
+        return false
+    end
+    local screen_w = Screen:getWidth()
+    return ges.pos.x <= (screen_w * 0.25)
+end
+
+--- Handle horizontal panel navigation & left-edge vertical zoom before falling back to ImageViewer.
 ---
 --- @param arg any KOReader gesture argument.
 --- @param ges table Gesture event with `direction`.
 --- @return boolean|nil handled Whether the gesture was consumed.
 function PanelViewer:onSwipe(arg, ges)
+    if isLeftEdgeGesture(ges) then
+        if ges.direction == "north" then
+            self:onZoomIn(self.mousewheel_zoom_step or 0.2)
+            return true
+        elseif ges.direction == "south" then
+            if self:isImagePannable() then
+                self:onZoomOut(self.mousewheel_zoom_step or 0.2)
+            else
+                self:onClose()
+            end
+            return true
+        end
+    end
+
     if self:isImagePannable() then
         return self:panBySwipe(ges)
     end
 
     if self._images_list and (ges.direction == "west" or ges.direction == "east") then
         if ges.direction == self:getNextSwipeDirection() then
-            if self._images_list_cur < self._images_list_nb then
-                self:onShowNextImage()
-            elseif self.boundary_callback then
-                return self:onPanelBoundary("next")
-            end
+            return self:onShowNextImage()
         else
-            if self._images_list_cur > 1 then
-                self:onShowPrevImage()
-            elseif self.boundary_callback then
-                return self:onPanelBoundary("previous")
-            end
+            return self:onShowPrevImage()
         end
-        return true
     end
     return ImageViewer.onSwipe(self, arg, ges)
 end
 
---- Advance to the next panel, animating a camera pan when smooth navigation is on.
+--- Advance to the next panel, animating a camera pan or crossing page boundary at the end.
 ---
 --- @return boolean|nil handled Whether the image switch was handled.
 function PanelViewer:onShowNextImage()
-    if self.nav_transition_mode == "smooth" and self._images_list_cur < self._images_list_nb then
-        return self:animateSwitchToImageNum(self._images_list_cur + 1)
+    if self._images_list_cur < self._images_list_nb then
+        if self.nav_transition_mode == "smooth" then
+            return self:animateSwitchToImageNum(self._images_list_cur + 1)
+        end
+        return ImageViewer.onShowNextImage(self)
+    elseif self.boundary_callback then
+        return self:onPanelBoundary("next")
     end
-    return ImageViewer.onShowNextImage(self)
+    return true
 end
 
---- Return to the previous panel, animating a camera pan when smooth navigation is on.
+--- Return to the previous panel, animating a camera pan or crossing page boundary at the start.
 ---
 --- @return boolean|nil handled Whether the image switch was handled.
 function PanelViewer:onShowPrevImage()
-    if self.nav_transition_mode == "smooth" and self._images_list_cur > 1 then
-        return self:animateSwitchToImageNum(self._images_list_cur - 1)
+    if self._images_list_cur > 1 then
+        if self.nav_transition_mode == "smooth" then
+            return self:animateSwitchToImageNum(self._images_list_cur - 1)
+        end
+        return ImageViewer.onShowPrevImage(self)
+    elseif self.boundary_callback then
+        return self:onPanelBoundary("previous")
     end
-    return ImageViewer.onShowPrevImage(self)
+    return true
+end
+
+--- Page-forward event handlers for physical buttons and Bluetooth page turners.
+function PanelViewer:onGotoNextPage()
+    return self:onShowNextImage()
+end
+
+function PanelViewer:onPageForward()
+    return self:onShowNextImage()
+end
+
+function PanelViewer:onShowNextPage()
+    return self:onShowNextImage()
+end
+
+function PanelViewer:onPhysicalPageForward()
+    return self:onShowNextImage()
+end
+
+--- Page-backward event handlers for physical buttons and Bluetooth page turners.
+function PanelViewer:onGotoPrevPage()
+    return self:onShowPrevImage()
+end
+
+function PanelViewer:onPageBackward()
+    return self:onShowPrevImage()
+end
+
+function PanelViewer:onShowPrevPage()
+    return self:onShowPrevImage()
+end
+
+function PanelViewer:onPhysicalPageBackward()
+    return self:onShowPrevImage()
 end
 
 --- Treat mouse-wheel pan events from KOReader/SDL as image zoom in panel mode.
