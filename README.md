@@ -190,11 +190,5 @@ I don't see any more options to include, but contributions are welcome for:
 
 Thanks for using the plugin or at least, taking a look into this repo.
 
-## Support
-
-If you find Panels+ helpful and would like to support its development, consider sponsoring the project on GitHub:
-
-[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=for-the-badge)](https://github.com/sponsors/KristanLaimon)
-
 ## License
 MIT License, check "LICENSE" file in this repository.
