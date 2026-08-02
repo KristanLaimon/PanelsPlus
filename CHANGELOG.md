@@ -4,6 +4,26 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ## [Unreleased]
 
+### Fixed
+
+- **Word lookup: the underline no longer lands off the word it looked up**
+  - `ReaderHighlight:onHold` stores a *reference* to the selection's `sboxes` table in `view.highlight.temp[page]`, and `PanelViewer:paintHighlights` draws from `temp` in preference to the selection itself. `_refineWordSelection` replaced `selected_text.sboxes` with a new table, so the underline kept being painted from KOReader's *original* box while OCR and the dictionary used the refined one. KOReader's box takes its `y`/`h` from the whole **text line**, not the word (`KoptInterface:getWordFromBoxes` reads them off the line box) -- which is exactly why the mismatch showed up as a vertical offset. Refinement now re-points `temp` at the refined box too.
+
+- **Word lookup: no longer invents a word when the crop wasn't readable**
+  - **Unbounded ink runs are rejected instead of OCRed.** When the tapped line's rows are covered edge to edge by something the ink test can't distinguish from lettering (screentone, a solid bubble border, a black gutter), no gap ever reaches the word-boundary threshold and the horizontal hunt just ran to both edges of the render crop. That crop-wide box was handed to Tesseract, which dutifully transcribed the noise into a plausible-looking word. A run that reaches the crop edge *still on ink* -- or a box wider than 14x its line height -- now falls back to KOReader's own selection.
+  - **OCR results are validated before they replace the selection.** Tesseract given an unreadable crop returns punctuation soup (`|_-`, `»«`), not an error. A result now has to look like a word (at least one letter, no more junk than letters, a single token) before it overwrites the document's own text. Non-ASCII letters are decoded properly, so accented Latin and CJK results are not mistaken for junk -- Lua's `%a` class is ASCII-only.
+  - **Unreadable tight crops get one retry with a padded box.** The tight box is what makes OCR resolution usable at all (`getNativeOCRWord` scales the box so its *height* renders at 30px), but it can clip an anti-aliased stem or an accent, and Tesseract reads a beheaded glyph as a different letter or drops it. The retry only runs on the failure path.
+  - **OCR output is normalized.** `getTOCRWord` returns its transcription with a trailing newline; `ReaderDictionary` trims before looking a word up, but Copy, Add note, Wikipedia and the saved annotation text all took `selected_text.text` verbatim.
+
+- **Word lookup: word boxes no longer clip glyphs or snap to the wrong line**
+  - **Ascenders and descenders outside the tap band are kept.** The line's vertical extent is measured over a fixed ±30px band around the tap, which is narrower than most words, so a tall letter at the far end of the same word was invisible to that measurement and the box cropped straight through it. The box's vertical extent is now re-derived from the word's *own* columns once its horizontal bounds are known.
+  - **Snapping onto ink is bounded.** A tap that landed on background snapped to the nearest ink *anywhere* in the render crop -- up to 15% of a page away -- so a tap in a bubble's margin could silently resolve to a word in a different bubble. Snapping is now limited to one line height vertically and two horizontally; past that the tap falls back to KOReader.
+  - **Inter-letter gap calibration is windowed to the tapped line.** Gaps were collected across the whole render crop, so ink runs out in the panel art contributed "gaps" that skewed the median the word-boundary threshold is derived from.
+  - **Tile coordinates are anchored to the renderer's own origin.** `Geom:transformByScale` *floors* the scaled crop origin and `Document:renderPage` draws the page offset by that floored value; deriving tile coordinates from the unrounded crop origin left the reported box shifted from the pixels actually measured.
+
+- **Word lookup diagnostics no longer run in normal use**
+  - Two PGM crop dumps (~120 KB each, written to both the working directory and `/tmp`), a log append to two files, and an on-screen `[WordFinder]` toast fired on *every* long-press regardless of settings. All four are now gated behind the existing **debug mode** toggle.
+
 ### Added
 
 - **Comic-Lettering-Aware Word Finder & OCR Segmentation**
