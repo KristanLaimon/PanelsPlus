@@ -45,15 +45,15 @@ describe("PanelViewer:onSwipe left-edge zoom", function()
         assert.is_false(viewer.onClose:called())
     end)
 
-    it("closes on a south swipe within the left edge when not pannable (standard zoom)", function()
+    it("zooms out (does not close) on a south swipe within the left edge when not pannable (standard zoom)", function()
         local pannable_spy = spy()
         pannable_spy.return_value = false
         local viewer = newViewer{ isImagePannable = pannable_spy }
 
         viewer:onSwipe(nil, { direction = "south", pos = { x = 50, y = 400 } })
 
-        assert.is_true(viewer.onClose:called(), "onClose should have been called")
-        assert.is_false(viewer.onZoomOut:called())
+        assert.is_true(viewer.onZoomOut:called(), "onZoomOut should have been called")
+        assert.is_false(viewer.onClose:called(), "onClose should not have been called -- this gesture is reserved for Kobo-style zoom, never for exiting")
     end)
 
     it("does not zoom on a north swipe outside the left edge", function()

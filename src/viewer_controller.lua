@@ -321,6 +321,76 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
     return true
 end
 
+--- Toggle tapping the screen's left/right edges to navigate between panels,
+--- from an open viewer, in place.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:toggleViewerTapNavigation(viewer)
+    self:setTapNavigation(self.settings.tap_navigation ~= true)
+    viewer.tap_navigation = self.settings.tap_navigation
+    return true
+end
+
+--- Toggle swiping left/right to navigate between panels, from an open
+--- viewer, in place.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:toggleViewerSwipeNavigation(viewer)
+    self:setSwipeNavigation(self.settings.swipe_navigation == false)
+    viewer.swipe_navigation = self.settings.swipe_navigation
+    return true
+end
+
+--- Show a multi-options menu popup for miscellaneous panel viewer settings
+--- that don't need their own dedicated button.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:showMoreConfigMenu(viewer)
+    local Menu = require("ui/widget/menu")
+    local _ = require("gettext")
+    local controller = self
+    local menu
+
+    local menu_items = {
+        {
+            text = _("Tap screen sides to navigate (Actual: ")
+                .. (controller.settings.tap_navigation == true and _("true") or _("false")) .. ")",
+            checked_func = function()
+                return controller.settings.tap_navigation == true
+            end,
+            callback = function()
+                controller:toggleViewerTapNavigation(viewer)
+                UIManager:close(menu)
+                controller:showMoreConfigMenu(viewer)
+            end,
+            help_text = _("Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."),
+        },
+        {
+            text = _("Swipe to navigate (Actual: ")
+                .. (controller.settings.swipe_navigation ~= false and _("true") or _("false")) .. ")",
+            checked_func = function()
+                return controller.settings.swipe_navigation ~= false
+            end,
+            callback = function()
+                controller:toggleViewerSwipeNavigation(viewer)
+                UIManager:close(menu)
+                controller:showMoreConfigMenu(viewer)
+            end,
+            help_text = _("Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."),
+        },
+    }
+
+    menu = Menu:new{
+        title = _("More Panel Viewer Settings"),
+        item_table = menu_items,
+    }
+    UIManager:show(menu)
+    return true
+end
+
 --- Start panel sequence viewing from a native panel-zoom hold gesture.
 ---
 --- @param reader_highlight table KOReader reader highlight module.
@@ -377,6 +447,8 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         bleed_ratio = self.settings.panel_bleed_ratio,
         detector = self:getDetector(),
         invert_swipe = self.settings.invert_swipe == true,
+        tap_navigation = self.settings.tap_navigation == true,
+        swipe_navigation = self.settings.swipe_navigation ~= false,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
@@ -423,6 +495,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         detector_cycle_callback = function(current_viewer)
             return self:cycleViewerDetector(current_viewer)
+        end,
+        more_config_callback = function(current_viewer)
+            return self:showMoreConfigMenu(current_viewer)
         end,
     }
 

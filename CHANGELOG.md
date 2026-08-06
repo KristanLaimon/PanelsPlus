@@ -6,6 +6,9 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Fixed
 
+- **Swiping down for Kobo-style zoom on the left edge no longer exits the panel viewer**
+  - The left-edge swipe-down gesture doubled as both "zoom out" (when already zoomed in) and "close the viewer" (at standard zoom), because both paths shared the same gesture zone. That meant a swipe meant purely for one-handed zoom control could unexpectedly kick the reader out of the panel viewer entirely. It now always zooms out, at any zoom level, and never closes the viewer -- closing stays on the existing "Close" button and tap-outside-frame gesture.
+
 - **Panel viewer now respects night mode**
   - `ImageViewer` (the base widget `PanelViewer` builds on) paints panel crops, letterbox padding, title bar, progress bar, and button table with hardcoded light colours and has no night-mode awareness anywhere in its own code -- unlike the normal page-turn path (`KoptInterface:drawPage`), which checks `Screen.night_mode` and inverts. A first pass inverted colour at each render call site (`Document:drawPagePart()` results, composited transition canvases), but that only covered the plain single-panel view -- the bottom options bar and any letterboxed/size-mismatched swipe or pan transition frame stayed light, since they're painted by code with no hook into any of those call sites. `PanelViewer:paintTo` now inverts the whole `main_frame` region once, after `ImageViewer` finishes painting it -- the one point guaranteed to see every pixel actually drawn, regardless of which internal path produced it.
 
@@ -58,12 +61,15 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
   - **Works across CBZ, CBR, and PDF**: word/text boxes come from the document's own embedded OCR text layer on PDF, or from KOReader's on-the-fly OCR fallback on CBZ/CBR (which carry no text layer at all) -- the highlight/lookup path is shared, format-agnostic code.
   - **Fixed "big black square" highlight**: coarse or oversized word/line boxes (common with OCR on comic/manga art) no longer get filled solid with the "invert" drawer. `paintHighlights` now flags a box whose page-space area covers ≥60% of the current panel crop as anomalous and draws a thin outline instead of a full fill, so a bad box still gives visual feedback without obscuring the panel art.
 
-- **Left-Edge Vertical Swipe Gestures (One-Handed Zoom & Exit)**
+- **Left-Edge Vertical Swipe Gestures (One-Handed, Kobo-Style Zoom)**
   - **Swipe UP on the left edge** (left 25% of screen): Zooms in on the current panel image to easily inspect small text or fine details without needing multi-finger pinch gestures.
-  - **Swipe DOWN on the left edge**:
-    - *When zoomed in*: Steps back out towards standard panel zoom level.
-    - *When at standard panel zoom*: Closes the panel viewer and returns directly to full-page reader view (matching native KOReader panel-zoom behavior).
+  - **Swipe DOWN on the left edge**: Zooms back out towards standard panel zoom level, whether already zoomed in or not.
   - General image panning across the rest of the screen remains fully preserved when zoomed in.
+
+- **"More config..." button in the panel viewer's control bar**
+  - Sits to the left of the panel-detection cycle button and opens a small options menu, the same kind the "Nav. Smooth" button's long-press already used, for settings that don't need a dedicated button of their own.
+  - **Tap screen sides to navigate**: tap the left or right edge of the screen to move to the previous/next panel instead of only toggling the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode -- independent of "Invert panel swipe direction", which only affects swiping. Off by default; only active at standard zoom, so it never steals taps from zoomed-in panning.
+  - **Swipe to navigate**: lets swipe-based panel navigation be turned off, e.g. for readers who only want tap/button/physical-key navigation and find accidental swipes annoying. On by default, preserving existing behavior.
 
 - **Physical Buttons & Bluetooth Page Turner Integration**
   - **Boundary Page Crossing**: Advancing past the last panel of a page via physical side buttons (e.g., Kobo Libra Colour) or Bluetooth remotes now automatically turns the document page and opens panel 1 of the next page. Pressing back from panel 1 similarly crosses into the previous page.

@@ -45,6 +45,9 @@ end
 --- @field detector PPDetector Detector the displayed panels came from.
 --- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
+--- @field tap_navigation boolean Whether tapping the left/right screen edges navigates between panels.
+--- @field swipe_navigation boolean Whether horizontal swipes navigate between panels.
+--- @field more_config_callback fun(viewer:PanelViewer):boolean|nil
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field nav_transition_mode PPNavTransitionMode Instant swap vs. animated camera pan between panels.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
@@ -80,6 +83,9 @@ local PanelViewer = ImageViewer:extend{
     panel_is_full_page = nil,
     detector = "auto",
     invert_swipe = false,
+    tap_navigation = false,
+    swipe_navigation = true,
+    more_config_callback = nil,
     progress_bar_visible = true,
     hold_text_selection = true,
     nav_transition_mode = "classic",
@@ -340,6 +346,46 @@ function PanelViewer:getNextSwipeDirection()
     return direction
 end
 
+--- Fraction of screen width, on each side, that counts as a tap-navigation
+--- zone when `tap_navigation` is on. The remaining middle strip keeps the
+--- default tap-to-toggle-controls behavior.
+local TAP_NAV_ZONE_RATIO = 1 / 3
+
+--- Return which screen side a tap must land on to advance to the next panel.
+---
+--- Manga (right-to-left) reads forward towards the left edge, so tapping the
+--- left side advances; Comic (left-to-right) reads forward towards the right
+--- edge, so tapping the right side advances. Unlike `getNextSwipeDirection()`,
+--- this is independent of `invert_swipe`, which only affects the swipe
+--- gesture, not tap zones.
+---
+--- @return '"left"'|'"right"' side Tap zone treated as next.
+function PanelViewer:getNextTapSide()
+    return self.reading_mode == "comic" and "right" or "left"
+end
+
+--- Return whether a tap position falls in the left tap-navigation zone.
+---
+--- @param pos table|nil Tap position `{x = number}`.
+--- @return boolean is_left `true` when the tap lands within the left third of screen width.
+local function isLeftTapZone(pos)
+    if not pos or not pos.x then
+        return false
+    end
+    return pos.x <= Screen:getWidth() * TAP_NAV_ZONE_RATIO
+end
+
+--- Return whether a tap position falls in the right tap-navigation zone.
+---
+--- @param pos table|nil Tap position `{x = number}`.
+--- @return boolean is_right `true` when the tap lands within the right third of screen width.
+local function isRightTapZone(pos)
+    if not pos or not pos.x then
+        return false
+    end
+    return pos.x >= Screen:getWidth() * (1 - TAP_NAV_ZONE_RATIO)
+end
+
 --- Return whether a gesture started near the left edge of the screen.
 ---
 --- @param ges table Gesture event.
@@ -354,6 +400,11 @@ end
 
 --- Handle horizontal panel navigation & left-edge vertical zoom before falling back to ImageViewer.
 ---
+--- Swiping down on the left edge always zooms out (matching Kobo-style
+--- one-handed zoom controls) and never closes the viewer -- it used to fall
+--- back to `onClose()` once already at standard zoom, which meant the same
+--- gesture used to zoom out could also unexpectedly exit the viewer.
+---
 --- @param arg any KOReader gesture argument.
 --- @param ges table Gesture event with `direction`.
 --- @return boolean|nil handled Whether the gesture was consumed.
@@ -363,11 +414,7 @@ function PanelViewer:onSwipe(arg, ges)
             self:onZoomIn(self.mousewheel_zoom_step or 0.2)
             return true
         elseif ges.direction == "south" then
-            if self:isImagePannable() then
-                self:onZoomOut(self.mousewheel_zoom_step or 0.2)
-            else
-                self:onClose()
-            end
+            self:onZoomOut(self.mousewheel_zoom_step or 0.2)
             return true
         end
     end
@@ -376,7 +423,7 @@ function PanelViewer:onSwipe(arg, ges)
         return self:panBySwipe(ges)
     end
 
-    if self._images_list and (ges.direction == "west" or ges.direction == "east") then
+    if self.swipe_navigation ~= false and self._images_list and (ges.direction == "west" or ges.direction == "east") then
         if ges.direction == self:getNextSwipeDirection() then
             return self:onShowNextImage()
         else
@@ -920,7 +967,13 @@ function PanelViewer:onHoldPanRelease(arg, ges)
     return self:onHoldRelease(arg, ges)
 end
 
---- Toggle controls on inside taps and close on taps outside the frame.
+--- Toggle controls on inside taps, navigate on edge taps when enabled, and
+--- close on taps outside the frame.
+---
+--- Edge taps only navigate while the image is at standard zoom: once zoomed
+--- in (pannable), the same tap zones fall through to the default
+--- toggle-controls behavior instead, matching how edge swipes hand off to
+--- panning in `onSwipe`.
 ---
 --- @param _ any Unused KOReader tap argument.
 --- @param ges table Gesture event with a `pos` geometry object.
@@ -930,6 +983,21 @@ function PanelViewer:onTap(_, ges)
     if frame_dimen and ges.pos:notIntersectWith(frame_dimen) then
         self:onClose()
         return true
+    end
+
+    if self.tap_navigation and not self:isImagePannable() then
+        local next_side = self:getNextTapSide()
+        if isLeftTapZone(ges.pos) then
+            if next_side == "left" then
+                return self:onShowNextImage()
+            end
+            return self:onShowPrevImage()
+        elseif isRightTapZone(ges.pos) then
+            if next_side == "right" then
+                return self:onShowNextImage()
+            end
+            return self:onShowPrevImage()
+        end
     end
 
     self.buttons_visible = not self.buttons_visible
@@ -1780,6 +1848,15 @@ function PanelViewer:replaceButtonTable()
             },
         },
         {
+            {
+                id = "more_config",
+                text = _("More config..."),
+                callback = function()
+                    if self.more_config_callback then
+                        self.more_config_callback(self)
+                    end
+                end,
+            },
             {
                 id = "detector",
                 text = self:getDetectorText(),

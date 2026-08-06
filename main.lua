@@ -148,6 +148,22 @@ function PanelsPlus:setInvertSwipe(invert_swipe)
     self:saveSettings()
 end
 
+--- Enable or disable tapping the left/right screen edges to navigate between panels.
+---
+--- @param enabled any Truthy value enables tap-to-navigate on the screen edges.
+function PanelsPlus:setTapNavigation(enabled)
+    self.settings.tap_navigation = enabled and true or false
+    self:saveSettings()
+end
+
+--- Enable or disable swiping left/right to navigate between panels.
+---
+--- @param enabled any Truthy value enables swipe-to-navigate.
+function PanelsPlus:setSwipeNavigation(enabled)
+    self.settings.swipe_navigation = enabled and true or false
+    self:saveSettings()
+end
+
 --- Set whether the panel viewer bottom progress bar is visible.
 ---
 --- @param visible any Truthy value shows the progress bar.
