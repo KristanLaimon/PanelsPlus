@@ -517,6 +517,33 @@ function PanelViewer:onPanRelease(arg, ges)
     return ImageViewer.onPanRelease(self, arg, ges)
 end
 
+--- Zoom in (pinch/spread, mousewheel, or left-edge swipe) and leave "scale to fit".
+---
+--- Base `ImageViewer:onZoomIn()` changes `self.scale_factor` but never touches
+--- `self._scale_to_fit`, so the bottom-bar button kept reading "Original size"
+--- (i.e. still offering to leave fit mode) even after the image was manually
+--- zoomed past it. Any manual zoom step means we're no longer at a clean fit,
+--- so flip the flag first -- `replaceButtonTable()`/`update()` inside the base
+--- method then pick up the corrected label.
+---
+--- @param inc number|nil Zoom-in increment forwarded to the base implementation.
+--- @return boolean handled Always true after processing the zoom.
+function PanelViewer:onZoomIn(inc)
+    self._scale_to_fit = false
+    return ImageViewer.onZoomIn(self, inc)
+end
+
+--- Zoom out (pinch/spread, mousewheel, or left-edge swipe) and leave "scale to fit".
+---
+--- See `PanelViewer:onZoomIn()` above for why `_scale_to_fit` needs updating here too.
+---
+--- @param dec number|nil Zoom-out decrement forwarded to the base implementation.
+--- @return boolean handled Always true after processing the zoom.
+function PanelViewer:onZoomOut(dec)
+    self._scale_to_fit = false
+    return ImageViewer.onZoomOut(self, dec)
+end
+
 --- Convert a screen coordinate inside this zoomed viewer to document page coordinates.
 ---
 --- @param pos table Screen position `{x = number, y = number}`.
