@@ -119,9 +119,22 @@ local PanelViewer = ImageViewer:extend{
 
 --- Return whether the current image overflows its viewport and can be panned.
 ---
+--- A smooth nav transition's synthetic canvas (`animateSwitchToImageNum()`/
+--- `animateBoundaryTransition()`) is deliberately built larger than the
+--- viewport to give the camera pan room to cross, which made this report
+--- pannable while it plays even though the user isn't manually panning
+--- anything. That falsely blocked tap/swipe navigation (they fall back to
+--- pan handling, i.e. tap opened the options overlay instead of advancing)
+--- for the animation's duration, so treat mid-transition frames as
+--- unpannable -- `_panels_plus_transition_active` is already the guard
+--- `animateSwitchToImageNum()`/`animateBoundaryTransition()` use to swallow
+--- a re-entrant nav call, so a tap/swipe during the animation now reaches
+--- `onShowNextImage()`/`onShowPrevImage()` again and is safely absorbed there
+--- instead of misfiring the options toggle.
+---
 --- @return boolean pannable `true` when at least one axis is larger than the viewport.
 function PanelViewer:isImagePannable()
-    if not self._image_wg then
+    if not self._image_wg or self._panels_plus_transition_active then
         return false
     end
 
