@@ -252,6 +252,10 @@ end
 --- @param ink_ratio number Fraction of `span` still counted as empty.
 --- @param min_length integer Shortest run accepted as a gutter.
 --- @return {from:integer, to:integer, length:integer}[] gutters Sorted widest first.
+local function byLengthDesc(a, b)
+    return a.length > b.length
+end
+
 local function collectGutters(projection, from, to, span, ink_ratio, min_length)
     local max_ink = span * ink_ratio
     local gutters = {}
@@ -277,9 +281,7 @@ local function collectGutters(projection, from, to, span, ink_ratio, min_length)
         end
     end
 
-    table.sort(gutters, function(a, b)
-        return a.length > b.length
-    end)
+    table.sort(gutters, byLengthDesc)
     return gutters
 end
 
@@ -371,6 +373,46 @@ local function minInRange(projection, from, to)
     return smallest
 end
 
+--- Try one shear slope, returning the axis/band it splits on, if any.
+---
+--- @param map PPPageMap Page ink map.
+--- @param left integer Inclusive left cell.
+--- @param top integer Inclusive top cell.
+--- @param right integer Inclusive right cell.
+--- @param bottom integer Inclusive bottom cell.
+--- @param ctx table Segmentation limits and shared scratch buffers.
+--- @param slope number Shear to try, as dx per unit y (or dy per unit x).
+--- @return '"cols"'|'"rows"'|nil axis Axis to split on, or nil when this slope finds nothing.
+--- @return integer|nil lo Lower edge of the band.
+--- @return integer|nil hi Upper edge of the band.
+local function trySlope(map, left, top, right, bottom, ctx, slope)
+    local width = right - left + 1
+    local height = bottom - top + 1
+    local step = ctx.shear_step
+
+    projectColumnsSheared(map, left, top, right, bottom, slope, ctx.cols, step)
+    local drift = math.floor(math.abs(slope) * height / 2) + 1
+    for _, gutter in ipairs(collectGutters(ctx.cols, left, right, height / step,
+            ctx.ink_ratio, ctx.min_gutter)) do
+        local lo, hi = gutter.from - drift, gutter.to + drift
+        if lo > left and hi < right then
+            return "cols", lo, hi
+        end
+    end
+
+    projectRowsSheared(map, left, top, right, bottom, slope, ctx.rows, step)
+    drift = math.floor(math.abs(slope) * width / 2) + 1
+    for _, gutter in ipairs(collectGutters(ctx.rows, top, bottom, width / step,
+            ctx.ink_ratio, ctx.min_gutter)) do
+        local lo, hi = gutter.from - drift, gutter.to + drift
+        if lo > top and hi < bottom then
+            return "rows", lo, hi
+        end
+    end
+
+    return nil
+end
+
 --- Look for a split along slanted lines, for panels that are not square.
 ---
 --- Returns the axis to split on plus the band's full extent once projected back
@@ -388,42 +430,21 @@ end
 --- @return integer|nil lo Lower edge of the band.
 --- @return integer|nil hi Upper edge of the band.
 local function findShearedSplit(map, left, top, right, bottom, ctx)
-    local width = right - left + 1
-    local height = bottom - top + 1
-    local step = ctx.shear_step
-
     -- Whichever slope worked last is overwhelmingly likely to work again on the
     -- same page, so it is worth trying before the rest of the ladder.
-    local order = {}
     if ctx.slope_hint then
-        table.insert(order, ctx.slope_hint)
+        local axis, lo, hi = trySlope(map, left, top, right, bottom, ctx, ctx.slope_hint)
+        if axis then
+            return axis, lo, hi
+        end
     end
+
     for _, slope in ipairs(ctx.slopes) do
         if slope ~= ctx.slope_hint then
-            table.insert(order, slope)
-        end
-    end
-
-    for _, slope in ipairs(order) do
-        projectColumnsSheared(map, left, top, right, bottom, slope, ctx.cols, step)
-        local drift = math.floor(math.abs(slope) * height / 2) + 1
-        for _, gutter in ipairs(collectGutters(ctx.cols, left, right, height / step,
-                ctx.ink_ratio, ctx.min_gutter)) do
-            local lo, hi = gutter.from - drift, gutter.to + drift
-            if lo > left and hi < right then
+            local axis, lo, hi = trySlope(map, left, top, right, bottom, ctx, slope)
+            if axis then
                 ctx.slope_hint = slope
-                return "cols", lo, hi
-            end
-        end
-
-        projectRowsSheared(map, left, top, right, bottom, slope, ctx.rows, step)
-        drift = math.floor(math.abs(slope) * width / 2) + 1
-        for _, gutter in ipairs(collectGutters(ctx.rows, top, bottom, width / step,
-                ctx.ink_ratio, ctx.min_gutter)) do
-            local lo, hi = gutter.from - drift, gutter.to + drift
-            if lo > top and hi < bottom then
-                ctx.slope_hint = slope
-                return "rows", lo, hi
+                return axis, lo, hi
             end
         end
     end

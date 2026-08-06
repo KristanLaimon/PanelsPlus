@@ -138,9 +138,10 @@ local function buildNoCropImage(document, page, rect, page_size)
 
         local canvas_w = screen_w
         local canvas_h = screen_h
-        local ok, canvas = pcall(function()
-            local cb = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
-            cb:fill(Blitbuffer.COLOR_WHITE)
+        local canvas
+        local ok = pcall(function()
+            canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
+            canvas:fill(Blitbuffer.COLOR_WHITE)
 
             local paste_x = math.max(0, math.floor((union_x - box_x) * scale + 0.5))
             local paste_y = math.max(0, math.floor((union_y - box_y) * scale + 0.5))
@@ -148,13 +149,19 @@ local function buildNoCropImage(document, page, rect, page_size)
             local blit_h = math.min(content_image:getHeight(), canvas_h - paste_y)
 
             if blit_w > 0 and blit_h > 0 then
-                cb:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
+                canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
-            return cb
         end)
 
-        if ok and canvas then
+        if ok then
             return canvas
+        end
+
+        -- The allocation above can succeed and then fail during fill/blit
+        -- (e.g. a type mismatch on an unusual page render); free it rather
+        -- than losing the only reference to an already-allocated buffer.
+        if canvas and canvas.free then
+            canvas:free()
         end
 
         if content_image and content_image.copy then

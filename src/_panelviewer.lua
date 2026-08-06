@@ -793,13 +793,14 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         view_highlight.temp[page_pos.page] = selected_text.sboxes
     end
 
+    if not Timing.enabled then
+        return
+    end
+
     WordFinder.logDiagnostic(string.format("Refined selection: '%s' -> '%s'", orig_word, tostring(word)), {
         box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", box.x, box.y, box.w, box.h)
     })
 
-    if not Timing.enabled then
-        return
-    end
     local ok_notif, Notification = pcall(require, "ui/widget/notification")
     if ok_notif and Notification and Notification.new then
         pcall(function()

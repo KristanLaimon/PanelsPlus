@@ -501,11 +501,13 @@ function WordFinder.readWord(document, pageno, box, native)
 
     local retry_box = WordFinder.padBox(box, RETRY_PAD_RATIO, native)
     local retry_word = WordFinder.ocrWord(document, pageno, retry_box)
-    WordFinder.logDiagnostic("retry OCR with padded box", {
-        first = tostring(word),
-        retry = tostring(retry_word),
-        box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", retry_box.x, retry_box.y, retry_box.w, retry_box.h),
-    })
+    if Timing.enabled then
+        WordFinder.logDiagnostic("retry OCR with padded box", {
+            first = tostring(word),
+            retry = tostring(retry_word),
+            box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", retry_box.x, retry_box.y, retry_box.w, retry_box.h),
+        })
+    end
     if WordFinder.isPlausibleWord(retry_word) then
         return retry_word
     end
@@ -630,20 +632,28 @@ function WordFinder.findWordBox(document, pageno, px, py)
     end
 
     local work, owned = toGreyscale(tile.bb)
+
+    -- The search below is wrapped in its own function and run through pcall
+    -- so that any unexpected error partway through still reaches the single
+    -- `owned:free()` after it, instead of leaking the greyscale copy
+    -- toGreyscale() may have allocated. Every early exit inside just returns
+    -- normally (nil, or a nil first value for the abort() paths); an actual
+    -- Lua error is the only way `ok2` below comes back false.
+    local function search()
     local w, h = work.w, work.h
     if not w or not h or w < 4 or h < 4 then
-        if owned then pcall(owned.free, owned) end
         return nil
     end
     local sample = makeSampler(work)
 
-    --- Release the greyscale copy, if one was allocated, and return nil.
+    --- Log why the search gave up, and return nil.
     local function abort(reason)
-        if owned then pcall(owned.free, owned) end
-        WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
-            reason = reason,
-            tap = string.format("(%.1f,%.1f)", px, py),
-        })
+        if Timing.enabled then
+            WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
+                reason = reason,
+                tap = string.format("(%.1f,%.1f)", px, py),
+            })
+        end
         return nil
     end
 
@@ -660,8 +670,20 @@ function WordFinder.findWordBox(document, pageno, px, py)
 
     local background, is_inverted = estimateBackground(sample, lx0, lx1, bg_y0, bg_y1)
 
+    -- A tap that landed between lines may snap onto the line above or below,
+    -- but never further than one maximum line height away -- past that it is
+    -- a different line, a different bubble, or panel art. The snap can then
+    -- re-center the line-extent band up to another `max_half_h` further out,
+    -- so every later read of `row_ink` (the snap search and the line-extent
+    -- band, whichever side of the original tap they land on) stays within
+    -- +/-2*max_half_h of the original tap row; rows further out are never
+    -- consulted.
+    local max_half_h = math.floor(35 * CROP_ZOOM)
+    local row_y0 = math.max(0, tap_y - 2 * max_half_h)
+    local row_y1 = math.min(h - 1, tap_y + 2 * max_half_h)
+
     local row_ink = {}
-    for y = 0, h - 1 do
+    for y = row_y0, row_y1 do
         local count = 0
         for x = lx0, lx1 do
             if isInk(sample, x, y, background, is_inverted) then
@@ -671,10 +693,6 @@ function WordFinder.findWordBox(document, pageno, px, py)
         row_ink[y] = count
     end
 
-    -- A tap that landed between lines may snap onto the line above or below,
-    -- but never further than one maximum line height away -- past that it is
-    -- a different line, a different bubble, or panel art.
-    local max_half_h = math.floor(35 * CROP_ZOOM)
     local snapped_y = nearestInk(row_ink, tap_y, max_half_h, 0, h - 1)
     if not snapped_y then
         return abort("no ink near the tap row")
@@ -831,8 +849,6 @@ function WordFinder.findWordBox(document, pageno, px, py)
         end
     end
 
-    if owned then pcall(owned.free, owned) end
-
     local word_h = ty1 - ty0 + 1
     local pad_x = math.max(0, math.floor(word_h * PAD_RATIO * 0.5))
     local pad_y = math.max(0, math.floor(word_h * PAD_RATIO))
@@ -872,6 +888,15 @@ function WordFinder.findWordBox(document, pageno, px, py)
     end
 
     return box_res, native
+    end -- search()
+
+    local ok2, result_box, result_native = pcall(search)
+    if owned then pcall(owned.free, owned) end
+    if not ok2 then
+        logger.warn("[Panels+] word box search failed:", result_box)
+        return nil
+    end
+    return result_box, result_native
 end
 
 return WordFinder
