@@ -720,8 +720,20 @@ function PanelViewer:paintHighlights(bb, x, y)
     end
 end
 
+--- ImageViewer (and everything it paints: title bar, progress bar, button
+--- table, the image itself, and any letterbox padding around it) is styled
+--- with hardcoded light colors and has no night-mode awareness of its own.
+--- Inverting the whole frame here, at the very end of every repaint, is the
+--- only place that's guaranteed to cover the actual painted pixels no matter
+--- how they got there -- panel content, padding, a resized button area, or a
+--- mid-pan composited transition frame -- instead of chasing every place
+--- that can produce that content.
 function PanelViewer:paintTo(bb, x, y)
     ImageViewer.paintTo(self, bb, x, y)
+    if Screen.night_mode and self.main_frame and self.main_frame.dimen then
+        local d = self.main_frame.dimen
+        bb:invertRect(d.x, d.y, d.w, d.h)
+    end
     self:paintHighlights(bb, x, y)
 end
 

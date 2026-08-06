@@ -6,6 +6,9 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Fixed
 
+- **Panel viewer now respects night mode**
+  - `ImageViewer` (the base widget `PanelViewer` builds on) paints panel crops, letterbox padding, title bar, progress bar, and button table with hardcoded light colours and has no night-mode awareness anywhere in its own code -- unlike the normal page-turn path (`KoptInterface:drawPage`), which checks `Screen.night_mode` and inverts. A first pass inverted colour at each render call site (`Document:drawPagePart()` results, composited transition canvases), but that only covered the plain single-panel view -- the bottom options bar and any letterboxed/size-mismatched swipe or pan transition frame stayed light, since they're painted by code with no hook into any of those call sites. `PanelViewer:paintTo` now inverts the whole `main_frame` region once, after `ImageViewer` finishes painting it -- the one point guaranteed to see every pixel actually drawn, regardless of which internal path produced it.
+
 - **Word lookup: the underline no longer lands off the word it looked up**
   - `ReaderHighlight:onHold` stores a *reference* to the selection's `sboxes` table in `view.highlight.temp[page]`, and `PanelViewer:paintHighlights` draws from `temp` in preference to the selection itself. `_refineWordSelection` replaced `selected_text.sboxes` with a new table, so the underline kept being painted from KOReader's *original* box while OCR and the dictionary used the refined one. KOReader's box takes its `y`/`h` from the whole **text line**, not the word (`KoptInterface:getWordFromBoxes` reads them off the line box) -- which is exactly why the mismatch showed up as a vertical offset. Refinement now re-points `temp` at the refined box too.
 
