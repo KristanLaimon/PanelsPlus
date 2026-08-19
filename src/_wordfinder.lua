@@ -23,6 +23,19 @@ local logger = require("logger")
 --- @class PPWordFinder
 local WordFinder = {}
 
+--- Gap-calibration numbers from the most recent `findWordBox` call that
+--- reached the word-gap threshold step, regardless of `Timing.enabled` --
+--- unlike `logDiagnostic`'s file writes (`./panels_wordfinder.log`,
+--- `/tmp/panels_wordfinder.log`), which are invisible from outside a
+--- sandboxed install (e.g. Flatpak's private `/tmp` and cwd). Cheap to
+--- always set (the numbers are already computed either way), and lets
+--- `src._ocrdebug` fold them straight into `OCR.debug.session.log`, which
+--- *is* readable from outside the sandbox (see `_ocrdebug.lua`'s
+--- `pluginRootDir`). `nil` until the first call that reaches that step.
+---
+--- @type {gap_threshold: number, median_gap: number|nil, line_h: number, gaps: number[], zoom: number, multiplier: number}|nil
+WordFinder.last_diagnostics = nil
+
 -- Crop rendered around the tap point, as a fraction of native page size.
 -- Wide enough to comfortably contain a full speech-bubble line either side
 -- of the tap, tall enough for a couple of lines above/below it.
@@ -71,7 +84,19 @@ local MAX_WORD_GAP_RATIO = 1.5
 -- x-height-only words (no ascenders/descenders, e.g. "eater"): their
 -- `line_h` is short, so a fixed ratio of it can undercut normal kerning in
 -- bold/wide comic fonts and split the word at every letter.
-local MEDIAN_GAP_MULTIPLIER = 2.2
+--
+-- Field data from a real OCR debug session (see OCR.debug.session.log/
+-- OCR-debug-session dataset, 2026-08) showed this set too high: on bold
+-- shouting/hand-lettered comic fonts, the gap between two whole *words*
+-- ("OH"|"GOD...", "I"|"CAN'T", "DE"|"UN"|"ACTOR") is often not much wider
+-- than that same font's own inter-letter kerning, so `median_gap * 2.2`
+-- routinely exceeded the real word gap and every word on the line merged
+-- into one box -- the single largest failure mode in that dataset (11 of 25
+-- reviewed misreads). Lowered to 1.6; the regression tests below (tight
+-- inter-letter kerning that must NOT split, "eater"'s x-height-only line,
+-- the deliberately tight "my shift" word gap that MUST split) are what
+-- actually bound this constant -- if you retune it, they must still pass.
+local MEDIAN_GAP_MULTIPLIER = 1.6
 -- Half-width of the window, as a multiple of line height, that inter-letter
 -- gaps are calibrated from. The render crop reaches up to 15% of the page
 -- width either side of the tap, which on a normal panel is mostly art rather
@@ -95,6 +120,21 @@ local SNAP_X_RATIO = 2
 -- so a short `line_h`) reach about 11x, so this leaves headroom while still
 -- rejecting a box that has clearly run past the word it started from.
 local MAX_WORD_WIDTH_RATIO = 14
+-- Tallest the word's-own-columns vertical extent (see the `word_has_ink`
+-- pass in findWordBox) may grow relative to the whole line's own extent
+-- before it is treated as having run away instead of legitimately reaching
+-- an ascender/descender. Field data (OCR debug session, 2026-08) showed a
+-- real failure mode this guards against: in a multi-line speech bubble
+-- where consecutive lines' words happen to share similar x-columns (common
+-- with left/right-aligned dialogue), a word whose own column span has no
+-- blank rows narrower than LINE_BLANK_RUN anywhere between it and the next
+-- line's ink grows straight through the line gap and keeps going until it
+-- hits the search's outer bound -- producing a box 3-4 lines tall instead
+-- of one, which OCR then reads as nothing at all. The "ascender outside the
+-- tap band" regression test below reaches ~1.8x the line's own height
+-- legitimately; this is set comfortably above that and well below the ~4x
+-- the runaway case actually reached.
+local WORD_HEIGHT_LINE_RATIO_CAP = 2.5
 -- Extra padding kept around the found word, as a fraction of its height.
 -- Set to 0.05 (~1-2px native padding) so character stems ('h', 'd', 't', 'k')
 -- are preserved cleanly without bleeding into adjacent words.
@@ -755,11 +795,11 @@ function WordFinder.findWordBox(document, pageno, px, py)
         end
     end
 
-    local gap_threshold
+    local gap_threshold, median_gap
     if #gaps >= 2 then
         table.sort(gaps)
         local mid = math.floor(#gaps / 2)
-        local median_gap = (#gaps % 2 == 1) and gaps[mid + 1] or (gaps[mid] + gaps[mid + 1]) / 2
+        median_gap = (#gaps % 2 == 1) and gaps[mid + 1] or (gaps[mid] + gaps[mid + 1]) / 2
         gap_threshold = math.max(
             math.floor(line_h * MIN_WORD_GAP_RATIO),
             math.floor(median_gap * MEDIAN_GAP_MULTIPLIER))
@@ -768,6 +808,15 @@ function WordFinder.findWordBox(document, pageno, px, py)
         gap_threshold = math.floor(line_h * WORD_GAP_RATIO)
     end
     gap_threshold = math.max(2, gap_threshold)
+
+    WordFinder.last_diagnostics = {
+        gap_threshold = gap_threshold,
+        median_gap = median_gap,
+        line_h = line_h,
+        gaps = gaps,
+        zoom = CROP_ZOOM,
+        multiplier = MEDIAN_GAP_MULTIPLIER,
+    }
 
     local x0, x1, gap = tap_x, tap_x, 0
     while x0 > 0 do
@@ -841,6 +890,15 @@ function WordFinder.findWordBox(document, pageno, px, py)
         return abort("no ink in the word's own columns")
     end
     local ty0, ty1 = growRowExtent(word_has_ink, seed_y, min_y_bound, max_y_bound)
+
+    -- Runaway guard: if the word's own vertical extent grew far beyond the
+    -- whole line's, it almost certainly bridged into a neighbouring line
+    -- instead of legitimately reaching an ascender/descender -- fall back to
+    -- the (already correctly bounded) line extent instead of handing OCR a
+    -- multi-line box. See WORD_HEIGHT_LINE_RATIO_CAP above.
+    if (ty1 - ty0) > (y1 - y0) * WORD_HEIGHT_LINE_RATIO_CAP then
+        ty0, ty1 = y0, y1
+    end
 
     if Timing.enabled then
         for _, dir in ipairs({ ".", "/tmp" }) do

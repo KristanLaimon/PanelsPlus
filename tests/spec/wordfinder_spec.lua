@@ -242,6 +242,47 @@ describe("WordFinder:findWordBox multi-line speech bubble line height isolation"
     end)
 end)
 
+describe("WordFinder:findWordBox vertical runaway guard (regression: box spans multiple lines)", function()
+    -- Regression for a real OCR debug session failure: in a speech bubble
+    -- where consecutive lines' words happen to share the same columns (e.g.
+    -- left-aligned dialogue), a stray bridging stroke -- a descender, an
+    -- accidental touch between two glyphs, scan noise -- inside the tapped
+    -- word's own x-span but *outside* the line-height band's narrower fixed
+    -- x-band can mean the word's own-columns ink check never finds a blank
+    -- run between the lines, even though the surrounding band correctly saw
+    -- one. Without a sanity clamp, `growRowExtent` then grows straight
+    -- through into the next line and keeps going, producing a box several
+    -- lines tall that OCR reads as nothing.
+    local native_w, native_h = 1000, 1000
+
+    it("clamps back to the single-line height when the word's own columns bridge into the next line", function()
+        local pixels = blankPixels(native_w, native_h)
+        -- Line A (tapped line): y=[100,118], word spans x=[250,370].
+        fillInk(pixels, 250, 100, 370, 118)
+        -- Line B, directly below with a real ~31-row blank gap: y=[150,168],
+        -- same x-span (left-aligned dialogue two lines in a row).
+        fillInk(pixels, 250, 150, 370, 168)
+        -- The bridging stroke: continuous ink well above line A's top
+        -- straight through to line B's bottom, but confined to a narrow
+        -- column (x=[250,260]) *outside* the +/-30 native px fixed band the
+        -- whole line's own height is measured from (tap at x=305 -> band
+        -- [275,335]), so the line-height measurement itself stays correct.
+        -- Extending past line A on both sides means the word's-own-columns
+        -- search runs all the way to its outer search bound (+/-35 native
+        -- px from the tap) in both directions instead of just one, matching
+        -- how far the real runaway case actually grew.
+        fillInk(pixels, 250, 65, 260, 168)
+
+        local document = newFakeDocument(native_w, native_h, pixels)
+        local box = WordFinder.findWordBox(document, 1, 305, 109)
+
+        assert.is_not_nil(box, "expected a word box")
+        assert.is_true(box.h < 40,
+            "box height should stay single-line (~19px + padding), not bridge into line B, got h=" .. tostring(box.h))
+        assert.is_true(box.y >= 95 and box.y <= 105, "box should start at line A, got y=" .. tostring(box.y))
+    end)
+end)
+
 describe("WordFinder:findWordBox background estimation with dense surrounding art", function()
     -- Regression for the real-world failure the flat-white fixtures above
     -- can't catch: a small speech bubble sitting inside a much larger area
