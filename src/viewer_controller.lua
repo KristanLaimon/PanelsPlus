@@ -451,6 +451,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         swipe_navigation = self.settings.swipe_navigation ~= false,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
+        ocr_debug_mode = self.settings.ocr_debug_mode == true,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
         nav_transition_cross_page = self.settings.nav_transition_cross_page == true,

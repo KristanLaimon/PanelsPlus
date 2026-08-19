@@ -58,6 +58,7 @@ local Settings = {
         segment_shear_trigger = 0.35,
         segment_shear_step = 2,
         debug_mode = false,
+        ocr_debug_mode = false,
         performance_profile_version = 7,
     },
 }

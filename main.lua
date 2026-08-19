@@ -274,6 +274,14 @@ function PanelsPlus:setDebugMode(enabled)
     self:saveSettings()
 end
 
+--- Enable or disable the OCR debug review prompt (correct/incorrect + rectangle capture).
+---
+--- @param enabled any Truthy value enables the post-lookup OCR review prompt.
+function PanelsPlus:setOcrDebugMode(enabled)
+    self.settings.ocr_debug_mode = enabled and true or false
+    self:saveSettings()
+end
+
 --- KOReader save hook: persist current settings.
 function PanelsPlus:onSaveSettings()
     self:saveSettings()

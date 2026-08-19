@@ -83,10 +83,28 @@ preload("ui/geometry", function()
     return Geom
 end)
 
--- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path.
+-- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path,
+-- plus a working-enough fake buffer for `src._ocrdebug`'s crop-image saving
+-- (copy-on-write via `blitFrom`, box outlines via `invertRect`, `writePNG`).
+-- Every `invertRect` call across every buffer instance also lands in the
+-- shared `Blitbuffer._invert_log`, which specs reset and inspect directly --
+-- simpler than threading a handle to whichever buffer ends up drawn on
+-- (`saveCropImage` may draw on a copy of the tile it was handed, not the
+-- tile itself).
 preload("ffi/blitbuffer", function()
-    local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00 }
-    function Blitbuffer.new() return {} end
+    local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00, _invert_log = {} }
+    local BB = {}
+    BB.__index = BB
+    function BB:getType() return self._type end
+    function BB:invertRect(x, y, w, h)
+        table.insert(Blitbuffer._invert_log, { x = x, y = y, w = w, h = h })
+    end
+    function BB:blitFrom() end
+    function BB:writePNG(path) self.written_path = path end
+    function BB:free() end
+    function Blitbuffer.new(w, h, btype)
+        return setmetatable({ w = w or 0, h = h or 0, _type = btype }, BB)
+    end
     return Blitbuffer
 end)
 
@@ -134,8 +152,23 @@ end)
 -- `framework.spy()` before requiring/exercising the code under test.
 preload("ui/uimanager", function()
     local UIManager = { _window_stack = {} }
-    for _, method_name in ipairs{ "sendEvent", "setDirty", "forceRePaint", "scheduleIn", "show", "tickAfterNext", "unschedule" } do
+    for _, method_name in ipairs{ "sendEvent", "setDirty", "forceRePaint", "tickAfterNext", "unschedule", "close" } do
         UIManager[method_name] = function() return true end
+    end
+    -- `show` also records the widget, so specs (e.g. `ocrdebug_spec.lua`) can
+    -- hand-invoke a stored callback (`ok_callback`, a `Save` button's own
+    -- callback, etc.) to simulate the user's choice.
+    function UIManager:show(widget)
+        UIManager._last_shown = widget
+        return true
+    end
+    -- `scheduleIn` also records the callback (does not run it -- there is no
+    -- real event loop here), so specs simulating time passing (e.g. the
+    -- `pollForDictClose` fallback in `src._ocrdebug`) can hand-invoke
+    -- `UIManager._last_scheduled()` themselves, once per simulated tick.
+    function UIManager:scheduleIn(seconds, fn)
+        UIManager._last_scheduled = fn
+        return true
     end
     return UIManager
 end)
@@ -167,7 +200,40 @@ end)
 preload("util", function()
     local util = {}
     function util.calcFreeMem() return 0 end
+    -- `src._ocrdebug` uses this to create the debug-images folder; specs
+    -- never exercise a real filesystem write, so a stub that always
+    -- "succeeds" without touching disk is enough.
+    function util.makePath() return true end
     return util
+end)
+
+-- json: only `src._ocrdebug` uses this, to encode session-log lines. No spec
+-- currently exercises a real encode, so a stub that never gets called is enough.
+preload("json", function()
+    return { encode = function() return "" end }
+end)
+
+-- Dialog widgets `src._ocrdebug` shows: `:new{...}` just returns the option
+-- table, so specs can hand-invoke a stored `ok_callback`/`cancel_callback`
+-- without a real widget/rendering stack, and without `UIManager:show` (a
+-- no-op stub) ever calling them itself.
+for _, name in ipairs{ "ui/widget/confirmbox", "ui/widget/notification" } do
+    preload(name, function()
+        local Widget = {}
+        function Widget:new(o) return o or {} end
+        return Widget
+    end)
+end
+
+preload("ui/widget/inputdialog", function()
+    local InputDialog = {}
+    function InputDialog:new(o)
+        o = o or {}
+        o.getInputText = function() return o._test_input or "" end
+        o.onShowKeyboard = function() end
+        return o
+    end
+    return InputDialog
 end)
 
 -- Trivial stub tables: required at file scope but only exercised by

@@ -18,6 +18,10 @@ panels_wordfinder.log
 wordfinder_crop.pgm
 wordfinder_crop_box.pgm
 
+# OCR debug review session artifacts, written only while OCR debug mode is on
+OCR.debug.session.log
+OCR.debug.session.images/
+
 # Tests files
 beastars.manga.PDF
 deadpool.comic.cbr
