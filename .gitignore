@@ -11,6 +11,7 @@ koreader/ # Essential koreader documentation folder
 kobo.koplugin/ # Documentation for kobo devices
 
 
+OCR-DEBUG-DATASET-PLAN.md
 DEBUGGING-DETECTION.md
 
 # Word finder debug artifacts, written only while debug mode is on
