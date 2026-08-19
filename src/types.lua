@@ -86,6 +86,7 @@
 --- @field segment_shear_step integer Sample every Nth line while searching for slanted gutters.
 --- @field debug_mode boolean Write panel pipeline timings and memory usage to the KOReader log.
 --- @field performance_profile_version integer
+--- @field image_rotation number|boolean|nil Plugin-only zoomed-view rotation set from the rotation picker; `nil` until the reader picks one. `false` (or 0) is an explicit "no rotation" choice, distinct from `nil`'s "let the document's own auto-rotation decide".
 
 --- Options accepted by `showPanelViewerForPage`.
 --- @class PPShowViewerOptions

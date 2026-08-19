@@ -208,6 +208,24 @@ function ViewerController:setDeviceRotation(viewer, mode)
     return true
 end
 
+--- Persist a new plugin-only image rotation chosen from the rotation picker.
+---
+--- Unlike `setDeviceRotation`, this never rebuilds the viewer -- `viewer`
+--- already applied the new angle to `self.rotated` itself (see
+--- `PanelViewer:onSetImageRotation`), so this only needs to save it to
+--- outlive this viewer instance: reused across panel switches within it
+--- (`switchToImageNum` re-applies `image_rotation` after `self.rotated` gets
+--- overwritten by document auto-rotation) and carried into whichever viewer
+--- gets built next, including one rebuilt by a device rotation.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @param value number|boolean New image rotation (`false` or 90/180/270).
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setViewerImageRotation(viewer, value)
+    self:setImageRotation(value)
+    return true
+end
+
 --- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
 ---
 --- Changing detector changes the panel list, so the viewer is rebuilt. The
@@ -486,6 +504,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
         ocr_debug_mode = self.settings.ocr_debug_mode == true,
+        image_rotation = self.settings.image_rotation,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
         nav_transition_cross_page = self.settings.nav_transition_cross_page == true,
@@ -532,6 +551,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         device_rotate_callback = function(current_viewer, mode)
             return self:setDeviceRotation(current_viewer, mode)
+        end,
+        image_rotation_callback = function(current_viewer, value)
+            return self:setViewerImageRotation(current_viewer, value)
         end,
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)

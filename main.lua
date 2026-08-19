@@ -9,6 +9,7 @@ local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local Actions = require("src.actions")
 local Cache = require("src.cache")
 local Menu = require("src.menu")
+local Memory = require("src._memory")
 local NativePanelZoom = require("src.native_panel_zoom")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
@@ -137,6 +138,15 @@ end
 function PanelsPlus:setBleedRatio(ratio)
     ratio = tonumber(ratio) or Settings.defaults.panel_bleed_ratio
     self.settings.panel_bleed_ratio = math.max(0, math.min(1.0, ratio))
+    self:saveSettings()
+end
+
+--- Persist the plugin's own zoomed-view image rotation, independent of
+--- KOReader's device/screen rotation.
+---
+--- @param angle number|boolean|nil `false`/`nil` for no rotation, or 90/180/270.
+function PanelsPlus:setImageRotation(angle)
+    self.settings.image_rotation = angle
     self:saveSettings()
 end
 
@@ -292,12 +302,26 @@ end
 --- This lives here rather than in a mixin because `include()` copies methods by
 --- name: several modules need teardown, but only one could own the hook name.
 --- Every step must be safe to run when the matching feature never started.
+---
+--- This hook fires on every `ReaderUI` teardown -- closing a document, going
+--- home, switching documents, and quitting KOReader all go through it, not
+--- just the low-memory device case a full collect was meant for. A full
+--- `collectgarbage("collect")` is a blocking, stop-the-world pass whose cost
+--- scales with how much the plugin's heap has grown that session; running it
+--- unconditionally stalls teardown (and, on app exit, freezes the screen on
+--- whatever was last drawn) even when memory is not actually tight. Only pay
+--- for it when headroom is genuinely low; otherwise let Lua's normal
+--- incremental GC reclaim this cache without a synchronous pause.
 function PanelsPlus:onCloseWidget()
     self:cancelPanelPrefetch()
     self:cancelPanelPrerender()
     self:clearPanelCache()
     self:restoreNativePanelZoom()
-    collectgarbage("collect")
+
+    local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
+    if not Memory.hasHeadroom(minimum) then
+        collectgarbage("collect")
+    end
 end
 
 return PanelsPlus

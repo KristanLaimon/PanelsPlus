@@ -205,11 +205,26 @@ function PanelViewer:withGuardedImageViewerRefresh(callback)
     end
 end
 
+--- Reader touch zones that always pass through to KOReader, regardless of
+--- whether the user has configured a Gestures plugin action for them.
+---
+--- These open KOReader's own top menu (its swipe zone sits in the same top
+--- strip a viewer swipe-down would otherwise treat as zoom-out/close), so
+--- swallowing them locally would make the menu unreachable while a panel is
+--- open -- the same top-of-screen swipe that shows the menu when reading
+--- normally would instead exit the viewer.
+local ALWAYS_PASSTHROUGH_ZONES = {
+    readermenu_tap = true,
+    readermenu_ext_tap = true,
+    readermenu_swipe = true,
+    readermenu_ext_swipe = true,
+}
+
 --- Return whether a reader touch zone should be passed through to KOReader.
 ---
---- Only user-configured gesture plugin zones (like multiswipe gestures) are
---- passed through to KOReader. Normal page navigation and highlight zones are
---- captured by PanelViewer.
+--- User-configured gesture plugin zones (like multiswipe gestures) and
+--- KOReader's own top-menu zones are passed through. Normal page navigation
+--- and highlight zones are captured by PanelViewer.
 ---
 --- @param zone_id string|nil KOReader touch zone id.
 --- @param gestures table|nil Gestures plugin instance from the reader UI.
@@ -222,7 +237,7 @@ function PanelViewer:isReaderGestureZone(zone_id, gestures)
     if zone_id == "spread_gesture" or zone_id == "pinch_gesture" then
         return false
     end
-    if zone_id == "multiswipe" then
+    if zone_id == "multiswipe" or ALWAYS_PASSTHROUGH_ZONES[zone_id] then
         return true
     end
     return gestures.gestures and gestures.gestures[zone_id] ~= nil
@@ -282,12 +297,15 @@ end
 
 --- Try handling a gesture or touch zone through KOReader's normal reader UI touch zones.
 ---
+--- While the image is pannable (actually zoomed in past the viewport), a
+--- swipe is normally a pan and stays local -- except the top-menu zones,
+--- which are a fixed screen-region gesture rather than a pan, and would
+--- otherwise be permanently unreachable while zoomed in.
+---
 --- @param ges table Gesture event.
 --- @return boolean handled Whether a configured reader touch zone or gesture consumed it.
 function PanelViewer:dispatchReaderGesture(ges)
-    if self:isImagePannable() then
-        return false
-    end
+    local pannable = self:isImagePannable()
 
     local reader_ui = self.reader_ui
     local gestures = reader_ui and reader_ui.gestures
@@ -299,6 +317,7 @@ function PanelViewer:dispatchReaderGesture(ges)
     for _, zone in ipairs(zones) do
         local zone_id = zone.def and zone.def.id
         if self:isReaderGestureZone(zone_id, gestures)
+                and (not pannable or ALWAYS_PASSTHROUGH_ZONES[zone_id])
                 and zone.gs_range
                 and zone.handler
                 and zone.gs_range:match(ges) then
@@ -815,18 +834,35 @@ function PanelViewer:paintHighlights(bb, x, y)
     end
 end
 
---- ImageViewer (and everything it paints: title bar, progress bar, button
---- table, the image itself, and any letterbox padding around it) is styled
---- with hardcoded light colors and has no night-mode awareness of its own.
---- Inverting the whole frame here, at the very end of every repaint, is the
---- only place that's guaranteed to cover the actual painted pixels no matter
---- how they got there -- panel content, padding, a resized button area, or a
---- mid-pan composited transition frame -- instead of chasing every place
---- that can produce that content.
+--- KOReader's night mode is a single global invert applied to the whole
+--- framebuffer at flush time (`Screen:toggleNightMode()`), not something
+--- each widget opts into -- that's why plain chrome (button table, frame
+--- background, progress bar) needs no dark-mode-aware colors of its own to
+--- look right: it gets inverted for free along with everything else on
+--- screen. `ImageWidget` defaults `original_in_nightmode = true` specifically
+--- to *cancel* that global invert for actual image content, so a manga scan
+--- keeps its real colors instead of rendering as a photo negative.
+---
+--- This used to invert `main_frame.dimen` here manually, on the belief that
+--- ImageViewer's chrome had no night-mode awareness at all. It does, via the
+--- mechanism above -- and the manual invert stacked with the global one,
+--- cancelling out for every pixel it covered. That left the button table and
+--- any letterboxed/margin background stuck showing their original light
+--- colors while the rest of the screen went dark.
+---
+--- But for comic/manga pages specifically, "keep the original colors" is the
+--- wrong call: these are line art on a bright white background, not photos,
+--- so leaving `ImageWidget`'s cancel-invert in place makes the panel a
+--- blinding white rectangle in an otherwise dark screen. We want the panel
+--- itself to go dark too. Inverting just `self._image_wg.dimen` (populated
+--- by `ImageWidget:paintTo` during the call above) cancels ImageWidget's own
+--- cancel-invert -- one more invert on top of two is net-inverted -- without
+--- touching the chrome around it, which stays correctly dark from the single
+--- global invert alone.
 function PanelViewer:paintTo(bb, x, y)
     ImageViewer.paintTo(self, bb, x, y)
-    if Screen.night_mode and self.main_frame and self.main_frame.dimen then
-        local d = self.main_frame.dimen
+    if Screen.night_mode and self._image_wg and self._image_wg.dimen then
+        local d = self._image_wg.dimen
         bb:invertRect(d.x, d.y, d.w, d.h)
     end
     self:paintHighlights(bb, x, y)
@@ -1208,6 +1244,9 @@ function PanelViewer:init()
     if self._images_list then
         self.rotated = self._images_list.rotated
     end
+    if self.image_rotation ~= nil then
+        self.rotated = self.image_rotation
+    end
     self:replaceButtonTable()
     self:update()
 end
@@ -1282,6 +1321,9 @@ function PanelViewer:switchToImageNum(image_num)
     if type(self.image) == "function" then
         self.image = self.image()
         self.rotated = self._images_list.rotated
+        if self.image_rotation ~= nil then
+            self.rotated = self.image_rotation
+        end
     end
     self._images_list_cur = image_num
     if not self.images_keep_pan_and_zoom then
@@ -1981,10 +2023,21 @@ end
 --- target angle, not a relative turn -- pressing "right" always means
 --- "rotate this view to 90 degrees", regardless of its current angle.
 ---
+--- Stored in `self.image_rotation` (distinct from `self.rotated`, which also
+--- carries the document's own auto-rotation and gets reset to that on every
+--- panel switch -- see `init`/`switchToImageNum`) so this choice survives
+--- switching panels, and reported through `image_rotation_callback` so
+--- `ViewerController` can persist it, surviving closing and reopening the
+--- viewer too.
+---
 --- @param direction "up"|"down"|"left"|"right"
 function PanelViewer:onSetImageRotation(direction)
     local angle_by_direction = { up = 180, right = 90, down = false, left = 270 }
-    self.rotated = angle_by_direction[direction]
+    self.image_rotation = angle_by_direction[direction]
+    self.rotated = self.image_rotation
+    if self.image_rotation_callback then
+        self.image_rotation_callback(self, self.image_rotation)
+    end
     self:replaceButtonTable()
     self:update()
 end
