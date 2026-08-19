@@ -189,7 +189,13 @@ end
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:cycleViewerDetector(viewer)
-    local order = { auto = "fast", fast = "exact", exact = "auto" }
+    -- Deep mode ("exact") only recognizes white gutters and gives up on dark
+    -- backgrounds, which comic pages routinely have; main.lua:setMode() and
+    -- the main menu both keep comic mode off "exact" for that reason, so the
+    -- in-viewer cycle must honor the same invariant instead of offering it.
+    local order = self.settings.mode == "comic"
+        and { auto = "fast", fast = "auto", exact = "auto" }
+        or { auto = "fast", fast = "exact", exact = "auto" }
     local next_detector = order[self:getDetector()] or "fast"
     Timing.memory("detector cycle -> " .. next_detector)
     self:setDetector(next_detector)
@@ -457,7 +463,6 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         nav_transition_cross_page = self.settings.nav_transition_cross_page == true,
         nav_transition_frames = self.settings.nav_transition_frames or Settings.defaults.nav_transition_frames,
         buttons_visible = options.buttons_visible == true,
-        rotated = images.rotated,
         boundary_callback = function(direction, current_viewer)
             return self:onPanelViewerBoundary(direction, current_viewer)
         end,

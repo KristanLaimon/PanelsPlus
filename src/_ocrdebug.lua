@@ -359,15 +359,19 @@ function OcrDebug.saveCropImage(panel_viewer, pending)
     -- exact same page/rect/zoom; draw onto a private copy instead of it
     -- directly, so annotating this debug snapshot can never leave stray
     -- outlines burned into a bitmap some other, unrelated render reuses.
-    local draw_bb = tile.bb
     local ok_copy, copy = pcall(function()
         local target = Blitbuffer.new(tile.bb.w, tile.bb.h, tile.bb:getType())
         target:blitFrom(tile.bb, 0, 0, 0, 0, tile.bb.w, tile.bb.h)
         return target
     end)
-    if ok_copy and copy then
-        draw_bb = copy
+    if not ok_copy or not copy then
+        -- Never fall back to drawing on tile.bb: it is DocCache-owned and
+        -- may be handed out again for the exact same page/rect/zoom, which
+        -- would burn permanent debug outlines into the real reading view.
+        logger.warn("[Panels+ OCRDebug] failed to allocate private copy for debug crop, skipping")
+        return nil
     end
+    local draw_bb = copy
 
     pcall(function()
         -- Only a *real* OCR box gets the thin outline -- `crop_box` may be

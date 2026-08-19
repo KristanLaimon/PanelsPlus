@@ -79,7 +79,7 @@ end
 --- @param page_size PPPageSize Page dimensions.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
-local function buildNoCropImage(document, page, rect, page_size)
+local function buildNoCropImage(document, page, rect, page_size, images)
     local rx = rect.x or 0
     local ry = rect.y or 0
     local rw = math.max(1, rect.w or 0)
@@ -94,6 +94,7 @@ local function buildNoCropImage(document, page, rect, page_size)
         local image_rect = rect
         return function()
             local img, rotate = document:drawPagePart(page, image_rect, 0)
+            images.rotated = rotate
             if img and img.copy then return img:copy() end
             return img
         end, image_rect
@@ -130,6 +131,7 @@ local function buildNoCropImage(document, page, rect, page_size)
         end
 
         local content_image, rotate = document:drawPagePart(page, image_rect, 0)
+        images.rotated = rotate
         if not content_image then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
             canvas:fill(Blitbuffer.COLOR_WHITE)
@@ -285,7 +287,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     for _, rect in ipairs(panels) do
         table.insert(full_page_flags, isFullPagePanel(rect, page_size, settings))
         if settings.crop_mode == "none" then
-            local image_func, image_rect = buildNoCropImage(document, page, rect, page_size)
+            local image_func, image_rect = buildNoCropImage(document, page, rect, page_size, images)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else

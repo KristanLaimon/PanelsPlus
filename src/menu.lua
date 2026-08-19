@@ -37,7 +37,7 @@ function Menu:addToMainMenu(menu_items)
         text_func = function()
             return self:getModeText()
         end,
-        sorting_hint = "setting",
+        sorting_hint = "tools",
         sub_item_table = {
             {
                 text = _("Disable plugin panel focusing"),

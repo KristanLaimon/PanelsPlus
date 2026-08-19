@@ -6,7 +6,14 @@ local NativePanelZoom = {}
 --- Replace KOReader's native panel zoom handler while this plugin is active.
 function NativePanelZoom:patchNativePanelZoom()
     local highlight = self.ui.highlight
-    if not highlight or highlight._panels_plus_original_panel_zoom then
+    if not highlight then
+        return
+    end
+    if highlight._panels_plus_original_panel_zoom then
+        -- Already patched (e.g. a second init() without an intervening
+        -- onCloseWidget): still refresh the plugin reference so the hook
+        -- doesn't keep driving a stale PanelsPlus instance.
+        highlight._panels_plus_plugin = self
         return
     end
 

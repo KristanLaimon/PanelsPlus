@@ -294,6 +294,7 @@ end
 --- Every step must be safe to run when the matching feature never started.
 function PanelsPlus:onCloseWidget()
     self:cancelPanelPrefetch()
+    self:cancelPanelPrerender()
     self:clearPanelCache()
     self:restoreNativePanelZoom()
     collectgarbage("collect")

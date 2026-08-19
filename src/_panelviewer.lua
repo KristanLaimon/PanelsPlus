@@ -5,6 +5,7 @@ local Event = require("ui/event")
 local Geom = require("ui/geometry")
 local Geometry = require("src._geometry")
 local ImageViewer = require("ui/widget/imageviewer")
+local Memory = require("src._memory")
 local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
@@ -23,6 +24,11 @@ local NAV_TRANSITION_STEPS_DEFAULT = 1
 --- area, to bound the one-shot render/upscale cost when the destination panel
 --- needs a much higher zoom than the two panels' combined bounding box.
 local NAV_TRANSITION_MAX_AREA_MULTIPLIER = 16
+--- Minimum free memory required before allocating a smooth-transition canvas
+--- (up to `NAV_TRANSITION_MAX_AREA_MULTIPLIER`x screen area), matching the
+--- threshold `ViewerController:hasMemoryForPrerender()` uses for comparably
+--- sized panel-tile allocations.
+local NAV_TRANSITION_MIN_FREE_BYTES = 40 * 1024 * 1024
 
 --- Return the KOReader canvas-fit zoom for a native-page rectangle.
 ---
@@ -1184,6 +1190,9 @@ end
 --- Initialize ImageViewer state, controls, and first render.
 function PanelViewer:init()
     ImageViewer.init(self)
+    if self._images_list then
+        self.rotated = self._images_list.rotated
+    end
     self:replaceButtonTable()
     self:update()
 end
@@ -1257,6 +1266,7 @@ function PanelViewer:switchToImageNum(image_num)
     self.image = self._images_list[image_num]
     if type(self.image) == "function" then
         self.image = self.image()
+        self.rotated = self._images_list.rotated
     end
     self._images_list_cur = image_num
     if not self.images_keep_pan_and_zoom then
@@ -1337,6 +1347,10 @@ function PanelViewer:animateSwitchToImageNum(target)
         Timing.log("animateSwitchToImageNum: canvas area cap exceeded for panel %d -> %d, falling back to instant swap", cur, target)
         return self:switchToImageNum(target)
     end
+    if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
+        Timing.log("animateSwitchToImageNum: low memory, falling back to instant swap for panel %d -> %d", cur, target)
+        return self:switchToImageNum(target)
+    end
 
     local ok, content_image = pcall(function()
         return self.reader_ui.document:drawPagePart(self.page, union, 0)
@@ -1415,7 +1429,10 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
     local start_offset_x, start_offset_y = self._image_wg._offset_x, self._image_wg._offset_y
     local target_offset_x = math.floor(target_ratio_x * bb_w - viewport_w / 2)
     local target_offset_y = math.floor(target_ratio_y * bb_h - viewport_h / 2)
-    local steps = self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT
+    local steps = self.nav_transition_frames
+    if not steps or steps <= 0 then
+        steps = NAV_TRANSITION_STEPS_DEFAULT
+    end
     local step_delay = (self.nav_transition_duration or 0.4) / steps
 
     local step_n = 0
@@ -1563,9 +1580,18 @@ function PanelViewer:animateBoundaryTransition(direction)
     local canvas_h = math.max(1, math.ceil(math.max(2 * half_h_a, 2 * half_h_b)))
 
     local screen_area = viewport_w * viewport_h
-    if canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
+    if canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
+        or not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         if tile_a_scaled ~= tile_a and tile_a_scaled.free then
             tile_a_scaled:free()
+        end
+        if self.crop_mode == "none" then
+            if tile_a and tile_a.free then
+                tile_a:free()
+            end
+            if tile_b and tile_b.free then
+                tile_b:free()
+            end
         end
         return self.boundary_callback and self.boundary_callback(direction, self)
     end

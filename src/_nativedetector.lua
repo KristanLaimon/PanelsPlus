@@ -74,8 +74,14 @@ end
 --- @param hold_pos PPPagePosition|nil Optional hold position.
 --- @return PPPagePosition[] probes Ordered detector probe points.
 function NativeDetector.buildProbePlan(page, page_size, settings, hold_pos)
-    local cols = settings.panel_grid_cols or Settings.defaults.panel_grid_cols
-    local rows = settings.panel_grid_rows or Settings.defaults.panel_grid_rows
+    local cols = settings.panel_grid_cols
+    if not cols or cols <= 0 then
+        cols = Settings.defaults.panel_grid_cols
+    end
+    local rows = settings.panel_grid_rows
+    if not rows or rows <= 0 then
+        rows = Settings.defaults.panel_grid_rows
+    end
     local probes, seen = {}, {}
     local center_col = math.ceil(cols / 2)
     local center_row = math.ceil(rows / 2)
@@ -227,7 +233,13 @@ end
 --- @return PPPanel[] panels Ordered panel rectangles.
 function NativeDetector.collect(ui, settings, page, hold_pos)
     local document = ui.document
-    local page_size = document:getPageDimensions(page, 1, 0)
+    -- Rasterization below always renders at true native page size (via
+    -- KOPTContext + native_page:getPagePix()), regardless of the document's
+    -- reflow (text_wrap) setting. getPageDimensions() returns the *reflowed*
+    -- size when reflow is on, which would misalign every probe fraction
+    -- against the actual raster; getNativePageDimensions() never reflows.
+    local page_size = Document.getNativePageDimensions(document, page)
+        or document:getPageDimensions(page, 1, 0)
     if not page_size then
         return {}
     end
