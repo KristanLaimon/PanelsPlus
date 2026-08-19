@@ -37,7 +37,7 @@ function Menu:addToMainMenu(menu_items)
         text_func = function()
             return self:getModeText()
         end,
-        sorting_hint = "tools",
+        sorting_hint = "setting",
         sub_item_table = {
             {
                 text = _("Disable plugin panel focusing"),
@@ -80,14 +80,14 @@ function Menu:addToMainMenu(menu_items)
                 help_text = _("Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."),
             },
             {
-                text = _("Touch & hold text selection in zoom"),
+                text = _("Touch & hold text selection in zoom [EXPERIMENTAL]"),
                 checked_func = function()
                     return self.settings.hold_text_selection ~= false
                 end,
                 callback = function()
                     self:setHoldTextSelection(self.settings.hold_text_selection == false)
                 end,
-                help_text = _("Allow touch and hold on text inside zoomed panels to select text and trigger dictionary lookups."),
+                help_text = _("Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."),
                 separator = true,
             },
             {
