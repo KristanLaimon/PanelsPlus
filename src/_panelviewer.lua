@@ -1126,23 +1126,38 @@ end
 
 --- Redraw the viewer, optionally suppressing the progress bar.
 function PanelViewer:update()
+    local result
     if not self._hide_progress_for_screenshot and self.progress_bar_visible ~= false then
-        return self:withGuardedImageViewerRefresh(function()
+        result = self:withGuardedImageViewerRefresh(function()
             return ImageViewer.update(self)
         end)
+    else
+        local images_list_nb = self._images_list_nb
+        self._images_list_nb = 1
+        local ok, err = pcall(function()
+            result = self:withGuardedImageViewerRefresh(function()
+                return ImageViewer.update(self)
+            end)
+        end)
+        self._images_list_nb = images_list_nb
+        if not ok then
+            error(err)
+        end
     end
 
-    local images_list_nb = self._images_list_nb
-    self._images_list_nb = 1
-    local ok, err = pcall(function()
-        return self:withGuardedImageViewerRefresh(function()
-            return ImageViewer.update(self)
-        end)
-    end)
-    self._images_list_nb = images_list_nb
-    if not ok then
-        error(err)
+    -- Base ImageViewer:update() always relabels the "rotate" button itself
+    -- (self.rotated and _("No rotation") or _("Rotate")), overwriting the
+    -- static text replaceButtonTable() gave it -- that toggle-style label
+    -- made sense for the base class's tap-to-toggle button, but ours opens
+    -- the rotation picker instead, so its label should never change.
+    if self.buttons_visible and self.button_table then
+        local rotate_btn = self.button_table:getButtonById("rotate")
+        if rotate_btn then
+            rotate_btn:setText(_("Rotate"), rotate_btn.width)
+        end
     end
+
+    return result
 end
 
 --- Save a screenshot of the current panel view.
@@ -1724,17 +1739,27 @@ end
 function PanelViewer:_new_image_wg()
     local factor = self:getMarginShrinkFactor()
     if not factor then
-        return ImageViewer._new_image_wg(self)
+        ImageViewer._new_image_wg(self)
+    else
+        local orig_width, orig_container_h = self.width, self.img_container_h
+        self.width = orig_width * factor
+        self.img_container_h = orig_container_h * factor
+        ImageViewer._new_image_wg(self)
+        self.width = orig_width
+        self.img_container_h = orig_container_h
+        self.image_container.dimen.w = orig_width
+        self.image_container.dimen.h = orig_container_h
     end
 
-    local orig_width, orig_container_h = self.width, self.img_container_h
-    self.width = orig_width * factor
-    self.img_container_h = orig_container_h * factor
-    ImageViewer._new_image_wg(self)
-    self.width = orig_width
-    self.img_container_h = orig_container_h
-    self.image_container.dimen.w = orig_width
-    self.image_container.dimen.h = orig_container_h
+    -- Base ImageViewer only ever treats `self.rotated` as a boolean, picking
+    -- 90 or 270 itself via a screen-orientation heuristic and never producing
+    -- 180. When it holds a literal angle instead (set by the rotation
+    -- picker's plugin-only rotate; see onSetImageRotation below), force the
+    -- exact angle onto the ImageWidget it already built -- rotation_angle is
+    -- only read lazily on first render, so this still lands before paint.
+    if type(self.rotated) == "number" then
+        self._image_wg.rotation_angle = self.rotated
+    end
 end
 
 --- Show a slider dialog to adjust how much "margin" crop mode zooms out.
@@ -1868,6 +1893,102 @@ function PanelViewer:onAdjustNavTransitionFrames(on_committed)
     return true
 end
 
+--- Open the rotation picker: one 4-way control for KOReader's real screen
+--- rotation, one for this plugin's own zoomed-view rotation.
+---
+--- Passes an explicit "full" refresh type: `Button:onTapSelectButton()`
+--- (the tap that got us here) queues its own highlight/unhighlight refresh
+--- scoped to just the button's small rectangle, and without an explicit
+--- type here, this dialog's *content* still paints correctly but the
+--- physical screen refresh stays clipped to that button-sized region --
+--- same fix `ui/screensaver.lua` and `readerstatus.lua` use for the same
+--- button-triggered full-screen-dialog situation.
+---
+--- @return boolean handled Always true for button callback dispatch.
+function PanelViewer:onOpenRotationPicker()
+    local RotationPickerDialog = require("src._rotationpicker")
+    local viewer = self
+    UIManager:show(RotationPickerDialog:new{
+        on_device_rotate = function(direction)
+            viewer:onSetDeviceRotation(direction)
+        end,
+        on_image_rotate = function(direction)
+            viewer:onSetImageRotation(direction)
+        end,
+    }, "full")
+    return true
+end
+
+--- Rotate the whole device/screen via KOReader's own rotation, exactly like
+--- the built-in rotate control -- this moves menus, status bar, and
+--- everything else, not just this viewer.
+---
+--- Mirrors `ui/elements/screen_rotation_menu_table.lua`'s own rotation menu
+--- items, which broadcast this same event for the same reason: several
+--- modules (e.g. `ReaderView:onSetRotationMode`) listen for it to update
+--- their own layout alongside the screen itself.
+---
+--- Base `ImageViewer` has no `onScreenResize`/`onSetDimensions` handler of
+--- its own (it's built for short-lived overlays, not ones that outlive a
+--- screen rotation): its outer region gets sized once at construction from
+--- `Screen:getWidth/getHeight()` and never revisited, so simply leaving it
+--- open across a rotation leaves stale strips uncovered by the reader's own
+--- full repaint. `device_rotate_callback` (wired up by `ViewerController`)
+--- closes this viewer, performs the rotation, and reopens an equivalent one
+--- for the same page/panel/index -- the same close-and-rebuild idiom
+--- `setViewerBleedRatio` already uses for a crop-rectangle change -- so the
+--- reader stays in zoom mode instead of dropping back to the plain page
+--- view. Without a controller wired up (e.g. standalone use), falls back to
+--- closing outright: `UIManager:onRotation()` (setDirty "all"/"full" +
+--- forceRePaint) is the same belt-and-suspenders flash every built-in
+--- rotation control in KOReader chains after broadcasting the event.
+---
+--- Each direction is a *relative* turn from wherever the screen currently
+--- is, not a fixed absolute target -- pressing "right" while already
+--- rotated clockwise turns another quarter further, like holding a D-pad,
+--- rather than jumping back to a fixed clockwise orientation. KOReader's
+--- rotation-mode integers are themselves sequential quarter-turn steps
+--- (0=upright, 1=clockwise, 2=upside-down, 3=counter-clockwise), so adding
+--- a quarter-turn count and wrapping mod 4 is exact.
+---
+--- @param direction "up"|"down"|"left"|"right"
+function PanelViewer:onSetDeviceRotation(direction)
+    local quarter_turns_by_direction = { up = 2, right = 1, down = 0, left = 3 }
+    local turns = quarter_turns_by_direction[direction]
+    if turns == nil then
+        return
+    end
+    local mode = (Screen:getRotationMode() + turns) % 4
+    if self.device_rotate_callback then
+        self.device_rotate_callback(self, mode)
+    else
+        self:onClose()
+        UIManager:broadcastEvent(Event:new("SetRotationMode", mode))
+        UIManager:onRotation()
+    end
+end
+
+--- Rotate only this zoomed panel view, leaving KOReader's own screen
+--- rotation untouched.
+---
+--- Reuses `self.rotated`, the same state ImageViewer already applies for
+--- document-driven landscape auto-rotation (see `screenToPageTransform`/
+--- `pageToScreenTransform` above) -- setting it here to a real 4-way angle
+--- rotates the displayed image exactly like that existing mechanism, with
+--- no separate pixel-rotation code needed.
+---
+--- Unlike `onSetDeviceRotation`, each direction here is an *absolute*
+--- target angle, not a relative turn -- pressing "right" always means
+--- "rotate this view to 90 degrees", regardless of its current angle.
+---
+--- @param direction "up"|"down"|"left"|"right"
+function PanelViewer:onSetImageRotation(direction)
+    local angle_by_direction = { up = 180, right = 90, down = false, left = 270 }
+    self.rotated = angle_by_direction[direction]
+    self:replaceButtonTable()
+    self:update()
+end
+
 --- Return the button label for the detector currently in use.
 ---
 --- Named for what each mode gives the reader rather than for how it works:
@@ -1901,10 +2022,9 @@ function PanelViewer:replaceButtonTable()
             },
             {
                 id = "rotate",
-                text = self.rotated and _("No rotation") or _("Rotate"),
+                text = _("Rotate"),
                 callback = function()
-                    self.rotated = not self.rotated and true or false
-                    self:update()
+                    self:onOpenRotationPicker()
                 end,
             },
             {

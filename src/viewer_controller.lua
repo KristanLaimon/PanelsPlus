@@ -180,6 +180,34 @@ function ViewerController:setViewerBleedRatio(viewer, ratio, activate_loose_mode
     return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
 end
 
+--- Rotate the device/screen to `mode`, then reopen an equivalent viewer for
+--- the same page/panel/index so the reader stays in zoom mode across the
+--- rotation instead of dropping back to the plain page view.
+---
+--- Base `ImageViewer` has no live-reflow path for a screen-dimension change
+--- while it's showing -- its outer region gets sized once at construction
+--- and never revisited -- so closing and rebuilding, exactly like
+--- `setViewerBleedRatio` above does for a crop-rectangle change, is the
+--- reliable option. `PanelCollector.buildImages()`'s own `drawPagePart()`
+--- sizing already fits whatever the *current* screen dimensions are, so the
+--- rebuilt viewer comes out correctly sized/oriented for the new rotation
+--- for free, once the rotation has actually applied.
+---
+--- @param viewer PanelViewer Viewer requesting the rotation.
+--- @param mode integer Target `Screen.DEVICE_ROTATED_*` rotation mode.
+--- @return boolean handled Always true for viewer callback dispatch.
+function ViewerController:setDeviceRotation(viewer, mode)
+    local page = viewer.page
+    local panels = viewer.panels
+    local start_idx = viewer._images_list_cur or 1
+    local buttons_visible = viewer.buttons_visible
+    UIManager:close(viewer)
+    UIManager:broadcastEvent(Event:new("SetRotationMode", mode))
+    UIManager:onRotation()
+    self:showPanelViewerForPage(page, panels, start_idx, { buttons_visible = buttons_visible })
+    return true
+end
+
 --- Cycle Auto -> Gutter -> Outline from an open viewer and re-detect the page.
 ---
 --- Changing detector changes the panel list, so the viewer is rebuilt. The
@@ -501,6 +529,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         detector_cycle_callback = function(current_viewer)
             return self:cycleViewerDetector(current_viewer)
+        end,
+        device_rotate_callback = function(current_viewer, mode)
+            return self:setDeviceRotation(current_viewer, mode)
         end,
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)

@@ -6,6 +6,7 @@ crash.log
 crash.old.donotread.log
 
 panels_plus.stable.koplugin/
+zen_ui.koplugin
 
 koreader/ # Essential koreader documentation folder  
 kobo.koplugin/ # Documentation for kobo devices
