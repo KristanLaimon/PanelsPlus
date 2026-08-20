@@ -72,6 +72,8 @@ Configuration is as easy as just using the plugin itself!
     - Cropped panel? No cropped? Margin?, already got in.
     - Smooth animations (Recommended in no ink-devices)
     - Included KOReader gesture actions for toggling the plugin and switching modes quickly.
+ 
+
 
 ### Developer's Tip: The Cinematic Experience
 
@@ -83,6 +85,18 @@ In my opinion, this is hands down the most cinematic way to experience your mang
   <br>
   <em>🎥 Real footage of the landscape strict-crop setup on a Kindle.</em>
 </div>
+
+### OCR Word Lookup Setup (Experimental)
+
+Panels+ introduces experimental OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
+
+<strong>IMPORTANT:</strong> To use this feature, you'll need to set up a couple of things first:
+<ul>
+  <li><em>Install an OCR engine in KOReader by <a href="https://koreader.rocks/user_guide/#L2-ocr">following the official KOReader guide</a>.</em></li>
+  <li><em>Install at least one dictionary. You can do this by <a href="https://www.youtube.com/watch?v=fthGMdpUfR0">following this tutorial for manual installation</a>, or by using KOReader's built-in online dictionary installer.</em></li>
+</ul>
+
+<em>(Note: Word detection is tricky on hand-lettered or stylized comic text and might not always get it exactly right. As a workaround, I recommend binding a comfortable multi-swipe gesture to "Open dictionary lookup" as a fallback!)</em>
 
 ## Documentation (For developers and contributions)
 
