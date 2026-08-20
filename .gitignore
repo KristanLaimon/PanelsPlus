@@ -8,6 +8,10 @@ crash.old.donotread.log
 panels_plus.stable.koplugin/
 zen_ui.koplugin
 
+PLAN-CLAUDE.md
+PLAN-HUMAN.md
+PLAN-FULL.md
+
 koreader/ # Essential koreader documentation folder  
 kobo.koplugin/ # Documentation for kobo devices
 
