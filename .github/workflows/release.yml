@@ -97,8 +97,17 @@ jobs:
                       archive.write(path, path.relative_to("dist"))
           PY
 
+          # A second, version-agnostic copy so package managers (e.g. zen-pm's
+          # manifest.json) can reference a permanently-stable download URL
+          # (.../releases/latest/download/panels_plus.koplugin.zip) instead of
+          # needing to be updated on every release.
+          stable_name="panels_plus.koplugin.zip"
+          cp "${package_name}" "${stable_name}"
+
           echo "name=${package_name}" >> "${GITHUB_OUTPUT}"
           echo "path=${package_name}" >> "${GITHUB_OUTPUT}"
+          echo "stable_name=${stable_name}" >> "${GITHUB_OUTPUT}"
+          echo "stable_path=${stable_name}" >> "${GITHUB_OUTPUT}"
 
       - name: Write release notes draft
         env:
@@ -156,14 +165,21 @@ jobs:
           TAG: ${{ steps.release.outputs.tag }}
           PACKAGE_NAME: ${{ steps.package.outputs.name }}
           PACKAGE_PATH: ${{ steps.package.outputs.path }}
+          STABLE_NAME: ${{ steps.package.outputs.stable_name }}
+          STABLE_PATH: ${{ steps.package.outputs.stable_path }}
         run: |
           set -euo pipefail
 
           test -s "${PACKAGE_PATH}"
-          gh release upload "${TAG}" "${PACKAGE_PATH}" --clobber
+          test -s "${STABLE_PATH}"
+          gh release upload "${TAG}" "${PACKAGE_PATH}" "${STABLE_PATH}" --clobber
 
           if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${PACKAGE_NAME}" >/dev/null; then
             echo "::error::Release asset ${PACKAGE_NAME} was not uploaded."
+            exit 1
+          fi
+          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${STABLE_NAME}" >/dev/null; then
+            echo "::error::Release asset ${STABLE_NAME} was not uploaded."
             exit 1
           fi
 
@@ -171,6 +187,7 @@ jobs:
         env:
           TAG: ${{ steps.release.outputs.tag }}
           PACKAGE_NAME: ${{ steps.package.outputs.name }}
+          STABLE_NAME: ${{ steps.package.outputs.stable_name }}
           RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
           EDIT_URL: ${{ steps.create_release.outputs.edit_url }}
         run: |
@@ -180,7 +197,7 @@ jobs:
             echo "## Draft release created"
             echo
             echo "- Tag: \`${TAG}\`"
-            echo "- Asset: \`${PACKAGE_NAME}\`"
+            echo "- Asset: \`${PACKAGE_NAME}\` (also uploaded as \`${STABLE_NAME}\` for stable-URL package managers)"
             echo "- Release: ${RELEASE_URL}"
             echo "- Edit before publishing: ${EDIT_URL}"
           } >> "${GITHUB_STEP_SUMMARY}"
