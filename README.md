@@ -11,7 +11,7 @@
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!.</span>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!</span>
   <br><br>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/BetterPanels?color=blue&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/BetterPanels/total?color=brightgreen&style=flat-square" alt="Downloads"></a>
@@ -49,7 +49,6 @@
 
 
 
-
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default single-panel zoom flow with a direction-aware panel reader, fully automatized and scans in-live your
 mangas layouts. No complex pre-mangas-scanning setup required, install and works for everything.
 
@@ -58,6 +57,9 @@ It keeps KOReader's native panel detection, then adds ordered panel navigation, 
 - Zoom-friendly screenshot support while reading panels.
 - Panels finding on dark-background pages, where KOReader's own detector sees nothing.
 - Pre-fetching the next panels while you read the current one, so swiping is instant (or at least very fast).
+
+
+
 
 ## Download
 
@@ -89,6 +91,16 @@ Configuration is as easy as just using the plugin itself!
     - Smooth animations (Recommended in no ink-devices)
     - Included KOReader gesture actions for toggling the plugin and switching modes quickly.
 
+### Developer's Tip: The Cinematic Experience
+
+For a more fluent and immersive navigation, my personal recommendation is to set **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. 
+In my opinion, this is hands down the most cinematic way to experience your manga. Here is a quick look at how it runs on real hardware actual Kindle:
+
+<div align="center">
+  <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
+  <br>
+  <em>🎥 Real footage of the landscape strict-crop setup on a Kindle.</em>
+</div>
 
 ## Documentation (For developers and contributions)
 
@@ -101,12 +113,32 @@ Configuration is as easy as just using the plugin itself!
 
 ## Compatibility
 
+### KOReader versions
+
 This plugin is compatible with KOReader across the following version range:
 
 | Environment | Supported Version |
 | --- | --- |
 | **Oldest Supported Version** | KOReader `v2025.04` *"Full Moon"* |
 | **Newest Tested Version** | KOReader `v2026.03` *"SnowFlake"* & Newer |
+
+### File types formats supported
+<ul>
+  <li><em>.cbr (digital comic book archive):</em> Usual standard format for western comics</li>
+  <li><em>.cbz (Comic Book Zip Archive): The standard for mangas, usually found in this format when downloading from internet or in (.cbr). I strongly recommend using <a href="https://github.com/manga-download/hakuneko">Hakuneko (Downloader)</a> and <a href="https://github.com/ciromattia/kcc">KCC (Kindle Comic Converter)</a> to adapt hakuneko downloads to .cbz for mangas. This is the top priotity format I give support/compatibility with this plugin</em></li>
+  <li><em>.pdf (Portable Document Format):</em> Another common format when downloading mangas/comics.</li>
+</ul>
+
+<strong>File types formats NOT tested/supported (They could/(could not) work)</strong>
+<ul>
+  <li><em>.mobi</li>
+  <li><em>.epub</li>
+  <li><em>.any_other</em></li>
+</ul>
+The main reason is because these <strong>are not meant to be used</strong> for documents heavy in images, 'cause, well, every page of a comic/manga is an image, and one image per page. These are text-only formats, with some images ocasionally.
+If you have your mangas/comics in one of these formats, change them to more standard ones. Check <a href="https://github.com/ciromattia/kcc">KCC (Kindle Comic Converter)</a> and the <strong>File types formats supported</strong> previous section. <br><br>
+
+<em>I might add them to the support list in a future update, but since those formats aren't really built for comics, it's not a top priority on the Panels+ roadmap right now. (That said, if you want to tackle it and submit a PR, you're more than welcome to!)</em>
 
 ## Installation
 
