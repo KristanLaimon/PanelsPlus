@@ -172,8 +172,10 @@ This supports screenshots while zoomed into panels, so you can capture the exact
 - [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
 - [Panel detection](docs/DETECTION.md) — how panels are found, why there are two detectors, and every tuning knob.
 - [Viewer modes](docs/MODES.md) — what Smart, Quick and Deep mode mean for the reader, and where to change them.
+- [Word lookup](docs/WORD-LOOKUP.md) — touch-and-hold text selection, dictionary lookup, and the OCR debug review mode.
 - [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
 - [Known Limitations](docs/KNOWN-LIMITATIONS.md) — current edge cases and known-behaviour (a todo-list to fix at the same time).
+- [Testing](docs/TESTING.md) — running the dependency-free test suite.
 
 ### Building From Source
 

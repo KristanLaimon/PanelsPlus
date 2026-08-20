@@ -5,6 +5,7 @@ a panel appearing on screen.
 
 See also: [DETECTION.md](DETECTION.md) for how panels are found,
 [MODES.md](MODES.md) for what the reader-facing detection modes mean,
+[WORD-LOOKUP.md](WORD-LOOKUP.md) for text selection and dictionary lookup,
 [PERFORMANCE.md](PERFORMANCE.md) for what each step costs.
 
 ## What the plugin actually replaces
@@ -62,10 +63,14 @@ flowchart TD
         PB["_pagebitmap.lua<br/><i>low-res ink map</i>"]
         ND["_nativedetector.lua<br/><i>batched k2pdfopt probes</i>"]
         PV["_panelviewer.lua<br/><i>ImageViewer subclass</i>"]
+        WF["_wordfinder.lua<br/><i>comic-lettering word boxes</i>"]
+        RP["_rotationpicker.lua<br/><i>rotation dialog</i>"]
+        OD["_ocrdebug.lua<br/><i>OCR review loop</i>"]
         GEO["_geometry.lua"]
         SET["_settings.lua"]
         TIM["_timing.lua"]
         MEM["_memory.lua<br/><i>free-memory headroom check</i>"]
+        TYP["types.lua<br/><i>LuaLS annotations, no runtime code</i>"]
     end
 
     MAIN -.->|include| CACHE
@@ -77,6 +82,7 @@ flowchart TD
     VC --> PC
     VC --> PV
     VC --> MEM
+    VC --> RP
     PC --> SEG
     PC --> PB
     PC --> ND
@@ -84,6 +90,9 @@ flowchart TD
     ND --> MEM
     SEG --> SET
     PB --> SET
+    PV --> WF
+    PV --> OD
+    PV --> RP
 
     style MAIN fill:#2d6cdf,color:#fff
     style PC fill:#8a5cf6,color:#fff
@@ -94,16 +103,27 @@ flowchart TD
 | `main.lua` | Plugin class, settings setters, teardown |
 | `src/cache.lua` | Per-page panel cache, prefetch scheduling and cancellation |
 | `src/viewer_controller.lua` | Opening viewers, page-boundary crossing, panel prerender |
+| `src/actions.lua` | Dispatcher-registered gesture actions |
+| `src/menu.lua` | Main-menu submenu construction |
 | `src/_panelcollector.lua` | Chooses a detector, builds lazy panel images and crop rects |
 | `src/_pagebitmap.lua` | Renders a page small and binarizes it into an ink map |
 | `src/_segmenter.lua` | Recursive X-Y cut over the ink map, plus its acceptance test |
 | `src/_nativedetector.lua` | KOReader's k2pdfopt detector, batched over one rasterization |
 | `src/_panelviewer.lua` | `ImageViewer` subclass: swipes, gestures, controls, screenshots |
+| `src/_wordfinder.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup, replacing KOReader's prose-tuned gap detector |
+| `src/_rotationpicker.lua` | Modal dialog for device rotation vs. plugin-only image rotation |
+| `src/_ocrdebug.lua` | Opt-in OCR review loop: correct/incorrect prompts, session log, cropped debug images (see [WORD-LOOKUP.md](WORD-LOOKUP.md)) |
 | `src/native_panel_zoom.lua` | Patching and restoring `onPanelZoom` |
 | `src/_geometry.lua` | Rectangle helpers and reading-order sorting |
 | `src/_settings.lua` | Defaults, persistence and profile migration |
 | `src/_timing.lua` | Opt-in timing spans |
 | `src/_memory.lua` | Free-memory headroom check, shared by prerender and native detection |
+| `src/types.lua` | Side-effect-free LuaLS/Sumneko type annotations shared across the plugin (no runtime code — `require`d nowhere) |
+
+See [WORD-LOOKUP.md](WORD-LOOKUP.md) for the touch-and-hold text selection,
+dictionary lookup and OCR debug review pipeline built on `_wordfinder.lua` and
+`_ocrdebug.lua`, and [TESTING.md](TESTING.md) for the dependency-free test
+suite that exercises this module set.
 
 ## Opening a panel sequence
 
@@ -192,6 +212,34 @@ zones first and dispatches matching touch zone handlers (including side tap page
 actions) through the reader UI, while horizontal swipes continue navigating panels
 and zoomed images within the viewer.
 
+Three more gesture-driven controls, all off by default except the swipe
+zoom, live only in `_panelviewer.lua` and don't touch the reader's own touch
+zones:
+
+- **Left-edge swipe zoom**, always on: a vertical swipe starting in the left
+  quarter of the screen zooms in (up) or out (down), independent of the
+  `Panel detection` settings and never falling through to close the viewer.
+- **Tap-to-navigate** (`tap_navigation`, off by default): at standard zoom
+  only, tapping the left or right third of the screen moves to the
+  previous/next panel instead of toggling the button bar. Which side is
+  "next" follows reading mode (comic → right, manga → left), independent of
+  the swipe-direction invert setting.
+- **Swipe-to-navigate** (`swipe_navigation`, on by default): lets swipe-based
+  panel navigation be turned off for readers who only want taps, buttons, or
+  physical keys.
+
+Both toggles live in the in-viewer **"More config..."** menu
+(`ViewerController:showMoreConfigMenu`), opened from a button next to the
+panel-detection cycle button, rather than the main KOReader settings menu.
+
+Physical page-turn keys, Bluetooth page-turners (via `kobo.koplugin`'s
+essential actions), the dispatcher's "Turn pages" action, and
+`autoturn.koplugin` all drive panels through the same path as a touch
+swipe: `PanelViewer:onGotoViewRel(diff)` reads only the sign of `diff` and
+calls the same `onShowNextImage`/`onShowPrevImage` methods a swipe does, so
+boundary page-crossing (see below) needs no separate handling for hardware
+input.
+
 ## Lifecycle
 
 ```mermaid
@@ -214,3 +262,38 @@ Both scheduled jobs — page prefetch and next-panel prerender — are tracked b
 handle so they can be unscheduled. Without that, closing a document leaves
 closures on `UIManager`'s queue that still hold the plugin and a document that is
 going away.
+
+`PanelViewer:onCloseWidget` also calls `WordFinder.cleanup()`, which evicts any
+cached `OCREngine` from KOReader's `DocCache` and frees its Tesseract DAWGs —
+without it, closing a document that used touch-and-hold word lookup leaked the
+OCR engine's C++ state, surfacing as `ObjectCache` warnings on KOReader
+shutdown. See [WORD-LOOKUP.md](WORD-LOOKUP.md#cleanup).
+
+## Rotation
+
+The mode button bar also carries a **Rotate** button opening
+[`RotationPickerDialog`](../src/_rotationpicker.lua) — two independent 4-way
+pickers for *device* rotation (a relative quarter-turn, applied by closing the
+viewer, broadcasting `SetRotationMode`, and reopening an equivalent viewer for
+the same page/panel, since base `ImageViewer` has no live-reflow for a
+dimension change) and *image-only* rotation (an absolute 90/180/270/off angle
+applied just to the current panel's `ImageWidget`, independent of device
+orientation). Image rotation is persisted on `PPSettings.image_rotation`
+(`nil` means "let document auto-rotation decide") and re-applied on every
+panel switch in `PanelViewer:switchToImageNum`, since document auto-rotation
+would otherwise reset it each time a new panel is shown.
+
+## Night mode
+
+KOReader's night mode inverts the whole framebuffer once at flush time, not
+per widget, so `PanelViewer`'s chrome (button table, frame, progress bar)
+needs no dark-mode code of its own — it's inverted for free. The panel image
+is a different story: `ImageWidget` defaults to *cancelling* that global
+invert so photos keep real colours, which is wrong for a scanned manga/comic
+page on a white background — it would show as a blinding white rectangle in
+an otherwise-dark UI. `PanelViewer:paintTo` inverts just the image widget's
+own region (`self._image_wg.dimen`) after the base paint, cancelling
+`ImageWidget`'s cancel and leaving the surrounding chrome untouched — the one
+point in the code guaranteed to see every pixel actually drawn, regardless
+of which internal path (plain view, letterboxed pan, transition frame)
+produced it.

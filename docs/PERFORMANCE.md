@@ -4,7 +4,9 @@ What panel reading actually costs, where the expensive parts were, and how to
 measure it on your own device.
 
 See also: [ARCHITECTURE.md](ARCHITECTURE.md), [DETECTION.md](DETECTION.md),
-[MODES.md](MODES.md) for the reader-facing mode names used below.
+[MODES.md](MODES.md) for the reader-facing mode names used below, and
+[WORD-LOOKUP.md](WORD-LOOKUP.md) for the touch-and-hold OCR lookup costed
+below.
 
 > **On the numbers below:** the operation counts are exact — they come from
 > reading KOReader's document code and counting calls. The millisecond figures
@@ -127,6 +129,25 @@ sequenceDiagram
 The rendered buffer is deliberately thrown away. `DocCache` already owns the
 tile and already knows the device's memory budget; keeping a second copy would
 spend exactly the memory this is meant to protect.
+
+## Word lookup (touch-and-hold OCR)
+
+A hold on a zoomed panel pays for two things, both scoped to that one word,
+not the whole page: a small crop render around the tap
+(`src/_wordfinder.lua`'s `CROP_HALF_W_FRAC`/`CROP_HALF_H_FRAC`, at 2x zoom)
+and a Tesseract OCR call over the resulting tight box, with one retry on a
+padded box if the first result doesn't look like a plausible word. Both are
+orders of magnitude cheaper than a full-page detection pass, but Tesseract
+itself keeps a cached `OCREngine` (with its loaded DAWGs) alive in
+`DocCache` between lookups — `WordFinder.cleanup()` evicts it on viewer
+close so it doesn't outlive the document. See
+[WORD-LOOKUP.md](WORD-LOOKUP.md) for the full pipeline.
+
+**OCR debug review mode** (off by default) adds real cost on top of a normal
+lookup when enabled: a second, larger crop render (`IMAGE_ZOOM = 4.0`) to
+burn in the OCR/user boxes, a PNG write per reviewed entry, and one append
+to `OCR.debug.session.log`. It exists for building a labeled dataset, not
+for everyday reading — leave it off otherwise.
 
 ## Memory
 

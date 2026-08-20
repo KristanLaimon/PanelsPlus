@@ -90,9 +90,13 @@ since the later `include()` call would silently win.
 | `src/_segmenter.lua` | Recursive X-Y cut over the ink map, plus its acceptance test |
 | `src/_nativedetector.lua` | KOReader's native detector, batched over one rasterization |
 | `src/_panelviewer.lua` | `ImageViewer` subclass: swipes, gestures, controls, screenshots |
+| `src/_wordfinder.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup |
+| `src/_rotationpicker.lua` | Modal dialog for device rotation vs. plugin-only image rotation |
+| `src/_ocrdebug.lua` | Opt-in OCR review loop: correct/incorrect prompts, session log, cropped images |
 | `src/_geometry.lua` | Rectangle helpers and reading-order sorting |
 | `src/_settings.lua` | Defaults, persistence and profile migration |
 | `src/_timing.lua` | Opt-in timing spans |
+| `src/types.lua` | Side-effect-free LuaLS type annotations, no runtime code |
 
 ## Ideas worth carrying into the rest of the code
 
@@ -115,6 +119,15 @@ since the later `include()` call would silently win.
   disabled for the rest of the session — scoping the fallback to the
   document that triggered it, instead of penalizing every later page.
 
+## Beyond panel detection
+
+The viewer also carries touch-and-hold text selection with OCR-backed
+dictionary lookup on CBZ/CBR (and the embedded text layer on PDF), an
+opt-in OCR review mode for building up a labeled dataset of lookup
+mistakes, a device/image rotation picker, tap- and swipe-based panel
+navigation you can independently toggle, and night-mode-aware rendering.
+See [WORD-LOOKUP.md](WORD-LOOKUP.md) for the first two.
+
 ## Where to go next
 
 - [ARCHITECTURE.md](ARCHITECTURE.md) — the full module diagram, the
@@ -123,7 +136,10 @@ since the later `include()` call would silently win.
   tuning knob it exposes.
 - [MODES.md](MODES.md) — what Smart, Quick, and Deep mean for the
   reading experience, mapped onto the internal `detector` values.
+- [WORD-LOOKUP.md](WORD-LOOKUP.md) — touch-and-hold text selection,
+  dictionary lookup, and the OCR debug review mode.
 - [PERFORMANCE.md](PERFORMANCE.md) — what each step costs, the memory
   budget, and how to measure it on a given device.
 - [KNOWN-LIMITATIONS.md](KNOWN-LIMITATIONS.md) — current edge cases and
   known behavior that is not yet handled.
+- [TESTING.md](TESTING.md) — running the dependency-free test suite.

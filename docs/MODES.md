@@ -58,6 +58,13 @@ and probed at many points, instead of once per probe. See
 - The only mode available while KOReader's reflow / page-optimization
   modes are active, since the small-render pipeline Quick mode needs is
   unavailable there.
+- **Unavailable in comic mode.** Deep mode's white-only threshold gives up
+  on the dark backgrounds comic scans routinely have, so switching to comic
+  reading mode forces `detector` back to Smart if Deep was active, and the
+  **Deep mode** menu option is greyed out while comic mode is on. The
+  in-viewer mode button honors the same rule: cycling in comic mode skips
+  straight from Quick back to Smart instead of offering Deep
+  ([`ViewerController:cycleViewerDetector`](../src/viewer_controller.lua)).
 
 ## Smart Mode
 
