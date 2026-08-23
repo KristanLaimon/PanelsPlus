@@ -177,6 +177,17 @@ This supports screenshots while zoomed into panels, so you can capture the exact
 - [Known Limitations](docs/KNOWN-LIMITATIONS.md) — current edge cases and known-behaviour (a todo-list to fix at the same time).
 - [Testing](docs/TESTING.md) — running the dependency-free test suite.
 
+### Development & Reference Repositories
+
+When developing on Panels+, it is recommended to clone the [`koreader`](https://github.com/koreader/koreader) base codebase and `kobo.koplugin` repository directly into your local project root folder:
+
+```bash
+git clone https://github.com/koreader/koreader.git
+git clone https://github.com/koreader/kobo.koplugin.git
+```
+
+These folders are ignored via `.gitignore` and are not committed into this repository. Keeping them locally is purely for documentation and remaining KOReader internals aware during development; they are not involved in the plugin's final release code.
+
 ### Building From Source
 
 Clone or download this repository, then run:

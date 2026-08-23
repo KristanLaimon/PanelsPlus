@@ -2,7 +2,9 @@ dist/
 frontend/
 .agents/
 .codex/
+.krsnvim/
 crash.log
+
 crash.old.donotread.log
 
 panels_plus.stable.koplugin/
@@ -12,9 +14,11 @@ PLAN-CLAUDE.md
 PLAN-HUMAN.md
 PLAN-FULL.md
 
-koreader/ # Essential koreader documentation folder  
-kobo.koplugin/ # Documentation for kobo devices
-
+# Reference repositories for local development & documentation
+koreader/
+koreader
+kobo.koplugin/
+kobo.koplugin
 
 OCR-DEBUG-DATASET-PLAN.md
 DEBUGGING-DETECTION.md
