@@ -1,0 +1,13 @@
+{
+    "runtime": {
+        "version": "LuaJIT"
+    },
+    "diagnostics": {
+        "globals": [
+            "os", "io", "table", "string", "math", "debug", "G_reader_settings",
+            "require", "pcall", "type", "tostring", "tonumber", "ipairs", "pairs",
+            "error", "assert", "setmetatable", "getmetatable", "print", "unpack",
+            "coroutine", "_", "logger", "Device"
+        ],
+    }
+}

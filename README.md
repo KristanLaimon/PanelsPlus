@@ -201,6 +201,27 @@ git clone https://github.com/koreader/kobo.koplugin.git
 
 These folders are ignored via `.gitignore` and are not committed into this repository. Keeping them locally is purely for documentation and remaining KOReader internals aware during development; they are not involved in the plugin's final release code.
 
+### Linting & Formatting
+
+This project enforces a standard code style to maintain consistency across developers. We use:
+- **StyLua**: For automatic code formatting (`.stylua.toml`).
+- **Luacheck**: For static analysis and linting (`.luacheckrc`).
+- **lua_ls**: We also include a `.luarc.json` for developers using the Lua Language Server in their editors so that KOReader global variables are recognized properly.
+
+If you don't have these tools integrated directly into your editor, you can run the provided check scripts to automatically format your code and run the linter:
+
+**Linux/macOS:**
+```bash
+./check.sh
+```
+
+**Windows (PowerShell):**
+```powershell
+.\check.ps1
+```
+
+Note: CI workflows will automatically run these checks when you open a Pull Request.
+
 ### Building From Source
 
 Clone or download this repository, then run:
