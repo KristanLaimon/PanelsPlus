@@ -6,6 +6,9 @@ single-panel zoom viewer with a direction-aware sequence viewer.
 --]]
 --
 
+local i18n = require("src.i18n")
+i18n.install()
+
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local Actions = require("src.actions")
 local Cache = require("src.cache")

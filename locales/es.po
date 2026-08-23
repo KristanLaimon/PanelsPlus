@@ -1,0 +1,271 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mangacomicsmoother\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid " fps)"
+msgstr " fps)"
+
+msgid "(Long Press)"
+msgstr "(Mantén pulsado)"
+
+msgid "(Long press config)"
+msgstr "(Mantén pulsado para config.)"
+
+msgid "Adjust how long the camera pan between panels takes in milliseconds."
+msgstr "Ajusta cuánto dura el desplazamiento de la cámara entre paneles, en milisegundos."
+
+msgid "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+msgstr "Después de cada búsqueda en el diccionario que haya usado OCR en un panel ampliado, pregunta si la palabra se leyó correctamente. Si no, dibuja el recuadro correcto y escribe lo que realmente dice. Todo -- incluido el punto exacto donde mantuviste pulsado -- se añade a OCR.debug.session.log para revisarlo más tarde. Desactivado por defecto."
+
+msgid "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+msgstr "Permite tocar y mantener pulsado el texto dentro de los paneles ampliados para seleccionarlo y hacer búsquedas en el diccionario mediante OCR. Activado por defecto; desactívalo si la detección de palabras por OCR falla a menudo en tus cómics."
+
+msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgstr "También se desplaza entre el último panel de una página y el primero de la siguiente, en lugar de hacer un corte instantáneo. Solo se anima cuando la página siguiente ya se ha detectado en segundo plano; de lo contrario, el cambio sigue siendo instantáneo."
+
+msgid "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+msgstr "Detecta siempre los paneles a partir de una versión reducida de la página. Es el modo más rápido y el único que funciona en páginas con fondo oscuro, pero no puede separar diseños de paneles entrelazados."
+
+msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+msgstr "Usa siempre el detector de paneles de KOReader. Es más lento y no puede encontrar paneles en páginas con fondo oscuro, pero sigue con más precisión sus bordes. No está disponible en modo cómic, donde los fondos oscuros son habituales."
+
+msgid "Animate page-to-page transitions (Actual: "
+msgstr "Animar las transiciones entre páginas (Actual: "
+
+msgid "Close"
+msgstr "Cerrar"
+
+msgid "Comic mode"
+msgstr "Modo cómic"
+
+msgid "Comic mode (left to right)"
+msgstr "Modo cómic (de izquierda a derecha)"
+
+msgid "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+msgstr "Solo para el modo cómic. Divide los paneles que se tocan de borde a borde sin dejar espacio entre ellos, usando la línea negra que dibujó el artista. Desactivado por defecto: esa línea puede parecer un horizonte, una línea de subtítulo o una banda negra dentro de un solo panel, por lo que esta opción también puede partir algunos paneles por la mitad. Pruébala si los paneles de tu cómic se están mezclando."
+
+msgid "Comic mode: left to right"
+msgstr "Modo cómic: de izquierda a derecha"
+
+msgid "Correct word/text"
+msgstr "Palabra/texto correcto"
+
+msgid "Deep mode"
+msgstr "Modo preciso"
+
+msgid "Device rotation"
+msgstr "Rotación del dispositivo"
+
+msgid "Disable plugin panel focusing"
+msgstr "Desactivar el enfoque de paneles del plugin"
+
+msgid "Enable debugging logs"
+msgstr "Activar registros de depuración"
+
+msgid "Hide progress"
+msgstr "Ocultar progreso"
+
+msgid "How long the camera pan between panels takes."
+msgstr "Establece cuánto dura el desplazamiento de la cámara entre paneles."
+
+msgid "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "Establece en cuántos fotogramas se divide el desplazamiento suave de la cámara entre paneles. Más fotogramas hacen que se vea más fluido, pero requieren más trabajo por transición."
+
+msgid "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "Establece en cuántos fotogramas se divide el desplazamiento de la cámara entre paneles. Más fotogramas hacen que se vea más fluido, pero requieren más trabajo por transición."
+
+msgid "How much page area outside each panel's edges to reveal."
+msgstr "Establece cuánto espacio de la página se debe mostrar fuera de los bordes de cada panel."
+
+msgid "Image rotation (this view only)"
+msgstr "Rotación de imagen (solo esta vista)"
+
+msgid "Invert panel swipe direction"
+msgstr "Invertir la dirección del deslizamiento entre paneles"
+
+msgid "Loose crop"
+msgstr "Recorte amplio"
+
+msgid "Loose crop bleed"
+msgstr "Margen del recorte amplio"
+
+msgid "Manga mode"
+msgstr "Modo manga"
+
+msgid "Manga mode (right to left)"
+msgstr "Modo manga (de derecha a izquierda)"
+
+msgid "Manga mode: right to left"
+msgstr "Modo manga: de derecha a izquierda"
+
+msgid "More Panel Viewer Settings"
+msgstr "Más ajustes de Panels+"
+
+msgid "More config..."
+msgstr "Más configuración..."
+
+msgid "Native panel focusing enabled"
+msgstr "Enfoque nativo de paneles activado"
+
+msgid "Nav. Classic"
+msgstr "Navegación clásica"
+
+msgid "Nav. Smooth"
+msgstr "Navegación suave"
+
+msgid "Navigation Transition Settings"
+msgstr "Ajustes de transición de navegación"
+
+msgid "No crop"
+msgstr "Sin recorte"
+
+msgid "No rotation"
+msgstr "Sin rotación"
+
+msgid "No, wrong"
+msgstr "No, incorrecto"
+
+msgid "OCR debug review mode"
+msgstr "Modo de revisión de depuración de OCR"
+
+msgid "Original size"
+msgstr "Tamaño original"
+
+msgid "Pan animation duration..."
+msgstr "Duración de la animación de desplazamiento..."
+
+msgid "Panel detection"
+msgstr "Detección de paneles"
+
+msgid "Panel margin"
+msgstr "Margen del panel"
+
+msgid "Panels+ OCR debug"
+msgstr "Depuración de OCR de Panels+"
+
+msgid "Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."
+msgstr "Depuración de OCR de Panels+: no se leyó ninguna palabra aquí. Dibuja el recuadro correcto y escribe lo que dice."
+
+msgid "Panels+ OCR debug\n\nWas the OCR word correct?"
+msgstr "Depuración de OCR de Panels+\n\n¿La palabra detectada por OCR era correcta?"
+
+msgid "Panels+ panel focusing enabled"
+msgstr "Enfoque de paneles de Panels+ activado"
+
+msgid "Panels+: comic mode"
+msgstr "Panels+: modo cómic"
+
+msgid "Panels+: manga mode"
+msgstr "Panels+: modo manga"
+
+msgid "Panels+: manga/comic mode"
+msgstr "Panels+: modo manga/cómic"
+
+msgid "Panels+: set comic mode"
+msgstr "Panels+: activar modo cómic"
+
+msgid "Panels+: set manga mode"
+msgstr "Panels+: activar modo manga"
+
+msgid "Panels+: toggle panel focusing"
+msgstr "Panels+: activar o desactivar el enfoque de paneles"
+
+msgid "Pre-render next panel"
+msgstr "Pre-renderizar el siguiente panel"
+
+msgid "Quick mode"
+msgstr "Modo rápido"
+
+msgid "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+msgstr "Pre-renderiza el siguiente panel mientras lees el actual, para que pasar a él sea instantáneo. Se omite automáticamente cuando el dispositivo tiene poca memoria."
+
+msgid "Rotate"
+msgstr "Rotar"
+
+msgid "Save"
+msgstr "Guardar"
+
+msgid "Scale"
+msgstr "Escala"
+
+msgid "Screenshot"
+msgstr "Screenshot"
+
+msgid "Show progress"
+msgstr "Mostrar progreso"
+
+msgid "Skip"
+msgstr "Omitir"
+
+msgid "Smart Mode"
+msgstr "Modo inteligente"
+
+msgid "Smooth navigation duration"
+msgstr "Duración de la navegación suave"
+
+msgid "Smooth navigation frames"
+msgstr "Fotogramas de navegación suave"
+
+msgid "Split on drawn panel borders (experimental)"
+msgstr "Dividir en bordes de panel dibujados (experimental)"
+
+msgid "Strict crop"
+msgstr "Recorte estricto"
+
+msgid "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+msgstr "Desliza hacia la izquierda o la derecha para moverte entre paneles. Al desactivar esta opción, la navegación entre paneles se limita a toques, botones o teclas físicas para pasar de página."
+
+msgid "Swipe to navigate (Actual: "
+msgstr "Deslizar para navegar (Actual: "
+
+msgid "Tap screen sides to navigate (Actual: "
+msgstr "Tocar los laterales de la pantalla para navegar (Actual: "
+
+msgid "Tap the correct word's top-left corner, then tap its bottom-right corner."
+msgstr "Toca la esquina superior izquierda de la palabra correcta y luego la esquina inferior derecha."
+
+msgid "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+msgstr "Toca el borde izquierdo o derecho de la pantalla para pasar al panel anterior o siguiente, en lugar de limitarte a mostrar u ocultar los controles. El lado que avanza depende del modo de lectura: el lado derecho en modo cómic y el lado izquierdo en modo manga. Solo está activo con el zoom estándar."
+
+msgid "Top-left corner marked. Now tap the bottom-right corner."
+msgstr "Esquina superior izquierda marcada. Ahora toca la esquina inferior derecha."
+
+msgid "Touch & hold text selection in zoom [EXPERIMENTAL]"
+msgstr "Seleccionar texto al mantenerlo pulsado en zoom [EXPERIMENTAL]"
+
+msgid "Transition frames (Actual: "
+msgstr "Fotogramas de transición (Actual: "
+
+msgid "Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."
+msgstr "Usa el zoom de paneles nativo de KOReader en lugar del visor de secuencias de paneles de Panels+."
+
+msgid "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+msgstr "Usa la detección rápida y recurre a la detección exacta en los diseños que no pueda dividir. Recomendado."
+
+msgid "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+msgstr "Usa esta opción si la navegación entre paneles va al revés en tu dispositivo. Solo cambia la dirección del deslizamiento, no el orden de los paneles."
+
+msgid "What is actually written in the box you drew?"
+msgstr "¿Qué pone realmente en el recuadro que dibujaste?"
+
+msgid "With margin"
+msgstr "Con margen"
+
+msgid "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+msgstr "Escribe la detección de paneles, los tiempos de renderizado y el uso de memoria en el registro de KOReader. Es útil para diagnosticar lentitud o fallos; si no lo necesitas, déjalo desactivado."
+
+msgid "Yes, correct"
+msgstr "Sí, correcto"
+
+msgid "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+msgstr "Aleja ligeramente el zoom de los paneles para dejar algo de espacio alrededor. No tiene efecto en los paneles que ocupan toda la página."
+
+msgid "false"
+msgstr "Desactivado"
+
+msgid "frames"
+msgstr "fotogramas"
+
+msgid "true"
+msgstr "Activado"

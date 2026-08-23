@@ -1,0 +1,272 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mangacomicsmoother\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+msgid " fps)"
+msgstr " fps)"
+
+msgid "(Long Press)"
+msgstr "(Long Press)"
+
+msgid "(Long press config)"
+msgstr "(Long press config)"
+
+msgid "Adjust how long the camera pan between panels takes in milliseconds."
+msgstr "Adjust how long the camera pan between panels takes in milliseconds."
+
+msgid "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+msgstr "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+
+msgid "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+msgstr "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+
+msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgstr "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+
+msgid "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+msgstr "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+
+msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+msgstr "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+
+msgid "Animate page-to-page transitions (Actual: "
+msgstr "Animate page-to-page transitions (Actual: "
+
+msgid "Close"
+msgstr "Close"
+
+msgid "Comic mode"
+msgstr "Comic mode"
+
+msgid "Comic mode (left to right)"
+msgstr "Comic mode (left to right)"
+
+msgid "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+msgstr "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+
+msgid "Comic mode: left to right"
+msgstr "Comic mode: left to right"
+
+msgid "Correct word/text"
+msgstr "Correct word/text"
+
+msgid "Deep mode"
+msgstr "Deep mode"
+
+msgid "Device rotation"
+msgstr "Device rotation"
+
+msgid "Disable plugin panel focusing"
+msgstr "Disable plugin panel focusing"
+
+msgid "Enable debugging logs"
+msgstr "Enable debugging logs"
+
+msgid "Hide progress"
+msgstr "Hide progress"
+
+msgid "How long the camera pan between panels takes."
+msgstr "How long the camera pan between panels takes."
+
+msgid "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+
+msgid "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+
+msgid "How much page area outside each panel's edges to reveal."
+msgstr "How much page area outside each panel's edges to reveal."
+
+msgid "Image rotation (this view only)"
+msgstr "Image rotation (this view only)"
+
+msgid "Invert panel swipe direction"
+msgstr "Invert panel swipe direction"
+
+msgid "Loose crop"
+msgstr "Loose crop"
+
+msgid "Loose crop bleed"
+msgstr "Loose crop bleed"
+
+msgid "Manga mode"
+msgstr "Manga mode"
+
+msgid "Manga mode (right to left)"
+msgstr "Manga mode (right to left)"
+
+msgid "Manga mode: right to left"
+msgstr "Manga mode: right to left"
+
+msgid "More Panel Viewer Settings"
+msgstr "More Panel Viewer Settings"
+
+msgid "More config..."
+msgstr "More config..."
+
+msgid "Native panel focusing enabled"
+msgstr "Native panel focusing enabled"
+
+msgid "Nav. Classic"
+msgstr "Nav. Classic"
+
+msgid "Nav. Smooth"
+msgstr "Nav. Smooth"
+
+msgid "Navigation Transition Settings"
+msgstr "Navigation Transition Settings"
+
+msgid "No crop"
+msgstr "No crop"
+
+msgid "No rotation"
+msgstr "No rotation"
+
+msgid "No, wrong"
+msgstr "No, wrong"
+
+msgid "OCR debug review mode"
+msgstr "OCR debug review mode"
+
+msgid "Original size"
+msgstr "Original size"
+
+msgid "Pan animation duration..."
+msgstr "Pan animation duration..."
+
+msgid "Panel detection"
+msgstr "Panel detection"
+
+msgid "Panel margin"
+msgstr "Panel margin"
+
+msgid "Panels+ OCR debug"
+msgstr "Panels+ OCR debug"
+
+msgid "Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."
+msgstr "Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."
+
+msgid "Panels+ OCR debug\n\nWas the OCR word correct?"
+msgstr "Panels+ OCR debug\n\nWas the OCR word correct?"
+
+msgid "Panels+ panel focusing enabled"
+msgstr "Panels+ panel focusing enabled"
+
+msgid "Panels+: comic mode"
+msgstr "Panels+: comic mode"
+
+msgid "Panels+: manga mode"
+msgstr "Panels+: manga mode"
+
+msgid "Panels+: manga/comic mode"
+msgstr "Panels+: manga/comic mode"
+
+msgid "Panels+: set comic mode"
+msgstr "Panels+: set comic mode"
+
+msgid "Panels+: set manga mode"
+msgstr "Panels+: set manga mode"
+
+msgid "Panels+: toggle panel focusing"
+msgstr "Panels+: toggle panel focusing"
+
+msgid "Pre-render next panel"
+msgstr "Pre-render next panel"
+
+msgid "Quick mode"
+msgstr "Quick mode"
+
+msgid "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+msgstr "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+
+msgid "Rotate"
+msgstr "Rotate"
+
+msgid "Save"
+msgstr "Save"
+
+msgid "Scale"
+msgstr "Scale"
+
+msgid "Screenshot"
+msgstr "Screenshot"
+
+msgid "Show progress"
+msgstr "Show progress"
+
+msgid "Skip"
+msgstr "Skip"
+
+msgid "Smart Mode"
+msgstr "Smart Mode"
+
+msgid "Smooth navigation duration"
+msgstr "Smooth navigation duration"
+
+msgid "Smooth navigation frames"
+msgstr "Smooth navigation frames"
+
+msgid "Split on drawn panel borders (experimental)"
+msgstr "Split on drawn panel borders (experimental)"
+
+msgid "Strict crop"
+msgstr "Strict crop"
+
+msgid "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+msgstr "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+
+msgid "Swipe to navigate (Actual: "
+msgstr "Swipe to navigate (Actual: "
+
+msgid "Tap screen sides to navigate (Actual: "
+msgstr "Tap screen sides to navigate (Actual: "
+
+msgid "Tap the correct word's top-left corner, then tap its bottom-right corner."
+msgstr "Tap the correct word's top-left corner, then tap its bottom-right corner."
+
+msgid "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+msgstr "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+
+msgid "Top-left corner marked. Now tap the bottom-right corner."
+msgstr "Top-left corner marked. Now tap the bottom-right corner."
+
+msgid "Touch & hold text selection in zoom [EXPERIMENTAL]"
+msgstr "Touch & hold text selection in zoom [EXPERIMENTAL]"
+
+msgid "Transition frames (Actual: "
+msgstr "Transition frames (Actual: "
+
+msgid "Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."
+msgstr "Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."
+
+msgid "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+msgstr "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+
+msgid "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+msgstr "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+
+msgid "What is actually written in the box you drew?"
+msgstr "What is actually written in the box you drew?"
+
+msgid "With margin"
+msgstr "With margin"
+
+msgid "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+msgstr "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+
+msgid "Yes, correct"
+msgstr "Yes, correct"
+
+msgid "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+msgstr "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+
+msgid "false"
+msgstr "false"
+
+msgid "frames"
+msgstr "frames"
+
+msgid "true"
+msgstr "true"
+
