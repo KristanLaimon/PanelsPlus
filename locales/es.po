@@ -7,7 +7,7 @@ msgid " fps)"
 msgstr " fps)"
 
 msgid "(Long Press)"
-msgstr "(Mantén pulsado)"
+msgstr "(Mantén pulsado para config.)"
 
 msgid "(Long press config)"
 msgstr "(Mantén pulsado para config.)"
@@ -58,10 +58,10 @@ msgid "Device rotation"
 msgstr "Rotación del dispositivo"
 
 msgid "Disable plugin panel focusing"
-msgstr "Desactivar el enfoque de paneles del plugin"
+msgstr "Desactivar Panels+ zooming en paneles"
 
 msgid "Enable debugging logs"
-msgstr "Activar registros de depuración"
+msgstr "Activar logs de debug"
 
 msgid "Hide progress"
 msgstr "Ocultar progreso"
@@ -82,7 +82,7 @@ msgid "Image rotation (this view only)"
 msgstr "Rotación de imagen (solo esta vista)"
 
 msgid "Invert panel swipe direction"
-msgstr "Invertir la dirección del deslizamiento entre paneles"
+msgstr "Invertir dirección de deslizamiento"
 
 msgid "Loose crop"
 msgstr "Recorte amplio"
@@ -127,13 +127,13 @@ msgid "No, wrong"
 msgstr "No, incorrecto"
 
 msgid "OCR debug review mode"
-msgstr "Modo de revisión de depuración de OCR"
+msgstr "Activar modo debug para OCR (dev)"
 
 msgid "Original size"
 msgstr "Tamaño original"
 
 msgid "Pan animation duration..."
-msgstr "Duración de la animación de desplazamiento..."
+msgstr "Duración total de la animacion entre paneles..."
 
 msgid "Panel detection"
 msgstr "Detección de paneles"
@@ -232,7 +232,7 @@ msgid "Top-left corner marked. Now tap the bottom-right corner."
 msgstr "Esquina superior izquierda marcada. Ahora toca la esquina inferior derecha."
 
 msgid "Touch & hold text selection in zoom [EXPERIMENTAL]"
-msgstr "Seleccionar texto al mantenerlo pulsado en zoom [EXPERIMENTAL]"
+msgstr "Seleccionar texto con pulsación prolongada [EXPERIMENTAL]"
 
 msgid "Transition frames (Actual: "
 msgstr "Fotogramas de transición (Actual: "
