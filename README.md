@@ -51,8 +51,10 @@ This plugin is compatible with KOReader across the following version range:
 
 | Environment | Supported Version |
 | --- | --- |
-| **Oldest Supported Version** | KOReader `v2025.04` *"Full Moon"* |
+| **Oldest Tested Version** | KOReader `v2025.04` *"Full Moon"* |
 | **Newest Tested Version** | KOReader `v2026.03` *"SnowFlake"* & Newer |
+
+This could work with even older versions, but not personally tested. If any issues with versions outside the previous range, open a github issue in this repo. I'll fix it ASAP.
 
 ### File types formats supported
 <ul>
@@ -71,6 +73,15 @@ The main reason is because these <strong>are not meant to be used</strong> for d
 If you have your mangas/comics in one of these formats, change them to more standard ones. Check <a href="https://github.com/ciromattia/kcc">KCC (Kindle Comic Converter)</a> and the <strong>File types formats supported</strong> previous section. <br><br>
 
 <em>I might add them to the support list in a future update, but since those formats aren't really built for comics, it's not a top priority on the Panels+ roadmap right now. (That said, if you want to tackle it and submit a PR, you're more than welcome to!)</em>
+
+### Kobo Compatilibity (kobo.koplugin >= 0.4.1)
+
+This plugins works well with:
+
+- Physical buttons (Page-turning)
+- Bluetooth devices with page-turning features
+
+Personally tested with 0.4.1 version, but thanks to koreader plugins stability ecosystem it could work with previous versions. If any problems, create a github issue in this repo, I'll fix it ASAP.
 
 ## Installation
 
@@ -130,16 +141,18 @@ Panels+ registers these KOReader actions:
 
 Use KOReader's gesture manager to bind them to taps, swipes, or other gestures for quick switching.
 
-### Developer's Tip: The Cinematic Experience
+### Developer's Personal Tip: The Cinematic Experience
 
-For a more fluent and immersive navigation, my personal recommendation is to set KOReader to **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. 
-In my opinion, this is hands down the most cinematic way to experience your manga. Here is a quick look at how it runs on an actual Kindle:
+For a more fluent and immersive navigation, my personal recommendation is to set KOReader to **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. <br>
+While playing and testing this pluging from months of usage I found this setup the most convenient way to experience your manga (and probably the way it was intended). 
 
 <div align="center">
   <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
   <br>
-  <em>🎥 Real footage of the landscape strict-crop setup on a Kindle.</em>
+  <em> Here is a quick look at how it runs on an actual Kindle</em>
 </div>
+<br>
+Of course if you prefer vertical, with margin, loose cropped or even animated, then use it that way!. I've made all this config fully customizable to make this plugin `adapt to you`, not you to the plugin. Your manga, your rules.
 
 ### OCR Word Lookup Setup (Experimental)
 
