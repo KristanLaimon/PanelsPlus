@@ -76,7 +76,7 @@ If you have your mangas/comics in one of these formats, change them to more stan
 
 ### Kobo Compatilibity (kobo.koplugin >= 0.4.1)
 
-This plugins works well with:
+This plugin works well with:
 
 - Physical buttons (Page-turning)
 - Bluetooth devices with page-turning features
