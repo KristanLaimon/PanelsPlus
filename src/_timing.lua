@@ -91,12 +91,14 @@ function Timing.memory(fmt, ...)
     end
     local label = select("#", ...) > 0 and string.format(fmt, ...) or fmt
     local free_mb = Timing.freeMB()
-    logger.info(string.format(
-        "[Panels+] memory %s free=%s lua=%dKB",
-        label,
-        free_mb and (free_mb .. "MB") or "?",
-        math.floor(collectgarbage("count"))
-    ))
+    logger.info(
+        string.format(
+            "[Panels+] memory %s free=%s lua=%dKB",
+            label,
+            free_mb and (free_mb .. "MB") or "?",
+            math.floor(collectgarbage("count"))
+        )
+    )
 end
 
 return Timing

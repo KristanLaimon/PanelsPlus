@@ -16,19 +16,23 @@ local PanelViewer = require("src._panelviewer")
 local function newViewer(opts)
     local wg = {
         getSize = function() end,
-        getCurrentWidth = function() return opts.bb_w end,
-        getCurrentHeight = function() return opts.bb_h end,
+        getCurrentWidth = function()
+            return opts.bb_w
+        end,
+        getCurrentHeight = function()
+            return opts.bb_h
+        end,
         dimen = { x = opts.widget_x or 0, y = opts.widget_y or 0 },
         _offset_x = opts.offset_x or 0,
         _offset_y = opts.offset_y or 0,
     }
-    return PanelViewer:new{
+    return PanelViewer:new({
         page = 1,
         _images_list_cur = 1,
         image_rects = { opts.rect },
         rotated = opts.rotated,
         _image_wg = wg,
-    }
+    })
 end
 
 local ROTATIONS = { false, 90, 180, 270 }
@@ -37,7 +41,7 @@ describe("PanelViewer transform round-trip (page -> screen -> page)", function()
     for _, rotated in ipairs(ROTATIONS) do
         it("recovers the original page-space box center under rotated=" .. tostring(rotated), function()
             local rect = { x = 100, y = 200, w = 300, h = 400 }
-            local viewer = newViewer{ rect = rect, bb_w = 600, bb_h = 800, rotated = rotated }
+            local viewer = newViewer({ rect = rect, bb_w = 600, bb_h = 800, rotated = rotated })
 
             local box = { x = 150, y = 250, w = 50, h = 40 }
             local box_center_x = box.x + box.w / 2
@@ -60,10 +64,16 @@ describe("PanelViewer transform round-trip (page -> screen -> page)", function()
 
     it("still round-trips correctly with a non-zero pan offset and widget position", function()
         local rect = { x = 100, y = 200, w = 300, h = 400 }
-        local viewer = newViewer{
-            rect = rect, bb_w = 600, bb_h = 800, rotated = false,
-            widget_x = 5, widget_y = 10, offset_x = 20, offset_y = 15,
-        }
+        local viewer = newViewer({
+            rect = rect,
+            bb_w = 600,
+            bb_h = 800,
+            rotated = false,
+            widget_x = 5,
+            widget_y = 10,
+            offset_x = 20,
+            offset_y = 15,
+        })
 
         local box = { x = 150, y = 250, w = 50, h = 40 }
         local screen_rect = viewer:pageToScreenTransform(box)
@@ -83,7 +93,7 @@ end)
 describe("PanelViewer:pageToScreenTransform clipping", function()
     it("clips a box larger than the crop to the full zoomed bitmap", function()
         local rect = { x = 100, y = 200, w = 300, h = 400 }
-        local viewer = newViewer{ rect = rect, bb_w = 600, bb_h = 800, rotated = false }
+        local viewer = newViewer({ rect = rect, bb_w = 600, bb_h = 800, rotated = false })
 
         local oversized_box = { x = 0, y = 0, w = 1000, h = 1000 }
         local screen_rect = viewer:pageToScreenTransform(oversized_box)
@@ -97,7 +107,7 @@ describe("PanelViewer:pageToScreenTransform clipping", function()
 
     it("returns nil for a box entirely outside the crop", function()
         local rect = { x = 100, y = 200, w = 300, h = 400 }
-        local viewer = newViewer{ rect = rect, bb_w = 600, bb_h = 800, rotated = false }
+        local viewer = newViewer({ rect = rect, bb_w = 600, bb_h = 800, rotated = false })
 
         local outside_box = { x = 1000, y = 1000, w = 50, h = 50 }
         local screen_rect = viewer:pageToScreenTransform(outside_box)

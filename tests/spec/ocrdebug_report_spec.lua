@@ -10,7 +10,8 @@ local Report = require("tools.ocrdebug_report")
 
 describe("ocrdebug_report JSON round-trip", function()
     it("decodes a log line shaped like OcrDebug.writeLog's own output", function()
-        local line = [[{"document":"/books/x.cbz","page":141,"box":{"x":696,"y":122.5,"w":88,"h":17},"verdict":"correct","ocr_word":"OH","tap":{"x":712.6,"y":131.1}}]]
+        local line =
+            [[{"document":"/books/x.cbz","page":141,"box":{"x":696,"y":122.5,"w":88,"h":17},"verdict":"correct","ocr_word":"OH","tap":{"x":712.6,"y":131.1}}]]
         local decoded, err = Report.jsonDecode(line)
         assert.is_true(decoded ~= nil, "expected a decoded table, got error: " .. tostring(err))
         assert.equals("141", tostring(decoded.page))

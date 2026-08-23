@@ -24,7 +24,7 @@ local WordFinder = require("src._wordfinder")
 --- @param word string|nil Word the stubbed reader returns.
 local function newViewer(box, word)
     local koreader_sboxes = { { x = 10, y = 200, w = 80, h = 60 } }
-    local viewer = PanelViewer:new{
+    local viewer = PanelViewer:new({
         page = 3,
         reader_ui = {
             document = {
@@ -42,16 +42,22 @@ local function newViewer(box, word)
                 },
             },
         },
-    }
+    })
 
     local original_find, original_read = WordFinder.findWordBox, WordFinder.readWord
-    WordFinder.findWordBox = function() return box, { w = 1000, h = 1000 } end
-    WordFinder.readWord = function() return word end
-
-    return viewer, koreader_sboxes, function()
-        WordFinder.findWordBox = original_find
-        WordFinder.readWord = original_read
+    WordFinder.findWordBox = function()
+        return box, { w = 1000, h = 1000 }
     end
+    WordFinder.readWord = function()
+        return word
+    end
+
+    return viewer,
+        koreader_sboxes,
+        function()
+            WordFinder.findWordBox = original_find
+            WordFinder.readWord = original_read
+        end
 end
 
 describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function()
@@ -67,8 +73,11 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
         assert.equals(1, #painted, "expected exactly the refined box to be painted")
         assert.equals(refined, painted[1], "temp highlight must be the box the word was read from")
         assert.is_true(painted ~= koreader_sboxes, "temp must not still point at KOReader's original boxes")
-        assert.equals(highlight.selected_text.sboxes, painted,
-            "temp and the selection must share one table, as ReaderHighlight leaves them")
+        assert.equals(
+            highlight.selected_text.sboxes,
+            painted,
+            "temp and the selection must share one table, as ReaderHighlight leaves them"
+        )
         assert.equals("shift", highlight.selected_text.text)
     end)
 
@@ -81,8 +90,11 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
         restore()
 
         assert.equals("wrong", highlight.selected_text.text, "an unreadable crop must not overwrite the word")
-        assert.equals(koreader_sboxes, viewer.reader_ui.view.highlight.temp[3],
-            "the painted box must stay consistent with the word still selected")
+        assert.equals(
+            koreader_sboxes,
+            viewer.reader_ui.view.highlight.temp[3],
+            "the painted box must stay consistent with the word still selected"
+        )
     end)
 
     it("leaves the selection alone when no box could be found", function()

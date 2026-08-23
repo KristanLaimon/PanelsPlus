@@ -109,12 +109,12 @@ function Page:toMap(with_border)
     }
 end
 
-local manga = Settings.withDefaults{ mode = "manga" }
-local comic = Settings.withDefaults{ mode = "comic" }
-local comic_border_split = Settings.withDefaults{
+local manga = Settings.withDefaults({ mode = "manga" })
+local comic = Settings.withDefaults({ mode = "comic" })
+local comic_border_split = Settings.withDefaults({
     mode = "comic",
     segment_border_split = true,
-}
+})
 
 --- Segment a page the way `PanelCollector` would for a given settings table.
 ---
@@ -213,9 +213,15 @@ describe("Segmenter.segment drawn border split", function()
     -- same thin, full-span, densely dark run as a stroke shared between two
     -- bled panels. These four cases are that ambiguity, pinned.
     local drawn = {
-        ["a full-width caption rule"] = function(page) page:black(14, 120, MAP_W - 28, 3) end,
-        ["a black horizon line"] = function(page) page:black(14, 400, MAP_W - 28, 2) end,
-        ["a full-height pole"] = function(page) page:black(230, 14, 3, MAP_H - 28) end,
+        ["a full-width caption rule"] = function(page)
+            page:black(14, 120, MAP_W - 28, 3)
+        end,
+        ["a black horizon line"] = function(page)
+            page:black(14, 400, MAP_W - 28, 2)
+        end,
+        ["a full-height pole"] = function(page)
+            page:black(230, 14, 3, MAP_H - 28)
+        end,
     }
 
     for label, decorate in pairs(drawn) do

@@ -77,7 +77,9 @@ function Menu:addToMainMenu(menu_items)
                 callback = function()
                     self:setInvertSwipe(not self.settings.invert_swipe)
                 end,
-                help_text = _("Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."),
+                help_text = _(
+                    "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+                ),
             },
             {
                 text = _("Touch & hold text selection in zoom [EXPERIMENTAL]"),
@@ -87,7 +89,9 @@ function Menu:addToMainMenu(menu_items)
                 callback = function()
                     self:setHoldTextSelection(self.settings.hold_text_selection == false)
                 end,
-                help_text = _("Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."),
+                help_text = _(
+                    "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+                ),
                 separator = true,
             },
             {
@@ -102,7 +106,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setDetector("auto")
                         end,
-                        help_text = _("Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."),
+                        help_text = _(
+                            "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+                        ),
                     },
                     {
                         text = _("Quick mode"),
@@ -113,7 +119,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setDetector("fast")
                         end,
-                        help_text = _("Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."),
+                        help_text = _(
+                            "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+                        ),
                     },
                     {
                         text = _("Deep mode"),
@@ -127,7 +135,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setDetector("exact")
                         end,
-                        help_text = _("Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."),
+                        help_text = _(
+                            "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+                        ),
                         separator = true,
                     },
                     {
@@ -141,7 +151,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setBorderSplit(self.settings.segment_border_split ~= true)
                         end,
-                        help_text = _("Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."),
+                        help_text = _(
+                            "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+                        ),
                     },
                 },
             },
@@ -153,7 +165,9 @@ function Menu:addToMainMenu(menu_items)
                 callback = function()
                     self:setPanelPrerender(self.settings.panel_prerender == false)
                 end,
-                help_text = _("Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."),
+                help_text = _(
+                    "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+                ),
             },
             {
                 text = _("Enable debugging logs"),
@@ -163,7 +177,9 @@ function Menu:addToMainMenu(menu_items)
                 callback = function()
                     self:setDebugMode(not self.settings.debug_mode)
                 end,
-                help_text = _("Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."),
+                help_text = _(
+                    "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+                ),
             },
             {
                 text = _("OCR debug review mode"),
@@ -173,7 +189,9 @@ function Menu:addToMainMenu(menu_items)
                 callback = function()
                     self:setOcrDebugMode(self.settings.ocr_debug_mode ~= true)
                 end,
-                help_text = _("After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."),
+                help_text = _(
+                    "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+                ),
             },
         },
     }

@@ -44,8 +44,7 @@ end
 --- @param pos PPPagePosition|{x:number,y:number} Point-like table.
 --- @return boolean contains Whether the point lies inside the rectangle.
 function Geometry.rectContains(rect, pos)
-    return pos.x >= rect.x and pos.x <= rect.x + rect.w
-        and pos.y >= rect.y and pos.y <= rect.y + rect.h
+    return pos.x >= rect.x and pos.x <= rect.x + rect.w and pos.y >= rect.y and pos.y <= rect.y + rect.h
 end
 
 --- Return whether two rectangles are close enough vertically to count as a row.

@@ -11,7 +11,7 @@ local PanelViewer = require("src._panelviewer")
 describe("PanelViewer:onGotoViewRel sign dispatch", function()
     it("calls onShowNextImage on a positive diff", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         viewer:onGotoViewRel(1)
 
@@ -21,7 +21,7 @@ describe("PanelViewer:onGotoViewRel sign dispatch", function()
 
     it("calls onShowPrevImage on a negative diff", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         viewer:onGotoViewRel(-1)
 
@@ -31,7 +31,7 @@ describe("PanelViewer:onGotoViewRel sign dispatch", function()
 
     it("treats a large positive diff (e.g. dispatcher 'Turn pages') as a single step forward", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         viewer:onGotoViewRel(50)
 
@@ -41,7 +41,7 @@ describe("PanelViewer:onGotoViewRel sign dispatch", function()
 
     it("treats a large negative diff as a single step backward", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         viewer:onGotoViewRel(-50)
 
@@ -51,7 +51,7 @@ describe("PanelViewer:onGotoViewRel sign dispatch", function()
 
     it("no-ops and returns true on a zero diff", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         local handled = viewer:onGotoViewRel(0)
 
@@ -62,7 +62,7 @@ describe("PanelViewer:onGotoViewRel sign dispatch", function()
 
     it("no-ops and returns true on a nil diff", function()
         local next_spy, prev_spy = spy(), spy()
-        local viewer = PanelViewer:new{ onShowNextImage = next_spy, onShowPrevImage = prev_spy }
+        local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 
         local handled = viewer:onGotoViewRel(nil)
 
@@ -75,12 +75,12 @@ end)
 describe("PanelViewer:onGotoViewRel end-to-end boundary crossing", function()
     it("crosses to the next page when at the last panel", function()
         local boundary_spy = spy()
-        local viewer = PanelViewer:new{
+        local viewer = PanelViewer:new({
             _images_list_cur = 3,
             _images_list_nb = 3,
             nav_transition_mode = "classic",
             boundary_callback = boundary_spy,
-        }
+        })
 
         viewer:onGotoViewRel(1)
 
@@ -92,12 +92,12 @@ describe("PanelViewer:onGotoViewRel end-to-end boundary crossing", function()
 
     it("crosses to the previous page when at the first panel", function()
         local boundary_spy = spy()
-        local viewer = PanelViewer:new{
+        local viewer = PanelViewer:new({
             _images_list_cur = 1,
             _images_list_nb = 3,
             nav_transition_mode = "classic",
             boundary_callback = boundary_spy,
-        }
+        })
 
         viewer:onGotoViewRel(-1)
 
@@ -109,12 +109,12 @@ describe("PanelViewer:onGotoViewRel end-to-end boundary crossing", function()
 
     it("does not cross the boundary when navigating mid-sequence", function()
         local boundary_spy = spy()
-        local viewer = PanelViewer:new{
+        local viewer = PanelViewer:new({
             _images_list_cur = 2,
             _images_list_nb = 3,
             nav_transition_mode = "classic",
             boundary_callback = boundary_spy,
-        }
+        })
 
         viewer:onGotoViewRel(1)
 

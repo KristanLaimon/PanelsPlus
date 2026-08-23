@@ -37,7 +37,7 @@ describe("PanelViewer:onSwipe left-edge zoom", function()
     it("zooms out on a south swipe within the left edge while pannable (zoomed in)", function()
         local pannable_spy = spy()
         pannable_spy.return_value = true
-        local viewer = newViewer{ isImagePannable = pannable_spy }
+        local viewer = newViewer({ isImagePannable = pannable_spy })
 
         viewer:onSwipe(nil, { direction = "south", pos = { x = 50, y = 400 } })
 
@@ -48,18 +48,21 @@ describe("PanelViewer:onSwipe left-edge zoom", function()
     it("zooms out (does not close) on a south swipe within the left edge when not pannable (standard zoom)", function()
         local pannable_spy = spy()
         pannable_spy.return_value = false
-        local viewer = newViewer{ isImagePannable = pannable_spy }
+        local viewer = newViewer({ isImagePannable = pannable_spy })
 
         viewer:onSwipe(nil, { direction = "south", pos = { x = 50, y = 400 } })
 
         assert.is_true(viewer.onZoomOut:called(), "onZoomOut should have been called")
-        assert.is_false(viewer.onClose:called(), "onClose should not have been called -- this gesture is reserved for Kobo-style zoom, never for exiting")
+        assert.is_false(
+            viewer.onClose:called(),
+            "onClose should not have been called -- this gesture is reserved for Kobo-style zoom, never for exiting"
+        )
     end)
 
     it("does not zoom on a north swipe outside the left edge", function()
         local pannable_spy = spy()
         pannable_spy.return_value = false
-        local viewer = newViewer{ isImagePannable = pannable_spy }
+        local viewer = newViewer({ isImagePannable = pannable_spy })
 
         viewer:onSwipe(nil, { direction = "north", pos = { x = 200, y = 400 } })
 
@@ -71,7 +74,7 @@ describe("PanelViewer:onSwipe left-edge zoom", function()
     it("does not zoom on a south swipe outside the left edge", function()
         local pannable_spy = spy()
         pannable_spy.return_value = false
-        local viewer = newViewer{ isImagePannable = pannable_spy }
+        local viewer = newViewer({ isImagePannable = pannable_spy })
 
         viewer:onSwipe(nil, { direction = "south", pos = { x = 200, y = 400 } })
 
@@ -83,7 +86,7 @@ describe("PanelViewer:onSwipe left-edge zoom", function()
     it("is nil-safe when the gesture has no position", function()
         local pannable_spy = spy()
         pannable_spy.return_value = false
-        local viewer = newViewer{ isImagePannable = pannable_spy }
+        local viewer = newViewer({ isImagePannable = pannable_spy })
 
         viewer:onSwipe(nil, { direction = "north" })
 

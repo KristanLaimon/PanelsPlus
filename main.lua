@@ -3,7 +3,8 @@ Panels+.
 
 This plugin keeps KOReader's native panel detector and replaces the default
 single-panel zoom viewer with a direction-aware sequence viewer.
---]]--
+--]]
+--
 
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local Actions = require("src.actions")
@@ -31,10 +32,10 @@ local ViewerController = require("src.viewer_controller")
 --- @field panel_cache_order string[] LRU cache key order.
 --- @field panel_prefetch_actions table<string, function> Scheduled prefetch jobs, by cache key.
 --- @field panel_prerender_action function|nil Scheduled next-panel warm-up, if any.
-local PanelsPlus = WidgetContainer:extend{
+local PanelsPlus = WidgetContainer:extend({
     name = "panels_plus",
     is_doc_only = true,
-}
+})
 
 --- Copy module methods onto the plugin class without altering module tables.
 ---
@@ -240,9 +241,9 @@ end
 --- @param detector PPDetector Requested detector; anything unknown maps to `"auto"`.
 function PanelsPlus:setDetector(detector)
     self.settings.detector = (detector == "fast" or detector == "exact") and detector or "auto"
-    Timing.log("detector -> " .. self.settings.detector .. string.format(
-        " (cache: %d pages)", #(self.panel_cache_order or {})
-    ))
+    Timing.log(
+        "detector -> " .. self.settings.detector .. string.format(" (cache: %d pages)", #(self.panel_cache_order or {}))
+    )
     self:saveSettings()
 end
 

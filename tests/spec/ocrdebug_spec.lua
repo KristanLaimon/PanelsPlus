@@ -15,7 +15,7 @@ local WordFinder = require("src._wordfinder")
 --- `file` field (real KOReader documents always have one; `_ocrdebug` uses it).
 local function newViewer(box, word, ocr_debug_mode)
     local koreader_sboxes = { { x = 10, y = 200, w = 80, h = 60 } }
-    local viewer = PanelViewer:new{
+    local viewer = PanelViewer:new({
         page = 3,
         ocr_debug_mode = ocr_debug_mode,
         reader_ui = {
@@ -35,16 +35,21 @@ local function newViewer(box, word, ocr_debug_mode)
                 },
             },
         },
-    }
+    })
 
     local original_find, original_read = WordFinder.findWordBox, WordFinder.readWord
-    WordFinder.findWordBox = function() return box, { w = 1000, h = 1000 } end
-    WordFinder.readWord = function() return word end
-
-    return viewer, function()
-        WordFinder.findWordBox = original_find
-        WordFinder.readWord = original_read
+    WordFinder.findWordBox = function()
+        return box, { w = 1000, h = 1000 }
     end
+    WordFinder.readWord = function()
+        return word
+    end
+
+    return viewer,
+        function()
+            WordFinder.findWordBox = original_find
+            WordFinder.readWord = original_read
+        end
 end
 
 describe("PanelViewer:_refineWordSelection OCR debug capture", function()
@@ -119,7 +124,9 @@ describe("OcrDebug.onDictClosed verdict prompt", function()
     it("logs a correct verdict without entering rectangle capture", function()
         local logged
         local original_write = OcrDebug.writeLog
-        OcrDebug.writeLog = function(entry) logged = entry end
+        OcrDebug.writeLog = function(entry)
+            logged = entry
+        end
 
         local viewer = { _ocr_debug_pending = { ocr_word = "shift", koreader_word = "shitt" } }
         OcrDebug.onDictClosed(viewer)
@@ -183,7 +190,9 @@ describe("OcrDebug rectangle capture: tap-tap corner marking", function()
         OcrDebug.handleTap(viewer, { pos = { x = 40, y = 60 } }) -- bottom-right tapped first
         local captured
         local original_prompt = OcrDebug.promptCorrectText
-        OcrDebug.promptCorrectText = function(pending) captured = pending end
+        OcrDebug.promptCorrectText = function(pending)
+            captured = pending
+        end
 
         local handled = OcrDebug.handleTap(viewer, { pos = { x = 10, y = 20 } }) -- top-left tapped second
 
@@ -231,8 +240,12 @@ describe("OcrDebug.saveCropImage", function()
                     -- "prescaled" (crop-only) path instead of rendering the
                     -- full page -- see the regression this guards against.
                     transformRect = function(document, rect, zoom, rotation)
-                        return { x = math.floor(rect.x * zoom), y = math.floor(rect.y * zoom),
-                                 w = rect.w * zoom, h = rect.h * zoom }
+                        return {
+                            x = math.floor(rect.x * zoom),
+                            y = math.floor(rect.y * zoom),
+                            w = rect.w * zoom,
+                            h = rect.h * zoom,
+                        }
                     end,
                     renderPage = function(document, page, rect, zoom, rotation, gamma, contrast, dither)
                         render_args = { page = page, rect = rect, zoom = zoom }
@@ -246,8 +259,10 @@ describe("OcrDebug.saveCropImage", function()
 
         assert.is_true(render_args ~= nil, "expected renderPage to be called")
         assert.equals(5, render_args.page)
-        assert.is_true(render_args.rect.scaled_rect ~= nil,
-            "rect must carry a scaled_rect, or renderPage silently renders the whole page instead of this crop")
+        assert.is_true(
+            render_args.rect.scaled_rect ~= nil,
+            "rect must carry a scaled_rect, or renderPage silently renders the whole page instead of this crop"
+        )
         -- combined box spans x:[90,140] y:[190,220]; padded by its own size
         -- (>= 20px floor) on every side, then clamped to the native page.
         assert.is_true(render_args.rect.x < 90, "left padding must extend past the combined box")
@@ -259,7 +274,15 @@ describe("OcrDebug.saveCropImage", function()
     end)
 
     it("returns nil without touching the document when there is no box/native/tap data", function()
-        local viewer = { reader_ui = { document = { renderPage = function() error("must not be called") end } } }
+        local viewer = {
+            reader_ui = {
+                document = {
+                    renderPage = function()
+                        error("must not be called")
+                    end,
+                },
+            },
+        }
         assert.is_true(OcrDebug.saveCropImage(viewer, { page = 5 }) == nil)
     end)
 
@@ -270,8 +293,12 @@ describe("OcrDebug.saveCropImage", function()
             reader_ui = {
                 document = {
                     transformRect = function(document, rect, zoom)
-                        return { x = math.floor(rect.x * zoom), y = math.floor(rect.y * zoom),
-                                 w = rect.w * zoom, h = rect.h * zoom }
+                        return {
+                            x = math.floor(rect.x * zoom),
+                            y = math.floor(rect.y * zoom),
+                            w = rect.w * zoom,
+                            h = rect.h * zoom,
+                        }
                     end,
                     renderPage = function(document, page, rect)
                         render_args = { page = page, rect = rect }
@@ -312,31 +339,37 @@ describe("OcrDebug.hookDictClose window-stack poll fallback", function()
     -- trusting that one callback got threaded through correctly.
     local UIManager = require("ui/uimanager")
 
-    it("fires the verdict prompt once the window stack drops back to baseline, even if dict_close_callback never ran", function()
-        local viewer = { _ocr_debug_pending = { ocr_word = "shift" } }
-        local reader_ui = {
-            dictionary = {
-                -- Simulates a dismissed "No results found" dialog: shows a
-                -- widget but never calls (or is never given a working)
-                -- dict_close_callback.
-                onLookupWord = function() end,
-            },
-        }
-        UIManager._window_stack = { "book" } -- baseline depth 1
+    it(
+        "fires the verdict prompt once the window stack drops back to baseline, even if dict_close_callback never ran",
+        function()
+            local viewer = { _ocr_debug_pending = { ocr_word = "shift" } }
+            local reader_ui = {
+                dictionary = {
+                    -- Simulates a dismissed "No results found" dialog: shows a
+                    -- widget but never calls (or is never given a working)
+                    -- dict_close_callback.
+                    onLookupWord = function() end,
+                },
+            }
+            UIManager._window_stack = { "book" } -- baseline depth 1
 
-        OcrDebug.hookDictClose(viewer, reader_ui)
-        reader_ui.dictionary.onLookupWord() -- the lookup itself runs (unwraps back to orig)
-        UIManager._window_stack = { "book", "no_results_dialog" } -- a dialog is now showing
+            OcrDebug.hookDictClose(viewer, reader_ui)
+            reader_ui.dictionary.onLookupWord() -- the lookup itself runs (unwraps back to orig)
+            UIManager._window_stack = { "book", "no_results_dialog" } -- a dialog is now showing
 
-        assert.is_true(UIManager._last_scheduled ~= nil, "expected a poll to be scheduled")
-        UIManager._last_scheduled() -- tick: still open, must reschedule and not fire yet
-        assert.is_true(viewer._ocr_debug_pending ~= nil, "must not fire while the dialog is still open")
+            assert.is_true(UIManager._last_scheduled ~= nil, "expected a poll to be scheduled")
+            UIManager._last_scheduled() -- tick: still open, must reschedule and not fire yet
+            assert.is_true(viewer._ocr_debug_pending ~= nil, "must not fire while the dialog is still open")
 
-        UIManager._window_stack = { "book" } -- dialog dismissed outside the Cancel button
-        UIManager._last_scheduled() -- tick: back at baseline
+            UIManager._window_stack = { "book" } -- dialog dismissed outside the Cancel button
+            UIManager._last_scheduled() -- tick: back at baseline
 
-        assert.is_true(viewer._ocr_debug_pending == nil, "expected the verdict prompt to fire once the dialog closed")
-    end)
+            assert.is_true(
+                viewer._ocr_debug_pending == nil,
+                "expected the verdict prompt to fire once the dialog closed"
+            )
+        end
+    )
 
     it("does not fire twice when dict_close_callback already handled it", function()
         local viewer = { _ocr_debug_pending = { ocr_word = "shift" } }

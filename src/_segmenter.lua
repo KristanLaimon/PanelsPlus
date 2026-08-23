@@ -48,11 +48,16 @@ local Segmenter = {}
 --- spacing matters, since a coarser ladder straddles 5 degrees and misses the
 --- most common case.
 Segmenter.SHEAR_SLOPES = {
-    0.035, -0.035,   -- 2.0 degrees
-    0.061, -0.061,   -- 3.5
-    0.087, -0.087,   -- 5.0
-    0.115, -0.115,   -- 6.5
-    0.141, -0.141,   -- 8.0
+    0.035,
+    -0.035, -- 2.0 degrees
+    0.061,
+    -0.061, -- 3.5
+    0.087,
+    -0.087, -- 5.0
+    0.115,
+    -0.115, -- 6.5
+    0.141,
+    -0.141, -- 8.0
 }
 
 --- Accumulate ink counts per row and per column over a sub-rectangle.
@@ -225,8 +230,12 @@ local function findBorderLine(projection, from, to, span, ratio, max_length, min
                 local length = index - run_start
                 local left_child = run_start - from
                 local right_child = to - (index - 1)
-                if length <= max_length and left_child >= min_child and right_child >= min_child
-                        and (best_length == 0 or length < best_length) then
+                if
+                    length <= max_length
+                    and left_child >= min_child
+                    and right_child >= min_child
+                    and (best_length == 0 or length < best_length)
+                then
                     best_start, best_stop, best_length = run_start, index - 1, length
                 end
             end
@@ -392,8 +401,7 @@ local function trySlope(map, left, top, right, bottom, ctx, slope)
 
     projectColumnsSheared(map, left, top, right, bottom, slope, ctx.cols, step)
     local drift = math.floor(math.abs(slope) * height / 2) + 1
-    for _, gutter in ipairs(collectGutters(ctx.cols, left, right, height / step,
-            ctx.ink_ratio, ctx.min_gutter)) do
+    for _, gutter in ipairs(collectGutters(ctx.cols, left, right, height / step, ctx.ink_ratio, ctx.min_gutter)) do
         local lo, hi = gutter.from - drift, gutter.to + drift
         if lo > left and hi < right then
             return "cols", lo, hi
@@ -402,8 +410,7 @@ local function trySlope(map, left, top, right, bottom, ctx, slope)
 
     projectRowsSheared(map, left, top, right, bottom, slope, ctx.rows, step)
     drift = math.floor(math.abs(slope) * width / 2) + 1
-    for _, gutter in ipairs(collectGutters(ctx.rows, top, bottom, width / step,
-            ctx.ink_ratio, ctx.min_gutter)) do
+    for _, gutter in ipairs(collectGutters(ctx.rows, top, bottom, width / step, ctx.ink_ratio, ctx.min_gutter)) do
         local lo, hi = gutter.from - drift, gutter.to + drift
         if lo > top and hi < bottom then
             return "rows", lo, hi
@@ -588,9 +595,14 @@ local function cut(map, x0, y0, x1, y1, depth, ctx, out)
         -- Nothing straight. The panels may simply not be square, so look along
         -- slanted lines -- but only when something already looks part-empty. A
         -- splash page has no such line and skips a search that cannot succeed.
-        if ctx.slopes and depth <= ctx.shear_max_depth
-                and (minInRange(ctx.cols, left, right) <= height * ctx.shear_trigger
-                    or minInRange(ctx.rows, top, bottom) <= width * ctx.shear_trigger) then
+        if
+            ctx.slopes
+            and depth <= ctx.shear_max_depth
+            and (
+                minInRange(ctx.cols, left, right) <= height * ctx.shear_trigger
+                or minInRange(ctx.rows, top, bottom) <= width * ctx.shear_trigger
+            )
+        then
             local axis, lo, hi = findShearedSplit(map, left, top, right, bottom, ctx)
             ctx.shear_searches = ctx.shear_searches + 1
             if axis == "cols" then
@@ -634,25 +646,29 @@ function Segmenter.segment(map, settings)
         rows = ffi.new("int32_t[?]", map.h),
         cols = ffi.new("int32_t[?]", map.w),
         ink_ratio = settings.segment_gutter_ink_ratio or defaults.segment_gutter_ink_ratio,
-        min_gutter = math.max(2, math.floor(min_dimension
-            * (settings.segment_gutter_ratio or defaults.segment_gutter_ratio))),
-        min_side = math.max(4, math.floor(min_dimension
-            * (settings.segment_min_panel_side or defaults.segment_min_panel_side))),
-        min_area = math.floor(map.w * map.h
-            * (settings.segment_min_panel_area or defaults.segment_min_panel_area)),
+        min_gutter = math.max(
+            2,
+            math.floor(min_dimension * (settings.segment_gutter_ratio or defaults.segment_gutter_ratio))
+        ),
+        min_side = math.max(
+            4,
+            math.floor(min_dimension * (settings.segment_min_panel_side or defaults.segment_min_panel_side))
+        ),
+        min_area = math.floor(map.w * map.h * (settings.segment_min_panel_area or defaults.segment_min_panel_area)),
         sliver_aspect = settings.segment_sliver_aspect or defaults.segment_sliver_aspect,
         -- Zero when the map did not report its ink total, which disables the
         -- content floor rather than rejecting every sliver on the page.
-        sliver_ink = math.floor((map.ink or 0)
-            * (settings.segment_sliver_ink or defaults.segment_sliver_ink)),
+        sliver_ink = math.floor((map.ink or 0) * (settings.segment_sliver_ink or defaults.segment_sliver_ink)),
         max_depth = settings.segment_max_depth or defaults.segment_max_depth,
         max_panels = settings.segment_max_panels or defaults.segment_max_panels,
         border = border,
         brows = border and ffi.new("int32_t[?]", map.h) or nil,
         bcols = border and ffi.new("int32_t[?]", map.w) or nil,
         border_ratio = settings.segment_border_line_ratio or defaults.segment_border_line_ratio,
-        border_max_width = math.max(2, math.floor(min_dimension
-            * (settings.segment_border_width_ratio or defaults.segment_border_width_ratio))),
+        border_max_width = math.max(
+            2,
+            math.floor(min_dimension * (settings.segment_border_width_ratio or defaults.segment_border_width_ratio))
+        ),
         slopes = settings.segment_shear ~= false and Segmenter.SHEAR_SLOPES or nil,
         shear_max_depth = settings.segment_shear_max_depth or defaults.segment_shear_max_depth,
         shear_trigger = settings.segment_shear_trigger or defaults.segment_shear_trigger,
@@ -683,8 +699,15 @@ function Segmenter.segment(map, settings)
     end
 
     if ctx.shear_searches > 0 or ctx.border_splits > 0 then
-        stop(string.format("%d panels, %d of %d slanted searches split, %d border-line splits",
-            #panels, ctx.shear_splits, ctx.shear_searches, ctx.border_splits))
+        stop(
+            string.format(
+                "%d panels, %d of %d slanted searches split, %d border-line splits",
+                #panels,
+                ctx.shear_splits,
+                ctx.shear_searches,
+                ctx.border_splits
+            )
+        )
     else
         stop(#panels .. " panels")
     end
@@ -706,7 +729,6 @@ function Segmenter.accept(panels, map, settings)
     end
 
     local page_area = map.native_w * map.native_h
-    local full_ratio = settings.full_page_panel_ratio or Settings.defaults.full_page_panel_ratio
 
     local total_area, largest_area = 0, 0
     local min_x, min_y = math.huge, math.huge
@@ -731,8 +753,7 @@ function Segmenter.accept(panels, map, settings)
         -- full-resolution render to reach the same rectangle. A lone *small*
         -- rectangle is different: the cut latched onto one blob and missed the
         -- rest of the page, which is worth a second opinion.
-        local single_ratio = settings.segment_single_panel_ratio
-            or Settings.defaults.segment_single_panel_ratio
+        local single_ratio = settings.segment_single_panel_ratio or Settings.defaults.segment_single_panel_ratio
         if largest_area >= page_area * single_ratio then
             return true
         end
@@ -740,15 +761,16 @@ function Segmenter.accept(panels, map, settings)
     end
 
     local covered_area = (max_x - min_x) * (max_y - min_y)
-    if covered_area < page_area * (settings.segment_page_coverage_min
-            or Settings.defaults.segment_page_coverage_min) then
+    if
+        covered_area
+        < page_area * (settings.segment_page_coverage_min or Settings.defaults.segment_page_coverage_min)
+    then
         return false, "panels cover too little of the page"
     end
 
     local coverage_min = settings.segment_coverage_min or Settings.defaults.segment_coverage_min
     if total_area < covered_area * coverage_min then
-        return false, string.format("only %d%% of the covered area kept",
-            math.floor(total_area * 100 / covered_area))
+        return false, string.format("only %d%% of the covered area kept", math.floor(total_area * 100 / covered_area))
     end
 
     return true

@@ -94,8 +94,12 @@ function Settings.withDefaults(settings)
         settings.panel_grid_rows = Settings.defaults.panel_grid_rows
         settings.panel_grid_cols = Settings.defaults.panel_grid_cols
         settings.panel_bleed_ratio = math.min(settings.panel_bleed_ratio or Settings.defaults.panel_bleed_ratio, 1.0)
-        settings.panel_bleed_min = math.min(settings.panel_bleed_min or Settings.defaults.panel_bleed_min, Settings.defaults.panel_bleed_min)
-        settings.panel_prefetch_delay = math.max(settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay, Settings.defaults.panel_prefetch_delay)
+        settings.panel_bleed_min =
+            math.min(settings.panel_bleed_min or Settings.defaults.panel_bleed_min, Settings.defaults.panel_bleed_min)
+        settings.panel_prefetch_delay = math.max(
+            settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay,
+            Settings.defaults.panel_prefetch_delay
+        )
         settings.panel_cache_pages = Settings.defaults.panel_cache_pages
         settings.full_page_panel_ratio = Settings.defaults.full_page_panel_ratio
         -- Gutter sensitivity is tied to the map resolution it was measured at,

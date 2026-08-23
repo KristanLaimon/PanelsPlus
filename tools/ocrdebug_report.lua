@@ -66,7 +66,8 @@ local function jsonDecode(str)
                 return table.concat(parts)
             elseif c == "\\" then
                 local esc = str:sub(pos + 1, pos + 1)
-                local map = { ['"'] = '"', ["\\"] = "\\", ["/"] = "/", b = "\b", f = "\f", n = "\n", r = "\r", t = "\t" }
+                local map =
+                    { ['"'] = '"', ["\\"] = "\\", ["/"] = "/", b = "\b", f = "\f", n = "\n", r = "\r", t = "\t" }
                 if map[esc] then
                     table.insert(parts, map[esc])
                     pos = pos + 2
@@ -122,7 +123,9 @@ local function jsonDecode(str)
             skipWhitespace()
             local c = str:sub(pos, pos)
             pos = pos + 1
-            if c == "}" then break end
+            if c == "}" then
+                break
+            end
             -- else expect ',' and continue
         end
         return obj
@@ -142,7 +145,9 @@ local function jsonDecode(str)
             skipWhitespace()
             local c = str:sub(pos, pos)
             pos = pos + 1
-            if c == "]" then break end
+            if c == "]" then
+                break
+            end
         end
         return arr
     end
@@ -193,7 +198,9 @@ local function jsonEncodeValue(v)
     elseif t == "string" then
         return jsonEncodeString(v)
     elseif t == "number" then
-        if v ~= v or v == math.huge or v == -math.huge then return "null" end
+        if v ~= v or v == math.huge or v == -math.huge then
+            return "null"
+        end
         return tostring(v)
     elseif t == "boolean" then
         return tostring(v)
@@ -217,12 +224,16 @@ end
 --- @param b table|nil Rect {x,y,w,h}.
 --- @return number intersection_area
 local function intersectionArea(a, b)
-    if not a or not b then return 0 end
+    if not a or not b then
+        return 0
+    end
     local x0 = math.max(a.x, b.x)
     local y0 = math.max(a.y, b.y)
     local x1 = math.min(a.x + a.w, b.x + b.w)
     local y1 = math.min(a.y + a.h, b.y + b.h)
-    if x1 <= x0 or y1 <= y0 then return 0 end
+    if x1 <= x0 or y1 <= y0 then
+        return 0
+    end
     return (x1 - x0) * (y1 - y0)
 end
 
@@ -338,7 +349,9 @@ local function main(argv)
             if decoded then
                 table.insert(entries, classify(decoded))
             else
-                io.stderr:write(string.format("ocrdebug_report: skipping unparsable line %d: %s\n", line_no, tostring(decode_err)))
+                io.stderr:write(
+                    string.format("ocrdebug_report: skipping unparsable line %d: %s\n", line_no, tostring(decode_err))
+                )
             end
         end
     end
@@ -352,7 +365,9 @@ local function main(argv)
         local order = { "correct", "engine_miss", "box_bug", "total_miss_no_box", "total_miss_no_word", "unclassified" }
         io.write("{")
         for i, key in ipairs(order) do
-            if i > 1 then io.write(",") end
+            if i > 1 then
+                io.write(",")
+            end
             io.write(jsonEncodeString(key) .. ":" .. (counts[key] or 0))
         end
         io.write(string.format(',"total":%d}\n', #entries))

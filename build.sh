@@ -14,5 +14,4 @@ find "$SCRIPT_DIR" -maxdepth 1 -type f \( -name "*.lua" -o -name "_meta.lua" \) 
 cp -Rp "$SCRIPT_DIR/src" "$PLUGIN_DIR/"
 
 echo "Created: $PLUGIN_DIR"
-echo "Copy this folder to your Kindle KOReader plugins folder:"
-echo "  /mnt/us/koreader/plugins/${PLUGIN_NAME}.koplugin"
+echo "Copy the folder to your Kindle KOReader plugins folder"

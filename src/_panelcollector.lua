@@ -95,9 +95,12 @@ local function buildNoCropImage(document, page, rect, page_size, images)
         return function()
             local img, rotate = document:drawPagePart(page, image_rect, 0)
             images.rotated = rotate
-            if img and img.copy then return img:copy() end
+            if img and img.copy then
+                return img:copy()
+            end
             return img
-        end, image_rect
+        end,
+            image_rect
     end
 
     local scale = math.min(screen_w / rw, screen_h / rh)

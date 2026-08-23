@@ -15,8 +15,12 @@ local function newViewerAndBB()
     local crop_rect = { x = 0, y = 0, w = 300, h = 400 }
     local wg = {
         getSize = function() end,
-        getCurrentWidth = function() return 300 end,
-        getCurrentHeight = function() return 400 end,
+        getCurrentWidth = function()
+            return 300
+        end,
+        getCurrentHeight = function()
+            return 400
+        end,
         dimen = { x = 0, y = 0 },
         _offset_x = 0,
         _offset_y = 0,
@@ -25,7 +29,7 @@ local function newViewerAndBB()
     local darken_spy = spy()
     local bb = { invertRect = invert_spy, darkenRect = darken_spy }
 
-    local viewer = PanelViewer:new{
+    local viewer = PanelViewer:new({
         page = 1,
         _images_list_cur = 1,
         image_rects = { crop_rect },
@@ -39,7 +43,7 @@ local function newViewerAndBB()
             },
             highlight = { selected_text = nil },
         },
-    }
+    })
     return viewer, bb, invert_spy, darken_spy
 end
 

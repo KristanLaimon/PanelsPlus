@@ -75,7 +75,7 @@ local function renderSmall(document, page, target_width)
     end
 
     local zoom = math.min(1, target_width / native.w)
-    local rect = Geom:new{ x = 0, y = 0, w = native.w, h = native.h }
+    local rect = Geom:new({ x = 0, y = 0, w = native.w, h = native.h })
     rect.scaled_rect = document:transformRect(rect, zoom, 0)
     if rect.scaled_rect.w < 32 or rect.scaled_rect.h < 32 then
         return nil
@@ -99,9 +99,7 @@ end
 --- @return table bb Buffer to sample.
 --- @return table|nil owned Buffer the caller must free, if one was allocated.
 local function toGreyscale(bb)
-    if bb:getType() == Blitbuffer.TYPE_BB8
-            and bb:getRotation() == 0
-            and bb:getInverse() == 0 then
+    if bb:getType() == Blitbuffer.TYPE_BB8 and bb:getRotation() == 0 and bb:getInverse() == 0 then
         return bb, nil
     end
 
@@ -220,8 +218,7 @@ function PageBitmap.build(document, page, settings)
     -- (see `src._segmenter` for why that is off by default). Skipping it drops
     -- a per-cell comparison and a whole w*h allocation from every page.
     local detect_borders = settings.mode == "comic" and settings.segment_border_split == true
-    local border_luminance_max = settings.segment_border_luminance_max
-        or Settings.defaults.segment_border_luminance_max
+    local border_luminance_max = settings.segment_border_luminance_max or Settings.defaults.segment_border_luminance_max
 
     local map, reason, owned
     local ok, err = pcall(function()
@@ -305,11 +302,19 @@ function PageBitmap.build(document, page, settings)
             inverted = background < 128,
         }
         local free_mb = Timing.enabled and Timing.freeMB() or nil
-        stop(string.format("%dx%d %s bg=%d%s ink=%d%%%s%s",
-            w, h, kind, background, map.inverted and " inverted" or "",
-            math.floor(ink * 100 / (w * h)),
-            border and string.format(" border=%d%%", math.floor(border_cells * 100 / (w * h))) or "",
-            free_mb and (" free=" .. free_mb .. "MB") or ""))
+        stop(
+            string.format(
+                "%dx%d %s bg=%d%s ink=%d%%%s%s",
+                w,
+                h,
+                kind,
+                background,
+                map.inverted and " inverted" or "",
+                math.floor(ink * 100 / (w * h)),
+                border and string.format(" border=%d%%", math.floor(border_cells * 100 / (w * h))) or "",
+                free_mb and (" free=" .. free_mb .. "MB") or ""
+            )
+        )
     end)
 
     -- The greyscale copy, if one was made, is ours; the rendered tile is not.

@@ -21,15 +21,15 @@ local _ = require("gettext")
 --- A tappable wrapper around one child widget.
 ---
 --- @class TapTarget : InputContainer
-local TapTarget = InputContainer:extend{}
+local TapTarget = InputContainer:extend({})
 
 function TapTarget:init()
     self.dimen = self[1]:getSize()
     self.ges_events.Tap = {
-        GestureRange:new{
+        GestureRange:new({
             ges = "tap",
             range = self.dimen,
-        },
+        }),
     }
 end
 
@@ -61,47 +61,47 @@ local function buildDeviceIcon(direction, box)
     -- FrameContainer sizes itself purely from its child's getSize() (its own
     -- width/height fields only affect paint-time clipping, not layout), so
     -- the child here must already report the exact interior size wanted.
-    local body = FrameContainer:new{
+    local body = FrameContainer:new({
         bordersize = thick,
         radius = Size.radius.window,
         padding = 0,
         margin = 0,
-        Widget:new{
-            dimen = Geom:new{
+        Widget:new({
+            dimen = Geom:new({
                 w = math.max(1, body_w - 2 * thick),
                 h = math.max(1, body_h - 2 * thick),
-            },
-        },
-    }
+            }),
+        }),
+    })
 
     local notch
     if portrait_dir then
-        notch = LineWidget:new{
+        notch = LineWidget:new({
             background = Blitbuffer.COLOR_BLACK,
-            dimen = Geom:new{ w = math.floor(body_w * 0.5), h = notch_thickness },
-        }
+            dimen = Geom:new({ w = math.floor(body_w * 0.5), h = notch_thickness }),
+        })
     else
-        notch = LineWidget:new{
+        notch = LineWidget:new({
             background = Blitbuffer.COLOR_BLACK,
-            dimen = Geom:new{ w = notch_thickness, h = math.floor(body_h * 0.5) },
-        }
+            dimen = Geom:new({ w = notch_thickness, h = math.floor(body_h * 0.5) }),
+        })
     end
 
     local stacked
     if direction == "up" then
-        stacked = VerticalGroup:new{ align = "center", notch, VerticalSpan:new{ width = gap }, body }
+        stacked = VerticalGroup:new({ align = "center", notch, VerticalSpan:new({ width = gap }), body })
     elseif direction == "down" then
-        stacked = VerticalGroup:new{ align = "center", body, VerticalSpan:new{ width = gap }, notch }
+        stacked = VerticalGroup:new({ align = "center", body, VerticalSpan:new({ width = gap }), notch })
     elseif direction == "left" then
-        stacked = HorizontalGroup:new{ align = "center", notch, HorizontalSpan:new{ width = gap }, body }
+        stacked = HorizontalGroup:new({ align = "center", notch, HorizontalSpan:new({ width = gap }), body })
     else -- "right"
-        stacked = HorizontalGroup:new{ align = "center", body, HorizontalSpan:new{ width = gap }, notch }
+        stacked = HorizontalGroup:new({ align = "center", body, HorizontalSpan:new({ width = gap }), notch })
     end
 
-    return CenterContainer:new{
-        dimen = Geom:new{ w = box, h = box },
+    return CenterContainer:new({
+        dimen = Geom:new({ w = box, h = box }),
         stacked,
-    }
+    })
 end
 
 --- Modal dialog offering two independent 4-way rotation pickers: one for
@@ -112,9 +112,9 @@ end
 --- @class RotationPickerDialog : InputContainer
 --- @field on_device_rotate fun(direction: "up"|"down"|"left"|"right")|nil
 --- @field on_image_rotate fun(direction: "up"|"down"|"left"|"right")|nil
-local RotationPickerDialog = InputContainer:extend{
+local RotationPickerDialog = InputContainer:extend({
     modal = true,
-}
+})
 
 --- Build one labeled picker: a title plus a D-pad layout of 4 device icons.
 ---
@@ -128,37 +128,37 @@ function RotationPickerDialog:_buildRotationBox(title, kind, box_w, icon_box)
     local gap = Size.padding.default
 
     local function iconFor(direction)
-        return TapTarget:new{
+        return TapTarget:new({
             callback = function()
                 dialog:_onPick(kind, direction)
             end,
             buildDeviceIcon(direction, icon_box),
-        }
+        })
     end
 
-    local middle_row = HorizontalGroup:new{
+    local middle_row = HorizontalGroup:new({
         align = "center",
         iconFor("left"),
-        HorizontalSpan:new{ width = icon_box },
+        HorizontalSpan:new({ width = icon_box }),
         iconFor("right"),
-    }
+    })
 
-    local title_widget = TextWidget:new{
+    local title_widget = TextWidget:new({
         text = title,
         face = Font:getFace("cfont"),
         max_width = box_w,
-    }
+    })
 
-    return VerticalGroup:new{
+    return VerticalGroup:new({
         align = "center",
         title_widget,
-        VerticalSpan:new{ width = gap },
+        VerticalSpan:new({ width = gap }),
         iconFor("up"),
-        VerticalSpan:new{ width = gap },
+        VerticalSpan:new({ width = gap }),
         middle_row,
-        VerticalSpan:new{ width = gap },
+        VerticalSpan:new({ width = gap }),
         iconFor("down"),
-    }
+    })
 end
 
 function RotationPickerDialog:_onPick(kind, direction)
@@ -173,7 +173,7 @@ end
 function RotationPickerDialog:init()
     local screen_w = Screen:getWidth()
     local screen_h = Screen:getHeight()
-    self.dimen = Geom:new{ x = 0, y = 0, w = screen_w, h = screen_h }
+    self.dimen = Geom:new({ x = 0, y = 0, w = screen_w, h = screen_h })
 
     local portrait = screen_h >= screen_w
     local outer_w = math.floor(screen_w * 0.9)
@@ -205,39 +205,39 @@ function RotationPickerDialog:init()
 
     local boxes
     if portrait then
-        boxes = VerticalGroup:new{
+        boxes = VerticalGroup:new({
             align = "center",
             device_box,
-            VerticalSpan:new{ width = Size.padding.large },
+            VerticalSpan:new({ width = Size.padding.large }),
             image_box,
-        }
+        })
     else
-        boxes = HorizontalGroup:new{
+        boxes = HorizontalGroup:new({
             align = "center",
             device_box,
-            HorizontalSpan:new{ width = Size.padding.large },
+            HorizontalSpan:new({ width = Size.padding.large }),
             image_box,
-        }
+        })
     end
 
-    local close_button = Button:new{
+    local close_button = Button:new({
         text = _("Close"),
         width = outer_w - 2 * Size.padding.large,
         callback = function()
             UIManager:close(self, "full")
         end,
-    }
+    })
 
-    local content = VerticalGroup:new{
+    local content = VerticalGroup:new({
         align = "center",
         boxes,
-        VerticalSpan:new{ width = Size.padding.large },
+        VerticalSpan:new({ width = Size.padding.large }),
         close_button,
-    }
+    })
 
-    self[1] = CenterContainer:new{
+    self[1] = CenterContainer:new({
         dimen = self.dimen,
-        FrameContainer:new{
+        FrameContainer:new({
             -- FrameContainer sizes itself from its child, not this field (see
             -- the `body` comment above) -- close_button's forced width below
             -- is what actually drives how wide this ends up.
@@ -246,8 +246,8 @@ function RotationPickerDialog:init()
             radius = Size.radius.window,
             padding = Size.padding.large,
             content,
-        },
-    }
+        }),
+    })
 end
 
 return RotationPickerDialog

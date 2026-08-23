@@ -58,7 +58,9 @@ end
 --- ((scaled.x + x) / zoom, (scaled.y + y) / zoom) -- not (rect.x + x / zoom).
 local function newFakeDocument(native_w, native_h, pixels)
     return {
-        getNativePageDimensions = function() return { w = native_w, h = native_h } end,
+        getNativePageDimensions = function()
+            return { w = native_w, h = native_h }
+        end,
         transformRect = function(_, rect, z)
             return {
                 x = math.floor(rect.x * z + 0.001),
@@ -73,14 +75,24 @@ local function newFakeDocument(native_w, native_h, pixels)
             local bb = {
                 w = scaled.w,
                 h = scaled.h,
-                getType = function() return nil end, -- matches the test Blitbuffer mock's nil TYPE_BB8
-                getRotation = function() return 0 end,
-                getInverse = function() return 0 end,
+                getType = function()
+                    return nil
+                end, -- matches the test Blitbuffer mock's nil TYPE_BB8
+                getRotation = function()
+                    return 0
+                end,
+                getInverse = function()
+                    return 0
+                end,
                 getPixel = function(_, x, y)
                     local src_x = (origin_x + x) / z
                     local src_y = (origin_y + y) / z
                     local v = (pixels[math.floor(src_y)] or {})[math.floor(src_x)] or 255
-                    return { getColor8 = function() return { a = v } end }
+                    return {
+                        getColor8 = function()
+                            return { a = v }
+                        end,
+                    }
                 end,
             }
             return { bb = bb }
@@ -172,7 +184,7 @@ describe("WordFinder:findWordBox on x-height-only text (regression: 'eater' -> '
     end)
 end)
 
-describe("WordFinder:findWordBox multi-word line isolation (e.g. 'what\'s for dinner?')", function()
+describe("WordFinder:findWordBox multi-word line isolation (e.g. 'what's for dinner?')", function()
     local native_w, native_h = 1000, 1000
     local line_y0, line_y1 = 100, 125
     local word1 = { 100, 180 } -- "what's"
@@ -195,8 +207,8 @@ end)
 describe("WordFinder:findWordBox tight two-word phrase (e.g. 'my shift')", function()
     local native_w, native_h = 1000, 1000
     local line_y0, line_y1 = 100, 135 -- line height 35px
-    local word_my = { 100, 140 }     -- "my"
-    local word_shift = { 148, 220 }  -- "shift" (tight gap of 8px)
+    local word_my = { 100, 140 } -- "my"
+    local word_shift = { 148, 220 } -- "shift" (tight gap of 8px)
 
     it("separates 'shift' from 'my' across a tight 8px inter-word gap", function()
         local pixels = buildLineGrid(native_w, native_h, { word_my, word_shift }, line_y0, line_y1)
@@ -219,10 +231,12 @@ describe("WordFinder:findWordBox multi-line speech bubble line height isolation"
         local pixels = {}
         for y = 0, native_h - 1 do
             pixels[y] = {}
-            for x = 0, native_w - 1 do pixels[y][x] = 255 end
+            for x = 0, native_w - 1 do
+                pixels[y][x] = 255
+            end
         end
         -- Line 1 at y=[50, 75], Line 2 at y=[100, 125], Line 3 at y=[150, 175]
-        local lines = { {50, 75}, {100, 125}, {150, 175} }
+        local lines = { { 50, 75 }, { 100, 125 }, { 150, 175 } }
         for _, l in ipairs(lines) do
             for y = l[1], l[2] do
                 for x = 100, 300 do
@@ -277,8 +291,10 @@ describe("WordFinder:findWordBox vertical runaway guard (regression: box spans m
         local box = WordFinder.findWordBox(document, 1, 305, 109)
 
         assert.is_not_nil(box, "expected a word box")
-        assert.is_true(box.h < 40,
-            "box height should stay single-line (~19px + padding), not bridge into line B, got h=" .. tostring(box.h))
+        assert.is_true(
+            box.h < 40,
+            "box height should stay single-line (~19px + padding), not bridge into line B, got h=" .. tostring(box.h)
+        )
         assert.is_true(box.y >= 95 and box.y <= 105, "box should start at line A, got y=" .. tostring(box.y))
     end)
 end)
@@ -331,9 +347,18 @@ describe("WordFinder:findWordBox background estimation with dense surrounding ar
         local box = WordFinder.findWordBox(document, 1, 210, 100)
 
         assert.is_not_nil(box, "expected a word box to be found")
-        assert.is_true(box.x >= bubble.x0 - 5, "box should stay inside the bubble, not the surrounding art (x=" .. tostring(box.x) .. ")")
-        assert.is_true(box.x + box.w <= bubble.x1 + 5, "box should not spill past the bubble's right edge (x+w=" .. tostring(box.x + box.w) .. ")")
-        assert.is_true(box.w < (bubble.x1 - bubble.x0), "box should be word-sized, not swallow the whole bubble/art region (w=" .. tostring(box.w) .. ")")
+        assert.is_true(
+            box.x >= bubble.x0 - 5,
+            "box should stay inside the bubble, not the surrounding art (x=" .. tostring(box.x) .. ")"
+        )
+        assert.is_true(
+            box.x + box.w <= bubble.x1 + 5,
+            "box should not spill past the bubble's right edge (x+w=" .. tostring(box.x + box.w) .. ")"
+        )
+        assert.is_true(
+            box.w < (bubble.x1 - bubble.x0),
+            "box should be word-sized, not swallow the whole bubble/art region (w=" .. tostring(box.w) .. ")"
+        )
     end)
 end)
 
@@ -369,7 +394,10 @@ describe("WordFinder:findWordBox ink that runs off the render crop", function()
         local box = WordFinder.findWordBox(document, 1, 150, 112)
 
         assert.is_not_nil(box, "a word bounded by blank space should still be found")
-        assert.is_true(box.x >= 95 and box.x <= 105, "box should start at the word's left edge (x=" .. tostring(box.x) .. ")")
+        assert.is_true(
+            box.x >= 95 and box.x <= 105,
+            "box should start at the word's left edge (x=" .. tostring(box.x) .. ")"
+        )
     end)
 end)
 
@@ -395,7 +423,10 @@ describe("WordFinder:findWordBox ascender outside the tap band (regression: clip
 
         assert.is_not_nil(box, "expected a word box")
         assert.is_true(box.y <= 85, "box should reach up to the ascender (y=" .. tostring(box.y) .. ")")
-        assert.is_true(box.y + box.h >= 120, "box should still cover the x-height body (y+h=" .. tostring(box.y + box.h) .. ")")
+        assert.is_true(
+            box.y + box.h >= 120,
+            "box should still cover the x-height body (y+h=" .. tostring(box.y + box.h) .. ")"
+        )
     end)
 end)
 
@@ -426,7 +457,10 @@ describe("WordFinder:findWordBox bounded snapping onto ink", function()
         local box = WordFinder.findWordBox(document, 1, 150, 130)
 
         assert.is_not_nil(box, "a near miss should still resolve to the line under it")
-        assert.is_true(box.y + box.h <= 130, "box should be the line above the tap (y+h=" .. tostring(box.y + box.h) .. ")")
+        assert.is_true(
+            box.y + box.h <= 130,
+            "box should be the line above the tap (y+h=" .. tostring(box.y + box.h) .. ")"
+        )
     end)
 end)
 
@@ -486,7 +520,8 @@ describe("WordFinder.readWord OCR retry on an unreadable tight box", function()
                 table.insert(seen, wbox.sbox)
                 return results[#seen]
             end,
-        }, seen
+        },
+            seen
     end
 
     it("uses the tight box's result when it reads as a word", function()
@@ -548,7 +583,9 @@ describe("WordFinder.evictOCRWordCache OCR cache-collision workaround", function
         package.preload["document/doccache"] = function()
             return {
                 cache = {
-                    delete = function(_, key) table.insert(deleted_keys, key) end,
+                    delete = function(_, key)
+                        table.insert(deleted_keys, key)
+                    end,
                 },
             }
         end
@@ -559,8 +596,14 @@ describe("WordFinder.evictOCRWordCache OCR cache-collision workaround", function
 
         local expected_hash = "ocrword|" .. "book.cbz" .. "|" .. 1 .. 17 .. 0.5 .. 41 .. 12
         assert.is_true(#deleted_keys == 1, "expected exactly one cache delete call, got " .. #deleted_keys)
-        assert.is_true(deleted_keys[1] == expected_hash,
-            "deleted key should match KoptInterface's own hash exactly (got '" .. tostring(deleted_keys[1]) .. "', want '" .. expected_hash .. "')")
+        assert.is_true(
+            deleted_keys[1] == expected_hash,
+            "deleted key should match KoptInterface's own hash exactly (got '"
+                .. tostring(deleted_keys[1])
+                .. "', want '"
+                .. expected_hash
+                .. "')"
+        )
     end)
 
     it("executes safely without errors when document/doccache is unavailable", function()

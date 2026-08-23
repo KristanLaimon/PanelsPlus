@@ -54,13 +54,7 @@ end
 --- @param cols integer Total grid columns.
 --- @param rows integer Total grid rows.
 local function addGridProbe(probes, seen, page, page_size, col, row, cols, rows)
-    addProbe(
-        probes,
-        seen,
-        page,
-        page_size.w * (col - 0.5) / cols,
-        page_size.h * (row - 0.5) / rows
-    )
+    addProbe(probes, seen, page, page_size.w * (col - 0.5) / cols, page_size.h * (row - 0.5) / rows)
 end
 
 --- Build an ordered list of points to pass to the native detector.
@@ -238,22 +232,19 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
     -- reflow (text_wrap) setting. getPageDimensions() returns the *reflowed*
     -- size when reflow is on, which would misalign every probe fraction
     -- against the actual raster; getNativePageDimensions() never reflows.
-    local page_size = Document.getNativePageDimensions(document, page)
-        or document:getPageDimensions(page, 1, 0)
+    local page_size = Document.getNativePageDimensions(document, page) or document:getPageDimensions(page, 1, 0)
     if not page_size then
         return {}
     end
 
-    local min_free = settings.native_detect_min_free_bytes
-        or Settings.defaults.native_detect_min_free_bytes
+    local min_free = settings.native_detect_min_free_bytes or Settings.defaults.native_detect_min_free_bytes
 
     -- A full-resolution page rasterization is the single largest allocation
     -- this plugin makes. On a low-memory device it is worth skipping outright
     -- rather than risking an OOM kill, which leaves no Lua traceback -- only
     -- the memory trend in the log, if debug_mode was already on.
     if not Memory.hasHeadroom(min_free) then
-        Timing.memory("native detect skipped: low memory (need >=%dMB)",
-            math.floor(min_free / (1024 * 1024)))
+        Timing.memory("native detect skipped: low memory (need >=%dMB)", math.floor(min_free / (1024 * 1024)))
         return {}
     end
 
@@ -278,8 +269,10 @@ function NativeDetector.collect(ui, settings, page, hold_pos)
     -- pre-attempt reading.
     collectgarbage("collect")
     if not Memory.hasHeadroom(min_free) then
-        Timing.memory("native detect fallback skipped: low memory after batched failure (need >=%dMB)",
-            math.floor(min_free / (1024 * 1024)))
+        Timing.memory(
+            "native detect fallback skipped: low memory after batched failure (need >=%dMB)",
+            math.floor(min_free / (1024 * 1024))
+        )
         stop("skipped fallback: low memory")
         return {}
     end

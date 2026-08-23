@@ -50,12 +50,27 @@ end
 preload("ui/widget/imageviewer", function()
     local ImageViewer = newExtendableBase()
     local noop_methods = {
-        "init", "onShowNextImage", "onShowPrevImage", "onSwipe", "onPan",
-        "onPanRelease", "onHold", "onHoldPan", "onHoldRelease", "onHoldPanRelease",
-        "onClose", "onZoomIn", "onZoomOut", "paintTo", "update", "isImagePannable",
+        "init",
+        "onShowNextImage",
+        "onShowPrevImage",
+        "onSwipe",
+        "onPan",
+        "onPanRelease",
+        "onHold",
+        "onHoldPan",
+        "onHoldRelease",
+        "onHoldPanRelease",
+        "onClose",
+        "onZoomIn",
+        "onZoomOut",
+        "paintTo",
+        "update",
+        "isImagePannable",
     }
     for _, method_name in ipairs(noop_methods) do
-        ImageViewer[method_name] = function() return true end
+        ImageViewer[method_name] = function()
+            return true
+        end
     end
     return ImageViewer
 end)
@@ -65,8 +80,12 @@ end)
 preload("device", function()
     return {
         screen = {
-            getWidth = function() return 600 end,
-            getHeight = function() return 800 end,
+            getWidth = function()
+                return 600
+            end,
+            getHeight = function()
+                return 800
+            end,
         },
     }
 end)
@@ -95,12 +114,16 @@ preload("ffi/blitbuffer", function()
     local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00, _invert_log = {} }
     local BB = {}
     BB.__index = BB
-    function BB:getType() return self._type end
+    function BB:getType()
+        return self._type
+    end
     function BB:invertRect(x, y, w, h)
         table.insert(Blitbuffer._invert_log, { x = x, y = y, w = w, h = h })
     end
     function BB:blitFrom() end
-    function BB:writePNG(path) self.written_path = path end
+    function BB:writePNG(path)
+        self.written_path = path
+    end
     function BB:free() end
     function Blitbuffer.new(w, h, btype)
         return setmetatable({ w = w or 0, h = h or 0, _type = btype }, BB)
@@ -125,7 +148,9 @@ preload("ffi", function()
             end
             return array
         end,
-        cast = function() return nil end,
+        cast = function()
+            return nil
+        end,
     }
 end)
 
@@ -152,8 +177,10 @@ end)
 -- `framework.spy()` before requiring/exercising the code under test.
 preload("ui/uimanager", function()
     local UIManager = { _window_stack = {} }
-    for _, method_name in ipairs{ "sendEvent", "setDirty", "forceRePaint", "tickAfterNext", "unschedule", "close" } do
-        UIManager[method_name] = function() return true end
+    for _, method_name in ipairs({ "sendEvent", "setDirty", "forceRePaint", "tickAfterNext", "unschedule", "close" }) do
+        UIManager[method_name] = function()
+            return true
+        end
     end
     -- `show` also records the widget, so specs (e.g. `ocrdebug_spec.lua`) can
     -- hand-invoke a stored callback (`ok_callback`, a `Save` button's own
@@ -175,13 +202,15 @@ end)
 
 -- gettext: identity translation function.
 preload("gettext", function()
-    return function(s) return s end
+    return function(s)
+        return s
+    end
 end)
 
 -- logger: no-op leveled logging.
 preload("logger", function()
     local logger = {}
-    for _, level in ipairs{ "dbg", "info", "warn", "err" } do
+    for _, level in ipairs({ "dbg", "info", "warn", "err" }) do
         logger[level] = function() end
     end
     return logger
@@ -191,36 +220,52 @@ end)
 -- `src._timing`) needs these, and only for its disabled-by-default spans.
 preload("ui/time", function()
     local time = {}
-    function time.now() return 0 end
-    function time.since(t) return 0 end
-    function time.to_ms(t) return 0 end
+    function time.now()
+        return 0
+    end
+    function time.since(t)
+        return 0
+    end
+    function time.to_ms(t)
+        return 0
+    end
     return time
 end)
 
 preload("util", function()
     local util = {}
-    function util.calcFreeMem() return 0 end
+    function util.calcFreeMem()
+        return 0
+    end
     -- `src._ocrdebug` uses this to create the debug-images folder; specs
     -- never exercise a real filesystem write, so a stub that always
     -- "succeeds" without touching disk is enough.
-    function util.makePath() return true end
+    function util.makePath()
+        return true
+    end
     return util
 end)
 
 -- json: only `src._ocrdebug` uses this, to encode session-log lines. No spec
 -- currently exercises a real encode, so a stub that never gets called is enough.
 preload("json", function()
-    return { encode = function() return "" end }
+    return {
+        encode = function()
+            return ""
+        end,
+    }
 end)
 
 -- Dialog widgets `src._ocrdebug` shows: `:new{...}` just returns the option
 -- table, so specs can hand-invoke a stored `ok_callback`/`cancel_callback`
 -- without a real widget/rendering stack, and without `UIManager:show` (a
 -- no-op stub) ever calling them itself.
-for _, name in ipairs{ "ui/widget/confirmbox", "ui/widget/notification" } do
+for _, name in ipairs({ "ui/widget/confirmbox", "ui/widget/notification" }) do
     preload(name, function()
         local Widget = {}
-        function Widget:new(o) return o or {} end
+        function Widget:new(o)
+            return o or {}
+        end
         return Widget
     end)
 end
@@ -229,7 +274,9 @@ preload("ui/widget/inputdialog", function()
     local InputDialog = {}
     function InputDialog:new(o)
         o = o or {}
-        o.getInputText = function() return o._test_input or "" end
+        o.getInputText = function()
+            return o._test_input or ""
+        end
         o.onShowKeyboard = function() end
         return o
     end
@@ -238,11 +285,13 @@ end)
 
 -- Trivial stub tables: required at file scope but only exercised by
 -- widget-construction methods no spec currently calls into.
-for _, name in ipairs{
+for _, name in ipairs({
     "ui/widget/buttontable",
     "ui/widget/container/centercontainer",
     "ui/renderimage",
     "ui/widget/screenshoter",
-} do
-    preload(name, function() return {} end)
+}) do
+    preload(name, function()
+        return {}
+    end)
 end

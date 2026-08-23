@@ -81,7 +81,7 @@ end
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
 --- @field fullscreen boolean Whether the viewer is fullscreen.
 --- @field images_keep_pan_and_zoom boolean Whether ImageViewer preserves pan/zoom.
-local PanelViewer = ImageViewer:extend{
+local PanelViewer = ImageViewer:extend({
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
@@ -123,7 +123,7 @@ local PanelViewer = ImageViewer:extend{
     fullscreen = true,
     images_keep_pan_and_zoom = false,
     mousewheel_zoom_step = 0.2,
-}
+})
 
 --- Return whether the current image overflows its viewport and can be panned.
 ---
@@ -191,8 +191,7 @@ end
 function PanelViewer:withGuardedImageViewerRefresh(callback)
     local original_set_dirty = UIManager.setDirty
     UIManager.setDirty = function(manager, widget, refreshtype, refreshregion, refreshdither)
-        if type(refreshtype) == "function"
-                and (widget == self or (widget == nil and self._panels_plus_closing)) then
+        if type(refreshtype) == "function" and (widget == self or (widget == nil and self._panels_plus_closing)) then
             refreshtype = self:guardRefreshFunc(widget, refreshtype)
         end
         return original_set_dirty(manager, widget, refreshtype, refreshregion, refreshdither)
@@ -261,15 +260,26 @@ function PanelViewer:runReaderGestureHandler(handler, ges)
     local page_before = reader_ui.page
         or (reader_ui.paging and reader_ui.paging.current_page)
         or (reader_ui.view and reader_ui.view.state and reader_ui.view.state.page)
-        or (reader_ui.document and type(reader_ui.document.getCurrentPage) == "function" and reader_ui.document:getCurrentPage())
+        or (
+            reader_ui.document
+            and type(reader_ui.document.getCurrentPage) == "function"
+            and reader_ui.document:getCurrentPage()
+        )
     local page_changed = false
 
     local original_send_event = UIManager.sendEvent
     UIManager.sendEvent = function(manager, event)
         if reader_ui:handleEvent(event) then
-            if event and (event.cmd == "GotoNextPage" or event.cmd == "GotoPrevPage"
-               or event.cmd == "PageForward" or event.cmd == "PageBackward"
-               or event.cmd == "GotoPage") then
+            if
+                event
+                and (
+                    event.cmd == "GotoNextPage"
+                    or event.cmd == "GotoPrevPage"
+                    or event.cmd == "PageForward"
+                    or event.cmd == "PageBackward"
+                    or event.cmd == "GotoPage"
+                )
+            then
                 page_changed = true
             end
             return
@@ -287,9 +297,17 @@ function PanelViewer:runReaderGestureHandler(handler, ges)
     local page_after = reader_ui.page
         or (reader_ui.paging and reader_ui.paging.current_page)
         or (reader_ui.view and reader_ui.view.state and reader_ui.view.state.page)
-        or (reader_ui.document and type(reader_ui.document.getCurrentPage) == "function" and reader_ui.document:getCurrentPage())
+        or (
+            reader_ui.document
+            and type(reader_ui.document.getCurrentPage) == "function"
+            and reader_ui.document:getCurrentPage()
+        )
     if (page_changed or (page_after and page_before and page_after ~= page_before)) and self:isOpen() then
-        Timing.log("reader gesture/touch zone triggered page turn (%s -> %s); closing viewer", tostring(page_before), tostring(page_after))
+        Timing.log(
+            "reader gesture/touch zone triggered page turn (%s -> %s); closing viewer",
+            tostring(page_before),
+            tostring(page_after)
+        )
         self:onClose()
     end
     return handled == true
@@ -316,12 +334,18 @@ function PanelViewer:dispatchReaderGesture(ges)
 
     for _, zone in ipairs(zones) do
         local zone_id = zone.def and zone.def.id
-        if self:isReaderGestureZone(zone_id, gestures)
-                and (not pannable or ALWAYS_PASSTHROUGH_ZONES[zone_id])
-                and zone.gs_range
-                and zone.handler
-                and zone.gs_range:match(ges) then
-            Timing.log("dispatchReaderGesture: passing gesture (type=%s) to reader zone '%s'", tostring(ges and ges.type), tostring(zone_id))
+        if
+            self:isReaderGestureZone(zone_id, gestures)
+            and (not pannable or ALWAYS_PASSTHROUGH_ZONES[zone_id])
+            and zone.gs_range
+            and zone.handler
+            and zone.gs_range:match(ges)
+        then
+            Timing.log(
+                "dispatchReaderGesture: passing gesture (type=%s) to reader zone '%s'",
+                tostring(ges and ges.type),
+                tostring(zone_id)
+            )
             if self:runReaderGestureHandler(zone.handler, ges) then
                 return true
             end
@@ -463,7 +487,11 @@ function PanelViewer:onSwipe(arg, ges)
         return self:panBySwipe(ges)
     end
 
-    if self.swipe_navigation ~= false and self._images_list and (ges.direction == "west" or ges.direction == "east") then
+    if
+        self.swipe_navigation ~= false
+        and self._images_list
+        and (ges.direction == "west" or ges.direction == "east")
+    then
         if ges.direction == self:getNextSwipeDirection() then
             return self:onShowNextImage()
         else
@@ -817,9 +845,19 @@ function PanelViewer:paintHighlights(bb, x, y)
         local rect = self:pageToScreenTransform(box)
         if rect then
             if crop_rect and isAnomalousHighlightBox(box, crop_rect) then
-                logger.dbg("[Panels+] anomalous highlight box, drawing outline only:",
-                    "box=", box.x or box.x0, box.y or box.y0, box.w, box.h,
-                    "crop=", crop_rect.x, crop_rect.y, crop_rect.w, crop_rect.h)
+                logger.dbg(
+                    "[Panels+] anomalous highlight box, drawing outline only:",
+                    "box=",
+                    box.x or box.x0,
+                    box.y or box.y0,
+                    box.w,
+                    box.h,
+                    "crop=",
+                    crop_rect.x,
+                    crop_rect.y,
+                    crop_rect.w,
+                    crop_rect.h
+                )
                 paintHighlightOutline(bb, rect)
             elseif reader_ui.view.drawHighlightRect then
                 pcall(reader_ui.view.drawHighlightRect, reader_ui.view, bb, 0, 0, rect, drawer)
@@ -964,16 +1002,16 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
     end
 
     WordFinder.logDiagnostic(string.format("Refined selection: '%s' -> '%s'", orig_word, tostring(word)), {
-        box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", box.x, box.y, box.w, box.h)
+        box = string.format("(x=%.1f,y=%.1f,w=%.1f,h=%.1f)", box.x, box.y, box.w, box.h),
     })
 
     local ok_notif, Notification = pcall(require, "ui/widget/notification")
     if ok_notif and Notification and Notification.new then
         pcall(function()
-            UIManager:show(Notification:new{
+            UIManager:show(Notification:new({
                 text = string.format("[WordFinder] '%s' (%dx%d)", word, math.floor(box.w), math.floor(box.h)),
                 timeout = 2,
-            })
+            }))
         end)
     end
 end
@@ -1368,7 +1406,13 @@ function PanelViewer:animateSwitchToImageNum(target)
         return self:switchToImageNum(target)
     end
 
-    Timing.log("animateSwitchToImageNum: panel %d -> %d (crop_mode=%s, duration=%.2fs)", cur, target, tostring(self.crop_mode), self.nav_transition_duration or 0)
+    Timing.log(
+        "animateSwitchToImageNum: panel %d -> %d (crop_mode=%s, duration=%.2fs)",
+        cur,
+        target,
+        tostring(self.crop_mode),
+        self.nav_transition_duration or 0
+    )
     Timing.memory("smooth_transition")
 
     local union = Geometry.rectUnion(rect_a, rect_b)
@@ -1388,20 +1432,18 @@ function PanelViewer:animateSwitchToImageNum(target)
         ax, ay = Geometry.rectCenter(rect_a)
     end
 
-    local half_w = math.max(
-        Screen:getWidth() / (2 * target_zoom) + math.abs(ax - bx),
-        bx - union.x,
-        union.x + union.w - bx
-    )
-    local half_h = math.max(
-        Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by),
-        by - union.y,
-        union.y + union.h - by
-    )
+    local half_w =
+        math.max(Screen:getWidth() / (2 * target_zoom) + math.abs(ax - bx), bx - union.x, union.x + union.w - bx)
+    local half_h =
+        math.max(Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by), by - union.y, union.y + union.h - by)
 
     local screen_area = Screen:getWidth() * Screen:getHeight()
     if (2 * half_w) * (2 * half_h) * target_zoom * target_zoom > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
-        Timing.log("animateSwitchToImageNum: canvas area cap exceeded for panel %d -> %d, falling back to instant swap", cur, target)
+        Timing.log(
+            "animateSwitchToImageNum: canvas area cap exceeded for panel %d -> %d, falling back to instant swap",
+            cur,
+            target
+        )
         return self:switchToImageNum(target)
     end
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
@@ -1413,7 +1455,10 @@ function PanelViewer:animateSwitchToImageNum(target)
         return self.reader_ui.document:drawPagePart(self.page, union, 0)
     end)
     if not ok or not content_image then
-        logger.warn("[Panels+] smooth transition page draw failed, falling back to instant swap:", tostring(content_image))
+        logger.warn(
+            "[Panels+] smooth transition page draw failed, falling back to instant swap:",
+            tostring(content_image)
+        )
         return self:switchToImageNum(target)
     end
 
@@ -1567,7 +1612,12 @@ function PanelViewer:animateBoundaryTransition(direction)
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 
-    Timing.log("animateBoundaryTransition: direction=%s target_page=%s (crop_mode=%s)", direction, resolved and tostring(resolved.next_page) or "none", tostring(self.crop_mode))
+    Timing.log(
+        "animateBoundaryTransition: direction=%s target_page=%s (crop_mode=%s)",
+        direction,
+        resolved and tostring(resolved.next_page) or "none",
+        tostring(self.crop_mode)
+    )
     Timing.memory("smooth_boundary_transition")
 
     local target_zoom = canvasFitZoom(rect_b)
@@ -1575,7 +1625,9 @@ function PanelViewer:animateBoundaryTransition(direction)
     local ok_a, tile_a, rotated_a = pcall(function()
         if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
             local img = self._images_list[self._images_list_cur]
-            if type(img) == "function" then return img() end
+            if type(img) == "function" then
+                return img()
+            end
             return img
         end
         return self.reader_ui.document:drawPagePart(self.page, rect_a, 0)
@@ -1587,7 +1639,9 @@ function PanelViewer:animateBoundaryTransition(direction)
     local ok_b, tile_b, rotated_b = pcall(function()
         if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
             local img = resolved.next_images[resolved.start_idx]
-            if type(img) == "function" then return img() end
+            if type(img) == "function" then
+                return img()
+            end
             return img
         end
         return self.reader_ui.document:drawPagePart(resolved.next_page, rect_b, 0)
@@ -1637,8 +1691,10 @@ function PanelViewer:animateBoundaryTransition(direction)
     local canvas_h = math.max(1, math.ceil(math.max(2 * half_h_a, 2 * half_h_b)))
 
     local screen_area = viewport_w * viewport_h
-    if canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
-        or not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
+    if
+        canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
+        or not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES)
+    then
         if tile_a_scaled ~= tile_a and tile_a_scaled.free then
             tile_a_scaled:free()
         end
@@ -1813,9 +1869,11 @@ end
 function PanelViewer:onAdjustMarginRatio()
     local SpinWidget = require("ui/widget/spinwidget")
     local viewer = self
-    UIManager:show(SpinWidget:new{
+    UIManager:show(SpinWidget:new({
         title_text = _("Panel margin"),
-        info_text = _("Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."),
+        info_text = _(
+            "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+        ),
         value = math.floor((self.margin_ratio or 0.12) * 100 + 0.5),
         value_min = 0,
         value_max = 40,
@@ -1834,7 +1892,7 @@ function PanelViewer:onAdjustMarginRatio()
                 viewer:update()
             end
         end,
-    })
+    }))
     return true
 end
 
@@ -1847,7 +1905,7 @@ end
 function PanelViewer:onAdjustBleedRatio()
     local SpinWidget = require("ui/widget/spinwidget")
     local viewer = self
-    UIManager:show(SpinWidget:new{
+    UIManager:show(SpinWidget:new({
         title_text = _("Loose crop bleed"),
         info_text = _("How much page area outside each panel's edges to reveal."),
         value = math.floor((self.bleed_ratio or 0.08) * 100 + 0.5),
@@ -1868,7 +1926,7 @@ function PanelViewer:onAdjustBleedRatio()
                 viewer:update()
             end
         end,
-    })
+    }))
     return true
 end
 
@@ -1878,7 +1936,7 @@ end
 function PanelViewer:onAdjustNavTransitionDuration()
     local SpinWidget = require("ui/widget/spinwidget")
     local viewer = self
-    UIManager:show(SpinWidget:new{
+    UIManager:show(SpinWidget:new({
         title_text = _("Smooth navigation duration"),
         info_text = _("How long the camera pan between panels takes."),
         value = math.floor((self.nav_transition_duration or 0.4) * 1000 + 0.5),
@@ -1896,7 +1954,7 @@ function PanelViewer:onAdjustNavTransitionDuration()
                 viewer.nav_transition_duration = seconds
             end
         end,
-    })
+    }))
     return true
 end
 
@@ -1910,9 +1968,11 @@ end
 function PanelViewer:onAdjustNavTransitionFrames(on_committed)
     local SpinWidget = require("ui/widget/spinwidget")
     local viewer = self
-    UIManager:show(SpinWidget:new{
+    UIManager:show(SpinWidget:new({
         title_text = _("Smooth navigation frames"),
-        info_text = _("How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."),
+        info_text = _(
+            "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+        ),
         value = self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT,
         value_min = 1,
         value_max = 24,
@@ -1931,7 +1991,7 @@ function PanelViewer:onAdjustNavTransitionFrames(on_committed)
                 on_committed()
             end
         end,
-    })
+    }))
     return true
 end
 
@@ -1950,14 +2010,17 @@ end
 function PanelViewer:onOpenRotationPicker()
     local RotationPickerDialog = require("src._rotationpicker")
     local viewer = self
-    UIManager:show(RotationPickerDialog:new{
-        on_device_rotate = function(direction)
-            viewer:onSetDeviceRotation(direction)
-        end,
-        on_image_rotate = function(direction)
-            viewer:onSetImageRotation(direction)
-        end,
-    }, "full")
+    UIManager:show(
+        RotationPickerDialog:new({
+            on_device_rotate = function(direction)
+                viewer:onSetDeviceRotation(direction)
+            end,
+            on_image_rotate = function(direction)
+                viewer:onSetImageRotation(direction)
+            end,
+        }),
+        "full"
+    )
     return true
 end
 
@@ -2188,19 +2251,19 @@ function PanelViewer:replaceButtonTable()
         },
     }
 
-    self.button_table = ButtonTable:new{
+    self.button_table = ButtonTable:new({
         width = self.width - 2 * self.button_padding,
         buttons = buttons,
         zero_sep = true,
         show_parent = self,
-    }
-    self.button_container = CenterContainer:new{
-        dimen = Geom:new{
+    })
+    self.button_container = CenterContainer:new({
+        dimen = Geom:new({
             w = self.width,
             h = self.button_table:getSize().h,
-        },
+        }),
         self.button_table,
-    }
+    })
 end
 
 return PanelViewer

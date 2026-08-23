@@ -40,7 +40,11 @@ end
 --- @param page number Document page number.
 --- @return string key Page, mode, detector, and border-split cache key.
 function Cache:getPanelCacheKey(page)
-    return tostring(page) .. ":" .. (self.settings.mode or "manga") .. ":" .. self:getDetector()
+    return tostring(page)
+        .. ":"
+        .. (self.settings.mode or "manga")
+        .. ":"
+        .. self:getDetector()
         .. (self.settings.segment_border_split == true and ":bs" or "")
 end
 

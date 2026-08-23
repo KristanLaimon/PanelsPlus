@@ -41,10 +41,10 @@ end
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusToggle()
     self:setEnabled(not self:isEnabled())
-    UIManager:show(InfoMessage:new{
+    UIManager:show(InfoMessage:new({
         text = self:isEnabled() and _("Panels+ panel focusing enabled") or _("Native panel focusing enabled"),
         timeout = 2,
-    })
+    }))
     return true
 end
 
@@ -53,10 +53,10 @@ end
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusToggleMode()
     self:setMode(self.settings.mode == "manga" and "comic" or "manga")
-    UIManager:show(InfoMessage:new{
+    UIManager:show(InfoMessage:new({
         text = self.settings.mode == "manga" and _("Manga mode: right to left") or _("Comic mode: left to right"),
         timeout = 2,
-    })
+    }))
     return true
 end
 
@@ -65,10 +65,10 @@ end
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusSetManga()
     self:setMode("manga")
-    UIManager:show(InfoMessage:new{
+    UIManager:show(InfoMessage:new({
         text = _("Manga mode: right to left"),
         timeout = 2,
-    })
+    }))
     return true
 end
 
@@ -77,10 +77,10 @@ end
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusSetComic()
     self:setMode("comic")
-    UIManager:show(InfoMessage:new{
+    UIManager:show(InfoMessage:new({
         text = _("Comic mode: left to right"),
         timeout = 2,
-    })
+    }))
     return true
 end
 

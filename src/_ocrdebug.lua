@@ -136,16 +136,16 @@ function OcrDebug.onDictClosed(panel_viewer)
     end
 
     if pending.ocr_failed then
-        UIManager:show(Notification:new{
+        UIManager:show(Notification:new({
             text = _("Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."),
             timeout = 4,
-        })
+        }))
         OcrDebug.startRectCapture(panel_viewer, pending)
         return
     end
 
-    UIManager:show(ConfirmBox:new{
-        text = _("Panels+ OCR debug\n\nWas the OCR word correct?") .. "\n\n\"" .. tostring(pending.ocr_word) .. "\"",
+    UIManager:show(ConfirmBox:new({
+        text = _("Panels+ OCR debug\n\nWas the OCR word correct?") .. '\n\n"' .. tostring(pending.ocr_word) .. '"',
         ok_text = _("Yes, correct"),
         cancel_text = _("No, wrong"),
         ok_callback = function()
@@ -155,7 +155,7 @@ function OcrDebug.onDictClosed(panel_viewer)
         cancel_callback = function()
             OcrDebug.startRectCapture(panel_viewer, pending)
         end,
-    })
+    }))
 end
 
 --- Half-width, in screen pixels, of the crosshair marker drawn at the first
@@ -181,10 +181,10 @@ function OcrDebug.startRectCapture(panel_viewer, pending)
     -- handlers of its own and lets taps fall straight through to whatever is
     -- underneath, so it can't eat the very first corner tap it is telling
     -- the user to make.
-    UIManager:show(Notification:new{
+    UIManager:show(Notification:new({
         text = _("Tap the correct word's top-left corner, then tap its bottom-right corner."),
         timeout = 4,
-    })
+    }))
 end
 
 --- Record one corner tap; on the second, finalize the box and prompt for the
@@ -206,10 +206,10 @@ function OcrDebug.handleTap(panel_viewer, ges)
     if not rect.p0 then
         rect.p0 = pos
         UIManager:setDirty(panel_viewer, "ui")
-        UIManager:show(Notification:new{
+        UIManager:show(Notification:new({
             text = _("Top-left corner marked. Now tap the bottom-right corner."),
             timeout = 3,
-        })
+        }))
         return true
     end
 
@@ -284,10 +284,18 @@ local function drawBoxOutline(bb, x, y, w, h, thickness)
     w = math.max(1, math.min(w, bb_w - x))
     h = math.max(1, math.min(h, bb_h - y))
     for t = 0, thickness - 1 do
-        if y + t < bb_h then bb:invertRect(x, y + t, w, 1) end
-        if y + h - 1 - t >= 0 then bb:invertRect(x, y + h - 1 - t, w, 1) end
-        if x + t < bb_w then bb:invertRect(x + t, y, 1, h) end
-        if x + w - 1 - t >= 0 then bb:invertRect(x + w - 1 - t, y, 1, h) end
+        if y + t < bb_h then
+            bb:invertRect(x, y + t, w, 1)
+        end
+        if y + h - 1 - t >= 0 then
+            bb:invertRect(x, y + h - 1 - t, w, 1)
+        end
+        if x + t < bb_w then
+            bb:invertRect(x + t, y, 1, h)
+        end
+        if x + w - 1 - t >= 0 then
+            bb:invertRect(x + w - 1 - t, y, 1, h)
+        end
     end
 end
 
@@ -314,9 +322,16 @@ function OcrDebug.saveCropImage(panel_viewer, pending)
     -- long-press point. Fall back to a small placeholder region there purely
     -- to pick the crop's extent -- it is never drawn as an outline (only a
     -- *real* `pending.box` is, below), so it can't be mistaken for one.
-    local crop_box = pending.box or (pending.tap and {
-        x = pending.tap.x - 20, y = pending.tap.y - 10, w = 40, h = 20,
-    })
+    local crop_box = pending.box
+        or (
+            pending.tap
+            and {
+                x = pending.tap.x - 20,
+                y = pending.tap.y - 10,
+                w = 40,
+                h = 20,
+            }
+        )
     if not document or not crop_box or type(document.renderPage) ~= "function" then
         return nil
     end
@@ -341,7 +356,7 @@ function OcrDebug.saveCropImage(panel_viewer, pending)
         return nil
     end
 
-    local rect = Geom:new{ x = cx0, y = cy0, w = crop_w, h = crop_h }
+    local rect = Geom:new({ x = cx0, y = cy0, w = crop_w, h = crop_h })
     -- `Document:renderPage` only actually renders `rect` when it is
     -- "prescaled" (carries its own `scaled_rect`); otherwise it renders the
     -- *whole page* whenever that fits in the tile cache (which a manga page
@@ -388,14 +403,23 @@ function OcrDebug.saveCropImage(panel_viewer, pending)
     end)
 
     if not util.makePath(OcrDebug.IMAGES_DIR) then
-        if copy then pcall(copy.free, copy) end
+        if copy then
+            pcall(copy.free, copy)
+        end
         return nil
     end
 
-    local filename = string.format("%s_p%s_%d_%d.png", pending.ts:gsub("[^%d]", ""),
-        tostring(pending.page or "0"), math.floor(crop_box.x or 0), math.floor(crop_box.y or 0))
+    local filename = string.format(
+        "%s_p%s_%d_%d.png",
+        pending.ts:gsub("[^%d]", ""),
+        tostring(pending.page or "0"),
+        math.floor(crop_box.x or 0),
+        math.floor(crop_box.y or 0)
+    )
     local ok_write = pcall(draw_bb.writePNG, draw_bb, OcrDebug.IMAGES_DIR .. "/" .. filename)
-    if copy then pcall(copy.free, copy) end
+    if copy then
+        pcall(copy.free, copy)
+    end
     if not ok_write then
         logger.warn("[Panels+ OCRDebug] failed to write debug crop PNG")
         return nil
@@ -410,7 +434,7 @@ end
 function OcrDebug.promptCorrectText(pending)
     pending.verdict = "incorrect"
     local dialog
-    dialog = InputDialog:new{
+    dialog = InputDialog:new({
         title = _("Panels+ OCR debug"),
         description = _("What is actually written in the box you drew?"),
         input = "",
@@ -436,7 +460,7 @@ function OcrDebug.promptCorrectText(pending)
                 },
             },
         },
-    }
+    })
     UIManager:show(dialog)
     dialog:onShowKeyboard()
 end

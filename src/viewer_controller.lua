@@ -23,14 +23,15 @@ end
 ---
 --- @return boolean allowed Whether prerendering should proceed.
 function ViewerController:hasMemoryForPrerender()
-    local minimum = self.settings.prerender_min_free_bytes
-        or Settings.defaults.prerender_min_free_bytes
+    local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
     local allowed = Memory.hasHeadroom(minimum)
     if not allowed then
         local free_bytes = Memory.freeBytes()
-        Timing.log("prerender skipped: low memory (free=%dMB min=%dMB)",
+        Timing.log(
+            "prerender skipped: low memory (free=%dMB min=%dMB)",
             math.floor((free_bytes or 0) / (1024 * 1024)),
-            math.floor(minimum / (1024 * 1024)))
+            math.floor(minimum / (1024 * 1024))
+        )
     end
     return allowed
 end
@@ -239,8 +240,7 @@ function ViewerController:cycleViewerDetector(viewer)
     -- backgrounds, which comic pages routinely have; main.lua:setMode() and
     -- the main menu both keep comic mode off "exact" for that reason, so the
     -- in-viewer cycle must honor the same invariant instead of offering it.
-    local order = self.settings.mode == "comic"
-        and { auto = "fast", fast = "auto", exact = "auto" }
+    local order = self.settings.mode == "comic" and { auto = "fast", fast = "auto", exact = "auto" }
         or { auto = "fast", fast = "exact", exact = "auto" }
     local next_detector = order[self:getDetector()] or "fast"
     Timing.memory("detector cycle -> " .. next_detector)
@@ -336,7 +336,8 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
         },
         {
             text = _("Animate page-to-page transitions (Actual: ")
-                .. (controller.settings.nav_transition_cross_page == true and _("true") or _("false")) .. ")",
+                .. (controller.settings.nav_transition_cross_page == true and _("true") or _("false"))
+                .. ")",
             checked_func = function()
                 return controller.settings.nav_transition_cross_page == true
             end,
@@ -348,11 +349,14 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
                 UIManager:close(menu)
                 controller:showNavTransitionOptionsMenu(viewer)
             end,
-            help_text = _("Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."),
+            help_text = _(
+                "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+            ),
         },
         {
             text = _("Transition frames (Actual: ")
-                .. tostring(controller.settings.nav_transition_frames or Settings.defaults.nav_transition_frames) .. _(" fps)"),
+                .. tostring(controller.settings.nav_transition_frames or Settings.defaults.nav_transition_frames)
+                .. _(" fps)"),
             callback = function()
                 viewer:onAdjustNavTransitionFrames(function()
                     -- Rebuild the menu so the "(Actual: ...)" label in the
@@ -361,14 +365,16 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
                     controller:showNavTransitionOptionsMenu(viewer)
                 end)
             end,
-            help_text = _("How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."),
+            help_text = _(
+                "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+            ),
         },
     }
 
-    menu = Menu:new{
+    menu = Menu:new({
         title = _("Navigation Transition Settings"),
         item_table = menu_items,
-    }
+    })
     UIManager:show(menu)
     return true
 end
@@ -408,8 +414,9 @@ function ViewerController:showMoreConfigMenu(viewer)
 
     local menu_items = {
         {
-            text = _("Tap screen sides to navigate (Actual: ")
-                .. (controller.settings.tap_navigation == true and _("true") or _("false")) .. ")",
+            text = _("Tap screen sides to navigate (Actual: ") .. (controller.settings.tap_navigation == true and _(
+                "true"
+            ) or _("false")) .. ")",
             checked_func = function()
                 return controller.settings.tap_navigation == true
             end,
@@ -418,11 +425,14 @@ function ViewerController:showMoreConfigMenu(viewer)
                 UIManager:close(menu)
                 controller:showMoreConfigMenu(viewer)
             end,
-            help_text = _("Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."),
+            help_text = _(
+                "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+            ),
         },
         {
             text = _("Swipe to navigate (Actual: ")
-                .. (controller.settings.swipe_navigation ~= false and _("true") or _("false")) .. ")",
+                .. (controller.settings.swipe_navigation ~= false and _("true") or _("false"))
+                .. ")",
             checked_func = function()
                 return controller.settings.swipe_navigation ~= false
             end,
@@ -431,14 +441,16 @@ function ViewerController:showMoreConfigMenu(viewer)
                 UIManager:close(menu)
                 controller:showMoreConfigMenu(viewer)
             end,
-            help_text = _("Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."),
+            help_text = _(
+                "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+            ),
         },
     }
 
-    menu = Menu:new{
+    menu = Menu:new({
         title = _("More Panel Viewer Settings"),
         item_table = menu_items,
-    }
+    })
     UIManager:show(menu)
     return true
 end
@@ -477,11 +489,18 @@ end
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
     self:cancelPanelPrerender()
-    Timing.log("showPanelViewerForPage: page=%d panels=%d start_idx=%d crop_mode=%s transition_mode=%s", page, #panels, start_idx or 1, tostring(self.settings.crop_mode), tostring(self.settings.nav_transition_mode))
+    Timing.log(
+        "showPanelViewerForPage: page=%d panels=%d start_idx=%d crop_mode=%s transition_mode=%s",
+        page,
+        #panels,
+        start_idx or 1,
+        tostring(self.settings.crop_mode),
+        tostring(self.settings.nav_transition_mode)
+    )
     Timing.memory("show_panel_viewer")
     local images, image_rects, full_page_flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
-    viewer = PanelViewer:new{
+    viewer = PanelViewer:new({
         image = images,
         image_disposable = true,
         images_list_nb = #images,
@@ -558,7 +577,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)
         end,
-    }
+    })
 
     UIManager:show(viewer)
     if start_idx and start_idx > 1 then
@@ -621,7 +640,13 @@ end
 --- @param resolved PPBoundaryResolution Result of a prior `resolveBoundaryTarget` call.
 --- @return boolean|PanelViewer result Whatever `showPanelViewerForPage` returns.
 function ViewerController:commitBoundaryTransition(direction, current_viewer, resolved)
-    Timing.log("commitBoundaryTransition: direction=%s page=%d -> %d target_panel=%d", direction, current_viewer and current_viewer.page or -1, resolved.next_page, resolved.start_idx)
+    Timing.log(
+        "commitBoundaryTransition: direction=%s page=%d -> %d target_panel=%d",
+        direction,
+        current_viewer and current_viewer.page or -1,
+        resolved.next_page,
+        resolved.start_idx
+    )
     self.ui:handleEvent(Event:new("GotoPage", resolved.next_page))
     UIManager:close(current_viewer)
     return self:showPanelViewerForPage(resolved.next_page, resolved.panels, resolved.start_idx)
@@ -644,7 +669,12 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
     else
         next_page = self.ui.document:getPrevPage(current_viewer.page)
     end
-    Timing.log("onPanelViewerBoundary: direction=%s page=%d next_page=%s", direction, current_viewer and current_viewer.page or -1, tostring(next_page))
+    Timing.log(
+        "onPanelViewerBoundary: direction=%s page=%d next_page=%s",
+        direction,
+        current_viewer and current_viewer.page or -1,
+        tostring(next_page)
+    )
     if not next_page or next_page == 0 then
         current_viewer._panels_plus_boundary_pending = nil
         return true

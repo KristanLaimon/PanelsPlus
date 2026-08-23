@@ -8,7 +8,6 @@ local M = {}
 
 local stats = { passed = 0, failed = 0 }
 local name_stack = {}
-local current_path = nil
 
 local function fullName(name)
     if #name_stack == 0 then
@@ -44,8 +43,15 @@ M.assert = {}
 
 function M.assert.equals(expected, actual, msg)
     if expected ~= actual then
-        fail(string.format("%s: expected %s, got %s", msg or "assert.equals failed",
-            tostring(expected), tostring(actual)), 2)
+        fail(
+            string.format(
+                "%s: expected %s, got %s",
+                msg or "assert.equals failed",
+                tostring(expected),
+                tostring(actual)
+            ),
+            2
+        )
     end
 end
 
@@ -76,8 +82,16 @@ end
 function M.assert.near(expected, actual, tolerance, msg)
     tolerance = tolerance or 0
     if actual == nil or math.abs(expected - actual) > tolerance then
-        fail(string.format("%s: expected %s within %s of %s", msg or "assert.near failed",
-            tostring(actual), tostring(tolerance), tostring(expected)), 2)
+        fail(
+            string.format(
+                "%s: expected %s within %s of %s",
+                msg or "assert.near failed",
+                tostring(actual),
+                tostring(tolerance),
+                tostring(expected)
+            ),
+            2
+        )
     end
 end
 
