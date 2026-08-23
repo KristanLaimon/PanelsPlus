@@ -12,6 +12,7 @@ mkdir -p "$PLUGIN_DIR"
 find "$SCRIPT_DIR" -maxdepth 1 -type f \( -name "*.lua" -o -name "_meta.lua" \) \
     -exec cp -p {} "$PLUGIN_DIR/" \;
 cp -Rp "$SCRIPT_DIR/src" "$PLUGIN_DIR/"
+cp -Rp "$SCRIPT_DIR/locales" "$PLUGIN_DIR/"
 
 echo "Created: $PLUGIN_DIR"
 echo "Copy the folder to your Kindle KOReader plugins folder"

@@ -19,6 +19,7 @@ Get-ChildItem -LiteralPath $ScriptDir -File |
     Copy-Item -Destination $PluginDir -Force
 
 Copy-Item -LiteralPath (Join-Path $ScriptDir "src") -Destination $PluginDir -Recurse -Force
+Copy-Item -LiteralPath (Join-Path $ScriptDir "locales") -Destination $PluginDir -Recurse -Force
 
 Write-Host "Created: $PluginDir"
 Write-Host "Copy this folder to your KOReader plugins folder:"
