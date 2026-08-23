@@ -14,4 +14,5 @@ exclude_files = {
     "zen_ui.koplugin/**/*.lua",
     "vendor/**/*.lua",
     "dist/**/*.lua",
+    ".luarocks/**/*.lua",
 }

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-echo "Launching KOReader (Kobo Emulation Mode)..." #At least, the most I can emulate kobo devices. I dont have one...
+echo "Launching KOReader (Kobo Emulation Mode)..." #At least, the most I can emulate kobo devices
 exec flatpak run \
     --env=EMULATE_READER_W=632 \
     --env=EMULATE_READER_H=840 \

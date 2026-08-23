@@ -3,3 +3,4 @@ kobo.koplugin/
 zen_ui.koplugin/
 vendor/
 dist/
+.luarocks/
