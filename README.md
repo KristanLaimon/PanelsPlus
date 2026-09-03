@@ -81,7 +81,7 @@ This plugin works well with:
 - Physical buttons (Page-turning)
 - Bluetooth devices with page-turning features
 
-Personally tested with 0.4.1 version, but thanks to koreader plugins stability ecosystem it could work with previous versions. If any problems, create a github issue in this repo, I'll fix it ASAP.
+Tested against 0.4.1 version thanks to users feedback and the koreader plugins stability ecosystem it could work with previous versions. If any problems, create a github issue in this repo, I'll fix it ASAP.
 
 ## Installation
 
