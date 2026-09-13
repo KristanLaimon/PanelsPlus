@@ -94,7 +94,7 @@ Panels+ is structured for installation via KOReader package and plugin managers:
 2. You should now have this folder: `panelsplus.koplugin`
 
 > [!NOTE]
-> **GUI zip extractors note:** Some desktop GUI archive managers (such as GNOME Archive Manager, Ark, or Windows Explorer "Extract All") may create an extra parent folder level matching the zip filename (e.g. `panels_plus.koplugin/panelsplus.koplugin/`). Take this into account when extracting: make sure you copy the actual `panelsplus.koplugin` folder (the one directly containing `_meta.lua` and `main.lua`) into your KOReader `plugins/` directory, avoiding any duplicate wrapper directory.
+> **GUI zip extractors note:** Some desktop GUI archive managers (such as GNOME Archive Manager, Ark, or Windows Explorer "Extract All") may create an extra parent folder level matching the zip filename (e.g. `panels_plus.koplugin/panelsplus.koplugin/`). Take this into account when extracting: make sure you copy the actual `panelsplus.koplugin` folder (the one directly containing `_meta.lua` and `main.lua`) into your KOReader `plugins/` directory.
 
 3. Copy the **whole `panelsplus.koplugin` folder** into your KOReader `plugins` directory. (Do not copy only the files inside it).
 
