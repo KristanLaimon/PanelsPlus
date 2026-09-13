@@ -77,45 +77,30 @@ jobs:
 
       - name: Package plugin
         id: package
-        env:
-          VERSION: ${{ steps.release.outputs.version }}
-          PACKAGE_NAME: panelsplus-${{ steps.release.outputs.version }}.zip
         run: |
           set -euo pipefail
 
-          package_name="${PACKAGE_NAME}"
           python3 - <<'PY'
           from pathlib import Path
           from zipfile import ZIP_DEFLATED, ZipFile
-          import os
+          import shutil
 
-          package_name = os.environ["PACKAGE_NAME"]
           source_dir = Path("dist/panelsplus.koplugin")
+          target_zip = Path("panelsplus.koplugin.zip")
 
-          with ZipFile(package_name, "w", ZIP_DEFLATED) as archive:
+          with ZipFile(target_zip, "w", ZIP_DEFLATED) as archive:
               for path in sorted(source_dir.rglob("*")):
                   if path.is_file():
                       archive.write(path, path.relative_to("dist"))
+
+          # Also create panels_plus.koplugin.zip so existing ZenLabs package URLs don't 404
+          shutil.copyfile(target_zip, "panels_plus.koplugin.zip")
           PY
 
-          # Version-agnostic copy for stable URL package managers
-          stable_name="panelsplus.koplugin.zip"
-          cp "${package_name}" "${stable_name}"
-
-          # Legacy filenames for ZenLabs Repo / existing installations:
-          legacy_package_name="panels_plus-${VERSION}.zip"
-          legacy_stable_name="panels_plus.koplugin.zip"
-          cp "${package_name}" "${legacy_package_name}"
-          cp "${package_name}" "${legacy_stable_name}"
-
-          echo "name=${package_name}" >> "${GITHUB_OUTPUT}"
-          echo "path=${package_name}" >> "${GITHUB_OUTPUT}"
-          echo "stable_name=${stable_name}" >> "${GITHUB_OUTPUT}"
-          echo "stable_path=${stable_name}" >> "${GITHUB_OUTPUT}"
-          echo "legacy_name=${legacy_package_name}" >> "${GITHUB_OUTPUT}"
-          echo "legacy_path=${legacy_package_name}" >> "${GITHUB_OUTPUT}"
-          echo "legacy_stable_name=${legacy_stable_name}" >> "${GITHUB_OUTPUT}"
-          echo "legacy_stable_path=${legacy_stable_name}" >> "${GITHUB_OUTPUT}"
+          echo "primary_name=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "primary_path=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "legacy_name=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "legacy_path=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
 
       - name: Write release notes draft
         env:
@@ -190,45 +175,31 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}
-          PACKAGE_NAME: ${{ steps.package.outputs.name }}
-          PACKAGE_PATH: ${{ steps.package.outputs.path }}
-          STABLE_NAME: ${{ steps.package.outputs.stable_name }}
-          STABLE_PATH: ${{ steps.package.outputs.stable_path }}
+          PRIMARY_NAME: ${{ steps.package.outputs.primary_name }}
+          PRIMARY_PATH: ${{ steps.package.outputs.primary_path }}
           LEGACY_NAME: ${{ steps.package.outputs.legacy_name }}
           LEGACY_PATH: ${{ steps.package.outputs.legacy_path }}
-          LEGACY_STABLE_NAME: ${{ steps.package.outputs.legacy_stable_name }}
-          LEGACY_STABLE_PATH: ${{ steps.package.outputs.legacy_stable_path }}
         run: |
           set -euo pipefail
 
-          test -s "${PACKAGE_PATH}"
-          test -s "${STABLE_PATH}"
+          test -s "${PRIMARY_PATH}"
           test -s "${LEGACY_PATH}"
-          test -s "${LEGACY_STABLE_PATH}"
-          gh release upload "${TAG}" "${PACKAGE_PATH}" "${STABLE_PATH}" "${LEGACY_PATH}" "${LEGACY_STABLE_PATH}" --clobber
+          gh release upload "${TAG}" "${PRIMARY_PATH}" "${LEGACY_PATH}" --clobber
 
-          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${PACKAGE_NAME}" >/dev/null; then
-            echo "::error::Release asset ${PACKAGE_NAME} was not uploaded."
-            exit 1
-          fi
-          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${STABLE_NAME}" >/dev/null; then
-            echo "::error::Release asset ${STABLE_NAME} was not uploaded."
+          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${PRIMARY_NAME}" >/dev/null; then
+            echo "::error::Release asset ${PRIMARY_NAME} was not uploaded."
             exit 1
           fi
           if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${LEGACY_NAME}" >/dev/null; then
             echo "::error::Release asset ${LEGACY_NAME} was not uploaded."
             exit 1
           fi
-          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${LEGACY_STABLE_NAME}" >/dev/null; then
-            echo "::error::Release asset ${LEGACY_STABLE_NAME} was not uploaded."
-            exit 1
-          fi
 
       - name: Link release editor
         env:
           TAG: ${{ steps.release.outputs.tag }}
-          PACKAGE_NAME: ${{ steps.package.outputs.name }}
-          STABLE_NAME: ${{ steps.package.outputs.stable_name }}
+          PRIMARY_NAME: ${{ steps.package.outputs.primary_name }}
+          LEGACY_NAME: ${{ steps.package.outputs.legacy_name }}
           RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
           EDIT_URL: ${{ steps.create_release.outputs.edit_url }}
         run: |
@@ -238,7 +209,7 @@ jobs:
             echo "## Draft release created"
             echo
             echo "- Tag: \`${TAG}\`"
-            echo "- Asset: \`${PACKAGE_NAME}\` (also uploaded as \`${STABLE_NAME}\` for stable-URL package managers)"
+            echo "- Assets: \`${PRIMARY_NAME}\`, \`${LEGACY_NAME}\`"
             echo "- Release: ${RELEASE_URL}"
             echo "- Edit before publishing: ${EDIT_URL}"
           } >> "${GITHUB_STEP_SUMMARY}"
