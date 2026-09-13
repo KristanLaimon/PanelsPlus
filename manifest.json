@@ -8,7 +8,7 @@
     },
     "packages": [
         {
-            "id": "panels_plus",
+            "id": "panelsplus",
             "name": "Panels+",
             "version": "1.4.0",
             "description": "Panel-focused reading for manga and comics with directional panel navigation, zoom controls, and screenshots.",
@@ -17,11 +17,11 @@
             "category": "reading",
             "source": "https://github.com/KristanLaimon/PanelsPlus",
             "source_asset": "panels_plus.koplugin.zip",
-            "plugin_module": "panels_plus",
+            "plugin_module": "panelsplus",
             "plugin_module_aliases": [
+                "panels_plus",
                 "PanelsPlus",
                 "panels-plus",
-                "panelsplus",
                 "panels+"
             ],
             "readme_url": "https://raw.githubusercontent.com/KristanLaimon/PanelsPlus/main/README.md",
@@ -30,6 +30,10 @@
                 {
                     "asset": "panels_plus.koplugin.zip",
                     "url": "https://github.com/KristanLaimon/PanelsPlus/releases/latest/download/panels_plus.koplugin.zip"
+                },
+                {
+                    "asset": "panelsplus.koplugin.zip",
+                    "url": "https://github.com/KristanLaimon/PanelsPlus/releases/latest/download/panelsplus.koplugin.zip"
                 }
             ]
         }

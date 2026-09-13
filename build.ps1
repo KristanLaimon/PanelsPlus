@@ -1,5 +1,5 @@
 param(
-    [string]$PluginName = "panels_plus"
+    [string]$PluginName = "panelsplus"
 )
 
 $ErrorActionPreference = "Stop"

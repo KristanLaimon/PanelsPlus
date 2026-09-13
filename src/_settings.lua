@@ -7,6 +7,7 @@
 local Settings = {
     key = "panels_plus",
     legacy_keys = {
+        "panelsplus",
         "mangacomicsmoother",
         "manga_smooth_reading",
     },

@@ -37,7 +37,7 @@ local ViewerController = require("src.viewer_controller")
 --- @field panel_prefetch_actions table<string, function> Scheduled prefetch jobs, by cache key.
 --- @field panel_prerender_action function|nil Scheduled next-panel warm-up, if any.
 local PanelsPlus = WidgetContainer:extend({
-    name = "panels_plus",
+    name = "panelsplus",
     is_doc_only = true,
 })
 
@@ -95,7 +95,10 @@ end
 --- @return table|nil doc_settings Table containing per-document overrides.
 function PanelsPlus:getDocSettings()
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.readSetting) == "function" then
-        local saved = self.ui.doc_settings:readSetting("panels_plus")
+        local saved = self.ui.doc_settings:readSetting("panelsplus")
+        if type(saved) ~= "table" then
+            saved = self.ui.doc_settings:readSetting("panels_plus")
+        end
         if type(saved) == "table" then
             return saved
         end
@@ -125,6 +128,7 @@ function PanelsPlus:saveDocSettings(force)
         crop_mode = self.settings.crop_mode,
     }
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
+        self.ui.doc_settings:saveSetting("panelsplus", doc_data)
         self.ui.doc_settings:saveSetting("panels_plus", doc_data)
     end
     if doc_key then

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-PLUGIN_NAME="${1:-panels_plus}"
+PLUGIN_NAME="${1:-panelsplus}"
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 OUT_DIR="$SCRIPT_DIR/dist"
 PLUGIN_DIR="$OUT_DIR/${PLUGIN_NAME}.koplugin"
