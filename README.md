@@ -20,12 +20,12 @@
     <td align="center" width="50%">
       <video src="https://github.com/user-attachments/assets/fff9ba07-565e-4f48-b016-1466bb74a609" controls width="420"></video>
       <br>
-      <sub>Core feature: Panel by panel smooth travelling. Battle-tested for performance on low-specs e-readers and old KOReader versions support. (Available in >= v1.4.0)</sub>
+      <sub>Core feature: Panel by panel smooth travelling. Battle-tested for performance on low-specs e-readers and old KOReader versions support. (Starting from 2025 versions)</sub>
     </td>
     <td align="center" width="50%">
       <video src="https://github.com/user-attachments/assets/4ee8e78c-77a4-4432-a6e3-f841912c864b" controls width="420"></video>
       <br>
-      <sub>Comics showcase: Reading comic books panel by panel with custom panel flow and navigation. (Available in >= v1.4.0)</sub>
+      <sub>Comics showcase: Reading comic books panel by panel with custom panel flow and navigation.</sub>
     </td>
   </tr>
 </table>
