@@ -4,7 +4,7 @@ local _ = require("gettext")
 ---
 --- @return table metadata Localized plugin name and description.
 return {
-    id = "panels_plus.koplugin",
+    id = "panels_plus",
     name = "panels_plus",
     fullname = _("Panels+"),
     description = _(

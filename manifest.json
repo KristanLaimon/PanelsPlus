@@ -21,7 +21,8 @@
             "plugin_module_aliases": [
                 "PanelsPlus",
                 "panels-plus",
-                "panelsplus"
+                "panelsplus",
+                "panels+"
             ],
             "readme_url": "https://raw.githubusercontent.com/KristanLaimon/PanelsPlus/main/README.md",
             "published_at": "2026-08-20T07:22:26Z",
