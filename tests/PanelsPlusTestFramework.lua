@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/PanelsPlusTestFramework.lua
+Name: PanelsPlusTestFramework
+Description: Provides the dependency-free describe/it test framework, assertions, and spies.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Minimal, dependency-free test framework for plain Lua 5.4.
 ---
 --- No luarocks, no busted, no external rocks -- just `describe`/`it` grouping,

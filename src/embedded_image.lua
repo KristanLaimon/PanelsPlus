@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/embedded_image.lua
+Name: EmbeddedImage
+Description: Extracts, detects, displays, and navigates panel sequences in reflow-document images.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Event = require("ui/event")
 local Geometry = require("src._geometry")

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/dataset/Miss_Kobayashi's_Dragon_Maid_Vol_2/miss_kobayashi_spec.lua
+Name: Miss Kobayashi dataset spec
+Description: Defines annotated-volume regression checks for Miss Kobayashi's Dragon Maid Volume 2.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Spec tests for the human-annotated Miss Kobayashi's Dragon Maid (Vol. 2) manga dataset.
 ---
 --- Located directly within `tests/dataset-mangas/dataset/Miss_Kobayashi's_Dragon_Maid_Vol_2/`.

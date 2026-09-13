@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_tapnav_spec.lua
+Name: PanelViewer tap-navigation specs
+Description: Verifies reading-direction-aware taps, swipes, inversion, and zoom interaction.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `PanelViewer:getNextTapSide` and `PanelViewer:onTap`'s
 --- tap-to-navigate side zones, plus `PanelViewer:onSwipe`'s
 --- `swipe_navigation` gate -- the "Tap screen sides to navigate" and "Swipe

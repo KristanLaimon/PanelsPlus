@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_nativedetector.lua
+Name: NativeDetector
+Description: Implements the memory-guarded K2PDFOpt/Leptonica compatibility fallback for panel detection.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Document = require("document/document")
 local Geometry = require("src._geometry")
 local Memory = require("src._memory")

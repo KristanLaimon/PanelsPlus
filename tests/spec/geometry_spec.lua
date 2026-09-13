@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/geometry_spec.lua
+Name: Geometry specs
+Description: Verifies manga and comic reading order across staggered and stacked layouts.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression coverage for panel reading order.
 
 local framework = require("tests.PanelsPlusTestFramework")

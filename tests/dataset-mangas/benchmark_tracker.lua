@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/benchmark_tracker.lua
+Name: BenchmarkTracker
+Description: Loads, compares, and records panel-detection benchmark regression metrics.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression guard and record tracker for manga panel detection benchmarks.
 ---
 --- Ensures that algorithmic refactors and changes never degrade detection accuracy

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/actions.lua
+Name: Actions
+Description: Registers Panels+ actions with KOReader's dispatcher.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Dispatcher = require("dispatcher")
 local InfoMessage = require("ui/widget/infomessage")
 local UIManager = require("ui/uimanager")

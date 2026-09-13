@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_settings.lua
+Name: Settings
+Description: Defines persistent defaults and migrates legacy plugin settings to the current schema.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Settings persistence and default normalization.
 ---
 --- @class PPSettingsModule

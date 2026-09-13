@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/segmenter_spec.lua
+Name: Legacy Segmenter specs
+Description: Verifies the retained X-Y cut, acceptance behavior, and drawn-border regressions.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `src/_segmenter.lua`'s panel cut, driven through the real
 --- `Segmenter.segment()` against synthetic page maps.
 ---

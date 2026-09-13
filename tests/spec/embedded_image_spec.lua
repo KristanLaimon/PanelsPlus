@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/embedded_image_spec.lua
+Name: Embedded image specs
+Description: Verifies reflow-image detection, navigation, animation, rotation, and source lifetime.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Reflow image-panel flow: cross a reader-page boundary and keep seeking.
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_keyboard_nav_spec.lua
+Name: PanelViewer keyboard-navigation specs
+Description: Verifies direction-aware keyboard navigation and key-repeat behavior.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 

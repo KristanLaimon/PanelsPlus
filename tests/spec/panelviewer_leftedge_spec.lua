@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_leftedge_spec.lua
+Name: PanelViewer left-edge gesture specs
+Description: Verifies Kobo-style vertical edge zoom behavior and configuration.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `PanelViewer:onSwipe`'s left-edge vertical zoom gesture
 --- (swipe up/down in the left 25% of the screen), driven end-to-end through
 --- `onSwipe` rather than exposing the private `isLeftEdgeGesture` helper.

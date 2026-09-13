@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/types.lua
+Name: Types
+Description: Declares side-effect-free LuaLS annotations for shared Panels+ record shapes.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Shared LuaLS annotations for Panels+.
 ---
 --- This module is intentionally side-effect free. It exists so Sumneko/LuaLS can

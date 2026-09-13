@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewport_spec.lua
+Name: PanelViewport specs
+Description: Verifies screen-shaped no-crop viewports and edge clamping.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 

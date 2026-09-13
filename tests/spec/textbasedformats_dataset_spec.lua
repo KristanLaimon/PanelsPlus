@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/textbasedformats_dataset_spec.lua
+Name: Text-format image dataset specs
+Description: Verifies equivalent Deep detection for EPUB, KEPUB, and MOBI embedded images.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression coverage for converted manga images embedded in EPUB, KEPUB, and MOBI.
 
 local framework = require("tests.PanelsPlusTestFramework")

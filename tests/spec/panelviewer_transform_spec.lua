@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_transform_spec.lua
+Name: PanelViewer transform specs
+Description: Verifies page/screen coordinate round trips, rotation, panning, and clipping.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Round-trip specs for `PanelViewer:screenToPageTransform` /
 --- `PanelViewer:pageToScreenTransform`, the coordinate math behind both
 --- panel-zoom rendering and the touch-and-hold dictionary/highlight

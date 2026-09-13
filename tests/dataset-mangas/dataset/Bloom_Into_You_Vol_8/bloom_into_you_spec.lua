@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua
+Name: Bloom Into You dataset spec
+Description: Defines annotated-volume regression checks for Bloom Into You Volume 8.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Spec tests for the human-annotated Bloom Into You (Vol. 8) manga dataset.
 ---
 --- Located directly within `tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/`.

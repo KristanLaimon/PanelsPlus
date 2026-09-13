@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/viewer_controller_more_config_spec.lua
+Name: ViewerController configuration specs
+Description: Verifies grouped viewer controls and page-turn animation settings.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Shared More-config controls and native page-turn animation behavior.
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy

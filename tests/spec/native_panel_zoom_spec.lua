@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/native_panel_zoom_spec.lua
+Name: Native panel zoom specs
+Description: Verifies the patched reflow-image hold hook and KOReader fallback behavior.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression coverage for the reflow-document hold hook.
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy

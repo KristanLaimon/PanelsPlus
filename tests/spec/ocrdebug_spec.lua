@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/ocrdebug_spec.lua
+Name: OCR debug specs
+Description: Verifies OCR capture, verdict, correction-box, crop, and popup-close behavior.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for the opt-in OCR debug review flow (`src._ocrdebug`): capturing
 --- the tap/box/word an OCR read used, prompting for a verdict once the
 --- dictionary popup closes, and turning a drawn rectangle into a page-space

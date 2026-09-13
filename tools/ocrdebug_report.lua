@@ -1,4 +1,15 @@
 #!/usr/bin/env lua
+--[[
+Panels+
+File: tools/ocrdebug_report.lua
+Name: OCR debug report tool
+Description: Summarizes OCR review logs and classifies box-finding versus OCR-engine errors.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Turns `OCR.debug.session.log` into a compact, pre-classified JSON array
 --- on stdout, so an AI (or a human) reviewing an OCR debug session never has
 --- to open the crop PNGs in `OCR.debug.session.images/` just to answer "was

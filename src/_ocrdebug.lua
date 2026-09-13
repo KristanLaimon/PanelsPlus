@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_ocrdebug.lua
+Name: OcrDebug
+Description: Captures OCR review feedback, correction rectangles, debug crops, and JSON log records.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local ConfirmBox = require("ui/widget/confirmbox")
 local Geom = require("ui/geometry")

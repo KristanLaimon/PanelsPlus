@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_memory.lua
+Name: Memory
+Description: Calculates free-memory headroom and guards large plugin allocations.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local util = require("util")
 
 --- Shared free-memory headroom check.

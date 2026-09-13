@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelcollector_spec.lua
+Name: PanelCollector specs
+Description: Verifies Deep detector integration and full-page continuity at page boundaries.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 local Collector = require("src._panelcollector")

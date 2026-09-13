@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_panelviewport.lua
+Name: PanelViewport
+Description: Computes crop and no-crop viewport geometry for panel rendering.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Screen = require("device").screen
 
 --- Shared panel-viewport geometry.

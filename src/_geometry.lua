@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_geometry.lua
+Name: Geometry
+Description: Provides rectangle operations and manga/comic panel reading-order sorting.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Geometry helpers used by panel collection and panel-position matching.
 ---
 --- @class PPGeometryModule

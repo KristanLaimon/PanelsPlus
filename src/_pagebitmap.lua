@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_pagebitmap.lua
+Name: PageBitmap
+Description: Renders or resamples bounded source rasters and converts them into background-relative ink maps.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Document = require("document/document")
 local Geom = require("ui/geometry")

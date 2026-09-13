@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_gotoviewrel_spec.lua
+Name: PanelViewer relative-navigation specs
+Description: Verifies relative page events, physical controls, and boundary crossing.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `PanelViewer:onGotoViewRel`, KOReader's standard relative
 --- page-turn event -- the fix for physical/Bluetooth page-turner buttons
 --- silently falling through to the underlying document instead of driving

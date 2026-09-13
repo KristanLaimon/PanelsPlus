@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tools/benchmark_component_scan.lua
+Name: Component scan benchmark
+Description: Compares component-detector CPU time and exact outputs with a reference revision.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 -- Compare detector CPU time and exact outputs against a saved source revision.
 -- Run from the repository root:
 --   MAGICK_THREAD_LIMIT=1 luajit tools/benchmark_component_scan.lua reference.lua [pages_per_book]

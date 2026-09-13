@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_highlight_spec.lua
+Name: PanelViewer highlight specs
+Description: Verifies normal highlight fill and anomalous-box outline rendering.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `PanelViewer:paintHighlights`'s anomalous-box guard -- the fix
 --- for the "big black square" bug: a highlight box that covers most/all of
 --- the current panel crop (a coarse/oversized OCR word or line box, common

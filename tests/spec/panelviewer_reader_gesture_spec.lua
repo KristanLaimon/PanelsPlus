@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_reader_gesture_spec.lua
+Name: PanelViewer reader-gesture specs
+Description: Verifies safe forwarding of KOReader gestures and stale-document cleanup.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression coverage for reader-menu gestures arriving after their document
 --- has closed, or failing inside reader-owned code.
 

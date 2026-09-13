@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/dataset_manifest.lua
+Name: DatasetManifest
+Description: Loads dataset metadata, page paths, annotations, and reading direction.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Dataset manifest loader for manga and comic panel evaluation.
 ---
 --- Parses and normalizes dataset metadata and ground-truth frames.

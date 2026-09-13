@@ -1,8 +1,21 @@
+--[[
+Panels+
+File: main.lua
+Name: PanelsPlus
+Description: Defines the plugin class, composes feature modules, owns settings, and manages lifecycle teardown.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --[[--
-Panels+.
+Panels+ KOReader plugin entry point.
 
-This plugin keeps KOReader's native panel detector and replaces the default
-single-panel zoom viewer with a direction-aware sequence viewer.
+The plugin runs the component-based Deep detection pipeline and replaces
+KOReader's single-panel zoom with a direction-aware sequence viewer. KOReader's
+native detector remains an internal compatibility fallback when a reduced map
+cannot be built.
 --]]
 --
 
@@ -204,13 +217,6 @@ end
 --- switching modes does not need to invalidate anything: pages already
 --- detected under the other mode simply stay cached under their own key.
 ---
---- Deep mode (the "exact" detector) only recognizes white gutters and gives up
---- entirely on a dark background -- exactly what comic pages routinely have --
---- so switching into comic mode while it is active would silently strand the
---- reader on a detector that cannot work there. Comic mode forces the
---- detector back to "auto" instead; the menu also greys Deep mode out while
---- comic mode is on so it cannot be selected again by mistake.
----
 --- @param mode PPReadingMode Requested mode; anything except `"comic"` maps to `"manga"`.
 function PanelsPlus:setMode(mode)
     self.settings.mode = mode == "comic" and "comic" or "manga"
@@ -370,15 +376,9 @@ function PanelsPlus:setNavTransitionFrames(frames)
     self:saveSettings()
 end
 
---- Choose which detector finds panels.
+--- Normalize a legacy detector request to Deep mode's component pipeline.
 ---
---- The panel cache is keyed by detector (see `Cache:getPanelCacheKey`), so
---- switching detectors does not need to invalidate anything: results from
---- the other detector simply stay cached under their own key, and cycling
---- back to a detector already used on this page returns instantly instead
---- of paying for another detection pass.
----
---- @param detector PPDetector Requested detector.
+--- @param _detector PPDetector Ignored legacy detector value.
 function PanelsPlus:setDetector(_detector)
     self.settings.detector = "components"
     Timing.log(
@@ -387,10 +387,8 @@ function PanelsPlus:setDetector(_detector)
     self:saveSettings()
 end
 
---- Choose the bitmap-only detector used for embedded EPUB/KEPUB/MOBI images.
---- This never changes the fixed-layout document detector, keeping the extra
---- reflow-image work completely out of CBZ/CBR/PDF reads.
---- @param detector PPDetector Requested detector.
+--- Normalize a legacy embedded-detector request to the component pipeline.
+--- @param _detector PPDetector Ignored legacy detector value.
 function PanelsPlus:setEmbeddedDetector(_detector)
     self.settings.embedded_detector = "components"
     Timing.log("embedded detector -> " .. self.settings.embedded_detector)

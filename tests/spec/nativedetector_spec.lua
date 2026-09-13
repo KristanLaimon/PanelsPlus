@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/nativedetector_spec.lua
+Name: NativeDetector specs
+Description: Verifies native fallback memory guards and embedded-image KOPT adaptation.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Native detector safety checks that do not require KOReader's LuaJIT FFI.
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert

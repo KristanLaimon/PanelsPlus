@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_wordfinder.lua
+Name: WordFinder
+Description: Locates comic-lettering word boxes and performs bounded OCR for dictionary lookup.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Document = require("document/document")
 local Geom = require("ui/geometry")

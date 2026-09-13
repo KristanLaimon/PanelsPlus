@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_kobo_bluetooth_spec.lua
+Name: Kobo and Bluetooth navigation specs
+Description: Verifies physical-button and remote navigation across panels and pages.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression prevention suite for Kobo physical buttons and Bluetooth page turners.
 
 local framework = require("tests.PanelsPlusTestFramework")

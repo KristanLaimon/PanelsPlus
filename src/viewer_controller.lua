@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/viewer_controller.lua
+Name: ViewerController
+Description: Coordinates viewer creation, reading-mode changes, transitions, rotation, and page boundaries.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Event = require("ui/event")
 local Device = require("device")
 local Screen = Device.screen

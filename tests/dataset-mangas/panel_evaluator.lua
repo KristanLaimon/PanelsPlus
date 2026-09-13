@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/panel_evaluator.lua
+Name: PanelEvaluator
+Description: Computes IoU matching, precision, recall, F1, and reading-order metrics.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Evaluation and benchmark metrics for panel segmentation.
 ---
 --- Computes IoU (Intersection over Union), Precision, Recall, F1 score,

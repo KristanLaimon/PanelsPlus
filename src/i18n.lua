@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/i18n.lua
+Name: i18n
+Description: Installs plugin-local gettext lookup while preserving KOReader's translation fallback.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 -- src/i18n.lua — Manga Comic Smoother
 -- Injects the plugin's .po translations directly into KOReader's GetText
 -- tables so every code path (including modules that captured `local _ =

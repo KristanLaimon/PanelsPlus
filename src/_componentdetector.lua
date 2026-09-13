@@ -1,12 +1,22 @@
+--[[
+Panels+
+File: src/_componentdetector.lua
+Name: ComponentDetector
+Description: Implements Deep mode with 8-connected components, frame evidence, candidate filtering, and validation.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local ffi = require("ffi")
 local Geometry = require("src._geometry")
 local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
 
---- Experimental panel detector over the same small ink map as the X-Y cut.
---- Connected frames survive tilted gutters and white space inside artwork.
---- This is benchmark-selectable; the reader still uses NativeDetector until
---- the grouping policy and reader integration have been reviewed.
+--- Deep mode's production detector over a bounded background-relative ink map.
+--- Connected frames survive tilted gutters and white space inside artwork;
+--- page-level acceptance rejects implausible candidate sets.
 local ComponentDetector = {}
 
 local scratch_capacity = 0

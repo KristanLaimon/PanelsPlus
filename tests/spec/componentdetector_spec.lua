@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/componentdetector_spec.lua
+Name: ComponentDetector specs
+Description: Verifies connected-component extraction, frame heuristics, fallback, and scratch reuse.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 local Detector = require("src._componentdetector")

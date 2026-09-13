@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_refineword_spec.lua
+Name: PanelViewer word-refinement specs
+Description: Verifies OCR refinement and synchronization of selection and painted boxes.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `PanelViewer:_refineWordSelection` -- specifically that the box
 --- the underline is painted from stays the box the word was read from.
 ---

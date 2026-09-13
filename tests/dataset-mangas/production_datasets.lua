@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/production_datasets.lua
+Name: ProductionDatasets
+Description: Lists annotated volumes covered by production accuracy regressions.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Volumes covered by production accuracy regression tests.
 return {
     { title = "Bloom_Into_You_Vol_8", type = "manga", pages = 213, panels = 726 },

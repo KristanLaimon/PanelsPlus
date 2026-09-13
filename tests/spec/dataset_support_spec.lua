@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/dataset_support_spec.lua
+Name: Dataset support specs
+Description: Verifies dataset metadata resolution, cache isolation, and regression thresholds.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 local Tracker = require("tests.dataset-mangas.benchmark_tracker")

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: _meta.lua
+Name: Plugin metadata
+Description: Declares the KOReader plugin identifier, display metadata, author, and version.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local _ = require("gettext")
 
 --- KOReader plugin metadata.

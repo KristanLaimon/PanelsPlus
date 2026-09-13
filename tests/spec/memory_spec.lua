@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/memory_spec.lua
+Name: Memory specs
+Description: Verifies allocation headroom and low-memory prefetch policy.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 

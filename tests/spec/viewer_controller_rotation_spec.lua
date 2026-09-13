@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/viewer_controller_rotation_spec.lua
+Name: ViewerController rotation specs
+Description: Verifies device orientation preservation across page boundaries.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Regression coverage for preserving a chosen device orientation while
 --- Panels+ crosses from the last panel of one page to the first of another.
 

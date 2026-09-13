@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/pagebitmap_spec.lua
+Name: PageBitmap specs
+Description: Verifies background estimation, color classification, resampling, and memory fallback.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for colour-aware background sampling in `src/_pagebitmap.lua`.
 ---
 --- These stay render-free: they exercise the same RGB measurements used by the

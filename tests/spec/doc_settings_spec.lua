@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/doc_settings_spec.lua
+Name: Document settings specs
+Description: Verifies per-document setting persistence, restoration, and fallback storage.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for per-document settings persistence (reading mode, navigation mode, crop mode, progress bar).
 
 local framework = require("tests.PanelsPlusTestFramework")

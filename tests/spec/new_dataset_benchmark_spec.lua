@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/new_dataset_benchmark_spec.lua
+Name: Production dataset benchmark specs
+Description: Guards full-volume component-detector accuracy baselines.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Full-volume production baselines for every local dataset.
 
 local framework = require("tests.PanelsPlusTestFramework")

@@ -1,4 +1,15 @@
 #!/usr/bin/env lua
+--[[
+Panels+
+File: tools/benchmark_panels.lua
+Name: Panel benchmark CLI
+Description: Runs detector benchmarks over annotated datasets and reports evaluation metrics.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Panel segmentation benchmark and evaluation tool for manga and comic datasets.
 ---
 --- Usage:

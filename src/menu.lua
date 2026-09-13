@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/menu.lua
+Name: Menu
+Description: Builds the Panels+ main-menu entries and reports the active detector namespace.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local _ = require("gettext")
 
 --- Main-menu methods mixed into `PanelsPlus`.

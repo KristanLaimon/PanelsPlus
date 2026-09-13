@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/dataset_benchmark_spec.lua
+Name: Dataset benchmark specs
+Description: Verifies golden-page loading, metadata, segmentation, and evaluator behavior.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Spec tests for panel detection against real manga pages from `tests/dataset-manga`.
 ---
 --- Evaluates detection accuracy, IoU alignment, and stability against

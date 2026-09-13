@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_segmenter.lua
+Name: Segmenter
+Description: Retains the legacy X-Y-cut detector and the page-level acceptance validator reused by Deep mode.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Geometry = require("src._geometry")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
@@ -13,8 +24,10 @@ local ffi = require("ffi")
 --- on light or light on dark.
 ---
 --- The cut cannot separate interlocking or staircase layouts, where no straight
---- line runs cleanly between two panels. `Segmenter.accept()` exists to detect
---- that case so the caller can fall back to the native detector.
+--- line runs cleanly between two panels. `Segmenter.accept()` detects
+--- implausible page-level results and is also reused by the production
+--- component detector; rejected current-reader results become a full-page
+--- panel rather than selecting another detector mode.
 ---
 --- Comic mode can add a second kind of separator search, off by default behind
 --- `segment_border_split`. Western comics routinely bleed differently-coloured,

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/wordfinder_spec.lua
+Name: WordFinder specs
+Description: Verifies comic word-box heuristics, OCR normalization, retries, and cache cleanup.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `src._wordfinder`'s core claim: word boundaries should be found
 --- by a gap threshold relative to the text line's own height, so tight
 --- inter-letter kerning (common in stylized comic lettering) is not mistaken

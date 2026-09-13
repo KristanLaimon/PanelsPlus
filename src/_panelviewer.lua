@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_panelviewer.lua
+Name: PanelViewer
+Description: Implements the focused-panel ImageViewer, input handling, navigation, transitions, and overlays.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local ButtonTable = require("ui/widget/buttontable")
 local CenterContainer = require("ui/widget/container/centercontainer")

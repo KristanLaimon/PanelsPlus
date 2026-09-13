@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/panelviewer_margin_spec.lua
+Name: PanelViewer margin specs
+Description: Verifies margin factors during local and cross-page smooth transitions.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Margin framing is normally based on the displayed panel. Smooth navigation
 --- temporarily displays a transition canvas while the current index still
 --- names the source panel, so its target lookup must be index-specific.

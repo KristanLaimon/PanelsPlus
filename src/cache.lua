@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/cache.lua
+Name: Cache
+Description: Caches panel rectangles and schedules cancellable next-page detection prefetches.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local PanelCollector = require("src._panelcollector")
 local Memory = require("src._memory")
 local Settings = require("src._settings")
@@ -29,14 +40,12 @@ function Cache:clearPanelCache()
     self.panel_cache_order = {}
 end
 
---- Build the cache key for a document page in the current reading mode and detector.
+--- Build the cache key for a document page in the current reading mode and Deep detector namespace.
 ---
---- Mode changes panel order, detector changes the panel list itself, and the
---- drawn-border split changes how comic pages divide, so all three are part of
---- the key. Keying on them (instead of clearing the whole cache on every
---- switch) lets a page already detected under a given combination stay cached
---- when the reader switches away and back, and keeps other pages' cached
---- results alive across the switch.
+--- Mode changes panel order, while the stable `components` value separates
+--- current results from cache keys written by detector-selectable releases.
+--- The drawn-border flag remains part of the namespace for stored-setting and
+--- benchmark compatibility.
 ---
 --- @param page number Document page number.
 --- @return string key Page, mode, detector, and border-split cache key.
@@ -83,8 +92,8 @@ end
 
 --- Collect panels for a page, reusing the cache when possible.
 ---
---- Hold-triggered collection can bypass an empty cached list so the exact hold
---- position gets a chance to seed the native detector.
+--- Hold-triggered collection can bypass an empty cached list so an internal
+--- native fallback can use the exact hold position as its first probe.
 ---
 --- @param page number Document page number.
 --- @param hold_pos PPPagePosition|nil Optional hold position in page space.
@@ -112,10 +121,11 @@ function Cache:preloadPanels(page)
         return
     end
 
-    -- A delayed prefetch may start a full Deep pass if exact detection is
-    -- configured; otherwise the fast segmenter uses negligible memory (~1-2MB).
-    -- Reserve the stricter native floor only for exact detection so low-memory
-    -- devices (e.g. 300MB RAM) can still benefit from next-page prefetching.
+    -- Detector selection is fixed to components, so current reads take the
+    -- ordinary prefetch floor here. If map construction later requires the
+    -- full-resolution native compatibility path, NativeDetector performs its
+    -- own stricter allocation check before allocating anything large. Keep the
+    -- legacy exact branch harmless for old callers that override getDetector.
     local is_exact = self:getDetector() == "exact"
     local minimum = is_exact
             and (self.settings.native_detect_min_free_bytes or Settings.defaults.native_detect_min_free_bytes)

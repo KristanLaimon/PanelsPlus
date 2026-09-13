@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/ocrdebug_report_spec.lua
+Name: OCR debug report specs
+Description: Verifies OCR review JSON handling and error classification.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Specs for `tools/ocrdebug_report.lua`: the JSON round-trip and the
 --- geometry-only box_bug/engine_miss classifier, pinned against real
 --- shapes pulled from an actual OCR debug session (see the chat history

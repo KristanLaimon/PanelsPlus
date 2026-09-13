@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_panelcollector.lua
+Name: PanelCollector
+Description: Orchestrates panel detection and constructs lazy source-coordinate panel crops.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Geometry = require("src._geometry")
 local NativeDetector = require("src._nativedetector")

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/helper.lua
+Name: KOReader test helper
+Description: Installs KOReader API and FFI mocks used by the standalone Lua test suite.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- KOReader API mocks for testing `src/_panelviewer.lua` in isolation.
 ---
 --- Loaded once (via `require`) before any spec requires `src._panelviewer`.

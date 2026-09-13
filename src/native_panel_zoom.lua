@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/native_panel_zoom.lua
+Name: NativePanelZoom
+Description: Patches and restores KOReader hold and panel-zoom entry points.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Native panel-zoom integration methods mixed into `PanelsPlus`.
 ---
 --- @class PPNativePanelZoomMethods

@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/dataset-mangas/dataset_loader.lua
+Name: DatasetLoader
+Description: Decodes dataset images and converts them into detector-compatible page maps.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Standalone image loader and PageMap builder for dataset evaluation.
 ---
 --- Uses ImageMagick (`magick` or `convert`) to stream downscaled greyscale image bytes,

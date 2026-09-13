@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_rotationpicker.lua
+Name: RotationPickerDialog
+Description: Implements the device-rotation and image-rotation picker dialog.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Button = require("ui/widget/button")
 local CenterContainer = require("ui/widget/container/centercontainer")

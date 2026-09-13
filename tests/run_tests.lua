@@ -1,4 +1,15 @@
 #!/usr/bin/env lua
+--[[
+Panels+
+File: tests/run_tests.lua
+Name: Lua test runner
+Description: Discovers and executes the Panels+ Lua specification suite.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Runs every `_spec.lua` file under `tests/spec/` with `PanelsPlusTestFramework`.
 ---
 --- No external dependencies (no busted, no luarocks) -- just plain Lua 5.4.

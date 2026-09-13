@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_timing.lua
+Name: Timing
+Description: Provides opt-in timing and memory diagnostics through KOReader logging.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local logger = require("logger")
 local time = require("ui/time")
 local util = require("util")

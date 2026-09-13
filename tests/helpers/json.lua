@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/helpers/json.lua
+Name: Test JSON decoder
+Description: Provides a dependency-free JSON decoder for test and benchmark data.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 --- Dependency-free pure-Lua JSON decoder for tests and evaluation tools.
 ---
 --- Supports objects, arrays, strings (with escapes and unicode), numbers, booleans, and null.
