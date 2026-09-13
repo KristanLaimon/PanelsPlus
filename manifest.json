@@ -30,10 +30,6 @@
                 {
                     "asset": "panels_plus.koplugin.zip",
                     "url": "https://github.com/KristanLaimon/PanelsPlus/releases/latest/download/panels_plus.koplugin.zip"
-                },
-                {
-                    "asset": "panelsplus.koplugin.zip",
-                    "url": "https://github.com/KristanLaimon/PanelsPlus/releases/latest/download/panelsplus.koplugin.zip"
                 }
             ]
         }

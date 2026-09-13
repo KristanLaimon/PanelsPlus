@@ -85,14 +85,18 @@ Panels+ is structured for installation via KOReader package and plugin managers:
 
 | Package Manager                                                                                | Search / Package Name                                                                               | Installation Method                                                                                                                                                    |
 | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**Plugin Appstore**](https://github.com/omer-faruq/appstore.koplugin) (`appstore.koplugin`)   | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panels_plus.koplugin`) | Search and install directly inside the KOReader Plugin Appstore (or view on the [Appstore Web Catalog](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus)) |
-| [**ZEN Package Manager**](https://github.com/AnthonyGress/zen_ui.koplugin) (`zen_ui.koplugin`) | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panels_plus`)          | Available directly in the ZEN package manager catalog.                                                                                                                 |
+| [**Plugin Appstore**](https://github.com/omer-faruq/appstore.koplugin) (`appstore.koplugin`)   | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panelsplus.koplugin`) | Search and install directly inside the KOReader Plugin Appstore (or view on the [Appstore Web Catalog](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus)) |
+| [**ZEN Package Manager**](https://github.com/AnthonyGress/zen_ui.koplugin) (`zen_ui.koplugin`) | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panelsplus`)          | Available directly in the ZEN package manager catalog.                                                                                                                 |
 
 ### 🛠️ Manual Installation
 
-1. Download the latest release from the [releases page](https://github.com/KristanLaimon/BetterPanels/releases/latest) and unzip it.
-2. You should now have this folder: `panels_plus.koplugin`
-3. Copy the **whole folder** into your KOReader `plugins` directory. (Do not copy only the files inside it).
+1. Download `panels_plus.koplugin.zip` from the [releases page](https://github.com/KristanLaimon/PanelsPlus/releases/latest) and unzip it.
+2. You should now have this folder: `panelsplus.koplugin`
+
+> [!NOTE]
+> **GUI zip extractors note:** Some desktop GUI archive managers (such as GNOME Archive Manager, Ark, or Windows Explorer "Extract All") may create an extra parent folder level matching the zip filename (e.g. `panels_plus.koplugin/panelsplus.koplugin/`). Take this into account when extracting: make sure you copy the actual `panelsplus.koplugin` folder (the one directly containing `_meta.lua` and `main.lua`) into your KOReader `plugins/` directory, avoiding any duplicate wrapper directory.
+
+3. Copy the **whole `panelsplus.koplugin` folder** into your KOReader `plugins` directory. (Do not copy only the files inside it).
 
 Common plugin paths:
 
@@ -107,7 +111,7 @@ Common plugin paths:
 The final path should look like this:
 
 ```text
-<koreader plugins directory>/panels_plus.koplugin
+<koreader plugins directory>/panelsplus.koplugin
 ```
 
 4. Restart KOReader after copying the folder.
