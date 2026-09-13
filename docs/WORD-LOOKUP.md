@@ -36,13 +36,22 @@ flowchart TD
     HOLD["hold on zoomed panel"] --> XFORM["screenToPageTransform<br/><i>screen px -> page coords</i>"]
     XFORM --> PATCH["monkey-patch view.screenToPageTransform<br/>+ disable panel_zoom_enabled"]
     PATCH --> RH["ReaderHighlight:onHold<br/><i>KOReader's own selection logic</i>"]
-    RH --> ISWORD{"is_word_selection?"}
-    ISWORD -->|no| DONE1(["selection as KOReader found it"])
-    ISWORD -->|yes| BLOCKED{"actively OCRing<br/>this page?"}
-    BLOCKED -->|no, e.g. PDF text layer| DONE2(["selection as KOReader found it"])
-    BLOCKED -->|yes, CBZ/CBR fallback| WF["WordFinder.findWordBox + readWord"]
-    WF --> REFINE["overwrite selected_text<br/>+ re-point view.highlight.temp"]
-    REFINE --> DICT["ReaderHighlight:lookupDictWord"]
+    RH --> RESTORE["restore transform<br/>and panel_zoom_enabled"]
+    RESTORE --> ISWORD{"is_word_selection?"}
+    ISWORD -->|no| DONE1["keep selection as KOReader found it"]
+    ISWORD -->|yes| BLOCKED{"PageBitmap.getBlockReason<br/>returns nil?"}
+    BLOCKED -->|no| DONE2["keep selection as KOReader found it"]
+    BLOCKED -->|yes| WF["WordFinder.findWordBox + readWord"]
+    WF --> FOUND{"box and plausible word found?"}
+    FOUND -->|no| DONE2
+    FOUND -->|yes| REFINE["overwrite selected_text<br/>+ re-point view.highlight.temp"]
+    DONE1 --> RELEASE["PanelViewer:onHoldRelease"]
+    DONE2 --> RELEASE
+    REFINE --> RELEASE
+    RELEASE -->|"OCR debug record pending"| HOOK["wrap dictionary close callback"]
+    RELEASE -->|"no debug record"| RHREL["ReaderHighlight:onHoldRelease"]
+    HOOK --> RHREL
+    RHREL --> DICT["complete KOReader selection<br/>and optional dictionary lookup"]
 
     style WF fill:#2d6cdf,color:#fff
     style PATCH fill:#8a5cf6,color:#fff
@@ -57,12 +66,12 @@ flowchart TD
   offset) and temporarily replaces that method so KOReader's own, otherwise
   untouched, hold/selection/dictionary code operates on the right point. Both
   the transform and `panel_zoom_enabled` are restored immediately after.
-- **Refinement only runs where KOReader is already OCRing.** CBZ/CBR carry
-  no text layer at all, so KOReader's on-the-fly OCR fallback is always in
-  play there; PDF uses its embedded text layer directly and refinement is
-  skipped — there's nothing to refine. The guard is
-  `PageBitmap.getBlockReason(document)`, the same check reflow / page
-  optimization mode uses elsewhere in the plugin.
+- **Refinement follows the code-level page guard.** Once KOReader reports a
+  word selection, Panels+ runs its tighter box finder only when
+  `PageBitmap.getBlockReason(document)` returns `nil`. Reflow and active page
+  optimization are skipped because their geometry is not compatible with the
+  native-page crop. The guard does not branch on file extension or assume that
+  every PDF selection should bypass refinement.
 - **The refined box has to replace two things, not one.** Overwriting
   `selected_text.sboxes`/`pboxes` fixes what the dictionary looks up,
   but `ReaderHighlight:onHold` also stashes a *reference* to the original
@@ -92,7 +101,7 @@ extra cost.
 
 ```mermaid
 flowchart LR
-    LOOKUP["dictionary lookup closes"] --> ASK{"OCR succeeded?"}
+    LOOKUP["dictionary lookup closes"] --> ASK{"OCR produced a word?"}
     ASK -->|no| RECT
     ASK -->|yes| CONFIRM["'Was the OCR word correct?'"]
     CONFIRM -->|Yes| LOG["append to<br/>OCR.debug.session.log"]

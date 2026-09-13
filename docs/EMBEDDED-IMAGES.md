@@ -14,23 +14,18 @@ margins, orientation, or line spacing change.
 
 ## Embedded-image detector
 
-This is **Embedded detection**, one of Panels+' two source backends. Native
-detection handles fixed-layout CBZ/CBR/PDF pages; Embedded detection handles a
-decoded image extracted from a reflowable book. Both use the same Quick/Smart/
-Deep modes and the same shared Deep component collector; only the source image
-and coordinate space differ. See [Detection](DETECTION.md#two-source-backends-native-and-embedded).
+This is **Embedded detection**, one of Panels+' two source backends. Fixed-page
+detection handles CBZ/CBR/PDF pages; Embedded detection handles a decoded image
+extracted from a reflowable book. Both always use the same **Deep mode**
+component pipeline; only the source image and coordinate space differ. See
+[Detection](DETECTION.md#one-mode-two-source-backends).
 
-The **Detector** button cycles through **Quick**, **Smart**, and **Deep**.
-It is separate from the normal document detector, so changing it does not
-alter the CBZ/CBR/PDF setting.
+There is no separate detector selector for embedded images. Stored detector
+values from older versions are normalized to `components`, just like
+fixed-page values.
 
-`Quick` uses the standard low-resolution gutter map. `Deep` copies the
-extracted bitmap into a K2PDFOpt source context, then runs the shared native
-Leptonica component collector once for the whole image. `Smart` follows the
-same policy as CBZ/CBR/PDF: Quick first, then Deep only if Quick rejects the
-image.
-
-Quick uses the same target-size raster and panel segmentation as CBZ/CBR/PDF.
+Deep mode uses the same target-size raster, background-relative ink map, and
+8-connected component analysis as CBZ/CBR/PDF.
 The source differs necessarily: fixed-layout files supply a rendered document
 page, while EPUB/KEPUB/MOBI supply a decoded image. Before detection, an
 embedded image is resampled into the same target-size bounds (without
@@ -42,18 +37,16 @@ copy. If the safety floor cannot be maintained, Panels+ uses the older bounded
 sparse map for that one image instead of risking an out-of-memory kill. The
 full-resolution image remains untouched in either case.
 
-For an embedded image the native detector's coordinates are image-space, not
-reflow-page-space, so its returned rectangles can be cropped directly from the
-retained bitmap. This is the key adaptation: a reflow page cannot be sent to
-the fixed-document renderer, but its extracted image can be sent to the same
-K2PDFOpt/Leptonica routine.
+For an embedded image the component detector's coordinates are image-space,
+not reflow-page-space, so its rectangles can be cropped directly from the
+retained bitmap. This is the key adaptation: Panels+ analyzes the extracted
+image itself instead of sending the surrounding text page to a fixed-document
+renderer.
 
-Deep makes one grayscale K2PDFOpt copy of the extracted image (none when the
-image is already greyscale), performs one connected-component pass, and is
-guarded by the same free-memory threshold as fixed-layout native detection. If
-direct K2PDFOpt/Leptonica access is unavailable or finds no panel, the former
-image-space Outline pass is used as a fallback; it is not the primary Deep
-implementation.
+If the reduced ink map cannot be allocated or built, Panels+ may internally
+copy the extracted bitmap into K2PDFOpt and run its native component collector.
+That memory-guarded compatibility path is a fallback inside Deep mode, not a
+reader-selectable detection mode.
 
 On an image-to-image boundary, Panels+ keeps only the already-rendered current
 crop on screen. It immediately releases the old full source bitmap, its lazy
@@ -109,9 +102,9 @@ handoff.
 ## Practical roadmap
 
 1. Add image fixtures for manga, comics, dark pages, SVG/raster edge cases,
-   and small inline images to tune Outline further.
-2. Consider a richer image-space outline detector for layouts the current
-   higher-resolution border pass cannot separate.
+   and small inline images to tune Deep detection further.
+2. Continue improving component grouping for layouts whose borders cannot be
+   separated reliably from the reduced ink map.
 
 These alternatives are intentionally scoped to extracted EPUB/KEPUB/MOBI images.
 They do not change the fixed-page algorithms or add work to CBZ/CBR/PDF reads.

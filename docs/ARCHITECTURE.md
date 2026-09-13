@@ -4,7 +4,7 @@ How Panels+ is put together, and what happens between a long-hold on a page and
 a panel appearing on screen.
 
 See also: [DETECTION.md](DETECTION.md) for how panels are found,
-[MODES.md](MODES.md) for what the reader-facing detection modes mean,
+[MODES.md](MODES.md) for the single Deep detection mode,
 [WORD-LOOKUP.md](WORD-LOOKUP.md) for text selection and dictionary lookup,
 [PERFORMANCE.md](PERFORMANCE.md) for what each step costs.
 
@@ -19,20 +19,28 @@ Panels+ keeps the detection idea and replaces the flow. It finds *every* panel o
 the page, orders them for manga or comic reading, and opens a viewer you can
 swipe through — including across page boundaries.
 
-It does this by patching one method rather than forking the reader:
+It does this by patching two highlight entry points rather than forking the
+reader. The `onHold` hook gets first chance to recognize an embedded reflow
+image; otherwise KOReader continues its normal hold flow, which may reach the
+patched fixed-page `onPanelZoom` method:
 
 ```mermaid
-flowchart LR
-    HOLD["Long hold on page"] --> RH["ReaderHighlight:onHold"]
-    RH --> PZ["onPanelZoom<br/><i>patched at init</i>"]
-    PZ -->|Panels+ enabled| PP["PanelsPlus:showPanelSequence"]
-    PZ -->|Panels+ disabled| NATIVE["Original KOReader<br/>single-panel zoom"]
+flowchart TD
+    HOLD["Long hold"] --> PH["patched ReaderHighlight:onHold"]
+    PH -->|"Panels+ enabled and<br/>embedded image found"| EMB["showEmbeddedImagePanels"]
+    PH -->|"otherwise"| OH["original ReaderHighlight:onHold"]
+    OH -->|"fixed-page panel zoom selected"| PZ["patched onPanelZoom"]
+    OH -->|"other hold behavior"| STOCK["KOReader selection/dictionary flow"]
+    PZ -->|"Panels+ enabled"| PP["showPanelSequence"]
+    PZ -->|"Panels+ disabled"| NATIVE["original onPanelZoom"]
 
+    style EMB fill:#2d6cdf,color:#fff
     style PP fill:#2d6cdf,color:#fff
+    style PH fill:#8a5cf6,color:#fff
     style PZ fill:#8a5cf6,color:#fff
 ```
 
-The original method is saved on the highlight module and restored on close, so
+Both original methods are saved on the highlight module and restored on close, so
 disabling the plugin returns KOReader to stock behaviour with no restart.
 
 ## Modules
@@ -51,6 +59,7 @@ flowchart TD
     subgraph pluginclass ["PanelsPlus class (main.lua)"]
         MAIN["main.lua<br/><i>settings, lifecycle, teardown</i>"]
         CACHE["cache.lua<br/><i>panel cache, prefetch</i>"]
+        EMB["embedded_image.lua<br/><i>reflow-image flow</i>"]
         VC["viewer_controller.lua<br/><i>open, navigate, prerender</i>"]
         ACT["actions.lua<br/><i>gesture actions</i>"]
         MENU["menu.lua<br/><i>main menu</i>"]
@@ -58,10 +67,12 @@ flowchart TD
     end
 
     subgraph plain ["Plain modules"]
-        PC["_panelcollector.lua<br/><i>detector dispatch, crops</i>"]
-        SEG["_segmenter.lua<br/><i>recursive X-Y cut</i>"]
+        PC["_panelcollector.lua<br/><i>Deep detection, fallback, crops</i>"]
+        CD["_componentdetector.lua<br/><i>components and frame evidence</i>"]
+        SEG["_segmenter.lua<br/><i>legacy X-Y cut, shared validation</i>"]
         PB["_pagebitmap.lua<br/><i>low-res ink map</i>"]
         ND["_nativedetector.lua<br/><i>batched k2pdfopt probes</i>"]
+        VP["_panelviewport.lua<br/><i>crop geometry</i>"]
         PV["_panelviewer.lua<br/><i>ImageViewer subclass</i>"]
         WF["_wordfinder.lua<br/><i>comic-lettering word boxes</i>"]
         RP["_rotationpicker.lua<br/><i>rotation dialog</i>"]
@@ -74,22 +85,37 @@ flowchart TD
     end
 
     MAIN -.->|include| CACHE
+    MAIN -.->|include| EMB
     MAIN -.->|include| VC
     MAIN -.->|include| ACT
     MAIN -.->|include| MENU
     MAIN -.->|include| NPZ
     CACHE --> PC
+    CACHE --> MEM
+    EMB --> CD
+    EMB --> PB
+    EMB --> ND
+    EMB --> PV
+    EMB --> VP
+    EMB --> GEO
     VC --> PC
     VC --> PV
     VC --> MEM
-    VC --> RP
-    PC --> SEG
+    PC --> CD
     PC --> PB
     PC --> ND
+    PC --> VP
     PC --> GEO
+    CD --> GEO
+    CD --> SEG
     ND --> MEM
+    ND --> GEO
     SEG --> SET
     PB --> SET
+    PB --> MEM
+    PV --> GEO
+    PV --> MEM
+    PV --> PB
     PV --> WF
     PV --> OD
     PV --> RP
@@ -102,6 +128,7 @@ flowchart TD
 | --- | --- |
 | `main.lua` | Plugin class, settings setters, teardown |
 | `src/cache.lua` | Per-page panel cache, prefetch scheduling and cancellation |
+| `src/embedded_image.lua` | Extraction, detection, viewing, and boundary search for reflow-document images |
 | `src/viewer_controller.lua` | Opening viewers, page-boundary crossing, panel prerender |
 | `src/actions.lua` | Dispatcher-registered gesture actions |
 | `src/menu.lua` | Main-menu submenu construction |
@@ -111,6 +138,7 @@ flowchart TD
 | `src/_segmenter.lua` | Legacy recursive X-Y cut over the ink map, plus its acceptance test |
 | `src/_nativedetector.lua` | KOReader's k2pdfopt detector, batched over one rasterization (fallback) |
 | `src/_panelviewer.lua` | `ImageViewer` subclass: swipes, gestures, controls, screenshots |
+| `src/_panelviewport.lua` | Shared strict/margin/no-crop viewport geometry |
 | `src/_wordfinder.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup, replacing KOReader's prose-tuned gap detector |
 | `src/_rotationpicker.lua` | Modal dialog for device rotation vs. plugin-only image rotation |
 | `src/_ocrdebug.lua` | Opt-in OCR review loop: correct/incorrect prompts, session log, cropped debug images (see [WORD-LOOKUP.md](WORD-LOOKUP.md)) |
@@ -133,21 +161,36 @@ sequenceDiagram
     autonumber
     participant U as User
     participant RH as ReaderHighlight
+    participant RV as ReaderView
     participant PP as PanelsPlus
     participant C as Cache
     participant PC as PanelCollector
+    participant PB as PageBitmap
+    participant CD as ComponentDetector
+    participant ND as NativeDetector
     participant V as PanelViewer
 
     U->>RH: long hold on page
     RH->>PP: showPanelSequence(ges)
-    PP->>RH: screenToPageTransform(pos)
-    RH-->>PP: hold_pos {page, x, y}
+    PP->>RV: screenToPageTransform(pos)
+    RV-->>PP: hold_pos {page, x, y}
 
     PP->>C: collectPanels(page, hold_pos)
     alt page already cached
         C-->>PP: cached panels
     else
         C->>PC: collect(...)
+        PC->>PB: build(document, page, settings)
+        alt reduced map built
+            PB-->>PC: PPPageMap
+            PC->>CD: detectPage(map, settings)
+            CD-->>PC: ordered panels or full-page panel
+        else map unavailable
+            PB-->>PC: nil + reason
+            PC->>ND: collect(...)
+            ND-->>PC: ordered panels or empty list
+            Note over PC: empty native result becomes<br/>a full-page panel when dimensions exist
+        end
         PC-->>C: ordered panels
         Note over C: stored, LRU capped at<br/>panel_cache_pages
         C-->>PP: ordered panels
@@ -189,17 +232,17 @@ stateDiagram-v2
     Zoomed --> Panel: zoom back out
 
     Panel --> Boundary: swipe past first or last panel
-    Boundary --> Panel: adjacent page had panels
-    Boundary --> [*]: adjacent page had none<br/>(close, turn page normally)
+    Boundary --> Panel: cached or asynchronously<br/>detected destination opens
+    Boundary --> Panel: no adjacent page, or<br/>source dimensions unavailable
 
     Panel --> [*]: tap outside frame, or Close
 ```
 
-The button bar carries a mode button showing **Smart Mode**, **Quick mode** or
-**Deep mode**. Tapping it cycles detection mode, re-detects the page and
-reopens at the panel you were reading, matched by its centre — so a page one
-mode handles badly can be switched without leaving it. See
-[MODES.md](MODES.md) for what each mode does and does not do.
+The button bar's mode button switches between **Manga mode** and **Comic
+mode**. That changes reading order and reopens the page at the panel you were
+reading, matched by its centre; it does not change the detector. Panel
+detection always uses the single internal **Deep mode** pipeline described in
+[MODES.md](MODES.md).
 
 When a swipe runs off the end of a page, `onPanelViewerBoundary` turns the
 underlying reader page and reopens the viewer on the adjacent page — at panel 1
@@ -218,8 +261,8 @@ zoom, live only in `_panelviewer.lua` and don't touch the reader's own touch
 zones:
 
 - **Left-edge swipe zoom**, always on: a vertical swipe starting in the left
-  quarter of the screen zooms in (up) or out (down), independent of the
-  `Panel detection` settings and never falling through to close the viewer.
+  quarter of the screen zooms in (up) or out (down), independent of the viewer
+  settings and never falling through to close the viewer.
 - **Tap-to-navigate** (`tap_navigation`, off by default): at standard zoom
   only, tapping the left or right third of the screen moves to the
   previous/next panel instead of toggling the button bar. Which side is
@@ -230,8 +273,8 @@ zones:
   physical keys.
 
 Both toggles live in the in-viewer **"More config..."** menu
-(`ViewerController:showMoreConfigMenu`), opened from a button next to the
-panel-detection cycle button, rather than the main KOReader settings menu.
+(`ViewerController:showMoreConfigMenu`), rather than the main KOReader settings
+menu.
 
 The navigation button cycles **Nav. Classic** (instant switches), **Nav.
 Smooth** (camera pans), and **Nav. Animated** (framebuffer transitions).
@@ -251,14 +294,21 @@ input.
 ```mermaid
 flowchart TD
     INIT["PanelsPlus:init"] --> S["Settings.load + migrate"]
-    S --> T["Timing.enabled = debug_timing"]
-    T --> ST["empty cache, prefetch and prerender tables"]
-    ST --> REG["register menu + gesture actions"]
-    REG --> PATCH["patch onPanelZoom"]
+    S --> T["Timing.enabled = debug_mode"]
+    T --> DOC["loadDocSettings"]
+    DOC --> ST["initialize cache and prefetch tables"]
+    ST --> REG["register menu + dispatcher actions"]
+    REG --> PATCH["patch onPanelZoom and onHold"]
+    PATCH --> APPLY["applyNativePanelSetting"]
 
-    CLOSE["PanelsPlus:onCloseWidget"] --> CP["cancelPanelPrerender"]
-    CP --> CC["clearPanelCache<br/><i>also unschedules prefetch</i>"]
+    CLOSE["PanelsPlus:onCloseWidget"] --> CE["cancelEmbeddedImageSearch"]
+    CE --> CP["cancel prefetch and prerender"]
+    CP --> CC["clearPanelCache"]
     CC --> RESTORE["restoreNativePanelZoom"]
+    RESTORE --> SCRATCH["ComponentDetector.clearScratch"]
+    SCRATCH --> MEMCHECK{"memory below prerender floor?"}
+    MEMCHECK -->|yes| GC["full Lua collection"]
+    MEMCHECK -->|no| DONE["return"]
 
     style INIT fill:#2d6cdf,color:#fff
     style CLOSE fill:#d9534f,color:#fff

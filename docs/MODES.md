@@ -1,142 +1,49 @@
-# Viewer modes: Smart, Quick, Deep
+# Deep mode
 
-What the three panel-detection modes mean for the reader, how they map onto
-the internals, and where to change them.
+Panels+ has one panel-detection mode: **Deep mode**. Stored detector preferences
+from older versions are migrated to the single current implementation
+(`components`) when settings are loaded.
 
-See also: [DETECTION.md](DETECTION.md) for the full detection pipeline these
-modes select between, and [ARCHITECTURE.md](ARCHITECTURE.md) for how the
-viewer and menu layers fit together.
+See [DETECTION.md](DETECTION.md) for the full algorithm and
+[ARCHITECTURE.md](ARCHITECTURE.md) for how detection fits into the viewer.
 
-## The Active Default: Component Mode (`components`)
+## What Deep mode does
 
-The primary detector is **Component Mode** (`components`). It performs 8-connected flood-fill analysis on the page's background-normalized ink map, with straight-line boundary verification (`frameSides`).
+Deep mode renders a reduced page bitmap, estimates the page background, and
+turns the raster into a binary ink map. `ComponentDetector` then finds
+8-connected ink components, checks their boundaries for straight panel-frame
+support, removes contained or implausibly small regions, groups nearby artwork,
+validates the result, and sorts it in the selected reading order.
 
-| Menu / internal label | `detector` value | Primary Engine |
-| --- | --- | --- |
-| **Component Mode (Default)** | `components` | 8-connected flood fill with geometric edge verification + full-page fallback |
-| **Deep Mode (Fallback)** | `exact` | KOReader's native K2pdfopt detector (available when small bitmap cannot be extracted) |
+Fixed-layout documents and images extracted from EPUB, KEPUB, and MOBI use the
+same pipeline. Only the bitmap source and coordinate space differ.
 
-### Swipe Navigation Directions
+If a source cannot provide the reduced bitmap, Panels+ may invoke KOReader's
+K2PDFOpt/Leptonica detector as an internal compatibility fallback. It is not a
+second mode and cannot be selected by the reader. If detection still cannot
+produce a trustworthy panel list, the page is represented by one full-page
+panel so the reading sequence can continue.
 
-Panels+ aligns swipe gestures with natural reading flow:
-- **Comic Mode (Left to Right)**: Swipe **east** (left-to-right) to advance to the next panel; swipe **west** to return to previous.
-- **Manga Mode (Right to Left)**: Swipe **west** (right-to-left) to advance to the next panel; swipe **east** to return to previous.
-- **Invert Swipe**: The *Invert panel swipe direction* menu option flips these gestures for readers who prefer drag-based page-turning gestures.
+## What the other “modes” mean
 
-## Quick mode
+These viewer controls are independent of panel detection:
 
-Renders the page small (~1/3 scale), measures the page border to learn
-whether it's a light or dark page, marks every pixel that differs from that
-background as ink, and recursively slices the ink map along its widest empty
-band — the "gutter" between panels. See
-[DETECTION.md → the segmenter pipeline](DETECTION.md#the-segmenter-pipeline)
-for the full walkthrough, including the slanted-gutter search for panels that
-aren't perfectly square.
+- **Manga mode** sorts panels right to left.
+- **Comic mode** sorts panels left to right.
+- **Strict**, **Loose**, **With margin**, and **No crop** control the viewport
+  around a detected rectangle.
+- **Classic**, **Smooth**, and **Animated** control transitions between panels.
+- **Invert panel swipe direction** changes the navigation gesture without
+  changing either detection or reading order.
 
-- **Fast**: one small render per page, no matter how many panels it finds.
-- **Only mode that works on dark pages** — the background is measured, not
-  assumed white, so white-on-black pages segment exactly like black-on-white
-  ones.
-- **Can't split interlocking or diagonal layouts** — there is no straight (or
-  gently slanted) empty line to cut along, so those come back as one
-  undivided region.
+There is no detector selector or detector cycle in the current UI.
 
-## Deep mode
+## Diagnosing detection
 
-Runs KOReader's own `getPanelFromPage` detector — the same one KOReader's
-reflow mode uses — batched so the page is rasterized at full resolution once
-and probed at many points, instead of once per probe. See
-[DETECTION.md → the native detector, batched](DETECTION.md#the-native-detector-batched).
+Enable **Panels+ → Enable debugging logs**, reopen the page, and inspect
+KOReader's `crash.log`. Panels+ messages begin with `[Panels+]`. They report
+bitmap construction, native fallback, render timings, and memory checks.
 
-- **Slower**: a full-resolution rasterization per page, plus one probe per
-  grid point not already inside a found panel.
-- **Fails on dark backgrounds** — it thresholds against white with no
-  inverse, so there's nothing to find on an inked page.
-- **More literal about panel edges**, and can often resolve interlocking or
-  diagonal layouts that defeat a straight-line cut.
-- The only mode available while KOReader's reflow / page-optimization
-  modes are active, since the small-render pipeline Quick mode needs is
-  unavailable there.
-- **Unavailable in comic mode.** Deep mode's white-only threshold gives up
-  on the dark backgrounds comic scans routinely have, so switching to comic
-  reading mode forces `detector` back to Smart if Deep was active, and the
-  **Deep mode** menu option is greyed out while comic mode is on. The
-  in-viewer mode button honors the same rule: cycling in comic mode skips
-  straight from Quick back to Smart instead of offering Deep
-  ([`ViewerController:cycleViewerDetector`](../src/viewer_controller.lua)).
-
-## Smart Mode
-
-Runs Quick first. [`Segmenter.accept()`](DETECTION.md#knowing-when-the-cut-is-wrong)
-checks the result against a few sanity thresholds (how many panels, how much
-of the page they cover, how much area they retain) and only falls back to
-Deep, per page, when Quick's result looks untrustworthy — not on a fixed
-schedule, and not for the whole book at once. This is the recommended and
-default setting: most pages get Quick's speed, and the pages Quick can't
-split still come out correctly via Deep.
-
-```mermaid
-flowchart LR
-    A["Smart"] -->|per page| G["run Quick"]
-    G --> C{"Segmenter.accept()?"}
-    C -->|trustworthy| DONE1(["shown as-is"])
-    C -->|not trustworthy| O["run Deep"]
-    O --> DONE2(["shown"])
-
-    style G fill:#3fa45b,color:#fff
-    style O fill:#2d6cdf,color:#fff
-```
-
-## Where to change it
-
-- **Menu**: *Panels+ → Panel detection*, a radio choice between the three
-  modes ([`menu.lua`](../src/menu.lua)).
-- **Panel-view button**: while a panel is open, the mode button cycles
-  Smart → Quick → Deep → Smart and immediately re-detects the current page
-  with the new mode, keeping the panel you're on in view
-  ([`ViewerController:cycleViewerDetector`](../src/viewer_controller.lua)).
-  Its label is drawn from [`PanelViewer:getDetectorText`](../src/_panelviewer.lua).
-
-## Diagnosing which mode is misreading a page
-
-Turn on **Panels+ → Log panel timings**, reopen the page, and check the log —
-covered in [DETECTION.md → Diagnosing a page](DETECTION.md#diagnosing-a-page).
-If a page looks wrong, forcing Quick or Deep via the mode button tells you
-immediately which detector is at fault, before you touch any tuning values in
-`src/_settings.lua`.
-
-
-"Log panel timings" doesn't give you a Panels+-specific file to open. Under
-the hood it just calls KOReader's own `logger.info`/`logger.warn` (see
-[`_timing.lua`](../src/_timing.lua) and the `logger.warn` calls in
-[`_pagebitmap.lua`](../src/_pagebitmap.lua) and
-[`_nativedetector.lua`](../src/_nativedetector.lua)), so you'll find every
-line sitting in KOReader's regular log, mixed in with everything else it logs:
-
-- **File**: `crash.log`, next to your KOReader install directory (not inside
-  the Panels+ plugin folder, and not a separate Panels+ log).
-- **Prefix**: every line this plugin emits starts with the prefix `[Panels+]`,
-  so you can grep/filter the logs easily — e.g. `grep '\[Panels+\]' crash.log`.
-- **Toggle scope**: the setting only controls whether Panels+ *writes* these
-  lines. It won't create or rotate `crash.log` for you, and turning it off
-  won't clear anything you've already logged.
-
-See [PERFORMANCE.md → Measuring on your device](PERFORMANCE.md#measuring-on-your-device)
-for the full log format and a worked example of a healthy vs. slow page.
-
-## Choosing a mode
-
-For most reading, leave it on **Smart** — it's the default for a reason: fast
-on the common case, correct on the pages Quick can't handle. Reach for a
-forced mode only when you already suspect which detector is wrong for a
-specific book:
-
-- Force **Quick** if you're reading scans with dark or inverted pages and
-  want to confirm panels are still splitting correctly without Deep mode's
-  fallback masking a problem.
-- Force **Deep** if a book has interlocking or diagonal panel layouts that
-  Smart keeps rendering as one undivided region — this skips Quick's attempt
-  entirely instead of waiting for it to fail per page.
-- Switch back to **Smart** once you're done diagnosing; a forced mode stays
-  forced for every page in every book until you change it again, so it's easy
-  to forget it's on after moving past the page that needed it.
+There is no alternate detector mode to switch to when a page is misread. See
+[DETECTION.md](DETECTION.md) for the relevant heuristics, settings, and known
+limitations.

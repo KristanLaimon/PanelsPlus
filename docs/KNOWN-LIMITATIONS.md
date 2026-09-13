@@ -1,15 +1,12 @@
 # Known Limitations
 
-## 1. Bled panels with no blank gutter merge into one panel.
+## 1. Touching or borderless panels can merge
 
-Comic mode can opt into splitting on the drawn border stroke instead of a
-blank gutter (**Panels+ → Panel detection → "Split on drawn panel borders
-(experimental)"**, off by default), but this is a genuine trade-off, not a
-fix: the same thin, dark, full-span line pattern also matches a horizon,
-caption rule, or letterbox band drawn *inside* a single panel, which the
-toggle then cuts in half. See
-[DETECTION.md → Known limitation: panels with no gutter](DETECTION.md#known-limitation-panels-with-no-gutter)
-for the full trade-off and why it defaults off.
+Two panels connected by a shared stroke are one 8-connected ink component.
+At the same time, a straight line inside one illustration may look like a
+border, so splitting every long stroke would cut real panels in half. Deep mode
+does not expose a second detector or a UI override for this ambiguity. See
+[DETECTION.md → Touching or borderless panels](DETECTION.md#touching-or-borderless-panels).
 
 ## 2. OCR-based word lookup is approximate on comic lettering.
 
@@ -21,8 +18,12 @@ at all, which is why the menu still marks it `[EXPERIMENTAL]`. See
 [WORD-LOOKUP.md → OCR debug review mode](WORD-LOOKUP.md#ocr-debug-review-mode)
 for turning a bad lookup into a labeled example for future tuning.
 
-## 3. Pages with intersecting speech bubbles take the whole page as one big panel.
-Due to the nature of KOReader's native reader "Exact Mode", and (initially) in the search for performance, full pages with speech bubbles that intersect across multiple panels aren't zoomed into individual panels because the detector takes the whole page as a single big panel instead of cutting those panels and the main dialog bubble.
+## 3. A speech bubble crossing frames can join multiple panels
+
+Deep mode groups ink with 8-connectivity. If a balloon or lettering physically
+touches multiple panel frames in the reduced ink map, those regions can become
+one connected component and yield one large bounding box. Page-level validation
+may then keep the result as a full-page panel rather than risk omitting artwork.
 
 <table align="center" width="80%">
   <tr>
@@ -39,10 +40,13 @@ Due to the nature of KOReader's native reader "Exact Mode", and (initially) in t
   </tr>
 </table>
 
-**Why?**  
-Normally the detection algorithm looks for clear panel boundaries, but when speech bubbles intersect multiple panels, the detection logic groups them all together into one large panel. In the future maybe I'll add better handling to separate them.
+**Why?** The component graph contains connectivity, not semantic labels. Once a
+balloon bridges two frames, the flood fill cannot know that the bridge is
+dialogue rather than part of a common panel boundary. A future improvement
+would need evidence strong enough to cut those bridges without breaking real
+artwork.
 
-### When panels and dialogs are well-separated:
+### When panels and dialogue are well separated
 It works fine if the panels and speech bubbles have clear spacing between each other or they are encapsulated in their respective panels:
 
 <p align="center">

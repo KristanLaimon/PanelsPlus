@@ -199,8 +199,8 @@ Currently there is only: ***English*** and ***Spanish*** support.
 
 - [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
 - [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
-- [Panel detection](docs/DETECTION.md) — how panels are found, why there are two detectors, and every tuning knob.
-- [Viewer modes](docs/MODES.md) — what Smart, Quick and Deep mode mean for the reader, and where to change them.
+- [Panel detection](docs/DETECTION.md) — how Deep mode turns pixels into panels, including heuristics, fallbacks, and tuning.
+- [Deep mode](docs/MODES.md) — the single panel-detection mode and how it differs from reading, crop, and navigation modes.
 - [Embedded EPUB/KEPUB/MOBI images](docs/EMBEDDED-IMAGES.md) — how panel reading works inside reflowable books, including the detector and smooth-navigation limits.
 - [Word lookup](docs/WORD-LOOKUP.md) — touch-and-hold text selection, dictionary lookup, and the OCR debug review mode.
 - [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.

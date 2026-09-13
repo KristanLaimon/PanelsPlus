@@ -4,7 +4,7 @@ What panel reading actually costs, where the expensive parts were, and how to
 measure it on your own device.
 
 See also: [ARCHITECTURE.md](ARCHITECTURE.md), [DETECTION.md](DETECTION.md),
-[MODES.md](MODES.md) for the reader-facing mode names used below, and
+[MODES.md](MODES.md) for the single Deep detection mode, and
 [WORD-LOOKUP.md](WORD-LOOKUP.md) for the touch-and-hold OCR lookup costed
 below.
 
@@ -21,8 +21,11 @@ separate because they are felt at different moments.
 
 ```mermaid
 flowchart LR
-    HOLD["long hold"] --> DETECT["detection<br/><i>where are the panels?</i>"]
-    DETECT --> FIRST["render panel 1"]
+    HOLD["long hold"] --> CACHE{"rectangles cached?"}
+    CACHE -->|no| DETECT["Deep detection<br/><i>where are the panels?</i>"]
+    DETECT --> STORE["cache rectangles"]
+    STORE --> FIRST["render selected panel"]
+    CACHE -->|yes| FIRST
     FIRST --> READ["read"]
     READ --> SWIPE["swipe"]
     SWIPE --> NEXT["render panel N+1"]
@@ -32,62 +35,43 @@ flowchart LR
     style NEXT fill:#8a5cf6,color:#fff
 ```
 
-**Detection** is paid once per page and is felt as a delay after the long hold.
+**Detection** is paid once per uncached page, either after the long hold or in a
+background prefetch.
 **Panel rendering** is paid on every swipe and is felt as the viewer being sticky.
 Both were slow, for unrelated reasons, which is why the delay seemed to move
 around.
 
 ## Detection
 
-`KoptInterface:getPanelFromPage` is the only uncached probe in KOReader's
-`KoptInterface` — every sibling (`getAutoBBox`, the text-box probes) stores its
-result in `DocCache`, and this one does not. Each call:
-
-1. builds a `KOPTContext`,
-2. opens the page,
-3. **rasterizes the whole page at full resolution** (`page:getPagePix`),
-4. probes one point,
-5. throws the rasterization away.
-
-The probe plan is `panel_grid_cols × panel_grid_rows` = 4 × 7, plus the hold
-point. Probes landing inside an already-found panel are skipped, but probes
-landing in gutters and margins return nothing, are not recorded, and pay in full.
-
-| Page | Full-resolution page renders, before |
-| --- | --- |
-| Few large panels | ~6–10 (most probes suppressed) |
-| Many small panels | up to 29 |
-| Wide margins | up to 29 (margin probes never suppress anything) |
-
-That spread is why the stall was 3–4 seconds on some pages and barely noticeable
-on others. Two changes address it:
+Deep mode normally performs one bounded page render and one component pass:
 
 ```mermaid
 flowchart TD
-    subgraph old ["Before"]
-        O1["up to 29 full-resolution<br/>page rasterizations"]
-    end
+    S["source page/image"] --> MAP{"bounded raster and<br/>ink map available?"}
+    MAP -->|yes| C["8-connected flood fills"]
+    C --> F["frame evidence and filtering"]
+    F --> VALID{"page-level validation"}
+    VALID -->|accepted| ORDER["reading-order sort"]
+    VALID -->|rejected| FULL["one full-page panel"]
+    MAP -->|no| N["native compatibility fallback:<br/>one full-resolution rasterization<br/>shared across probes when possible"]
+    N --> RESULT{"rectangles found?"}
+    RESULT -->|yes| ORDER
+    RESULT -->|no, dimensions known| FULL
+    RESULT -->|no, dimensions unavailable| NONE["no viewer replacement"]
 
-    subgraph new ["After"]
-        N1["1 render at ~1/3 scale<br/>+ an in-memory cut"]
-        N2["fallback: 1 full-resolution<br/>rasterization, all probes reuse it"]
-        N1 -.->|"only if the cut<br/>is not trustworthy"| N2
-    end
-
-    old ==> new
-
-    style O1 fill:#d9534f,color:#fff
-    style N1 fill:#3fa45b,color:#fff
-    style N2 fill:#e8a33d,color:#000
+    style MAP fill:#2d6cdf,color:#fff
+    style C fill:#3fa45b,color:#fff
+    style N fill:#e8a33d,color:#000
 ```
 
-- **The segmenter** ([DETECTION.md](DETECTION.md)) replaces probing entirely on
-  the common path. One render at `segment_target_width` (480px) is roughly 1/11th
-  the pixels of a full-resolution page, and the cut that follows is integer
-  arithmetic over a ~340KB byte map.
-- **Batching** moves the probe loop *inside* the rasterization on the fallback
-  path, so even a page the segmenter declines costs one page render rather than
-  up to 29.
+- **The primary component pipeline** ([DETECTION.md](DETECTION.md)) uses one
+  render at `segment_target_width` (480px). The classification and flood fill
+  are linear in the resulting map area and use reusable FFI buffers.
+- **The native fallback is exceptional.** It runs only when the reduced map
+  cannot be built, not when a valid component result is merely imperfect.
+- **Batching** moves the probe loop inside one full-resolution rasterization on
+  that fallback path. If batching fails its self-check, KOReader's original
+  per-probe entry point is the final compatibility path.
 
 ## Panel rendering
 
@@ -113,17 +97,27 @@ sequenceDiagram
     participant U as User
     participant V as PanelViewer
     participant VC as ViewerController
+    participant DOC as Document
     participant D as DocCache
 
     U->>V: swipe to panel N
-    V->>D: tile for panel N
-    D-->>V: hit (warmed earlier)
+    V->>DOC: lazy crop calls drawPagePart(panel N)
+    DOC->>D: request rendered tile
+    alt tile was warmed
+        D-->>DOC: cache hit
+    else no warmed tile
+        D-->>DOC: render and cache tile
+    end
+    DOC-->>V: panel bitmap
     V-->>U: panel N shown
     V->>VC: requestPanelPrerender(N)
     Note over VC: wait panel_prerender_delay
-    VC->>VC: free memory ≥ prerender_min_free_bytes?
-    VC->>D: render panel N+1, discard the buffer
-    Note over D: tile stays cached,<br/>plugin owns nothing
+    alt prerender enabled, next panel exists, and memory is sufficient
+        VC->>DOC: drawPagePart(panel N+1)
+        DOC->>D: render/cache tile
+        DOC-->>VC: buffer, then discard plugin reference
+        Note over D: tile stays cached;<br/>plugin owns nothing
+    end
 ```
 
 The rendered buffer is deliberately thrown away. `DocCache` already owns the
@@ -132,8 +126,8 @@ spend exactly the memory this is meant to protect.
 
 ## Word lookup (touch-and-hold OCR)
 
-A hold on a zoomed panel pays for two things, both scoped to that one word,
-not the whole page: a small crop render around the tap
+A refined word selection on an unblocked zoomed panel pays for two things, both
+scoped to that one word, not the whole page: a small crop render around the tap
 (`src/_wordfinder.lua`'s `CROP_HALF_W_FRAC`/`CROP_HALF_H_FRAC`, at 2x zoom)
 and a Tesseract OCR call over the resulting tight box, with one retry on a
 padded box if the first result doesn't look like a plausible word. Both are
@@ -162,7 +156,7 @@ Anything Panels+ holds makes that worse.
 | Ink map | during detection only | ~340KB, then collected |
 | Component scratch buffers | while document open, freed on close | ~5.8MB FFI arrays (reused across all pages) |
 | Greyscale copy (colour pages only) | during detection only | ~340KB, freed immediately |
-| Deep KOPT/Leptonica buffers | one Deep attempt | Full-source-size, manually freed and budget-gated |
+| Native fallback KOPT/Leptonica buffers | one compatibility attempt | Full-source-size, manually freed and budget-gated |
 | Panel image list | while the viewer is open | render *functions*, not bitmaps |
 | Current panel bitmap | one at a time | one screen-sized buffer |
 | Prerendered tile | owned by `DocCache` | not the plugin's |
@@ -184,10 +178,11 @@ Deliberate choices behind that table:
   render and its up-to-29-render per-probe fallback are skipped outright and
   the page is treated as having no panels, rather than risking an OOM kill on
   what is this plugin's single largest allocation.
-- **Deep reserves its real working set.** The fixed floor alone is not enough:
+- **Native fallback reserves its real working set.** The fixed floor alone is not enough:
   Panels+ estimates the KOPT source and Leptonica temporary images from the
-  current page/image dimensions, and runs Deep only when both that estimate and
-  the safety floor fit. This is deliberately conservative on 300MB devices.
+  current page/image dimensions, and runs the fallback only when both that
+  estimate and the safety floor fit. This is deliberately conservative on
+  300MB devices.
 - **Embedded boundary searches drop the old source first.** The current crop
   stays visible, but the decoded bitmap and its lazy crop closures do not
   survive while later EPUB/KEPUB/MOBI pages are searched. Queued search callbacks are
@@ -198,34 +193,21 @@ Deliberate choices behind that table:
 
 ## Measuring on your device
 
-Enable **Panels+ → Log panel timings**, reproduce the slowness, then read
+Enable **Panels+ → Enable debugging logs**, reproduce the slowness, then read
 KOReader's log (`crash.log`, next to your KOReader directory). Every line
 you'll find there is prefixed `[Panels+]`, so you can grep/filter it out from
 KOReader's own logging.
 
-A healthy page on the fast path:
+A normal Deep-mode page:
 
 ```
 [Panels+] page bitmap 74ms (480x720 bb8 bg=247 ink=22%)
-[Panels+] segment 48ms (7 panels)
 [Panels+] prerender panel 2 88ms
 ```
 
-A page whose panels are not square:
+A page whose reduced bitmap was unavailable and used the internal fallback:
 
 ```
-[Panels+] page bitmap 74ms (480x720 bb8 bg=247 ink=26%)
-[Panels+] segment 190ms (5 panels, 2 of 3 slanted searches split)
-```
-
-The slanted search only runs where the straight cut found nothing, so it costs
-nothing on square pages. Where it does run it is the dominant cost of detection,
-and the reported ratio tells you whether the extra work is paying for itself.
-
-A page that fell back:
-
-```
-[Panels+] segmenter rejected: only 38% of the covered area kept
 [Panels+] native detect 810ms (6 panels from 29 probes, 1 page render)
 ```
 
@@ -234,8 +216,7 @@ What the numbers tell you:
 | Observation | Meaning |
 | --- | --- |
 | `page bitmap` dominates | The small render is the cost. Lower `segment_target_width` |
-| `segment` dominates | The slanted-gutter search is running. Expected on skewed pages; see the `slanted searches` count on the same line |
-| `native detect` appears often | The segmenter is declining these pages — see the rejection reason above it |
+| `native detect` appears often | The reduced map could not be built; check document reflow/page optimization and render failures |
 | `per-probe renders` in the native line | The batching self-check failed and the slow path is in use. Worth reporting |
 | `native detect skipped: low memory` | Free memory was under `native_detect_min_free_bytes`; the page is reported as having no panels |
 | `native detect fallback skipped: low memory after batched failure` | The shared-context render failed and memory was too tight to retry with the per-probe fallback |
