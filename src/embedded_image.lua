@@ -396,6 +396,11 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         device_rotate_callback = function(current_viewer, mode)
             return self:setDeviceRotation(current_viewer, mode)
         end,
+        screen_resize_callback = function(current_viewer)
+            return self:reopenEmbeddedImagePanels(current_viewer, {
+                buttons_visible = current_viewer.buttons_visible,
+            })
+        end,
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)
         end,
@@ -423,7 +428,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
 end
 
 --- Rebuild an embedded image viewer after changing its reading order or crop.
-function EmbeddedImage:reopenEmbeddedImagePanels(viewer)
+function EmbeddedImage:reopenEmbeddedImagePanels(viewer, options)
     -- A boundary search intentionally releases the source before it crosses
     -- reflow pages. Ignore a late menu/button action rather than closing the
     -- still-visible current crop and attempting to rebuild from nil.
@@ -437,9 +442,13 @@ function EmbeddedImage:reopenEmbeddedImagePanels(viewer)
             y = (panel.y or 0) + (panel.h or 0) / 2,
         }
     local image = viewer.embedded_source_image
+    local buttons_visible = options and options.buttons_visible
+    if buttons_visible == nil then
+        buttons_visible = true
+    end
     viewer.embedded_source_image = nil -- transfer ownership to the replacement viewer
     UIManager:close(viewer)
-    return self:showEmbeddedImagePanelsForImage(image, { start_point = start_point, buttons_visible = true })
+    return self:showEmbeddedImagePanelsForImage(image, { start_point = start_point, buttons_visible = buttons_visible })
 end
 
 --- Rotate the device/screen and reopen the embedded image viewer at the current panel.

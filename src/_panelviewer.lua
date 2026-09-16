@@ -79,6 +79,7 @@ end
 --- @field image_rects PPPanel[]|nil Crop rectangles matching `_images_list`, for prerendering.
 --- @field embedded_source_image Blitbuffer|nil Decoded reflow image owned by this viewer.
 --- @field image_union_renderer fun(union:PPRect, zoom:number):Blitbuffer|nil Optional image-space union renderer for smooth transitions.
+--- @field screen_resize_callback fun(viewer:PanelViewer):boolean|nil Rebuild the viewer after Android changes the screen size.
 --- @field embedded_cleanup_callback fun(viewer:PanelViewer):nil|nil Owner hook that cancels an embedded page search.
 --- @field reader_ui table|nil Reader UI that owns the normal document gesture zones.
 --- @field panel_prerender_callback fun(viewer:PanelViewer, index:integer)|nil
@@ -126,6 +127,7 @@ local PanelViewer = ImageViewer:extend({
     image_rects = nil,
     embedded_source_image = nil,
     image_union_renderer = nil,
+    screen_resize_callback = nil,
     embedded_cleanup_callback = nil,
     reader_ui = nil,
     panel_prerender_callback = nil,
@@ -1541,6 +1543,22 @@ function PanelViewer:init()
     self.key_events.PanelNavRight = { { "Right" }, { "d" }, { "D" } }
 end
 
+--- Android can rotate the screen while this viewer is open. The image list's
+--- current bitmap was rendered for the previous canvas dimensions, and the
+--- base ImageViewer also keeps its outer region and touch ranges from init.
+--- Reopen at the same panel so drawPagePart uses the new canvas size.
+function PanelViewer:onScreenResize(dimen)
+    if self._panels_plus_closed or not dimen or not self.region then
+        return
+    end
+    if self.region.w == dimen.w and self.region.h == dimen.h then
+        return
+    end
+    if self.screen_resize_callback then
+        return self.screen_resize_callback(self)
+    end
+end
+
 --- Close ImageViewer resources while guarding its final dirty-region callback.
 function PanelViewer:onCloseWidget()
     self._panels_plus_closed = true
@@ -1577,6 +1595,7 @@ function PanelViewer:onCloseWidget()
     self.bleed_ratio_callback = nil
     self.panel_prerender_callback = nil
     self.embedded_cleanup_callback = nil
+    self.screen_resize_callback = nil
     pcall(WordFinder.cleanup)
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         collectgarbage("collect")

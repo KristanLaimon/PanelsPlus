@@ -243,6 +243,17 @@ function ViewerController:setDeviceRotation(viewer, mode)
     return true
 end
 
+--- Android's automatic rotation sends ScreenResize after changing the canvas.
+--- The current panel bitmap and ImageViewer layout still use the old size.
+function ViewerController:resizePanelViewer(viewer)
+    local page = viewer.page
+    local panels = viewer.panels
+    local start_idx = viewer._images_list_cur or 1
+    local buttons_visible = viewer.buttons_visible
+    UIManager:close(viewer)
+    return self:showPanelViewerForPage(page, panels, start_idx, { buttons_visible = buttons_visible })
+end
+
 --- Persist a new plugin-only image rotation chosen from the rotation picker.
 ---
 --- Unlike `setDeviceRotation`, this never rebuilds the viewer -- `viewer`
@@ -835,6 +846,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         device_rotate_callback = function(current_viewer, mode)
             return self:setDeviceRotation(current_viewer, mode)
+        end,
+        screen_resize_callback = function(current_viewer)
+            return self:resizePanelViewer(current_viewer)
         end,
         image_rotation_callback = function(current_viewer, value)
             return self:setViewerImageRotation(current_viewer, value)
