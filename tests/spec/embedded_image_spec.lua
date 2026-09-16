@@ -282,6 +282,40 @@ describe("EmbeddedImage backward landing", function()
 end)
 
 describe("EmbeddedImage device rotation", function()
+    it("reopens an embedded crop after auto-rotation without losing its panel or controls state", function()
+        local old_close = UIManager.close
+        local close = spy()
+        local show = spy()
+        show.return_value = true
+        UIManager.close = function(_, viewer)
+            close(viewer)
+        end
+
+        local image = { w = 800, h = 1200 }
+        local plugin = setmetatable({ showEmbeddedImagePanelsForImage = show }, { __index = EmbeddedImage })
+        local viewer = PanelViewer:new({
+            region = { w = 824, h = 1648 },
+            panels = { { x = 0, y = 0, w = 400, h = 600 }, { x = 400, y = 0, w = 400, h = 600 } },
+            _images_list_cur = 2,
+            embedded_source_image = image,
+            buttons_visible = false,
+            screen_resize_callback = function(current_viewer)
+                return plugin:reopenEmbeddedImagePanels(current_viewer, {
+                    buttons_visible = current_viewer.buttons_visible,
+                })
+            end,
+        })
+
+        assert.is_true(viewer:onScreenResize({ w = 1648, h = 824 }))
+        assert.equals(1, close:callCount())
+        assert.equals(1, show:callCount())
+        assert.equals(image, show:lastCall()[2])
+        assert.equals(600, show:lastCall()[3].start_point.x)
+        assert.is_false(show:lastCall()[3].buttons_visible)
+        assert.is_nil(viewer.embedded_source_image)
+        UIManager.close = old_close
+    end)
+
     it("reopens the viewer at the current panel across screen rotation", function()
         local show = spy()
         show.return_value = true
