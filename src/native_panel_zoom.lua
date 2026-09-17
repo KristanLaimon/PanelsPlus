@@ -66,8 +66,9 @@ function NativePanelZoom:applyNativePanelSetting()
 end
 
 --- Register the touch zone for the chosen gesture, or remove it for long press.
---- Two-finger taps in the screen corners that KOReader's Gestures plugin has an
---- action for keep that action; it registers its zones first.
+--- KOReader's Gestures plugin claims two-finger taps in four large corner
+--- zones (zoom in and out by default), so on a page Panels+ takes priority
+--- over those; their actions are still available from other gestures.
 function NativePanelZoom:applyPanelGesture()
     self:removePanelGestureZones()
     local ui = self.ui
@@ -79,6 +80,12 @@ function NativePanelZoom:applyPanelGesture()
             id = "panels_plus_two_finger_tap",
             ges = "two_finger_tap",
             screen_zone = { ratio_x = 0, ratio_y = 0, ratio_w = 1, ratio_h = 1 },
+            overrides = {
+                "two_finger_tap_top_left_corner",
+                "two_finger_tap_top_right_corner",
+                "two_finger_tap_bottom_left_corner",
+                "two_finger_tap_bottom_right_corner",
+            },
             handler = function(ges)
                 local highlight = self.ui and self.ui.highlight
                 if not highlight or not self:isEnabled() then
