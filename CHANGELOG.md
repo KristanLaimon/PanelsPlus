@@ -4,6 +4,10 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ## [Unreleased]
 
+### Added
+
+- "Open panels with" setting: a long press, as before, or a two-finger tap. With two-finger tap, a long press is left to KOReader and other plugins (for example Bubble Zoom).
+
 ### Fixed
 
 - **Swiping down for Kobo-style zoom on the left edge no longer exits the panel viewer**

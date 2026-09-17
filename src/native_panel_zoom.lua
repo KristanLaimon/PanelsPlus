@@ -33,26 +33,73 @@ function NativePanelZoom:patchNativePanelZoom()
     highlight._panels_plus_original_hold = highlight.onHold
     highlight.onPanelZoom = function(reader_highlight, arg, ges)
         local plugin = reader_highlight._panels_plus_plugin
-        if plugin and plugin:isEnabled() then
+        if plugin and plugin:isEnabled() and plugin:opensOnHold() then
             return plugin:showPanelSequence(reader_highlight, ges)
         end
         return reader_highlight:_panels_plus_original_panel_zoom(arg, ges)
     end
     highlight.onHold = function(reader_highlight, arg, ges)
         local plugin = reader_highlight._panels_plus_plugin
-        if plugin and plugin:isEnabled() and plugin:showEmbeddedImagePanels(reader_highlight, ges) then
+        if plugin and plugin:isEnabled() and plugin:opensOnHold()
+            and plugin:showEmbeddedImagePanels(reader_highlight, ges) then
             return true
         end
         return reader_highlight:_panels_plus_original_hold(arg, ges)
     end
 end
 
---- Keep KOReader panel zoom active so disabling Panels+ focusing falls back to native panel zoom.
+--- Whether panels open on a long press (the default) rather than another gesture.
+---
+--- @return boolean on_hold
+function NativePanelZoom:opensOnHold()
+    return self.settings.panel_gesture ~= "two_finger_tap"
+end
+
+--- Keep KOReader panel zoom active so disabling Panels+ focusing falls back to
+--- native panel zoom. When panels open on another gesture, a long press is left
+--- to KOReader's own settings.
 function NativePanelZoom:applyNativePanelSetting()
-    if self.ui.highlight and self.ui.paging then
+    if self.ui.highlight and self.ui.paging and self:opensOnHold() then
         self.ui.highlight.panel_zoom_enabled = true
         self.ui.highlight.panel_zoom_fallback_to_text_selection = false
     end
+end
+
+--- Register the touch zone for the chosen gesture, or remove it for long press.
+--- Two-finger taps in the screen corners that KOReader's Gestures plugin has an
+--- action for keep that action; it registers its zones first.
+function NativePanelZoom:applyPanelGesture()
+    self:removePanelGestureZones()
+    local ui = self.ui
+    if self:opensOnHold() or not ui or not ui.registerTouchZones then
+        return
+    end
+    self._panels_plus_zones = {
+        {
+            id = "panels_plus_two_finger_tap",
+            ges = "two_finger_tap",
+            screen_zone = { ratio_x = 0, ratio_y = 0, ratio_w = 1, ratio_h = 1 },
+            handler = function(ges)
+                local highlight = self.ui and self.ui.highlight
+                if not highlight or not self:isEnabled() then
+                    return false
+                end
+                if self.ui.paging then
+                    return self:showPanelSequence(highlight, ges)
+                end
+                return self:showEmbeddedImagePanels(highlight, ges)
+            end,
+        },
+    }
+    ui:registerTouchZones(self._panels_plus_zones)
+end
+
+--- Remove the gesture touch zone, if any.
+function NativePanelZoom:removePanelGestureZones()
+    if self._panels_plus_zones and self.ui and self.ui.unRegisterTouchZones then
+        self.ui:unRegisterTouchZones(self._panels_plus_zones)
+    end
+    self._panels_plus_zones = nil
 end
 
 --- KOReader hook: reapply the native panel-zoom override after document load.
