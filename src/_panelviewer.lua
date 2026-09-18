@@ -1160,6 +1160,17 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         return
     end
 
+    -- The document's own text layer already gave `highlight.onHold` (above,
+    -- in onHold) an exact word -- getWordFromPosition never falls back to
+    -- OCR itself (KoptInterface returns nil outright when getTextBoxes has
+    -- nothing for this page), so a hit here is strictly better than our
+    -- pixel/OCR guess and a miss costs only one cheap lookup before we fall
+    -- through to WordFinder exactly as before.
+    local ok_native, native_word = pcall(document.getWordFromPosition, document, page_pos)
+    if ok_native and native_word and native_word.word and native_word.word ~= "" then
+        return
+    end
+    
     local ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
     if not ok or not box then
         if self.ocr_debug_mode then
