@@ -1,0 +1,10 @@
+[project]
+name = "panels-plus-annotator"
+version = "0.1.0"
+description = "Development dependencies for the PanelsPlus Manga Panel Annotator"
+requires-python = ">=3.9"
+dependencies = [
+    "Pillow>=9.3.0",
+    "PyMuPDF>=1.18.0",
+    "PyQt6>=6.0.0",
+]

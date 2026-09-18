@@ -1,1 +1,5 @@
-python3 ./tests/dataset-mangas/annotator.py
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")"
+exec uv run python tests/dataset-mangas/annotator.py "$@"

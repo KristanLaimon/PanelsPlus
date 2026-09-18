@@ -19,6 +19,8 @@ koreader/
 koreader
 kobo.koplugin/
 kobo.koplugin
+kcc
+kcc/
 
 OCR-DEBUG-DATASET-PLAN.md
 DEBUGGING-DETECTION.md
@@ -58,6 +60,7 @@ tests/dataset-mangas/dataset-textbasedformats/*/*.mobi
 # Python bytecode
 __pycache__/
 *.pyc
+.venv/
 
 # Local benchmark and dataset cache
 .cache/
