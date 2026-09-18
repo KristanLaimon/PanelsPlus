@@ -195,6 +195,26 @@ Currently there is only: ***English*** and ***Spanish*** support.
 
 ## 🛠️ For Developers
 
+### Developer Setup
+
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/), the Python package and environment manager. On Linux and macOS:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+From the repository root, create the development environment and install the Python dependencies:
+
+```bash
+uv sync
+```
+
+With Lua, LuaJIT, StyLua, and Luacheck installed, run the full test suite through uv so `run-tests.sh` uses the synced Python environment:
+
+```bash
+uv run ./run-tests.sh
+```
+
 ### Documentation
 
 - [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
