@@ -86,7 +86,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setPanelGesture("hold")
                         end,
-                        help_text = _("A long press on the page opens the panel under it. Panels+ takes over KOReader's long press on comic pages."),
+                        help_text = _(
+                            "A long press on the page opens the panel under it. Panels+ takes over KOReader's long press on comic pages."
+                        ),
                     },
                     {
                         text = _("Two-finger tap"),
@@ -97,7 +99,9 @@ function Menu:addToMainMenu(menu_items)
                         callback = function()
                             self:setPanelGesture("two_finger_tap")
                         end,
-                        help_text = _("A tap with two fingers opens the panel under them, and a long press is left to KOReader or other plugins. Needs a multi-touch screen."),
+                        help_text = _(
+                            "A tap with two fingers opens the panel under them, and a long press is left to KOReader or other plugins. Needs a multi-touch screen."
+                        ),
                     },
                 },
                 separator = true,

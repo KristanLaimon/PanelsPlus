@@ -40,8 +40,12 @@ function NativePanelZoom:patchNativePanelZoom()
     end
     highlight.onHold = function(reader_highlight, arg, ges)
         local plugin = reader_highlight._panels_plus_plugin
-        if plugin and plugin:isEnabled() and plugin:opensOnHold()
-            and plugin:showEmbeddedImagePanels(reader_highlight, ges) then
+        if
+            plugin
+            and plugin:isEnabled()
+            and plugin:opensOnHold()
+            and plugin:showEmbeddedImagePanels(reader_highlight, ges)
+        then
             return true
         end
         return reader_highlight:_panels_plus_original_hold(arg, ges)
@@ -65,12 +69,25 @@ function NativePanelZoom:applyNativePanelSetting()
     end
 end
 
+--- Restore the reader's panel-zoom settings saved after it loaded the document.
+function NativePanelZoom:restoreNativePanelSetting()
+    local highlight = self.ui and self.ui.highlight
+    local settings = self._panels_plus_native_panel_settings
+    if highlight and settings then
+        highlight.panel_zoom_enabled = settings.panel_zoom_enabled
+        highlight.panel_zoom_fallback_to_text_selection = settings.panel_zoom_fallback_to_text_selection
+    end
+end
+
 --- Register the touch zone for the chosen gesture, or remove it for long press.
 --- KOReader's Gestures plugin claims two-finger taps in four large corner
 --- zones (zoom in and out by default), so on a page Panels+ takes priority
 --- over those; their actions are still available from other gestures.
 function NativePanelZoom:applyPanelGesture()
     self:removePanelGestureZones()
+    if not self:opensOnHold() then
+        self:restoreNativePanelSetting()
+    end
     local ui = self.ui
     if self:opensOnHold() or not ui or not ui.registerTouchZones then
         return
@@ -122,6 +139,13 @@ end
 --- instead of ever reaching `onPanelZoom`. Reapplying here, after that
 --- broadcast reaches this module, restores the override.
 function NativePanelZoom:onReadSettings()
+    local highlight = self.ui and self.ui.highlight
+    if highlight then
+        self._panels_plus_native_panel_settings = {
+            panel_zoom_enabled = highlight.panel_zoom_enabled,
+            panel_zoom_fallback_to_text_selection = highlight.panel_zoom_fallback_to_text_selection,
+        }
+    end
     self:applyNativePanelSetting()
 end
 

@@ -48,4 +48,25 @@ describe("NativePanelZoom embedded-image hold hook", function()
         assert.equals(native_hold, highlight.onHold)
         assert.equals(native_zoom, highlight.onPanelZoom)
     end)
+
+    it("restores KOReader panel-zoom settings when switching to two-finger tap", function()
+        local highlight = {
+            panel_zoom_enabled = false,
+            panel_zoom_fallback_to_text_selection = true,
+        }
+        local plugin = {
+            ui = { highlight = highlight, paging = true },
+            settings = { panel_gesture = "hold" },
+        }
+        setmetatable(plugin, { __index = NativePanelZoom })
+
+        plugin:onReadSettings()
+        assert.is_true(highlight.panel_zoom_enabled)
+        assert.is_false(highlight.panel_zoom_fallback_to_text_selection)
+
+        plugin.settings.panel_gesture = "two_finger_tap"
+        plugin:applyPanelGesture()
+        assert.is_false(highlight.panel_zoom_enabled)
+        assert.is_true(highlight.panel_zoom_fallback_to_text_selection)
+    end)
 end)
