@@ -62,6 +62,7 @@ class MangaCanvas(QWidget):
         self._collections = {"panel": [], "phrase": [], "word": []}
         # Kept as an active-list alias for compatibility with the existing editor code.
         self.panels: List[Panel] = self._collections["panel"]
+        self.double_illustration = False
         self.selected_panel_index = -1
 
         # View transform
@@ -82,9 +83,10 @@ class MangaCanvas(QWidget):
         self._bpl: int = 0
 
         # Undo / Redo history stacks
-        self._undo_stack: List[List[Panel]] = []
-        self._redo_stack: List[List[Panel]] = []
+        self._undo_stack: List[Tuple[List[Panel], bool]] = []
+        self._redo_stack: List[Tuple[List[Panel], bool]] = []
         self._panels_at_drag_start: List[Panel] = []
+        self._double_illustration_at_drag_start = False
 
         # Interaction state
         self._mode = "idle"  # "idle", "drawing", "resizing", "moving", "panning"
@@ -254,8 +256,8 @@ class MangaCanvas(QWidget):
         self.update()
 
     def push_undo(self):
-        """Save current panels state to undo stack and clear redo stack."""
-        self._undo_stack.append([p.copy() for p in self.panels])
+        """Save panel boxes and the page label as one undo state."""
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
         if len(self._undo_stack) > 50:
             self._undo_stack.pop(0)
         self._redo_stack.clear()
@@ -264,8 +266,8 @@ class MangaCanvas(QWidget):
         """Revert to previous panels state."""
         if not self._undo_stack:
             return
-        self._redo_stack.append([p.copy() for p in self.panels])
-        self.panels = self._undo_stack.pop()
+        self._redo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
+        self.panels, self.double_illustration = self._undo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
@@ -279,8 +281,8 @@ class MangaCanvas(QWidget):
         """Reapply previously undone panels state."""
         if not self._redo_stack:
             return
-        self._undo_stack.append([p.copy() for p in self.panels])
-        self.panels = self._redo_stack.pop()
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
+        self.panels, self.double_illustration = self._redo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
@@ -297,6 +299,7 @@ class MangaCanvas(QWidget):
         phrases: Optional[List[PhraseRect]] = None,
         words: Optional[List[WordRect]] = None,
         fit_width: bool = False,
+        double_illustration: bool = False,
     ):
         """Update current page pixmap and panels."""
         self._pixmap = pixmap
@@ -328,6 +331,7 @@ class MangaCanvas(QWidget):
         self.current_phrase_id = min(phrase_ids) if phrase_ids else 1
         self.refresh_word_assignments()
         self.phrase_id_changed.emit(self.current_phrase_id)
+        self.double_illustration = bool(double_illustration)
         self.selected_panel_index = -1
         self._mode = "idle"
         self._undo_stack.clear()
@@ -610,12 +614,13 @@ class MangaCanvas(QWidget):
         self.push_undo()
         panel = Panel(0, 0, self.native_w, self.native_h)
         self.panels.append(panel)
+        self.double_illustration = False
         self.selected_panel_index = len(self.panels) - 1
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
 
-    def set_full_page_panel(self):
+    def set_full_page_panel(self, double_illustration: bool = False):
         """Replace this page's annotations with one full-page panel."""
         if self.native_w == 0 or self.native_h == 0:
             return
@@ -623,7 +628,26 @@ class MangaCanvas(QWidget):
         self.push_undo()
         self.panels = [Panel(0, 0, self.native_w, self.native_h)]
         self._collections["panel"] = self.panels
+        self.double_illustration = bool(double_illustration)
         self.selected_panel_index = 0
+
+        self.panels_changed.emit()
+        self.panel_selected.emit(self.selected_panel_index)
+        self.update()
+
+    def toggle_double_illustration(self):
+        """Mark the whole image as one illustration, or remove that label."""
+        if self.native_w == 0 or self.native_h == 0:
+            return
+        self.set_annotation_mode("panel")
+        self.push_undo()
+        if self.double_illustration:
+            self.double_illustration = False
+        else:
+            self.panels = [Panel(0, 0, self.native_w, self.native_h)]
+            self._collections["panel"] = self.panels
+            self.double_illustration = True
+            self.selected_panel_index = 0
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
@@ -645,6 +669,8 @@ class MangaCanvas(QWidget):
             self.panels.pop(self.selected_panel_index)
             if self.annotation_mode in ("phrase", "word"):
                 self.refresh_word_assignments()
+            else:
+                self.double_illustration = False
             self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
             self.panels_changed.emit()
             self.panel_selected.emit(self.selected_panel_index)
@@ -658,6 +684,8 @@ class MangaCanvas(QWidget):
         self.panels.clear()
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
+        else:
+            self.double_illustration = False
         self.selected_panel_index = -1
         self.panels_changed.emit()
         self.panel_selected.emit(-1)
@@ -727,6 +755,8 @@ class MangaCanvas(QWidget):
                         p.y = min(self.native_h - p.h, p.y + step)
                 if self.annotation_mode in ("phrase", "word"):
                     self.refresh_word_assignments()
+                else:
+                    self.double_illustration = False
                 self.panels_changed.emit()
                 self.update()
                 self.status_message.emit(
@@ -890,6 +920,7 @@ class MangaCanvas(QWidget):
 
         if event.button() == Qt.MouseButton.LeftButton:
             self._panels_at_drag_start = [p.copy() for p in self.panels]
+            self._double_illustration_at_drag_start = self.double_illustration
             self._current_image_box = None
             self._drag_start_pos = pos
             self._current_mouse_pos = pos
@@ -1064,7 +1095,10 @@ class MangaCanvas(QWidget):
             h = abs(iy2 - iy1)
 
             if w >= MIN_BOX_SIZE and h >= MIN_BOX_SIZE:
-                self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
+                self._undo_stack.append((
+                    [p.copy() for p in self._panels_at_drag_start],
+                    self._double_illustration_at_drag_start,
+                ))
                 self._redo_stack.clear()
                 if self.annotation_mode == "phrase":
                     candidate = Panel(x, y, w, h)
@@ -1086,6 +1120,8 @@ class MangaCanvas(QWidget):
                 self.panels.append(new_panel)
                 if self.annotation_mode in ("phrase", "word"):
                     self.refresh_word_assignments()
+                else:
+                    self.double_illustration = False
                 self.selected_panel_index = len(self.panels) - 1
                 if self.annotation_mode == "phrase" and not new_panel.text:
                     self.phrase_text_requested.emit(self.selected_panel_index)
@@ -1117,8 +1153,13 @@ class MangaCanvas(QWidget):
                 changed = True
 
             if changed:
-                self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
+                self._undo_stack.append((
+                    [p.copy() for p in self._panels_at_drag_start],
+                    self._double_illustration_at_drag_start,
+                ))
                 self._redo_stack.clear()
+                if self.annotation_mode == "panel":
+                    self.double_illustration = False
 
             if self.annotation_mode in ("phrase", "word"):
                 self.refresh_word_assignments()

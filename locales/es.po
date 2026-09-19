@@ -33,6 +33,12 @@ msgstr "Detecta siempre los paneles a partir de una versión reducida de la pág
 msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
 msgstr "Usa siempre el detector de paneles de KOReader. Es más lento y no puede encontrar paneles en páginas con fondo oscuro, pero sigue con más precisión sus bordes. No está disponible en modo cómic, donde los fondos oscuros son habituales."
 
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Auto-rotate double-page spreads"
+msgstr "Girar automáticamente las páginas dobles"
+
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animar las transiciones entre páginas (Actual: "
 
@@ -227,6 +233,9 @@ msgstr "Pre-renderiza el siguiente panel mientras lees el actual, para que pasar
 
 msgid "Rotate"
 msgstr "Rotar"
+
+msgid "Rotate a wide full-page image inside the panel viewer to fit a portrait screen. Manual image rotation takes priority; device orientation is unchanged."
+msgstr "Gira una imagen de página completa y ancha dentro del visor de paneles para ajustarla a una pantalla vertical. La rotación manual de la imagen tiene prioridad; la orientación del dispositivo no cambia."
 
 msgid "Save"
 msgstr "Guardar"

@@ -121,6 +121,17 @@ class PageAnnotation:
         self.illustration_type = illustration_type if illustration_type in self.ILLUSTRATION_TYPES else None
 
     @property
+    def double_illustration(self) -> bool:
+        return self.illustration_type == self.DOUBLE_PAGE_ILLUSTRATION
+
+    @double_illustration.setter
+    def double_illustration(self, enabled: bool) -> None:
+        if enabled:
+            self.illustration_type = self.DOUBLE_PAGE_ILLUSTRATION
+        elif self.double_illustration:
+            self.illustration_type = None
+
+    @property
     def effective_illustration_type(self) -> Optional[str]:
         """Return the saved type, defaulting legacy one-frame pages to single-page."""
         if self.illustration_type:
@@ -161,6 +172,8 @@ class PageAnnotation:
         illustration_type = self.effective_illustration_type
         if illustration_type:
             d["illustration_type"] = illustration_type
+        if self.double_illustration:
+            d["double_illustration"] = True
         if self.image_rel_path:
             d["image_paths"] = {
                 "en": self.image_rel_path
@@ -178,6 +191,8 @@ class PageAnnotation:
             image_rel_path=rel_img,
             illustration_type=illustration_type,
         )
+        if d.get("double_illustration") is True:
+            pa.double_illustration = True
         for f in d.get("frame", []):
             pa.frames.append(Panel.from_dict(f))
         for phrase in d.get("phrase", []):
@@ -363,9 +378,12 @@ class DatasetManager:
             self.books[book_title][page_index] = PageAnnotation(page_index=page_index, image_rel_path=rel_img)
         return self.books[book_title][page_index]
 
-    def set_page_frames(self, book_title: str, page_index: int, frames: List[Panel]) -> None:
+    def set_page_frames(self, book_title: str, page_index: int, frames: List[Panel],
+                        double_illustration: Optional[bool] = None) -> None:
         pa = self.get_page_annotation(book_title, page_index)
         pa.frames = [p.copy() for p in frames]
+        if double_illustration is not None:
+            pa.double_illustration = bool(double_illustration)
         if not pa.image_rel_path:
             pa.image_rel_path = f"{book_title}/{(page_index - 1):02d}.png"
 

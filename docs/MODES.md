@@ -36,6 +36,13 @@ These viewer controls are independent of panel detection:
 - **Invert panel swipe direction** changes the navigation gesture without
   changing either detection or reading order.
 
+**Auto-rotate double-page spreads** turns a wide full-page or lone illustration image inside
+the panel viewer when the screen is portrait. The device stays in its current
+orientation, and ordinary panels return to their normal orientation. A manual
+choice in the rotation picker takes priority; choose **Auto** in that picker to
+resume automatic rotation. The option is enabled by default in the Panels+
+menu.
+
 There is no detector selector or detector cycle in the current UI.
 
 ## Diagnosing detection

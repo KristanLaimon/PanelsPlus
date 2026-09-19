@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 local Event = require("ui/event")
 local Device = require("device")
 local Screen = Device.screen
+local DoubleSpread = require("src._doublespread")
 local Memory = require("src._memory")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
@@ -256,19 +257,29 @@ end
 
 --- Persist a new plugin-only image rotation chosen from the rotation picker.
 ---
---- Unlike `setDeviceRotation`, this never rebuilds the viewer -- `viewer`
---- already applied the new angle to `self.rotated` itself (see
---- `PanelViewer:onSetImageRotation`), so this only needs to save it to
---- outlive this viewer instance: reused across panel switches within it
---- (`switchToImageNum` re-applies `image_rotation` after `self.rotated` gets
---- overwritten by document auto-rotation) and carried into whichever viewer
---- gets built next, including one rebuilt by a device rotation.
+--- Usually the viewer applies the angle in place. A full spread needs a
+--- rebuild so automatic rotation gets a source render at its proper fit size;
+--- No crop also needs to swap between the source and padded canvas.
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
---- @param value number|boolean New image rotation (`false` or 90/180/270).
---- @return boolean handled Always true for viewer callback dispatch.
+--- @param value number|boolean|nil New image rotation (`nil` restores Auto).
+--- @return boolean|string handled `"reopened"` when a new viewer replaced this one.
 function ViewerController:setViewerImageRotation(viewer, value)
     self:setImageRotation(value)
+    local index = viewer._images_list_cur or 1
+    if
+        DoubleSpread.shouldRotate(
+            viewer.panels and viewer.panels[index],
+            viewer.panel_is_full_page and viewer.panel_is_full_page[index],
+            viewer.panels and #viewer.panels == 1
+        )
+    then
+        local page, panels = viewer.page, viewer.panels
+        local buttons_visible = viewer.buttons_visible
+        UIManager:close(viewer)
+        self:showPanelViewerForPage(page, panels, index, { buttons_visible = buttons_visible })
+        return "reopened"
+    end
     return true
 end
 
@@ -795,6 +806,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         ocr_debug_mode = self.settings.ocr_debug_mode == true,
         ocr_fast_english = self.settings.ocr_fast_english == true,
         image_rotation = self.settings.image_rotation,
+        auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,

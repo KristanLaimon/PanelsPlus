@@ -84,6 +84,7 @@ SPDX-License-Identifier: MIT
 --- @field remember_doc_settings boolean Whether per-document settings (mode, nav mode, progress bar, crop mode) are saved & restored.
 --- @field doc_settings table<string, table>|nil Per-document settings map fallback.
 --- @field progress_bar_visible boolean
+--- @field auto_rotate_double_pages boolean Rotate wide full-page images inside a portrait panel viewer, without rotating the device.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
@@ -127,7 +128,7 @@ SPDX-License-Identifier: MIT
 --- @field segment_shear_step integer Sample every Nth line while searching for slanted gutters.
 --- @field debug_mode boolean Write panel pipeline timings and memory usage to the KOReader log.
 --- @field performance_profile_version integer
---- @field image_rotation number|boolean|nil Plugin-only zoomed-view rotation set from the rotation picker; `nil` until the reader picks one. `false` (or 0) is an explicit "no rotation" choice, distinct from `nil`'s "let the document's own auto-rotation decide".
+--- @field image_rotation number|boolean|nil Plugin-only zoomed-view rotation set from the rotation picker; `nil` lets document and double-page automatic rotation apply. `false` is an explicit "no rotation" choice.
 
 --- Options accepted by `showPanelViewerForPage`.
 --- @class PPShowViewerOptions
@@ -182,7 +183,7 @@ SPDX-License-Identifier: MIT
 ---
 --- @class RotationPickerDialog : InputContainer
 --- @field on_device_rotate fun(direction: "up"|"down"|"left"|"right")|nil
---- @field on_image_rotate fun(direction: "up"|"down"|"left"|"right")|nil
+--- @field on_image_rotate fun(direction: "up"|"down"|"left"|"right"|"auto")|nil
 
 --- Panel viewer orchestration methods mixed into `PanelsPlus`.
 --- @class PPViewerControllerMethods

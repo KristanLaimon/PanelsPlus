@@ -146,6 +146,9 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 })
             end
             local illustration_type = raw_page.illustration_type
+            if raw_page.double_illustration == true then
+                illustration_type = "double_page"
+            end
             if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
                 illustration_type = #frames == 1 and "single_page" or nil
             end
@@ -163,6 +166,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 words = words,
                 text_direction = raw_page.text_direction or "ltr",
                 illustration_type = illustration_type,
+                double_illustration = illustration_type == "double_page",
                 text = raw_page.text or {},
             })
         end

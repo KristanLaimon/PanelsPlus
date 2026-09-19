@@ -36,6 +36,7 @@ local Settings = {
         remember_doc_settings = true,
         doc_settings = {},
         progress_bar_visible = true,
+        auto_rotate_double_pages = true,
         hold_text_selection = true,
         nav_transition_mode = "classic",
         nav_animated_panels = true,

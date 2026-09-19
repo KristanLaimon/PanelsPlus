@@ -121,6 +121,43 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(len(data[0]["pages"][0]["frame"]), 2)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["x"], 10)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["y"], 20)
+        self.assertNotIn("double_illustration", data[0]["pages"][0])
+
+    def test_double_illustration_json_is_optional_and_round_trips(self):
+        old_page = {
+            "page_index": 1,
+            "frame": [{"x": 0, "y": 0, "w": 1200, "h": 800}],
+            "image_paths": {"en": "book/00.png"},
+        }
+        self.assertFalse(PageAnnotation.from_dict(old_page).double_illustration)
+        self.assertNotIn("double_illustration", PageAnnotation.from_dict(old_page).to_dict())
+
+        ds_dir = os.path.join(self.test_dir, "double_illustration_dataset")
+        mgr = DatasetManager(ds_dir)
+        mgr.set_page_frames("book", 1, [Panel(0, 0, 1200, 800)], double_illustration=True)
+        mgr.save_book_dataset("book")
+        master_path = mgr.save_master_dataset()
+
+        book_path = os.path.join(ds_dir, "book", "annotation.json")
+        for path in (book_path, master_path):
+            with open(path, encoding="utf-8") as f:
+                page = json.load(f)[0]["pages"][0]
+            self.assertTrue(page["double_illustration"])
+            self.assertEqual(page["illustration_type"], "double_page")
+            self.assertEqual(page["frame"], [{"x": 0, "y": 0, "w": 1200, "h": 800}])
+
+        reloaded = DatasetManager(ds_dir)
+        self.assertTrue(reloaded.get_page_annotation("book", 1).double_illustration)
+
+        import subprocess
+        lua_code = f'''
+        local Manifest = require("tests.dataset-mangas.dataset_manifest")
+        local books = Manifest.loadManga("{ds_dir}")
+        assert(books[1].pages[1].double_illustration == true)
+        assert(books[1].pages[1].illustration_type == "double_page")
+        '''
+        res = subprocess.run(["lua", "-e", lua_code], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, res.stderr)
 
     def test_text_annotation_schema_is_additive_and_round_trips(self):
         pa = PageAnnotation.from_dict({
@@ -201,6 +238,17 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(canvas.current_phrase_id, 2)
         canvas.set_annotation_mode("word")
         self.assertEqual(canvas.panels, canvas.get_words())
+
+        canvas.set_annotation_mode("phrase")
+        canvas.double_illustration = True
+        canvas.push_undo()
+        canvas.panels[0].x = 20
+        canvas.undo()
+        self.assertEqual(canvas.get_phrases()[0].x, 10)
+        self.assertTrue(canvas.double_illustration)
+        canvas.redo()
+        self.assertEqual(canvas.get_phrases()[0].x, 20)
+        self.assertTrue(canvas.double_illustration)
 
     def test_canvas_draws_phrase_fragments_and_assigned_words(self):
         from PyQt6.QtCore import QPointF
@@ -506,6 +554,16 @@ class TestAnnotator(unittest.TestCase):
         # Add full page panel via shortcut
         win.canvas.add_full_page_panel()
         self.assertEqual(len(win.canvas.panels), 1)
+        win.btn_double_illustration.click()
+        self.assertTrue(win.canvas.double_illustration)
+        self.assertEqual(len(win.canvas.panels), 1)
+        self.assertIn("Double illustration", win.panel_list.item(0).text())
+        win.canvas.undo()
+        self.assertFalse(win.canvas.double_illustration)
+        win.canvas.redo()
+        self.assertTrue(win.canvas.double_illustration)
+        win.canvas.get_phrases().append(PhraseRect(10, 10, 120, 40, 1, "Hello"))
+        win.canvas.get_words().append(WordRect(15, 15, 40, 20, 1, "Hello"))
 
         # Save dataset
         win.save_dataset(show_dialog=False)
@@ -518,6 +576,10 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(content[0]["book_title"], "test_book")
         self.assertEqual(content[0]["annotation_schema_version"], 2)
         self.assertEqual(len(content[0]["pages"][0]["frame"]), 1)
+        self.assertTrue(content[0]["pages"][0]["double_illustration"])
+        self.assertEqual(content[0]["pages"][0]["illustration_type"], "double_page")
+        self.assertEqual(content[0]["pages"][0]["phrase"][0]["text"], "Hello")
+        self.assertEqual(content[0]["pages"][0]["word"][0]["text"], "Hello")
         with open(os.path.join(ds_dir, "test_book", "metadata.json"), "r") as f:
             metadata = json.load(f)
         self.assertEqual(metadata["annotation_layers"], ["panel", "phrase", "word"])
@@ -1019,6 +1081,7 @@ class TestAnnotator(unittest.TestCase):
         }
         pa = PageAnnotation.from_dict(raw)
         self.assertEqual(pa.illustration_type, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION)
+        self.assertTrue(pa.double_illustration)
         self.assertEqual(pa.copy().to_dict()["illustration_type"], "double_page")
 
     def test_annotator_uses_dark_theme_by_default(self):

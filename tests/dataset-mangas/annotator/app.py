@@ -4,6 +4,8 @@ Features:
 - KOReader-like Library / Recent Projects tab with book covers, progress %, and finished toggle.
 - Extraction of .cbz, .cbr, .pdf, .mobi, .epub into dataset/<bookfriendlyname>/00.png, 01.png...
 - Dark-themed canvas panel annotator with single-page (F) and double-page spread (S) shortcuts.
+- Canvas panel annotator with sequential badges, full-page shortcut (F), 8-handle resizing.
+- Double-illustration shortcut (D) for one full-page panel with an explicit label.
 - Finished book shortcut (Ctrl+M), auto-saving, and PanelsPlus schema compatibility.
 """
 
@@ -510,6 +512,13 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_illustration_type.setStyleSheet("color: #bbbbbb; font-size: 11px;")
         p_layout.addWidget(self.lbl_illustration_type)
 
+        self.btn_double_illustration = QPushButton("Mark Double Illustration (D)")
+        self.btn_double_illustration.setToolTip(
+            "Replace this page's boxes with one full-page panel and label it as a double illustration."
+        )
+        self.btn_double_illustration.clicked.connect(self.canvas.toggle_double_illustration)
+        p_layout.addWidget(self.btn_double_illustration)
+
         # Undo / Redo controls
         undo_layout = QHBoxLayout()
         self.btn_undo = QPushButton("↶ Undo (Ctrl+Z)")
@@ -614,6 +623,11 @@ class AnnotatorMainWindow(QMainWindow):
         act_double.setShortcut(QKeySequence(Qt.Key.Key_S))
         act_double.triggered.connect(self.set_double_page_illustration)
         edit_menu.addAction(act_double)
+
+        act_toggle_double = QAction("Toggle &Double Illustration", self)
+        act_toggle_double.setShortcut(QKeySequence(Qt.Key.Key_D))
+        act_toggle_double.triggered.connect(self.canvas.toggle_double_illustration)
+        edit_menu.addAction(act_toggle_double)
 
         act_fin = QAction("Toggle &Finished", self)
         act_fin.setShortcut(QKeySequence("Ctrl+M"))
@@ -882,7 +896,10 @@ class AnnotatorMainWindow(QMainWindow):
         phrases = [p.copy() for p in pa.phrases]
         words = [w.copy() for w in pa.words]
 
-        self.canvas.set_page(pixmap, panels, phrases, words, fit_width=fit_width)
+        self.canvas.set_page(
+            pixmap, panels, phrases, words, fit_width=fit_width,
+            double_illustration=pa.double_illustration,
+        )
         if fit_width:
             self.canvas.fit_to_width(self.canvas.rect())
 
@@ -901,7 +918,8 @@ class AnnotatorMainWindow(QMainWindow):
         if self.book_title and self.reader:
             self.canvas.refresh_word_assignments()
             self.dataset_mgr.set_page_frames(
-                self.book_title, self.current_page_num, self.canvas.get_panels()
+                self.book_title, self.current_page_num, self.canvas.get_panels(),
+                double_illustration=self.canvas.double_illustration,
             )
             self.dataset_mgr.set_page_text_annotations(
                 self.book_title,
@@ -918,7 +936,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.dataset_mgr.set_page_illustration_type(
             self.book_title, self.current_page_num, PageAnnotation.SINGLE_PAGE_ILLUSTRATION
         )
-        self.canvas.set_full_page_panel()
+        self.canvas.set_full_page_panel(double_illustration=False)
         self._refresh_illustration_type()
         self.status_bar.showMessage("Marked as a single-page illustration.", 3000)
 
@@ -929,7 +947,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.dataset_mgr.set_page_illustration_type(
             self.book_title, self.current_page_num, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION
         )
-        self.canvas.set_full_page_panel()
+        self.canvas.set_full_page_panel(double_illustration=True)
         self._refresh_illustration_type()
         self.status_bar.showMessage("Marked as an already-combined double-page illustration.", 3000)
 
@@ -1009,10 +1027,12 @@ class AnnotatorMainWindow(QMainWindow):
         panels = self.canvas.get_panels()
         if len(panels) != 1:
             pa.illustration_type = None
+            self.canvas.double_illustration = False
             return
         panel = panels[0]
         if (panel.x, panel.y, panel.w, panel.h) != (0, 0, self.canvas.native_w, self.canvas.native_h):
             pa.illustration_type = None
+            self.canvas.double_illustration = False
 
     def _refresh_illustration_type(self):
         if not hasattr(self, "lbl_illustration_type"):
@@ -1028,6 +1048,10 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_illustration_type.setText(labels.get(pa.effective_illustration_type, "Page type: Panel sequence"))
 
     def _refresh_panel_list(self):
+        self.btn_double_illustration.setText(
+            "Unmark Double Illustration (D)" if self.canvas.double_illustration
+            else "Mark Double Illustration (D)"
+        )
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
         for idx, p in enumerate(self.canvas.panels):
@@ -1043,7 +1067,12 @@ class AnnotatorMainWindow(QMainWindow):
                 if self.canvas.annotation_mode in ("phrase", "word") and p.text
                 else ""
             )
-            item = QListWidgetItem(f"[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}")
+            label = (
+                "Double illustration · "
+                if self.canvas.annotation_mode == "panel" and self.canvas.double_illustration and idx == 0
+                else ""
+            )
+            item = QListWidgetItem(f"{label}[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
