@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 local Blitbuffer = require("ffi/blitbuffer")
 local ButtonTable = require("ui/widget/buttontable")
 local CenterContainer = require("ui/widget/container/centercontainer")
+local DoubleSpread = require("src._doublespread")
 local Event = require("ui/event")
 local Geom = require("ui/geometry")
 local Geometry = require("src._geometry")
@@ -60,6 +61,7 @@ end
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
 --- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
+--- @field auto_rotate_double_pages boolean Whether wide full-page images rotate inside a portrait viewer.
 --- @field detector PPDetector Detector the displayed panels came from.
 --- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
@@ -106,6 +108,7 @@ local PanelViewer = ImageViewer:extend({
     margin_ratio = 0.12,
     bleed_ratio = 0.08,
     panel_is_full_page = nil,
+    auto_rotate_double_pages = true,
     detector = "exact",
     invert_swipe = false,
     invert_taps = false,
@@ -1506,15 +1509,36 @@ function PanelViewer:onSaveImageView()
     return true
 end
 
+--- Return whether this panel's source geometry looks like a double-page spread.
+--- @param index integer 1-based panel index.
+--- @return boolean
+function PanelViewer:shouldAutoRotateDoublePage(index)
+    if self.auto_rotate_double_pages == false or self.image_rotation ~= nil then
+        return false
+    end
+    local panels = self.panels
+    local flags = self.panel_is_full_page
+    return DoubleSpread.shouldRotate(panels and panels[index], flags and flags[index], panels and #panels == 1)
+end
+
+--- Apply the document's rotation, a manual choice, or spread auto-rotation.
+--- @param index integer 1-based panel index.
+function PanelViewer:applyImageRotation(index)
+    self.rotated = self._images_list and self._images_list.rotated
+    if self.image_rotation ~= nil then
+        self.rotated = self.image_rotation
+    elseif self:shouldAutoRotateDoublePage(index) then
+        -- Match KOReader's portrait ImageViewer direction while keeping an
+        -- explicit angle for page/screen coordinate transforms.
+        self.rotated = G_reader_settings and G_reader_settings:isTrue("imageviewer_rotation_portrait_invert") and 270
+            or 90
+    end
+end
+
 --- Initialize ImageViewer state, controls, and first render.
 function PanelViewer:init()
     ImageViewer.init(self)
-    if self._images_list then
-        self.rotated = self._images_list.rotated
-    end
-    if self.image_rotation ~= nil then
-        self.rotated = self.image_rotation
-    end
+    self:applyImageRotation(1)
     self:replaceButtonTable()
     self:update()
 
@@ -1647,11 +1671,8 @@ function PanelViewer:switchToImageNum(image_num)
     self.image = self._images_list[image_num]
     if type(self.image) == "function" then
         self.image = self.image()
-        self.rotated = self._images_list.rotated
-        if self.image_rotation ~= nil then
-            self.rotated = self.image_rotation
-        end
     end
+    self:applyImageRotation(image_num)
     self._images_list_cur = image_num
     if not self.images_keep_pan_and_zoom then
         self._center_x_ratio = 0.5
@@ -1688,6 +1709,10 @@ function PanelViewer:animateSwitchToImageNum(target)
     local cur = self._images_list_cur
     if target == cur or self._panels_plus_transition_active then
         return
+    end
+    -- The synthetic pan canvas is built in unrotated page coordinates.
+    if self:shouldAutoRotateDoublePage(cur) or self:shouldAutoRotateDoublePage(target) then
+        return self:switchToImageNum(target)
     end
     local rect_a = self.image_rects and self.image_rects[cur]
     local rect_b = self.image_rects and self.image_rects[target]
@@ -1918,6 +1943,17 @@ function PanelViewer:animateBoundaryTransition(direction)
 
     local resolved = self.nav_boundary_peek_callback(direction, self)
     if not resolved then
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
+    if
+        self:shouldAutoRotateDoublePage(self._images_list_cur)
+        or (self.auto_rotate_double_pages ~= false and self.image_rotation == nil)
+            and DoubleSpread.shouldRotate(
+                resolved.target_rect,
+                resolved.target_is_full_page,
+                resolved.panels and #resolved.panels == 1
+            )
+    then
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 
@@ -2532,13 +2568,13 @@ end
 --- `ViewerController` can persist it, surviving closing and reopening the
 --- viewer too.
 ---
---- @param direction "up"|"down"|"left"|"right"
+--- @param direction "up"|"down"|"left"|"right"|"auto"
 function PanelViewer:onSetImageRotation(direction)
     local angle_by_direction = { up = 180, right = 90, down = false, left = 270 }
-    self.image_rotation = angle_by_direction[direction]
-    self.rotated = self.image_rotation
-    if self.image_rotation_callback then
-        self.image_rotation_callback(self, self.image_rotation)
+    self.image_rotation = direction == "auto" and nil or angle_by_direction[direction]
+    self:applyImageRotation(self._images_list_cur or 1)
+    if self.image_rotation_callback and self.image_rotation_callback(self, self.image_rotation) == "reopened" then
+        return
     end
     self:replaceButtonTable()
     self:update()

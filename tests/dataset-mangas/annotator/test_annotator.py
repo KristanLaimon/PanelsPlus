@@ -116,6 +116,41 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(len(data[0]["pages"][0]["frame"]), 2)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["x"], 10)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["y"], 20)
+        self.assertNotIn("double_illustration", data[0]["pages"][0])
+
+    def test_double_illustration_json_is_optional_and_round_trips(self):
+        old_page = {
+            "page_index": 1,
+            "frame": [{"x": 0, "y": 0, "w": 1200, "h": 800}],
+            "image_paths": {"en": "book/00.png"},
+        }
+        self.assertFalse(PageAnnotation.from_dict(old_page).double_illustration)
+        self.assertNotIn("double_illustration", PageAnnotation.from_dict(old_page).to_dict())
+
+        ds_dir = os.path.join(self.test_dir, "double_illustration_dataset")
+        mgr = DatasetManager(ds_dir)
+        mgr.set_page_frames("book", 1, [Panel(0, 0, 1200, 800)], double_illustration=True)
+        mgr.save_book_dataset("book")
+        master_path = mgr.save_master_dataset()
+
+        book_path = os.path.join(ds_dir, "book", "annotation.json")
+        for path in (book_path, master_path):
+            with open(path, encoding="utf-8") as f:
+                page = json.load(f)[0]["pages"][0]
+            self.assertTrue(page["double_illustration"])
+            self.assertEqual(page["frame"], [{"x": 0, "y": 0, "w": 1200, "h": 800}])
+
+        reloaded = DatasetManager(ds_dir)
+        self.assertTrue(reloaded.get_page_annotation("book", 1).double_illustration)
+
+        import subprocess
+        lua_code = f'''
+        local Manifest = require("tests.dataset-mangas.dataset_manifest")
+        local books = Manifest.loadManga("{ds_dir}")
+        assert(books[1].pages[1].double_illustration == true)
+        '''
+        res = subprocess.run(["lua", "-e", lua_code], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, res.stderr)
 
     def test_canvas_panel_operations(self):
         canvas = MangaCanvas()
@@ -297,6 +332,14 @@ class TestAnnotator(unittest.TestCase):
         # Add full page panel via shortcut
         win.canvas.add_full_page_panel()
         self.assertEqual(len(win.canvas.panels), 1)
+        win.btn_double_illustration.click()
+        self.assertTrue(win.canvas.double_illustration)
+        self.assertEqual(len(win.canvas.panels), 1)
+        self.assertIn("Double illustration", win.panel_list.item(0).text())
+        win.canvas.undo()
+        self.assertFalse(win.canvas.double_illustration)
+        win.canvas.redo()
+        self.assertTrue(win.canvas.double_illustration)
 
         # Save dataset
         win.save_dataset(show_dialog=False)
@@ -308,6 +351,7 @@ class TestAnnotator(unittest.TestCase):
             content = json.load(f)
         self.assertEqual(content[0]["book_title"], "test_book")
         self.assertEqual(len(content[0]["pages"][0]["frame"]), 1)
+        self.assertTrue(content[0]["pages"][0]["double_illustration"])
         win.close()
 
     def test_lua_manifest_interop(self):

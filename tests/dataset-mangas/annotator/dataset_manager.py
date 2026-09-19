@@ -52,12 +52,15 @@ class PageAnnotation:
         self.page_index = page_index  # 1-indexed
         self.image_rel_path = image_rel_path
         self.frames: List[Panel] = []
+        self.double_illustration = False
 
     def to_dict(self) -> dict:
         d = {
             "page_index": self.page_index,
             "frame": [p.to_dict() for p in self.frames],
         }
+        if self.double_illustration:
+            d["double_illustration"] = True
         if self.image_rel_path:
             d["image_paths"] = {
                 "en": self.image_rel_path
@@ -70,6 +73,7 @@ class PageAnnotation:
         if "image_paths" in d and isinstance(d["image_paths"], dict):
             rel_img = d["image_paths"].get("en") or d["image_paths"].get("ja") or next(iter(d["image_paths"].values()), None)
         pa = cls(page_index=d["page_index"], image_rel_path=rel_img)
+        pa.double_illustration = d.get("double_illustration") is True
         for f in d.get("frame", []):
             pa.frames.append(Panel.from_dict(f))
         return pa
@@ -77,6 +81,7 @@ class PageAnnotation:
     def copy(self) -> "PageAnnotation":
         pa = PageAnnotation(self.page_index, self.image_rel_path)
         pa.frames = [p.copy() for p in self.frames]
+        pa.double_illustration = self.double_illustration
         return pa
 
 
@@ -248,9 +253,11 @@ class DatasetManager:
             self.books[book_title][page_index] = PageAnnotation(page_index=page_index, image_rel_path=rel_img)
         return self.books[book_title][page_index]
 
-    def set_page_frames(self, book_title: str, page_index: int, frames: List[Panel]) -> None:
+    def set_page_frames(self, book_title: str, page_index: int, frames: List[Panel],
+                        double_illustration: bool = False) -> None:
         pa = self.get_page_annotation(book_title, page_index)
         pa.frames = [p.copy() for p in frames]
+        pa.double_illustration = bool(double_illustration)
         if not pa.image_rel_path:
             pa.image_rel_path = f"{book_title}/{(page_index - 1):02d}.png"
 

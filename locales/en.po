@@ -33,6 +33,12 @@ msgstr "Always detect panels from a reduced-size page. Quickest, and the only mo
 msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
 msgstr "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
 
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Auto-rotate double-page spreads"
+msgstr "Auto-rotate double-page spreads"
+
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animate page-to-page transitions (Actual: "
 
@@ -227,6 +233,9 @@ msgstr "Render the next panel while you read the current one, so swiping to it i
 
 msgid "Rotate"
 msgstr "Rotate"
+
+msgid "Rotate a wide full-page image inside the panel viewer to fit a portrait screen. Manual image rotation takes priority; device orientation is unchanged."
+msgstr "Rotate a wide full-page image inside the panel viewer to fit a portrait screen. Manual image rotation takes priority; device orientation is unchanged."
 
 msgid "Save"
 msgstr "Save"

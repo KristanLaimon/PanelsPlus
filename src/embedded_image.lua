@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 local Blitbuffer = require("ffi/blitbuffer")
 local Event = require("ui/event")
 local Geometry = require("src._geometry")
+local DoubleSpread = require("src._doublespread")
 local PanelViewport = require("src._panelviewport")
 local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
@@ -266,15 +267,20 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
     for _, panel in ipairs(panels) do
         local image_rect = expandRect(panel, width, height, self.settings)
         table.insert(image_rects, image_rect)
-        table.insert(
-            full_page_flags,
-            panel.w * panel.h >= (self.settings.full_page_panel_ratio or 0.92) * width * height
-        )
-        if self.settings.crop_mode == "none" then
+        local is_full_page = panel.w * panel.h >= (self.settings.full_page_panel_ratio or 0.92) * width * height
+        table.insert(full_page_flags, is_full_page)
+        local direct_spread = self.settings.auto_rotate_double_pages ~= false
+            and self.settings.image_rotation == nil
+            and DoubleSpread.shouldRotate(panel, is_full_page, #panels == 1)
+        if self.settings.crop_mode == "none" and not direct_spread then
             local image_func, viewport_rect = buildNoCropImage(image, panel, { w = width, h = height })
             image_rects[#image_rects] = viewport_rect
             table.insert(images, image_func)
         else
+            if direct_spread and self.settings.crop_mode == "none" then
+                image_rect = { x = 0, y = 0, w = width, h = height }
+                image_rects[#image_rects] = image_rect
+            end
             table.insert(images, function()
                 return cropImage(image, image_rect)
             end)
@@ -303,6 +309,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = false,
         image_rotation = self.settings.image_rotation,
+        auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
         -- Smooth movement is rendered only from the extracted bitmap. This
         -- leaves the normal document-page renderer untouched.
         nav_transition_mode = self.settings.embedded_nav_transition_mode or "classic",
@@ -389,8 +396,21 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         panel_animation_callback = function(direction, current_viewer)
             return self:armPanelTransitionAnimation(direction, current_viewer)
         end,
-        image_rotation_callback = function(_, value)
+        image_rotation_callback = function(current_viewer, value)
             self:setImageRotation(value)
+            local index = current_viewer._images_list_cur or 1
+            if
+                current_viewer.crop_mode == "none"
+                and DoubleSpread.shouldRotate(
+                    current_viewer.panels and current_viewer.panels[index],
+                    current_viewer.panel_is_full_page and current_viewer.panel_is_full_page[index],
+                    current_viewer.panels and #current_viewer.panels == 1
+                )
+                and current_viewer.embedded_source_image
+            then
+                self:reopenEmbeddedImagePanels(current_viewer)
+                return "reopened"
+            end
             return true
         end,
         device_rotate_callback = function(current_viewer, mode)

@@ -13,8 +13,10 @@ local Blitbuffer = require("ffi/blitbuffer")
 local Geometry = require("src._geometry")
 local NativeDetector = require("src._nativedetector")
 local ComponentDetector = require("src._componentdetector")
+local DoubleSpread = require("src._doublespread")
 local PageBitmap = require("src._pagebitmap")
 local Document = require("document/document")
+local Geom = require("ui/geometry")
 local PanelViewport = require("src._panelviewport")
 local Settings = require("src._settings")
 local Screen = require("device").screen
@@ -26,6 +28,20 @@ local Screen = require("device").screen
 ---
 --- @class PPPanelCollectorModule
 local PanelCollector = {}
+
+--- Render a spread at its rotated fit size, while leaving its pixels upright.
+--- `drawPagePart` only chooses that larger zoom when KOReader's global image
+--- auto-rotation is enabled; this feature needs the same resolution locally.
+local function drawSpreadPart(document, page, rect)
+    if not document.transformRect or not document.renderPage then
+        return document:drawPagePart(page, rect, 0)
+    end
+    local zoom = math.min(Screen:getWidth() / rect.h, Screen:getHeight() / rect.w)
+    local render_rect = Geom:new({ x = rect.x, y = rect.y, w = rect.w, h = rect.h })
+    render_rect.scaled_rect = document:transformRect(render_rect, zoom, 0)
+    local tile = document:renderPage(page, render_rect, zoom, 0, 1.0, 1.0, true)
+    return tile and tile.bb, false
+end
 
 --- Expand a panel crop by the configured bleed while staying inside the page.
 ---
@@ -256,16 +272,30 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     local full_page_flags = {}
 
     for _, rect in ipairs(panels) do
-        table.insert(full_page_flags, isFullPagePanel(rect, page_size, settings))
-        if settings.crop_mode == "none" then
+        local is_full_page = isFullPagePanel(rect, page_size, settings)
+        table.insert(full_page_flags, is_full_page)
+        -- A full spread needs its source aspect ratio intact before the viewer
+        -- rotates it. The normal no-crop path first pads it to a portrait
+        -- screen-sized canvas, which would rotate the padding as well.
+        local direct_spread = settings.auto_rotate_double_pages ~= false
+            and settings.image_rotation == nil
+            and DoubleSpread.shouldRotate(rect, is_full_page, #panels == 1)
+        if settings.crop_mode == "none" and not direct_spread then
             local image_func, image_rect = buildNoCropImage(document, page, rect, page_size, images)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else
-            local image_rect = getImageRect(rect, page_size, settings)
+            local image_rect = (settings.crop_mode == "none" and direct_spread)
+                    and { x = 0, y = 0, w = page_size.w, h = page_size.h }
+                or getImageRect(rect, page_size, settings)
             table.insert(image_rects, image_rect)
             table.insert(images, function()
-                local image, rotate = document:drawPagePart(page, image_rect, 0)
+                local image, rotate
+                if direct_spread then
+                    image, rotate = drawSpreadPart(document, page, image_rect)
+                else
+                    image, rotate = document:drawPagePart(page, image_rect, 0)
+                end
                 images.rotated = rotate
                 if image and image.copy then
                     return image:copy()

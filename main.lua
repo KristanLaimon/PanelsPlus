@@ -266,6 +266,12 @@ function PanelsPlus:setImageRotation(angle)
     self:saveSettings()
 end
 
+--- Enable or disable automatic image-only rotation for full-page spreads.
+function PanelsPlus:setAutoRotateDoublePages(enabled)
+    self.settings.auto_rotate_double_pages = enabled and true or false
+    self:saveSettings()
+end
+
 --- Toggle whether swipe direction is inverted relative to reading order.
 ---
 --- @param invert_swipe any Truthy value inverts left/right panel navigation.

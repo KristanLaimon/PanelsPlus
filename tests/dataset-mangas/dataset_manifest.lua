@@ -133,6 +133,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 image_path = img_path,
                 reading_order = dataset_type,
                 frames = frames,
+                double_illustration = raw_page.double_illustration == true,
                 text = raw_page.text or {},
             })
         end

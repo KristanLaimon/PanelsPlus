@@ -4,6 +4,7 @@ Features:
 - KOReader-like Library / Recent Projects tab with book covers, progress %, and finished toggle.
 - Extraction of .cbz, .cbr, .pdf, .mobi, .epub into dataset/<bookfriendlyname>/00.png, 01.png...
 - Canvas panel annotator with sequential badges, full-page shortcut (F), 8-handle resizing.
+- Double-illustration shortcut (D) for one full-page panel with an explicit label.
 - Finished book shortcut (Ctrl+M), auto-saving, and PanelsPlus schema compatibility.
 """
 
@@ -385,6 +386,13 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_full_page.clicked.connect(self.canvas.add_full_page_panel)
         p_layout.addWidget(self.btn_full_page)
 
+        self.btn_double_illustration = QPushButton("Mark Double Illustration (D)")
+        self.btn_double_illustration.setToolTip(
+            "Replace this page's boxes with one full-page panel and label it as a double illustration."
+        )
+        self.btn_double_illustration.clicked.connect(self.canvas.toggle_double_illustration)
+        p_layout.addWidget(self.btn_double_illustration)
+
         # Undo / Redo controls
         undo_layout = QHBoxLayout()
         self.btn_undo = QPushButton("↶ Undo (Ctrl+Z)")
@@ -477,6 +485,11 @@ class AnnotatorMainWindow(QMainWindow):
         act_full.setShortcut(QKeySequence(Qt.Key.Key_F))
         act_full.triggered.connect(self.canvas.add_full_page_panel)
         edit_menu.addAction(act_full)
+
+        act_double = QAction("Mark &Double Illustration", self)
+        act_double.setShortcut(QKeySequence(Qt.Key.Key_D))
+        act_double.triggered.connect(self.canvas.toggle_double_illustration)
+        edit_menu.addAction(act_double)
 
         act_fin = QAction("Toggle &Finished", self)
         act_fin.setShortcut(QKeySequence("Ctrl+M"))
@@ -721,7 +734,10 @@ class AnnotatorMainWindow(QMainWindow):
         pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
         panels = [p.copy() for p in pa.frames]
 
-        self.canvas.set_page(pixmap, panels, fit_width=fit_width)
+        self.canvas.set_page(
+            pixmap, panels, fit_width=fit_width,
+            double_illustration=pa.double_illustration,
+        )
         if fit_width:
             self.canvas.fit_to_width(self.canvas.rect())
 
@@ -737,7 +753,10 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _commit_current_page_panels(self):
         if self.book_title and self.reader:
-            self.dataset_mgr.set_page_frames(self.book_title, self.current_page_num, self.canvas.panels)
+            self.dataset_mgr.set_page_frames(
+                self.book_title, self.current_page_num, self.canvas.panels,
+                double_illustration=self.canvas.double_illustration,
+            )
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
 
     def prev_page(self):
@@ -785,10 +804,15 @@ class AnnotatorMainWindow(QMainWindow):
         self._refresh_panel_list()
 
     def _refresh_panel_list(self):
+        self.btn_double_illustration.setText(
+            "Unmark Double Illustration (D)" if self.canvas.double_illustration
+            else "Mark Double Illustration (D)"
+        )
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
         for idx, p in enumerate(self.canvas.panels):
-            item = QListWidgetItem(f"[{idx + 1}] x={p.x}, y={p.y} ({p.w}x{p.h})")
+            label = "Double illustration · " if self.canvas.double_illustration and idx == 0 else ""
+            item = QListWidgetItem(f"{label}[{idx + 1}] x={p.x}, y={p.y} ({p.w}x{p.h})")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)

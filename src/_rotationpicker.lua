@@ -115,14 +115,14 @@ local function buildDeviceIcon(direction, box)
     })
 end
 
---- Modal dialog offering two independent 4-way rotation pickers: one for
+--- Modal dialog offering two independent rotation pickers: one for
 --- KOReader's real screen rotation, one for this plugin's own zoomed-view
---- rotation. Stacks the two pickers top/bottom on a portrait screen, or
+--- rotation (including an Auto choice). Stacks the two pickers top/bottom on a portrait screen, or
 --- places them side by side on a landscape screen.
 ---
 --- @class RotationPickerDialog : InputContainer
 --- @field on_device_rotate fun(direction: "up"|"down"|"left"|"right")|nil
---- @field on_image_rotate fun(direction: "up"|"down"|"left"|"right")|nil
+--- @field on_image_rotate fun(direction: "up"|"down"|"left"|"right"|"auto")|nil
 local RotationPickerDialog = InputContainer:extend({
     modal = true,
 })
@@ -147,10 +147,25 @@ function RotationPickerDialog:_buildRotationBox(title, kind, box_w, icon_box)
         })
     end
 
+    local center_widget = HorizontalSpan:new({ width = icon_box })
+    if kind == "image" then
+        center_widget = TapTarget:new({
+            callback = function()
+                dialog:_onPick("image", "auto")
+            end,
+            CenterContainer:new({
+                dimen = Geom:new({ w = icon_box, h = icon_box }),
+                TextWidget:new({
+                    text = _("Auto"),
+                    face = Font:getFace("cfont"),
+                }),
+            }),
+        })
+    end
     local middle_row = HorizontalGroup:new({
         align = "center",
         iconFor("left"),
-        HorizontalSpan:new({ width = icon_box }),
+        center_widget,
         iconFor("right"),
     })
 

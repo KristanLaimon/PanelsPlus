@@ -51,6 +51,7 @@ class MangaCanvas(QWidget):
         self.native_w = 0
         self.native_h = 0
         self.panels: List[Panel] = []
+        self.double_illustration = False
         self.selected_panel_index = -1
 
         # View transform
@@ -71,9 +72,10 @@ class MangaCanvas(QWidget):
         self._bpl: int = 0
 
         # Undo / Redo history stacks
-        self._undo_stack: List[List[Panel]] = []
-        self._redo_stack: List[List[Panel]] = []
+        self._undo_stack: List[Tuple[List[Panel], bool]] = []
+        self._redo_stack: List[Tuple[List[Panel], bool]] = []
         self._panels_at_drag_start: List[Panel] = []
+        self._double_illustration_at_drag_start = False
 
         # Interaction state
         self._mode = "idle"  # "idle", "drawing", "resizing", "moving", "panning"
@@ -128,8 +130,8 @@ class MangaCanvas(QWidget):
         self.update()
 
     def push_undo(self):
-        """Save current panels state to undo stack and clear redo stack."""
-        self._undo_stack.append([p.copy() for p in self.panels])
+        """Save panel boxes and the page label as one undo state."""
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
         if len(self._undo_stack) > 50:
             self._undo_stack.pop(0)
         self._redo_stack.clear()
@@ -138,8 +140,8 @@ class MangaCanvas(QWidget):
         """Revert to previous panels state."""
         if not self._undo_stack:
             return
-        self._redo_stack.append([p.copy() for p in self.panels])
-        self.panels = self._undo_stack.pop()
+        self._redo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
+        self.panels, self.double_illustration = self._undo_stack.pop()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
@@ -150,15 +152,16 @@ class MangaCanvas(QWidget):
         """Reapply previously undone panels state."""
         if not self._redo_stack:
             return
-        self._undo_stack.append([p.copy() for p in self.panels])
-        self.panels = self._redo_stack.pop()
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
+        self.panels, self.double_illustration = self._redo_stack.pop()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
         self.status_message.emit("Redo performed.")
 
-    def set_page(self, pixmap: Optional[QPixmap], panels: List[Panel], fit_width: bool = False):
+    def set_page(self, pixmap: Optional[QPixmap], panels: List[Panel], fit_width: bool = False,
+                 double_illustration: bool = False):
         """Update current page pixmap and panels."""
         self._pixmap = pixmap
         if pixmap and not pixmap.isNull():
@@ -180,6 +183,7 @@ class MangaCanvas(QWidget):
             self._bpl = 0
 
         self.panels = [p.copy() for p in panels]
+        self.double_illustration = bool(double_illustration)
         self.selected_panel_index = -1
         self._mode = "idle"
         self._undo_stack.clear()
@@ -461,7 +465,23 @@ class MangaCanvas(QWidget):
         self.push_undo()
         panel = Panel(0, 0, self.native_w, self.native_h)
         self.panels.append(panel)
+        self.double_illustration = False
         self.selected_panel_index = len(self.panels) - 1
+        self.panels_changed.emit()
+        self.panel_selected.emit(self.selected_panel_index)
+        self.update()
+
+    def toggle_double_illustration(self):
+        """Mark the whole image as one illustration, or remove that label."""
+        if self.native_w == 0 or self.native_h == 0:
+            return
+        self.push_undo()
+        if self.double_illustration:
+            self.double_illustration = False
+        else:
+            self.panels = [Panel(0, 0, self.native_w, self.native_h)]
+            self.double_illustration = True
+            self.selected_panel_index = 0
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
@@ -478,6 +498,7 @@ class MangaCanvas(QWidget):
         if 0 <= self.selected_panel_index < len(self.panels):
             self.push_undo()
             self.panels.pop(self.selected_panel_index)
+            self.double_illustration = False
             self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
             self.panels_changed.emit()
             self.panel_selected.emit(self.selected_panel_index)
@@ -489,6 +510,7 @@ class MangaCanvas(QWidget):
             return
         self.push_undo()
         self.panels.clear()
+        self.double_illustration = False
         self.selected_panel_index = -1
         self.panels_changed.emit()
         self.panel_selected.emit(-1)
@@ -556,6 +578,7 @@ class MangaCanvas(QWidget):
                         p.y = max(0, p.y - step)
                     elif event.key() == Qt.Key.Key_Down:
                         p.y = min(self.native_h - p.h, p.y + step)
+                self.double_illustration = False
                 self.panels_changed.emit()
                 self.update()
                 self.status_message.emit(f"Nudged panel [{self.selected_panel_index + 1}] to ({p.x}, {p.y}, {p.w}, {p.h})")
@@ -704,6 +727,7 @@ class MangaCanvas(QWidget):
 
         if event.button() == Qt.MouseButton.LeftButton:
             self._panels_at_drag_start = [p.copy() for p in self.panels]
+            self._double_illustration_at_drag_start = self.double_illustration
             self._current_image_box = None
             self._drag_start_pos = pos
             self._current_mouse_pos = pos
@@ -878,10 +902,14 @@ class MangaCanvas(QWidget):
             h = abs(iy2 - iy1)
 
             if w >= MIN_BOX_SIZE and h >= MIN_BOX_SIZE:
-                self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
+                self._undo_stack.append((
+                    [p.copy() for p in self._panels_at_drag_start],
+                    self._double_illustration_at_drag_start,
+                ))
                 self._redo_stack.clear()
                 new_panel = Panel(x, y, w, h)
                 self.panels.append(new_panel)
+                self.double_illustration = False
                 self.selected_panel_index = len(self.panels) - 1
                 self.panels_changed.emit()
                 self.panel_selected.emit(self.selected_panel_index)
@@ -905,8 +933,12 @@ class MangaCanvas(QWidget):
                 changed = True
 
             if changed:
-                self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
+                self._undo_stack.append((
+                    [p.copy() for p in self._panels_at_drag_start],
+                    self._double_illustration_at_drag_start,
+                ))
                 self._redo_stack.clear()
+                self.double_illustration = False
 
             self._mode = "idle"
             self._drag_start_pos = None
