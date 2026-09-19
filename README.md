@@ -14,8 +14,6 @@
   <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20Package%20Manager-Available-purple?style=flat-square" alt="ZEN Package Manager"></a>
 </p>
 
-
-
 <table>
   <tr>
     <td align="center" width="50%">
@@ -41,7 +39,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - Customizable and performant in low-end e-ink devices.
 - And much more.
 
-> Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, [go to the translators section](#-for-translators-we-need-your-help).
+> Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, check our [Translation Quick Guide](docs/translations/README.md).
 
 ## 🧩 Compatibility
 
@@ -85,10 +83,10 @@ This could work with even older versions, but not personally tested. If any issu
 
 Panels+ is structured for installation via KOReader package and plugin managers:
 
-| Package Manager                                                                                | Search / Package Name                                                                               | Installation Method                                                                                                                                                    |
-| ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [**Plugin Appstore**](https://github.com/omer-faruq/appstore.koplugin) (`appstore.koplugin`)   | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panelsplus.koplugin`)    | Search and install directly inside the KOReader Plugin Appstore (or view on the [Appstore Web Catalog](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus)) |
-| [**ZEN Package Manager**](https://github.com/AnthonyGress/zen_ui.koplugin) (`zen_ui.koplugin` or `zenos.koplugin`) | (`panelsplus`)                                                                                      | Available directly in the ZEN package manager catalog.<br><br><div class="flex gap-4 flex-row w-full h-auto"><img width="220" alt="zenpm_plugin_showcase" src="https://github.com/user-attachments/assets/334afd85-9260-446e-861e-c5d7d4bec515" /><img width="220" alt="search_zenpm_showcase" src="https://github.com/user-attachments/assets/218ac4b5-4c68-4806-a802-14db4e93e218" /></div> |
+| Package Manager                                                                                                    | Search / Package Name                                                                              | Installation Method                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [**Plugin Appstore**](https://github.com/omer-faruq/appstore.koplugin) (`appstore.koplugin`)                       | [`Panels+`](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus) (`panelsplus.koplugin`) | Search and install directly inside the KOReader Plugin Appstore (or view on the [Appstore Web Catalog](https://omer-faruq.github.io/appstore.koplugin/?q=panels+plus))                                                                                                                                                                                                                        |
+| [**ZEN Package Manager**](https://github.com/AnthonyGress/zen_ui.koplugin) (`zen_ui.koplugin` or `zenos.koplugin`) | (`panelsplus`)                                                                                     | Available directly in the ZEN package manager catalog.<br><br><div class="flex h-auto w-full flex-row gap-4"><img width="220" alt="zenpm_plugin_showcase" src="https://github.com/user-attachments/assets/334afd85-9260-446e-861e-c5d7d4bec515" /><img width="220" alt="search_zenpm_showcase" src="https://github.com/user-attachments/assets/218ac4b5-4c68-4806-a802-14db4e93e218" /></div> |
 
 ### 🛠️ Manual Installation
 
@@ -190,78 +188,40 @@ If you're interested in contributing:
 
 - Check out our [Translations Quick Guide](./docs/translations/README.md) to get started.
 
-Currently there is only: ***English*** and ***Spanish*** support.
+Currently there is only ***English*** and ***Spanish*** support.
 
 ---
 
-## 🛠️ For Developers
+## 🛠️ Pull Requests\Developer Setup
 
-### Developer Setup
+You would need the following to start developing in Panels+
 
-Install [uv](https://docs.astral.sh/uv/getting-started/installation/), the Python package and environment manager. On Linux and macOS:
+1. [KOReader](https://github.com/koreader/koreader). Can be obvious, but needed. My recommendation is to set a WSL environment if windows, or directly use a linux distro.
 
-```bash
-curl -LsSf https://astral.sh/uv/install.sh | sh
-```
+2. [LuaJIT](https://luajit.org/install.html) or [Lua 5.1](https://www.lua.org/download.html). It's the main language of this plugin. So your PR code must run without errors in both of them (Compatibility with KOReader emmbeded lua runtime).
 
-From the repository root, create the development environment and install the Python dependencies:
+3. [uv](https://docs.astral.sh/uv/getting-started/installation/) (not python3). Is the python manager used in this repo and used for dataset tools extraction, also needed to run the tests with `./run-tests.sh`.
+
+4. [Stylua](https://github.com/JohnnyMorganz/StyLua) (Codebase's Formatter). Used to have a consistent code style (indentation, tabs, etc...)
+
+5. [Luacheck](https://github.com/mpeterv/luacheck) (Codebase's Linter). Used to have consistent code patterns (Which globals are available in intelissense, function declaration styles, etc...)
+
+From the repository root, create the development environment and install the Python dependencies using the following command:
 
 ```bash
 uv sync
 ```
 
-With Lua, LuaJIT, StyLua, and Luacheck installed, run the full test suite through uv so `run-tests.sh` uses the synced Python environment:
+With Lua, LuaJIT, StyLua, and Luacheck installed, run the full test suite through uv so `run-tests.sh` uses the synced Python environment with the following:
 
 ```bash
-uv run ./run-tests.sh
+# Unix environment
+./run-tests.sh
 ```
 
-### Documentation
+Now you're ready, now go to [CONTRIBUTING.md](CONTRIBUTING.md) for the rest of the contribution guidelines, project documentation, linting, building, guides, etc...
 
-- [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
-- [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
-- [Panel detection](docs/DETECTION.md) — how Deep mode turns pixels into panels, including heuristics, fallbacks, and tuning.
-- [Deep mode](docs/MODES.md) — the single panel-detection mode and how it differs from reading, crop, and navigation modes.
-- [Embedded EPUB/KEPUB/MOBI images](docs/EMBEDDED-IMAGES.md) — how panel reading works inside reflowable books, including the detector and smooth-navigation limits.
-- [Word lookup](docs/WORD-LOOKUP.md) — touch-and-hold text selection, dictionary lookup, and the OCR debug review mode.
-- [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
-- [Known Limitations](docs/KNOWN-LIMITATIONS.md) — current edge cases and known-behaviour (a todo-list to fix at the same time).
-- [Testing](docs/TESTING.md) — running the dependency-free test suite.
-
-### 🔗 Development & Reference Repositories
-
-When developing on Panels+, it is recommended to clone the [`koreader`](https://github.com/koreader/koreader) base codebase and `kobo.koplugin` repository directly into your local project root folder:
-
-```bash
-git clone https://github.com/koreader/koreader.git
-git clone https://github.com/koreader/kobo.koplugin.git
-```
-
-These folders are ignored via `.gitignore` and are not committed into this repository. Keeping them locally is purely for documentation and remaining KOReader internals aware during development; they are not involved in the plugin's final release code.
-
-### 🧹 Linting & Formatting
-
-This project enforces a standard code style to maintain consistency across developers. We use:
-
-- **StyLua**: For automatic code formatting (`.stylua.toml`).
-- **Luacheck**: For static analysis and linting (`.luacheckrc`).
-- **lua_ls**: We also include a `.luarc.json` for developers using the Lua Language Server in their editors so that KOReader global variables are recognized properly.
-
-If you don't have these tools integrated directly into your editor, you can run the provided check scripts to automatically format your code and run the linter:
-
-**Linux/macOS:**
-
-```bash
-./check.sh
-```
-
-**Windows (PowerShell):**
-
-```powershell
-.\check.ps1
-```
-
-Note: CI workflows will automatically run these checks when you open a Pull Request.
+---
 
 ### 🏗️ Building From Source
 
@@ -279,20 +239,29 @@ On Windows PowerShell, run:
 
 The script creates `dist/panels_plus.koplugin`. Copy that generated folder into your KOReader plugins directory, then restart KOReader.
 
-## 🤝 Contributions?
+---
+
+## 🤝 Contributions
 
 Project is actually stable, and personally tested in:
 
 - Kindle 12th Gen
 
-I don't see any more options to include, but contributions are welcome for:
+And thanks to users, works in:
 
-- edge-cases bugs fixes
-- performance improvements
-- device-specific bugs fixes (this would help a lot)
+- Kobo e-reader
+
+Contributions are welcome for:
+
+- Edge-cases bugs fixes
+- Performance improvements
+- Device-specific bugs fixes (this would help a lot)
+- New features
+- Datasets Mangas
 
 Thanks for using the plugin or at least, taking a look into this repo.
 
+---
 ## 📜 License
 
 MIT License, check "LICENSE" file in this repository.
