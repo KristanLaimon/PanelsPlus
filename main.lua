@@ -88,6 +88,7 @@ end
 --- KOReader hook: event sent when document loading is ready.
 function PanelsPlus:onReaderReady()
     self:loadDocSettings()
+    self:applyPanelGesture()
 end
 
 --- Return the file path or key for the active document.
@@ -305,6 +306,17 @@ function PanelsPlus:setKoboVerticalGesture(enabled)
     self:saveSettings()
 end
 
+--- Set which gesture opens panels on a page.
+---
+--- @param gesture string "hold" (long press) or "two_finger_tap".
+function PanelsPlus:setPanelGesture(gesture)
+    self.settings.panel_gesture = gesture == "two_finger_tap" and "two_finger_tap" or "hold"
+    Timing.log("panel_gesture -> " .. self.settings.panel_gesture)
+    self:saveSettings()
+    self:applyNativePanelSetting()
+    self:applyPanelGesture()
+end
+
 --- Set whether the panel viewer bottom progress bar is visible.
 ---
 --- @param visible any Truthy value shows the progress bar.
@@ -475,6 +487,7 @@ function PanelsPlus:onCloseWidget()
     self:cancelPanelPrefetch()
     self:cancelPanelPrerender()
     self:clearPanelCache()
+    self:removePanelGestureZones()
     self:restoreNativePanelZoom()
 
     local ok, ComponentDetector = pcall(require, "src._componentdetector")
