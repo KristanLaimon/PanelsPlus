@@ -41,6 +41,8 @@ class MangaCanvas(QWidget):
     cursor_position = pyqtSignal(int, int)  # (native_x, native_y)
     precision_mode_changed = pyqtSignal(bool)
     zoom_changed = pyqtSignal(float)
+    single_page_illustration_requested = pyqtSignal()
+    double_page_illustration_requested = pyqtSignal()
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -466,6 +468,17 @@ class MangaCanvas(QWidget):
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
 
+    def set_full_page_panel(self):
+        """Replace this page's annotations with one full-page panel."""
+        if self.native_w == 0 or self.native_h == 0:
+            return
+        self.push_undo()
+        self.panels = [Panel(0, 0, self.native_w, self.native_h)]
+        self.selected_panel_index = 0
+        self.panels_changed.emit()
+        self.panel_selected.emit(self.selected_panel_index)
+        self.update()
+
     def select_panel(self, idx: int):
         """Set selected panel by index."""
         if -1 <= idx < len(self.panels):
@@ -564,8 +577,10 @@ class MangaCanvas(QWidget):
         if event.key() == Qt.Key.Key_Space:
             self._space_pressed = True
             self.setCursor(QCursor(Qt.CursorShape.OpenHandCursor))
-        elif event.key() == Qt.Key.Key_F:
-            self.add_full_page_panel()
+        elif event.key() == Qt.Key.Key_F and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.single_page_illustration_requested.emit()
+        elif event.key() == Qt.Key.Key_S and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.double_page_illustration_requested.emit()
         elif event.key() == Qt.Key.Key_P:
             self.set_precision_mode(not self.precision_mouse_enabled)
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):

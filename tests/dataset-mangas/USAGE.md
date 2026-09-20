@@ -107,7 +107,9 @@ When launched, the application presents the **📚 Recent Projects** tab:
 ### 4. Annotate Panels
 - **Draw Rectangles**: Click and drag with the left mouse button across each panel in the exact order you want them read.
 - **Sequential Badges**: Each box displays its sequence number (`[1]`, `[2]`, `[3]`...).
-- **Full-Page Panels**: If the entire page is a single splash image or spread, press **`F`** (or click **Add Full Page Panel (F)**) to instantly create a box covering the entire page `(0, 0, width, height)`.
+- **Single-Page Illustration**: If the entire page is one splash image, press **`F`** (or click **Set Single-Page Illustration (F)**). It replaces the page's annotations with one box covering `(0, 0, width, height)`.
+- **Already-Combined Double-Page Illustration**: If a two-page spread is stored as one wide image (not split across two reader pages), press **`S`**. It creates the same full-page box and saves `"illustration_type": "double_page"` for future spread-rotation support.
+- **Legacy One-Frame Pages**: Existing annotations with one frame are treated as single-page illustrations automatically and are saved with `"illustration_type": "single_page"` on their next export.
 - **Special Panels with Speech Bubbles**: You can draw boxes that encompass the artwork and speech bubbles without being constrained by grid lines.
 
 ### 5. Adjust, Fine-Tune & Reorder Panels
@@ -144,7 +146,8 @@ When launched, the application presents the **📚 Recent Projects** tab:
 | **Disable Snap (Freeform)** | Hold `Alt` while dragging | Bypasses magnetic snapping to place or resize boxes with complete freedom |
 | **Nudge Panel Position** | `Arrow Keys` (`Shift` = 5px) | Pixel-precise movement (1px step) |
 | **Nudge Panel Dimensions** | `Alt + Arrow Keys` (`Shift` = 5px) | Pixel-precise width/height expansion or reduction |
-| **Full-Page Panel** | `F` | Create a panel covering the whole page |
+| **Single-Page Illustration** | `F` | Replace annotations with one full-page illustration |
+| **Double-Page Illustration** | `S` | Mark an already-combined wide spread for future rotation support |
 | **Select Panel** | `Left Click` | Select a panel to view handles and details |
 | **Deselect** | `Right Click` or `Escape` | Clear selection or cancel active drag |
 | **Resize Box** | Drag border handles | 8 handles (corners and edges) |
@@ -198,7 +201,7 @@ Scott Pilgrim uses `"colorless_b/w"`. Missing values in older comic metadata
 remain unspecified. The import dialog asks for this value when importing comics.
 
 ### `annotation.json` Schema
-The output strictly matches PanelsPlus's `dataset_manifest.lua` format:
+The output uses PanelsPlus's `dataset_manifest.lua` format, plus optional illustration metadata:
 
 ```json
 [
@@ -221,6 +224,8 @@ The output strictly matches PanelsPlus's `dataset_manifest.lua` format:
 ```
 
 Coordinates (`x`, `y`, `w`, `h`) are saved in the native pixel resolution of the page image.
+For a full-page illustration, `illustration_type` is either `"single_page"` or `"double_page"`.
+The double-page value is only for a spread already stored as one wide image; split spreads remain out of scope. Missing metadata on a legacy one-frame page defaults to `"single_page"`.
 
 ---
 

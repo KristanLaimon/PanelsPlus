@@ -165,7 +165,8 @@ python3 tests/dataset-mangas/annotator.py path/to/manga.cbz
 
 ### Key Annotator Controls & Shortcuts
 - **Click & Drag**: Draw panel bounding rectangles in sequential reading order. Each new box receives the next badge number (`[1]`, `[2]`, `[3]`...).
-- **Full Page Panel (`F`)**: Instantly creates a panel bounding box covering the entire page (useful for splash pages and full-page spreads).
+- **Single-Page Illustration (`F`)**: Replaces annotations with one bounding box covering the entire page.
+- **Double-Page Illustration (`S`)**: Marks an already-combined wide spread with `illustration_type: "double_page"` for future rotation support. Split spreads are intentionally not handled yet.
 - **Resize & Move**: Click any rectangle to reveal 8 resize handles for fine adjustment, or drag inside the box to reposition.
 - **Panel Reordering**: Use **Move Up** / **Move Down** buttons in the sidebar to reorder panels without redrawing.
 - **Delete Panel (`Del` / `Backspace`)**: Remove the currently selected panel.

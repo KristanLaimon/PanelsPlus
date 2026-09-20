@@ -3,7 +3,7 @@ Main PyQt6 Application for Manga Comic Reader & Panel Annotator.
 Features:
 - KOReader-like Library / Recent Projects tab with book covers, progress %, and finished toggle.
 - Extraction of .cbz, .cbr, .pdf, .mobi, .epub into dataset/<bookfriendlyname>/00.png, 01.png...
-- Canvas panel annotator with sequential badges, full-page shortcut (F), 8-handle resizing.
+- Dark-themed canvas panel annotator with single-page (F) and double-page spread (S) shortcuts.
 - Finished book shortcut (Ctrl+M), auto-saving, and PanelsPlus schema compatibility.
 """
 
@@ -26,8 +26,37 @@ from PyQt6.QtWidgets import (
 )
 
 from .document_reader import DocumentReader
-from .dataset_manager import DatasetManager, Panel
+from .dataset_manager import DatasetManager, Panel, PageAnnotation
 from .canvas import MangaCanvas
+
+
+DARK_THEME_STYLESHEET = """
+QMainWindow, QWidget { background-color: #1e1e1e; color: #d4d4d4; }
+QTabWidget::pane { border: 1px solid #3e3e42; }
+QTabBar::tab { background: #252526; border: 1px solid #3e3e42; padding: 7px 14px; }
+QTabBar::tab:selected { background: #2d2d30; border-bottom-color: #007acc; }
+QMenuBar, QMenu { background-color: #252526; color: #d4d4d4; }
+QMenu::item:selected { background-color: #094771; }
+QPushButton { background-color: #3e3e42; border: 1px solid #555555; border-radius: 4px; padding: 5px 9px; }
+QPushButton:hover { background-color: #505050; }
+QPushButton:pressed { background-color: #2a2d2e; }
+QLineEdit, QSpinBox, QListWidget, QScrollArea, QComboBox {
+    background-color: #252526; color: #d4d4d4; border: 1px solid #3e3e42; selection-background-color: #094771;
+}
+QGroupBox { border: 1px solid #3e3e42; border-radius: 4px; margin-top: 8px; padding-top: 8px; }
+QGroupBox::title { subcontrol-origin: margin; left: 8px; padding: 0 4px; }
+QStatusBar { background-color: #252526; color: #cccccc; }
+QToolTip { background-color: #252526; color: #ffffff; border: 1px solid #555555; }
+"""
+
+
+def apply_dark_theme(app: Optional[QApplication] = None) -> None:
+    """Apply the annotator's default dark theme once per Qt application."""
+    app = app or QApplication.instance()
+    if app is not None and not app.property("panelsplus_dark_theme"):
+        app.setStyle("Fusion")
+        app.setStyleSheet(DARK_THEME_STYLESHEET)
+        app.setProperty("panelsplus_dark_theme", True)
 
 
 def pil_to_qpixmap(pil_img: Image.Image) -> QPixmap:
@@ -202,6 +231,7 @@ class AnnotatorMainWindow(QMainWindow):
 
     def __init__(self, initial_file: Optional[str] = None, dataset_dir: Optional[str] = None):
         super().__init__()
+        apply_dark_theme()
         self.setWindowTitle("PanelsPlus Manga Annotator")
         self.resize(1300, 860)
 
@@ -339,6 +369,8 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.panel_selected.connect(self._on_canvas_panel_selected)
         self.canvas.cursor_position.connect(self._on_cursor_position)
         self.canvas.zoom_changed.connect(lambda z: self.lbl_status_zoom.setText(f"Zoom: {int(z * 100)}%"))
+        self.canvas.single_page_illustration_requested.connect(self.set_single_page_illustration)
+        self.canvas.double_page_illustration_requested.connect(self.set_double_page_illustration)
         canvas_layout.addWidget(self.canvas, 1)
 
         # Bottom Page Navigation
@@ -380,10 +412,22 @@ class AnnotatorMainWindow(QMainWindow):
         panel_group = QGroupBox("Panel Sequence")
         p_layout = QVBoxLayout(panel_group)
 
-        self.btn_full_page = QPushButton("Add Full Page Panel (F)")
+        self.btn_full_page = QPushButton("Set Single-Page Illustration (F)")
         self.btn_full_page.setStyleSheet("font-weight: bold; background-color: #2e7d32; color: white;")
-        self.btn_full_page.clicked.connect(self.canvas.add_full_page_panel)
+        self.btn_full_page.clicked.connect(self.set_single_page_illustration)
         p_layout.addWidget(self.btn_full_page)
+
+        self.btn_double_page = QPushButton("Set Double-Page Illustration (S)")
+        self.btn_double_page.setStyleSheet("font-weight: bold; background-color: #6a3d9a; color: white;")
+        self.btn_double_page.setToolTip(
+            "Marks this already-combined wide image as a double-page spread for future rotation support."
+        )
+        self.btn_double_page.clicked.connect(self.set_double_page_illustration)
+        p_layout.addWidget(self.btn_double_page)
+
+        self.lbl_illustration_type = QLabel()
+        self.lbl_illustration_type.setStyleSheet("color: #bbbbbb; font-size: 11px;")
+        p_layout.addWidget(self.lbl_illustration_type)
 
         # Undo / Redo controls
         undo_layout = QHBoxLayout()
@@ -473,10 +517,15 @@ class AnnotatorMainWindow(QMainWindow):
 
         edit_menu.addSeparator()
 
-        act_full = QAction("Add &Full Page Panel", self)
+        act_full = QAction("Set &Single-Page Illustration", self)
         act_full.setShortcut(QKeySequence(Qt.Key.Key_F))
-        act_full.triggered.connect(self.canvas.add_full_page_panel)
+        act_full.triggered.connect(self.set_single_page_illustration)
         edit_menu.addAction(act_full)
+
+        act_double = QAction("Set Double-Page &Illustration", self)
+        act_double.setShortcut(QKeySequence(Qt.Key.Key_S))
+        act_double.triggered.connect(self.set_double_page_illustration)
+        edit_menu.addAction(act_double)
 
         act_fin = QAction("Toggle &Finished", self)
         act_fin.setShortcut(QKeySequence("Ctrl+M"))
@@ -733,12 +782,35 @@ class AnnotatorMainWindow(QMainWindow):
         self.slider_page.blockSignals(False)
 
         self._refresh_panel_list()
+        self._refresh_illustration_type()
         self.lbl_status_zoom.setText(f"Zoom: {int(self.canvas.zoom_factor * 100)}%")
 
     def _commit_current_page_panels(self):
         if self.book_title and self.reader:
             self.dataset_mgr.set_page_frames(self.book_title, self.current_page_num, self.canvas.panels)
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
+
+    def set_single_page_illustration(self):
+        """Replace annotations with one full-page, single-page illustration."""
+        if not self.book_title or not self.reader:
+            return
+        self.dataset_mgr.set_page_illustration_type(
+            self.book_title, self.current_page_num, PageAnnotation.SINGLE_PAGE_ILLUSTRATION
+        )
+        self.canvas.set_full_page_panel()
+        self._refresh_illustration_type()
+        self.status_bar.showMessage("Marked as a single-page illustration.", 3000)
+
+    def set_double_page_illustration(self):
+        """Replace annotations with one full-page frame marked as an already-combined spread."""
+        if not self.book_title or not self.reader:
+            return
+        self.dataset_mgr.set_page_illustration_type(
+            self.book_title, self.current_page_num, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION
+        )
+        self.canvas.set_full_page_panel()
+        self._refresh_illustration_type()
+        self.status_bar.showMessage("Marked as an already-combined double-page illustration.", 3000)
 
     def prev_page(self):
         if self.current_page_num > 1:
@@ -781,8 +853,37 @@ class AnnotatorMainWindow(QMainWindow):
                 self.canvas.fit_to_width(self.canvas.rect())
 
     def _on_panels_changed(self):
+        self._clear_invalid_double_page_marker()
         self._commit_current_page_panels()
         self._refresh_panel_list()
+        self._refresh_illustration_type()
+
+    def _clear_invalid_double_page_marker(self):
+        """A double-page marker is only valid while its single frame covers the whole image."""
+        if not self.book_title:
+            return
+        pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
+        if pa.illustration_type != PageAnnotation.DOUBLE_PAGE_ILLUSTRATION:
+            return
+        if len(self.canvas.panels) != 1:
+            pa.illustration_type = None
+            return
+        panel = self.canvas.panels[0]
+        if (panel.x, panel.y, panel.w, panel.h) != (0, 0, self.canvas.native_w, self.canvas.native_h):
+            pa.illustration_type = None
+
+    def _refresh_illustration_type(self):
+        if not hasattr(self, "lbl_illustration_type"):
+            return
+        if not self.book_title:
+            self.lbl_illustration_type.setText("")
+            return
+        pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
+        labels = {
+            PageAnnotation.SINGLE_PAGE_ILLUSTRATION: "Page type: Single-page illustration",
+            PageAnnotation.DOUBLE_PAGE_ILLUSTRATION: "Page type: Double-page illustration",
+        }
+        self.lbl_illustration_type.setText(labels.get(pa.effective_illustration_type, "Page type: Panel sequence"))
 
     def _refresh_panel_list(self):
         self.panel_list.blockSignals(True)
@@ -829,6 +930,7 @@ def main():
 
     app = QApplication(sys.argv)
     app.setApplicationName("PanelsPlus Annotator")
+    apply_dark_theme(app)
 
     window = AnnotatorMainWindow(initial_file=args.file, dataset_dir=args.dataset_dir)
     window.show()

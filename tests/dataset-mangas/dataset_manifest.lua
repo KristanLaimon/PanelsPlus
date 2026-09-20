@@ -123,6 +123,10 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                     h = rf.h,
                 })
             end
+            local illustration_type = raw_page.illustration_type
+            if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
+                illustration_type = #frames == 1 and "single_page" or nil
+            end
 
             table.insert(book.pages, {
                 dataset = dataset_type,
@@ -133,6 +137,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 image_path = img_path,
                 reading_order = dataset_type,
                 frames = frames,
+                illustration_type = illustration_type,
                 text = raw_page.text or {},
             })
         end

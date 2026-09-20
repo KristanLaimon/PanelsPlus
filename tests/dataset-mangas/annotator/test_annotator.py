@@ -8,6 +8,7 @@ import io
 import json
 import os
 import shutil
+import subprocess
 import tempfile
 import unittest
 import warnings
@@ -24,6 +25,8 @@ if pkg_dir not in sys.path:
 
 import fitz  # PyMuPDF
 from PyQt6.QtWidgets import QApplication
+from PyQt6.QtCore import Qt
+from PyQt6.QtTest import QTest
 
 from annotator.document_reader import DocumentReader, natural_sort_key
 from annotator.dataset_manager import DatasetManager, Panel, PageAnnotation
@@ -310,8 +313,49 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(len(content[0]["pages"][0]["frame"]), 1)
         win.close()
 
+    def test_double_page_illustration_is_saved_and_invalidated_when_edited(self):
+        cbz_path = os.path.join(self.test_dir, "wide_spread.cbz")
+        with zipfile.ZipFile(cbz_path, "w") as zf:
+            img = self._create_dummy_image(800, 400)
+            buf = io.BytesIO()
+            img.save(buf, format="PNG")
+            zf.writestr("p1.png", buf.getvalue())
+
+        ds_dir = os.path.join(self.test_dir, "double_page_dataset")
+        win = AnnotatorMainWindow(dataset_dir=ds_dir)
+        win.import_or_open_file(cbz_path, friendly_name="wide_spread")
+        win.canvas.setFocus()
+        QTest.keyClick(win.canvas, Qt.Key.Key_S)
+        self.app.processEvents()
+
+        pa = win.dataset_mgr.get_page_annotation("wide_spread", 1)
+        self.assertEqual(pa.illustration_type, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION)
+        self.assertEqual(len(win.canvas.panels), 1)
+        self.assertEqual(
+            win.canvas.panels[0].to_dict(),
+            {"x": 0, "y": 0, "w": 800, "h": 400},
+        )
+
+        win.save_dataset(show_dialog=False)
+        with open(os.path.join(ds_dir, "wide_spread", "annotation.json"), "r") as f:
+            content = json.load(f)
+        self.assertEqual(content[0]["pages"][0]["illustration_type"], "double_page")
+
+        lua_code = f'''
+        local Manifest = require("tests.dataset-mangas.dataset_manifest")
+        local books = Manifest.loadManga("{ds_dir}")
+        assert(books[1].pages[1].illustration_type == "double_page")
+        '''
+        res = subprocess.run(["lua", "-e", lua_code], capture_output=True, text=True)
+        self.assertEqual(res.returncode, 0, f"Lua failed: {res.stderr}")
+
+        # A resized frame is no longer a valid whole-page double-page spread.
+        win.canvas.panels[0].w -= 1
+        win._on_panels_changed()
+        self.assertIsNone(pa.illustration_type)
+        win.close()
+
     def test_lua_manifest_interop(self):
-        import subprocess
         ds_dir = os.path.join(self.test_dir, "lua_interop")
         mgr = DatasetManager(ds_dir)
         book_dir = mgr.get_book_dir("interop_book")
@@ -330,6 +374,7 @@ class TestAnnotator(unittest.TestCase):
         assert(books[1].book_title == "interop_book")
         assert(#books[1].pages == 1)
         assert(books[1].pages[1].frames[1].x == 50)
+        assert(books[1].pages[1].illustration_type == "single_page")
         '''
         res = subprocess.run(["lua", "-e", lua_code], capture_output=True, text=True)
         self.assertEqual(res.returncode, 0, f"Lua failed: {res.stderr}")
@@ -736,6 +781,27 @@ class TestAnnotator(unittest.TestCase):
         loaded_pa = PageAnnotation.from_dict(legacy_d)
         self.assertEqual(loaded_pa.image_rel_path, "legacy_book/01.png")
         self.assertEqual(len(loaded_pa.frames), 1)
+        self.assertEqual(
+            loaded_pa.effective_illustration_type,
+            PageAnnotation.SINGLE_PAGE_ILLUSTRATION,
+        )
+        self.assertEqual(loaded_pa.to_dict()["illustration_type"], "single_page")
+
+    def test_page_annotation_preserves_double_page_illustration_type(self):
+        raw = {
+            "page_index": 1,
+            "illustration_type": "double_page",
+            "frame": [{"x": 0, "y": 0, "w": 800, "h": 400}],
+        }
+        pa = PageAnnotation.from_dict(raw)
+        self.assertEqual(pa.illustration_type, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION)
+        self.assertEqual(pa.copy().to_dict()["illustration_type"], "double_page")
+
+    def test_annotator_uses_dark_theme_by_default(self):
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "theme_dataset"))
+        self.assertTrue(self.app.property("panelsplus_dark_theme"))
+        self.assertIn("background-color: #1e1e1e", self.app.styleSheet())
+        win.close()
 
     def test_bloom_into_you_dataset_100_percent_coverage(self):
         real_ds_dir = "tests/dataset-mangas/dataset"

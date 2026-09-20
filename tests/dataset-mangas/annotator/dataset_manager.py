@@ -46,18 +46,40 @@ class Panel:
 
 
 class PageAnnotation:
-    """Annotations for a single page."""
+    """Annotations and optional illustration classification for a single page."""
 
-    def __init__(self, page_index: int, image_rel_path: Optional[str] = None):
+    SINGLE_PAGE_ILLUSTRATION = "single_page"
+    DOUBLE_PAGE_ILLUSTRATION = "double_page"
+    ILLUSTRATION_TYPES = {SINGLE_PAGE_ILLUSTRATION, DOUBLE_PAGE_ILLUSTRATION}
+
+    def __init__(
+        self,
+        page_index: int,
+        image_rel_path: Optional[str] = None,
+        illustration_type: Optional[str] = None,
+    ):
         self.page_index = page_index  # 1-indexed
         self.image_rel_path = image_rel_path
         self.frames: List[Panel] = []
+        self.illustration_type = illustration_type if illustration_type in self.ILLUSTRATION_TYPES else None
+
+    @property
+    def effective_illustration_type(self) -> Optional[str]:
+        """Return the saved type, defaulting legacy one-frame pages to single-page."""
+        if self.illustration_type:
+            return self.illustration_type
+        if len(self.frames) == 1:
+            return self.SINGLE_PAGE_ILLUSTRATION
+        return None
 
     def to_dict(self) -> dict:
         d = {
             "page_index": self.page_index,
             "frame": [p.to_dict() for p in self.frames],
         }
+        illustration_type = self.effective_illustration_type
+        if illustration_type:
+            d["illustration_type"] = illustration_type
         if self.image_rel_path:
             d["image_paths"] = {
                 "en": self.image_rel_path
@@ -69,13 +91,18 @@ class PageAnnotation:
         rel_img = None
         if "image_paths" in d and isinstance(d["image_paths"], dict):
             rel_img = d["image_paths"].get("en") or d["image_paths"].get("ja") or next(iter(d["image_paths"].values()), None)
-        pa = cls(page_index=d["page_index"], image_rel_path=rel_img)
+        illustration_type = d.get("illustration_type")
+        pa = cls(
+            page_index=d["page_index"],
+            image_rel_path=rel_img,
+            illustration_type=illustration_type,
+        )
         for f in d.get("frame", []):
             pa.frames.append(Panel.from_dict(f))
         return pa
 
     def copy(self) -> "PageAnnotation":
-        pa = PageAnnotation(self.page_index, self.image_rel_path)
+        pa = PageAnnotation(self.page_index, self.image_rel_path, self.illustration_type)
         pa.frames = [p.copy() for p in self.frames]
         return pa
 
@@ -253,6 +280,14 @@ class DatasetManager:
         pa.frames = [p.copy() for p in frames]
         if not pa.image_rel_path:
             pa.image_rel_path = f"{book_title}/{(page_index - 1):02d}.png"
+
+    def set_page_illustration_type(
+        self, book_title: str, page_index: int, illustration_type: Optional[str]
+    ) -> None:
+        """Set an explicit full-page illustration type, or clear it for normal panels."""
+        if illustration_type is not None and illustration_type not in PageAnnotation.ILLUSTRATION_TYPES:
+            raise ValueError(f"Unsupported illustration type: {illustration_type}")
+        self.get_page_annotation(book_title, page_index).illustration_type = illustration_type
 
     def export_page_image(self, book_title: str, page_index: int, pil_image: Image.Image, ext: str = "png") -> str:
         """Save page image to dataset/<book_title>/00.png, 01.png... and return relative path."""
