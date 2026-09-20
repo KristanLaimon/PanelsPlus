@@ -1,0 +1,293 @@
+[
+  {
+    "book_title": "Over_the_Garden_Wall_Hollow_Town_2019",
+    "pages": [
+      {
+        "page_index": 1,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1103,
+            "h": 1696
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/00.png"
+        }
+      },
+      {
+        "page_index": 2,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1272,
+            "h": 1654
+          }
+        ],
+        "illustration_type": "double_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/01.png"
+        }
+      },
+      {
+        "page_index": 3,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1272,
+            "h": 1615
+          }
+        ],
+        "illustration_type": "double_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/02.png"
+        }
+      },
+      {
+        "page_index": 4,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1197,
+            "h": 1696
+          }
+        ],
+        "illustration_type": "double_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/03.png"
+        }
+      },
+      {
+        "page_index": 5,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1103,
+            "h": 1696
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/04.png"
+        }
+      },
+      {
+        "page_index": 6,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1053,
+            "h": 626
+          },
+          {
+            "x": 0,
+            "y": 641,
+            "w": 1109,
+            "h": 833
+          },
+          {
+            "x": 0,
+            "y": 1498,
+            "w": 1053,
+            "h": 198
+          }
+        ],
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/05.png"
+        }
+      },
+      {
+        "page_index": 7,
+        "frame": [
+          {
+            "x": 102,
+            "y": 0,
+            "w": 898,
+            "h": 334
+          },
+          {
+            "x": 558,
+            "y": 349,
+            "w": 442,
+            "h": 290
+          },
+          {
+            "x": 102,
+            "y": 348,
+            "w": 443,
+            "h": 291
+          },
+          {
+            "x": 0,
+            "y": 654,
+            "w": 1103,
+            "h": 339
+          },
+          {
+            "x": 0,
+            "y": 906,
+            "w": 1103,
+            "h": 790
+          }
+        ],
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/06.png"
+        }
+      },
+      {
+        "page_index": 8,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1139,
+            "h": 218
+          },
+          {
+            "x": 0,
+            "y": 218,
+            "w": 1139,
+            "h": 261
+          },
+          {
+            "x": 0,
+            "y": 479,
+            "w": 1139,
+            "h": 215
+          },
+          {
+            "x": 0,
+            "y": 694,
+            "w": 1139,
+            "h": 246
+          },
+          {
+            "x": 0,
+            "y": 940,
+            "w": 1139,
+            "h": 225
+          },
+          {
+            "x": 0,
+            "y": 1165,
+            "w": 1139,
+            "h": 531
+          }
+        ],
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/07.png"
+        }
+      },
+      {
+        "page_index": 9,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1272,
+            "h": 1654
+          }
+        ],
+        "illustration_type": "double_page",
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/08.png"
+        }
+      },
+      {
+        "page_index": 10,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1131,
+            "h": 627
+          },
+          {
+            "x": 792,
+            "y": 587,
+            "w": 295,
+            "h": 290
+          },
+          {
+            "x": 412,
+            "y": 526,
+            "w": 366,
+            "h": 377
+          },
+          {
+            "x": 37,
+            "y": 466,
+            "w": 360,
+            "h": 456
+          },
+          {
+            "x": 647,
+            "y": 877,
+            "w": 454,
+            "h": 305
+          },
+          {
+            "x": 29,
+            "y": 830,
+            "w": 683,
+            "h": 308
+          },
+          {
+            "x": 39,
+            "y": 1124,
+            "w": 1042,
+            "h": 572
+          }
+        ],
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/09.png"
+        }
+      },
+      {
+        "page_index": 11,
+        "frame": [
+          {
+            "x": 55,
+            "y": 0,
+            "w": 1054,
+            "h": 414
+          },
+          {
+            "x": 501,
+            "y": 424,
+            "w": 662,
+            "h": 420
+          },
+          {
+            "x": 0,
+            "y": 397,
+            "w": 539,
+            "h": 450
+          },
+          {
+            "x": 0,
+            "y": 823,
+            "w": 1163,
+            "h": 445
+          },
+          {
+            "x": 52,
+            "y": 1281,
+            "w": 1056,
+            "h": 415
+          }
+        ],
+        "image_paths": {
+          "en": "Over_the_Garden_Wall_Hollow_Town_2019/10.png"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,205 @@
+[
+  {
+    "book_title": "Don't_Bully_Me_Nagatoro_Vol_1",
+    "pages": [
+      {
+        "page_index": 1,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1244,
+            "h": 1696
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/00.png"
+        }
+      },
+      {
+        "page_index": 2,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1272,
+            "h": 1696
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/01.png"
+        }
+      },
+      {
+        "page_index": 3,
+        "frame": [
+          {
+            "x": 0,
+            "y": 0,
+            "w": 1272,
+            "h": 1652
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/02.png"
+        }
+      },
+      {
+        "page_index": 4,
+        "frame": [
+          {
+            "x": 804,
+            "y": 137,
+            "w": 301,
+            "h": 206
+          },
+          {
+            "x": 764,
+            "y": 366,
+            "w": 338,
+            "h": 1330
+          },
+          {
+            "x": 0,
+            "y": 0,
+            "w": 795,
+            "h": 997
+          },
+          {
+            "x": 487,
+            "y": 1024,
+            "w": 307,
+            "h": 582
+          },
+          {
+            "x": 121,
+            "y": 1024,
+            "w": 358,
+            "h": 582
+          },
+          {
+            "x": 116,
+            "y": 1016,
+            "w": 678,
+            "h": 645
+          }
+        ],
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/03.png"
+        }
+      },
+      {
+        "page_index": 5,
+        "frame": [
+          {
+            "x": 777,
+            "y": 0,
+            "w": 395,
+            "h": 511
+          },
+          {
+            "x": 279,
+            "y": 0,
+            "w": 485,
+            "h": 511
+          },
+          {
+            "x": 42,
+            "y": 0,
+            "w": 225,
+            "h": 511
+          },
+          {
+            "x": 40,
+            "y": 541,
+            "w": 1132,
+            "h": 663
+          },
+          {
+            "x": 757,
+            "y": 1236,
+            "w": 415,
+            "h": 454
+          },
+          {
+            "x": 445,
+            "y": 1233,
+            "w": 301,
+            "h": 457
+          },
+          {
+            "x": 41,
+            "y": 1236,
+            "w": 394,
+            "h": 454
+          }
+        ],
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/04.png"
+        }
+      },
+      {
+        "page_index": 6,
+        "frame": [
+          {
+            "x": 915,
+            "y": 0,
+            "w": 169,
+            "h": 713
+          },
+          {
+            "x": 0,
+            "y": 5,
+            "w": 903,
+            "h": 708
+          },
+          {
+            "x": 660,
+            "y": 741,
+            "w": 424,
+            "h": 421
+          },
+          {
+            "x": 444,
+            "y": 739,
+            "w": 216,
+            "h": 423
+          },
+          {
+            "x": 124,
+            "y": 739,
+            "w": 312,
+            "h": 423
+          },
+          {
+            "x": 0,
+            "y": 1190,
+            "w": 1085,
+            "h": 506
+          }
+        ],
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/05.png"
+        }
+      },
+      {
+        "page_index": 7,
+        "frame": [
+          {
+            "x": 37,
+            "y": 0,
+            "w": 1040,
+            "h": 227
+          }
+        ],
+        "illustration_type": "single_page",
+        "image_paths": {
+          "en": "Don't_Bully_Me_Nagatoro_Vol_1/06.png"
+        }
+      }
+    ]
+  }
+]
