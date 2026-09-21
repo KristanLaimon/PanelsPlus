@@ -126,3 +126,60 @@ describe("PanelViewer:pageToScreenTransform clipping", function()
         assert.is_nil(screen_rect)
     end)
 end)
+
+-- The round trip passes when both functions are wrong in the same way, so
+-- these check against the drawn bitmap. `ImageWidget.rotation_angle` turns it
+-- counter-clockwise: at 270 the page's top edge is on the right of the view,
+-- at 90 on the left.
+describe("PanelViewer transforms in a quarter-turned view", function()
+    -- A 1600x800 part of the page, shown turned in a 400x800 bitmap.
+    local RECT = { x = 0, y = 0, w = 1600, h = 800 }
+
+    local function turnedViewer(rotated, drawn_angle)
+        local viewer = newViewer({ rect = RECT, bb_w = 400, bb_h = 800, rotated = rotated })
+        viewer._image_wg.rotation_angle = drawn_angle
+        return viewer
+    end
+
+    it("maps the top right of a view turned clockwise to the page's top left", function()
+        local page_pos = turnedViewer(270):screenToPageTransform({ x = 396, y = 8 })
+
+        assert.near(16, page_pos.x, 1, "page x")
+        assert.near(8, page_pos.y, 1, "page y")
+    end)
+
+    it("maps the bottom left of a view turned counter-clockwise to the page's top left", function()
+        local page_pos = turnedViewer(90):screenToPageTransform({ x = 4, y = 792 })
+
+        assert.near(16, page_pos.x, 1, "page x")
+        assert.near(8, page_pos.y, 1, "page y")
+    end)
+
+    it("draws a box from the page's top left in the top right of a view turned clockwise", function()
+        local screen_rect = turnedViewer(270):pageToScreenTransform({ x = 0, y = 0, w = 160, h = 80 })
+
+        assert.near(360, screen_rect.x, 1, "screen x")
+        assert.near(0, screen_rect.y, 1, "screen y")
+        assert.near(40, screen_rect.w, 1, "screen w")
+        assert.near(80, screen_rect.h, 1, "screen h")
+    end)
+
+    it("draws a box from the page's top left in the bottom left of a view turned counter-clockwise", function()
+        local screen_rect = turnedViewer(90):pageToScreenTransform({ x = 0, y = 0, w = 160, h = 80 })
+
+        assert.near(0, screen_rect.x, 1, "screen x")
+        assert.near(720, screen_rect.y, 1, "screen y")
+    end)
+
+    it("follows the angle ImageViewer drew its own auto-rotation at", function()
+        -- `rotated == true` is ImageViewer's auto-rotation, which picks 90 or 270
+        -- from the screen orientation and the invert settings.
+        local clockwise = turnedViewer(true, 270):screenToPageTransform({ x = 396, y = 8 })
+        local counter = turnedViewer(true, 90):screenToPageTransform({ x = 4, y = 792 })
+
+        assert.near(16, clockwise.x, 1, "clockwise page x")
+        assert.near(8, clockwise.y, 1, "clockwise page y")
+        assert.near(16, counter.x, 1, "counter-clockwise page x")
+        assert.near(8, counter.y, 1, "counter-clockwise page y")
+    end)
+end)
