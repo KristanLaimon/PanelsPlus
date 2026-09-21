@@ -62,7 +62,7 @@ function SpreadRotation:setSpreadScreenRotation(mode)
     end)
     self._spread_rotation_busy = nil
     if not ok then
-        error(err)
+        error(err, 0)
     end
 end
 
