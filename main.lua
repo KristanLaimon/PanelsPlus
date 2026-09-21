@@ -22,6 +22,7 @@ cannot be built.
 local i18n = require("src.i18n")
 i18n.install()
 
+local UIManager = require("ui/uimanager")
 local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local Actions = require("src.actions")
 local Cache = require("src.cache")
@@ -29,6 +30,7 @@ local EmbeddedImage = require("src.embedded_image")
 local Menu = require("src.menu")
 local Memory = require("src._memory")
 local NativePanelZoom = require("src.native_panel_zoom")
+local ReadingPageFold = require("src.reading_page_fold")
 local Settings = require("src._settings")
 local SpreadRotation = require("src.spread_rotation")
 local Timing = require("src._timing")
@@ -72,6 +74,7 @@ include(PanelsPlus, Actions)
 include(PanelsPlus, Menu)
 include(PanelsPlus, NativePanelZoom)
 include(PanelsPlus, SpreadRotation)
+include(PanelsPlus, ReadingPageFold)
 
 --- Initialize settings, panel cache state, menu registration, actions, and hook.
 function PanelsPlus:init()
@@ -92,6 +95,7 @@ function PanelsPlus:onReaderReady()
     self:loadDocSettings()
     self:applyPanelGesture()
     self:startSpreadRotation()
+    self:installReadingPageFold()
 end
 
 --- Return the file path or key for the active document.
@@ -289,6 +293,12 @@ end
 function PanelsPlus:setJoinSpreadFold(enabled)
     self.settings.join_spread_fold = enabled and true or false
     self:saveSettings()
+    -- Cached page tiles were made with the old value.
+    local ok, DocCache = pcall(require, "document/doccache")
+    if ok and DocCache and DocCache.clear then
+        DocCache:clear()
+        UIManager:setDirty("all", "full")
+    end
 end
 
 --- Enable or disable screen rotation for double-page spreads on the reading page.
@@ -524,6 +534,7 @@ function PanelsPlus:onCloseWidget()
     self:clearPanelCache()
     self:removePanelGestureZones()
     self:restoreNativePanelZoom()
+    self:removeReadingPageFold()
 
     local ok, ComponentDetector = pcall(require, "src._componentdetector")
     if ok and ComponentDetector.clearScratch then

@@ -6,13 +6,17 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Added
 
+- **Fold line removal for double-page spreads on the reading page**
+  - The fold line option also applies while reading. KOReader draws a page from a cached tile, so the plugin wraps the open document's `drawPage` and removes the strip from that tile once, before it is drawn. The tile keeps its size, so zoom and panning are unchanged, and positions next to the fold move by at most half the strip's width. It works on the plain and the optimized (contrast, white threshold) render paths.
+  - Only a tile that covers the whole page is processed. When a page is zoomed in so far that KOReader renders it in parts, the strip stays. Changing the option clears the cached tiles.
+
 - **Fold line removal for double-page spreads in the panel viewer**
   - New option `Remove the fold line from double-page spreads`, on by default. Some scans join the two pages of a spread with a solid black strip. In the whole-spread view, and in any panel that crosses the fold, the strip is removed and the two sides are joined. A strip is only removed when it is black over the full height, within 3% of the page width of the page's centre and at most 4% of the page width, so dark artwork across the fold is left alone. Columns next to the strip that scaling has blurred are removed too. The joined image keeps the size of the render, so it is not resampled.
-  - `screenToPageTransform` and `pageToScreenTransform` account for the removed strip, so touch-and-hold lookup and its underline stay on the right word. The reading page is not changed.
+  - `screenToPageTransform` and `pageToScreenTransform` account for the removed strip, so touch-and-hold lookup and its underline stay on the right word.
 
 - **Screen rotation for double-page spreads while reading, and menu entries for both spread options**
   - New option `Rotate the screen for double-page spreads`, off by default. When a page turn lands on a spread, the screen is rotated to landscape before the page is painted and restored on the next normal page. It uses the same direction as the viewer's spread rotation. A landscape screen is left alone, a spread rotated back by hand is skipped, and the temporary rotation is not written to the book's saved rotation.
-  - Screen rotation on the reading page also works while `Disable plugin panel focusing` is on. That setting only hands panel zoom back to KOReader.
+  - Screen rotation and fold line removal on the reading page also work while `Disable plugin panel focusing` is on. That setting only hands panel zoom back to KOReader.
   - When the panel viewer opens from a rotated spread, the rotation is restored first so panels are shown upright. It is kept when the spread has only the whole page to show.
   - `auto_rotate_double_pages` and the new option are shown as one entry, `Rotate double-page spreads`, with four choices: off, in the panel viewer, while reading, in the panel viewer and while reading. It is in the Panels+ menu and under `[Rotation]` in `More Panel Viewer Settings`. Changing it from the viewer rebuilds the viewer, so the change shows at once.
 - "Open panels with" setting: a long press, as before, or a two-finger tap. With two-finger tap, a long press is left to KOReader and other plugins (for example Bubble Zoom).

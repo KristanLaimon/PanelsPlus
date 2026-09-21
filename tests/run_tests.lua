@@ -27,6 +27,7 @@ local spec_modules = {
     "tests.spec.doublespread_spec",
     "tests.spec.spread_rotation_spec",
     "tests.spec.foldjoin_spec",
+    "tests.spec.reading_page_fold_spec",
     "tests.spec.panelviewer_gotoviewrel_spec",
     "tests.spec.panelviewer_kobo_bluetooth_spec",
     "tests.spec.native_panel_zoom_spec",
