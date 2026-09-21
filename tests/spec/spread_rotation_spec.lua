@@ -233,6 +233,19 @@ describe("SpreadRotation while a book is opening", function()
         assert.equals(1, Screen:getRotationMode())
     end)
 
+    it("clears its busy flag and passes the error on unchanged when the rotation request raises", function()
+        local reader = readerFor()
+        UIManager.broadcastEvent = function()
+            error("rotation failed", 0)
+        end
+
+        local ok, err = pcall(reader.setSpreadScreenRotation, reader, 1)
+
+        assert.is_false(ok)
+        assert.equals("rotation failed", err)
+        assert.is_nil(reader._spread_rotation_busy)
+    end)
+
     it("drops the hold when the rotation request had no effect", function()
         local reader = readerFor()
         UIManager.broadcastEvent = function() end
