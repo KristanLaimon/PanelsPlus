@@ -97,9 +97,10 @@ describe("ViewerController page-turn animation settings", function()
             assert.equals("[Navigation]: Kobo-like edge vertical gesture (Actual: true)", items[5].text)
             assert.equals("[Navigation]: Remember per-document settings (Actual: true)", items[6].text)
             assert.equals("[Rotation]: Rotate spreads (Actual: Viewer)", items[7].text)
-            assert.equals("[Rotation]: Remove spread fold line (Actual: true)", items[8].text)
-            assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[9].text)
-            assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[10].text)
+            assert.equals("[Rotation]: Spread direction (Actual: KOReader)", items[8].text)
+            assert.equals("[Rotation]: Remove spread fold line (Actual: true)", items[9].text)
+            assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[10].text)
+            assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[11].text)
         end)
     end)
 
@@ -140,9 +141,9 @@ describe("ViewerController page-turn animation settings", function()
 
         controller:showMoreConfigMenu({ nav_transition_mode = "classic" })
         local items = UIManager._last_shown.item_table
-        assert.equals(10, #items)
-        assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[9].text)
-        assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[10].text)
+        assert.equals(11, #items)
+        assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[10].text)
+        assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[11].text)
 
         Device.canDoSwipeAnimation = old_can_do_swipe_animation
     end)

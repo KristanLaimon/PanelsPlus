@@ -726,6 +726,22 @@ function ViewerController:showMoreConfigMenu(viewer)
             "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
         ),
     })
+    local direction_labels = { auto = _("KOReader"), cw = _("Clockwise"), ccw = _("Counter-clockwise") }
+    local direction_cycle = { auto = "cw", cw = "ccw", ccw = "auto" }
+    local direction = direction_labels[controller.settings.spread_rotation_direction]
+            and controller.settings.spread_rotation_direction
+        or "auto"
+    table.insert(menu_items, {
+        text = categorizedText(_("Rotation"), _("Spread direction (Actual: ") .. direction_labels[direction] .. ")"),
+        callback = function()
+            controller:setSpreadRotationDirection(direction_cycle[direction])
+            UIManager:close(menu)
+            controller:showMoreConfigMenu(controller:rebuildViewerForSpreadOptions(viewer))
+        end,
+        help_text = _(
+            'Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows "Invert default rotation in portrait mode" in KOReader\'s rotation settings.'
+        ),
+    })
     table.insert(menu_items, {
         text = categorizedText(
             _("Rotation"),
@@ -871,6 +887,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         ocr_debug_mode = self.settings.ocr_debug_mode == true,
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
+        spread_rotation_direction = self.settings.spread_rotation_direction,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,

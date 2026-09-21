@@ -38,6 +38,7 @@ local Settings = {
         progress_bar_visible = true,
         auto_rotate_double_pages = true,
         rotate_screen_for_double_pages = false,
+        spread_rotation_direction = "auto",
         join_spread_fold = true,
         hold_text_selection = true,
         nav_transition_mode = "classic",

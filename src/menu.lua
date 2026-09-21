@@ -115,6 +115,44 @@ function Menu:addToMainMenu(menu_items)
                 separator = true,
             },
             {
+                text = _("Spread rotation direction"),
+                help_text = _(
+                    'Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows "Invert default rotation in portrait mode" in KOReader\'s rotation settings.'
+                ),
+                sub_item_table = {
+                    {
+                        text = _("Same as KOReader's image viewer"),
+                        checked_func = function()
+                            return (self.settings.spread_rotation_direction or "auto") == "auto"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationDirection("auto")
+                        end,
+                    },
+                    {
+                        text = _("Clockwise"),
+                        checked_func = function()
+                            return (self.settings.spread_rotation_direction or "auto") == "cw"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationDirection("cw")
+                        end,
+                    },
+                    {
+                        text = _("Counter-clockwise"),
+                        checked_func = function()
+                            return (self.settings.spread_rotation_direction or "auto") == "ccw"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationDirection("ccw")
+                        end,
+                    },
+                },
+            },
+            {
                 text = _("Remove the fold line from double-page spreads"),
                 checked_func = function()
                     return self.settings.join_spread_fold ~= false

@@ -145,6 +145,63 @@ describe("DoubleSpread.screenRotationFor", function()
     end)
 end)
 
+describe("Spread rotation direction", function()
+    it("follows KOReader's image viewer setting unless a direction is chosen", function()
+        withPortraitInvert(false, function()
+            assert.equals(90, DoubleSpread.imageAngle("auto"))
+            assert.equals(90, DoubleSpread.imageAngle(nil))
+            assert.equals(270, DoubleSpread.imageAngle("cw"))
+        end)
+        withPortraitInvert(true, function()
+            assert.equals(270, DoubleSpread.imageAngle("auto"))
+            assert.equals(90, DoubleSpread.imageAngle("ccw"))
+        end)
+    end)
+
+    it("turns the screen the same way as the image", function()
+        withPortraitInvert(false, function()
+            assert.equals(3, DoubleSpread.screenRotationFor(0, SPREAD_PAGE.w, SPREAD_PAGE.h, "cw"))
+            assert.equals(1, DoubleSpread.screenRotationFor(0, SPREAD_PAGE.w, SPREAD_PAGE.h, "ccw"))
+            assert.equals(1, DoubleSpread.screenRotationFor(2, SPREAD_PAGE.w, SPREAD_PAGE.h, "cw"))
+        end)
+    end)
+
+    it("rotates the reading page in the chosen direction", function()
+        local reader = readerFor({ rotate_screen_for_double_pages = true, spread_rotation_direction = "cw" })
+
+        reader:onPageUpdate(2)
+
+        assert.equals(3, Screen:getRotationMode())
+    end)
+
+    it("turns a rotated spread the other way when the direction changes", function()
+        local reader, turns = readerFor({ rotate_screen_for_double_pages = true, spread_rotation_direction = "cw" })
+        reader.ui.paging.current_page = 2
+        reader:onPageUpdate(2)
+
+        reader.settings.spread_rotation_direction = "ccw"
+        reader:applySpreadRotationSetting()
+        reader:onPageUpdate(4)
+
+        assert.equals("3,1,0", table.concat(turns, ","))
+    end)
+
+    it("rotates the viewer's spread image in the chosen direction", function()
+        withPortraitInvert(true, function()
+            local viewer = PanelViewer:new({
+                auto_rotate_double_pages = true,
+                spread_rotation_direction = "ccw",
+                panels = { WHOLE_SPREAD },
+                panel_is_full_page = { true },
+            })
+
+            viewer:applyImageRotation(1)
+
+            assert.equals(90, viewer.rotated)
+        end)
+    end)
+end)
+
 describe("SpreadRotation while pages are turned in quick succession", function()
     it("waits until the turning stops, then rotates for the page the reader stopped on", function()
         local old_schedule = UIManager.scheduleIn
@@ -588,6 +645,40 @@ describe("Double-page spread settings in the menus", function()
         choices[3].callback()
 
         assert.equals("reading", chosen)
+    end)
+
+    it("offers the direction in the main menu and in the viewer's settings", function()
+        local chosen
+        local menu_items = {}
+        MainMenu.addToMainMenu({
+            settings = Settings.withDefaults({}),
+            getModeText = function()
+                return "Panels+"
+            end,
+            getSpreadRotationMode = MainMenu.getSpreadRotationMode,
+            setSpreadRotationDirection = function(_, direction)
+                chosen = direction
+            end,
+        }, menu_items)
+        local entry = findItem(menu_items.panels_plus.sub_item_table, "Spread rotation direction")
+        local choices = entry.sub_item_table
+
+        assert.equals("Same as KOReader's image viewer", choices[1].text)
+        assert.equals("Clockwise", choices[2].text)
+        assert.equals("Counter-clockwise", choices[3].text)
+        assert.is_true(choices[1].checked_func())
+        choices[2].callback()
+        assert.equals("cw", chosen)
+
+        local reader = readerFor({})
+        reader.setSpreadRotationDirection = function(self, direction)
+            self.settings.spread_rotation_direction = direction
+        end
+        reader:showMoreConfigMenu({ page = 1 })
+        local item = findItem(UIManager._last_shown.item_table, "[Rotation]: Spread direction")
+        assert.equals("[Rotation]: Spread direction (Actual: KOReader)", item.text)
+        item.callback()
+        assert.equals("cw", reader.settings.spread_rotation_direction)
     end)
 
     it("reads the mode from the two settings", function()
