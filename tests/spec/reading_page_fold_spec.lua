@@ -73,20 +73,36 @@ local function readerFor(page_size, settings, tile)
 end
 
 local function draw(document)
-    document:drawPage({}, 0, 0, { x = 0, y = 0, w = 1000, h = 700 }, 4, 0.59, 0, 1.0, 1.0)
+    local target = { blits = 0 }
+
+    function target:blitFrom(source)
+        self.blits = self.blits + 1
+        self.source = source
+    end
+
+    function target:ditherblitFrom(source)
+        self.blits = self.blits + 1
+        self.source = source
+    end
+
+    document:drawPage(target, 0, 0, { x = 0, y = 0, w = 1000, h = 700 }, 4, 0.59, 0, 1.0, 1.0)
+    return target
 end
 
 describe("ReadingPageFold", function()
-    it("removes the strip from the page tile once, then lets KOReader draw it", function()
+    it("draws from a joined bitmap without changing the cached tile", function()
         local reader, document, tile, calls = readerFor(SPREAD_PAGE)
         reader:installReadingPageFold()
 
-        draw(document)
-        draw(document)
+        local first = draw(document)
+        local second = draw(document)
 
-        assert.equals(1, tile.bb.blits)
-        assert.equals(2, calls.draw)
-        assert.is_true(tile.pp_fold_checked)
+        assert.equals(0, tile.bb.blits)
+        assert.equals(0, calls.draw)
+        assert.equals(1, first.blits)
+        assert.equals(1, second.blits)
+        assert.equals(first.source, second.source)
+        assert.is_nil(tile.pp_fold_checked)
     end)
 
     it("leaves a normal page alone without rendering anything itself", function()
@@ -116,9 +132,10 @@ describe("ReadingPageFold", function()
         end
         reader:installReadingPageFold()
 
-        draw(document)
+        local target = draw(document)
 
-        assert.equals(1, tile.bb.blits)
+        assert.equals(0, tile.bb.blits)
+        assert.equals(1, target.blits)
     end)
 
     it("leaves a tile that covers only part of the page alone", function()

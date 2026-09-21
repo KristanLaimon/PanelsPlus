@@ -293,12 +293,8 @@ end
 function PanelsPlus:setJoinSpreadFold(enabled)
     self.settings.join_spread_fold = enabled and true or false
     self:saveSettings()
-    -- Cached page tiles were made with the old value.
-    local ok, DocCache = pcall(require, "document/doccache")
-    if ok and DocCache and DocCache.clear then
-        DocCache:clear()
-        UIManager:setDirty("all", "full")
-    end
+    self:clearReadingPageFoldCache()
+    UIManager:setDirty("all", "full")
 end
 
 --- Enable or disable screen rotation for double-page spreads on the reading page.
