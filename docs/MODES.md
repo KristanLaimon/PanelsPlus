@@ -47,7 +47,9 @@ menu.
 page, where there is no image to rotate. When a page turn lands on a page at
 least 1.3 times as wide as it is tall, the screen is rotated to landscape before
 the page is painted, and the next normal page restores the rotation the reader
-was using. It uses the same direction as the viewer, so the device is held the
+was using. While pages are turned in quick succession (less than 0.8 s apart)
+nothing is rotated until the turning stops, so flipping past a spread does not
+rotate the screen twice. It uses the same direction as the viewer, so the device is held the
 same way for both. A screen already in landscape is left alone, a spread the
 reader rotates back by hand is skipped, and the temporary rotation is not saved
 with the book. When the panel viewer opens from a rotated spread, the screen is
