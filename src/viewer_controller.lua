@@ -13,6 +13,7 @@ local Event = require("ui/event")
 local Device = require("device")
 local Screen = Device.screen
 local DoubleSpread = require("src._doublespread")
+local SpreadRotation = require("src.spread_rotation")
 local Memory = require("src._memory")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
@@ -536,6 +537,45 @@ function ViewerController:armPanelTransitionAnimation(direction, viewer)
     return true
 end
 
+--- Rebuild an open viewer at the same panel after a spread option changed.
+---
+--- The options change how images are rendered (rotated size, fold strip) and which rotation the
+--- screen is in, so the viewer is rebuilt like `toggleViewerCropMode` does. An embedded image
+--- viewer has its own rebuild path and is kept.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return PanelViewer viewer The viewer now on screen.
+function ViewerController:rebuildViewerForSpreadOptions(viewer)
+    local panels = viewer.panels
+    if viewer.embedded_source_image or not panels or #panels == 0 then
+        return viewer
+    end
+    local page, index = viewer.page, viewer._images_list_cur or 1
+    UIManager:close(viewer)
+    return self:showPanelViewerForPage(page, panels, index, { buttons_visible = true, return_viewer = true })
+end
+
+local SPREAD_ROTATION_CYCLE = { off = "viewer", viewer = "reading", reading = "both", both = "off" }
+
+--- Step the spread rotation choice from an open viewer.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return PanelViewer viewer The viewer now on screen.
+function ViewerController:cycleViewerSpreadRotationMode(viewer)
+    self:setSpreadRotationMode(SPREAD_ROTATION_CYCLE[DoubleSpread.rotationMode(self.settings)] or "viewer")
+    viewer.auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false
+    return self:rebuildViewerForSpreadOptions(viewer)
+end
+
+--- Toggle `join_spread_fold` from an open viewer.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return PanelViewer viewer The viewer now on screen.
+function ViewerController:toggleViewerJoinSpreadFold(viewer)
+    self:setJoinSpreadFold(self.settings.join_spread_fold == false)
+    return self:rebuildViewerForSpreadOptions(viewer)
+end
+
 --- Show a multi-options menu popup for miscellaneous panel viewer settings
 --- that don't need their own dedicated button.
 ---
@@ -671,6 +711,40 @@ function ViewerController:showMoreConfigMenu(viewer)
         },
     }
 
+    local spread_mode_labels =
+        { off = _("Off"), viewer = _("Viewer"), reading = _("Reading"), both = _("Viewer + reading") }
+    table.insert(menu_items, {
+        text = categorizedText(
+            _("Rotation"),
+            _("Rotate spreads (Actual: ") .. spread_mode_labels[DoubleSpread.rotationMode(controller.settings)] .. ")"
+        ),
+        callback = function()
+            UIManager:close(menu)
+            controller:showMoreConfigMenu(controller:cycleViewerSpreadRotationMode(viewer))
+        end,
+        help_text = _(
+            "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+        ),
+    })
+    table.insert(menu_items, {
+        text = categorizedText(
+            _("Rotation"),
+            _("Remove spread fold line (Actual: ")
+                .. (controller.settings.join_spread_fold ~= false and _("true") or _("false"))
+                .. ")"
+        ),
+        checked_func = function()
+            return controller.settings.join_spread_fold ~= false
+        end,
+        callback = function()
+            UIManager:close(menu)
+            controller:showMoreConfigMenu(controller:toggleViewerJoinSpreadFold(viewer))
+        end,
+        separator = true,
+        help_text = _(
+            "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
+        ),
+    })
     table.insert(menu_items, {
         text = categorizedText(
             _("Performance"),
@@ -765,6 +839,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         tostring(self.settings.nav_transition_mode)
     )
     Timing.memory("show_panel_viewer")
+    -- Restore the reader's rotation first if the screen was rotated for a
+    -- spread, so the viewer is laid out for it.
+    SpreadRotation.prepareSpreadRotationForViewer(self, page, panels)
     local images, image_rects, full_page_flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
     viewer = PanelViewer:new({
@@ -854,7 +931,13 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)
         end,
+        closed_callback = function(closed_viewer)
+            SpreadRotation.onPanelViewerClosed(self, closed_viewer)
+        end,
     })
+    -- Set before the replaced viewer closes, so its close is not treated as
+    -- leaving the viewer.
+    self.active_panel_viewer = viewer
 
     if options.replace_viewer then
         self:armPageTurnAnimation(options.boundary_direction, options.replace_viewer)

@@ -338,3 +338,45 @@ msgstr "frames"
 
 msgid "true"
 msgstr "true"
+
+msgid "Rotation"
+msgstr "Rotation"
+
+msgid "Remove the fold line from double-page spreads"
+msgstr "Remove the fold line from double-page spreads"
+
+msgid "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
+msgstr "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
+
+msgid "Remove spread fold line (Actual: "
+msgstr "Remove spread fold line (Actual: "
+
+msgid "Rotate double-page spreads"
+msgstr "Rotate double-page spreads"
+
+msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+msgstr "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+
+msgid "Off"
+msgstr "Off"
+
+msgid "In the panel viewer"
+msgstr "In the panel viewer"
+
+msgid "In the panel viewer and while reading"
+msgstr "In the panel viewer and while reading"
+
+msgid "Viewer"
+msgstr "Viewer"
+
+msgid "Viewer + reading"
+msgstr "Viewer + reading"
+
+msgid "Rotate spreads (Actual: "
+msgstr "Rotate spreads (Actual: "
+
+msgid "While reading"
+msgstr "While reading"
+
+msgid "Reading"
+msgstr "Reading"

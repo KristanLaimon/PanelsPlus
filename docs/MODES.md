@@ -43,6 +43,39 @@ choice in the rotation picker takes priority; choose **Auto** in that picker to
 resume automatic rotation. The option is enabled by default in the Panels+
 menu.
 
+**Rotate the screen for double-page spreads** does the same for the reading
+page, where there is no image to rotate. When a page turn lands on a page at
+least 1.3 times as wide as it is tall, the screen is rotated to landscape before
+the page is painted, and the next normal page restores the rotation the reader
+was using. It uses the same direction as the viewer, so the device is held the
+same way for both. A screen already in landscape is left alone, a spread the
+reader rotates back by hand is skipped, and the temporary rotation is not saved
+with the book. When the panel viewer opens from a rotated spread, the screen is
+restored first so panels are shown upright, unless the spread has nothing but
+the whole page to show. The option is off by default.
+
+**Remove the fold line from double-page spreads** applies in the panel viewer to
+the whole-spread view and to any panel that crosses the fold. Some scans join the
+two pages with a solid black strip. When the render has a strip at the page's
+centre that is black over its full height, within 3% of the page width of the
+centre and at most 4% of the page width, the two sides are joined without it.
+Columns next to the strip that scaling has blurred are removed too. The joined
+image keeps the size of the render, with the two sides centred on white, so it
+is shown at the same scale and is not resampled. Dark artwork that runs across
+the fold does not match and is left alone.
+Touch positions and lookup highlights account for the removed strip. The option
+is on by default.
+
+The reading page is drawn by KOReader and is not changed.
+
+Screen rotation on the reading page also works while **Disable plugin panel
+focusing** is on. That setting only hands panel zoom back to
+KOReader.
+
+Spread rotation is one entry with four choices (off, in the panel viewer, while reading,
+in the panel viewer and while reading). It and the fold line option are in the Panels+ menu and under `[Rotation]` in
+`More Panel Viewer Settings`.
+
 There is no detector selector or detector cycle in the current UI.
 
 ## Diagnosing detection

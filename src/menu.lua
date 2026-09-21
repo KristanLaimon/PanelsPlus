@@ -9,6 +9,7 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
+local DoubleSpread = require("src._doublespread")
 local _ = require("gettext")
 
 --- Main-menu methods mixed into `PanelsPlus`.
@@ -21,6 +22,13 @@ local Menu = {}
 --- @return PPDetector detector Current detector selection.
 function Menu:getDetector()
     return "components"
+end
+
+--- Return the spread rotation choice shown in the menus (see `DoubleSpread.rotationMode`).
+---
+--- @return string mode `"off"`, `"viewer"`, `"reading"` or `"both"`.
+function Menu:getSpreadRotationMode()
+    return DoubleSpread.rotationMode(self.settings)
 end
 
 --- Return the main-menu label for the current reading mode.
@@ -102,6 +110,67 @@ function Menu:addToMainMenu(menu_items)
                         help_text = _(
                             "A tap with two fingers opens the panel under them, and a long press is left to KOReader or other plugins. Needs a multi-touch screen."
                         ),
+                    },
+                },
+                separator = true,
+            },
+            {
+                text = _("Remove the fold line from double-page spreads"),
+                checked_func = function()
+                    return self.settings.join_spread_fold ~= false
+                end,
+                callback = function()
+                    self:setJoinSpreadFold(self.settings.join_spread_fold == false)
+                end,
+                help_text = _(
+                    "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
+                ),
+            },
+            {
+                text = _("Rotate double-page spreads"),
+                help_text = _(
+                    "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+                ),
+                sub_item_table = {
+                    {
+                        text = _("Off"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "off"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("off")
+                        end,
+                    },
+                    {
+                        text = _("In the panel viewer"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "viewer"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("viewer")
+                        end,
+                    },
+                    {
+                        text = _("While reading"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "reading"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("reading")
+                        end,
+                    },
+                    {
+                        text = _("In the panel viewer and while reading"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "both"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("both")
+                        end,
                     },
                 },
                 separator = true,

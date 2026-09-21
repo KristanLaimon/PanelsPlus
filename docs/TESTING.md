@@ -61,7 +61,7 @@ The current specs fall into these groups:
 | Internal native fallback | `nativedetector_spec.lua`, `memory_spec.lua` |
 | Geometry and viewports | `geometry_spec.lua`, `panelviewport_spec.lua`, `panelviewer_transform_spec.lua`, `panelviewer_margin_spec.lua` |
 | Viewer input/navigation | `panelviewer_tapnav_spec.lua`, `panelviewer_leftedge_spec.lua`, `panelviewer_keyboard_nav_spec.lua`, `panelviewer_gotoviewrel_spec.lua`, `panelviewer_kobo_bluetooth_spec.lua`, `panelviewer_reader_gesture_spec.lua` |
-| Transitions and controller behavior | `panelviewer_navtransition_spec.lua`, `viewer_controller_rotation_spec.lua`, `viewer_controller_more_config_spec.lua` |
+| Transitions and controller behavior | `panelviewer_navtransition_spec.lua`, `viewer_controller_rotation_spec.lua`, `viewer_controller_more_config_spec.lua`, `spread_rotation_spec.lua`, `foldjoin_spec.lua` |
 | Embedded images | `embedded_image_spec.lua`, `textbasedformats_dataset_spec.lua` |
 | KOReader integration/settings | `native_panel_zoom_spec.lua`, `doc_settings_spec.lua` |
 | Word lookup and review | `wordfinder_spec.lua`, `panelviewer_refineword_spec.lua`, `panelviewer_highlight_spec.lua`, `ocrdebug_spec.lua`, `ocrdebug_report_spec.lua` |
