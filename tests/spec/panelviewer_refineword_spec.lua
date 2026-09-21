@@ -33,13 +33,16 @@ local WordFinder = require("src._wordfinder")
 ---
 --- @param box table|nil Box the stubbed finder returns.
 --- @param word string|nil Word the stubbed reader returns.
-local function newViewer(box, word)
+local function newViewer(box, word, page_text_boxes)
     local koreader_sboxes = { { x = 10, y = 200, w = 80, h = 60 } }
     local viewer = PanelViewer:new({
         page = 3,
         reader_ui = {
             document = {
                 configurable = { text_wrap = 0 },
+                getPageTextBoxes = function()
+                    return page_text_boxes
+                end,
             },
             view = {
                 highlight = { temp = { [3] = koreader_sboxes }, temp_drawer = "invert" },
@@ -55,11 +58,14 @@ local function newViewer(box, word)
         },
     })
 
+    local calls = { find = 0, read = 0 }
     local original_find, original_read = WordFinder.findWordBox, WordFinder.readWord
     WordFinder.findWordBox = function()
+        calls.find = calls.find + 1
         return box, { w = 1000, h = 1000 }
     end
     WordFinder.readWord = function()
+        calls.read = calls.read + 1
         return word
     end
 
@@ -68,7 +74,8 @@ local function newViewer(box, word)
         function()
             WordFinder.findWordBox = original_find
             WordFinder.readWord = original_read
-        end
+        end,
+        calls
 end
 
 describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function()
@@ -89,6 +96,45 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
             painted,
             "temp and the selection must share one table, as ReaderHighlight leaves them"
         )
+        assert.equals("shift", highlight.selected_text.text)
+    end)
+
+    it("preserves a selection from a usable embedded text layer", function()
+        local refined = { x = 12, y = 214, w = 44, h = 26 }
+        local viewer, koreader_sboxes, restore, calls = newViewer(refined, "shift", { {}, {} })
+        local highlight = viewer.reader_ui.highlight
+
+        viewer:_refineWordSelection(highlight, { page = 3, x = 30, y = 220 })
+        restore()
+
+        assert.equals("wrong", highlight.selected_text.text)
+        assert.equals(koreader_sboxes, viewer.reader_ui.view.highlight.temp[3])
+        assert.equals(0, calls.find, "a text-layer selection must not use Panels+ WordFinder")
+        assert.equals(0, calls.read, "a text-layer selection must not run Panels+ OCR")
+    end)
+
+    it("uses Panels+ WordFinder for an image-only manga PDF", function()
+        local refined = { x = 12, y = 214, w = 44, h = 26 }
+        local viewer, _, restore, calls = newViewer(refined, "shift")
+        local highlight = viewer.reader_ui.highlight
+
+        viewer:_refineWordSelection(highlight, { page = 3, x = 30, y = 220 })
+        restore()
+
+        assert.equals("shift", highlight.selected_text.text)
+        assert.equals(1, calls.find, "an image-only page must use Panels+ word-box finder")
+        assert.equals(1, calls.read, "an image-only page must use Panels+ bounded OCR")
+    end)
+
+    it("still refines when KOReader is configured to force OCR", function()
+        local refined = { x = 12, y = 214, w = 44, h = 26 }
+        local viewer, _, restore = newViewer(refined, "shift", { {}, {} })
+        viewer.reader_ui.document.configurable.forced_ocr = 1
+        local highlight = viewer.reader_ui.highlight
+
+        viewer:_refineWordSelection(highlight, { page = 3, x = 30, y = 220 })
+        restore()
+
         assert.equals("shift", highlight.selected_text.text)
     end)
 

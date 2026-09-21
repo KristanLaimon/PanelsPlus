@@ -30,6 +30,7 @@ tests/
 ### 1. Test Suite
 ```bash
 ./run-tests.sh --quick          # Parallel tests, skipping Lua lint/format checks
+./run-tests.sh --quicker        # Skip Lua lint/format checks and dataset/benchmark specs
 ./run-tests.sh --quick -j 2     # Limit to two workers
 ./run-tests.sh --quick -j 1     # Run jobs sequentially
 ./run-tests.sh --quick tests/spec/geometry_spec.lua
@@ -163,28 +164,8 @@ python3 tests/dataset-mangas/annotator.py path/to/manga.cbz
 - Documents: `.pdf`, `.epub`, `.kepub.epub`, `.mobi` (via `PyMuPDF`)
 - Image collections: folders of `.jpg`, `.jpeg`, `.png`, `.webp`
 
-### Key Annotator Controls & Shortcuts
-- **Click & Drag**: Draw panel bounding rectangles in sequential reading order. Each new box receives the next badge number (`[1]`, `[2]`, `[3]`...).
-- **Single-Page Illustration (`F`)**: Replaces annotations with one bounding box covering the entire page.
-- **Double-Page Illustration (`S`)**: Marks an already-combined wide spread with `illustration_type: "double_page"` for future rotation support. Split spreads are intentionally not handled yet.
-- **Resize & Move**: Click any rectangle to reveal 8 resize handles for fine adjustment, or drag inside the box to reposition.
-- **Panel Reordering**: Use **Move Up** / **Move Down** buttons in the sidebar to reorder panels without redrawing.
-- **Delete Panel (`Del` / `Backspace`)**: Remove the currently selected panel.
-- **Save Dataset (`Ctrl+S`)**: Exports rendered/extracted page images to `images/<book_title>/` and updates `annotation.json` compatible with PanelsPlus.
-- **Page Navigation**: `A` / `Left Arrow` for Previous Page, `D` / `Right Arrow` for Next Page, plus page slider and spinbox.
-
-### Running Benchmarks Against Private Datasets
-Once pages are annotated and saved:
-```bash
-lua tools/benchmark_panels.lua --dataset tests/dataset-mangas/dataset-private
-# Or evaluate a specific book/page:
-lua tools/benchmark_panels.lua --dataset tests/dataset-mangas/dataset-private --book my_manga --page 1
-```
-
 ---
 
 ## Licensing & Compliance
 
-- **PanelsPlus Codebase**: MIT License (permits commercial redistribution).
-- **Dataset Privacy**: Your hand-crafted annotations and images stay strictly local under `tests/dataset-mangas/dataset-private/`.
-- **Packaging Boundary**: The `build.sh` script packages only `src/`, `locales/`, and plugin metadata into `dist/`. The `tests/` directory is never bundled into plugin release zip files.
+- MIT License. Found in `LICENSE` file here.

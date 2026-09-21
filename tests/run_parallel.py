@@ -12,6 +12,12 @@ import time
 ROOT = Path(__file__).resolve().parent.parent
 RUNNER = ["lua", "tests/run_tests.lua"]
 PRODUCTION_SPEC = "tests.spec.new_dataset_benchmark_spec"
+DATASET_SPECS = {
+    "tests.spec.dataset_benchmark_spec",
+    "tests.spec.dataset_support_spec",
+    "tests.spec.textbasedformats_dataset_spec",
+    PRODUCTION_SPEC,
+}
 
 
 def discover(option):
@@ -30,6 +36,14 @@ def make_jobs(specs, datasets):
     if units:
         jobs.insert(0, ("Unit tests", units, None))
     return jobs
+
+
+def is_dataset_spec(spec):
+    return spec in DATASET_SPECS or spec.startswith("tests.dataset-mangas.dataset.")
+
+
+def without_dataset_specs(specs):
+    return [spec for spec in specs if not is_dataset_spec(spec)]
 
 
 def run_jobs(jobs, workers, command=None):
@@ -95,12 +109,16 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("-j", "--jobs", type=int, default=min(4, os.cpu_count() or 1),
                         help="maximum concurrent Lua workers (default: up to 4 CPUs)")
+    parser.add_argument("--skip-datasets", action="store_true",
+                        help="exclude dataset and benchmark specifications")
     parser.add_argument("specs", nargs="*")
     args = parser.parse_args()
     if args.jobs < 1:
         parser.error("--jobs must be at least 1")
     specs = [s.removeprefix("./").removesuffix(".lua").replace("/", ".").replace("\\", ".")
              for s in args.specs] if args.specs else discover("--list")
+    if args.skip_datasets:
+        specs = without_dataset_specs(specs)
     return run_jobs(make_jobs(specs, discover("--list-datasets")), args.jobs)
 
 

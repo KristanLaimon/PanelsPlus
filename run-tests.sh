@@ -5,6 +5,7 @@
 # Usage:
 #   ./run-tests.sh                  # Runs linters, Lua unit tests, and dataset specs
 #   ./run-tests.sh --quick          # Runs Lua test suite directly (skips check.sh)
+#   ./run-tests.sh --quicker        # Skips lint/style checks and dataset Lua tests
 #   ./run-tests.sh --check-only     # Runs only code style and linter checks
 #   ./run-tests.sh <spec-path>      # Runs a specific spec file
 # ==============================================================================
@@ -23,6 +24,7 @@ Usage:
 Options:
   -h, --help       Show this help message
   -q, --quick      Skip lint/format checks and run Lua tests immediately
+      --quicker    Also skip dataset and benchmark Lua tests
   -c, --check-only Run only StyLua formatter and Luacheck linter
   -p, --python     Run only the Python annotator unit tests
   -j, --jobs N     Maximum parallel Lua workers (default: up to 4 CPUs; 1 for serial)
@@ -30,12 +32,14 @@ Options:
 Examples:
   ./run-tests.sh
   ./run-tests.sh --quick
+  ./run-tests.sh --quicker
   ./run-tests.sh tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua
 EOF
 }
 
 CHECK_ONLY=false
 QUICK=false
+SKIP_DATASETS=false
 PYTHON_ONLY=false
 FORWARD_ARGS=()
 
@@ -50,6 +54,10 @@ for arg in "$@"; do
             ;;
         -q|--quick)
             QUICK=true
+            ;;
+        --quicker)
+            QUICK=true
+            SKIP_DATASETS=true
             ;;
         -p|--python)
             PYTHON_ONLY=true
@@ -88,7 +96,12 @@ if command -v python3 &>/dev/null; then
     fi
 fi
 
-echo "==> [3/3] Running Lua Test Suite & Manga Dataset Specs..."
-python3 tests/run_parallel.py "${FORWARD_ARGS[@]}"
+if [ "$SKIP_DATASETS" = true ]; then
+    echo "==> [3/3] Running Lua Test Suite (dataset and benchmark specs skipped)..."
+    python3 tests/run_parallel.py --skip-datasets "${FORWARD_ARGS[@]}"
+else
+    echo "==> [3/3] Running Lua Test Suite & Manga Dataset Specs..."
+    python3 tests/run_parallel.py "${FORWARD_ARGS[@]}"
+fi
 
 echo "==> All test suites passed successfully!"

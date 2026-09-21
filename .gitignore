@@ -66,5 +66,5 @@ __pycache__/
 .cache/
 tests/dataset-mangas/.cache/
 
-# Git worktrees work
+- # Git worktrees work
 worktree-*/

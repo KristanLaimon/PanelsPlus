@@ -14,6 +14,7 @@ commands, baseline policy, and current corpus measurements. See
 ```sh
 ./run-tests.sh                         # lint/style, Python tests, parallel Lua suite
 ./run-tests.sh --quick                 # parallel Lua suite without lint/style
+./run-tests.sh --quicker               # Lua suite without lint/style, datasets, or benchmarks
 ./run-tests.sh --quick -j 1            # serial worker execution
 ./run-tests.sh --quick tests/spec/componentdetector_spec.lua
 ./run-tests.sh --check-only            # StyLua and Luacheck only

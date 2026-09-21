@@ -14,6 +14,18 @@ spec.loader.exec_module(parallel)
 
 
 class ParallelRunnerTests(unittest.TestCase):
+    def test_dataset_filter_excludes_every_dataset_specification(self):
+        specs = [
+            "tests.spec.geometry_spec",
+            parallel.PRODUCTION_SPEC,
+            "tests.dataset-mangas.dataset.Book.book_spec",
+            "tests.spec.dataset_benchmark_spec",
+            "tests.spec.dataset_support_spec",
+            "tests.spec.textbasedformats_dataset_spec",
+        ]
+
+        self.assertEqual(["tests.spec.geometry_spec"], parallel.without_dataset_specs(specs))
+
     def test_every_spec_and_volume_is_scheduled_once(self):
         specs = ["tests.spec.geometry_spec", parallel.PRODUCTION_SPEC,
                  "tests.dataset-mangas.dataset.Book.book_spec", "tests.spec.dataset_benchmark_spec"]
