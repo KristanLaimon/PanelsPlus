@@ -43,49 +43,39 @@ local function spreadPageSize(document, pageno)
     return nil
 end
 
--- Joined bitmaps kept per document. Each is as large as a page tile, and LuaJIT's collector does
--- not see that memory, so the oldest is freed here instead of waiting for a collection.
-local MAX_JOINED = 3
+-- Tiles remembered per document, newest first. A joined bitmap is as large as a page tile, and
+-- LuaJIT's collector does not see that memory, so the oldest is freed here. Three covers the page
+-- being read, and the pages that share the screen in continuous view.
+local MAX_REMEMBERED = 3
 
 --- Free the joined bitmaps owned by a document.
 local function clearJoinedTiles(document)
-    local joined_tiles = document and document.pp_fold_joined_tiles
-    if not joined_tiles then
+    if not document then
         return
     end
-    for _, entry in pairs(joined_tiles) do
-        if entry and entry.bb.free then
+    for _, entry in ipairs(document.pp_fold_joined_tiles or {}) do
+        if entry.bb and entry.bb.free then
             entry.bb:free()
         end
     end
-    document.pp_fold_joined_tiles = setmetatable({}, { __mode = "k" })
+    document.pp_fold_joined_tiles = {}
 end
 
---- Remember a joined bitmap for `tile` and free the oldest one beyond `MAX_JOINED`.
-local function rememberJoined(document, joined_tiles, tile, joined)
-    document.pp_fold_joined_seq = (document.pp_fold_joined_seq or 0) + 1
-    joined_tiles[tile] = { bb = joined, seq = document.pp_fold_joined_seq }
-    local count, oldest_tile, oldest = 0, nil, nil
-    for cached_tile, entry in pairs(joined_tiles) do
-        if entry then
-            count = count + 1
-            if not oldest or entry.seq < oldest.seq then
-                oldest_tile, oldest = cached_tile, entry
-            end
-        end
-    end
-    if count > MAX_JOINED then
-        joined_tiles[oldest_tile] = nil
-        if oldest.bb.free then
-            oldest.bb:free()
+--- Remember the result for `tile` (`false` when it has no strip) and drop the oldest.
+local function remember(remembered, tile, joined)
+    table.insert(remembered, 1, { tile = tile, bb = joined })
+    while #remembered > MAX_REMEMBERED do
+        local dropped = table.remove(remembered)
+        if dropped.bb and dropped.bb.free then
+            dropped.bb:free()
         end
     end
 end
 
 --- Return a plugin-owned joined bitmap for a whole-page tile.
 ---
---- A cached `false` means that the tile was checked and did not contain a fold
---- strip. The original tile is never changed.
+--- A remembered `false` means that the tile was checked and has no fold strip. The original
+--- tile is never changed.
 ---
 --- @param document table KOReader document instance.
 --- @param page_size table Native page size.
@@ -114,25 +104,23 @@ local function joinedTile(document, page_size, pageno, rect, zoom, rotation, gam
         return nil, tile
     end
 
-    local joined_tiles = document.pp_fold_joined_tiles
-    if not joined_tiles then
-        joined_tiles = setmetatable({}, { __mode = "k" })
-        document.pp_fold_joined_tiles = joined_tiles
+    local remembered = document.pp_fold_joined_tiles
+    if not remembered then
+        remembered = {}
+        document.pp_fold_joined_tiles = remembered
+    end
+    for _, entry in ipairs(remembered) do
+        if entry.tile == tile then
+            return entry.bb or nil, tile
+        end
     end
 
-    local entry = joined_tiles[tile]
-    if entry ~= nil then
-        return entry and entry.bb or nil, tile
-    end
-
-    local joined = FoldJoin.joinBitmap(bb)
+    local joined = FoldJoin.joinBitmap(bb) or false
+    remember(remembered, tile, joined)
     if joined then
-        rememberJoined(document, joined_tiles, tile, joined)
         Timing.log("reading page fold: strip removed from page %d", pageno)
-    else
-        joined_tiles[tile] = false
     end
-    return joined, tile
+    return joined or nil, tile
 end
 
 --- Drop joined reading-page bitmaps without touching KOReader's document cache.
@@ -155,7 +143,7 @@ function ReadingPageFold:installReadingPageFold()
     local original = document.drawPage
     document.pp_fold_original_draw_page = original
     document.pp_fold_had_own_draw_page = rawget(document, "drawPage") ~= nil
-    document.pp_fold_joined_tiles = setmetatable({}, { __mode = "k" })
+    document.pp_fold_joined_tiles = {}
 
     document.drawPage = function(doc, target, x, y, rect, pageno, zoom, rotation, gamma, saturation)
         local page_size = plugin.settings.join_spread_fold ~= false
