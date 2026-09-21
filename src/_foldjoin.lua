@@ -66,28 +66,8 @@ function FoldJoin.findBand(width, height, sample, opts)
     end
     opts = opts or {}
     local step = math.max(1, math.floor(height / SAMPLE_ROWS))
-    local stats = {}
-
-    local function getColumnStats(x)
-        local cached = stats[x]
-        if cached then
-            return cached.dark_share, cached.mean
-        end
-
-        local dark_share, mean = columnStats(x, height, step, sample)
-        stats[x] = {
-            dark_share = dark_share,
-            mean = mean,
-        }
-        return dark_share, mean
-    end
-
     local function isDark(x)
-        if x < 0 or x >= width then
-            return false
-        end
-        local dark_share = getColumnStats(x)
-        return dark_share >= DARK_SHARE
+        return x >= 0 and x < width and columnStats(x, height, step, sample) >= DARK_SHARE
     end
 
     local centre = math.floor(opts.centre or width / 2)
@@ -152,15 +132,8 @@ function FoldJoin.joinBitmap(bb, opts)
     end
 
     local step = math.max(1, math.floor(height / SAMPLE_ROWS))
-    local means = {}
-
     local function meanLuminance(x)
-        local mean = means[x]
-        if mean == nil then
-            local _
-            _, mean = columnStats(x, height, step, sample)
-            means[x] = mean
-        end
+        local _, mean = columnStats(x, height, step, sample)
         return mean
     end
     local function isBlurred(x, beyond)
