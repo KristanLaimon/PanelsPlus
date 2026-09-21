@@ -141,6 +141,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                     w = rw.w,
                     h = rw.h,
                     phrase_id = rw.phrase_id,
+                    text = rw.text,
                 })
             end
             local illustration_type = raw_page.illustration_type

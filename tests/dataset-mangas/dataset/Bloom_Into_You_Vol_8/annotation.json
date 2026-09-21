@@ -1,6 +1,7 @@
 [
   {
     "book_title": "Bloom_Into_You_Vol_8",
+    "annotation_schema_version": 2,
     "pages": [
       {
         "page_index": 1,
@@ -12,6 +13,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/00.png"
         }
@@ -26,6 +28,43 @@
             "h": 1680
           }
         ],
+        "phrase": [
+          {
+            "x": 905,
+            "y": 821,
+            "w": 316,
+            "h": 38,
+            "phrase_id": 1
+          }
+        ],
+        "word": [
+          {
+            "x": 909,
+            "y": 822,
+            "w": 122,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "Bloom"
+          },
+          {
+            "x": 1043,
+            "y": 823,
+            "w": 85,
+            "h": 29,
+            "phrase_id": 1,
+            "text": "Into"
+          },
+          {
+            "x": 1140,
+            "y": 823,
+            "w": 78,
+            "h": 29,
+            "phrase_id": 1,
+            "text": "You"
+          }
+        ],
+        "text_direction": "ltr",
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/01.png"
         }
@@ -40,6 +79,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/02.png"
         }
@@ -54,6 +94,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/03.png"
         }
@@ -68,6 +109,43 @@
             "h": 1680
           }
         ],
+        "phrase": [
+          {
+            "x": 909,
+            "y": 823,
+            "w": 307,
+            "h": 32,
+            "phrase_id": 1
+          }
+        ],
+        "word": [
+          {
+            "x": 910,
+            "y": 824,
+            "w": 122,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "Bloom"
+          },
+          {
+            "x": 1045,
+            "y": 824,
+            "w": 83,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "Into"
+          },
+          {
+            "x": 1140,
+            "y": 824,
+            "w": 75,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "You"
+          }
+        ],
+        "text_direction": "ltr",
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/04.png"
         }
@@ -484,6 +562,7 @@
             "h": 1676
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/20.png"
         }
@@ -674,6 +753,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/28.png"
         }
@@ -714,6 +794,7 @@
             "h": 1679
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/30.png"
         }
@@ -870,6 +951,7 @@
             "h": 1281
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/36.png"
         }
@@ -884,6 +966,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/37.png"
         }
@@ -936,6 +1019,7 @@
             "h": 1674
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/39.png"
         }
@@ -1008,6 +1092,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/42.png"
         }
@@ -1816,6 +1901,7 @@
             "h": 833
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/68.png"
         }
@@ -1830,6 +1916,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/69.png"
         }
@@ -1844,6 +1931,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/70.png"
         }
@@ -1858,6 +1946,7 @@
             "h": 1678
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/71.png"
         }
@@ -2762,6 +2851,7 @@
             "h": 880
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/100.png"
         }
@@ -2776,6 +2866,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/101.png"
         }
@@ -2918,6 +3009,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/106.png"
         }
@@ -3352,6 +3444,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/119.png"
         }
@@ -3392,6 +3485,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/121.png"
         }
@@ -3406,6 +3500,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/122.png"
         }
@@ -3664,6 +3759,7 @@
             "h": 1142
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/131.png"
         }
@@ -3678,6 +3774,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/132.png"
         }
@@ -3692,6 +3789,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/133.png"
         }
@@ -4836,6 +4934,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/168.png"
         }
@@ -4850,6 +4949,7 @@
             "h": 780
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/169.png"
         }
@@ -4864,6 +4964,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/170.png"
         }
@@ -4898,6 +4999,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/172.png"
         }
@@ -5334,6 +5436,7 @@
             "h": 1677
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/186.png"
         }
@@ -5438,6 +5541,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/190.png"
         }
@@ -5906,6 +6010,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/205.png"
         }
@@ -5920,6 +6025,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/206.png"
         }
@@ -6030,6 +6136,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/210.png"
         }
@@ -6044,6 +6151,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/211.png"
         }
@@ -6058,6 +6166,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/212.png"
         }

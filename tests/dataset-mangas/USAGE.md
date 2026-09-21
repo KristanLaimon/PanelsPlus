@@ -151,7 +151,7 @@ When launched, the application presents the **📚 Recent Projects** tab:
 | **Panel Rectangle Mode** | `1` | Draw and edit panel rectangles |
 | **Phrase Rectangle Mode** | `2` | Draw phrase fragments; multiple fragments may share one phrase ID |
 | **Word Rectangle Mode** | `3` | Draw word boxes and assign them to phrases by overlap |
-| **Previous / Next Phrase ID** | `[` / `]` | Select an existing phrase ID or start the adjacent ID |
+| **Previous / Next Phrase ID** | `Q` / `E` | Select the adjacent phrase ID with the left hand |
 | **Select Panel** | `Left Click` | Select a panel to view handles and details |
 | **Deselect** | `Right Click` or `Escape` | Clear selection or cancel active drag |
 | **Resize Box** | Drag border handles | 8 handles (corners and edges) |
@@ -230,8 +230,8 @@ The output uses PanelsPlus's `dataset_manifest.lua` format, plus optional illust
           { "x": 80, "y": 126, "w": 150, "h": 32, "phrase_id": 1 }
         ],
         "word": [
-          { "x": 82, "y": 92, "w": 45, "h": 28, "phrase_id": 1 },
-          { "x": 132, "y": 92, "w": 54, "h": 28, "phrase_id": 1 }
+          { "x": 82, "y": 92, "w": 45, "h": 28, "phrase_id": 1, "text": "Hello" },
+          { "x": 132, "y": 92, "w": 54, "h": 28, "phrase_id": 1, "text": "there" }
         ]
       }
     ]
@@ -243,7 +243,9 @@ Coordinates (`x`, `y`, `w`, `h`) are saved in the native pixel resolution of the
 `phrase_id` is local to a page. Any positive overlap assigns a word to a phrase; when
 several phrases overlap a word, the largest intersection wins. Words are stored by phrase,
 then top-to-bottom line and left-to-right position. Saving is blocked if a phrase has no
-word or a word has no overlapping phrase. Older files containing only `frame` remain valid.
+word, or a word has no text or overlapping phrase. Older files containing only `frame` remain valid.
+Creating a word opens a focused text prompt immediately; Enter stores its `text`, while
+Cancel discards the new rectangle. Existing word text can be edited from the sidebar.
 For a full-page illustration, `illustration_type` is either `"single_page"` or `"double_page"`.
 The double-page value is only for a spread already stored as one wide image; split spreads remain out of scope. Missing metadata on a legacy one-frame page defaults to `"single_page"`.
 

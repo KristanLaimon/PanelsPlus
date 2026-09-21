@@ -45,6 +45,7 @@ class MangaCanvas(QWidget):
     double_page_illustration_requested = pyqtSignal()
     annotation_mode_changed = pyqtSignal(str)
     phrase_id_changed = pyqtSignal(int)
+    word_text_requested = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -118,9 +119,29 @@ class MangaCanvas(QWidget):
         self.update()
 
     def step_phrase_id(self, delta: int):
+        if self.annotation_mode != "phrase":
+            return
         self.current_phrase_id = max(1, self.current_phrase_id + (1 if delta > 0 else -1))
         self.phrase_id_changed.emit(self.current_phrase_id)
         self.status_message.emit(f"Current phrase ID: {self.current_phrase_id}")
+        self.update()
+
+    def set_word_text(self, index: int, text: str) -> bool:
+        words = self.get_words()
+        if not (0 <= index < len(words)) or not text.strip():
+            return False
+        words[index].text = text.strip()
+        self.panels_changed.emit()
+        self.update()
+        return True
+
+    def discard_word(self, index: int) -> None:
+        words = self.get_words()
+        if 0 <= index < len(words):
+            words.pop(index)
+        if self.annotation_mode == "word":
+            self.selected_panel_index = min(self.selected_panel_index, len(words) - 1)
+            self.panel_selected.emit(self.selected_panel_index)
         self.update()
 
     @staticmethod
@@ -675,9 +696,9 @@ class MangaCanvas(QWidget):
             self.set_annotation_mode("phrase")
         elif event.key() == Qt.Key.Key_3 and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.set_annotation_mode("word")
-        elif event.key() == Qt.Key.Key_BracketLeft and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+        elif event.key() == Qt.Key.Key_Q and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.step_phrase_id(-1)
-        elif event.key() == Qt.Key.Key_BracketRight and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+        elif event.key() == Qt.Key.Key_E and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.step_phrase_id(1)
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.delete_selected_panel()
@@ -1001,6 +1022,10 @@ class MangaCanvas(QWidget):
                 if self.annotation_mode in ("phrase", "word"):
                     self.refresh_word_assignments()
                 self.selected_panel_index = len(self.panels) - 1
+                if self.annotation_mode == "word":
+                    self.word_text_requested.emit(self.selected_panel_index)
+                    if new_panel not in self.panels:
+                        self.selected_panel_index = -1
                 self.panels_changed.emit()
                 self.panel_selected.emit(self.selected_panel_index)
 

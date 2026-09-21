@@ -13,7 +13,7 @@ import sys
 from typing import Optional, List
 from PIL import Image
 
-from PyQt6.QtCore import Qt, QSize, pyqtSignal
+from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal
 from PyQt6.QtGui import (
     QAction, QIcon, QImage, QPixmap, QKeySequence, QFont, QColor
 )
@@ -22,7 +22,8 @@ from PyQt6.QtWidgets import (
     QPushButton, QLabel, QLineEdit, QFileDialog, QMessageBox,
     QListWidget, QListWidgetItem, QSpinBox, QSlider, QStatusBar,
     QSplitter, QGroupBox, QTabWidget, QScrollArea, QFrame,
-    QProgressBar, QProgressDialog, QInputDialog, QCheckBox
+    QProgressBar, QProgressDialog, QInputDialog, QCheckBox, QDialog,
+    QDialogButtonBox
 )
 
 from .document_reader import DocumentReader
@@ -373,6 +374,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.double_page_illustration_requested.connect(self.set_double_page_illustration)
         self.canvas.annotation_mode_changed.connect(self._on_annotation_mode_changed)
         self.canvas.phrase_id_changed.connect(self._on_phrase_id_changed)
+        self.canvas.word_text_requested.connect(self._prompt_new_word_text)
         self.canvas.status_message.connect(lambda message: self.status_bar.showMessage(message, 3000))
         canvas_layout.addWidget(self.canvas, 1)
 
@@ -428,13 +430,13 @@ class AnnotatorMainWindow(QMainWindow):
         p_layout.addLayout(mode_layout)
 
         phrase_layout = QHBoxLayout()
-        self.btn_prev_phrase = QPushButton("◀ [")
+        self.btn_prev_phrase = QPushButton("◀ Q")
         self.btn_prev_phrase.clicked.connect(lambda: self.canvas.step_phrase_id(-1))
         phrase_layout.addWidget(self.btn_prev_phrase)
         self.lbl_phrase_id = QLabel("Phrase ID: 1")
         self.lbl_phrase_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
         phrase_layout.addWidget(self.lbl_phrase_id, 1)
-        self.btn_next_phrase = QPushButton("] ▶")
+        self.btn_next_phrase = QPushButton("E ▶")
         self.btn_next_phrase.clicked.connect(lambda: self.canvas.step_phrase_id(1))
         phrase_layout.addWidget(self.btn_next_phrase)
         p_layout.addLayout(phrase_layout)
@@ -482,7 +484,12 @@ class AnnotatorMainWindow(QMainWindow):
 
         self.panel_list = QListWidget()
         self.panel_list.currentRowChanged.connect(self._on_list_row_selected)
+        self.panel_list.itemDoubleClicked.connect(lambda: self._edit_selected_word_text())
         p_layout.addWidget(self.panel_list, 1)
+
+        self.btn_edit_word_text = QPushButton("Edit Word Text")
+        self.btn_edit_word_text.clicked.connect(self._edit_selected_word_text)
+        p_layout.addWidget(self.btn_edit_word_text)
 
         reorder_layout = QHBoxLayout()
         self.btn_move_up = QPushButton("▲ Move Up")
@@ -578,12 +585,12 @@ class AnnotatorMainWindow(QMainWindow):
             edit_menu.addAction(action)
 
         act_prev_phrase = QAction("Previous Phrase ID", self)
-        act_prev_phrase.setShortcut(QKeySequence("["))
+        act_prev_phrase.setShortcut(QKeySequence("Q"))
         act_prev_phrase.triggered.connect(lambda: self.canvas.step_phrase_id(-1))
         edit_menu.addAction(act_prev_phrase)
 
         act_next_phrase = QAction("Next Phrase ID", self)
-        act_next_phrase.setShortcut(QKeySequence("]"))
+        act_next_phrase.setShortcut(QKeySequence("E"))
         act_next_phrase.triggered.connect(lambda: self.canvas.step_phrase_id(1))
         edit_menu.addAction(act_next_phrase)
 
@@ -974,7 +981,8 @@ class AnnotatorMainWindow(QMainWindow):
                 prefix = f"P{owner}:W{idx + 1}"
             else:
                 prefix = str(idx + 1)
-            item = QListWidgetItem(f"[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h})")
+            suffix = f' “{p.text}”' if self.canvas.annotation_mode == "word" and p.text else ""
+            item = QListWidgetItem(f"[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
@@ -996,10 +1004,55 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
         self.btn_next_phrase.setEnabled(phrase_controls_enabled)
         self.lbl_phrase_id.setEnabled(phrase_controls_enabled)
+        self.btn_edit_word_text.setEnabled(mode == "word")
         self._refresh_panel_list()
 
     def _on_phrase_id_changed(self, phrase_id: int):
         self.lbl_phrase_id.setText(f"Phrase ID: {phrase_id}")
+        self._refresh_panel_list()
+
+    def _prompt_new_word_text(self, index: int):
+        self._prompt_word_text(index, discard_on_cancel=True)
+
+    def _edit_selected_word_text(self):
+        if self.canvas.annotation_mode != "word":
+            return
+        index = self.panel_list.currentRow()
+        if index >= 0:
+            self._prompt_word_text(index, discard_on_cancel=False)
+
+    def _prompt_word_text(self, index: int, discard_on_cancel: bool):
+        words = self.canvas.get_words()
+        if not (0 <= index < len(words)):
+            return
+
+        dialog = QInputDialog(self)
+        dialog.setWindowTitle("Word Text")
+        dialog.setLabelText("Type the text inside this word rectangle:")
+        dialog.setInputMode(QInputDialog.InputMode.TextInput)
+        dialog.setTextValue(words[index].text)
+        dialog.setOkButtonText("Save")
+        dialog.setCancelButtonText("Cancel")
+
+        line_edit = dialog.findChild(QLineEdit)
+        button_box = dialog.findChild(QDialogButtonBox)
+        ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok) if button_box else None
+
+        def update_ok_button(value: str):
+            if ok_button:
+                ok_button.setEnabled(bool(value.strip()))
+
+        dialog.textValueChanged.connect(update_ok_button)
+        update_ok_button(dialog.textValue())
+        if line_edit:
+            QTimer.singleShot(0, lambda: (line_edit.setFocus(), line_edit.selectAll()))
+
+        accepted = dialog.exec() == QDialog.DialogCode.Accepted
+        text = dialog.textValue().strip()
+        if accepted and text:
+            self.canvas.set_word_text(index, text)
+        elif discard_on_cancel:
+            self.canvas.discard_word(index)
         self._refresh_panel_list()
 
     def _on_list_row_selected(self, row: int):

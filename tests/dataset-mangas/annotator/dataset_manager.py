@@ -68,22 +68,33 @@ class PhraseRect(Panel):
 class WordRect(Panel):
     """A word rectangle, optionally assigned to a phrase by geometric overlap."""
 
-    def __init__(self, x: int, y: int, w: int, h: int, phrase_id: Optional[int] = None):
+    def __init__(
+        self,
+        x: int,
+        y: int,
+        w: int,
+        h: int,
+        phrase_id: Optional[int] = None,
+        text: str = "",
+    ):
         super().__init__(x, y, w, h)
         self.phrase_id = int(phrase_id) if phrase_id is not None else None
+        self.text = str(text).strip()
 
     def to_dict(self) -> dict:
         d = super().to_dict()
         if self.phrase_id is not None:
             d["phrase_id"] = self.phrase_id
+        if self.text:
+            d["text"] = self.text
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "WordRect":
-        return cls(d["x"], d["y"], d["w"], d["h"], d.get("phrase_id"))
+        return cls(d["x"], d["y"], d["w"], d["h"], d.get("phrase_id"), d.get("text", ""))
 
     def copy(self) -> "WordRect":
-        return WordRect(self.x, self.y, self.w, self.h, self.phrase_id)
+        return WordRect(self.x, self.y, self.w, self.h, self.phrase_id, self.text)
 
 
 class PageAnnotation:
@@ -386,6 +397,9 @@ class DatasetManager:
         orphan_count = sum(1 for w in pa.words if w.phrase_id not in phrase_ids)
         if orphan_count:
             errors.append(f"{orphan_count} word rectangle(s) do not overlap a phrase")
+        missing_text_count = sum(1 for w in pa.words if not w.text.strip())
+        if missing_text_count:
+            errors.append(f"{missing_text_count} word rectangle(s) have no text")
         return errors
 
     def validate_book_text_annotations(self, book_title: str) -> Dict[int, List[str]]:

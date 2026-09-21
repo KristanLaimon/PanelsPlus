@@ -2,8 +2,15 @@
   "book_title": "Bloom_Into_You_Vol._8_-_Nakatani_Nio_(53)",
   "type": "manga",
   "total_pages": 213,
-  "finished": true,
-  "current_page": 104,
-  "last_opened": "2026-09-19T14:44:06.682088",
-  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Bloom Into You Vol. 8 - Nakatani Nio (53).cbz"
+  "finished": false,
+  "current_page": 2,
+  "last_opened": "2026-09-21T06:43:10.622294",
+  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Bloom Into You Vol. 8 - Nakatani Nio (53).cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
 }

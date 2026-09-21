@@ -138,11 +138,15 @@ class TestAnnotator(unittest.TestCase):
             PhraseRect(20, 20, 120, 30, 1),
             PhraseRect(20, 55, 100, 30, 1),
         ]
-        pa.words = [WordRect(22, 22, 35, 20, 1), WordRect(62, 22, 50, 20, 1)]
+        pa.words = [
+            WordRect(22, 22, 35, 20, 1, "Hello"),
+            WordRect(62, 22, 50, 20, 1, "there"),
+        ]
         encoded = pa.to_dict()
         self.assertEqual(encoded["text_direction"], "ltr")
         self.assertEqual([p["phrase_id"] for p in encoded["phrase"]], [1, 1])
         self.assertEqual([w["phrase_id"] for w in encoded["word"]], [1, 1])
+        self.assertEqual([w["text"] for w in encoded["word"]], ["Hello", "there"])
 
         decoded = PageAnnotation.from_dict(encoded)
         self.assertEqual(len(decoded.phrases), 2)
@@ -154,7 +158,7 @@ class TestAnnotator(unittest.TestCase):
             "book",
             1,
             [PhraseRect(10, 10, 200, 80, 1), PhraseRect(10, 100, 200, 50, 2)],
-            [WordRect(90, 20, 40, 20, 1), WordRect(20, 20, 40, 20, 1)],
+            [WordRect(90, 20, 40, 20, 1, "world"), WordRect(20, 20, 40, 20, 1, "hello")],
         )
         pa = mgr.get_page_annotation("book", 1)
         self.assertEqual([word.x for word in pa.words], [20, 90])
@@ -164,7 +168,7 @@ class TestAnnotator(unittest.TestCase):
         )
         with self.assertRaises(ValueError):
             mgr.save_book_dataset("book")
-        pa.words.append(WordRect(20, 110, 40, 20, 2))
+        pa.words.append(WordRect(20, 110, 40, 20, 2, "again"))
         self.assertEqual(mgr.validate_page_text_annotations("book", 1), [])
 
     def test_canvas_modes_and_word_overlap_assignment(self):
@@ -180,10 +184,12 @@ class TestAnnotator(unittest.TestCase):
 
         canvas.set_annotation_mode("phrase")
         self.assertEqual(canvas.panels, canvas.get_phrases())
-        canvas.step_phrase_id(1)
+        QTest.keyClick(canvas, Qt.Key.Key_E)
         self.assertEqual(canvas.current_phrase_id, 2)
-        canvas.step_phrase_id(1)
+        QTest.keyClick(canvas, Qt.Key.Key_E)
         self.assertEqual(canvas.current_phrase_id, 3)
+        QTest.keyClick(canvas, Qt.Key.Key_Q)
+        self.assertEqual(canvas.current_phrase_id, 2)
         canvas.set_annotation_mode("word")
         self.assertEqual(canvas.panels, canvas.get_words())
 
@@ -230,6 +236,41 @@ class TestAnnotator(unittest.TestCase):
         drag(25, 25, 70, 50)
         self.assertEqual(len(canvas.get_words()), 1)
         self.assertEqual(canvas.get_words()[0].phrase_id, 4)
+
+    def test_word_text_prompt_autofocuses_and_enter_saves(self):
+        from PyQt6.QtCore import QTimer
+        from PyQt6.QtWidgets import QLineEdit
+
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "prompt_dataset"))
+        word = WordRect(10, 10, 40, 20, 1)
+        win.canvas._collections["word"] = [word]
+        win.canvas.set_annotation_mode("word")
+        observed = {}
+
+        def type_and_confirm():
+            dialog = QApplication.activeModalWidget()
+            line_edit = dialog.findChild(QLineEdit)
+            observed["focused"] = line_edit.hasFocus()
+            line_edit.setText("¡Hola!")
+            QTest.keyClick(line_edit, Qt.Key.Key_Return)
+
+        QTimer.singleShot(20, type_and_confirm)
+        win._prompt_word_text(0, discard_on_cancel=False)
+        self.assertTrue(observed["focused"])
+        self.assertEqual(word.text, "¡Hola!")
+        win.close()
+
+    def test_cancel_new_word_prompt_discards_rectangle(self):
+        from PyQt6.QtCore import QTimer
+
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "cancel_prompt_dataset"))
+        win.canvas._collections["word"] = [WordRect(10, 10, 40, 20, 1)]
+        win.canvas.set_annotation_mode("word")
+
+        QTimer.singleShot(20, lambda: QApplication.activeModalWidget().reject())
+        win._prompt_word_text(0, discard_on_cancel=True)
+        self.assertEqual(win.canvas.get_words(), [])
+        win.close()
 
     def test_canvas_panel_operations(self):
         canvas = MangaCanvas()
@@ -485,7 +526,7 @@ class TestAnnotator(unittest.TestCase):
             "interop_book",
             1,
             [PhraseRect(70, 120, 180, 70, 1)],
-            [WordRect(75, 125, 60, 25, 1)],
+            [WordRect(75, 125, 60, 25, 1, "hello")],
         )
         mgr.save_book_dataset("interop_book")
 
@@ -500,6 +541,7 @@ class TestAnnotator(unittest.TestCase):
         assert(books[1].pages[1].phrases[1].phrase_id == 1)
         assert(#books[1].pages[1].words == 1)
         assert(books[1].pages[1].words[1].phrase_id == 1)
+        assert(books[1].pages[1].words[1].text == "hello")
         assert(books[1].pages[1].text_direction == "ltr")
         assert(books[1].pages[1].illustration_type == "single_page")
         '''
