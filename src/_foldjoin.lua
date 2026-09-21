@@ -169,11 +169,12 @@ function FoldJoin.joinBitmap(bb, opts)
         end
         return meanLuminance(x) < EDGE_DARKER * meanLuminance(beyond)
     end
+    local max_band = math.floor(opts and opts.max_band or width * MAX_BAND_SHARE)
     for _ = 1, MAX_EDGE_TRIM do
-        if isBlurred(x0 - 1, x0 - 1 - EDGE_LOOKAHEAD) then
+        if x1 - x0 + 1 < max_band and isBlurred(x0 - 1, x0 - 1 - EDGE_LOOKAHEAD) then
             x0 = x0 - 1
         end
-        if isBlurred(x1 + 1, x1 + 1 + EDGE_LOOKAHEAD) then
+        if x1 - x0 + 1 < max_band and isBlurred(x1 + 1, x1 + 1 + EDGE_LOOKAHEAD) then
             x1 = x1 + 1
         end
     end
