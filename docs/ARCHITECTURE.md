@@ -142,6 +142,7 @@ flowchart TD
 | `src/_wordfinder.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup, replacing KOReader's prose-tuned gap detector |
 | `src/_rotationpicker.lua` | Modal dialog for device rotation vs. plugin-only image rotation |
 | `src/_foldjoin.lua` | Finds and removes the black fold strip of a rendered double-page spread, and maps positions across it |
+| `src/reading_page_fold.lua` | Wraps the open document's `drawPage` to remove the fold strip of a spread from the reading page's tile |
 | `src/spread_rotation.lua` | Screen rotation for double-page spreads on the reading page, and the hand-over to the panel viewer |
 | `src/_ocrdebug.lua` | Opt-in OCR review loop: correct/incorrect prompts, session log, cropped debug images (see [WORD-LOOKUP.md](WORD-LOOKUP.md)) |
 | `src/native_panel_zoom.lua` | Patching and restoring `onPanelZoom` |

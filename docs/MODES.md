@@ -66,10 +66,14 @@ the fold does not match and is left alone.
 Touch positions and lookup highlights account for the removed strip. The option
 is on by default.
 
-The reading page is drawn by KOReader and is not changed.
+The same is done on the reading page. KOReader draws a page from a cached tile,
+so the plugin wraps the open document's `drawPage` and removes the strip from
+that tile once, before it is drawn. The tile keeps its size, so zoom and panning
+are unchanged. Only a tile that covers the whole page is processed. When a page
+is zoomed in so far that KOReader renders it in parts, the strip stays.
 
-Screen rotation on the reading page also works while **Disable plugin panel
-focusing** is on. That setting only hands panel zoom back to
+The reading-page parts (screen rotation and fold line removal) also work while
+**Disable plugin panel focusing** is on. That setting only hands panel zoom back to
 KOReader.
 
 Spread rotation is one entry with four choices (off, in the panel viewer, while reading,

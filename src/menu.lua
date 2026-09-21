@@ -135,7 +135,7 @@ function Menu:addToMainMenu(menu_items)
                     self:setJoinSpreadFold(self.settings.join_spread_fold == false)
                 end,
                 help_text = _(
-                    "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
+                    "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
                 ),
             },
             {

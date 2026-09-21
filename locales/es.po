@@ -345,8 +345,8 @@ msgstr "Rotación"
 msgid "Remove the fold line from double-page spreads"
 msgstr "Quitar la línea central de las páginas dobles"
 
-msgid "Some scans join the two pages of a spread with a black strip. In the panel viewer, remove that strip and join the two halves. The reading page is not changed."
-msgstr "Algunos escaneos unen las dos páginas de una página doble con una franja negra. En el visor de paneles, quita esa franja y une las dos mitades. La página de lectura no cambia."
+msgid "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
+msgstr "Algunos escaneos unen las dos páginas de una página doble con una franja negra. Quita esa franja y une las dos mitades, en la página de lectura y en el visor de paneles. Si la página está tan ampliada que se dibuja por partes, la franja se mantiene."
 
 msgid "Remove spread fold line (Actual: "
 msgstr "Quitar línea central de páginas dobles (Actual: "
