@@ -60,6 +60,8 @@ local function readerFor(page_size, settings, tile)
         end,
         drawPage = function()
             calls.draw = calls.draw + 1
+            -- KOReader's own draw fetches the cached tile again and blits from its bitmap.
+            calls.bb_during_draw = tile.bb
         end,
     }
     local reader = setmetatable({
@@ -90,19 +92,64 @@ local function draw(document)
 end
 
 describe("ReadingPageFold", function()
-    it("draws from a joined bitmap without changing the cached tile", function()
+    it("lets KOReader draw the page, from a joined bitmap, without changing the cached tile", function()
+        -- KOReader's draw path also inverts for night mode and dithers, so it has to stay in charge.
         local reader, document, tile, calls = readerFor(SPREAD_PAGE)
+        local tile_bb = tile.bb
         reader:installReadingPageFold()
 
-        local first = draw(document)
-        local second = draw(document)
+        draw(document)
+        local first_joined = calls.bb_during_draw
+        draw(document)
 
-        assert.equals(0, tile.bb.blits)
-        assert.equals(0, calls.draw)
-        assert.equals(1, first.blits)
-        assert.equals(1, second.blits)
-        assert.equals(first.source, second.source)
+        assert.equals(2, calls.draw)
+        assert.is_true(first_joined ~= tile_bb)
+        assert.equals(first_joined, calls.bb_during_draw)
+        assert.equals(tile_bb, tile.bb)
+        assert.equals(0, tile_bb.blits)
         assert.is_nil(tile.pp_fold_checked)
+    end)
+
+    it("puts the tile's bitmap back when KOReader's draw raises", function()
+        local reader, document, tile = readerFor(SPREAD_PAGE)
+        local tile_bb = tile.bb
+        document.drawPage = function()
+            error("draw failed")
+        end
+        reader:installReadingPageFold()
+
+        local ok = pcall(draw, document)
+
+        assert.is_false(ok)
+        assert.equals(tile_bb, tile.bb)
+    end)
+
+    it("keeps at most three joined bitmaps and frees the oldest", function()
+        local FoldJoin = require("src._foldjoin")
+        local old_join, freed = FoldJoin.joinBitmap, 0
+        FoldJoin.joinBitmap = function(bb, opts)
+            local joined, fold = old_join(bb, opts)
+            if joined then
+                joined.free = function()
+                    freed = freed + 1
+                end
+            end
+            return joined, fold
+        end
+        local reader, document = readerFor(SPREAD_PAGE)
+        local tiles = {}
+        document.renderPage = function(_, pageno)
+            tiles[pageno] = tiles[pageno] or { bb = spreadBitmap(), excerpt = { x = 0, y = 0, w = 1000, h = 700 } }
+            return tiles[pageno]
+        end
+        reader:installReadingPageFold()
+
+        for pageno = 1, 5 do
+            document:drawPage({}, 0, 0, { x = 0, y = 0, w = 1000, h = 700 }, pageno, 0.59, 0, 1.0, 1.0)
+        end
+
+        FoldJoin.joinBitmap = old_join
+        assert.equals(2, freed)
     end)
 
     it("leaves a normal page alone without rendering anything itself", function()
@@ -126,16 +173,16 @@ describe("ReadingPageFold", function()
     end)
 
     it("still removes the strip while panel focusing is disabled", function()
-        local reader, document, tile = readerFor(SPREAD_PAGE)
+        local reader, document, tile, calls = readerFor(SPREAD_PAGE)
         reader.isEnabled = function()
             return false
         end
         reader:installReadingPageFold()
 
-        local target = draw(document)
+        draw(document)
 
-        assert.equals(0, tile.bb.blits)
-        assert.equals(1, target.blits)
+        assert.equals(1, calls.draw)
+        assert.is_true(calls.bb_during_draw ~= tile.bb)
     end)
 
     it("leaves a tile that covers only part of the page alone", function()
