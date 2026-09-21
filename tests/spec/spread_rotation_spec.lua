@@ -23,6 +23,26 @@ local Settings = require("src._settings")
 local SpreadRotation = require("src.spread_rotation")
 local UIManager = require("ui/uimanager")
 local ViewerController = require("src.viewer_controller")
+local time = require("ui/time")
+
+-- The shared `ui/time` mock stands still. Here every reading of the clock is ten seconds after the
+-- one before, so page turns count as separate unless a spec sets the clock itself.
+local clock_ms = 0
+time.to_ms = function(value)
+    return value
+end
+local function useSteppingClock()
+    time.now = function()
+        clock_ms = clock_ms + 10000
+        return clock_ms
+    end
+end
+local function useFixedClock(ms)
+    clock_ms = ms
+    time.now = function()
+        return clock_ms
+    end
+end
 
 local PORTRAIT_PAGE = { w = 1050, h = 1522 }
 local SPREAD_PAGE = { w = 1692, h = 1200 }
@@ -52,6 +72,7 @@ end
 --- @return table reader Plugin stub with the spread-rotation methods mixed in.
 --- @return integer[] turns Every rotation mode that was requested, in order.
 local function readerFor(settings, start_mode)
+    useSteppingClock()
     Screen:setRotationMode(start_mode or 0)
     local merged = Settings.withDefaults({})
     for key, value in pairs(settings or { rotate_screen_for_double_pages = true }) do
@@ -121,6 +142,79 @@ describe("DoubleSpread.screenRotationFor", function()
         assert.is_nil(DoubleSpread.screenRotationFor(0, PORTRAIT_PAGE.w, PORTRAIT_PAGE.h))
         assert.is_nil(DoubleSpread.screenRotationFor(1, SPREAD_PAGE.w, SPREAD_PAGE.h))
         assert.is_nil(DoubleSpread.screenRotationFor(0, nil, nil))
+    end)
+end)
+
+describe("SpreadRotation while pages are turned in quick succession", function()
+    it("waits until the turning stops, then rotates for the page the reader stopped on", function()
+        local old_schedule = UIManager.scheduleIn
+        local settle
+        UIManager.scheduleIn = function(_, _, action)
+            settle = action
+        end
+        local reader, turns = readerFor()
+        reader:onPageUpdate(1)
+        useFixedClock(clock_ms + 200)
+
+        reader:onPageUpdate(2)
+        useFixedClock(clock_ms + 200)
+        reader:onPageUpdate(3)
+        assert.equals(0, #turns)
+        reader.ui.paging.current_page = 3
+        settle()
+
+        UIManager.scheduleIn = old_schedule
+        assert.equals("1", table.concat(turns, ","))
+    end)
+
+    it("does not rotate at all when the reader flips past a spread", function()
+        local old_schedule = UIManager.scheduleIn
+        local settle
+        UIManager.scheduleIn = function(_, _, action)
+            settle = action
+        end
+        local reader, turns = readerFor()
+        reader:onPageUpdate(1)
+        useFixedClock(clock_ms + 200)
+
+        reader:onPageUpdate(2)
+        useFixedClock(clock_ms + 200)
+        reader:onPageUpdate(4)
+        reader.ui.paging.current_page = 4
+        settle()
+
+        UIManager.scheduleIn = old_schedule
+        assert.equals(0, #turns)
+    end)
+
+    it("rotates at once again after a pause", function()
+        local reader, turns = readerFor()
+        reader:onPageUpdate(1)
+        useFixedClock(clock_ms + 5000)
+
+        reader:onPageUpdate(2)
+
+        assert.equals(1, #turns)
+    end)
+
+    it("drops a pending rotation when the document closes", function()
+        local old_schedule, old_unschedule = UIManager.scheduleIn, UIManager.unschedule
+        local settle, unscheduled
+        UIManager.scheduleIn = function(_, _, action)
+            settle = action
+        end
+        UIManager.unschedule = function(_, action)
+            unscheduled = action
+        end
+        local reader = readerFor()
+        reader:onPageUpdate(1)
+        useFixedClock(clock_ms + 200)
+        reader:onPageUpdate(2)
+
+        reader:onCloseDocument()
+
+        UIManager.scheduleIn, UIManager.unschedule = old_schedule, old_unschedule
+        assert.equals(settle, unscheduled)
     end)
 end)
 

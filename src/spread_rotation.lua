@@ -15,6 +15,10 @@ local PanelCollector = require("src._panelcollector")
 local Screen = require("device").screen
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
+local time = require("ui/time")
+
+-- Page turns closer together than this count as flipping through the book.
+local FLIP_INTERVAL_MS = 800
 
 --- Rotates the screen for double-page spreads on the reading page.
 ---
@@ -153,12 +157,41 @@ function SpreadRotation:releaseSpreadRotation()
     end
 end
 
---- KOReader hook for a page change. It runs before the new page is painted, so the rotation and the
---- page share one refresh.
+--- Cancel a rotation that is waiting for the page turning to stop.
+function SpreadRotation:cancelSpreadRotationSettle()
+    if self._spread_rotation_settle then
+        UIManager:unschedule(self._spread_rotation_settle)
+        self._spread_rotation_settle = nil
+    end
+end
+
+--- Handle the page the reader stops on once the page turning has stopped.
+function SpreadRotation:scheduleSpreadRotationSettle()
+    self:cancelSpreadRotationSettle()
+    self._spread_rotation_settle = function()
+        self._spread_rotation_settle = nil
+        self:syncSpreadRotation(currentPage(self))
+    end
+    UIManager:scheduleIn(FLIP_INTERVAL_MS / 1000, self._spread_rotation_settle)
+end
+
+--- KOReader hook for a page change.
+---
+--- A single page turn is handled here, before the new page is painted, so the rotation and the
+--- page share one refresh. While pages are turned in quick succession nothing is rotated until
+--- the turning stops, so flipping past a spread does not rotate the screen twice. The gap is
+--- measured from the end of the previous turn, because a rotation takes a while itself.
 ---
 --- @param page integer Document page number.
 function SpreadRotation:onPageUpdate(page)
-    self:syncSpreadRotation(page)
+    local last = self.spread_rotation_updated_ms
+    if last and time.to_ms(time.now()) - last < FLIP_INTERVAL_MS then
+        self:scheduleSpreadRotationSettle()
+    else
+        self:cancelSpreadRotationSettle()
+        self:syncSpreadRotation(page)
+    end
+    self.spread_rotation_updated_ms = time.to_ms(time.now())
 end
 
 --- KOReader hook for a rotation request. A request from elsewhere while a spread is rotated means
@@ -176,6 +209,7 @@ end
 
 --- KOReader hook for closing the document. Restores the rotation and stops handling page changes.
 function SpreadRotation:onCloseDocument()
+    self:cancelSpreadRotationSettle()
     self:releaseSpreadRotation()
     self.spread_rotation_ready = nil
     self.spread_rotation_declined_page = nil
@@ -198,8 +232,9 @@ function SpreadRotation:scheduleSpreadRotationSync()
     end)
 end
 
---- Apply a changed `rotate_screen_for_double_pages` to the current page.
+--- Apply a changed rotation setting to the current page.
 function SpreadRotation:applySpreadRotationSetting()
+    self:cancelSpreadRotationSettle()
     self.spread_rotation_declined_page = nil
     self:syncSpreadRotation(currentPage(self))
 end
