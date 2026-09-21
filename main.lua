@@ -283,8 +283,10 @@ end
 ---
 --- @param mode string `"off"`, `"viewer"`, `"reading"` or `"both"`.
 function PanelsPlus:setSpreadRotationMode(mode)
-    self:setAutoRotateDoublePages(mode == "viewer" or mode == "both")
-    self:setRotateScreenForDoublePages(mode == "reading" or mode == "both")
+    self.settings.auto_rotate_double_pages = mode == "viewer" or mode == "both"
+    self.settings.rotate_screen_for_double_pages = mode == "reading" or mode == "both"
+    self:saveSettings()
+    self:applySpreadRotationSetting()
 end
 
 --- Enable or disable removal of the fold strip from double-page spreads in the panel viewer.
