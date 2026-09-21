@@ -45,6 +45,47 @@ class Panel:
         return f"Panel(x={self.x}, y={self.y}, w={self.w}, h={self.h})"
 
 
+class PhraseRect(Panel):
+    """One rectangular fragment of a phrase; fragments may share a phrase ID."""
+
+    def __init__(self, x: int, y: int, w: int, h: int, phrase_id: int):
+        super().__init__(x, y, w, h)
+        self.phrase_id = max(1, int(phrase_id))
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        d["phrase_id"] = self.phrase_id
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "PhraseRect":
+        return cls(d["x"], d["y"], d["w"], d["h"], d["phrase_id"])
+
+    def copy(self) -> "PhraseRect":
+        return PhraseRect(self.x, self.y, self.w, self.h, self.phrase_id)
+
+
+class WordRect(Panel):
+    """A word rectangle, optionally assigned to a phrase by geometric overlap."""
+
+    def __init__(self, x: int, y: int, w: int, h: int, phrase_id: Optional[int] = None):
+        super().__init__(x, y, w, h)
+        self.phrase_id = int(phrase_id) if phrase_id is not None else None
+
+    def to_dict(self) -> dict:
+        d = super().to_dict()
+        if self.phrase_id is not None:
+            d["phrase_id"] = self.phrase_id
+        return d
+
+    @classmethod
+    def from_dict(cls, d: dict) -> "WordRect":
+        return cls(d["x"], d["y"], d["w"], d["h"], d.get("phrase_id"))
+
+    def copy(self) -> "WordRect":
+        return WordRect(self.x, self.y, self.w, self.h, self.phrase_id)
+
+
 class PageAnnotation:
     """Annotations and optional illustration classification for a single page."""
 
@@ -61,6 +102,8 @@ class PageAnnotation:
         self.page_index = page_index  # 1-indexed
         self.image_rel_path = image_rel_path
         self.frames: List[Panel] = []
+        self.phrases: List[PhraseRect] = []
+        self.words: List[WordRect] = []
         self.illustration_type = illustration_type if illustration_type in self.ILLUSTRATION_TYPES else None
 
     @property
@@ -72,11 +115,35 @@ class PageAnnotation:
             return self.SINGLE_PAGE_ILLUSTRATION
         return None
 
+    def reassign_word_phrases(self) -> None:
+        """Derive word ownership from overlap, preferring the largest intersection."""
+        for word in self.words:
+            candidates = []
+            for phrase in self.phrases:
+                overlap_w = max(
+                    0,
+                    min(word.x + word.w, phrase.x + phrase.w) - max(word.x, phrase.x),
+                )
+                overlap_h = max(
+                    0,
+                    min(word.y + word.h, phrase.y + phrase.h) - max(word.y, phrase.y),
+                )
+                area = overlap_w * overlap_h
+                if area > 0:
+                    candidates.append((area, phrase.phrase_id))
+            word.phrase_id = max(candidates, default=(0, None))[1]
+
     def to_dict(self) -> dict:
         d = {
             "page_index": self.page_index,
             "frame": [p.to_dict() for p in self.frames],
         }
+        if self.phrases:
+            d["phrase"] = [p.to_dict() for p in self.phrases]
+        if self.words:
+            d["word"] = [w.to_dict() for w in self.words]
+        if self.phrases or self.words:
+            d["text_direction"] = "ltr"
         illustration_type = self.effective_illustration_type
         if illustration_type:
             d["illustration_type"] = illustration_type
@@ -99,11 +166,18 @@ class PageAnnotation:
         )
         for f in d.get("frame", []):
             pa.frames.append(Panel.from_dict(f))
+        for phrase in d.get("phrase", []):
+            pa.phrases.append(PhraseRect.from_dict(phrase))
+        for word in d.get("word", []):
+            pa.words.append(WordRect.from_dict(word))
+        pa.reassign_word_phrases()
         return pa
 
     def copy(self) -> "PageAnnotation":
         pa = PageAnnotation(self.page_index, self.image_rel_path, self.illustration_type)
         pa.frames = [p.copy() for p in self.frames]
+        pa.phrases = [p.copy() for p in self.phrases]
+        pa.words = [w.copy() for w in self.words]
         return pa
 
 
@@ -281,6 +355,48 @@ class DatasetManager:
         if not pa.image_rel_path:
             pa.image_rel_path = f"{book_title}/{(page_index - 1):02d}.png"
 
+    def set_page_text_annotations(
+        self,
+        book_title: str,
+        page_index: int,
+        phrases: List[PhraseRect],
+        words: List[WordRect],
+    ) -> None:
+        pa = self.get_page_annotation(book_title, page_index)
+        pa.phrases = sorted(
+            (p.copy() for p in phrases), key=lambda p: (p.phrase_id, p.y, p.x)
+        )
+        # Phrase, then visual line, then left-to-right position.
+        pa.words = sorted(
+            (w.copy() for w in words),
+            key=lambda w: (w.phrase_id is None, w.phrase_id or 0, w.y, w.x),
+        )
+        pa.reassign_word_phrases()
+        pa.words.sort(key=lambda w: (w.phrase_id is None, w.phrase_id or 0, w.y, w.x))
+
+    def validate_page_text_annotations(self, book_title: str, page_index: int) -> List[str]:
+        """Return human-readable errors without rejecting legacy panel-only pages."""
+        pa = self.get_page_annotation(book_title, page_index)
+        errors: List[str] = []
+        phrase_ids = sorted({p.phrase_id for p in pa.phrases})
+        word_phrase_ids = {w.phrase_id for w in pa.words if w.phrase_id is not None}
+        missing = [pid for pid in phrase_ids if pid not in word_phrase_ids]
+        if missing:
+            errors.append("phrases without words: " + ", ".join(str(pid) for pid in missing))
+        orphan_count = sum(1 for w in pa.words if w.phrase_id not in phrase_ids)
+        if orphan_count:
+            errors.append(f"{orphan_count} word rectangle(s) do not overlap a phrase")
+        return errors
+
+    def validate_book_text_annotations(self, book_title: str) -> Dict[int, List[str]]:
+        """Validate every annotated page in a book, returning errors keyed by page."""
+        failures: Dict[int, List[str]] = {}
+        for page_index in sorted(self.books.get(book_title, {})):
+            errors = self.validate_page_text_annotations(book_title, page_index)
+            if errors:
+                failures[page_index] = errors
+        return failures
+
     def set_page_illustration_type(
         self, book_title: str, page_index: int, illustration_type: Optional[str]
     ) -> None:
@@ -308,15 +424,24 @@ class DatasetManager:
 
     def save_book_dataset(self, book_title: str) -> str:
         """Save annotations for a specific book and update master annotation.json."""
+        failures = self.validate_book_text_annotations(book_title)
+        if failures:
+            raise ValueError(f"Incomplete text annotations for {book_title}: {failures}")
         book_dir = self.get_book_dir(book_title)
         os.makedirs(book_dir, exist_ok=True)
+
+        metadata = self.load_book_metadata(book_title)
+        metadata["annotation_schema_version"] = 2
+        metadata["annotation_layers"] = ["panel", "phrase", "word"]
+        metadata["text_direction"] = "ltr"
+        self.save_book_metadata(book_title, metadata)
 
         # 1. Book-specific annotation.json
         pages_dict = self.books.get(book_title, {})
         pages_list = []
         for p_idx in sorted(pages_dict.keys()):
             pa = pages_dict[p_idx]
-            if pa.frames or pa.image_rel_path:
+            if pa.frames or pa.phrases or pa.words or pa.image_rel_path:
                 d = pa.to_dict()
                 if "image_paths" in d and isinstance(d["image_paths"], dict):
                     for lang in list(d["image_paths"].keys()):
@@ -326,6 +451,7 @@ class DatasetManager:
 
         book_json = [{
             "book_title": book_title,
+            "annotation_schema_version": 2,
             "pages": pages_list,
         }]
         book_json_path = os.path.join(book_dir, "annotation.json")
@@ -339,13 +465,17 @@ class DatasetManager:
 
     def save_master_dataset(self) -> str:
         """Write current annotations across all books into master annotation.json."""
+        for book_title in self.books:
+            failures = self.validate_book_text_annotations(book_title)
+            if failures:
+                raise ValueError(f"Incomplete text annotations for {book_title}: {failures}")
         dataset_array = []
         for book_title in sorted(self.books.keys()):
             pages_dict = self.books[book_title]
             pages_list = []
             for p_idx in sorted(pages_dict.keys()):
                 pa = pages_dict[p_idx]
-                if pa.frames or pa.image_rel_path:
+                if pa.frames or pa.phrases or pa.words or pa.image_rel_path:
                     d = pa.to_dict()
                     if "image_paths" in d and isinstance(d["image_paths"], dict):
                         for lang in list(d["image_paths"].keys()):
@@ -356,6 +486,7 @@ class DatasetManager:
             if pages_list:
                 dataset_array.append({
                     "book_title": book_title,
+                    "annotation_schema_version": 2,
                     "pages": pages_list,
                 })
 

@@ -123,6 +123,26 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                     h = rf.h,
                 })
             end
+            local phrases = {}
+            for _, rp in ipairs(raw_page.phrase or {}) do
+                table.insert(phrases, {
+                    x = rp.x,
+                    y = rp.y,
+                    w = rp.w,
+                    h = rp.h,
+                    phrase_id = rp.phrase_id,
+                })
+            end
+            local words = {}
+            for _, rw in ipairs(raw_page.word or {}) do
+                table.insert(words, {
+                    x = rw.x,
+                    y = rw.y,
+                    w = rw.w,
+                    h = rw.h,
+                    phrase_id = rw.phrase_id,
+                })
+            end
             local illustration_type = raw_page.illustration_type
             if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
                 illustration_type = #frames == 1 and "single_page" or nil
@@ -137,6 +157,9 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 image_path = img_path,
                 reading_order = dataset_type,
                 frames = frames,
+                phrases = phrases,
+                words = words,
+                text_direction = raw_page.text_direction or "ltr",
                 illustration_type = illustration_type,
                 text = raw_page.text or {},
             })

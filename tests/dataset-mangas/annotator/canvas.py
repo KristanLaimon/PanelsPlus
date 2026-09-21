@@ -13,7 +13,7 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import QWidget
 
-from .dataset_manager import Panel
+from .dataset_manager import Panel, PhraseRect, WordRect
 
 HANDLE_SIZE = 8
 MIN_BOX_SIZE = 8
@@ -43,6 +43,8 @@ class MangaCanvas(QWidget):
     zoom_changed = pyqtSignal(float)
     single_page_illustration_requested = pyqtSignal()
     double_page_illustration_requested = pyqtSignal()
+    annotation_mode_changed = pyqtSignal(str)
+    phrase_id_changed = pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -52,7 +54,11 @@ class MangaCanvas(QWidget):
         self._pixmap: Optional[QPixmap] = None
         self.native_w = 0
         self.native_h = 0
-        self.panels: List[Panel] = []
+        self.annotation_mode = "panel"
+        self.current_phrase_id = 1
+        self._collections = {"panel": [], "phrase": [], "word": []}
+        # Kept as an active-list alias for compatibility with the existing editor code.
+        self.panels: List[Panel] = self._collections["panel"]
         self.selected_panel_index = -1
 
         # View transform
@@ -87,6 +93,49 @@ class MangaCanvas(QWidget):
         self._panel_before_drag: Optional[Panel] = None
         self._space_pressed = False
         self._pan_start_pos: Optional[QPoint] = None
+
+    def get_panels(self) -> List[Panel]:
+        return self._collections["panel"]
+
+    def get_phrases(self) -> List[PhraseRect]:
+        return self._collections["phrase"]
+
+    def get_words(self) -> List[WordRect]:
+        return self._collections["word"]
+
+    def set_annotation_mode(self, mode: str):
+        if mode not in self._collections or mode == self.annotation_mode:
+            return
+        self.annotation_mode = mode
+        self.panels = self._collections[mode]
+        self.selected_panel_index = -1
+        self._mode = "idle"
+        self._undo_stack.clear()
+        self._redo_stack.clear()
+        self.panel_selected.emit(-1)
+        self.annotation_mode_changed.emit(mode)
+        self.status_message.emit(f"Rectangle mode: {mode.title()}")
+        self.update()
+
+    def step_phrase_id(self, delta: int):
+        self.current_phrase_id = max(1, self.current_phrase_id + (1 if delta > 0 else -1))
+        self.phrase_id_changed.emit(self.current_phrase_id)
+        self.status_message.emit(f"Current phrase ID: {self.current_phrase_id}")
+        self.update()
+
+    @staticmethod
+    def _intersection_area(a: Panel, b: Panel) -> int:
+        return max(0, min(a.x + a.w, b.x + b.w) - max(a.x, b.x)) * max(
+            0, min(a.y + a.h, b.y + b.h) - max(a.y, b.y)
+        )
+
+    def refresh_word_assignments(self):
+        """Assign each word to the phrase ID with which it overlaps most."""
+        phrases = self.get_phrases()
+        for word in self.get_words():
+            candidates = [(self._intersection_area(word, phrase), phrase.phrase_id) for phrase in phrases]
+            candidates = [candidate for candidate in candidates if candidate[0] > 0]
+            word.phrase_id = max(candidates, default=(0, None))[1]
 
     def _update_hover_cursor(self, pos: Optional[QPoint] = None):
         """Set the appropriate visible mouse cursor based on hit test or mode."""
@@ -142,6 +191,9 @@ class MangaCanvas(QWidget):
             return
         self._redo_stack.append([p.copy() for p in self.panels])
         self.panels = self._undo_stack.pop()
+        self._collections[self.annotation_mode] = self.panels
+        if self.annotation_mode in ("phrase", "word"):
+            self.refresh_word_assignments()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
@@ -154,13 +206,23 @@ class MangaCanvas(QWidget):
             return
         self._undo_stack.append([p.copy() for p in self.panels])
         self.panels = self._redo_stack.pop()
+        self._collections[self.annotation_mode] = self.panels
+        if self.annotation_mode in ("phrase", "word"):
+            self.refresh_word_assignments()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
         self.status_message.emit("Redo performed.")
 
-    def set_page(self, pixmap: Optional[QPixmap], panels: List[Panel], fit_width: bool = False):
+    def set_page(
+        self,
+        pixmap: Optional[QPixmap],
+        panels: List[Panel],
+        phrases: Optional[List[PhraseRect]] = None,
+        words: Optional[List[WordRect]] = None,
+        fit_width: bool = False,
+    ):
         """Update current page pixmap and panels."""
         self._pixmap = pixmap
         if pixmap and not pixmap.isNull():
@@ -181,7 +243,16 @@ class MangaCanvas(QWidget):
             self._gray_bytes = None
             self._bpl = 0
 
-        self.panels = [p.copy() for p in panels]
+        self._collections = {
+            "panel": [p.copy() for p in panels],
+            "phrase": [p.copy() for p in (phrases or [])],
+            "word": [w.copy() for w in (words or [])],
+        }
+        self.panels = self._collections[self.annotation_mode]
+        phrase_ids = [p.phrase_id for p in self.get_phrases()]
+        self.current_phrase_id = min(phrase_ids) if phrase_ids else 1
+        self.refresh_word_assignments()
+        self.phrase_id_changed.emit(self.current_phrase_id)
         self.selected_panel_index = -1
         self._mode = "idle"
         self._undo_stack.clear()
@@ -460,6 +531,7 @@ class MangaCanvas(QWidget):
         """Add a bounding box covering the entire page."""
         if self.native_w == 0 or self.native_h == 0:
             return
+        self.set_annotation_mode("panel")
         self.push_undo()
         panel = Panel(0, 0, self.native_w, self.native_h)
         self.panels.append(panel)
@@ -472,8 +544,10 @@ class MangaCanvas(QWidget):
         """Replace this page's annotations with one full-page panel."""
         if self.native_w == 0 or self.native_h == 0:
             return
+        self.set_annotation_mode("panel")
         self.push_undo()
         self.panels = [Panel(0, 0, self.native_w, self.native_h)]
+        self._collections["panel"] = self.panels
         self.selected_panel_index = 0
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
@@ -483,6 +557,9 @@ class MangaCanvas(QWidget):
         """Set selected panel by index."""
         if -1 <= idx < len(self.panels):
             self.selected_panel_index = idx
+            if idx >= 0 and self.annotation_mode == "phrase":
+                self.current_phrase_id = self.panels[idx].phrase_id
+                self.phrase_id_changed.emit(self.current_phrase_id)
             self.panel_selected.emit(idx)
             self.update()
 
@@ -491,6 +568,8 @@ class MangaCanvas(QWidget):
         if 0 <= self.selected_panel_index < len(self.panels):
             self.push_undo()
             self.panels.pop(self.selected_panel_index)
+            if self.annotation_mode in ("phrase", "word"):
+                self.refresh_word_assignments()
             self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
             self.panels_changed.emit()
             self.panel_selected.emit(self.selected_panel_index)
@@ -502,6 +581,8 @@ class MangaCanvas(QWidget):
             return
         self.push_undo()
         self.panels.clear()
+        if self.annotation_mode in ("phrase", "word"):
+            self.refresh_word_assignments()
         self.selected_panel_index = -1
         self.panels_changed.emit()
         self.panel_selected.emit(-1)
@@ -569,9 +650,14 @@ class MangaCanvas(QWidget):
                         p.y = max(0, p.y - step)
                     elif event.key() == Qt.Key.Key_Down:
                         p.y = min(self.native_h - p.h, p.y + step)
+                if self.annotation_mode in ("phrase", "word"):
+                    self.refresh_word_assignments()
                 self.panels_changed.emit()
                 self.update()
-                self.status_message.emit(f"Nudged panel [{self.selected_panel_index + 1}] to ({p.x}, {p.y}, {p.w}, {p.h})")
+                self.status_message.emit(
+                    f"Nudged {self.annotation_mode} [{self.selected_panel_index + 1}] "
+                    f"to ({p.x}, {p.y}, {p.w}, {p.h})"
+                )
                 return
 
         if event.key() == Qt.Key.Key_Space:
@@ -583,6 +669,16 @@ class MangaCanvas(QWidget):
             self.double_page_illustration_requested.emit()
         elif event.key() == Qt.Key.Key_P:
             self.set_precision_mode(not self.precision_mouse_enabled)
+        elif event.key() == Qt.Key.Key_1 and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.set_annotation_mode("panel")
+        elif event.key() == Qt.Key.Key_2 and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.set_annotation_mode("phrase")
+        elif event.key() == Qt.Key.Key_3 and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.set_annotation_mode("word")
+        elif event.key() == Qt.Key.Key_BracketLeft and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.step_phrase_id(-1)
+        elif event.key() == Qt.Key.Key_BracketRight and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            self.step_phrase_id(1)
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.delete_selected_panel()
         elif event.key() == Qt.Key.Key_Escape:
@@ -895,8 +991,15 @@ class MangaCanvas(QWidget):
             if w >= MIN_BOX_SIZE and h >= MIN_BOX_SIZE:
                 self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
                 self._redo_stack.clear()
-                new_panel = Panel(x, y, w, h)
+                if self.annotation_mode == "phrase":
+                    new_panel = PhraseRect(x, y, w, h, self.current_phrase_id)
+                elif self.annotation_mode == "word":
+                    new_panel = WordRect(x, y, w, h)
+                else:
+                    new_panel = Panel(x, y, w, h)
                 self.panels.append(new_panel)
+                if self.annotation_mode in ("phrase", "word"):
+                    self.refresh_word_assignments()
                 self.selected_panel_index = len(self.panels) - 1
                 self.panels_changed.emit()
                 self.panel_selected.emit(self.selected_panel_index)
@@ -922,6 +1025,9 @@ class MangaCanvas(QWidget):
             if changed:
                 self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
                 self._redo_stack.clear()
+
+            if self.annotation_mode in ("phrase", "word"):
+                self.refresh_word_assignments()
 
             self._mode = "idle"
             self._drag_start_pos = None
@@ -969,7 +1075,26 @@ class MangaCanvas(QWidget):
                 right_x = min(float(self.rect().width()), float(self.offset_x + img_w))
                 painter.drawLine(QPointF(left_x, gy), QPointF(right_x, gy))
 
-        # Draw Panels
+        # Draw inactive annotation layers first, so phrase boundaries remain visible
+        # while placing words and panel context remains visible in text modes.
+        layer_colors = {
+            "panel": QColor("#ff9100"),
+            "phrase": QColor("#ab47bc"),
+            "word": QColor("#66bb6a"),
+        }
+        for layer_name, rectangles in self._collections.items():
+            if layer_name == self.annotation_mode:
+                continue
+            color = layer_colors[layer_name]
+            painter.setPen(QPen(color, 1.2, Qt.PenStyle.DashLine))
+            painter.setBrush(Qt.BrushStyle.NoBrush)
+            for rectangle in rectangles:
+                wx, wy = self.image_to_widget(rectangle.x, rectangle.y)
+                painter.drawRect(QRectF(
+                    wx, wy, rectangle.w * self.zoom_factor, rectangle.h * self.zoom_factor
+                ))
+
+        # Draw rectangles from the active layer.
         font = QFont("SansSerif", 10, QFont.Weight.Bold)
         painter.setFont(font)
         fm = QFontMetrics(font)
@@ -986,12 +1111,19 @@ class MangaCanvas(QWidget):
                 painter.setPen(QPen(QColor("#00e5ff"), 2.5))
                 painter.setBrush(QBrush(QColor(0, 229, 255, 35)))
             else:
-                painter.setPen(QPen(QColor("#ff9100"), 2.0))
-                painter.setBrush(QBrush(QColor(255, 145, 0, 25)))
+                active_color = layer_colors[self.annotation_mode]
+                painter.setPen(QPen(active_color, 2.0))
+                painter.setBrush(QBrush(QColor(active_color.red(), active_color.green(), active_color.blue(), 25)))
             painter.drawRect(box_rect)
 
             # Badge [1], [2], [3]...
-            badge_text = f" {idx + 1} "
+            if self.annotation_mode == "phrase":
+                badge_text = f" P{panel.phrase_id}.{idx + 1} "
+            elif self.annotation_mode == "word":
+                owner = panel.phrase_id if panel.phrase_id is not None else "?"
+                badge_text = f" P{owner}:W{idx + 1} "
+            else:
+                badge_text = f" {idx + 1} "
             tw = fm.horizontalAdvance(badge_text) + 6
             th = fm.height() + 4
             badge_rect = QRectF(wx + 2, wy + 2, tw, th)
@@ -1000,7 +1132,7 @@ class MangaCanvas(QWidget):
                 painter.fillRect(badge_rect, QColor("#00e5ff"))
                 painter.setPen(QColor("#000000"))
             else:
-                painter.fillRect(badge_rect, QColor("#ff9100"))
+                painter.fillRect(badge_rect, layer_colors[self.annotation_mode])
                 painter.setPen(QColor("#000000"))
             painter.drawText(badge_rect, Qt.AlignmentFlag.AlignCenter, badge_text)
 
@@ -1029,7 +1161,12 @@ class MangaCanvas(QWidget):
 
             # Next sequential badge preview
             next_idx = len(self.panels) + 1
-            badge_text = f" {next_idx} "
+            if self.annotation_mode == "phrase":
+                badge_text = f" P{self.current_phrase_id}.{next_idx} "
+            elif self.annotation_mode == "word":
+                badge_text = f" W{next_idx} "
+            else:
+                badge_text = f" {next_idx} "
             tw = fm.horizontalAdvance(badge_text) + 6
             th = fm.height() + 4
             badge_rect = QRectF(wx + 2, wy + 2, tw, th)

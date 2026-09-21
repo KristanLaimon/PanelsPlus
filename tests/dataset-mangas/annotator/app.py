@@ -267,7 +267,7 @@ class AnnotatorMainWindow(QMainWindow):
         # Tab 1: ✏️ Panel Annotator
         self.tab_annotator = QWidget()
         self._init_annotator_tab(self.tab_annotator)
-        self.tabs.addTab(self.tab_annotator, "✏️ Panel Annotator")
+        self.tabs.addTab(self.tab_annotator, "✏️ Manga Annotator")
 
         self.tabs.currentChanged.connect(self._on_tab_changed)
 
@@ -371,6 +371,9 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.zoom_changed.connect(lambda z: self.lbl_status_zoom.setText(f"Zoom: {int(z * 100)}%"))
         self.canvas.single_page_illustration_requested.connect(self.set_single_page_illustration)
         self.canvas.double_page_illustration_requested.connect(self.set_double_page_illustration)
+        self.canvas.annotation_mode_changed.connect(self._on_annotation_mode_changed)
+        self.canvas.phrase_id_changed.connect(self._on_phrase_id_changed)
+        self.canvas.status_message.connect(lambda message: self.status_bar.showMessage(message, 3000))
         canvas_layout.addWidget(self.canvas, 1)
 
         # Bottom Page Navigation
@@ -409,8 +412,32 @@ class AnnotatorMainWindow(QMainWindow):
         sidebar.setMinimumWidth(260)
         sidebar.setMaximumWidth(360)
 
-        panel_group = QGroupBox("Panel Sequence")
+        panel_group = QGroupBox("Rectangle Annotations")
+        self.annotation_group = panel_group
         p_layout = QVBoxLayout(panel_group)
+
+        mode_layout = QHBoxLayout()
+        self.mode_buttons = {}
+        for mode, label in (("panel", "1 Panel"), ("phrase", "2 Phrase"), ("word", "3 Word")):
+            button = QPushButton(label)
+            button.setCheckable(True)
+            button.clicked.connect(lambda checked=False, m=mode: self.canvas.set_annotation_mode(m))
+            self.mode_buttons[mode] = button
+            mode_layout.addWidget(button)
+        self.mode_buttons["panel"].setChecked(True)
+        p_layout.addLayout(mode_layout)
+
+        phrase_layout = QHBoxLayout()
+        self.btn_prev_phrase = QPushButton("◀ [")
+        self.btn_prev_phrase.clicked.connect(lambda: self.canvas.step_phrase_id(-1))
+        phrase_layout.addWidget(self.btn_prev_phrase)
+        self.lbl_phrase_id = QLabel("Phrase ID: 1")
+        self.lbl_phrase_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        phrase_layout.addWidget(self.lbl_phrase_id, 1)
+        self.btn_next_phrase = QPushButton("] ▶")
+        self.btn_next_phrase.clicked.connect(lambda: self.canvas.step_phrase_id(1))
+        phrase_layout.addWidget(self.btn_next_phrase)
+        p_layout.addLayout(phrase_layout)
 
         self.btn_full_page = QPushButton("Set Single-Page Illustration (F)")
         self.btn_full_page.setStyleSheet("font-weight: bold; background-color: #2e7d32; color: white;")
@@ -472,12 +499,14 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_del.clicked.connect(self.canvas.delete_selected_panel)
         action_layout.addWidget(self.btn_del)
 
-        self.btn_clear = QPushButton("Clear Page")
+        self.btn_clear = QPushButton("Clear Current Mode")
         self.btn_clear.clicked.connect(self.canvas.clear_panels)
         action_layout.addWidget(self.btn_clear)
         p_layout.addLayout(action_layout)
 
         sidebar_layout.addWidget(panel_group, 1)
+
+        self._on_annotation_mode_changed("panel")
 
         splitter.addWidget(sidebar)
         splitter.setStretchFactor(0, 4)
@@ -532,14 +561,31 @@ class AnnotatorMainWindow(QMainWindow):
         act_fin.triggered.connect(self.toggle_current_book_finished)
         edit_menu.addAction(act_fin)
 
-        act_del = QAction("&Delete Selected Panel", self)
+        act_del = QAction("&Delete Selected Rectangle", self)
         act_del.setShortcut(QKeySequence(Qt.Key.Key_Delete))
         act_del.triggered.connect(self.canvas.delete_selected_panel)
         edit_menu.addAction(act_del)
 
-        act_clear = QAction("&Clear All Panels on Page", self)
+        act_clear = QAction("&Clear Current Rectangle Mode", self)
         act_clear.triggered.connect(self.canvas.clear_panels)
         edit_menu.addAction(act_clear)
+
+        edit_menu.addSeparator()
+        for mode, key in (("panel", "1"), ("phrase", "2"), ("word", "3")):
+            action = QAction(f"{mode.title()} Rectangle Mode", self)
+            action.setShortcut(QKeySequence(key))
+            action.triggered.connect(lambda checked=False, m=mode: self.canvas.set_annotation_mode(m))
+            edit_menu.addAction(action)
+
+        act_prev_phrase = QAction("Previous Phrase ID", self)
+        act_prev_phrase.setShortcut(QKeySequence("["))
+        act_prev_phrase.triggered.connect(lambda: self.canvas.step_phrase_id(-1))
+        edit_menu.addAction(act_prev_phrase)
+
+        act_next_phrase = QAction("Next Phrase ID", self)
+        act_next_phrase.setShortcut(QKeySequence("]"))
+        act_next_phrase.triggered.connect(lambda: self.canvas.step_phrase_id(1))
+        edit_menu.addAction(act_next_phrase)
 
         view_menu = menubar.addMenu("&View")
         act_fit_win = QAction("Fit &Window", self)
@@ -769,8 +815,10 @@ class AnnotatorMainWindow(QMainWindow):
 
         pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
         panels = [p.copy() for p in pa.frames]
+        phrases = [p.copy() for p in pa.phrases]
+        words = [w.copy() for w in pa.words]
 
-        self.canvas.set_page(pixmap, panels, fit_width=fit_width)
+        self.canvas.set_page(pixmap, panels, phrases, words, fit_width=fit_width)
         if fit_width:
             self.canvas.fit_to_width(self.canvas.rect())
 
@@ -787,7 +835,16 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _commit_current_page_panels(self):
         if self.book_title and self.reader:
-            self.dataset_mgr.set_page_frames(self.book_title, self.current_page_num, self.canvas.panels)
+            self.canvas.refresh_word_assignments()
+            self.dataset_mgr.set_page_frames(
+                self.book_title, self.current_page_num, self.canvas.get_panels()
+            )
+            self.dataset_mgr.set_page_text_annotations(
+                self.book_title,
+                self.current_page_num,
+                self.canvas.get_phrases(),
+                self.canvas.get_words(),
+            )
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
 
     def set_single_page_illustration(self):
@@ -837,7 +894,27 @@ class AnnotatorMainWindow(QMainWindow):
                 QMessageBox.information(self, "Save Dataset", "No book currently loaded.")
             return
 
-        json_path = self.dataset_mgr.save_book_dataset(self.book_title)
+        failures = self.dataset_mgr.validate_book_text_annotations(self.book_title)
+        if failures:
+            details = []
+            for page_index, errors in failures.items():
+                details.append(f"Page {page_index}: " + "; ".join(errors))
+            message = "Text annotations are incomplete:\n\n" + "\n".join(
+                f"• {detail}" for detail in details
+            )
+            self.status_bar.showMessage(message.replace("\n", " "), 5000)
+            if show_dialog:
+                QMessageBox.warning(self, "Cannot Save Incomplete Text Annotations", message)
+            return
+
+        try:
+            json_path = self.dataset_mgr.save_book_dataset(self.book_title)
+        except ValueError as exc:
+            message = str(exc)
+            self.status_bar.showMessage(message, 5000)
+            if show_dialog:
+                QMessageBox.warning(self, "Cannot Save Incomplete Text Annotations", message)
+            return
         msg = f"Saved annotations for '{self.book_title}' to:\n{json_path}"
         self.status_bar.showMessage(msg, 5000)
         if show_dialog:
@@ -865,10 +942,11 @@ class AnnotatorMainWindow(QMainWindow):
         pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
         if pa.illustration_type != PageAnnotation.DOUBLE_PAGE_ILLUSTRATION:
             return
-        if len(self.canvas.panels) != 1:
+        panels = self.canvas.get_panels()
+        if len(panels) != 1:
             pa.illustration_type = None
             return
-        panel = self.canvas.panels[0]
+        panel = panels[0]
         if (panel.x, panel.y, panel.w, panel.h) != (0, 0, self.canvas.native_w, self.canvas.native_h):
             pa.illustration_type = None
 
@@ -889,7 +967,14 @@ class AnnotatorMainWindow(QMainWindow):
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
         for idx, p in enumerate(self.canvas.panels):
-            item = QListWidgetItem(f"[{idx + 1}] x={p.x}, y={p.y} ({p.w}x{p.h})")
+            if self.canvas.annotation_mode == "phrase":
+                prefix = f"P{p.phrase_id}.{idx + 1}"
+            elif self.canvas.annotation_mode == "word":
+                owner = p.phrase_id if p.phrase_id is not None else "?"
+                prefix = f"P{owner}:W{idx + 1}"
+            else:
+                prefix = str(idx + 1)
+            item = QListWidgetItem(f"[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h})")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
@@ -902,6 +987,20 @@ class AnnotatorMainWindow(QMainWindow):
         else:
             self.panel_list.clearSelection()
         self.panel_list.blockSignals(False)
+
+    def _on_annotation_mode_changed(self, mode: str):
+        for name, button in self.mode_buttons.items():
+            button.setChecked(name == mode)
+        self.annotation_group.setTitle(f"{mode.title()} Rectangles")
+        phrase_controls_enabled = mode == "phrase"
+        self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
+        self.btn_next_phrase.setEnabled(phrase_controls_enabled)
+        self.lbl_phrase_id.setEnabled(phrase_controls_enabled)
+        self._refresh_panel_list()
+
+    def _on_phrase_id_changed(self, phrase_id: int):
+        self.lbl_phrase_id.setText(f"Phrase ID: {phrase_id}")
+        self._refresh_panel_list()
 
     def _on_list_row_selected(self, row: int):
         self.canvas.select_panel(row)

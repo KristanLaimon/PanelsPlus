@@ -29,7 +29,9 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
 
 from annotator.document_reader import DocumentReader, natural_sort_key
-from annotator.dataset_manager import DatasetManager, Panel, PageAnnotation
+from annotator.dataset_manager import (
+    DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
+)
 from annotator.canvas import MangaCanvas
 from annotator.app import AnnotatorMainWindow
 
@@ -119,6 +121,115 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(len(data[0]["pages"][0]["frame"]), 2)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["x"], 10)
         self.assertEqual(data[0]["pages"][0]["frame"][0]["y"], 20)
+
+    def test_text_annotation_schema_is_additive_and_round_trips(self):
+        pa = PageAnnotation.from_dict({
+            "page_index": 4,
+            "frame": [{"x": 0, "y": 0, "w": 400, "h": 600}],
+        })
+        self.assertEqual(len(pa.frames), 1)
+        self.assertEqual(pa.phrases, [])
+        self.assertEqual(pa.words, [])
+        legacy_output = pa.to_dict()
+        self.assertNotIn("phrase", legacy_output)
+        self.assertNotIn("word", legacy_output)
+
+        pa.phrases = [
+            PhraseRect(20, 20, 120, 30, 1),
+            PhraseRect(20, 55, 100, 30, 1),
+        ]
+        pa.words = [WordRect(22, 22, 35, 20, 1), WordRect(62, 22, 50, 20, 1)]
+        encoded = pa.to_dict()
+        self.assertEqual(encoded["text_direction"], "ltr")
+        self.assertEqual([p["phrase_id"] for p in encoded["phrase"]], [1, 1])
+        self.assertEqual([w["phrase_id"] for w in encoded["word"]], [1, 1])
+
+        decoded = PageAnnotation.from_dict(encoded)
+        self.assertEqual(len(decoded.phrases), 2)
+        self.assertEqual(len(decoded.words), 2)
+
+    def test_text_annotation_validation_and_ltr_order(self):
+        mgr = DatasetManager(os.path.join(self.test_dir, "dataset"))
+        mgr.set_page_text_annotations(
+            "book",
+            1,
+            [PhraseRect(10, 10, 200, 80, 1), PhraseRect(10, 100, 200, 50, 2)],
+            [WordRect(90, 20, 40, 20, 1), WordRect(20, 20, 40, 20, 1)],
+        )
+        pa = mgr.get_page_annotation("book", 1)
+        self.assertEqual([word.x for word in pa.words], [20, 90])
+        self.assertEqual(
+            mgr.validate_page_text_annotations("book", 1),
+            ["phrases without words: 2"],
+        )
+        with self.assertRaises(ValueError):
+            mgr.save_book_dataset("book")
+        pa.words.append(WordRect(20, 110, 40, 20, 2))
+        self.assertEqual(mgr.validate_page_text_annotations("book", 1), [])
+
+    def test_canvas_modes_and_word_overlap_assignment(self):
+        canvas = MangaCanvas()
+        phrases = [
+            PhraseRect(10, 10, 100, 40, 1),
+            PhraseRect(10, 60, 100, 40, 1),
+            PhraseRect(150, 10, 100, 90, 2),
+        ]
+        words = [WordRect(20, 20, 30, 20), WordRect(170, 20, 30, 20), WordRect(300, 20, 30, 20)]
+        canvas.set_page(None, [Panel(0, 0, 400, 600)], phrases, words)
+        self.assertEqual([word.phrase_id for word in canvas.get_words()], [1, 2, None])
+
+        canvas.set_annotation_mode("phrase")
+        self.assertEqual(canvas.panels, canvas.get_phrases())
+        canvas.step_phrase_id(1)
+        self.assertEqual(canvas.current_phrase_id, 2)
+        canvas.step_phrase_id(1)
+        self.assertEqual(canvas.current_phrase_id, 3)
+        canvas.set_annotation_mode("word")
+        self.assertEqual(canvas.panels, canvas.get_words())
+
+    def test_canvas_draws_phrase_fragments_and_assigned_words(self):
+        from PyQt6.QtCore import QPointF
+        from PyQt6.QtGui import QMouseEvent
+
+        canvas = MangaCanvas()
+        canvas.resize(400, 300)
+        canvas.native_w = 400
+        canvas.native_h = 300
+        canvas.set_precision_mode(False)
+
+        def drag(x1, y1, x2, y2):
+            canvas.mousePressEvent(QMouseEvent(
+                QMouseEvent.Type.MouseButtonPress,
+                QPointF(x1, y1),
+                Qt.MouseButton.LeftButton,
+                Qt.MouseButton.LeftButton,
+                Qt.KeyboardModifier.NoModifier,
+            ))
+            canvas.mouseMoveEvent(QMouseEvent(
+                QMouseEvent.Type.MouseMove,
+                QPointF(x2, y2),
+                Qt.MouseButton.LeftButton,
+                Qt.MouseButton.LeftButton,
+                Qt.KeyboardModifier.NoModifier,
+            ))
+            canvas.mouseReleaseEvent(QMouseEvent(
+                QMouseEvent.Type.MouseButtonRelease,
+                QPointF(x2, y2),
+                Qt.MouseButton.LeftButton,
+                Qt.MouseButton.NoButton,
+                Qt.KeyboardModifier.NoModifier,
+            ))
+
+        canvas.set_annotation_mode("phrase")
+        canvas.current_phrase_id = 4
+        drag(20, 20, 180, 60)
+        drag(20, 70, 150, 110)
+        self.assertEqual([p.phrase_id for p in canvas.get_phrases()], [4, 4])
+
+        canvas.set_annotation_mode("word")
+        drag(25, 25, 70, 50)
+        self.assertEqual(len(canvas.get_words()), 1)
+        self.assertEqual(canvas.get_words()[0].phrase_id, 4)
 
     def test_canvas_panel_operations(self):
         canvas = MangaCanvas()
@@ -310,7 +421,12 @@ class TestAnnotator(unittest.TestCase):
         with open(annotation_file, "r") as f:
             content = json.load(f)
         self.assertEqual(content[0]["book_title"], "test_book")
+        self.assertEqual(content[0]["annotation_schema_version"], 2)
         self.assertEqual(len(content[0]["pages"][0]["frame"]), 1)
+        with open(os.path.join(ds_dir, "test_book", "metadata.json"), "r") as f:
+            metadata = json.load(f)
+        self.assertEqual(metadata["annotation_layers"], ["panel", "phrase", "word"])
+        self.assertEqual(metadata["text_direction"], "ltr")
         win.close()
 
     def test_double_page_illustration_is_saved_and_invalidated_when_edited(self):
@@ -365,6 +481,12 @@ class TestAnnotator(unittest.TestCase):
 
         p1 = Panel(50, 100, 300, 400)
         mgr.set_page_frames("interop_book", 1, [p1])
+        mgr.set_page_text_annotations(
+            "interop_book",
+            1,
+            [PhraseRect(70, 120, 180, 70, 1)],
+            [WordRect(75, 125, 60, 25, 1)],
+        )
         mgr.save_book_dataset("interop_book")
 
         lua_code = f'''
@@ -374,6 +496,11 @@ class TestAnnotator(unittest.TestCase):
         assert(books[1].book_title == "interop_book")
         assert(#books[1].pages == 1)
         assert(books[1].pages[1].frames[1].x == 50)
+        assert(#books[1].pages[1].phrases == 1)
+        assert(books[1].pages[1].phrases[1].phrase_id == 1)
+        assert(#books[1].pages[1].words == 1)
+        assert(books[1].pages[1].words[1].phrase_id == 1)
+        assert(books[1].pages[1].text_direction == "ltr")
         assert(books[1].pages[1].illustration_type == "single_page")
         '''
         res = subprocess.run(["lua", "-e", lua_code], capture_output=True, text=True)
