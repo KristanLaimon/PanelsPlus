@@ -17,8 +17,8 @@ local logger = require("logger")
 --- Fold strip removal on the reading page.
 ---
 --- KOReader draws a page from a cached tile (`document:renderPage`, then a blit in
---- `document:drawPage`). This module keeps that tile unchanged. A joined bitmap is
---- cached separately and used as the source of the final blit.
+--- `document:drawPage`). This module keeps that tile's pixels unchanged. A joined bitmap is
+--- cached separately and stands in for the tile's bitmap while KOReader's own `drawPage` runs.
 ---
 --- Only a tile that covers the whole page is processed. When the page is zoomed in
 --- far enough that KOReader renders it in parts, the original drawing path is used.
@@ -43,18 +43,43 @@ local function spreadPageSize(document, pageno)
     return nil
 end
 
+-- Joined bitmaps kept per document. Each is as large as a page tile, and LuaJIT's collector does
+-- not see that memory, so the oldest is freed here instead of waiting for a collection.
+local MAX_JOINED = 3
+
 --- Free the joined bitmaps owned by a document.
 local function clearJoinedTiles(document)
     local joined_tiles = document and document.pp_fold_joined_tiles
     if not joined_tiles then
         return
     end
-    for _, joined in pairs(joined_tiles) do
-        if joined and joined.free then
-            joined:free()
+    for _, entry in pairs(joined_tiles) do
+        if entry and entry.bb.free then
+            entry.bb:free()
         end
     end
     document.pp_fold_joined_tiles = setmetatable({}, { __mode = "k" })
+end
+
+--- Remember a joined bitmap for `tile` and free the oldest one beyond `MAX_JOINED`.
+local function rememberJoined(document, joined_tiles, tile, joined)
+    document.pp_fold_joined_seq = (document.pp_fold_joined_seq or 0) + 1
+    joined_tiles[tile] = { bb = joined, seq = document.pp_fold_joined_seq }
+    local count, oldest_tile, oldest = 0, nil, nil
+    for cached_tile, entry in pairs(joined_tiles) do
+        if entry then
+            count = count + 1
+            if not oldest or entry.seq < oldest.seq then
+                oldest_tile, oldest = cached_tile, entry
+            end
+        end
+    end
+    if count > MAX_JOINED then
+        joined_tiles[oldest_tile] = nil
+        if oldest.bb.free then
+            oldest.bb:free()
+        end
+    end
 end
 
 --- Return a plugin-owned joined bitmap for a whole-page tile.
@@ -95,46 +120,19 @@ local function joinedTile(document, page_size, pageno, rect, zoom, rotation, gam
         document.pp_fold_joined_tiles = joined_tiles
     end
 
-    local joined = joined_tiles[tile]
-    if joined ~= nil then
-        return joined or nil, tile
+    local entry = joined_tiles[tile]
+    if entry ~= nil then
+        return entry and entry.bb or nil, tile
     end
 
-    joined = FoldJoin.joinBitmap(bb)
-    joined_tiles[tile] = joined or false
+    local joined = FoldJoin.joinBitmap(bb)
     if joined then
+        rememberJoined(document, joined_tiles, tile, joined)
         Timing.log("reading page fold: strip removed from page %d", pageno)
+    else
+        joined_tiles[tile] = false
     end
     return joined, tile
-end
-
---- Draw a joined bitmap using the same coordinates as `Document:drawPage`.
-local function drawJoined(document, target, x, y, rect, tile, joined)
-    local excerpt = tile.excerpt or { x = 0, y = 0 }
-    local source_x = rect.x - (excerpt.x or 0)
-    local source_y = rect.y - (excerpt.y or 0)
-
-    if document.sw_dithering then
-        target:ditherblitFrom(
-            joined,
-            x,
-            y,
-            source_x,
-            source_y,
-            rect.w,
-            rect.h
-        )
-    else
-        target:blitFrom(
-            joined,
-            x,
-            y,
-            source_x,
-            source_y,
-            rect.w,
-            rect.h
-        )
-    end
 end
 
 --- Drop joined reading-page bitmaps without touching KOReader's document cache.
@@ -166,32 +164,20 @@ function ReadingPageFold:installReadingPageFold()
             and spreadPageSize(doc, pageno)
 
         if page_size then
-            local ok, joined, tile = pcall(
-                joinedTile,
-                doc,
-                page_size,
-                pageno,
-                rect,
-                zoom,
-                rotation,
-                gamma,
-                saturation
-            )
+            local ok, joined, tile = pcall(joinedTile, doc, page_size, pageno, rect, zoom, rotation, gamma, saturation)
             if ok and joined and tile then
-                local draw_ok, draw_err = pcall(
-                    drawJoined,
-                    doc,
-                    target,
-                    x,
-                    y,
-                    rect,
-                    tile,
-                    joined
-                )
-                if draw_ok then
-                    return
+                -- KOReader's own draw fetches this cached tile again and blits from its bitmap. It
+                -- also inverts for night mode and dithers, so it stays in charge of the drawing. The
+                -- tile's own bitmap is put back straight after.
+                local tile_bb = tile.bb
+                tile.bb = joined
+                local draw_ok, draw_err =
+                    pcall(original, doc, target, x, y, rect, pageno, zoom, rotation, gamma, saturation)
+                tile.bb = tile_bb
+                if not draw_ok then
+                    error(draw_err, 0)
                 end
-                logger.warn("[Panels+] reading page fold:", tostring(draw_err))
+                return
             elseif not ok then
                 logger.warn("[Panels+] reading page fold:", tostring(joined))
             end

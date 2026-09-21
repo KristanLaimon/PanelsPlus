@@ -67,9 +67,11 @@ Touch positions and lookup highlights account for the removed strip. The option
 is on by default.
 
 The same is done on the reading page. KOReader draws a page from a cached tile,
-so the plugin wraps the open document's `drawPage` and removes the strip from
-that tile once, before it is drawn. The tile keeps its size, so zoom and panning
-are unchanged. Only a tile that covers the whole page is processed. When a page
+so the plugin wraps the open document's `drawPage`. It keeps a joined copy of the
+tile's bitmap and puts it in the tile's place while KOReader's own `drawPage` runs,
+so night mode inversion and dithering work as usual. The cached tile's pixels are
+not changed, and the copy has the same size, so zoom and panning are unchanged. At
+most three joined copies are kept. Only a tile that covers the whole page is processed. When a page
 is zoomed in so far that KOReader renders it in parts, the strip stays.
 
 The reading-page parts (screen rotation and fold line removal) also work while
