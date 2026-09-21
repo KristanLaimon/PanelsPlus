@@ -53,6 +53,27 @@ local function canvasFitZoom(rect)
     return math.min(Screen:getWidth() / (rect.w or 1), Screen:getHeight() / (rect.h or 1))
 end
 
+--- Angle the current bitmap is drawn at.
+---
+--- `rotated` is a number when Panels+ set it. `true` is ImageViewer's auto-rotation, which picks 90
+--- or 270 from the screen orientation and the invert settings, so the angle is read from the
+--- widget.
+---
+--- `ImageWidget.rotation_angle` turns the bitmap counter-clockwise. At 90 the page's top edge is on
+--- the left of the view, at 270 on the right.
+---
+--- @param viewer PanelViewer Viewer whose current image is being mapped.
+--- @return number angle 0, 90, 180 or 270.
+local function drawnAngle(viewer)
+    if type(viewer.rotated) == "number" then
+        return viewer.rotated
+    end
+    if viewer.rotated then
+        return viewer._image_wg and viewer._image_wg.rotation_angle or 90
+    end
+    return 0
+end
+
 --- ImageViewer subclass for navigating one page's ordered panel sequence.
 ---
 --- @class PanelViewer : ImageViewer
@@ -884,15 +905,16 @@ function PanelViewer:screenToPageTransform(pos)
     local norm_y = math.max(0, math.min(1, py / bb_h))
 
     local page_x, page_y
-    if self.rotated == 90 or self.rotated == true then
-        page_x = (rect.x or 0) + norm_y * (rect.w or 0)
-        page_y = (rect.y or 0) + (1 - norm_x) * (rect.h or 0)
-    elseif self.rotated == 180 then
-        page_x = (rect.x or 0) + (1 - norm_x) * (rect.w or 0)
-        page_y = (rect.y or 0) + (1 - norm_y) * (rect.h or 0)
-    elseif self.rotated == 270 then
+    local angle = drawnAngle(self)
+    if angle == 90 then
         page_x = (rect.x or 0) + (1 - norm_y) * (rect.w or 0)
         page_y = (rect.y or 0) + norm_x * (rect.h or 0)
+    elseif angle == 180 then
+        page_x = (rect.x or 0) + (1 - norm_x) * (rect.w or 0)
+        page_y = (rect.y or 0) + (1 - norm_y) * (rect.h or 0)
+    elseif angle == 270 then
+        page_x = (rect.x or 0) + norm_y * (rect.w or 0)
+        page_y = (rect.y or 0) + (1 - norm_x) * (rect.h or 0)
     else
         page_x = (rect.x or 0) + norm_x * (rect.w or 0)
         page_y = (rect.y or 0) + norm_y * (rect.h or 0)
@@ -960,21 +982,22 @@ function PanelViewer:pageToScreenTransform(box)
     local offset_y = self._image_wg._offset_y or 0
 
     local px0, py0, px1, py1
-    if self.rotated == 90 or self.rotated == true then
-        px0 = (1 - norm_y1) * bb_w
-        py0 = norm_x0 * bb_h
-        px1 = (1 - norm_y0) * bb_w
-        py1 = norm_x1 * bb_h
-    elseif self.rotated == 180 then
-        px0 = (1 - norm_x1) * bb_w
-        py0 = (1 - norm_y1) * bb_h
-        px1 = (1 - norm_x0) * bb_w
-        py1 = (1 - norm_y0) * bb_h
-    elseif self.rotated == 270 then
+    local angle = drawnAngle(self)
+    if angle == 90 then
         px0 = norm_y0 * bb_w
         py0 = (1 - norm_x1) * bb_h
         px1 = norm_y1 * bb_w
         py1 = (1 - norm_x0) * bb_h
+    elseif angle == 180 then
+        px0 = (1 - norm_x1) * bb_w
+        py0 = (1 - norm_y1) * bb_h
+        px1 = (1 - norm_x0) * bb_w
+        py1 = (1 - norm_y0) * bb_h
+    elseif angle == 270 then
+        px0 = (1 - norm_y1) * bb_w
+        py0 = norm_x0 * bb_h
+        px1 = (1 - norm_y0) * bb_w
+        py1 = norm_x1 * bb_h
     else
         px0 = norm_x0 * bb_w
         py0 = norm_y0 * bb_h

@@ -10,6 +10,9 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Fixed
 
+- **Touch-and-hold hits the right word in a view rotated by a quarter turn**
+  - `PanelViewer:screenToPageTransform` and `pageToScreenTransform` had the 90 and 270 cases swapped relative to the angle `ImageWidget` draws (`rotation_angle` turns the bitmap counter-clockwise). In a view rotated from the rotation picker or by KOReader's "auto-rotate for best fit", a press mapped to the diagonally opposite point of the page, and the lookup underline was drawn there. The round-trip spec passed because both functions were wrong in the same way. New specs check the mapping against the position of the page's corner in the drawn bitmap. For KOReader's boolean auto-rotation the angle is now read from the widget.
+
 - **Swiping down for Kobo-style zoom on the left edge no longer exits the panel viewer**
   - The left-edge swipe-down gesture doubled as both "zoom out" (when already zoomed in) and "close the viewer" (at standard zoom), because both paths shared the same gesture zone. That meant a swipe meant purely for one-handed zoom control could unexpectedly kick the reader out of the panel viewer entirely. It now always zooms out, at any zoom level, and never closes the viewer -- closing stays on the existing "Close" button and tap-outside-frame gesture.
 
