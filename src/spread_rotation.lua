@@ -94,7 +94,7 @@ function SpreadRotation:spreadRotationModeFor(page, base_mode)
         return nil
     end
     local page_w, page_h = nativePageSize(self.ui.document, page)
-    return DoubleSpread.screenRotationFor(base_mode, page_w, page_h)
+    return DoubleSpread.screenRotationFor(base_mode, page_w, page_h, self.settings.spread_rotation_direction)
 end
 
 --- Rotate or restore the screen for `page`.

@@ -135,6 +135,7 @@ local PanelViewer = ImageViewer:extend({
     panel_is_full_page = nil,
     initial_image_num = nil,
     auto_rotate_double_pages = true,
+    spread_rotation_direction = nil,
     detector = "exact",
     invert_swipe = false,
     invert_taps = false,
@@ -1580,10 +1581,9 @@ function PanelViewer:applyImageRotation(index)
     if self.image_rotation ~= nil then
         self.rotated = self.image_rotation
     elseif self:shouldAutoRotateDoublePage(index) then
-        -- Match KOReader's portrait ImageViewer direction while keeping an
-        -- explicit angle for page/screen coordinate transforms.
-        self.rotated = G_reader_settings and G_reader_settings:isTrue("imageviewer_rotation_portrait_invert") and 270
-            or 90
+        -- An explicit angle, for the page/screen coordinate transforms. Without a chosen
+        -- direction it matches KOReader's portrait ImageViewer.
+        self.rotated = DoubleSpread.imageAngle(self.spread_rotation_direction)
     end
 end
 

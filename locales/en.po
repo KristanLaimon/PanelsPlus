@@ -380,3 +380,18 @@ msgstr "While reading"
 
 msgid "Reading"
 msgstr "Reading"
+
+msgid "Spread rotation direction"
+msgstr "Spread rotation direction"
+
+msgid "Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows \"Invert default rotation in portrait mode\" in KOReader's rotation settings."
+msgstr "Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows \"Invert default rotation in portrait mode\" in KOReader's rotation settings."
+
+msgid "Same as KOReader's image viewer"
+msgstr "Same as KOReader's image viewer"
+
+msgid "KOReader"
+msgstr "KOReader"
+
+msgid "Spread direction (Actual: "
+msgstr "Spread direction (Actual: "

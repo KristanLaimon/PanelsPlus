@@ -320,6 +320,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         hold_text_selection = false,
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
+        spread_rotation_direction = self.settings.spread_rotation_direction,
         -- Smooth movement is rendered only from the extracted bitmap. This
         -- leaves the normal document-page renderer untouched.
         nav_transition_mode = self.settings.embedded_nav_transition_mode or "classic",

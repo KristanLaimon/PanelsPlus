@@ -80,6 +80,10 @@ The reading-page parts (screen rotation and fold line removal) also work while
 **Disable plugin panel focusing** is on. That setting only hands panel zoom back to
 KOReader.
 
+**Spread rotation direction** sets which way spreads are rotated, in the panel
+viewer and while reading: clockwise, counter-clockwise, or the same as KOReader's
+image viewer ("Invert default rotation in portrait mode"), which is the default.
+
 Spread rotation is one entry with four choices (off, in the panel viewer, while reading,
 in the panel viewer and while reading). It and the fold line option are in the Panels+ menu and under `[Rotation]` in
 `More Panel Viewer Settings`.

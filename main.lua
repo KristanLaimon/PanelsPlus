@@ -289,6 +289,18 @@ function PanelsPlus:setSpreadRotationMode(mode)
     self:applySpreadRotationSetting()
 end
 
+--- Set the direction double-page spreads are rotated in.
+---
+--- @param direction string `"cw"`, `"ccw"`, or `"auto"` to follow KOReader's image viewer.
+function PanelsPlus:setSpreadRotationDirection(direction)
+    if direction ~= "cw" and direction ~= "ccw" then
+        direction = "auto"
+    end
+    self.settings.spread_rotation_direction = direction
+    self:saveSettings()
+    self:applySpreadRotationSetting()
+end
+
 --- Enable or disable removal of the fold strip from double-page spreads in the panel viewer.
 ---
 --- @param enabled any Truthy value enables it.
