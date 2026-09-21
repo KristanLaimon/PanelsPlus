@@ -85,6 +85,8 @@ SPDX-License-Identifier: MIT
 --- @field doc_settings table<string, table>|nil Per-document settings map fallback.
 --- @field progress_bar_visible boolean
 --- @field auto_rotate_double_pages boolean Rotate wide full-page images inside a portrait panel viewer, without rotating the device.
+--- @field rotate_screen_for_double_pages boolean Rotate the screen while a double-page spread is on the reading page.
+--- @field join_spread_fold boolean Remove the black strip between the halves of a double-page spread in the panel viewer.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
@@ -142,6 +144,7 @@ SPDX-License-Identifier: MIT
 --- @class PPImageList : table
 --- @field image_disposable boolean Whether ImageViewer owns decoded panel images.
 --- @field rotated boolean|nil Last rotation flag returned by `drawPagePart`.
+--- @field folds table<integer, table>|nil Removed fold range per image index (see `FoldJoin.joinBitmap`).
 
 --- Result of a side-effect-free adjacent-page lookup for boundary crossings.
 --- @class PPBoundaryResolution
@@ -168,6 +171,7 @@ SPDX-License-Identifier: MIT
 --- @field kobo_vertical_gesture boolean Whether vertical swipes on the left edge zoom in/out (Kobo-style).
 --- @field panel_gesture string Gesture that opens panels on a page: "hold" (long press, the default) or "two_finger_tap".
 --- @field more_config_callback fun(viewer:PanelViewer):boolean|nil
+--- @field closed_callback fun(viewer:PanelViewer)|nil
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.

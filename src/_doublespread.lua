@@ -32,4 +32,46 @@ function DoubleSpread.shouldRotate(rect, is_full_page, is_single_panel)
         and rect.w / rect.h >= MIN_SPREAD_ASPECT
 end
 
+--- Return the spread rotation choice the two settings add up to.
+---
+--- `auto_rotate_double_pages` rotates the image in the panel viewer and
+--- `rotate_screen_for_double_pages` rotates the screen while reading. The menus
+--- show them as one choice.
+--- @param settings PPSettings Plugin settings.
+--- @return string mode `"off"`, `"viewer"`, `"reading"` or `"both"`.
+function DoubleSpread.rotationMode(settings)
+    local in_viewer = settings.auto_rotate_double_pages ~= false
+    if settings.rotate_screen_for_double_pages == true then
+        return in_viewer and "both" or "reading"
+    end
+    return in_viewer and "viewer" or "off"
+end
+
+--- Return whether a rectangle has the shape of a double-page spread.
+--- @param rect PPRect|nil Native page or image rectangle.
+--- @return boolean
+function DoubleSpread.isSpreadRect(rect)
+    return rect ~= nil and (rect.w or 0) > 0 and (rect.h or 0) > 0 and rect.w / rect.h >= MIN_SPREAD_ASPECT
+end
+
+--- Return the screen rotation mode for reading a double-page spread, or nil.
+---
+--- The direction matches the angle the viewer uses for a spread image, so the
+--- device is held the same way for both. In rotation mode 1 the page's top is on
+--- the device's left edge, like an image at 90. Mode 3 matches 270.
+--- @param base_mode integer Rotation mode the reader uses for normal pages.
+--- @param page_w number|nil Native page width.
+--- @param page_h number|nil Native page height.
+--- @return integer|nil rotation_mode Nil for a normal page or a landscape base.
+function DoubleSpread.screenRotationFor(base_mode, page_w, page_h)
+    if type(page_w) ~= "number" or type(page_h) ~= "number" or page_w <= 0 or page_h <= 0 then
+        return nil
+    end
+    if base_mode % 2 == 1 or page_w / page_h < MIN_SPREAD_ASPECT then
+        return nil
+    end
+    local inverted = G_reader_settings and G_reader_settings:isTrue("imageviewer_rotation_portrait_invert")
+    return (base_mode + (inverted and 3 or 1)) % 4
+end
+
 return DoubleSpread

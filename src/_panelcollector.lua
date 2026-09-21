@@ -14,6 +14,7 @@ local Geometry = require("src._geometry")
 local NativeDetector = require("src._nativedetector")
 local ComponentDetector = require("src._componentdetector")
 local DoubleSpread = require("src._doublespread")
+local FoldJoin = require("src._foldjoin")
 local PageBitmap = require("src._pagebitmap")
 local Document = require("document/document")
 local Geom = require("ui/geometry")
@@ -248,6 +249,31 @@ local function isFullPagePanel(rect, page_size, settings)
     return rect_area >= full_ratio * page_area
 end
 
+--- Where to look for the fold strip in the render of `image_rect`, or `nil`.
+---
+--- The fold is at the page's centre. A panel is only searched when it has artwork on both sides
+--- of it. Tolerances are shares of the page width, so they mean the same in every crop.
+---
+--- @param image table Rendered blitbuffer of `image_rect`.
+--- @param image_rect PPPanel Native rectangle the image shows.
+--- @param page_size PPPageSize Page dimensions.
+--- @return table|nil opts Options for `FoldJoin.joinBitmap`.
+local function foldSearch(image, image_rect, page_size)
+    if type(image.getWidth) ~= "function" or (image_rect.w or 0) <= 0 then
+        return nil
+    end
+    local share = (page_size.w / 2 - image_rect.x) / image_rect.w
+    if share < 0.15 or share > 0.85 then
+        return nil
+    end
+    local px_per_unit = image:getWidth() / image_rect.w
+    return {
+        centre = share * image:getWidth(),
+        reach = 0.03 * page_size.w * px_per_unit,
+        max_band = 0.04 * page_size.w * px_per_unit,
+    }
+end
+
 --- Build KOReader ImageViewer lazy image functions for a panel sequence.
 ---
 --- This intentionally stores functions, not rendered blitbuffers. Each visit
@@ -271,9 +297,10 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     local image_rects = {}
     local full_page_flags = {}
 
-    for _, rect in ipairs(panels) do
+    for index, rect in ipairs(panels) do
         local is_full_page = isFullPagePanel(rect, page_size, settings)
         table.insert(full_page_flags, is_full_page)
+        local join_fold = settings.join_spread_fold ~= false and DoubleSpread.isSpreadRect(page_size)
         -- A full spread needs its source aspect ratio intact before the viewer
         -- rotates it. The normal no-crop path first pads it to a portrait
         -- screen-sized canvas, which would rotate the padding as well.
@@ -297,6 +324,17 @@ function PanelCollector.buildImages(ui, page, panels, settings)
                     image, rotate = document:drawPagePart(page, image_rect, 0)
                 end
                 images.rotated = rotate
+                local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
+                if fold_opts then
+                    -- The joined bitmap is a new buffer, so it replaces the copy. A
+                    -- bitmap that cannot be read or joined is shown as it is.
+                    local ok, joined, fold = pcall(FoldJoin.joinBitmap, image, fold_opts)
+                    if ok and joined then
+                        images.folds = images.folds or {}
+                        images.folds[index] = fold
+                        return joined
+                    end
+                end
                 if image and image.copy then
                     return image:copy()
                 end
@@ -309,5 +347,6 @@ function PanelCollector.buildImages(ui, page, panels, settings)
 end
 
 PanelCollector._getImageRect = getImageRect
+PanelCollector.isFullPagePanel = isFullPagePanel
 
 return PanelCollector

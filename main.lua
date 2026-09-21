@@ -30,6 +30,7 @@ local Menu = require("src.menu")
 local Memory = require("src._memory")
 local NativePanelZoom = require("src.native_panel_zoom")
 local Settings = require("src._settings")
+local SpreadRotation = require("src.spread_rotation")
 local Timing = require("src._timing")
 local ViewerController = require("src.viewer_controller")
 
@@ -70,6 +71,7 @@ include(PanelsPlus, ViewerController)
 include(PanelsPlus, Actions)
 include(PanelsPlus, Menu)
 include(PanelsPlus, NativePanelZoom)
+include(PanelsPlus, SpreadRotation)
 
 --- Initialize settings, panel cache state, menu registration, actions, and hook.
 function PanelsPlus:init()
@@ -89,6 +91,7 @@ end
 function PanelsPlus:onReaderReady()
     self:loadDocSettings()
     self:applyPanelGesture()
+    self:startSpreadRotation()
 end
 
 --- Return the file path or key for the active document.
@@ -270,6 +273,31 @@ end
 function PanelsPlus:setAutoRotateDoublePages(enabled)
     self.settings.auto_rotate_double_pages = enabled and true or false
     self:saveSettings()
+end
+
+--- Set both spread rotation settings from one choice.
+---
+--- @param mode string `"off"`, `"viewer"`, `"reading"` or `"both"`.
+function PanelsPlus:setSpreadRotationMode(mode)
+    self:setAutoRotateDoublePages(mode == "viewer" or mode == "both")
+    self:setRotateScreenForDoublePages(mode == "reading" or mode == "both")
+end
+
+--- Enable or disable removal of the fold strip from double-page spreads in the panel viewer.
+---
+--- @param enabled any Truthy value enables it.
+function PanelsPlus:setJoinSpreadFold(enabled)
+    self.settings.join_spread_fold = enabled and true or false
+    self:saveSettings()
+end
+
+--- Enable or disable screen rotation for double-page spreads on the reading page.
+---
+--- @param enabled any Truthy value enables it.
+function PanelsPlus:setRotateScreenForDoublePages(enabled)
+    self.settings.rotate_screen_for_double_pages = enabled and true or false
+    self:saveSettings()
+    self:applySpreadRotationSetting()
 end
 
 --- Toggle whether swipe direction is inverted relative to reading order.
@@ -477,6 +505,7 @@ end
 function PanelsPlus:onSaveSettings()
     self:saveSettings()
     self:saveDocSettings()
+    self:keepSpreadRotationOutOfDocSettings()
 end
 
 --- KOReader close hook: drop scheduled work and restore native panel zoom.

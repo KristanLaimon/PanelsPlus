@@ -13,6 +13,7 @@ local Blitbuffer = require("ffi/blitbuffer")
 local ButtonTable = require("ui/widget/buttontable")
 local CenterContainer = require("ui/widget/container/centercontainer")
 local DoubleSpread = require("src._doublespread")
+local FoldJoin = require("src._foldjoin")
 local Event = require("ui/event")
 local Geom = require("ui/geometry")
 local Geometry = require("src._geometry")
@@ -91,6 +92,7 @@ end
 --- @field tap_navigation boolean Whether tapping the left/right screen edges navigates between panels.
 --- @field swipe_navigation boolean Whether horizontal swipes navigate between panels.
 --- @field more_config_callback fun(viewer:PanelViewer):boolean|nil
+--- @field closed_callback fun(viewer:PanelViewer)|nil Called once the viewer has closed.
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
@@ -139,6 +141,7 @@ local PanelViewer = ImageViewer:extend({
     tap_navigation = false,
     swipe_navigation = true,
     more_config_callback = nil,
+    closed_callback = nil,
     progress_bar_visible = true,
     hold_text_selection = true,
     ocr_debug_mode = false,
@@ -871,6 +874,14 @@ function PanelViewer:onZoomOut(dec)
     return ImageViewer.onZoomOut(self, dec)
 end
 
+--- Fold strip removed from the current image, if any (see `FoldJoin.joinBitmap`).
+---
+--- @return table|nil fold
+function PanelViewer:currentFold()
+    local folds = self._images_list and self._images_list.folds
+    return folds and folds[self._images_list_cur or 1]
+end
+
 --- Convert a screen coordinate inside this zoomed viewer to document page coordinates.
 ---
 --- @param pos table Screen position `{x = number, y = number}`.
@@ -904,21 +915,20 @@ function PanelViewer:screenToPageTransform(pos)
     local norm_x = math.max(0, math.min(1, px / bb_w))
     local norm_y = math.max(0, math.min(1, py / bb_h))
 
-    local page_x, page_y
+    -- `u` and `v` are the press as shares of the image, unrotated.
+    local u, v
     local angle = drawnAngle(self)
     if angle == 90 then
-        page_x = (rect.x or 0) + (1 - norm_y) * (rect.w or 0)
-        page_y = (rect.y or 0) + norm_x * (rect.h or 0)
+        u, v = 1 - norm_y, norm_x
     elseif angle == 180 then
-        page_x = (rect.x or 0) + (1 - norm_x) * (rect.w or 0)
-        page_y = (rect.y or 0) + (1 - norm_y) * (rect.h or 0)
+        u, v = 1 - norm_x, 1 - norm_y
     elseif angle == 270 then
-        page_x = (rect.x or 0) + norm_y * (rect.w or 0)
-        page_y = (rect.y or 0) + (1 - norm_x) * (rect.h or 0)
+        u, v = norm_y, 1 - norm_x
     else
-        page_x = (rect.x or 0) + norm_x * (rect.w or 0)
-        page_y = (rect.y or 0) + norm_y * (rect.h or 0)
+        u, v = norm_x, norm_y
     end
+    local page_x = (rect.x or 0) + FoldJoin.toSourceU(u, self:currentFold()) * (rect.w or 0)
+    local page_y = (rect.y or 0) + v * (rect.h or 0)
 
     return {
         x = page_x,
@@ -964,9 +974,10 @@ function PanelViewer:pageToScreenTransform(box)
         return nil
     end
 
-    local norm_x0 = (ix0 - rx) / rw
+    local fold = self:currentFold()
+    local norm_x0 = FoldJoin.toJoinedU((ix0 - rx) / rw, fold)
     local norm_y0 = (iy0 - ry) / rh
-    local norm_x1 = (ix1 - rx) / rw
+    local norm_x1 = FoldJoin.toJoinedU((ix1 - rx) / rw, fold)
     local norm_y1 = (iy1 - ry) / rh
 
     self._image_wg:getSize()
@@ -1692,6 +1703,11 @@ function PanelViewer:onCloseWidget()
     self.panel_prerender_callback = nil
     self.embedded_cleanup_callback = nil
     self.screen_resize_callback = nil
+    local closed_callback = self.closed_callback
+    self.closed_callback = nil
+    if closed_callback then
+        pcall(closed_callback, self)
+    end
     pcall(WordFinder.cleanup)
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         collectgarbage("collect")

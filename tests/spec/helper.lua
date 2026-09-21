@@ -76,6 +76,7 @@ preload("ui/widget/imageviewer", function()
         "onHoldRelease",
         "onHoldPanRelease",
         "onClose",
+        "onCloseWidget",
         "onZoomIn",
         "onZoomOut",
         "paintTo",
@@ -143,6 +144,7 @@ preload("ffi/blitbuffer", function()
         table.insert(Blitbuffer._invert_log, { x = x, y = y, w = w, h = h })
     end
     function BB:blitFrom() end
+    function BB:fill() end
     function BB:writePNG(path)
         self.written_path = path
     end
@@ -210,6 +212,7 @@ preload("ui/uimanager", function()
         "setDirty",
         "forceRePaint",
         "tickAfterNext",
+        "nextTick",
         "unschedule",
         "close",
         "broadcastEvent",
