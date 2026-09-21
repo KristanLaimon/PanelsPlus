@@ -299,15 +299,6 @@ function PanelsPlus:setJoinSpreadFold(enabled)
     UIManager:setDirty("all", "full")
 end
 
---- Enable or disable screen rotation for double-page spreads on the reading page.
----
---- @param enabled any Truthy value enables it.
-function PanelsPlus:setRotateScreenForDoublePages(enabled)
-    self.settings.rotate_screen_for_double_pages = enabled and true or false
-    self:saveSettings()
-    self:applySpreadRotationSetting()
-end
-
 --- Toggle whether swipe direction is inverted relative to reading order.
 ---
 --- @param invert_swipe any Truthy value inverts left/right panel navigation.
