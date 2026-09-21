@@ -135,8 +135,8 @@ class TestAnnotator(unittest.TestCase):
         self.assertNotIn("word", legacy_output)
 
         pa.phrases = [
-            PhraseRect(20, 20, 120, 30, 1),
-            PhraseRect(20, 55, 100, 30, 1),
+            PhraseRect(20, 20, 120, 30, 1, "Hello there"),
+            PhraseRect(20, 55, 100, 30, 1, "Hello there"),
         ]
         pa.words = [
             WordRect(22, 22, 35, 20, 1, "Hello"),
@@ -145,6 +145,7 @@ class TestAnnotator(unittest.TestCase):
         encoded = pa.to_dict()
         self.assertEqual(encoded["text_direction"], "ltr")
         self.assertEqual([p["phrase_id"] for p in encoded["phrase"]], [1, 1])
+        self.assertEqual([p["text"] for p in encoded["phrase"]], ["Hello there", "Hello there"])
         self.assertEqual([w["phrase_id"] for w in encoded["word"]], [1, 1])
         self.assertEqual([w["text"] for w in encoded["word"]], ["Hello", "there"])
 
@@ -157,7 +158,10 @@ class TestAnnotator(unittest.TestCase):
         mgr.set_page_text_annotations(
             "book",
             1,
-            [PhraseRect(10, 10, 200, 80, 1), PhraseRect(10, 100, 200, 50, 2)],
+            [
+                PhraseRect(10, 10, 200, 80, 1, "hello world"),
+                PhraseRect(10, 100, 200, 50, 2, "again"),
+            ],
             [WordRect(90, 20, 40, 20, 1, "world"), WordRect(20, 20, 40, 20, 1, "hello")],
         )
         pa = mgr.get_page_annotation("book", 1)
@@ -170,6 +174,11 @@ class TestAnnotator(unittest.TestCase):
             mgr.save_book_dataset("book")
         pa.words.append(WordRect(20, 110, 40, 20, 2, "again"))
         self.assertEqual(mgr.validate_page_text_annotations("book", 1), [])
+        pa.phrases[1].text = ""
+        self.assertEqual(
+            mgr.validate_page_text_annotations("book", 1),
+            ["phrases without text: 2"],
+        )
 
     def test_canvas_modes_and_word_overlap_assignment(self):
         canvas = MangaCanvas()
@@ -184,9 +193,9 @@ class TestAnnotator(unittest.TestCase):
 
         canvas.set_annotation_mode("phrase")
         self.assertEqual(canvas.panels, canvas.get_phrases())
-        QTest.keyClick(canvas, Qt.Key.Key_E)
+        QTest.keyClick(canvas, Qt.Key.Key_R)
         self.assertEqual(canvas.current_phrase_id, 2)
-        QTest.keyClick(canvas, Qt.Key.Key_E)
+        QTest.keyClick(canvas, Qt.Key.Key_R)
         self.assertEqual(canvas.current_phrase_id, 3)
         QTest.keyClick(canvas, Qt.Key.Key_Q)
         self.assertEqual(canvas.current_phrase_id, 2)
@@ -202,6 +211,14 @@ class TestAnnotator(unittest.TestCase):
         canvas.native_w = 400
         canvas.native_h = 300
         canvas.set_precision_mode(False)
+        canvas.set_phrase_auto_advance_distance(20)
+        phrase_prompts = []
+
+        def provide_phrase_text(index):
+            phrase_prompts.append(index)
+            canvas.set_phrase_text(index, "Good morning")
+
+        canvas.phrase_text_requested.connect(provide_phrase_text)
 
         def drag(x1, y1, x2, y2):
             canvas.mousePressEvent(QMouseEvent(
@@ -230,7 +247,13 @@ class TestAnnotator(unittest.TestCase):
         canvas.current_phrase_id = 4
         drag(20, 20, 180, 60)
         drag(20, 70, 150, 110)
-        self.assertEqual([p.phrase_id for p in canvas.get_phrases()], [4, 4])
+        drag(300, 200, 380, 240)
+        self.assertEqual([p.phrase_id for p in canvas.get_phrases()], [4, 4, 5])
+        self.assertEqual(
+            [p.text for p in canvas.get_phrases()],
+            ["Good morning", "Good morning", "Good morning"],
+        )
+        self.assertEqual(phrase_prompts, [0, 2])
 
         canvas.set_annotation_mode("word")
         drag(25, 25, 70, 50)
@@ -271,6 +294,37 @@ class TestAnnotator(unittest.TestCase):
         win._prompt_word_text(0, discard_on_cancel=True)
         self.assertEqual(win.canvas.get_words(), [])
         win.close()
+
+    def test_edit_text_has_left_hand_t_shortcut(self):
+        from PyQt6.QtGui import QAction
+
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "shortcut_dataset"))
+        shortcuts = {
+            action.text(): action.shortcut().toString()
+            for action in win.findChildren(QAction)
+        }
+        self.assertEqual(shortcuts.get("Edit Selected Text"), "T")
+        self.assertEqual(shortcuts.get("Previous Phrase ID"), "Q")
+        self.assertEqual(shortcuts.get("Next Phrase ID"), "R")
+        win.close()
+
+    def test_phrase_distance_slider_persists_local_config(self):
+        config_path = os.path.join(self.test_dir, "manga-annotator.config.json")
+        dataset_path = os.path.join(self.test_dir, "config_dataset")
+        win = AnnotatorMainWindow(dataset_dir=dataset_path, config_path=config_path)
+        self.assertEqual(win.slider_phrase_distance.value(), 120)
+        win.slider_phrase_distance.setValue(275)
+        self.assertEqual(win.canvas.phrase_auto_advance_distance, 275)
+        win.close()
+
+        with open(config_path, "r", encoding="utf-8") as config_file:
+            saved = json.load(config_file)
+        self.assertEqual(saved["phrase_auto_advance_distance"], 275)
+
+        reopened = AnnotatorMainWindow(dataset_dir=dataset_path, config_path=config_path)
+        self.assertEqual(reopened.slider_phrase_distance.value(), 275)
+        self.assertEqual(reopened.canvas.phrase_auto_advance_distance, 275)
+        reopened.close()
 
     def test_canvas_panel_operations(self):
         canvas = MangaCanvas()
@@ -525,7 +579,7 @@ class TestAnnotator(unittest.TestCase):
         mgr.set_page_text_annotations(
             "interop_book",
             1,
-            [PhraseRect(70, 120, 180, 70, 1)],
+            [PhraseRect(70, 120, 180, 70, 1, "hello")],
             [WordRect(75, 125, 60, 25, 1, "hello")],
         )
         mgr.save_book_dataset("interop_book")
@@ -539,6 +593,7 @@ class TestAnnotator(unittest.TestCase):
         assert(books[1].pages[1].frames[1].x == 50)
         assert(#books[1].pages[1].phrases == 1)
         assert(books[1].pages[1].phrases[1].phrase_id == 1)
+        assert(books[1].pages[1].phrases[1].text == "hello")
         assert(#books[1].pages[1].words == 1)
         assert(books[1].pages[1].words[1].phrase_id == 1)
         assert(books[1].pages[1].words[1].text == "hello")

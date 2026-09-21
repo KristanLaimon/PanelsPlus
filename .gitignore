@@ -66,5 +66,8 @@ __pycache__/
 .cache/
 tests/dataset-mangas/.cache/
 
+# Local Manga Annotator preferences
+manga-annotator.config.json
+
 - # Git worktrees work
 worktree-*/

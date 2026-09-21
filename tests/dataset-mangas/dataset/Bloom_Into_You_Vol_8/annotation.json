@@ -30,35 +30,36 @@
         ],
         "phrase": [
           {
-            "x": 905,
-            "y": 821,
-            "w": 316,
-            "h": 38,
-            "phrase_id": 1
+            "x": 910,
+            "y": 823,
+            "w": 307,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "Bloom Into You"
           }
         ],
         "word": [
           {
-            "x": 909,
-            "y": 822,
+            "x": 910,
+            "y": 823,
             "w": 122,
-            "h": 30,
+            "h": 29,
             "phrase_id": 1,
             "text": "Bloom"
           },
           {
-            "x": 1043,
-            "y": 823,
-            "w": 85,
-            "h": 29,
+            "x": 1045,
+            "y": 824,
+            "w": 82,
+            "h": 28,
             "phrase_id": 1,
             "text": "Into"
           },
           {
-            "x": 1140,
-            "y": 823,
-            "w": 78,
-            "h": 29,
+            "x": 1141,
+            "y": 825,
+            "w": 74,
+            "h": 27,
             "phrase_id": 1,
             "text": "You"
           }
@@ -111,11 +112,12 @@
         ],
         "phrase": [
           {
-            "x": 909,
-            "y": 823,
-            "w": 307,
-            "h": 32,
-            "phrase_id": 1
+            "x": 908,
+            "y": 822,
+            "w": 309,
+            "h": 31,
+            "phrase_id": 1,
+            "text": "Bloom Into You"
           }
         ],
         "word": [
@@ -123,23 +125,23 @@
             "x": 910,
             "y": 824,
             "w": 122,
-            "h": 27,
+            "h": 28,
             "phrase_id": 1,
             "text": "Bloom"
           },
           {
-            "x": 1045,
+            "x": 1044,
             "y": 824,
-            "w": 83,
-            "h": 27,
+            "w": 85,
+            "h": 28,
             "phrase_id": 1,
             "text": "Into"
           },
           {
             "x": 1140,
             "y": 824,
-            "w": 75,
-            "h": 27,
+            "w": 76,
+            "h": 28,
             "phrase_id": 1,
             "text": "You"
           }
@@ -172,6 +174,395 @@
             "h": 434
           }
         ],
+        "phrase": [
+          {
+            "x": 591,
+            "y": 178,
+            "w": 53,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 579,
+            "y": 203,
+            "w": 78,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 585,
+            "y": 223,
+            "w": 66,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 569,
+            "y": 246,
+            "w": 104,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 571,
+            "y": 266,
+            "w": 92,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 583,
+            "y": 289,
+            "w": 74,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 584,
+            "y": 310,
+            "w": 67,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I'VE NEVER BEEN GOOD AT MAKING UP MY MIND."
+          },
+          {
+            "x": 158,
+            "y": 786,
+            "w": 295,
+            "h": 41,
+            "phrase_id": 2,
+            "text": "The Person I Love"
+          },
+          {
+            "x": 204,
+            "y": 844,
+            "w": 194,
+            "h": 33,
+            "phrase_id": 3,
+            "text": "EPISODE FORTY"
+          },
+          {
+            "x": 984,
+            "y": 1030,
+            "w": 55,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "SO I JUST WAITED..."
+          },
+          {
+            "x": 980,
+            "y": 1052,
+            "w": 67,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "SO I JUST WAITED..."
+          },
+          {
+            "x": 960,
+            "y": 1075,
+            "w": 100,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "SO I JUST WAITED..."
+          },
+          {
+            "x": 881,
+            "y": 1055,
+            "w": 53,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "FOR THINGS TO COME TO ME."
+          },
+          {
+            "x": 866,
+            "y": 1078,
+            "w": 84,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "FOR THINGS TO COME TO ME."
+          },
+          {
+            "x": 858,
+            "y": 1100,
+            "w": 102,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "FOR THINGS TO COME TO ME."
+          },
+          {
+            "x": 869,
+            "y": 1121,
+            "w": 78,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "FOR THINGS TO COME TO ME."
+          },
+          {
+            "x": 235,
+            "y": 1418,
+            "w": 52,
+            "h": 21,
+            "phrase_id": 6,
+            "text": "BUT I SEE NOW."
+          },
+          {
+            "x": 227,
+            "y": 1441,
+            "w": 66,
+            "h": 21,
+            "phrase_id": 6,
+            "text": "BUT I SEE NOW."
+          },
+          {
+            "x": 228,
+            "y": 1462,
+            "w": 61,
+            "h": 21,
+            "phrase_id": 6,
+            "text": "BUT I SEE NOW."
+          }
+        ],
+        "word": [
+          {
+            "x": 593,
+            "y": 181,
+            "w": 50,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I'VE"
+          },
+          {
+            "x": 581,
+            "y": 204,
+            "w": 75,
+            "h": 18,
+            "phrase_id": 1,
+            "text": "NEVER"
+          },
+          {
+            "x": 586,
+            "y": 224,
+            "w": 64,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "BEEN"
+          },
+          {
+            "x": 570,
+            "y": 246,
+            "w": 64,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "GOOD"
+          },
+          {
+            "x": 635,
+            "y": 247,
+            "w": 35,
+            "h": 19,
+            "phrase_id": 1,
+            "text": "AT"
+          },
+          {
+            "x": 573,
+            "y": 267,
+            "w": 88,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "MAKING"
+          },
+          {
+            "x": 583,
+            "y": 289,
+            "w": 32,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "UP"
+          },
+          {
+            "x": 618,
+            "y": 289,
+            "w": 37,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "MY"
+          },
+          {
+            "x": 584,
+            "y": 310,
+            "w": 62,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "MIND."
+          },
+          {
+            "x": 158,
+            "y": 786,
+            "w": 65,
+            "h": 39,
+            "phrase_id": 2,
+            "text": "The"
+          },
+          {
+            "x": 233,
+            "y": 793,
+            "w": 105,
+            "h": 33,
+            "phrase_id": 2,
+            "text": "Person"
+          },
+          {
+            "x": 348,
+            "y": 794,
+            "w": 19,
+            "h": 31,
+            "phrase_id": 2,
+            "text": "I"
+          },
+          {
+            "x": 375,
+            "y": 794,
+            "w": 76,
+            "h": 31,
+            "phrase_id": 2,
+            "text": "Love"
+          },
+          {
+            "x": 206,
+            "y": 847,
+            "w": 103,
+            "h": 28,
+            "phrase_id": 3,
+            "text": "EPISODE"
+          },
+          {
+            "x": 321,
+            "y": 847,
+            "w": 75,
+            "h": 27,
+            "phrase_id": 3,
+            "text": "FORTY"
+          },
+          {
+            "x": 986,
+            "y": 1032,
+            "w": 34,
+            "h": 20,
+            "phrase_id": 4,
+            "text": "SO"
+          },
+          {
+            "x": 1021,
+            "y": 1032,
+            "w": 18,
+            "h": 20,
+            "phrase_id": 4,
+            "text": "I"
+          },
+          {
+            "x": 981,
+            "y": 1054,
+            "w": 64,
+            "h": 19,
+            "phrase_id": 4,
+            "text": "JUST"
+          },
+          {
+            "x": 961,
+            "y": 1075,
+            "w": 98,
+            "h": 19,
+            "phrase_id": 4,
+            "text": "WAITED..."
+          },
+          {
+            "x": 883,
+            "y": 1057,
+            "w": 47,
+            "h": 20,
+            "phrase_id": 5,
+            "text": "FOR"
+          },
+          {
+            "x": 868,
+            "y": 1079,
+            "w": 80,
+            "h": 20,
+            "phrase_id": 5,
+            "text": "THINGS"
+          },
+          {
+            "x": 859,
+            "y": 1101,
+            "w": 29,
+            "h": 19,
+            "phrase_id": 5,
+            "text": "TO"
+          },
+          {
+            "x": 892,
+            "y": 1101,
+            "w": 66,
+            "h": 19,
+            "phrase_id": 5,
+            "text": "COME"
+          },
+          {
+            "x": 869,
+            "y": 1122,
+            "w": 29,
+            "h": 19,
+            "phrase_id": 5,
+            "text": "TO"
+          },
+          {
+            "x": 900,
+            "y": 1122,
+            "w": 45,
+            "h": 20,
+            "phrase_id": 5,
+            "text": "ME."
+          },
+          {
+            "x": 237,
+            "y": 1419,
+            "w": 49,
+            "h": 20,
+            "phrase_id": 6,
+            "text": "BUT"
+          },
+          {
+            "x": 227,
+            "y": 1441,
+            "w": 16,
+            "h": 20,
+            "phrase_id": 6,
+            "text": "I"
+          },
+          {
+            "x": 246,
+            "y": 1442,
+            "w": 47,
+            "h": 19,
+            "phrase_id": 6,
+            "text": "SEE"
+          },
+          {
+            "x": 229,
+            "y": 1463,
+            "w": 57,
+            "h": 19,
+            "phrase_id": 6,
+            "text": "NOW."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/05.png"
         }
@@ -183,15 +574,236 @@
             "x": 45,
             "y": 3,
             "w": 1177,
-            "h": 964
+            "h": 1006
           },
           {
             "x": 151,
-            "y": 972,
+            "y": 970,
             "w": 1071,
-            "h": 708
+            "h": 710
           }
         ],
+        "phrase": [
+          {
+            "x": 917,
+            "y": 177,
+            "w": 97,
+            "h": 26,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 915,
+            "y": 203,
+            "w": 97,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 911,
+            "y": 223,
+            "w": 101,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 920,
+            "y": 245,
+            "w": 86,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 898,
+            "y": 265,
+            "w": 126,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 919,
+            "y": 288,
+            "w": 89,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "\"I WANT TO HELP NANAMI-SENPAI HOWEVER I CAN.\""
+          },
+          {
+            "x": 607,
+            "y": 326,
+            "w": 102,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          },
+          {
+            "x": 607,
+            "y": 348,
+            "w": 96,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          },
+          {
+            "x": 621,
+            "y": 371,
+            "w": 70,
+            "h": 21,
+            "phrase_id": 2,
+            "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          },
+          {
+            "x": 627,
+            "y": 392,
+            "w": 57,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          },
+          {
+            "x": 625,
+            "y": 412,
+            "w": 61,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          }
+        ],
+        "word": [
+          {
+            "x": 920,
+            "y": 181,
+            "w": 23,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "\"I"
+          },
+          {
+            "x": 947,
+            "y": 181,
+            "w": 64,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "WANT"
+          },
+          {
+            "x": 915,
+            "y": 203,
+            "w": 29,
+            "h": 19,
+            "phrase_id": 1,
+            "text": "TO"
+          },
+          {
+            "x": 945,
+            "y": 203,
+            "w": 65,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "HELP"
+          },
+          {
+            "x": 913,
+            "y": 224,
+            "w": 97,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "NANAMI-"
+          },
+          {
+            "x": 921,
+            "y": 245,
+            "w": 83,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "SENPAI"
+          },
+          {
+            "x": 900,
+            "y": 266,
+            "w": 122,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "HOWEVER"
+          },
+          {
+            "x": 920,
+            "y": 288,
+            "w": 19,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 940,
+            "y": 289,
+            "w": 65,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "CAN.\""
+          },
+          {
+            "x": 607,
+            "y": 327,
+            "w": 22,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "\"I"
+          },
+          {
+            "x": 633,
+            "y": 328,
+            "w": 76,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "WON'T"
+          },
+          {
+            "x": 607,
+            "y": 348,
+            "w": 59,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "FALL"
+          },
+          {
+            "x": 672,
+            "y": 349,
+            "w": 29,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "IN"
+          },
+          {
+            "x": 621,
+            "y": 371,
+            "w": 66,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "LOVE"
+          },
+          {
+            "x": 629,
+            "y": 392,
+            "w": 54,
+            "h": 19,
+            "phrase_id": 2,
+            "text": "WITH"
+          },
+          {
+            "x": 626,
+            "y": 412,
+            "w": 60,
+            "h": 21,
+            "phrase_id": 2,
+            "text": "YOU.\""
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/06.png"
         }

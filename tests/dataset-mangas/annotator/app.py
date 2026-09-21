@@ -7,6 +7,7 @@ Features:
 - Finished book shortcut (Ctrl+M), auto-saving, and PanelsPlus schema compatibility.
 """
 
+import json
 import os
 import re
 import sys
@@ -230,7 +231,12 @@ class BookCardWidget(QFrame):
 class AnnotatorMainWindow(QMainWindow):
     """Main application window with Library / Recent tab and Annotator tab."""
 
-    def __init__(self, initial_file: Optional[str] = None, dataset_dir: Optional[str] = None):
+    def __init__(
+        self,
+        initial_file: Optional[str] = None,
+        dataset_dir: Optional[str] = None,
+        config_path: Optional[str] = None,
+    ):
         super().__init__()
         apply_dark_theme()
         self.setWindowTitle("PanelsPlus Manga Annotator")
@@ -240,6 +246,9 @@ class AnnotatorMainWindow(QMainWindow):
         repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
         default_ds_dir = os.path.join(repo_root, "tests", "dataset-mangas", "dataset")
         os.makedirs(default_ds_dir, exist_ok=True)
+
+        self.config_path = config_path or os.path.join(repo_root, "manga-annotator.config.json")
+        self.annotator_config = self._load_annotator_config()
 
         self.dataset_dir = os.path.abspath(dataset_dir) if dataset_dir else default_ds_dir
         self.dataset_mgr = DatasetManager(self.dataset_dir)
@@ -255,6 +264,27 @@ class AnnotatorMainWindow(QMainWindow):
 
         if initial_file and os.path.exists(initial_file):
             self.import_or_open_file(initial_file)
+
+    def _load_annotator_config(self) -> dict:
+        config = {"phrase_auto_advance_distance": 120}
+        try:
+            with open(self.config_path, "r", encoding="utf-8") as config_file:
+                loaded = json.load(config_file)
+            if isinstance(loaded, dict):
+                distance = int(loaded.get("phrase_auto_advance_distance", 120))
+                config["phrase_auto_advance_distance"] = max(0, min(5000, distance))
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            pass
+        return config
+
+    def _save_annotator_config(self):
+        config_dir = os.path.dirname(os.path.abspath(self.config_path))
+        os.makedirs(config_dir, exist_ok=True)
+        temp_path = self.config_path + ".tmp"
+        with open(temp_path, "w", encoding="utf-8") as config_file:
+            json.dump(self.annotator_config, config_file, indent=2, ensure_ascii=False)
+            config_file.write("\n")
+        os.replace(temp_path, self.config_path)
 
     def _init_ui(self):
         self.tabs = QTabWidget(self)
@@ -366,6 +396,9 @@ class AnnotatorMainWindow(QMainWindow):
         canvas_layout.setContentsMargins(0, 0, 0, 0)
 
         self.canvas = MangaCanvas()
+        self.canvas.set_phrase_auto_advance_distance(
+            self.annotator_config["phrase_auto_advance_distance"]
+        )
         self.canvas.panels_changed.connect(self._on_panels_changed)
         self.canvas.panel_selected.connect(self._on_canvas_panel_selected)
         self.canvas.cursor_position.connect(self._on_cursor_position)
@@ -374,6 +407,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.double_page_illustration_requested.connect(self.set_double_page_illustration)
         self.canvas.annotation_mode_changed.connect(self._on_annotation_mode_changed)
         self.canvas.phrase_id_changed.connect(self._on_phrase_id_changed)
+        self.canvas.phrase_text_requested.connect(self._prompt_new_phrase_text)
         self.canvas.word_text_requested.connect(self._prompt_new_word_text)
         self.canvas.status_message.connect(lambda message: self.status_bar.showMessage(message, 3000))
         canvas_layout.addWidget(self.canvas, 1)
@@ -436,10 +470,28 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_phrase_id = QLabel("Phrase ID: 1")
         self.lbl_phrase_id.setAlignment(Qt.AlignmentFlag.AlignCenter)
         phrase_layout.addWidget(self.lbl_phrase_id, 1)
-        self.btn_next_phrase = QPushButton("E ▶")
+        self.btn_next_phrase = QPushButton("R ▶")
         self.btn_next_phrase.clicked.connect(lambda: self.canvas.step_phrase_id(1))
         phrase_layout.addWidget(self.btn_next_phrase)
         p_layout.addLayout(phrase_layout)
+
+        self.lbl_phrase_distance = QLabel()
+        self.lbl_phrase_distance.setToolTip(
+            "A new phrase rectangle farther than this edge-to-edge distance "
+            "automatically advances to the next Phrase ID. Coordinates use native image pixels."
+        )
+        p_layout.addWidget(self.lbl_phrase_distance)
+
+        self.slider_phrase_distance = QSlider(Qt.Orientation.Horizontal)
+        self.slider_phrase_distance.setRange(0, 5000)
+        self.slider_phrase_distance.setSingleStep(10)
+        self.slider_phrase_distance.setPageStep(50)
+        self.slider_phrase_distance.setValue(
+            self.annotator_config["phrase_auto_advance_distance"]
+        )
+        self.slider_phrase_distance.valueChanged.connect(self._on_phrase_distance_changed)
+        p_layout.addWidget(self.slider_phrase_distance)
+        self._refresh_phrase_distance_label()
 
         self.btn_full_page = QPushButton("Set Single-Page Illustration (F)")
         self.btn_full_page.setStyleSheet("font-weight: bold; background-color: #2e7d32; color: white;")
@@ -484,12 +536,12 @@ class AnnotatorMainWindow(QMainWindow):
 
         self.panel_list = QListWidget()
         self.panel_list.currentRowChanged.connect(self._on_list_row_selected)
-        self.panel_list.itemDoubleClicked.connect(lambda: self._edit_selected_word_text())
+        self.panel_list.itemDoubleClicked.connect(lambda: self._edit_selected_annotation_text())
         p_layout.addWidget(self.panel_list, 1)
 
-        self.btn_edit_word_text = QPushButton("Edit Word Text")
-        self.btn_edit_word_text.clicked.connect(self._edit_selected_word_text)
-        p_layout.addWidget(self.btn_edit_word_text)
+        self.btn_edit_text = QPushButton("Edit Annotation Text (T)")
+        self.btn_edit_text.clicked.connect(self._edit_selected_annotation_text)
+        p_layout.addWidget(self.btn_edit_text)
 
         reorder_layout = QHBoxLayout()
         self.btn_move_up = QPushButton("▲ Move Up")
@@ -590,9 +642,14 @@ class AnnotatorMainWindow(QMainWindow):
         edit_menu.addAction(act_prev_phrase)
 
         act_next_phrase = QAction("Next Phrase ID", self)
-        act_next_phrase.setShortcut(QKeySequence("E"))
+        act_next_phrase.setShortcut(QKeySequence("R"))
         act_next_phrase.triggered.connect(lambda: self.canvas.step_phrase_id(1))
         edit_menu.addAction(act_next_phrase)
+
+        act_edit_text = QAction("Edit Selected Text", self)
+        act_edit_text.setShortcut(QKeySequence("T"))
+        act_edit_text.triggered.connect(self._edit_selected_annotation_text)
+        edit_menu.addAction(act_edit_text)
 
         view_menu = menubar.addMenu("&View")
         act_fit_win = QAction("Fit &Window", self)
@@ -981,7 +1038,11 @@ class AnnotatorMainWindow(QMainWindow):
                 prefix = f"P{owner}:W{idx + 1}"
             else:
                 prefix = str(idx + 1)
-            suffix = f' “{p.text}”' if self.canvas.annotation_mode == "word" and p.text else ""
+            suffix = (
+                f' “{p.text}”'
+                if self.canvas.annotation_mode in ("phrase", "word") and p.text
+                else ""
+            )
             item = QListWidgetItem(f"[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
@@ -1004,33 +1065,88 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
         self.btn_next_phrase.setEnabled(phrase_controls_enabled)
         self.lbl_phrase_id.setEnabled(phrase_controls_enabled)
-        self.btn_edit_word_text.setEnabled(mode == "word")
+        self.lbl_phrase_distance.setEnabled(phrase_controls_enabled)
+        self.slider_phrase_distance.setEnabled(phrase_controls_enabled)
+        self.btn_edit_text.setEnabled(mode in ("phrase", "word"))
+        edit_labels = {
+            "panel": "Edit Annotation Text (T)",
+            "phrase": "Edit Phrase Text (T)",
+            "word": "Edit Word Text (T)",
+        }
+        self.btn_edit_text.setText(edit_labels[mode])
         self._refresh_panel_list()
 
     def _on_phrase_id_changed(self, phrase_id: int):
         self.lbl_phrase_id.setText(f"Phrase ID: {phrase_id}")
         self._refresh_panel_list()
 
+    def _on_phrase_distance_changed(self, distance: int):
+        self.canvas.set_phrase_auto_advance_distance(distance)
+        self.annotator_config["phrase_auto_advance_distance"] = int(distance)
+        self._refresh_phrase_distance_label()
+        try:
+            self._save_annotator_config()
+        except OSError as exc:
+            self.status_bar.showMessage(f"Could not save annotator config: {exc}", 5000)
+
+    def _refresh_phrase_distance_label(self):
+        distance = self.annotator_config["phrase_auto_advance_distance"]
+        self.lbl_phrase_distance.setText(f"New phrase distance: {distance} native px")
+
     def _prompt_new_word_text(self, index: int):
         self._prompt_word_text(index, discard_on_cancel=True)
 
-    def _edit_selected_word_text(self):
-        if self.canvas.annotation_mode != "word":
+    def _prompt_new_phrase_text(self, index: int):
+        self._prompt_phrase_text(index, discard_on_cancel=True)
+
+    def _edit_selected_annotation_text(self):
+        if self.canvas.annotation_mode not in ("phrase", "word"):
             return
         index = self.panel_list.currentRow()
         if index >= 0:
-            self._prompt_word_text(index, discard_on_cancel=False)
+            if self.canvas.annotation_mode == "phrase":
+                self._prompt_phrase_text(index, discard_on_cancel=False)
+            else:
+                self._prompt_word_text(index, discard_on_cancel=False)
+
+    def _prompt_phrase_text(self, index: int, discard_on_cancel: bool):
+        phrases = self.canvas.get_phrases()
+        if not (0 <= index < len(phrases)):
+            return
+
+        accepted, text = self._ask_annotation_text(
+            "Phrase Text",
+            f"Type the complete text for phrase {phrases[index].phrase_id}:",
+            phrases[index].text,
+        )
+        if accepted:
+            self.canvas.set_phrase_text(index, text)
+        elif discard_on_cancel:
+            self.canvas.discard_phrase(index)
+        self._refresh_panel_list()
 
     def _prompt_word_text(self, index: int, discard_on_cancel: bool):
         words = self.canvas.get_words()
         if not (0 <= index < len(words)):
             return
 
+        accepted, text = self._ask_annotation_text(
+            "Word Text",
+            "Type the text inside this word rectangle:",
+            words[index].text,
+        )
+        if accepted:
+            self.canvas.set_word_text(index, text)
+        elif discard_on_cancel:
+            self.canvas.discard_word(index)
+        self._refresh_panel_list()
+
+    def _ask_annotation_text(self, title: str, label: str, current_text: str):
         dialog = QInputDialog(self)
-        dialog.setWindowTitle("Word Text")
-        dialog.setLabelText("Type the text inside this word rectangle:")
+        dialog.setWindowTitle(title)
+        dialog.setLabelText(label)
         dialog.setInputMode(QInputDialog.InputMode.TextInput)
-        dialog.setTextValue(words[index].text)
+        dialog.setTextValue(current_text)
         dialog.setOkButtonText("Save")
         dialog.setCancelButtonText("Cancel")
 
@@ -1049,11 +1165,7 @@ class AnnotatorMainWindow(QMainWindow):
 
         accepted = dialog.exec() == QDialog.DialogCode.Accepted
         text = dialog.textValue().strip()
-        if accepted and text:
-            self.canvas.set_word_text(index, text)
-        elif discard_on_cancel:
-            self.canvas.discard_word(index)
-        self._refresh_panel_list()
+        return accepted and bool(text), text
 
     def _on_list_row_selected(self, row: int):
         self.canvas.select_panel(row)

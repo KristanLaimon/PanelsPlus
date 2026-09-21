@@ -45,6 +45,7 @@ class MangaCanvas(QWidget):
     double_page_illustration_requested = pyqtSignal()
     annotation_mode_changed = pyqtSignal(str)
     phrase_id_changed = pyqtSignal(int)
+    phrase_text_requested = pyqtSignal(int)
     word_text_requested = pyqtSignal(int)
 
     def __init__(self, parent=None):
@@ -57,6 +58,7 @@ class MangaCanvas(QWidget):
         self.native_h = 0
         self.annotation_mode = "panel"
         self.current_phrase_id = 1
+        self.phrase_auto_advance_distance = 120
         self._collections = {"panel": [], "phrase": [], "word": []}
         # Kept as an active-list alias for compatibility with the existing editor code.
         self.panels: List[Panel] = self._collections["panel"]
@@ -126,6 +128,36 @@ class MangaCanvas(QWidget):
         self.status_message.emit(f"Current phrase ID: {self.current_phrase_id}")
         self.update()
 
+    def set_phrase_auto_advance_distance(self, distance: int):
+        self.phrase_auto_advance_distance = max(0, int(distance))
+
+    @staticmethod
+    def _rectangle_edge_distance(a: Panel, b: Panel) -> float:
+        """Shortest Euclidean distance between rectangle edges (zero on overlap/touch)."""
+        dx = max(a.x - (b.x + b.w), b.x - (a.x + a.w), 0)
+        dy = max(a.y - (b.y + b.h), b.y - (a.y + a.h), 0)
+        return math.hypot(dx, dy)
+
+    def _auto_advance_phrase_id_for(self, rectangle: Panel) -> None:
+        current_fragments = [
+            phrase
+            for phrase in self.get_phrases()
+            if phrase.phrase_id == self.current_phrase_id
+        ]
+        if not current_fragments:
+            return
+        nearest_distance = min(
+            self._rectangle_edge_distance(rectangle, phrase)
+            for phrase in current_fragments
+        )
+        if nearest_distance > self.phrase_auto_advance_distance:
+            self.current_phrase_id += 1
+            self.phrase_id_changed.emit(self.current_phrase_id)
+            self.status_message.emit(
+                f"Started phrase ID {self.current_phrase_id} "
+                f"({nearest_distance:.0f}px from previous phrase)"
+            )
+
     def set_word_text(self, index: int, text: str) -> bool:
         words = self.get_words()
         if not (0 <= index < len(words)) or not text.strip():
@@ -134,6 +166,28 @@ class MangaCanvas(QWidget):
         self.panels_changed.emit()
         self.update()
         return True
+
+    def set_phrase_text(self, index: int, text: str) -> bool:
+        phrases = self.get_phrases()
+        if not (0 <= index < len(phrases)) or not text.strip():
+            return False
+        phrase_id = phrases[index].phrase_id
+        for phrase in phrases:
+            if phrase.phrase_id == phrase_id:
+                phrase.text = text.strip()
+        self.panels_changed.emit()
+        self.update()
+        return True
+
+    def discard_phrase(self, index: int) -> None:
+        phrases = self.get_phrases()
+        if 0 <= index < len(phrases):
+            phrases.pop(index)
+        self.refresh_word_assignments()
+        if self.annotation_mode == "phrase":
+            self.selected_panel_index = min(self.selected_panel_index, len(phrases) - 1)
+            self.panel_selected.emit(self.selected_panel_index)
+        self.update()
 
     def discard_word(self, index: int) -> None:
         words = self.get_words()
@@ -698,7 +752,7 @@ class MangaCanvas(QWidget):
             self.set_annotation_mode("word")
         elif event.key() == Qt.Key.Key_Q and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.step_phrase_id(-1)
-        elif event.key() == Qt.Key.Key_E and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+        elif event.key() == Qt.Key.Key_R and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.step_phrase_id(1)
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.delete_selected_panel()
@@ -1013,7 +1067,18 @@ class MangaCanvas(QWidget):
                 self._undo_stack.append([p.copy() for p in self._panels_at_drag_start])
                 self._redo_stack.clear()
                 if self.annotation_mode == "phrase":
-                    new_panel = PhraseRect(x, y, w, h, self.current_phrase_id)
+                    candidate = Panel(x, y, w, h)
+                    if not (event.modifiers() & Qt.KeyboardModifier.AltModifier):
+                        self._auto_advance_phrase_id_for(candidate)
+                    existing_text = next(
+                        (
+                            phrase.text
+                            for phrase in self.get_phrases()
+                            if phrase.phrase_id == self.current_phrase_id and phrase.text
+                        ),
+                        "",
+                    )
+                    new_panel = PhraseRect(x, y, w, h, self.current_phrase_id, existing_text)
                 elif self.annotation_mode == "word":
                     new_panel = WordRect(x, y, w, h)
                 else:
@@ -1022,7 +1087,11 @@ class MangaCanvas(QWidget):
                 if self.annotation_mode in ("phrase", "word"):
                     self.refresh_word_assignments()
                 self.selected_panel_index = len(self.panels) - 1
-                if self.annotation_mode == "word":
+                if self.annotation_mode == "phrase" and not new_panel.text:
+                    self.phrase_text_requested.emit(self.selected_panel_index)
+                    if new_panel not in self.panels:
+                        self.selected_panel_index = -1
+                elif self.annotation_mode == "word":
                     self.word_text_requested.emit(self.selected_panel_index)
                     if new_panel not in self.panels:
                         self.selected_panel_index = -1

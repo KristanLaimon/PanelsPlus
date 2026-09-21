@@ -131,6 +131,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                     w = rp.w,
                     h = rp.h,
                     phrase_id = rp.phrase_id,
+                    text = rp.text,
                 })
             end
             local words = {}

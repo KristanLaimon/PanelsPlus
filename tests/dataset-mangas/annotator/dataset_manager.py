@@ -48,21 +48,24 @@ class Panel:
 class PhraseRect(Panel):
     """One rectangular fragment of a phrase; fragments may share a phrase ID."""
 
-    def __init__(self, x: int, y: int, w: int, h: int, phrase_id: int):
+    def __init__(self, x: int, y: int, w: int, h: int, phrase_id: int, text: str = ""):
         super().__init__(x, y, w, h)
         self.phrase_id = max(1, int(phrase_id))
+        self.text = str(text).strip()
 
     def to_dict(self) -> dict:
         d = super().to_dict()
         d["phrase_id"] = self.phrase_id
+        if self.text:
+            d["text"] = self.text
         return d
 
     @classmethod
     def from_dict(cls, d: dict) -> "PhraseRect":
-        return cls(d["x"], d["y"], d["w"], d["h"], d["phrase_id"])
+        return cls(d["x"], d["y"], d["w"], d["h"], d["phrase_id"], d.get("text", ""))
 
     def copy(self) -> "PhraseRect":
-        return PhraseRect(self.x, self.y, self.w, self.h, self.phrase_id)
+        return PhraseRect(self.x, self.y, self.w, self.h, self.phrase_id, self.text)
 
 
 class WordRect(Panel):
@@ -394,6 +397,24 @@ class DatasetManager:
         missing = [pid for pid in phrase_ids if pid not in word_phrase_ids]
         if missing:
             errors.append("phrases without words: " + ", ".join(str(pid) for pid in missing))
+        missing_phrase_text = [
+            pid for pid in phrase_ids
+            if not any(p.text.strip() for p in pa.phrases if p.phrase_id == pid)
+        ]
+        if missing_phrase_text:
+            errors.append(
+                "phrases without text: " + ", ".join(str(pid) for pid in missing_phrase_text)
+            )
+        inconsistent_phrase_text = []
+        for pid in phrase_ids:
+            texts = {p.text.strip() for p in pa.phrases if p.phrase_id == pid and p.text.strip()}
+            if len(texts) > 1:
+                inconsistent_phrase_text.append(pid)
+        if inconsistent_phrase_text:
+            errors.append(
+                "phrases with inconsistent text: "
+                + ", ".join(str(pid) for pid in inconsistent_phrase_text)
+            )
         orphan_count = sum(1 for w in pa.words if w.phrase_id not in phrase_ids)
         if orphan_count:
             errors.append(f"{orphan_count} word rectangle(s) do not overlap a phrase")
