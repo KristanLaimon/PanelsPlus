@@ -147,6 +147,14 @@ describe("FoldJoin.joinBitmap", function()
         assert.near(0.512, fold.u1, 0.0001)
     end)
 
+    it("keeps the edge trim inside the widest strip it may remove", function()
+        -- A 40 px strip is the limit for a 1000 px image, so its blurred edges stay.
+        local _, fold = FoldJoin.joinBitmap(bitmap(1000, 400, pageWithBlurredBand(480, 519, 2, 2)))
+
+        assert.near(0.48, fold.u0, 0.0001)
+        assert.near(0.52, fold.u1, 0.0001)
+    end)
+
     it("returns nothing when there is no strip", function()
         assert.is_nil(FoldJoin.joinBitmap(bitmap(1000, 400, function()
             return 240
