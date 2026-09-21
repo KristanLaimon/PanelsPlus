@@ -110,6 +110,12 @@ function SpreadRotation:syncSpreadRotation(page)
     if self:isPanelViewerOpen() then
         return
     end
+    -- In continuous view several pages share the screen, "the page" is only the one at the top, and
+    -- KOReader announces the neighbouring pages while it lays them out after every rotation.
+    if self.ui.view and self.ui.view.page_scroll then
+        self:releaseSpreadRotation()
+        return
+    end
     self.spread_rotation_page = page
 
     local current = Screen:getRotationMode()
