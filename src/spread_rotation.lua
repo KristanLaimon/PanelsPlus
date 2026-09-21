@@ -56,9 +56,14 @@ end
 function SpreadRotation:setSpreadScreenRotation(mode)
     Timing.log("spread rotation: screen %d -> %d", Screen:getRotationMode(), mode)
     self._spread_rotation_busy = true
-    UIManager:broadcastEvent(Event:new("SetRotationMode", mode))
-    UIManager:onRotation()
+    local ok, err = pcall(function()
+        UIManager:broadcastEvent(Event:new("SetRotationMode", mode))
+        UIManager:onRotation()
+    end)
     self._spread_rotation_busy = nil
+    if not ok then
+        error(err)
+    end
 end
 
 --- Native page size, or `nil` when the document cannot report one.
