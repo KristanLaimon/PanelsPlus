@@ -335,6 +335,26 @@ describe("SpreadRotation on the reading page", function()
         assert.equals(1, #turns)
     end)
 
+    it("does nothing in continuous view, where several pages share the screen", function()
+        local reader, turns = readerFor()
+        reader.ui.view = { page_scroll = true }
+
+        reader:onPageUpdate(2)
+
+        assert.equals(0, #turns)
+    end)
+
+    it("restores the rotation when continuous view is switched on over a rotated spread", function()
+        local reader, turns = readerFor()
+        reader:onPageUpdate(2)
+        reader.ui.view = { page_scroll = true }
+
+        reader:onPageUpdate(2)
+
+        assert.equals("1,0", table.concat(turns, ","))
+        assert.is_nil(reader.spread_rotation)
+    end)
+
     it("does nothing in a reflowable document", function()
         local reader, turns = readerFor()
         reader.ui.paging = nil
