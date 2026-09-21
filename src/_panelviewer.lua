@@ -1160,17 +1160,19 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         return
     end
 
-    -- The document's own text layer already gave `highlight.onHold` (above,
-    -- in onHold) an exact word -- getWordFromPosition never falls back to
-    -- OCR itself (KoptInterface returns nil outright when getTextBoxes has
-    -- nothing for this page), so a hit here is strictly better than our
-    -- pixel/OCR guess and a miss costs only one cheap lookup before we fall
-    -- through to WordFinder exactly as before.
-    local ok_native, native_word = pcall(document.getWordFromPosition, document, page_pos)
-    if ok_native and native_word and native_word.word and native_word.word ~= "" then
-        return
+    -- Preserve KOReader's selection only when it came from a usable embedded
+    -- text layer. `getWordFromPosition` itself falls back to OCR when a PDF
+    -- has no such layer, where Panels+' comic-lettering-aware finder remains
+    -- the better path.
+    local get_page_text_boxes = document.getPageTextBoxes
+    if type(get_page_text_boxes) == "function" then
+        local ok_text, text_boxes = pcall(get_page_text_boxes, document, page_pos.page)
+        local configurable = document.configurable or {}
+        if ok_text and text_boxes and #text_boxes > 1 and configurable.forced_ocr ~= 1 then
+            return
+        end
     end
-    
+
     local ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
     if not ok or not box then
         if self.ocr_debug_mode then
