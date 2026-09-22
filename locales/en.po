@@ -351,9 +351,6 @@ msgstr "Some scans join the two pages of a spread with a black strip. Remove tha
 msgid "Remove spread fold line (Actual: "
 msgstr "Remove spread fold line (Actual: "
 
-msgid "Rotate double-page spreads"
-msgstr "Rotate double-page spreads"
-
 msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
 msgstr "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
 

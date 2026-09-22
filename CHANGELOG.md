@@ -21,7 +21,7 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
   - Screen rotation does not run in continuous view, where several pages share the screen and KOReader announces neighbouring pages after every rotation.
   - While pages are turned in quick succession (less than 0.8 s apart), nothing is rotated until the turning stops. Flipping past a spread no longer rotates the screen twice. A single page turn still rotates before the page is painted.
   - When the panel viewer opens from a rotated spread, the rotation is restored first so panels are shown upright. It is kept when the spread has only the whole page to show.
-  - `auto_rotate_double_pages` and the new option are shown as one entry, `Rotate double-page spreads`, with four choices: off, in the panel viewer, while reading, in the panel viewer and while reading. It is in the Panels+ menu and under `[Rotation]` in `More Panel Viewer Settings`. Changing it from the viewer rebuilds the viewer, so the change shows at once.
+  - `auto_rotate_double_pages` and the new option are shown as one entry, `Auto-rotate double-page spreads`, with four choices: off, in the panel viewer, while reading, in the panel viewer and while reading. It is in the Panels+ menu and under `[Rotation]` in `More Panel Viewer Settings`. Changing it from the viewer rebuilds the viewer, so the change shows at once.
 - "Open panels with" setting: a long press, as before, or a two-finger tap. With two-finger tap, a long press is left to KOReader and other plugins (for example Bubble Zoom).
 
 ### Fixed

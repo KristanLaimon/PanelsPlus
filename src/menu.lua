@@ -115,6 +115,54 @@ function Menu:addToMainMenu(menu_items)
                 separator = true,
             },
             {
+                text = _("Auto-rotate double-page spreads"),
+                help_text = _(
+                    "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+                ),
+                sub_item_table = {
+                    {
+                        text = _("Off"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "off"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("off")
+                        end,
+                    },
+                    {
+                        text = _("In the panel viewer"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "viewer"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("viewer")
+                        end,
+                    },
+                    {
+                        text = _("While reading"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "reading"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("reading")
+                        end,
+                    },
+                    {
+                        text = _("In the panel viewer and while reading"),
+                        checked_func = function()
+                            return self:getSpreadRotationMode() == "both"
+                        end,
+                        radio = true,
+                        callback = function()
+                            self:setSpreadRotationMode("both")
+                        end,
+                    },
+                },
+            },
+            {
                 text = _("Spread rotation direction"),
                 help_text = _(
                     'Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows "Invert default rotation in portrait mode" in KOReader\'s rotation settings.'
@@ -163,54 +211,6 @@ function Menu:addToMainMenu(menu_items)
                 help_text = _(
                     "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
                 ),
-            },
-            {
-                text = _("Rotate double-page spreads"),
-                help_text = _(
-                    "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
-                ),
-                sub_item_table = {
-                    {
-                        text = _("Off"),
-                        checked_func = function()
-                            return self:getSpreadRotationMode() == "off"
-                        end,
-                        radio = true,
-                        callback = function()
-                            self:setSpreadRotationMode("off")
-                        end,
-                    },
-                    {
-                        text = _("In the panel viewer"),
-                        checked_func = function()
-                            return self:getSpreadRotationMode() == "viewer"
-                        end,
-                        radio = true,
-                        callback = function()
-                            self:setSpreadRotationMode("viewer")
-                        end,
-                    },
-                    {
-                        text = _("While reading"),
-                        checked_func = function()
-                            return self:getSpreadRotationMode() == "reading"
-                        end,
-                        radio = true,
-                        callback = function()
-                            self:setSpreadRotationMode("reading")
-                        end,
-                    },
-                    {
-                        text = _("In the panel viewer and while reading"),
-                        checked_func = function()
-                            return self:getSpreadRotationMode() == "both"
-                        end,
-                        radio = true,
-                        callback = function()
-                            self:setSpreadRotationMode("both")
-                        end,
-                    },
-                },
                 separator = true,
             },
             {
