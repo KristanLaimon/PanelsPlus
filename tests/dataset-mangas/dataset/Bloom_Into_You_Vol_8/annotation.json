@@ -671,6 +671,62 @@
             "h": 22,
             "phrase_id": 2,
             "text": "\"I WON'T FALL IN LOVE WITH YOU.\""
+          },
+          {
+            "x": 788,
+            "y": 583,
+            "w": 92,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "\"I WANT TO CHANGE HER.\""
+          },
+          {
+            "x": 817,
+            "y": 605,
+            "w": 30,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "\"I WANT TO CHANGE HER.\""
+          },
+          {
+            "x": 785,
+            "y": 625,
+            "w": 94,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "\"I WANT TO CHANGE HER.\""
+          },
+          {
+            "x": 797,
+            "y": 647,
+            "w": 70,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "\"I WANT TO CHANGE HER.\""
+          },
+          {
+            "x": 344,
+            "y": 855,
+            "w": 92,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "\"I ONLY KNOW YOU.\""
+          },
+          {
+            "x": 350,
+            "y": 878,
+            "w": 72,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "\"I ONLY KNOW YOU.\""
+          },
+          {
+            "x": 355,
+            "y": 899,
+            "w": 64,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "\"I ONLY KNOW YOU.\""
           }
         ],
         "word": [
@@ -800,6 +856,78 @@
             "w": 60,
             "h": 21,
             "phrase_id": 2,
+            "text": "YOU.\""
+          },
+          {
+            "x": 789,
+            "y": 583,
+            "w": 23,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "\"I"
+          },
+          {
+            "x": 815,
+            "y": 584,
+            "w": 64,
+            "h": 19,
+            "phrase_id": 3,
+            "text": "WANT"
+          },
+          {
+            "x": 818,
+            "y": 606,
+            "w": 28,
+            "h": 18,
+            "phrase_id": 3,
+            "text": "TO"
+          },
+          {
+            "x": 786,
+            "y": 626,
+            "w": 91,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "CHANGE"
+          },
+          {
+            "x": 798,
+            "y": 647,
+            "w": 67,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "HER.\""
+          },
+          {
+            "x": 371,
+            "y": 856,
+            "w": 61,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "ONLY"
+          },
+          {
+            "x": 346,
+            "y": 857,
+            "w": 22,
+            "h": 20,
+            "phrase_id": 4,
+            "text": "\"I"
+          },
+          {
+            "x": 351,
+            "y": 879,
+            "w": 70,
+            "h": 19,
+            "phrase_id": 4,
+            "text": "KNOW"
+          },
+          {
+            "x": 356,
+            "y": 900,
+            "w": 61,
+            "h": 20,
+            "phrase_id": 4,
             "text": "YOU.\""
           }
         ],
