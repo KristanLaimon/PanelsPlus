@@ -771,6 +771,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         image = images,
         image_disposable = true,
         images_list_nb = #images,
+        initial_image_num = start_idx,
         page = page,
         panels = panels,
         image_rects = image_rects,
@@ -863,9 +864,6 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)
-    if start_idx and start_idx > 1 then
-        viewer:switchToImageNum(start_idx)
-    end
     if not options.defer_preload then
         self:preloadNextPanels(page)
     end

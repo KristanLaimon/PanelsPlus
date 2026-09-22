@@ -253,13 +253,22 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         return false
     end
 
-    local panels, detector_or_reason = detectPanels(image, self.settings)
+    local panels = options.panels
     if not panels then
-        Timing.log("embedded image detector rejected: " .. tostring(detector_or_reason))
-        freeImage(image)
-        return false
+        local detector_or_reason
+        panels, detector_or_reason = detectPanels(image, self.settings)
+        if not panels then
+            Timing.log("embedded image detector rejected: " .. tostring(detector_or_reason))
+            freeImage(image)
+            return false
+        end
     end
     panels = Geometry.sortReadingOrder(panels, self.settings.mode)
+
+    -- A forward boundary lands at the first panel of the next image, while a
+    -- backward boundary must land at the last panel of the previous image.
+    local initial_image_num = options.boundary_direction == "previous" and #panels
+        or startIndex(panels, options.start_point)
 
     local images = { image_disposable = true }
     local image_rects, full_page_flags = {}, {}
@@ -285,6 +294,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         image = images,
         image_disposable = true,
         images_list_nb = #images,
+        initial_image_num = initial_image_num,
         panels = panels,
         image_rects = image_rects,
         panel_is_full_page = full_page_flags,
@@ -416,14 +426,6 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)
-    -- A forward boundary lands at the first panel of the next image, while a
-    -- backward boundary must land at the last panel of the previous image.
-    -- Starting at panel 1 in both directions made backward page crossings
-    -- look like a broken smooth transition and skipped the expected endpoint.
-    local index = options.boundary_direction == "previous" and #panels or startIndex(panels, options.start_point)
-    if index > 1 then
-        viewer:switchToImageNum(index)
-    end
     return true
 end
 
@@ -442,13 +444,18 @@ function EmbeddedImage:reopenEmbeddedImagePanels(viewer, options)
             y = (panel.y or 0) + (panel.h or 0) / 2,
         }
     local image = viewer.embedded_source_image
+    local panels = viewer.panels
     local buttons_visible = options and options.buttons_visible
     if buttons_visible == nil then
         buttons_visible = true
     end
     viewer.embedded_source_image = nil -- transfer ownership to the replacement viewer
     UIManager:close(viewer)
-    return self:showEmbeddedImagePanelsForImage(image, { start_point = start_point, buttons_visible = buttons_visible })
+    return self:showEmbeddedImagePanelsForImage(image, {
+        panels = panels,
+        start_point = start_point,
+        buttons_visible = buttons_visible,
+    })
 end
 
 --- Rotate the device/screen and reopen the embedded image viewer at the current panel.
@@ -463,12 +470,14 @@ function EmbeddedImage:setDeviceRotation(viewer, mode)
             y = (panel.y or 0) + (panel.h or 0) / 2,
         }
     local image = viewer.embedded_source_image
+    local panels = viewer.panels
     local buttons_visible = viewer.buttons_visible
     viewer.embedded_source_image = nil -- transfer ownership to the replacement viewer
     UIManager:close(viewer)
     UIManager:broadcastEvent(Event:new("SetRotationMode", mode))
     UIManager:onRotation()
     return self:showEmbeddedImagePanelsForImage(image, {
+        panels = panels,
         start_point = start_point,
         buttons_visible = buttons_visible,
     })

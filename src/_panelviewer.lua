@@ -60,6 +60,7 @@ end
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
 --- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
+--- @field initial_image_num integer|nil Image list entry to render during initialization instead of rendering entry 1 first.
 --- @field detector PPDetector Detector the displayed panels came from.
 --- @field detector_cycle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field invert_swipe boolean Whether horizontal swipe direction is inverted.
@@ -107,6 +108,7 @@ local PanelViewer = ImageViewer:extend({
     margin_ratio = 0.12,
     bleed_ratio = 0.08,
     panel_is_full_page = nil,
+    initial_image_num = nil,
     detector = "exact",
     invert_swipe = false,
     invert_taps = false,
@@ -1523,7 +1525,40 @@ end
 
 --- Initialize ImageViewer state, controls, and first render.
 function PanelViewer:init()
+    -- Base ImageViewer always materializes list entry 1 during init. When a
+    -- rebuilt viewer needs to reopen on a later panel, give it a one-entry
+    -- initialization view so it renders the destination directly instead of
+    -- rendering panel 1 and immediately throwing that bitmap away.
+    local images = type(self.image) == "table" and self.image or nil
+    local image_count = images and (self.images_list_nb or #images) or 0
+    local initial_image_num = math.floor(tonumber(self.initial_image_num) or 1)
+    if initial_image_num < 1 or initial_image_num > image_count then
+        initial_image_num = 1
+    end
+    local initial_image
+    local images_list_disposable = self.image_disposable
+    if images and initial_image_num > 1 then
+        initial_image = images[initial_image_num]
+        if type(initial_image) == "function" then
+            initial_image = initial_image()
+        end
+        self.images_list_nb = image_count
+        self.image = {
+            initial_image,
+            image_disposable = images.image_disposable,
+        }
+    end
+
     ImageViewer.init(self)
+    if images and initial_image_num > 1 then
+        self.image = initial_image
+        self._images_list = images
+        self._images_list_cur = initial_image_num
+        self._images_list_nb = image_count
+        self._images_list_disposable = images_list_disposable
+        self.image_disposable = images.image_disposable
+    end
+    self.initial_image_num = nil
     if self._images_list then
         self.rotated = self._images_list.rotated
     end

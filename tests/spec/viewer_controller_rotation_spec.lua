@@ -147,6 +147,46 @@ describe("PanelViewer Android screen resize", function()
         Screen.getWidth, Screen.getHeight = old_width, old_height
     end)
 
+    it("renders only the requested panel when reopening at a later index", function()
+        local rendered_rects = {}
+        local document = {
+            getPageDimensions = function()
+                return { w = 800, h = 1600 }
+            end,
+            drawPagePart = function(_, _, rect)
+                table.insert(rendered_rects, rect)
+                return {
+                    getWidth = function()
+                        return rect.w
+                    end,
+                    getHeight = function()
+                        return rect.h
+                    end,
+                    free = function() end,
+                },
+                    false
+            end,
+        }
+        local controller = setmetatable({
+            settings = { crop_mode = "strict" },
+            ui = { document = document },
+            preloadNextPanels = function() end,
+        }, { __index = ViewerController })
+        local panels = {
+            { x = 0, y = 0, w = 800, h = 250 },
+            { x = 0, y = 250, w = 800, h = 250 },
+        }
+
+        controller:showPanelViewerForPage(7, panels, 2)
+
+        local viewer = UIManager._last_shown
+        -- The lightweight ImageViewer test stub does not call init from new().
+        viewer:init()
+        assert.equals(2, viewer._images_list_cur)
+        assert.equals(1, #rendered_rects)
+        assert.equals(250, rendered_rects[1].y)
+    end)
+
     it("reopens the current panel after auto-rotation changes a Palma-sized canvas", function()
         local old_close = UIManager.close
         local shown = spy()
@@ -162,11 +202,13 @@ describe("PanelViewer Android screen resize", function()
         local panels = { { x = 0, y = 0, w = 800, h = 250 }, { x = 0, y = 250, w = 800, h = 250 } }
         local controller = setmetatable({
             settings = { crop_mode = "strict" },
-            ui = { document = {
-                getPageDimensions = function()
-                    return { w = 800, h = 1600 }
-                end,
-            } },
+            ui = {
+                document = {
+                    getPageDimensions = function()
+                        return { w = 800, h = 1600 }
+                    end,
+                },
+            },
             preloadNextPanels = function() end,
         }, { __index = ViewerController })
         controller:showPanelViewerForPage(7, panels, 1, { buttons_visible = true })

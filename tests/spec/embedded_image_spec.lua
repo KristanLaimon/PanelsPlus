@@ -310,10 +310,73 @@ describe("EmbeddedImage device rotation", function()
         assert.equals(1, close:callCount())
         assert.equals(1, show:callCount())
         assert.equals(image, show:lastCall()[2])
+        assert.equals(viewer.panels, show:lastCall()[3].panels)
         assert.equals(600, show:lastCall()[3].start_point.x)
         assert.is_false(show:lastCall()[3].buttons_visible)
         assert.is_nil(viewer.embedded_source_image)
         UIManager.close = old_close
+    end)
+
+    it("reuses detected panels when auto-rotation rebuilds an embedded viewer", function()
+        local PageBitmap = require("src._pagebitmap")
+        local ComponentDetector = require("src._componentdetector")
+        local old_build = PageBitmap.buildFromBlitbuffer
+        local old_detect = ComponentDetector.detectPage
+        local old_width, old_height = Screen.getWidth, Screen.getHeight
+        local screen_w, screen_h = 600, 800
+        local detection_count = 0
+        Screen.getWidth = function()
+            return screen_w
+        end
+        Screen.getHeight = function()
+            return screen_h
+        end
+        PageBitmap.buildFromBlitbuffer = function()
+            detection_count = detection_count + 1
+            return {}
+        end
+        ComponentDetector.detectPage = function()
+            return {
+                { x = 0, y = 0, w = 800, h = 600 },
+                { x = 0, y = 600, w = 800, h = 600 },
+            }
+        end
+
+        local plugin = setmetatable({
+            settings = {
+                mode = "manga",
+                crop_mode = "strict",
+                embedded_nav_transition_mode = "classic",
+            },
+            ui = {},
+        }, { __index = EmbeddedImage })
+        local image = {
+            w = 800,
+            h = 1200,
+            getType = function()
+                return 1
+            end,
+        }
+
+        assert.is_true(plugin:showEmbeddedImagePanelsForImage(image, { start_point = { x = 400, y = 900 } }))
+        local portrait_viewer = UIManager._last_shown
+        -- The lightweight ImageViewer test stub does not call init from new().
+        portrait_viewer:init()
+        portrait_viewer.region = { w = screen_w, h = screen_h }
+        assert.equals(2, portrait_viewer._images_list_cur)
+        assert.equals(1, detection_count)
+
+        screen_w, screen_h = 800, 600
+        assert.is_true(portrait_viewer:onScreenResize({ w = screen_w, h = screen_h }))
+        local landscape_viewer = UIManager._last_shown
+        landscape_viewer:init()
+        assert.is_true(landscape_viewer ~= portrait_viewer)
+        assert.equals(2, landscape_viewer._images_list_cur)
+        assert.equals(1, detection_count)
+
+        PageBitmap.buildFromBlitbuffer = old_build
+        ComponentDetector.detectPage = old_detect
+        Screen.getWidth, Screen.getHeight = old_width, old_height
     end)
 
     it("reopens the viewer at the current panel across screen rotation", function()
@@ -345,6 +408,7 @@ describe("EmbeddedImage device rotation", function()
         assert.equals(1, broadcast:lastCall()[2].args[1])
         assert.is_true(rotated:called())
         assert.equals(image, show:lastCall()[2])
+        assert.equals(viewer.panels, show:lastCall()[3].panels)
         assert.equals(600, show:lastCall()[3].start_point.x)
         assert.equals(300, show:lastCall()[3].start_point.y)
         assert.is_true(show:lastCall()[3].buttons_visible)
