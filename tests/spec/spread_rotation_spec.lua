@@ -652,7 +652,7 @@ describe("Double-page spread settings in the menus", function()
         }
         plugin.getSpreadRotationMode = MainMenu.getSpreadRotationMode
         MainMenu.addToMainMenu(plugin, menu_items)
-        local entry = findItem(menu_items.panels_plus.sub_item_table, "Rotate double-page spreads")
+        local entry = findItem(menu_items.panels_plus.sub_item_table, "Auto-rotate double-page spreads")
         local choices = entry.sub_item_table
 
         assert.equals(4, #choices)

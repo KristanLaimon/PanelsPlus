@@ -351,9 +351,6 @@ msgstr "Algunos escaneos unen las dos páginas de una página doble con una fran
 msgid "Remove spread fold line (Actual: "
 msgstr "Quitar línea central de páginas dobles (Actual: "
 
-msgid "Rotate double-page spreads"
-msgstr "Girar las páginas dobles"
-
 msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
 msgstr "Gira las páginas dobles un cuarto de vuelta para que llenen una pantalla vertical. En el visor de paneles se gira la imagen de la página doble completa y el dispositivo no cambia. Durante la lectura, la pantalla se gira cuando se llega a una página doble y se restaura en la siguiente página normal, en la misma dirección."
 
