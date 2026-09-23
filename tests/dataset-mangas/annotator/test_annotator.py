@@ -260,6 +260,37 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(len(canvas.get_words()), 1)
         self.assertEqual(canvas.get_words()[0].phrase_id, 4)
 
+    def test_selected_phrase_box_can_be_reused_for_one_word(self):
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "copy_word_dataset"))
+        phrase = PhraseRect(20, 30, 70, 24, 2, "ONE WORD")
+        win.canvas.set_page(None, [], [phrase], [])
+        win.canvas.set_annotation_mode("phrase")
+        win.canvas.select_panel(0)
+        self.assertTrue(win.btn_phrase_to_word.isEnabled())
+
+        prompts = []
+
+        win._ask_annotation_text = lambda *args: (False, "")
+        win._add_word_from_selected_phrase()
+        self.assertEqual(win.canvas.get_words(), [])
+
+        def answer(title, label, current_text):
+            prompts.append(current_text)
+            return True, "WORD"
+        win._ask_annotation_text = answer
+        win._add_word_from_selected_phrase()
+
+        self.assertEqual(prompts, [""])
+        self.assertEqual(len(win.canvas.get_phrases()), 1)
+        self.assertEqual(len(win.canvas.get_words()), 1)
+        word = win.canvas.get_words()[0]
+        self.assertEqual((word.x, word.y, word.w, word.h), (20, 30, 70, 24))
+        self.assertEqual((word.phrase_id, word.text), (2, "WORD"))
+        win._add_word_from_selected_phrase()
+        self.assertEqual(len(win.canvas.get_words()), 1)
+        self.assertEqual(prompts, [""])
+        win.close()
+
     def test_word_text_prompt_autofocuses_and_enter_saves(self):
         from PyQt6.QtCore import QTimer
         from PyQt6.QtWidgets import QLineEdit
@@ -306,6 +337,7 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(shortcuts.get("Edit Selected Text"), "T")
         self.assertEqual(shortcuts.get("Previous Phrase ID"), "Q")
         self.assertEqual(shortcuts.get("Next Phrase ID"), "R")
+        self.assertEqual(shortcuts.get("Use Selected Phrase Box as Word"), "W")
         win.close()
 
     def test_phrase_distance_slider_persists_local_config(self):

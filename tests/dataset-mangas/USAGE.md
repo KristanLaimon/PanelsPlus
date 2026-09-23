@@ -151,6 +151,7 @@ When launched, the application presents the **📚 Recent Projects** tab:
 | **Panel Rectangle Mode** | `1` | Draw and edit panel rectangles |
 | **Phrase Rectangle Mode** | `2` | Draw phrase fragments; multiple fragments may share one phrase ID |
 | **Word Rectangle Mode** | `3` | Draw word boxes and assign them to phrases by overlap |
+| **Use Phrase Box as Word** | `W` or sidebar button in Phrase Mode | Copy the selected phrase fragment's exact rectangle to a word, then enter that word's text |
 | **Previous / Next Phrase ID** | `Q` / `R` | Select the adjacent phrase ID with the left hand |
 | **Edit Selected Text** | `T` | Edit the selected Phrase or Word text |
 | **Select Panel** | `Left Click` | Select a panel to view handles and details |
@@ -249,6 +250,8 @@ Creating a word opens a focused text prompt immediately; Enter stores its `text`
 Cancel discards the new rectangle. Existing word text can be edited from the sidebar.
 The first rectangle of a phrase ID prompts for the complete phrase text. Additional
 rectangles with that same ID reuse it, and editing phrase text updates every fragment.
+For a line containing one word, select its phrase rectangle and press `W` or use **Use
+Phrase Box as Word**. The phrase remains; the new word uses the same coordinates and size.
 In Phrase Mode, the **New phrase distance** slider controls automatic ID advancement.
 The annotator measures the shortest edge-to-edge distance in native image pixels from
 the new rectangle to the current phrase's fragments. A distance above the threshold

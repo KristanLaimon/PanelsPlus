@@ -543,6 +543,14 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_edit_text.clicked.connect(self._edit_selected_annotation_text)
         p_layout.addWidget(self.btn_edit_text)
 
+        self.btn_phrase_to_word = QPushButton("Use Phrase Box as Word (W)...")
+        self.btn_phrase_to_word.setToolTip(
+            "After drawing a phrase line with one word, reuse its exact rectangle "
+            "for the word. The phrase rectangle stays in place."
+        )
+        self.btn_phrase_to_word.clicked.connect(self._add_word_from_selected_phrase)
+        p_layout.addWidget(self.btn_phrase_to_word)
+
         reorder_layout = QHBoxLayout()
         self.btn_move_up = QPushButton("▲ Move Up")
         self.btn_move_up.clicked.connect(self._move_panel_up)
@@ -650,6 +658,11 @@ class AnnotatorMainWindow(QMainWindow):
         act_edit_text.setShortcut(QKeySequence("T"))
         act_edit_text.triggered.connect(self._edit_selected_annotation_text)
         edit_menu.addAction(act_edit_text)
+
+        act_phrase_to_word = QAction("Use Selected Phrase Box as Word", self)
+        act_phrase_to_word.setShortcut(QKeySequence("W"))
+        act_phrase_to_word.triggered.connect(self._add_word_from_selected_phrase)
+        edit_menu.addAction(act_phrase_to_word)
 
         view_menu = menubar.addMenu("&View")
         act_fit_win = QAction("Fit &Window", self)
@@ -1048,6 +1061,7 @@ class AnnotatorMainWindow(QMainWindow):
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
         self.panel_list.blockSignals(False)
+        self._update_phrase_to_word_button()
 
     def _on_canvas_panel_selected(self, idx: int):
         self.panel_list.blockSignals(True)
@@ -1056,6 +1070,7 @@ class AnnotatorMainWindow(QMainWindow):
         else:
             self.panel_list.clearSelection()
         self.panel_list.blockSignals(False)
+        self._update_phrase_to_word_button()
 
     def _on_annotation_mode_changed(self, mode: str):
         for name, button in self.mode_buttons.items():
@@ -1075,6 +1090,12 @@ class AnnotatorMainWindow(QMainWindow):
         }
         self.btn_edit_text.setText(edit_labels[mode])
         self._refresh_panel_list()
+
+    def _update_phrase_to_word_button(self):
+        self.btn_phrase_to_word.setEnabled(
+            self.canvas.annotation_mode == "phrase"
+            and 0 <= self.canvas.selected_panel_index < len(self.canvas.get_phrases())
+        )
 
     def _on_phrase_id_changed(self, phrase_id: int):
         self.lbl_phrase_id.setText(f"Phrase ID: {phrase_id}")
@@ -1098,6 +1119,28 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _prompt_new_phrase_text(self, index: int):
         self._prompt_phrase_text(index, discard_on_cancel=True)
+
+    def _add_word_from_selected_phrase(self):
+        if self.canvas.annotation_mode != "phrase":
+            return
+        index = self.canvas.selected_panel_index
+        phrases = self.canvas.get_phrases()
+        if not (0 <= index < len(phrases)):
+            return
+        phrase = phrases[index]
+        if any(
+            (word.x, word.y, word.w, word.h)
+            == (phrase.x, phrase.y, phrase.w, phrase.h)
+            for word in self.canvas.get_words()
+        ):
+            self.status_bar.showMessage("A word already uses this rectangle.", 3000)
+            return
+        initial_text = phrase.text if len(phrase.text.split()) == 1 else ""
+        accepted, text = self._ask_annotation_text(
+            "Word Text", "Type the word in this phrase rectangle:", initial_text
+        )
+        if accepted and self.canvas.add_word_from_phrase(index, text):
+            self.status_bar.showMessage("Word created from phrase rectangle.", 3000)
 
     def _edit_selected_annotation_text(self):
         if self.canvas.annotation_mode not in ("phrase", "word"):

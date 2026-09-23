@@ -179,6 +179,23 @@ class MangaCanvas(QWidget):
         self.update()
         return True
 
+    def add_word_from_phrase(self, index: int, text: str) -> bool:
+        """Reuse a phrase fragment's box for one word without removing the phrase."""
+        phrases = self.get_phrases()
+        if not (0 <= index < len(phrases)) or not text.strip():
+            return False
+        phrase = phrases[index]
+        geometry = (phrase.x, phrase.y, phrase.w, phrase.h)
+        if any(
+            (word.x, word.y, word.w, word.h) == geometry
+            for word in self.get_words()
+        ):
+            return False
+        self.get_words().append(WordRect(*geometry, phrase.phrase_id, text.strip()))
+        self.panels_changed.emit()
+        self.update()
+        return True
+
     def discard_phrase(self, index: int) -> None:
         phrases = self.get_phrases()
         if 0 <= index < len(phrases):
