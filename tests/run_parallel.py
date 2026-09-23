@@ -20,6 +20,7 @@ DATASET_SPECS = {
 }
 OCR_SPECS = {
     "tests.spec.wordfinder_spec",
+    "tests.spec.ocr_benchmark_spec",
     "tests.spec.panelviewer_refineword_spec",
     "tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_ocr_spec",
 }

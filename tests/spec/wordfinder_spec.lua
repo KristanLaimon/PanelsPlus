@@ -169,6 +169,26 @@ describe("WordFinder:findWordBox word-vs-letter gap threshold", function()
     end)
 end)
 
+describe("WordFinder:findWordBox short lines inside a speech bubble", function()
+    it("does not use the bubble margins as inter-letter spacing", function()
+        local pixels = blankPixels(1000, 1000)
+        fillInk(pixels, 325, 90, 326, 111)
+        fillInk(pixels, 400, 90, 411, 111)
+        fillInk(pixels, 420, 90, 439, 111)
+        fillInk(pixels, 443, 90, 460, 111)
+        fillInk(pixels, 530, 90, 531, 111)
+        local document = newFakeDocument(1000, 1000, pixels)
+
+        local first = WordFinder.findWordBox(document, 1, 406, 100)
+        local second = WordFinder.findWordBox(document, 1, 430, 100)
+        assert.is_not_nil(first)
+        assert.is_not_nil(second)
+        assert.is_true(first.x + first.w < 420, "first word must exclude the second")
+        assert.is_true(second.x > 411, "second word must exclude the first")
+        assert.is_true(second.x + second.w >= 460, "second word must retain both glyph groups")
+    end)
+end)
+
 describe("WordFinder:findWordBox on x-height-only text (regression: 'eater' -> 'a')", function()
     -- A short line (x-height only, no ascenders/descenders reaching further
     -- up or down -- e.g. "eater") with wider-than-usual letter kerning, as
@@ -639,7 +659,7 @@ describe("WordFinder.ocrWord tight native OCR path", function()
         assert.equals(91, observed.bbox.x1)
         assert.equals(20, observed.bbox.y0)
         assert.equals(40, observed.bbox.y1)
-        assert.equals(1.5, observed.zoom)
+        assert.equals(1, observed.zoom, "the agreeing second read uses a 20px crop")
         assert.equals(10, box.x, "OCR margin must not move the highlight")
         assert.equals(80, box.w)
     end)
@@ -649,6 +669,37 @@ describe("WordFinder.ocrWord tight native OCR path", function()
         WordFinder.ocrWord(document, 1, { x = 0, y = 5, w = 30, h = 20 }, "eng", { w = 30, h = 30 })
         assert.equals(0, observed.bbox.x0)
         assert.equals(30, observed.bbox.x1)
+    end)
+
+    it("uses agreement to correct plausible English errors and preserves ties", function()
+        local cases = {
+            { reads = { "LOVE!", "Love" }, expected = "LOVE!", calls = 2 },
+            { reads = { "Sove", "Love", "LOVE!" }, expected = "Love", calls = 3 },
+            { reads = { "Sove", "Love", "Lone" }, expected = "Sove", calls = 3 },
+            { reads = { "GOOD", "BAD" }, expected = "GOOD", calls = 1, language = "spa" },
+        }
+        for _, case in ipairs(cases) do
+            local document, _, context = newNativeDocument()
+            local calls = 0
+            context.getTOCRWord = function()
+                calls = calls + 1
+                return case.reads[calls]
+            end
+            assert.equals(case.expected, WordFinder.readWord(document, 1, box, nil, case.language or "eng"))
+            assert.equals(case.calls, calls)
+        end
+    end)
+
+    it("renders the tighter OCR crop without changing the highlight", function()
+        local document, observed = newNativeDocument()
+        local highlight = { x = 10, y = 20, w = 80, h = 20, ocr_box = { x = 12, y = 22, w = 76, h = 16 } }
+        assert.equals("GOOD", WordFinder.readWord(document, 1, highlight))
+        assert.equals(12, observed.bbox.x0)
+        assert.equals(22, observed.bbox.y0)
+        assert.equals(88, observed.bbox.x1)
+        assert.equals(38, observed.bbox.y1)
+        assert.equals(10, highlight.x)
+        assert.equals(80, highlight.w)
     end)
 
     it("routes Spanish and Italian to their bundled models regardless of document language", function()

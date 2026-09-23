@@ -43,6 +43,7 @@ local spec_modules = {
     "tests.spec.geometry_spec",
     "tests.spec.panelviewport_spec",
     "tests.spec.wordfinder_spec",
+    "tests.spec.ocr_benchmark_spec",
     "tests.spec.pagebitmap_spec",
     "tests.spec.segmenter_spec",
     "tests.spec.componentdetector_spec",

@@ -1,17 +1,17 @@
 {
+  "book_title": "Bloom_Into_You_Vol_8",
   "components_full_volume": {
+    "f1": 0.9337,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9369,
     "pages_evaluated": 213,
-    "total_ground_truth": 726,
-    "total_detected": 677,
-    "true_positives": 655,
     "precision": 0.9675,
     "recall": 0.9022,
-    "f1": 0.9337,
-    "mean_iou": 0.9369,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
+    "total_detected": 677,
+    "total_ground_truth": 726,
+    "true_positives": 655
   },
-  "book_title": "Bloom_Into_You_Vol_8",
   "full_volume": {
     "f1": 0.7992,
     "gap_tolerance": 35,
@@ -24,14 +24,51 @@
     "total_ground_truth": 726,
     "true_positives": 625
   },
+  "ocr": {
+    "text_cli_bundled_eng": {
+      "accuracy_percent": 90.2256,
+      "correct": 240,
+      "evaluated": 266,
+      "total": 266,
+      "updated_at": "2026-09-23"
+    },
+    "text_cli_configured": {
+      "accuracy_percent": 75.9398,
+      "correct": 202,
+      "evaluated": 266,
+      "total": 266,
+      "updated_at": "2026-09-23"
+    },
+    "text_native_bundled_eng": {
+      "accuracy_percent": 90.2256,
+      "correct": 240,
+      "evaluated": 266,
+      "total": 266,
+      "updated_at": "2026-09-23"
+    },
+    "text_native_configured": {
+      "accuracy_percent": 82.3308,
+      "correct": 219,
+      "evaluated": 266,
+      "total": 266,
+      "updated_at": "2026-09-23"
+    },
+    "word_boxes": {
+      "accuracy_percent": 94.3609,
+      "correct": 251,
+      "evaluated": 266,
+      "total": 266,
+      "updated_at": "2026-09-23"
+    }
+  },
   "preview": {
-    "f1": 1.0000,
+    "f1": 1,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
     "mean_iou": 0.9583,
     "pages_evaluated": 3,
-    "precision": 1.0000,
-    "recall": 1.0000,
+    "precision": 1,
+    "recall": 1,
     "total_detected": 3,
     "total_ground_truth": 3,
     "true_positives": 3

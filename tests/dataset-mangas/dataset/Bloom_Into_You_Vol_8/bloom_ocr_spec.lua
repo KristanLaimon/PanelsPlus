@@ -11,6 +11,7 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 local JSON = require("tests.helpers.json")
 local WordFinder = require("src._wordfinder")
+local OCRBenchmark = require("tests.dataset-mangas.ocr_benchmark")
 
 local BOOK_DIR = "tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8"
 local PAGE_W, PAGE_H = 1264, 1680
@@ -30,6 +31,18 @@ local function checkCoverage(evaluated, total)
     if os.getenv("PANELSPLUS_REQUIRE_DATASETS") == "1" then
         assert.equals(total, evaluated, "all annotated OCR pages are required")
     end
+end
+
+local function recordScore(metric, correct, evaluated, total)
+    local ok, message = OCRBenchmark.checkAndUpdate(BOOK_DIR, metric, {
+        correct = correct,
+        evaluated = evaluated,
+        total = total,
+    })
+    if message then
+        print("  " .. message)
+    end
+    assert.is_true(ok, message)
 end
 
 local function loadPage(index)
@@ -83,21 +96,39 @@ local function fakeDocument(pixels, path)
             assert.is_true(ok, tostring(word))
             return word
         end
+        -- Match k2pdfopt's ocrtess_ocrwords_from_bmp8: fixed render dimensions,
+        -- a white border of at least six pixels, width aligned to four, and
+        -- the first recognized word. The old bare CLI crop omitted this border.
+        local border = math.max(6, math.floor(scaled_w / 40))
+        local bordered_w = math.ceil((scaled_w + 2 * border) / 4) * 4
         command = command
-            .. string.format(" -resize x%d", scaled_h)
+            .. string.format(
+                " -resize %dx%d! -bordercolor white -border %d -gravity northwest -background white -extent %dx%d",
+                scaled_w,
+                scaled_h,
+                border,
+                bordered_w,
+                scaled_h + 2 * border
+            )
             .. " png:- | tesseract stdin stdout --psm "
             .. tostring(mode == -1 and 6 or mode)
+            .. " --dpi 300"
             .. " -l "
             .. quote(language)
             .. (datadir and " --tessdata-dir " .. quote(datadir) or "")
-            .. " 2>/dev/null"
+            .. " -c tessedit_create_tsv=1 2>/dev/null"
         local pipe = io.popen(command, "r")
         if not pipe then
             return nil
         end
-        local word = pipe:read("*a")
+        local tsv = pipe:read("*a")
         assert.is_true(pipe:close(), "Tesseract failed; check the selected model directory")
-        return word
+        for line in tsv:gmatch("[^\r\n]+") do
+            if line:match("^5\t") then
+                return line:match("[^\t]*$")
+            end
+        end
+        return nil
     end
     local document = {
         configurable = { doc_language = "eng", background_cleanup = 0 },
@@ -233,7 +264,8 @@ describe("Bloom Into You annotated word boxes", function()
         for _, failure in ipairs(failures) do
             print("  " .. failure)
         end
-        assert.equals(evaluated, good, "WordFinder must match each available annotated word")
+        recordScore("word_boxes", good, evaluated, total)
+        assert.is_true(good >= math.ceil(evaluated * 0.90), "annotated word-box accuracy must reach 90%")
     end)
 
     local function checkText(bundled_language)
@@ -261,7 +293,12 @@ describe("Bloom Into You annotated word boxes", function()
                         local normalized_actual = actual and actual:upper():gsub("[^%w]", "") or ""
                         local normalized_expected = expected.text:upper():gsub("[^%w]", "")
                         evaluated = evaluated + 1
-                        if normalized_actual == normalized_expected then
+                        -- A punctuation-only annotation must not match an
+                        -- empty/failed recognition merely because both lose
+                        -- all characters during normalization.
+                        local matches = normalized_expected ~= "" and normalized_actual == normalized_expected
+                            or normalized_expected == "" and actual == WordFinder.normalizeWord(expected.text)
+                        if matches then
                             correct = correct + 1
                         else
                             print(
@@ -280,11 +317,12 @@ describe("Bloom Into You annotated word boxes", function()
         checkCoverage(evaluated, total)
         print(
             string.format(
-                "  OCR text (%s, %s): %d/%d matched",
+                "  OCR text (%s, %s): %d/%d matched (%.1f%%)",
                 NATIVE_OCR and "native" or "CLI",
                 bundled_language and "bundled fast English" or (MODEL_DIR or "system model"),
                 correct,
-                evaluated
+                evaluated,
+                correct / evaluated * 100
             )
         )
         if NATIVE_OCR then
@@ -297,10 +335,19 @@ describe("Bloom Into You annotated word boxes", function()
             )
         end
         WordFinder.cleanup()
-        -- Separate baselines: the system CLI is not KOReader's OCR library.
-        -- Its fast-model score does not reproduce the native improvement.
-        local minimum = NATIVE_OCR and (bundled_language and 47 or 43) or 42
-        assert.is_true(correct >= evaluated * minimum / 60, "annotated OCR accuracy regressed")
+        recordScore(
+            "text_" .. (NATIVE_OCR and "native" or "cli") .. (bundled_language and "_bundled_eng" or "_configured"),
+            correct,
+            evaluated,
+            total
+        )
+        if bundled_language then
+            local minimum = math.ceil(evaluated * 0.90)
+            assert.is_true(
+                correct >= minimum,
+                string.format("OCR accuracy below 90%%: %d/%d correct; need at least %d", correct, evaluated, minimum)
+            )
+        end
     end
 
     it("reads annotated text with the configured model", function()

@@ -1,5 +1,39 @@
 # Panels+ OCR investigation and handoff
 
+## Expanded OCR dataset: current results (2026-09-23)
+
+All **266 annotations across 16 pages** were evaluated. The 90% text requirement
+applies to bundled English; configured models retain their measured best scores.
+
+| Check | Result |
+| --- | ---: |
+| Word-box geometry | 251/266 (94.3609%) |
+| Bundled English, Tesseract CLI | 240/266 (90.2256%) |
+| Bundled English, KOReader native OCR library | 240/266 (90.2256%) |
+| System English, CLI | 202/266 (75.9398%) |
+| Manually installed English, native | 219/266 (82.3308%) |
+
+The production word finder now handles slanted lettering and sparse spacing
+samples, keeps a tighter crop for recognition than for highlighting, and compares
+two English OCR render sizes with a third read on disagreement. The bundled
+English model was fine-tuned on independent synthetic lettering; its reproducible
+recipe and provenance are in [tools/ocr-training](tools/ocr-training/README.md).
+The CLI stand-in now reproduces the native OCR border, resize dimensions, and
+first-word extraction. It uses an explicit TSV setting because bundled model
+directories do not contain Tesseract's `configs/tsv` file.
+
+Complete runs automatically save higher scores in the book's `bestbenchmark.json`.
+Exact count ratios enforce no regression, even when both scores exceed 90%.
+Partial datasets cannot compare or replace full-dataset records. Text scores
+ignore case and punctuation for words; empty OCR cannot match punctuation-only
+annotations. These are development-set word-match scores, not unseen-book or
+physical-device measurements. Native OCR used 2.634 seconds of desktop OCR CPU
+over 537 calls, excluding rendering; device latency remains unmeasured.
+
+The OCR-only CLI suite and all three native dataset checks passed. Model
+checksums and targeted style checks passed. Panel tests were not run.
+Earlier sections below record historical behavior and smaller datasets.
+
 ## Follow-up: two OCR package builds (2026-09-23)
 
 The shell and PowerShell build scripts now produce `panelsplus_with_ocrmodels.koplugin`

@@ -39,8 +39,20 @@ tests/
 ```
 
 The OCR dataset evaluates both the configured English model and the bundled
-optional fast English model. Set `PANELSPLUS_REQUIRE_DATASETS=1` to require all
-60 annotated words; otherwise missing pages print a partial-dataset warning.
+English model. Set `PANELSPLUS_REQUIRE_DATASETS=1` to require every
+annotated word (currently 266 across 16 pages); otherwise missing pages print a
+partial-dataset warning. Bundled English text recognition requires at least 90%
+matches (240/266 on the current dataset). Configured models must retain their
+saved accuracy. Word-box geometry also requires at least 90%.
+Complete evaluations save improvements under `ocr` in the book's
+`bestbenchmark.json`, even while the 90% target is still unmet. Subsequent runs
+must match or exceed each saved result; exact correct/evaluated counts enforce
+this without rounding tolerance. Configured and bundled models have separate
+CLI and native records. Partial datasets neither compare nor update these full
+dataset records, and explicitly report this limitation.
+Text comparisons ignore case and punctuation, except that punctuation-only
+annotations require an actual matching transcription and cannot match an empty
+OCR result.
 Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed
 model instead of the system Tesseract default. These CLI results are a stand-in
 for the reader. [OCR_REPORT.md](../OCR_REPORT.md) also documents the native
