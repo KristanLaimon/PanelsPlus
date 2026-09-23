@@ -18,6 +18,13 @@ DATASET_SPECS = {
     "tests.spec.textbasedformats_dataset_spec",
     PRODUCTION_SPEC,
 }
+OCR_SPECS = {
+    "tests.spec.wordfinder_spec",
+    "tests.spec.ocrdebug_spec",
+    "tests.spec.ocrdebug_report_spec",
+    "tests.spec.panelviewer_refineword_spec",
+    "tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_ocr_spec",
+}
 
 
 def discover(option):
@@ -44,6 +51,12 @@ def is_dataset_spec(spec):
 
 def without_dataset_specs(specs):
     return [spec for spec in specs if not is_dataset_spec(spec)]
+
+
+def focused_specs(specs, focus):
+    if focus == "ocr":
+        return [spec for spec in specs if spec in OCR_SPECS]
+    return [spec for spec in specs if spec not in OCR_SPECS]
 
 
 def run_jobs(jobs, workers, command=None):
@@ -111,6 +124,9 @@ def main():
                         help="maximum concurrent Lua workers (default: up to 4 CPUs)")
     parser.add_argument("--skip-datasets", action="store_true",
                         help="exclude dataset and benchmark specifications")
+    focus = parser.add_mutually_exclusive_group()
+    focus.add_argument("--panels", action="store_true", help="run panel specs only")
+    focus.add_argument("--ocr", action="store_true", help="run OCR specs only")
     parser.add_argument("specs", nargs="*")
     args = parser.parse_args()
     if args.jobs < 1:
@@ -119,6 +135,8 @@ def main():
              for s in args.specs] if args.specs else discover("--list")
     if args.skip_datasets:
         specs = without_dataset_specs(specs)
+    if args.panels or args.ocr:
+        specs = focused_specs(specs, "ocr" if args.ocr else "panels")
     return run_jobs(make_jobs(specs, discover("--list-datasets")), args.jobs)
 
 

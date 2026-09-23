@@ -118,6 +118,7 @@ local PanelViewer = ImageViewer:extend({
     progress_bar_visible = true,
     hold_text_selection = true,
     ocr_debug_mode = false,
+    ocr_fast_english = false,
     nav_transition_mode = "classic",
     nav_animated_panels = true,
     nav_animated_pages = true,
@@ -1192,7 +1193,7 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         return
     end
 
-    local ok2, word = pcall(WordFinder.readWord, document, page_pos.page, box, native)
+    local ok2, word = pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_fast_english)
     if not ok2 or not word then
         if self.ocr_debug_mode then
             OcrDebug.captureFailure(self, {

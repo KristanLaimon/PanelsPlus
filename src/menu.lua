@@ -107,6 +107,18 @@ function Menu:addToMainMenu(menu_items)
                 separator = true,
             },
             {
+                text = _("Lightweight English OCR"),
+                checked_func = function()
+                    return self.settings.ocr_fast_english == true
+                end,
+                callback = function()
+                    self:setOcrFastEnglish(self.settings.ocr_fast_english ~= true)
+                end,
+                help_text = _(
+                    "Use the bundled English model for dictionary lookups in zoomed panels. May improve comic lettering. Applies when the document OCR language is English. Other languages use KOReader's selected model."
+                ),
+            },
+            {
                 text = _("Enable debugging logs"),
                 checked_func = function()
                     return self.settings.debug_mode == true

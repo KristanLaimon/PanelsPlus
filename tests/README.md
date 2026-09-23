@@ -34,7 +34,18 @@ tests/
 ./run-tests.sh --quick -j 2     # Limit to two workers
 ./run-tests.sh --quick -j 1     # Run jobs sequentially
 ./run-tests.sh --quick tests/spec/geometry_spec.lua
+./run-tests.sh --ocr            # OCR units and annotated Bloom word images
+./run-tests.sh --panels         # Panel units and panel datasets
 ```
+
+The OCR dataset evaluates both the configured English model and the bundled
+optional fast English model. Set `PANELSPLUS_REQUIRE_DATASETS=1` to require all
+60 annotated words; otherwise missing pages print a partial-dataset warning.
+Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed
+model instead of the system Tesseract default. These CLI results are a stand-in
+for the reader. [OCR_REPORT.md](../OCR_REPORT.md) also documents the native
+KOReader OCR benchmark in `tools/benchmark_ocr_native.lua`, its separate accuracy
+gates, and the limits of both measurements.
 
 The shell runner requires Python 3.9+ and defaults to at most four Lua workers.
 Each full-volume production benchmark runs in its own process. Golden-page and

@@ -793,6 +793,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
         ocr_debug_mode = self.settings.ocr_debug_mode == true,
+        ocr_fast_english = self.settings.ocr_fast_english == true,
         image_rotation = self.settings.image_rotation,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_animated_panels = self.settings.nav_animated_panels ~= false,

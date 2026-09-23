@@ -8,6 +8,8 @@
 #   ./run-tests.sh --quicker        # Skips lint/style checks and dataset Lua tests
 #   ./run-tests.sh --check-only     # Runs only code style and linter checks
 #   ./run-tests.sh <spec-path>      # Runs a specific spec file
+#   ./run-tests.sh --panels          # Runs panel tests only
+#   ./run-tests.sh --ocr             # Runs OCR tests only
 # ==============================================================================
 
 set -e
@@ -27,6 +29,8 @@ Options:
       --quicker    Also skip dataset and benchmark Lua tests
   -c, --check-only Run only StyLua formatter and Luacheck linter
   -p, --python     Run only the Python annotator unit tests
+      --panels     Run panel specs and panel datasets only
+      --ocr        Run WordFinder/OCR specs and annotated-word dataset only
   -j, --jobs N     Maximum parallel Lua workers (default: up to 4 CPUs; 1 for serial)
 
 Examples:
@@ -41,6 +45,7 @@ CHECK_ONLY=false
 QUICK=false
 SKIP_DATASETS=false
 PYTHON_ONLY=false
+FOCUS=""
 FORWARD_ARGS=()
 
 for arg in "$@"; do
@@ -62,11 +67,28 @@ for arg in "$@"; do
         -p|--python)
             PYTHON_ONLY=true
             ;;
+        --panels|--ocr)
+            if [ -n "$FOCUS" ]; then
+                echo "Choose only one of --panels and --ocr" >&2
+                exit 2
+            fi
+            FOCUS="${arg#--}"
+            ;;
         *)
             FORWARD_ARGS+=("$arg")
             ;;
     esac
 done
+
+if [ -n "$FOCUS" ]; then
+    if [ "$CHECK_ONLY" = true ] || [ "$PYTHON_ONLY" = true ] || [ "$SKIP_DATASETS" = true ]; then
+        echo "--$FOCUS cannot be combined with --check-only, --python, or --quicker" >&2
+        exit 2
+    fi
+    echo "==> Running $FOCUS Lua tests..."
+    python3 tests/run_parallel.py "--$FOCUS" "${FORWARD_ARGS[@]}"
+    exit $?
+fi
 
 if [ "$PYTHON_ONLY" = true ]; then
     echo "==> Running Python Unit Tests..."

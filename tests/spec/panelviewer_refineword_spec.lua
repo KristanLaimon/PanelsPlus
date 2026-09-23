@@ -64,8 +64,9 @@ local function newViewer(box, word, page_text_boxes)
         calls.find = calls.find + 1
         return box, { w = 1000, h = 1000 }
     end
-    WordFinder.readWord = function()
+    WordFinder.readWord = function(_, _, _, _, fast_english)
         calls.read = calls.read + 1
+        calls.fast_english = fast_english
         return word
     end
 
@@ -136,6 +137,14 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
         restore()
 
         assert.equals("shift", highlight.selected_text.text)
+    end)
+
+    it("passes the optional English model preference to word recognition", function()
+        local viewer, _, restore, calls = newViewer({ x = 12, y = 214, w = 44, h = 26 }, "shift")
+        viewer.ocr_fast_english = true
+        viewer:_refineWordSelection(viewer.reader_ui.highlight, { page = 3, x = 30, y = 220 })
+        restore()
+        assert.is_true(calls.fast_english)
     end)
 
     it("leaves the selection and the painted box alone when OCR finds nothing", function()

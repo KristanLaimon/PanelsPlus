@@ -569,6 +569,139 @@ describe("WordFinder.readWord OCR retry on an unreadable tight box", function()
     end)
 end)
 
+describe("WordFinder.ocrWord tight native OCR path", function()
+    local function newNativeDocument()
+        local observed = {}
+        local context = {
+            setZoom = function(_, zoom)
+                observed.zoom = zoom
+            end,
+            getPageDim = function()
+                return 120, 30
+            end,
+            getTOCRWord = function(_, source, x, y, w, h, datadir, lang, mode)
+                observed.datadir = datadir
+                observed.ocr = { source, x, y, w, h, lang, mode }
+                return "GOOD\n"
+            end,
+            free = function()
+                observed.context_freed = true
+            end,
+        }
+        local page = {
+            getPagePix = function()
+                observed.rendered = true
+            end,
+            close = function()
+                observed.page_closed = true
+            end,
+        }
+        local document = {
+            configurable = { doc_language = "eng", background_cleanup = 0 },
+            render_mode = 0,
+            koptinterface = {
+                createContext = function(_, _, _, bbox)
+                    observed.bbox = bbox
+                    return context
+                end,
+            },
+            _document = {
+                openPage = function()
+                    return page
+                end,
+            },
+            getOCRWord = function()
+                error("the padded document OCR path should not run")
+            end,
+        }
+        return document, observed, context, page
+    end
+
+    local box = { x = 10, y = 20, w = 80, h = 20 }
+
+    it("renders the found box without KOReader's added margin and uses single-word mode", function()
+        local document, observed = newNativeDocument()
+        assert.equals("GOOD", WordFinder.ocrWord(document, 1, box))
+        assert.equals(10, observed.bbox.x0)
+        assert.equals(90, observed.bbox.x1)
+        assert.equals(20, observed.bbox.y0)
+        assert.equals(40, observed.bbox.y1)
+        assert.equals(1.5, observed.zoom)
+        assert.equals(8, observed.ocr[7])
+        assert.is_true(observed.rendered and observed.page_closed and observed.context_freed)
+    end)
+    it("uses a separate English model and a small horizontal margin when enabled", function()
+        local document, observed = newNativeDocument()
+        assert.equals("GOOD", WordFinder.readWord(document, 1, box, { w = 200, h = 200 }, true))
+        assert.equals("eng_fast", observed.ocr[6])
+        assert.is_true(observed.datadir:match("/data/ocr$") ~= nil)
+        assert.equals(9, observed.bbox.x0)
+        assert.equals(91, observed.bbox.x1)
+        assert.equals(20, observed.bbox.y0)
+        assert.equals(40, observed.bbox.y1)
+        assert.equals(1.5, observed.zoom)
+        assert.equals(10, box.x, "OCR margin must not move the highlight")
+        assert.equals(80, box.w)
+    end)
+
+    it("clamps the horizontal OCR margin at both page edges", function()
+        local document, observed = newNativeDocument()
+        WordFinder.ocrWord(document, 1, { x = 0, y = 5, w = 30, h = 20 }, true, { w = 30, h = 30 })
+        assert.equals(0, observed.bbox.x0)
+        assert.equals(30, observed.bbox.x1)
+    end)
+
+    it("keeps other languages and multilingual selections on their configured model", function()
+        for _, language in ipairs({ "spa", "jpn", "eng+spa" }) do
+            local document, observed = newNativeDocument()
+            document.configurable.doc_language = language
+            document.koptinterface.tessocr_data = "/reader/tessdata"
+            WordFinder.ocrWord(document, 1, box, true)
+            assert.equals(language, observed.ocr[6])
+            assert.equals("/reader/tessdata", observed.datadir)
+            assert.equals(10, observed.bbox.x0)
+        end
+    end)
+
+    it("uses installed English when the optional model file is absent", function()
+        local document, observed = newNativeDocument()
+        local original_open = io.open
+        io.open = function()
+            return nil
+        end
+        local ok, result = pcall(WordFinder.ocrWord, document, 1, box, true)
+        io.open = original_open
+        assert.is_true(ok)
+        assert.equals("GOOD", result)
+        assert.equals("eng", observed.ocr[6])
+        assert.equals(10, observed.bbox.x0)
+    end)
+
+    it("releases native resources and falls back after rendering or OCR errors", function()
+        for _, failure in ipairs({ "render", "ocr", "empty" }) do
+            local document, observed, context, page = newNativeDocument()
+            if failure == "render" then
+                page.getPagePix = function()
+                    error("render unavailable")
+                end
+            elseif failure == "ocr" then
+                context.getTOCRWord = function()
+                    error("model unavailable")
+                end
+            else
+                context.getTOCRWord = function()
+                    return nil
+                end
+            end
+            document.getOCRWord = function()
+                return "fallback"
+            end
+            assert.equals("fallback", WordFinder.ocrWord(document, 1, box, true))
+            assert.is_true(observed.page_closed and observed.context_freed)
+        end
+    end)
+end)
+
 describe("WordFinder.cleanup OCR cache purging", function()
     it("executes safely without errors", function()
         local ok = pcall(WordFinder.cleanup)

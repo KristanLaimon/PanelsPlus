@@ -14,6 +14,15 @@ spec.loader.exec_module(parallel)
 
 
 class ParallelRunnerTests(unittest.TestCase):
+    def test_focused_modes_partition_discovered_specs(self):
+        specs = parallel.discover("--list")
+        ocr = parallel.focused_specs(specs, "ocr")
+        panels = parallel.focused_specs(specs, "panels")
+        self.assertIn("tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_ocr_spec", ocr)
+        self.assertIn("tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_into_you_spec", panels)
+        self.assertEqual(set(specs), set(ocr) | set(panels))
+        self.assertFalse(set(ocr) & set(panels))
+
     def test_dataset_filter_excludes_every_dataset_specification(self):
         specs = [
             "tests.spec.geometry_spec",

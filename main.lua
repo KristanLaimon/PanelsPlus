@@ -461,6 +461,12 @@ function PanelsPlus:setOcrDebugMode(enabled)
     self:saveSettings()
 end
 
+--- Use the bundled lightweight English model for panel word lookup.
+function PanelsPlus:setOcrFastEnglish(enabled)
+    self.settings.ocr_fast_english = enabled and true or false
+    self:saveSettings()
+end
+
 --- KOReader save hook: persist current settings.
 function PanelsPlus:onSaveSettings()
     self:saveSettings()

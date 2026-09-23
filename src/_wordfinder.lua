@@ -25,14 +25,19 @@ local logger = require("logger")
 --- then faithfully transcribes the wrong crop -- a box that "looks about
 --- right" on screen but contains half a word, two words, or worse.
 ---
---- This module redoes just the box-finding step, at native document
---- resolution and with thresholds relative to the local line height instead
---- of page-wide heuristics, then hands the resulting tight box to KOReader's
---- own OCR call (`document:getOCRWord`) exactly as it would have used its own
---- box.
+--- This module finds a word box at native document resolution with thresholds
+--- relative to the local line height. On paging documents it renders that box
+--- through KOReader's kopt context and reads it with the bundled OCR engine in
+--- single-word mode. Other documents fall back to `document:getOCRWord`.
 ---
 --- @class PPWordFinder
 local WordFinder = {}
+
+-- A distinct language name matters: k2pdfopt caches its engine by language,
+-- not by data directory. Reusing "eng" could silently keep KOReader's model.
+local source = debug.getinfo(1, "S").source:gsub("^@", "")
+local FAST_MODEL_DIR = (source:match("^(.*)[/\\]src[/\\]_wordfinder%.lua$") or ".") .. "/data/ocr"
+local FAST_MODEL_LANGUAGE = "eng_fast"
 
 --- Gap-calibration numbers from the most recent `findWordBox` call that
 --- reached the word-gap threshold step, regardless of `Timing.enabled` --
@@ -145,17 +150,15 @@ local MAX_WORD_WIDTH_RATIO = 14
 -- tap band" regression test below reaches ~1.8x the line's own height
 -- legitimately; this is set comfortably above that and well below the ~4x
 -- the runaway case actually reached.
-local WORD_HEIGHT_LINE_RATIO_CAP = 2.5
+local WORD_HEIGHT_LINE_RATIO_CAP = 1.9
 -- Extra padding kept around the found word, as a fraction of its height.
 -- Set to 0.05 (~1-2px native padding) so character stems ('h', 'd', 't', 'k')
 -- are preserved cleanly without bleeding into adjacent words.
 local PAD_RATIO = 0.05
 -- Extra margin, as a fraction of the word box's height, used for the retry
--- OCR pass (see WordFinder.readWord). `KoptInterface:getNativeOCRWord`
--- already pads its own crop by 30% of the box height, but a box tightened to
--- the word's own ink can still clip an anti-aliased stem or an accent, and
--- Tesseract reads a clipped glyph as a different letter -- or drops it,
--- which is what "it found only part of the word" looks like from outside.
+-- OCR pass (see WordFinder.readWord). A box tightened to the word's own ink
+-- can clip an anti-aliased stem or an accent, so an unreadable first pass
+-- gets a second chance with this larger crop.
 local RETRY_PAD_RATIO = 0.25
 
 --- @param value number Value to constrain.
@@ -327,6 +330,12 @@ function WordFinder.cleanup()
                 DocCache.cache:delete("ocrengine")
             end
         end)
+    end
+    -- The tight-crop path below uses k2pdfopt's OCR engine directly, outside
+    -- DocCache. Release that engine when the viewer closes as well.
+    local ok_kopt, KOPTContext = pcall(require, "ffi/koptcontext")
+    if ok_kopt and KOPTContext and KOPTContext.k2pdfopt then
+        pcall(KOPTContext.k2pdfopt.k2pdfopt_tocr_end)
     end
 end
 
@@ -519,13 +528,57 @@ function WordFinder.padBox(box, ratio, native)
     return { x = x0, y = y0, w = x1 - x0, h = y1 - y0 }
 end
 
---- OCR a single box through KOReader's own engine and normalize the result.
+--- OCR a single box through KOReader's bundled engine and normalize the result.
 ---
 --- @param document table KOReader document object.
 --- @param pageno number Page number.
 --- @param box PPRect Box in native page coordinates.
+--- @param fast_english boolean|nil Use the optional bundled English model.
+--- @param native PPPageSize|nil Page bounds for the horizontal OCR margin.
 --- @return string|nil word Normalized word, or nil if OCR produced nothing.
-function WordFinder.ocrWord(document, pageno, box)
+function WordFinder.ocrWord(document, pageno, box, fast_english, native)
+    -- KOReader's getNativeOCRWord adds 30% of the box height on *every* side
+    -- before recognizing text. On tightly-set manga that routinely brings a
+    -- neighbouring word into the crop. Its kopt context is already available
+    -- on paging documents, so render the actual found box and ask the same
+    -- OCR engine to treat it as a single word.
+    local interface = document and document.koptinterface
+    local backend = document and document._document
+    if interface and interface.createContext and backend and backend.openPage and box.h > 0 then
+        local context, page
+        local ok, raw = pcall(function()
+            local bbox = { x0 = box.x, y0 = box.y, x1 = box.x + box.w, y1 = box.y + box.h }
+            local datadir, language = interface.tessocr_data, document.configurable.doc_language
+            if fast_english and language == "eng" then
+                local model = io.open(FAST_MODEL_DIR .. "/" .. FAST_MODEL_LANGUAGE .. ".traineddata", "rb")
+                if model then
+                    model:close()
+                    datadir, language = FAST_MODEL_DIR, FAST_MODEL_LANGUAGE
+                    -- A little horizontal breathing room helps this model.
+                    -- Keep line height/resolution and the selection box intact.
+                    local margin = box.h * 0.05
+                    bbox.x0 = math.max(0, bbox.x0 - margin)
+                    bbox.x1 = math.min(native and native.w or math.huge, bbox.x1 + margin)
+                end
+            end
+            context = interface:createContext(document, pageno, bbox)
+            context:setZoom(30 / box.h)
+            page = backend:openPage(pageno)
+            page:getPagePix(context, document.render_mode, document.configurable.background_cleanup)
+            local width, height = context:getPageDim()
+            return context:getTOCRWord("src", 0, 0, width, height, datadir, language, 8, 0, 1)
+        end)
+        if page then
+            pcall(page.close, page)
+        end
+        if context then
+            pcall(context.free, context)
+        end
+        if ok and raw and raw ~= "" then
+            return WordFinder.normalizeWord(raw)
+        end
+    end
+
     WordFinder.evictOCRWordCache(document, pageno, box)
     local ok, raw = pcall(document.getOCRWord, document, pageno, { sbox = box })
     if not ok then
@@ -536,28 +589,24 @@ end
 
 --- Read the word inside a found box, retrying once with a looser crop.
 ---
---- The first pass uses the tight box, which is what makes OCR resolution
---- usable at all: `getNativeOCRWord` scales whatever box it is handed so its
---- *height* renders at 30px, so every pixel of slack above or below the
---- glyphs is resolution taken away from them. When that tight crop comes back
---- unreadable, the usual cause is the opposite problem -- a clipped stem or
---- accent -- so the retry trades some of that resolution back for margin
---- rather than giving up and leaving KOReader's own (usually wrong) word in
---- place.
+--- The first pass uses the tight box rendered at 30px per box height. Extra
+--- space above or below glyphs costs resolution. When the tight crop is
+--- unreadable, the retry adds margin to recover a clipped stem or accent.
 ---
 --- @param document table KOReader document object.
 --- @param pageno number Page number.
 --- @param box PPRect Tight word box in native page coordinates.
 --- @param native PPPageSize|nil Native page dimensions, to clamp the retry box.
+--- @param fast_english boolean|nil Use the optional bundled English model.
 --- @return string|nil word Plausible OCR word, or nil.
-function WordFinder.readWord(document, pageno, box, native)
-    local word = WordFinder.ocrWord(document, pageno, box)
+function WordFinder.readWord(document, pageno, box, native, fast_english)
+    local word = WordFinder.ocrWord(document, pageno, box, fast_english, native)
     if WordFinder.isPlausibleWord(word) then
         return word
     end
 
     local retry_box = WordFinder.padBox(box, RETRY_PAD_RATIO, native)
-    local retry_word = WordFinder.ocrWord(document, pageno, retry_box)
+    local retry_word = WordFinder.ocrWord(document, pageno, retry_box, fast_english, native)
     if Timing.enabled then
         WordFinder.logDiagnostic("retry OCR with padded box", {
             first = tostring(word),
@@ -650,6 +699,7 @@ end
 --- @return PPRect|nil box Tight word box in native page coordinates, or nil.
 --- @return PPPageSize|nil native Native page dimensions, when a box was found.
 function WordFinder.findWordBox(document, pageno, px, py)
+    WordFinder.last_diagnostics = nil
     if not (document and pageno and px and py) then
         return nil
     end
@@ -713,6 +763,8 @@ function WordFinder.findWordBox(document, pageno, px, py)
 
         --- Log why the search gave up, and return nil.
         local function abort(reason)
+            WordFinder.last_diagnostics = WordFinder.last_diagnostics or {}
+            WordFinder.last_diagnostics.abort_reason = reason
             if Timing.enabled then
                 WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
                     reason = reason,
@@ -775,6 +827,19 @@ function WordFinder.findWordBox(document, pageno, px, py)
             band_has_ink[y] = row_ink[y] > 0
         end
         local y0, y1 = growRowExtent(band_has_ink, tap_y, min_y_bound, max_y_bound)
+        if y1 - y0 + 1 > 80 then
+            local row_peak = 0
+            for y = min_y_bound, max_y_bound do
+                row_peak = math.max(row_peak, row_ink[y])
+            end
+            local weak_row_cutoff = math.max(2, math.floor(row_peak * 0.12))
+            for y = min_y_bound, max_y_bound do
+                -- On a suspiciously tall line, antialiasing and italic
+                -- strokes may bridge the otherwise empty separator rows.
+                band_has_ink[y] = row_ink[y] >= weak_row_cutoff
+            end
+            y0, y1 = growRowExtent(band_has_ink, tap_y, min_y_bound, max_y_bound)
+        end
 
         local line_h = y1 - y0 + 1
 
@@ -825,13 +890,26 @@ function WordFinder.findWordBox(document, pageno, px, py)
             table.sort(gaps)
             local mid = math.floor(#gaps / 2)
             median_gap = (#gaps % 2 == 1) and gaps[mid + 1] or (gaps[mid] + gaps[mid + 1]) / 2
-            gap_threshold =
-                math.max(math.floor(line_h * MIN_WORD_GAP_RATIO), math.floor(median_gap * MEDIAN_GAP_MULTIPLIER))
+            -- On a short line the gap sample may contain just a word gap and
+            -- the much larger padding to the speech-bubble edge. The median
+            -- then exceeds the word gap itself.
+            if #gaps <= 3 and gaps[#gaps] >= gaps[1] * 2.5 and gaps[#gaps] >= line_h * 0.5 then
+                gap_threshold = gaps[1]
+            elseif #gaps <= 3 and gaps[1] >= line_h * 0.25 then
+                -- Sparse connected lettering has few internal gaps at all.
+                -- These wide gaps separate words rather than letters.
+                gap_threshold = math.floor(line_h * 0.18 * MEDIAN_GAP_MULTIPLIER)
+            else
+                gap_threshold = math.floor(median_gap * MEDIAN_GAP_MULTIPLIER)
+            end
+            if #gaps > 3 then
+                gap_threshold = math.max(math.floor(line_h * MIN_WORD_GAP_RATIO), gap_threshold)
+            end
             gap_threshold = math.min(gap_threshold, math.ceil(line_h * MAX_WORD_GAP_RATIO))
         else
             gap_threshold = math.floor(line_h * WORD_GAP_RATIO)
         end
-        gap_threshold = math.max(2, gap_threshold)
+        gap_threshold = math.max(4, gap_threshold)
 
         WordFinder.last_diagnostics = {
             gap_threshold = gap_threshold,
@@ -871,6 +949,24 @@ function WordFinder.findWordBox(document, pageno, px, py)
         end
         while x1 > tap_x and col_ink[x1] == 0 do
             x1 = x1 - 1
+        end
+
+        -- A closing quote or period can sit across a full word-sized blank
+        -- column gap from the last letter. Keep a small final ink run with
+        -- the tapped word; a neighbouring word has a wider run.
+        local next_x = x1 + 1
+        local punctuation_gap = math.floor(line_h * 0.3)
+        while next_x < w and next_x - x1 - 1 <= punctuation_gap and col_ink[next_x] == 0 do
+            next_x = next_x + 1
+        end
+        if next_x < w and next_x - x1 - 1 <= punctuation_gap then
+            local run_end = next_x
+            while run_end + 1 < w and col_ink[run_end + 1] > 0 do
+                run_end = run_end + 1
+            end
+            if run_end - next_x + 1 <= line_h * 0.6 then
+                x1 = run_end
+            end
         end
 
         -- An ink run that reaches the edge of the render crop still going was
