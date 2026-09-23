@@ -27,5 +27,4 @@ excludes this directory and uses KOReader's configured OCR language and
 or cannot be read, Panels+ falls back to KOReader's configured OCR data. An
 OCR engine error or empty result falls back to KOReader's document OCR path.
 
-These are general language models, not manga-trained models. See
-[OCR_REPORT.md](../../OCR_REPORT.md) for the English accuracy measurements.
+These are general language models, not manga-trained models.
