@@ -79,3 +79,34 @@ describe("PanelViewer reader gesture lifecycle", function()
         assert.equals(1, close_spy:callCount())
     end)
 end)
+
+describe("PanelViewer bundled OCR selection", function()
+    it("uses the selected language for KOReader's initial hold and restores its settings", function()
+        local seen = {}
+        local document = {
+            configurable = { doc_language = "jpn" },
+            koptinterface = { tessocr_data = "/reader/tessdata" },
+        }
+        local view = { screenToPageTransform = function() end }
+        local highlight = {
+            panel_zoom_enabled = true,
+            onHold = function()
+                seen.language = document.configurable.doc_language
+                seen.datadir = document.koptinterface.tessocr_data
+                return true
+            end,
+        }
+        local viewer = newViewer({ document = document, view = view, highlight = highlight })
+        viewer.ocr_bundled_language = "spa"
+        viewer.screenToPageTransform = function()
+            return { page = 1, x = 5, y = 5 }
+        end
+
+        assert.is_true(viewer:onHold(nil, { pos = {} }))
+        assert.equals("spa_fast", seen.language)
+        assert.is_true(seen.datadir:match("/data/ocr$") ~= nil)
+        assert.equals("jpn", document.configurable.doc_language)
+        assert.equals("/reader/tessdata", document.koptinterface.tessocr_data)
+        assert.is_true(highlight.panel_zoom_enabled)
+    end)
+end)

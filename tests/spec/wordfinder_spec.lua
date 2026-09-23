@@ -632,7 +632,7 @@ describe("WordFinder.ocrWord tight native OCR path", function()
     end)
     it("uses a separate English model and a small horizontal margin when enabled", function()
         local document, observed = newNativeDocument()
-        assert.equals("GOOD", WordFinder.readWord(document, 1, box, { w = 200, h = 200 }, true))
+        assert.equals("GOOD", WordFinder.readWord(document, 1, box, { w = 200, h = 200 }, "eng"))
         assert.equals("eng_fast", observed.ocr[6])
         assert.is_true(observed.datadir:match("/data/ocr$") ~= nil)
         assert.equals(9, observed.bbox.x0)
@@ -646,30 +646,41 @@ describe("WordFinder.ocrWord tight native OCR path", function()
 
     it("clamps the horizontal OCR margin at both page edges", function()
         local document, observed = newNativeDocument()
-        WordFinder.ocrWord(document, 1, { x = 0, y = 5, w = 30, h = 20 }, true, { w = 30, h = 30 })
+        WordFinder.ocrWord(document, 1, { x = 0, y = 5, w = 30, h = 20 }, "eng", { w = 30, h = 30 })
         assert.equals(0, observed.bbox.x0)
         assert.equals(30, observed.bbox.x1)
     end)
 
-    it("keeps other languages and multilingual selections on their configured model", function()
+    it("routes Spanish and Italian to their bundled models regardless of document language", function()
+        for _, language in ipairs({ "spa", "ita" }) do
+            local document, observed = newNativeDocument()
+            document.configurable.doc_language = "eng+spa"
+            WordFinder.ocrWord(document, 1, box, language)
+            assert.equals(language .. "_fast", observed.ocr[6])
+            assert.is_true(observed.datadir:match("/data/ocr$") ~= nil)
+            assert.equals(10, observed.bbox.x0)
+        end
+    end)
+
+    it("uses KOReader's configured model when the bundle is disabled", function()
         for _, language in ipairs({ "spa", "jpn", "eng+spa" }) do
             local document, observed = newNativeDocument()
             document.configurable.doc_language = language
             document.koptinterface.tessocr_data = "/reader/tessdata"
-            WordFinder.ocrWord(document, 1, box, true)
+            WordFinder.ocrWord(document, 1, box, nil)
             assert.equals(language, observed.ocr[6])
             assert.equals("/reader/tessdata", observed.datadir)
             assert.equals(10, observed.bbox.x0)
         end
     end)
 
-    it("uses installed English when the optional model file is absent", function()
+    it("uses installed English when the selected bundled model file is absent", function()
         local document, observed = newNativeDocument()
         local original_open = io.open
         io.open = function()
             return nil
         end
-        local ok, result = pcall(WordFinder.ocrWord, document, 1, box, true)
+        local ok, result = pcall(WordFinder.ocrWord, document, 1, box, "eng")
         io.open = original_open
         assert.is_true(ok)
         assert.equals("GOOD", result)
@@ -696,7 +707,7 @@ describe("WordFinder.ocrWord tight native OCR path", function()
             document.getOCRWord = function()
                 return "fallback"
             end
-            assert.equals("fallback", WordFinder.ocrWord(document, 1, box, true))
+            assert.equals("fallback", WordFinder.ocrWord(document, 1, box, "eng"))
             assert.is_true(observed.page_closed and observed.context_freed)
         end
     end)
