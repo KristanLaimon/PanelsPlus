@@ -157,12 +157,18 @@ Of course if you prefer vertical, with margin, loose cropped or even animated, t
 
 Panels+ introduces experimental OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
 
-<strong>IMPORTANT:</strong> To use this feature, you'll need to set up a couple of things first:
+<strong>IMPORTANT:</strong> To use dictionary lookup, install a dictionary first:
 
 <ul>
-  <li><em>Install an OCR engine in KOReader by <a href="https://koreader.rocks/user_guide/#L2-ocr">following the official KOReader guide</a>.</em></li>
   <li><em>Install at least one dictionary. You can do this by <a href="https://www.youtube.com/watch?v=fthGMdpUfR0">following this tutorial for manual installation</a>, or by using KOReader's built-in online dictionary installer.</em></li>
 </ul>
+
+`build.sh` and `build.ps1` create two plugin folders. Install **one** of them:
+
+- `dist/panelsplus.koplugin` includes no OCR language data. Install the language files you need in KOReader's `data/tessdata` directory and set the OCR language in KOReader.
+- `dist/panelsplus_with_ocrmodels.koplugin` includes English, Spanish, and Italian Tesseract language data. It uses these files for zoomed-panel word lookup without a manual OCR model installation. English is the default; select Spanish or Italian in the panel viewer's **More Config…** menu.
+
+Both packages use KOReader's OCR runtime. You do not need a separate Tesseract executable on the reader.
 
 <em>(Note: Word detection is tricky on hand-lettered or stylized comic text and might not always get it exactly right. As a workaround, I recommend binding a comfortable multi-swipe gesture to "Open dictionary lookup" as a fallback!)</em>
 

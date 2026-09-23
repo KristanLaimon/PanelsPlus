@@ -37,20 +37,34 @@ local WordFinder = {}
 -- not by data directory. Reusing "eng" could silently keep KOReader's model.
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local FAST_MODEL_DIR = (source:match("^(.*)[/\\]src[/\\]_wordfinder%.lua$") or ".") .. "/data/ocr"
-local FAST_MODEL_LANGUAGE = "eng_fast"
+local BUNDLED_LANGUAGES = { eng = true, spa = true, ita = true }
 
---- Gap-calibration numbers from the most recent `findWordBox` call that
---- reached the word-gap threshold step, regardless of `Timing.enabled` --
---- unlike `logDiagnostic`'s file writes (`./panels_wordfinder.log`,
---- `/tmp/panels_wordfinder.log`), which are invisible from outside a
---- sandboxed install (e.g. Flatpak's private `/tmp` and cwd). Cheap to
---- always set (the numbers are already computed either way), and lets
---- `src._ocrdebug` fold them straight into `OCR.debug.session.log`, which
---- *is* readable from outside the sandbox (see `_ocrdebug.lua`'s
---- `pluginRootDir`). `nil` until the first call that reaches that step.
----
---- @type {gap_threshold: number, median_gap: number|nil, line_h: number, gaps: number[], zoom: number, multiplier: number}|nil
-WordFinder.last_diagnostics = nil
+--- Resolve an installed plugin model without accepting arbitrary path names.
+--- @param language string|nil Three-letter bundled language code.
+--- @return string|nil datadir, string|nil model_language
+function WordFinder.bundledModel(language)
+    if not BUNDLED_LANGUAGES[language] then
+        return nil
+    end
+    local model_language = language .. "_fast"
+    local model = io.open(FAST_MODEL_DIR .. "/" .. model_language .. ".traineddata", "rb")
+    if not model then
+        return nil
+    end
+    model:close()
+    return FAST_MODEL_DIR, model_language
+end
+
+--- Whether this package contains the complete bundled language set.
+--- @return boolean
+function WordFinder.hasBundledData()
+    for language in pairs(BUNDLED_LANGUAGES) do
+        if not WordFinder.bundledModel(language) then
+            return false
+        end
+    end
+    return true
+end
 
 -- Crop rendered around the tap point, as a fraction of native page size.
 -- Wide enough to comfortably contain a full speech-bubble line either side
@@ -533,10 +547,10 @@ end
 --- @param document table KOReader document object.
 --- @param pageno number Page number.
 --- @param box PPRect Box in native page coordinates.
---- @param fast_english boolean|nil Use the optional bundled English model.
+--- @param bundled_language string|nil Bundled model to use, or nil for KOReader's model.
 --- @param native PPPageSize|nil Page bounds for the horizontal OCR margin.
 --- @return string|nil word Normalized word, or nil if OCR produced nothing.
-function WordFinder.ocrWord(document, pageno, box, fast_english, native)
+function WordFinder.ocrWord(document, pageno, box, bundled_language, native)
     -- KOReader's getNativeOCRWord adds 30% of the box height on *every* side
     -- before recognizing text. On tightly-set manga that routinely brings a
     -- neighbouring word into the crop. Its kopt context is already available
@@ -549,13 +563,12 @@ function WordFinder.ocrWord(document, pageno, box, fast_english, native)
         local ok, raw = pcall(function()
             local bbox = { x0 = box.x, y0 = box.y, x1 = box.x + box.w, y1 = box.y + box.h }
             local datadir, language = interface.tessocr_data, document.configurable.doc_language
-            if fast_english and language == "eng" then
-                local model = io.open(FAST_MODEL_DIR .. "/" .. FAST_MODEL_LANGUAGE .. ".traineddata", "rb")
-                if model then
-                    model:close()
-                    datadir, language = FAST_MODEL_DIR, FAST_MODEL_LANGUAGE
-                    -- A little horizontal breathing room helps this model.
-                    -- Keep line height/resolution and the selection box intact.
+            local bundled_dir, bundled_model = WordFinder.bundledModel(bundled_language)
+            if bundled_dir then
+                datadir, language = bundled_dir, bundled_model
+                -- Keep the measured English crop adjustment; other languages
+                -- use the exact found box until their accuracy is measured.
+                if bundled_language == "eng" then
                     local margin = box.h * 0.05
                     bbox.x0 = math.max(0, bbox.x0 - margin)
                     bbox.x1 = math.min(native and native.w or math.huge, bbox.x1 + margin)
@@ -597,16 +610,16 @@ end
 --- @param pageno number Page number.
 --- @param box PPRect Tight word box in native page coordinates.
 --- @param native PPPageSize|nil Native page dimensions, to clamp the retry box.
---- @param fast_english boolean|nil Use the optional bundled English model.
+--- @param bundled_language string|nil Bundled model to use, or nil for KOReader's model.
 --- @return string|nil word Plausible OCR word, or nil.
-function WordFinder.readWord(document, pageno, box, native, fast_english)
-    local word = WordFinder.ocrWord(document, pageno, box, fast_english, native)
+function WordFinder.readWord(document, pageno, box, native, bundled_language)
+    local word = WordFinder.ocrWord(document, pageno, box, bundled_language, native)
     if WordFinder.isPlausibleWord(word) then
         return word
     end
 
     local retry_box = WordFinder.padBox(box, RETRY_PAD_RATIO, native)
-    local retry_word = WordFinder.ocrWord(document, pageno, retry_box, fast_english, native)
+    local retry_word = WordFinder.ocrWord(document, pageno, retry_box, bundled_language, native)
     if Timing.enabled then
         WordFinder.logDiagnostic("retry OCR with padded box", {
             first = tostring(word),
@@ -699,7 +712,6 @@ end
 --- @return PPRect|nil box Tight word box in native page coordinates, or nil.
 --- @return PPPageSize|nil native Native page dimensions, when a box was found.
 function WordFinder.findWordBox(document, pageno, px, py)
-    WordFinder.last_diagnostics = nil
     if not (document and pageno and px and py) then
         return nil
     end
@@ -763,8 +775,6 @@ function WordFinder.findWordBox(document, pageno, px, py)
 
         --- Log why the search gave up, and return nil.
         local function abort(reason)
-            WordFinder.last_diagnostics = WordFinder.last_diagnostics or {}
-            WordFinder.last_diagnostics.abort_reason = reason
             if Timing.enabled then
                 WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
                     reason = reason,
@@ -910,15 +920,6 @@ function WordFinder.findWordBox(document, pageno, px, py)
             gap_threshold = math.floor(line_h * WORD_GAP_RATIO)
         end
         gap_threshold = math.max(4, gap_threshold)
-
-        WordFinder.last_diagnostics = {
-            gap_threshold = gap_threshold,
-            median_gap = median_gap,
-            line_h = line_h,
-            gaps = gaps,
-            zoom = CROP_ZOOM,
-            multiplier = MEDIAN_GAP_MULTIPLIER,
-        }
 
         local x0, x1, gap = tap_x, tap_x, 0
         while x0 > 0 do

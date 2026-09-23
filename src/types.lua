@@ -84,6 +84,7 @@ SPDX-License-Identifier: MIT
 --- @field remember_doc_settings boolean Whether per-document settings (mode, nav mode, progress bar, crop mode) are saved & restored.
 --- @field doc_settings table<string, table>|nil Per-document settings map fallback.
 --- @field progress_bar_visible boolean
+--- @field ocr_bundled_language string Three-letter bundled OCR language code: eng, spa, or ita.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
@@ -228,8 +229,5 @@ SPDX-License-Identifier: MIT
 
 --- Native panel detector module.
 --- @class PPNativeDetectorModule
-
---- OCR debugging and logging module.
---- @class PPOcrDebug
 
 return {}

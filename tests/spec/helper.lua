@@ -124,14 +124,8 @@ preload("ui/geometry", function()
     return Geom
 end)
 
--- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path,
--- plus a working-enough fake buffer for `src._ocrdebug`'s crop-image saving
--- (copy-on-write via `blitFrom`, box outlines via `invertRect`, `writePNG`).
--- Every `invertRect` call across every buffer instance also lands in the
--- shared `Blitbuffer._invert_log`, which specs reset and inspect directly --
--- simpler than threading a handle to whichever buffer ends up drawn on
--- (`saveCropImage` may draw on a copy of the tile it was handed, not the
--- tile itself).
+-- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path.
+-- Every `invertRect` call lands in the shared log for highlight specs.
 preload("ffi/blitbuffer", function()
     local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00, _invert_log = {} }
     local BB = {}
@@ -219,17 +213,12 @@ preload("ui/uimanager", function()
             return true
         end
     end
-    -- `show` also records the widget, so specs (e.g. `ocrdebug_spec.lua`) can
-    -- hand-invoke a stored callback (`ok_callback`, a `Save` button's own
-    -- callback, etc.) to simulate the user's choice.
+    -- Record the widget so specs can invoke its callbacks.
     function UIManager:show(widget)
         UIManager._last_shown = widget
         return true
     end
-    -- `scheduleIn` also records the callback (does not run it -- there is no
-    -- real event loop here), so specs simulating time passing (e.g. the
-    -- `pollForDictClose` fallback in `src._ocrdebug`) can hand-invoke
-    -- `UIManager._last_scheduled()` themselves, once per simulated tick.
+    -- Record scheduled callbacks without running a real event loop.
     function UIManager:scheduleIn(seconds, fn)
         UIManager._last_scheduled = fn
         return true
@@ -274,29 +263,14 @@ preload("util", function()
     function util.calcFreeMem()
         return 0
     end
-    -- `src._ocrdebug` uses this to create the debug-images folder; specs
-    -- never exercise a real filesystem write, so a stub that always
-    -- "succeeds" without touching disk is enough.
+    -- Specs never exercise a real filesystem write.
     function util.makePath()
         return true
     end
     return util
 end)
 
--- json: only `src._ocrdebug` uses this, to encode session-log lines. No spec
--- currently exercises a real encode, so a stub that never gets called is enough.
-preload("json", function()
-    return {
-        encode = function()
-            return ""
-        end,
-    }
-end)
-
--- Dialog widgets `src._ocrdebug` shows: `:new{...}` just returns the option
--- table, so specs can hand-invoke a stored `ok_callback`/`cancel_callback`
--- without a real widget/rendering stack, and without `UIManager:show` (a
--- no-op stub) ever calling them itself.
+-- Dialog widgets return their option table without a rendering stack.
 preload("dispatcher", function()
     return {
         registerAction = function() end,

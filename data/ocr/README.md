@@ -1,23 +1,31 @@
-# Optional English OCR model
+# Bundled OCR language data
 
-`eng_fast.traineddata` is the unmodified English model from
-[tesseract-ocr/tessdata_fast](https://github.com/tesseract-ocr/tessdata_fast),
-downloaded on 2026-09-22 from
-<https://raw.githubusercontent.com/tesseract-ocr/tessdata_fast/main/eng.traineddata>.
-It is distributed under the accompanying Apache-2.0 [LICENSE](LICENSE).
+Panels+ bundles the unmodified English, Spanish, and Italian models from
+[Tesseract's `tessdata_fast`](https://github.com/tesseract-ocr/tessdata_fast)
+at revision [`87416418657359cb625c412a48b6e1d6d41c29bd`](https://github.com/tesseract-ocr/tessdata_fast/tree/87416418657359cb625c412a48b6e1d6d41c29bd).
+They are compatible with Tesseract 4 and 5 and use KOReader's existing OCR
+runtime. The accompanying [LICENSE](LICENSE) is Apache-2.0. The exact file
+hashes are in [SHA256SUMS](SHA256SUMS); both build scripts verify them.
 
-- Size: 4,113,088 bytes (3.92 MiB).
-- SHA-256: `7d4322bd2a7749724879683fc3912cb542f19906c83bcc1a52132556427170b2`.
-- Renamed to `eng_fast` because KOReader's k2pdfopt OCR engine caches models
-  by language name, without checking the data directory. The contents are unchanged.
+| Plugin file | Upstream file | Size |
+| --- | --- | ---: |
+| `eng_fast.traineddata` | `eng.traineddata` | 4,113,088 bytes |
+| `spa_fast.traineddata` | `spa.traineddata` | 2,294,433 bytes |
+| `ita_fast.traineddata` | `ita.traineddata` | 2,701,314 bytes |
 
-Enable **Panels+ → Lightweight English OCR** and open a panel. This model is
-used only for panel word lookup when the document OCR language is `eng`.
-Other languages and combinations such as `eng+spa` retain the configured model.
-The option is off by default. KOReader's installed language files are not changed.
-Missing bundled data uses the installed English model; a failed native OCR
-call falls back to KOReader's document OCR.
+The language names have a `_fast` suffix because KOReader's k2pdfopt OCR
+engine caches models by language name without checking the data directory.
+The data inside each file is unchanged. This keeps the bundled models separate
+from KOReader's installed models when switching between them.
 
-This is a general English model, not a manga-trained model. It uses the existing
-KOReader Tesseract runtime, with no extra executable, network service, or GPU.
-See [OCR_REPORT.md](../../OCR_REPORT.md) for measured accuracy and device limits.
+The `panelsplus_with_ocrmodels.koplugin` build includes these three models and always
+uses them for zoomed-panel word lookup. English is selected by default; the
+panel viewer's **More Config… → OCR language** entries select Spanish or
+Italian persistently. The separate `panelsplus.koplugin` build
+excludes this directory and uses KOReader's configured OCR language and
+`data/tessdata` files. Install only one build. If a bundled model is missing
+or cannot be read, Panels+ falls back to KOReader's configured OCR data. An
+OCR engine error or empty result falls back to KOReader's document OCR path.
+
+These are general language models, not manga-trained models. See
+[OCR_REPORT.md](../../OCR_REPORT.md) for the English accuracy measurements.

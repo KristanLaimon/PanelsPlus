@@ -107,18 +107,6 @@ function Menu:addToMainMenu(menu_items)
                 separator = true,
             },
             {
-                text = _("Lightweight English OCR"),
-                checked_func = function()
-                    return self.settings.ocr_fast_english == true
-                end,
-                callback = function()
-                    self:setOcrFastEnglish(self.settings.ocr_fast_english ~= true)
-                end,
-                help_text = _(
-                    "Use the bundled English model for dictionary lookups in zoomed panels. May improve comic lettering. Applies when the document OCR language is English. Other languages use KOReader's selected model."
-                ),
-            },
-            {
                 text = _("Enable debugging logs"),
                 checked_func = function()
                     return self.settings.debug_mode == true
@@ -128,18 +116,6 @@ function Menu:addToMainMenu(menu_items)
                 end,
                 help_text = _(
                     "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
-                ),
-            },
-            {
-                text = _("OCR debug review mode"),
-                checked_func = function()
-                    return self.settings.ocr_debug_mode == true
-                end,
-                callback = function()
-                    self:setOcrDebugMode(self.settings.ocr_debug_mode ~= true)
-                end,
-                help_text = _(
-                    "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
                 ),
             },
         },

@@ -40,8 +40,6 @@ local spec_modules = {
     "tests.spec.panelviewer_margin_spec",
     "tests.spec.panelviewer_highlight_spec",
     "tests.spec.panelviewer_refineword_spec",
-    "tests.spec.ocrdebug_spec",
-    "tests.spec.ocrdebug_report_spec",
     "tests.spec.geometry_spec",
     "tests.spec.panelviewport_spec",
     "tests.spec.wordfinder_spec",

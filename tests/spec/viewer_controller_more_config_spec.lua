@@ -21,6 +21,7 @@ local PanelViewer = require("src._panelviewer")
 local MainMenu = require("src.menu")
 local Settings = require("src._settings")
 local ViewerController = require("src.viewer_controller")
+local WordFinder = require("src._wordfinder")
 
 describe("ViewerController page-turn animation settings", function()
     local function withAnimationEnvironment(callback)
@@ -76,6 +77,33 @@ describe("ViewerController page-turn animation settings", function()
         local settings = Settings.withDefaults({})
         assert.is_true(settings.nav_animated_panels)
         assert.is_true(settings.nav_animated_pages)
+        assert.equals("eng", settings.ocr_bundled_language)
+    end)
+
+    it("selects a bundled language in the current viewer and saves it", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        local viewer = { ocr_bundled_language = "eng" }
+        controller:showMoreConfigMenu(viewer)
+        local items = UIManager._last_shown.item_table
+        assert.is_true(items[9].checked_func())
+
+        items[11].callback()
+        assert.equals("ita", controller.settings.ocr_bundled_language)
+        assert.equals("ita", viewer.ocr_bundled_language)
+        assert.equals(1, saved:callCount())
+        assert.is_true(UIManager._last_shown.item_table[11].checked_func())
+    end)
+
+    it("does not offer bundled languages in the manual OCR package", function()
+        local original_has_bundled = WordFinder.hasBundledData
+        WordFinder.hasBundledData = function()
+            return false
+        end
+        local controller = makeController(Settings.withDefaults({}))
+        controller:showMoreConfigMenu({})
+        local items = UIManager._last_shown.item_table
+        WordFinder.hasBundledData = original_has_bundled
+        assert.equals(8, #items)
     end)
 
     it("groups all More config items by their prefixed categories", function()
@@ -138,9 +166,10 @@ describe("ViewerController page-turn animation settings", function()
 
         controller:showMoreConfigMenu({ nav_transition_mode = "classic" })
         local items = UIManager._last_shown.item_table
-        assert.equals(8, #items)
+        assert.equals(11, #items)
         assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[7].text)
         assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[8].text)
+        assert.equals("[OCR language]: English", items[9].text)
 
         Device.canDoSwipeAnimation = old_can_do_swipe_animation
     end)

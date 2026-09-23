@@ -84,8 +84,7 @@ local Settings = {
         segment_shear_trigger = 0.35,
         segment_shear_step = 2,
         debug_mode = false,
-        ocr_debug_mode = false,
-        ocr_fast_english = false,
+        ocr_bundled_language = "eng",
         performance_profile_version = 7,
     },
 }
@@ -118,6 +117,16 @@ function Settings.withDefaults(settings)
         if settings[key] == nil then
             settings[key] = value
         end
+    end
+    settings.ocr_fast_english = nil
+    settings.ocr_bundled_enabled = nil
+    settings.ocr_debug_mode = nil
+    if
+        settings.ocr_bundled_language ~= "eng"
+        and settings.ocr_bundled_language ~= "spa"
+        and settings.ocr_bundled_language ~= "ita"
+    then
+        settings.ocr_bundled_language = "eng"
     end
     if performance_profile_version < Settings.defaults.performance_profile_version then
         settings.panel_grid_rows = Settings.defaults.panel_grid_rows

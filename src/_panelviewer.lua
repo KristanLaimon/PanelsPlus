@@ -22,7 +22,6 @@ local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
-local OcrDebug = require("src._ocrdebug")
 local PageBitmap = require("src._pagebitmap")
 local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
@@ -117,8 +116,7 @@ local PanelViewer = ImageViewer:extend({
     more_config_callback = nil,
     progress_bar_visible = true,
     hold_text_selection = true,
-    ocr_debug_mode = false,
-    ocr_fast_english = false,
+    ocr_bundled_language = false,
     nav_transition_mode = "classic",
     nav_animated_panels = true,
     nav_animated_pages = true,
@@ -1139,7 +1137,6 @@ function PanelViewer:paintTo(bb, x, y)
         bb:invertRect(d.x, d.y, d.w, d.h)
     end
     self:paintHighlights(bb, x, y)
-    OcrDebug.paint(self, bb, x, y)
 end
 
 --- Re-locate the word KOReader's native `highlight.onHold` just selected,
@@ -1180,32 +1177,11 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
 
     local ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
     if not ok or not box then
-        if self.ocr_debug_mode then
-            local ok_native, native_dims = pcall(document.getNativePageDimensions, document, page_pos.page)
-            OcrDebug.captureFailure(self, {
-                document = document.file,
-                page = page_pos.page,
-                tap = { x = page_pos.x, y = page_pos.y },
-                native = ok_native and native_dims,
-                reason = "no_box",
-            })
-        end
         return
     end
 
-    local ok2, word = pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_fast_english)
+    local ok2, word = pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_bundled_language)
     if not ok2 or not word then
-        if self.ocr_debug_mode then
-            OcrDebug.captureFailure(self, {
-                document = document.file,
-                page = page_pos.page,
-                tap = { x = page_pos.x, y = page_pos.y },
-                box = { x = box.x, y = box.y, w = box.w, h = box.h },
-                native = native and { w = native.w, h = native.h },
-                reason = "no_word",
-                diagnostics = WordFinder.last_diagnostics,
-            })
-        end
         return
     end
 
@@ -1230,19 +1206,6 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
     local view_highlight = reader_ui.view and reader_ui.view.highlight
     if view_highlight and view_highlight.temp and view_highlight.temp[page_pos.page] then
         view_highlight.temp[page_pos.page] = selected_text.sboxes
-    end
-
-    if self.ocr_debug_mode then
-        OcrDebug.capture(self, {
-            document = document.file,
-            page = page_pos.page,
-            tap = { x = page_pos.x, y = page_pos.y },
-            box = { x = box.x, y = box.y, w = box.w, h = box.h },
-            native = native and { w = native.w, h = native.h },
-            koreader_word = orig_word,
-            ocr_word = word,
-            diagnostics = WordFinder.last_diagnostics,
-        })
     end
 
     if not Timing.enabled then
@@ -1270,13 +1233,6 @@ end
 --- @param ges table Gesture event with `pos`.
 --- @return boolean handled Whether text selection or dictionary lookup consumed the event.
 function PanelViewer:onHold(arg, ges)
-    if self._ocr_debug_rect then
-        -- Rectangle marking is tap-tap (see `_ocrdebug.lua`), not hold-drag;
-        -- swallow hold gestures so they cannot start a text selection
-        -- underneath while a corner tap is still pending.
-        return true
-    end
-
     if self.hold_text_selection == false then
         return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
     end
@@ -1300,7 +1256,24 @@ function PanelViewer:onHold(arg, ges)
     end
     highlight.panel_zoom_enabled = false
 
+    -- KOReader performs its first word lookup inside onHold. Point that
+    -- lookup at the selected bundle too, so a fresh install can select text
+    -- without language files in KOReader's data/tessdata directory.
+    local document = reader_ui.document
+    local interface = document and document.koptinterface
+    local configurable = document and document.configurable
+    local bundled_dir, bundled_model = WordFinder.bundledModel(self.ocr_bundled_language)
+    local original_language = configurable and configurable.doc_language
+    local original_dir = interface and rawget(interface, "tessocr_data")
+    if bundled_dir and configurable and interface then
+        configurable.doc_language = bundled_model
+        interface.tessocr_data = bundled_dir
+    end
     local ok, handled = pcall(highlight.onHold, highlight, arg, ges)
+    if bundled_dir and configurable and interface then
+        configurable.doc_language = original_language
+        interface.tessocr_data = original_dir
+    end
 
     reader_ui.view.screenToPageTransform = orig_screenToPage
     highlight.panel_zoom_enabled = orig_panel_zoom_enabled
@@ -1323,10 +1296,6 @@ end
 --- @param ges table Gesture event.
 --- @return boolean handled Whether the drag was handled.
 function PanelViewer:onHoldPan(arg, ges)
-    if self._ocr_debug_rect then
-        return true
-    end
-
     if not self._panels_plus_text_holding then
         return ImageViewer.onHoldPan and ImageViewer.onHoldPan(self, arg, ges)
     end
@@ -1360,10 +1329,6 @@ end
 --- @param ges table Gesture event.
 --- @return boolean handled Whether the release was handled.
 function PanelViewer:onHoldRelease(arg, ges)
-    if self._ocr_debug_rect then
-        return true
-    end
-
     if not self._panels_plus_text_holding then
         return ImageViewer.onHoldRelease and ImageViewer.onHoldRelease(self, arg, ges)
     end
@@ -1371,9 +1336,6 @@ function PanelViewer:onHoldRelease(arg, ges)
     self._panels_plus_text_holding = nil
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
-    if self.ocr_debug_mode and self._ocr_debug_pending then
-        OcrDebug.hookDictClose(self, reader_ui)
-    end
     if highlight and type(highlight.onHoldRelease) == "function" then
         pcall(highlight.onHoldRelease, highlight, arg, ges)
     end
@@ -1402,10 +1364,6 @@ end
 --- @param ges table Gesture event with a `pos` geometry object.
 --- @return boolean handled Always true after processing a tap.
 function PanelViewer:onTap(_, ges)
-    if self._ocr_debug_rect then
-        return OcrDebug.handleTap(self, ges)
-    end
-
     local frame_dimen = self.main_frame and self.main_frame.dimen
     if frame_dimen and ges.pos:notIntersectWith(frame_dimen) then
         self:onClose()

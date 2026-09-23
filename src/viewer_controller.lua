@@ -17,6 +17,7 @@ local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
+local WordFinder = require("src._wordfinder")
 local UIManager = require("ui/uimanager")
 
 --- Panel viewer orchestration methods mixed into `PanelsPlus`.
@@ -541,11 +542,29 @@ end
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
+local function selectedBundledOcrLanguage(settings)
+    if not WordFinder.hasBundledData() then
+        return false
+    end
+    local language = settings.ocr_bundled_language
+    return (language == "spa" or language == "ita") and language or "eng"
+end
+
+function ViewerController:setBundledOcrLanguage(viewer, language)
+    if language ~= "eng" and language ~= "spa" and language ~= "ita" then
+        return
+    end
+    self.settings.ocr_bundled_language = language
+    viewer.ocr_bundled_language = selectedBundledOcrLanguage(self.settings)
+    self:saveSettings()
+end
+
 function ViewerController:showMoreConfigMenu(viewer)
     local Menu = require("ui/widget/menu")
     local _ = require("gettext")
     local controller = self
     local menu
+    local has_bundled_ocr = WordFinder.hasBundledData()
 
     local function categorizedText(category, label)
         return "[" .. category .. "]: " .. label
@@ -712,7 +731,30 @@ function ViewerController:showMoreConfigMenu(viewer)
         help_text = _(
             "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
         ),
+        separator = has_bundled_ocr,
     })
+
+    if has_bundled_ocr then
+        local ocr_category = _("OCR language")
+        for _, option in ipairs({
+            { code = "eng", label = _("English") },
+            { code = "spa", label = _("Spanish") },
+            { code = "ita", label = _("Italian") },
+        }) do
+            table.insert(menu_items, {
+                text = categorizedText(ocr_category, option.label),
+                radio = true,
+                checked_func = function()
+                    return (controller.settings.ocr_bundled_language or "eng") == option.code
+                end,
+                callback = function()
+                    controller:setBundledOcrLanguage(viewer, option.code)
+                    UIManager:close(menu)
+                    controller:showMoreConfigMenu(viewer)
+                end,
+            })
+        end
+    end
 
     menu = Menu:new({
         title = _("More Panel Viewer Settings"),
@@ -792,8 +834,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         kobo_vertical_gesture = self.settings.kobo_vertical_gesture ~= false,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
-        ocr_debug_mode = self.settings.ocr_debug_mode == true,
-        ocr_fast_english = self.settings.ocr_fast_english == true,
+        ocr_bundled_language = selectedBundledOcrLanguage(self.settings),
         image_rotation = self.settings.image_rotation,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
