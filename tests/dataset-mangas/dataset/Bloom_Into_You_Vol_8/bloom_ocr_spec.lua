@@ -236,7 +236,7 @@ describe("Bloom Into You annotated word boxes", function()
         assert.equals(evaluated, good, "WordFinder must match each available annotated word")
     end)
 
-    local function checkText(fast_english)
+    local function checkText(bundled_language)
         local file = io.open(BOOK_DIR .. "/annotation.json", "r")
         assert.is_not_nil(file)
         local annotations = JSON.decode(file:read("*a"))[1].pages
@@ -256,7 +256,8 @@ describe("Bloom Into You annotated word boxes", function()
                             expected.x + expected.w / 2,
                             expected.y + expected.h / 2
                         )
-                        local actual = box and WordFinder.readWord(document, page.page_index, box, native, fast_english)
+                        local actual = box
+                            and WordFinder.readWord(document, page.page_index, box, native, bundled_language)
                         local normalized_actual = actual and actual:upper():gsub("[^%w]", "") or ""
                         local normalized_expected = expected.text:upper():gsub("[^%w]", "")
                         evaluated = evaluated + 1
@@ -281,7 +282,7 @@ describe("Bloom Into You annotated word boxes", function()
             string.format(
                 "  OCR text (%s, %s): %d/%d matched",
                 NATIVE_OCR and "native" or "CLI",
-                fast_english and "bundled fast English" or (MODEL_DIR or "system model"),
+                bundled_language and "bundled fast English" or (MODEL_DIR or "system model"),
                 correct,
                 evaluated
             )
@@ -298,14 +299,14 @@ describe("Bloom Into You annotated word boxes", function()
         WordFinder.cleanup()
         -- Separate baselines: the system CLI is not KOReader's OCR library.
         -- Its fast-model score does not reproduce the native improvement.
-        local minimum = NATIVE_OCR and (fast_english and 47 or 43) or 42
+        local minimum = NATIVE_OCR and (bundled_language and 47 or 43) or 42
         assert.is_true(correct >= evaluated * minimum / 60, "annotated OCR accuracy regressed")
     end
 
     it("reads annotated text with the configured model", function()
-        checkText(false)
+        checkText(nil)
     end)
     it("reads annotated text with the bundled fast English model", function()
-        checkText(true)
+        checkText("eng")
     end)
 end)

@@ -1,5 +1,38 @@
 # Panels+ OCR investigation and handoff
 
+## Follow-up: two OCR package builds (2026-09-23)
+
+The shell and PowerShell build scripts now produce `panelsplus_with_ocrmodels.koplugin`
+with all three OCR models and `panelsplus.koplugin` without OCR data.
+Install one package. The bundled package uses its models for panel word lookup;
+the manual package uses KOReader's configured language and `data/tessdata`
+files. The OCR source switch and the in-reader OCR debug review mode were
+removed. The bundled package retains a persistent English/Spanish/Italian
+language choice under **More Config…**. The manual package has no bundled
+language menu. The Manga Annotator remains the dataset workflow.
+
+## Follow-up: bundled English, Spanish, and Italian models (2026-09-23)
+
+Panels+ now packages the official `tessdata_fast` English, Spanish, and Italian
+models from revision `87416418657359cb625c412a48b6e1d6d41c29bd`. The
+files are pinned by SHA-256 in `data/ocr/SHA256SUMS`, and the shell and
+PowerShell builds check them before packaging. `eng_fast` is unchanged from
+the model measured below; `spa_fast` and `ita_fast` are new. The separate
+language names preserve KOReader's model switching behavior.
+
+The bundled package selects English initially. **More Config…** in the panel
+viewer lets the user select bundled English, Spanish, or Italian at any time;
+language changes are persistent and update the open viewer. The selection also
+applies to KOReader's initial word lookup during a panel hold, then its document
+configuration is restored before Panels+ refines the word.
+
+The 60-word Bloom English dataset still gives 42/60 with the CLI stand-in for
+both configured and bundled English, and 43/60 versus 47/60 through KOReader's
+native OCR library. A native loading smoke check read `HOLA` with `spa_fast`
+and `CIAO` with `ita_fast`; those languages have no annotated accuracy set yet.
+The earlier English accuracy figures below refer to the previous
+off-by-default option.
+
 ## Follow-up: optional lightweight English model (2026-09-22)
 
 Implemented an **off-by-default** `Panels+ → Lightweight English OCR` option.
