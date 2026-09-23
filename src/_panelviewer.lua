@@ -18,6 +18,7 @@ local Geometry = require("src._geometry")
 local ImageViewer = require("ui/widget/imageviewer")
 local Memory = require("src._memory")
 local RenderImage = require("ui/renderimage")
+local RotationTrace = require("src._rotationtrace")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
 local Timing = require("src._timing")
@@ -529,6 +530,7 @@ end
 --- @param ges table Gesture event with `direction`.
 --- @return boolean|nil handled Whether the gesture was consumed.
 function PanelViewer:onSwipe(arg, ges)
+    RotationTrace.snapshot("swipe " .. tostring(ges and ges.direction), self)
     if self.kobo_vertical_gesture ~= false and isLeftEdgeGesture(ges) then
         if ges.direction == "north" then
             self:onZoomIn(self.mousewheel_zoom_step or 0.2)
@@ -1133,6 +1135,10 @@ end
 --- global invert alone.
 function PanelViewer:paintTo(bb, x, y)
     ImageViewer.paintTo(self, bb, x, y)
+    self._panels_plus_rotation_trace_paints = (self._panels_plus_rotation_trace_paints or 0) + 1
+    if self._panels_plus_rotation_trace_paints <= 3 then
+        RotationTrace.snapshot("paint " .. self._panels_plus_rotation_trace_paints, self)
+    end
     if Screen.night_mode and self._image_wg and self._image_wg.dimen then
         local d = self._image_wg.dimen
         bb:invertRect(d.x, d.y, d.w, d.h)
@@ -1401,6 +1407,7 @@ end
 --- @param ges table Gesture event with a `pos` geometry object.
 --- @return boolean handled Always true after processing a tap.
 function PanelViewer:onTap(_, ges)
+    RotationTrace.snapshot("tap", self)
     if self._ocr_debug_rect then
         return OcrDebug.handleTap(self, ges)
     end
@@ -1442,6 +1449,7 @@ function PanelViewer:onShow()
         return "full", self.main_frame.dimen, true
     end)
     self:requestPanelPrerender()
+    RotationTrace.snapshot("show", self)
     return true
 end
 
@@ -1478,6 +1486,7 @@ function PanelViewer:update()
         end
     end
 
+    RotationTrace.snapshot("update", self)
     return result
 end
 
@@ -1525,6 +1534,7 @@ end
 
 --- Initialize ImageViewer state, controls, and first render.
 function PanelViewer:init()
+    RotationTrace.snapshot("init before base", self)
     -- Base ImageViewer always materializes list entry 1 during init. When a
     -- rebuilt viewer needs to reopen on a later panel, give it a one-entry
     -- initialization view so it renders the destination directly instead of
@@ -1550,6 +1560,7 @@ function PanelViewer:init()
     end
 
     ImageViewer.init(self)
+    RotationTrace.snapshot("init after base", self)
     if images and initial_image_num > 1 then
         self.image = initial_image
         self._images_list = images
@@ -1591,24 +1602,40 @@ function PanelViewer:init()
     self.key_events.PanelNavRight = { { "Right" }, { "d" }, { "D" } }
 end
 
+--- KOReader may send dimensions and rotation notifications before the Android
+--- ScreenResize event that actually rebuilds this viewer.
+function PanelViewer:onSetDimensions(dimen)
+    RotationTrace.snapshot("SetDimensions", self, dimen)
+end
+
+function PanelViewer:onSetRotationMode(mode)
+    RotationTrace.snapshot("SetRotationMode " .. tostring(mode), self)
+end
+
 --- Android can rotate the screen while this viewer is open. The image list's
 --- current bitmap was rendered for the previous canvas dimensions, and the
 --- base ImageViewer also keeps its outer region and touch ranges from init.
 --- Reopen at the same panel so drawPagePart uses the new canvas size.
 function PanelViewer:onScreenResize(dimen)
+    RotationTrace.snapshot("ScreenResize received", self, dimen)
     if self._panels_plus_closed or not dimen or not self.region then
+        RotationTrace.note("ScreenResize ignored", "closed, missing dimensions, or missing region")
         return
     end
     if self.region.w == dimen.w and self.region.h == dimen.h then
+        RotationTrace.note("ScreenResize ignored", "viewer region already matches event")
         return
     end
     if self.screen_resize_callback then
+        RotationTrace.note("ScreenResize rebuild", "viewer region differs from event")
         return self.screen_resize_callback(self)
     end
+    RotationTrace.note("ScreenResize ignored", "missing resize callback")
 end
 
 --- Close ImageViewer resources while guarding its final dirty-region callback.
 function PanelViewer:onCloseWidget()
+    RotationTrace.snapshot("close before cleanup", self)
     self._panels_plus_closed = true
     self._panels_plus_closing = true
     self._panels_plus_transition_active = nil
@@ -1726,6 +1753,7 @@ function PanelViewer:switchToImageNum(image_num)
         self.scale_factor = self._images_orig_scale_factor
     end
     self:update()
+    RotationTrace.snapshot("switch to panel " .. tostring(image_num), self)
     if self.image_disposable then
         self:releasePreviousPanelImage(old_image)
     end

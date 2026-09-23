@@ -15,6 +15,7 @@ local Screen = Device.screen
 local Memory = require("src._memory")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
+local RotationTrace = require("src._rotationtrace")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
@@ -232,6 +233,7 @@ end
 --- @param mode integer Target `Screen.DEVICE_ROTATED_*` rotation mode.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:setDeviceRotation(viewer, mode)
+    RotationTrace.snapshot("manual device rotation requested " .. tostring(mode), viewer)
     local page = viewer.page
     local panels = viewer.panels
     local start_idx = viewer._images_list_cur or 1
@@ -246,12 +248,15 @@ end
 --- Android's automatic rotation sends ScreenResize after changing the canvas.
 --- The current panel bitmap and ImageViewer layout still use the old size.
 function ViewerController:resizePanelViewer(viewer)
+    RotationTrace.snapshot("fixed-page rebuild before close", viewer)
     local page = viewer.page
     local panels = viewer.panels
     local start_idx = viewer._images_list_cur or 1
     local buttons_visible = viewer.buttons_visible
     UIManager:close(viewer)
-    return self:showPanelViewerForPage(page, panels, start_idx, { buttons_visible = buttons_visible })
+    local result = self:showPanelViewerForPage(page, panels, start_idx, { buttons_visible = buttons_visible })
+    RotationTrace.note("fixed-page rebuild result", tostring(result))
+    return result
 end
 
 --- Persist a new plugin-only image rotation chosen from the rotation picker.
@@ -755,6 +760,20 @@ end
 --- @return boolean|PanelViewer result `true` by default, or viewer when requested.
 function ViewerController:showPanelViewerForPage(page, panels, start_idx, options)
     options = options or {}
+    RotationTrace.note(
+        "fixed-page build",
+        string.format(
+            "page=%s panels=%s index=%s crop=%s margin=%s bleed=%s image_rotation=%s controls=%s",
+            tostring(page),
+            tostring(#panels),
+            tostring(start_idx or 1),
+            tostring(self.settings.crop_mode),
+            tostring(self.settings.panel_margin_ratio),
+            tostring(self.settings.panel_bleed_ratio),
+            tostring(self.settings.image_rotation),
+            tostring(options.buttons_visible)
+        )
+    )
     self:cancelPanelPrerender()
     Timing.log(
         "showPanelViewerForPage: page=%d panels=%d start_idx=%d crop_mode=%s transition_mode=%s",
@@ -864,6 +883,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)
+    RotationTrace.snapshot("fixed-page shown", viewer)
     if not options.defer_preload then
         self:preloadNextPanels(page)
     end

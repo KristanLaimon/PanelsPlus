@@ -16,9 +16,11 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 
 local Screen = require("device").screen
+local logger = require("logger")
 local UIManager = require("ui/uimanager")
 local ViewerController = require("src.viewer_controller")
 local PanelViewer = require("src._panelviewer")
+local RotationTrace = require("src._rotationtrace")
 
 describe("ViewerController device rotation across page boundaries", function()
     local original_broadcast_event
@@ -104,6 +106,38 @@ describe("ViewerController device rotation across page boundaries", function()
 end)
 
 describe("PanelViewer Android screen resize", function()
+    it("records resize geometry and the reason a duplicate event was ignored", function()
+        local old_enabled, old_info = RotationTrace.enabled, logger.info
+        local lines = {}
+        RotationTrace.enabled = true
+        logger.info = function(line)
+            lines[#lines + 1] = line
+        end
+        local viewer = PanelViewer:new({
+            region = { x = 0, y = 0, w = 800, h = 600 },
+            panels = { { x = 2, y = 3, w = 200, h = 300 } },
+            image_rects = { { x = 2, y = 3, w = 200, h = 300 } },
+            crop_mode = "strict",
+            screen_resize_callback = function()
+                return true
+            end,
+        })
+
+        viewer:onSetDimensions({ w = 800, h = 600 })
+        viewer:onScreenResize({ w = 800, h = 600 })
+        viewer:onScreenResize({ w = 600, h = 800 })
+
+        RotationTrace.enabled, logger.info = old_enabled, old_info
+        local log = table.concat(lines, "\n")
+        assert.is_true(log:find("SetDimensions", 1, true) ~= nil)
+        assert.is_true(log:find("ScreenResize received", 1, true) ~= nil)
+        assert.is_true(log:find("event=?,? 600x800", 1, true) ~= nil)
+        assert.is_true(log:find("region=0,0 800x600", 1, true) ~= nil)
+        assert.is_true(log:find("panel=2,3 200x300", 1, true) ~= nil)
+        assert.is_true(log:find("already matches event", 1, true) ~= nil)
+        assert.is_true(log:find("ScreenResize rebuild", 1, true) ~= nil)
+    end)
+
     it("renders a wide crop at the landscape canvas width after rotation", function()
         local old_width, old_height = Screen.getWidth, Screen.getHeight
         local screen_w, screen_h = 824, 1648

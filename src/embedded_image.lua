@@ -15,6 +15,7 @@ local Geometry = require("src._geometry")
 local PanelViewport = require("src._panelviewport")
 local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
+local RotationTrace = require("src._rotationtrace")
 local NativeDetector = require("src._nativedetector")
 local ComponentDetector = require("src._componentdetector")
 local PageBitmap = require("src._pagebitmap")
@@ -252,6 +253,20 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         freeImage(image)
         return false
     end
+    RotationTrace.note(
+        "embedded build",
+        string.format(
+            "source=%sx%s reused_panels=%s crop=%s margin=%s bleed=%s image_rotation=%s controls=%s",
+            tostring(width),
+            tostring(height),
+            tostring(options.panels and #options.panels or false),
+            tostring(self.settings.crop_mode),
+            tostring(self.settings.panel_margin_ratio),
+            tostring(self.settings.panel_bleed_ratio),
+            tostring(self.settings.image_rotation),
+            tostring(options.buttons_visible)
+        )
+    )
 
     local panels = options.panels
     if not panels then
@@ -426,11 +441,13 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)
+    RotationTrace.snapshot("embedded shown", viewer)
     return true
 end
 
 --- Rebuild an embedded image viewer after changing its reading order or crop.
 function EmbeddedImage:reopenEmbeddedImagePanels(viewer, options)
+    RotationTrace.snapshot("embedded rebuild before close", viewer)
     -- A boundary search intentionally releases the source before it crosses
     -- reflow pages. Ignore a late menu/button action rather than closing the
     -- still-visible current crop and attempting to rebuild from nil.
@@ -451,15 +468,18 @@ function EmbeddedImage:reopenEmbeddedImagePanels(viewer, options)
     end
     viewer.embedded_source_image = nil -- transfer ownership to the replacement viewer
     UIManager:close(viewer)
-    return self:showEmbeddedImagePanelsForImage(image, {
+    local result = self:showEmbeddedImagePanelsForImage(image, {
         panels = panels,
         start_point = start_point,
         buttons_visible = buttons_visible,
     })
+    RotationTrace.note("embedded rebuild result", tostring(result))
+    return result
 end
 
 --- Rotate the device/screen and reopen the embedded image viewer at the current panel.
 function EmbeddedImage:setDeviceRotation(viewer, mode)
+    RotationTrace.snapshot("embedded manual device rotation " .. tostring(mode), viewer)
     if viewer._panels_plus_boundary_pending or not viewer.embedded_source_image then
         return true
     end
