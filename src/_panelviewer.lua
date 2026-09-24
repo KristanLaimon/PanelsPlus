@@ -1227,12 +1227,58 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
     end
 end
 
+function PanelViewer:_cancelPhraseHold()
+    if self._phrase_hold_action then
+        UIManager:unschedule(self._phrase_hold_action)
+        self._phrase_hold_action = nil
+    end
+end
+
+function PanelViewer:_startPhraseHold(highlight, page_pos)
+    self:_cancelPhraseHold()
+    self._phrase_selected = nil
+    -- Replace the reader's long-hold menu timer within this viewer only.
+    if highlight._resetHoldTimer then
+        highlight:_resetHoldTimer(true)
+    end
+    self._phrase_hold_action = function()
+        self._phrase_hold_action = nil
+        if not self._panels_plus_text_holding or self._panels_plus_closed then
+            return
+        end
+        local selection = highlight.selected_text
+        local seed = selection and selection.sboxes and selection.sboxes[1]
+        local document = self.reader_ui.document
+        if not seed or PageBitmap.getBlockReason(document) then
+            return
+        end
+        local ok, text, boxes = pcall(WordFinder.readPhrase, document, page_pos.page, seed, self.ocr_bundled_language)
+        if not ok or not text then
+            return
+        end
+        selection.text, selection.sboxes, selection.pboxes = text, boxes, boxes
+        highlight.is_word_selection = false
+        self._phrase_selected = true
+        local painted = self.reader_ui.view.highlight
+        if painted and painted.temp then
+            painted.temp[page_pos.page] = boxes
+        end
+        UIManager:setDirty(self, "ui")
+    end
+    -- The initial hold gesture normally takes half a second to arrive.
+    local settings = G_reader_settings
+    local initial_ms = settings and settings:readSetting("ges_hold_interval_ms") or 500
+    UIManager:scheduleIn(math.max(0, 4 - initial_ms / 1000), self._phrase_hold_action)
+end
+
 --- Delegate touch and hold gestures to KOReader's native text selection / dictionary.
 ---
 --- @param arg any Gesture argument.
 --- @param ges table Gesture event with `pos`.
 --- @return boolean handled Whether text selection or dictionary lookup consumed the event.
 function PanelViewer:onHold(arg, ges)
+    self:_cancelPhraseHold()
+    self._phrase_selected = nil
     if self.hold_text_selection == false then
         return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
     end
@@ -1281,6 +1327,7 @@ function PanelViewer:onHold(arg, ges)
     if ok and handled then
         self._panels_plus_text_holding = true
         if highlight.is_word_selection then
+            self:_startPhraseHold(highlight, page_pos)
             self:_refineWordSelection(highlight, page_pos)
         end
         UIManager:setDirty(self, "ui")
@@ -1296,6 +1343,8 @@ end
 --- @param ges table Gesture event.
 --- @return boolean handled Whether the drag was handled.
 function PanelViewer:onHoldPan(arg, ges)
+    self:_cancelPhraseHold()
+    self._phrase_selected = nil
     if not self._panels_plus_text_holding then
         return ImageViewer.onHoldPan and ImageViewer.onHoldPan(self, arg, ges)
     end
@@ -1329,6 +1378,7 @@ end
 --- @param ges table Gesture event.
 --- @return boolean handled Whether the release was handled.
 function PanelViewer:onHoldRelease(arg, ges)
+    self:_cancelPhraseHold()
     if not self._panels_plus_text_holding then
         return ImageViewer.onHoldRelease and ImageViewer.onHoldRelease(self, arg, ges)
     end
@@ -1336,7 +1386,13 @@ function PanelViewer:onHoldRelease(arg, ges)
     self._panels_plus_text_holding = nil
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
-    if highlight and type(highlight.onHoldRelease) == "function" then
+    if self._phrase_selected and highlight and type(highlight.onTranslateText) == "function" then
+        self._phrase_selected = nil
+        if highlight._resetHoldTimer then
+            highlight:_resetHoldTimer(true)
+        end
+        pcall(highlight.onTranslateText, highlight, highlight.selected_text.text)
+    elseif highlight and type(highlight.onHoldRelease) == "function" then
         pcall(highlight.onHoldRelease, highlight, arg, ges)
     end
     UIManager:setDirty(self, "ui")
@@ -1568,6 +1624,8 @@ end
 
 --- Close ImageViewer resources while guarding its final dirty-region callback.
 function PanelViewer:onCloseWidget()
+    self:_cancelPhraseHold()
+    self._phrase_selected = nil
     self._panels_plus_closed = true
     self._panels_plus_closing = true
     self._panels_plus_transition_active = nil

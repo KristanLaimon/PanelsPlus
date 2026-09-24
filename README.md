@@ -157,6 +157,8 @@ Of course if you prefer vertical, with margin, loose cropped or even animated, t
 
 Panels+ introduces experimental OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
 
+Keep holding for about four seconds to expand the selection to the nearby dialogue phrase, then release to open KOReader's translation. Release earlier for the usual word lookup. Dragging keeps manual text selection. Phrase grouping is experimental and may miss unusual bubble layouts.
+
 <strong>IMPORTANT:</strong> To use dictionary lookup, install a dictionary first:
 
 <ul>
