@@ -604,6 +604,10 @@ function WordFinder.ocrWord(document, pageno, box, bundled_language, native, opt
         end
     end
 
+    -- A line must not fall back to the document's single-word OCR mode.
+    if options and options.mode == 7 then
+        return nil
+    end
     WordFinder.evictOCRWordCache(document, pageno, box)
     local ok, raw = pcall(document.getOCRWord, document, pageno, { sbox = box })
     if not ok then
@@ -629,6 +633,83 @@ local function candidateKey(word)
         index = next_index
     end
     return table.concat(key)
+end
+
+--- Expand a word to its nearby dialogue block. Split wide line gaps before
+--- joining adjacent lines so side-by-side bubbles remain separate.
+function WordFinder.readPhrase(document, pageno, seed, bundled_language)
+    local boxes = document:getTextBoxes(pageno)
+    local runs = {}
+    for _, line in ipairs(boxes or {}) do
+        local run
+        for _, word in ipairs(line) do
+            local h = line.y1 - line.y0
+            if not run or word.x0 - run.x1 > h * 1.5 then
+                run = { x0 = word.x0, x1 = word.x1, y0 = line.y0, y1 = line.y1, words = {} }
+                runs[#runs + 1] = run
+            end
+            run.x1 = word.x1
+            if not WordFinder.normalizeWord(word.word) then
+                run.needs_ocr = true
+            end
+            run.words[#run.words + 1] = word.word or ""
+        end
+    end
+    local cx, cy = seed.x + seed.w / 2, seed.y + seed.h / 2
+    local selected, first = {}, nil
+    for i, run in ipairs(runs) do
+        if cx >= run.x0 and cx <= run.x1 and cy >= run.y0 and cy <= run.y1 then
+            first = i
+            selected[i] = true
+            break
+        end
+    end
+    if not first then
+        return nil
+    end
+    local changed = true
+    while changed do
+        changed = false
+        for i, run in ipairs(runs) do
+            if not selected[i] then
+                for j in pairs(selected) do
+                    local other = runs[j]
+                    local h = math.min(run.y1 - run.y0, other.y1 - other.y0)
+                    local gap = math.max(run.y0 - other.y1, other.y0 - run.y1)
+                    local overlap = math.min(run.x1, other.x1) - math.max(run.x0, other.x0)
+                    if
+                        gap >= 0
+                        and gap <= h * 0.9
+                        and overlap > 0
+                        and math.max(run.y1 - run.y0, other.y1 - other.y0) <= h * 1.6
+                    then
+                        selected[i], changed = true, true
+                        break
+                    end
+                end
+            end
+        end
+    end
+    local phrase_runs = {}
+    for i in pairs(selected) do
+        phrase_runs[#phrase_runs + 1] = runs[i]
+    end
+    table.sort(phrase_runs, function(a, b)
+        return a.y0 < b.y0 or (a.y0 == b.y0 and a.x0 < b.x0)
+    end)
+    local parts, sboxes = {}, {}
+    for _, run in ipairs(phrase_runs) do
+        local box = { x = run.x0, y = run.y0, w = run.x1 - run.x0, h = run.y1 - run.y0 }
+        local text = WordFinder.normalizeWord(table.concat(run.words, " "))
+        if run.needs_ocr or not text then
+            text = WordFinder.ocrWord(document, pageno, box, bundled_language, nil, { mode = 7, height = 40 })
+        end
+        if not text then
+            return nil
+        end
+        parts[#parts + 1], sboxes[#sboxes + 1] = text, box
+    end
+    return table.concat(parts, " "), sboxes
 end
 
 --- Read a located word using its tight OCR crop when available.

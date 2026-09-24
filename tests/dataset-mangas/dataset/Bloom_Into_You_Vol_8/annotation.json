@@ -4357,6 +4357,875 @@
             "h": 1676
           }
         ],
+        "phrase": [
+          {
+            "x": 1034,
+            "y": 64,
+            "w": 83,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "I LOVE HOW CAN YOU BE BRAVE FOR OTHERS..."
+          },
+          {
+            "x": 1020,
+            "y": 86,
+            "w": 111,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I LOVE HOW CAN YOU BE BRAVE FOR OTHERS..."
+          },
+          {
+            "x": 1032,
+            "y": 109,
+            "w": 88,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "I LOVE HOW CAN YOU BE BRAVE FOR OTHERS..."
+          },
+          {
+            "x": 1008,
+            "y": 131,
+            "w": 134,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "I LOVE HOW CAN YOU BE BRAVE FOR OTHERS..."
+          },
+          {
+            "x": 1016,
+            "y": 155,
+            "w": 115,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I LOVE HOW CAN YOU BE BRAVE FOR OTHERS..."
+          },
+          {
+            "x": 895,
+            "y": 122,
+            "w": 61,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 874,
+            "y": 144,
+            "w": 102,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 881,
+            "y": 167,
+            "w": 88,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 864,
+            "y": 189,
+            "w": 122,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 876,
+            "y": 213,
+            "w": 98,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 864,
+            "y": 236,
+            "w": 124,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 859,
+            "y": 258,
+            "w": 131,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "EVEN THOUGH YOU'RE INDECISIVE WHEN IT COMES TO YOURSELF."
+          },
+          {
+            "x": 236,
+            "y": 221,
+            "w": 90,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "I LOVE IT WHEN YOU LAUGH AT ME"
+          },
+          {
+            "x": 229,
+            "y": 246,
+            "w": 105,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "I LOVE IT WHEN YOU LAUGH AT ME"
+          },
+          {
+            "x": 255,
+            "y": 271,
+            "w": 56,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "I LOVE IT WHEN YOU LAUGH AT ME"
+          },
+          {
+            "x": 238,
+            "y": 296,
+            "w": 88,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "I LOVE IT WHEN YOU LAUGH AT ME"
+          },
+          {
+            "x": 236,
+            "y": 320,
+            "w": 87,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "I LOVE IT WHEN YOU LAUGH AT ME"
+          },
+          {
+            "x": 976,
+            "y": 512,
+            "w": 88,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "I LOVE HOW SHORT YOU ARE...."
+          },
+          {
+            "x": 986,
+            "y": 539,
+            "w": 66,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "I LOVE HOW SHORT YOU ARE...."
+          },
+          {
+            "x": 977,
+            "y": 565,
+            "w": 87,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "I LOVE HOW SHORT YOU ARE...."
+          },
+          {
+            "x": 993,
+            "y": 590,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "I LOVE HOW SHORT YOU ARE...."
+          },
+          {
+            "x": 978,
+            "y": 615,
+            "w": 81,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "I LOVE HOW SHORT YOU ARE...."
+          },
+          {
+            "x": 860,
+            "y": 625,
+            "w": 57,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 858,
+            "y": 651,
+            "w": 64,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 812,
+            "y": 676,
+            "w": 152,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 823,
+            "y": 703,
+            "w": 135,
+            "h": 24,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 838,
+            "y": 727,
+            "w": 106,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 857,
+            "y": 754,
+            "w": 63,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "AND HOW MUCH THAT SEEMS TO BOTHER YOU."
+          },
+          {
+            "x": 364,
+            "y": 741,
+            "w": 93,
+            "h": 27,
+            "phrase_id": 6,
+            "text": "I LOVE YOUR FLUFFY HAIR..."
+          },
+          {
+            "x": 374,
+            "y": 768,
+            "w": 72,
+            "h": 24,
+            "phrase_id": 6,
+            "text": "I LOVE YOUR FLUFFY HAIR..."
+          },
+          {
+            "x": 363,
+            "y": 792,
+            "w": 94,
+            "h": 28,
+            "phrase_id": 6,
+            "text": "I LOVE YOUR FLUFFY HAIR..."
+          },
+          {
+            "x": 366,
+            "y": 820,
+            "w": 87,
+            "h": 26,
+            "phrase_id": 6,
+            "text": "I LOVE YOUR FLUFFY HAIR..."
+          },
+          {
+            "x": 841,
+            "y": 1075,
+            "w": 79,
+            "h": 28,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 795,
+            "y": 1103,
+            "w": 172,
+            "h": 25,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 828,
+            "y": 1128,
+            "w": 104,
+            "h": 26,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 822,
+            "y": 1154,
+            "w": 117,
+            "h": 25,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 833,
+            "y": 1179,
+            "w": 98,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 824,
+            "y": 1203,
+            "w": 109,
+            "h": 25,
+            "phrase_id": 7,
+            "text": "YOUR SOFT HANDS, ALWAYS SO COOL TO THE TOUCH..."
+          },
+          {
+            "x": 325,
+            "y": 1266,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 8,
+            "text": "AND YOU CALMING VOICE..."
+          },
+          {
+            "x": 318,
+            "y": 1291,
+            "w": 75,
+            "h": 24,
+            "phrase_id": 8,
+            "text": "AND YOU CALMING VOICE..."
+          },
+          {
+            "x": 299,
+            "y": 1315,
+            "w": 111,
+            "h": 28,
+            "phrase_id": 8,
+            "text": "AND YOU CALMING VOICE..."
+          },
+          {
+            "x": 305,
+            "y": 1343,
+            "w": 99,
+            "h": 26,
+            "phrase_id": 8,
+            "text": "AND YOU CALMING VOICE..."
+          },
+          {
+            "x": 246,
+            "y": 1389,
+            "w": 23,
+            "h": 27,
+            "phrase_id": 9,
+            "text": "I LOVE IT ALL."
+          },
+          {
+            "x": 225,
+            "y": 1416,
+            "w": 69,
+            "h": 26,
+            "phrase_id": 9,
+            "text": "I LOVE IT ALL."
+          },
+          {
+            "x": 245,
+            "y": 1442,
+            "w": 27,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "I LOVE IT ALL."
+          },
+          {
+            "x": 227,
+            "y": 1467,
+            "w": 60,
+            "h": 26,
+            "phrase_id": 9,
+            "text": "I LOVE IT ALL."
+          }
+        ],
+        "word": [
+          {
+            "x": 1056,
+            "y": 63,
+            "w": 60,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "LOVE"
+          },
+          {
+            "x": 1034,
+            "y": 64,
+            "w": 19,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 1082,
+            "y": 86,
+            "w": 48,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "YOU"
+          },
+          {
+            "x": 1020,
+            "y": 87,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "HOW"
+          },
+          {
+            "x": 1033,
+            "y": 109,
+            "w": 48,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "CAN"
+          },
+          {
+            "x": 1084,
+            "y": 109,
+            "w": 34,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "BE"
+          },
+          {
+            "x": 1008,
+            "y": 131,
+            "w": 78,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "BRAVE"
+          },
+          {
+            "x": 1092,
+            "y": 132,
+            "w": 50,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "FOR"
+          },
+          {
+            "x": 1017,
+            "y": 155,
+            "w": 113,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "OTHERS"
+          },
+          {
+            "x": 895,
+            "y": 122,
+            "w": 61,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "EVEN"
+          },
+          {
+            "x": 874,
+            "y": 144,
+            "w": 102,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "THOUGH"
+          },
+          {
+            "x": 881,
+            "y": 167,
+            "w": 88,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "YOU'RE"
+          },
+          {
+            "x": 864,
+            "y": 189,
+            "w": 122,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "INDECISIVE"
+          },
+          {
+            "x": 951,
+            "y": 213,
+            "w": 20,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "IT"
+          },
+          {
+            "x": 877,
+            "y": 214,
+            "w": 68,
+            "h": 21,
+            "phrase_id": 2,
+            "text": "WHEN"
+          },
+          {
+            "x": 865,
+            "y": 235,
+            "w": 82,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "COMES"
+          },
+          {
+            "x": 953,
+            "y": 236,
+            "w": 32,
+            "h": 21,
+            "phrase_id": 2,
+            "text": "TO"
+          },
+          {
+            "x": 862,
+            "y": 258,
+            "w": 123,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "YOURSELF."
+          },
+          {
+            "x": 237,
+            "y": 222,
+            "w": 20,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "I"
+          },
+          {
+            "x": 262,
+            "y": 222,
+            "w": 62,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "LOVE"
+          },
+          {
+            "x": 261,
+            "y": 246,
+            "w": 71,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "WHEN"
+          },
+          {
+            "x": 229,
+            "y": 247,
+            "w": 24,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "IT"
+          },
+          {
+            "x": 255,
+            "y": 272,
+            "w": 52,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "YOU"
+          },
+          {
+            "x": 240,
+            "y": 297,
+            "w": 83,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "LAUGH"
+          },
+          {
+            "x": 238,
+            "y": 321,
+            "w": 33,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "AT"
+          },
+          {
+            "x": 277,
+            "y": 321,
+            "w": 44,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "ME."
+          },
+          {
+            "x": 1000,
+            "y": 513,
+            "w": 64,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "LOVE"
+          },
+          {
+            "x": 975,
+            "y": 514,
+            "w": 17,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "I"
+          },
+          {
+            "x": 986,
+            "y": 539,
+            "w": 66,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "HOW"
+          },
+          {
+            "x": 977,
+            "y": 565,
+            "w": 87,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "SHORT"
+          },
+          {
+            "x": 993,
+            "y": 590,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "YOU"
+          },
+          {
+            "x": 978,
+            "y": 615,
+            "w": 81,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "ARE..."
+          },
+          {
+            "x": 860,
+            "y": 625,
+            "w": 57,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "AND"
+          },
+          {
+            "x": 858,
+            "y": 651,
+            "w": 64,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "HOW"
+          },
+          {
+            "x": 813,
+            "y": 677,
+            "w": 79,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "MUCH"
+          },
+          {
+            "x": 897,
+            "y": 678,
+            "w": 67,
+            "h": 24,
+            "phrase_id": 5,
+            "text": "THAT"
+          },
+          {
+            "x": 823,
+            "y": 703,
+            "w": 89,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "SEEMS"
+          },
+          {
+            "x": 920,
+            "y": 704,
+            "w": 37,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "TO"
+          },
+          {
+            "x": 838,
+            "y": 727,
+            "w": 106,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "BOTHER"
+          },
+          {
+            "x": 857,
+            "y": 754,
+            "w": 63,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "YOU."
+          },
+          {
+            "x": 387,
+            "y": 741,
+            "w": 68,
+            "h": 26,
+            "phrase_id": 6,
+            "text": "LOVE"
+          },
+          {
+            "x": 364,
+            "y": 742,
+            "w": 17,
+            "h": 25,
+            "phrase_id": 6,
+            "text": "I"
+          },
+          {
+            "x": 374,
+            "y": 768,
+            "w": 72,
+            "h": 24,
+            "phrase_id": 6,
+            "text": "YOUR"
+          },
+          {
+            "x": 363,
+            "y": 792,
+            "w": 94,
+            "h": 28,
+            "phrase_id": 6,
+            "text": "FLUFFY"
+          },
+          {
+            "x": 366,
+            "y": 820,
+            "w": 87,
+            "h": 26,
+            "phrase_id": 6,
+            "text": "HAIR..."
+          },
+          {
+            "x": 841,
+            "y": 1075,
+            "w": 79,
+            "h": 28,
+            "phrase_id": 7,
+            "text": "YOUR"
+          },
+          {
+            "x": 871,
+            "y": 1103,
+            "w": 91,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "HANDS,"
+          },
+          {
+            "x": 794,
+            "y": 1104,
+            "w": 69,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "SOFT"
+          },
+          {
+            "x": 828,
+            "y": 1128,
+            "w": 104,
+            "h": 26,
+            "phrase_id": 7,
+            "text": "ALWAYS"
+          },
+          {
+            "x": 822,
+            "y": 1154,
+            "w": 40,
+            "h": 23,
+            "phrase_id": 7,
+            "text": "SO"
+          },
+          {
+            "x": 868,
+            "y": 1154,
+            "w": 68,
+            "h": 23,
+            "phrase_id": 7,
+            "text": "COOL"
+          },
+          {
+            "x": 833,
+            "y": 1178,
+            "w": 36,
+            "h": 25,
+            "phrase_id": 7,
+            "text": "TO"
+          },
+          {
+            "x": 876,
+            "y": 1179,
+            "w": 50,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "THE"
+          },
+          {
+            "x": 824,
+            "y": 1203,
+            "w": 109,
+            "h": 25,
+            "phrase_id": 7,
+            "text": "TOUCH..."
+          },
+          {
+            "x": 325,
+            "y": 1266,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 8,
+            "text": "AND"
+          },
+          {
+            "x": 318,
+            "y": 1291,
+            "w": 75,
+            "h": 24,
+            "phrase_id": 8,
+            "text": "YOUR"
+          },
+          {
+            "x": 299,
+            "y": 1315,
+            "w": 111,
+            "h": 28,
+            "phrase_id": 8,
+            "text": "CALMING"
+          },
+          {
+            "x": 305,
+            "y": 1343,
+            "w": 99,
+            "h": 26,
+            "phrase_id": 8,
+            "text": "VOICE..."
+          },
+          {
+            "x": 246,
+            "y": 1389,
+            "w": 23,
+            "h": 27,
+            "phrase_id": 9,
+            "text": "I"
+          },
+          {
+            "x": 225,
+            "y": 1416,
+            "w": 69,
+            "h": 26,
+            "phrase_id": 9,
+            "text": "LOVE"
+          },
+          {
+            "x": 245,
+            "y": 1442,
+            "w": 27,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "IT"
+          },
+          {
+            "x": 227,
+            "y": 1467,
+            "w": 60,
+            "h": 26,
+            "phrase_id": 9,
+            "text": "ALL."
+          }
+        ],
+        "text_direction": "ltr",
         "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/20.png"
@@ -4384,6 +5253,491 @@
             "h": 560
           }
         ],
+        "phrase": [
+          {
+            "x": 1093,
+            "y": 325,
+            "w": 34,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "IS THAT..."
+          },
+          {
+            "x": 1063,
+            "y": 349,
+            "w": 88,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "IS THAT..."
+          },
+          {
+            "x": 937,
+            "y": 630,
+            "w": 76,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 929,
+            "y": 656,
+            "w": 94,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 955,
+            "y": 684,
+            "w": 45,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 923,
+            "y": 709,
+            "w": 106,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 959,
+            "y": 737,
+            "w": 39,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 940,
+            "y": 762,
+            "w": 73,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "WHAT MAKES ME SPECIAL TO YOU?"
+          },
+          {
+            "x": 564,
+            "y": 202,
+            "w": 77,
+            "h": 32,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 543,
+            "y": 234,
+            "w": 122,
+            "h": 30,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 557,
+            "y": 264,
+            "w": 93,
+            "h": 29,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 565,
+            "y": 293,
+            "w": 79,
+            "h": 31,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 542,
+            "y": 324,
+            "w": 124,
+            "h": 31,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 564,
+            "y": 355,
+            "w": 82,
+            "h": 30,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 561,
+            "y": 385,
+            "w": 85,
+            "h": 31,
+            "phrase_id": 3,
+            "text": "HOW DO YOU KNOW THAT I'M THE ONLY ONE?"
+          },
+          {
+            "x": 308,
+            "y": 317,
+            "w": 140,
+            "h": 31,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 303,
+            "y": 348,
+            "w": 151,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 302,
+            "y": 378,
+            "w": 154,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 292,
+            "y": 408,
+            "w": 176,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 310,
+            "y": 438,
+            "w": 138,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 344,
+            "y": 468,
+            "w": 68,
+            "h": 31,
+            "phrase_id": 4,
+            "text": "THAT NO ONE ELSE COULD BE SPECIAL TO YOU BUT ME?"
+          },
+          {
+            "x": 502,
+            "y": 1441,
+            "w": 142,
+            "h": 36,
+            "phrase_id": 5,
+            "text": "I KNOW IT HAS TO BE YOU!"
+          },
+          {
+            "x": 516,
+            "y": 1477,
+            "w": 116,
+            "h": 34,
+            "phrase_id": 5,
+            "text": "I KNOW IT HAS TO BE YOU!"
+          },
+          {
+            "x": 520,
+            "y": 1511,
+            "w": 107,
+            "h": 35,
+            "phrase_id": 5,
+            "text": "I KNOW IT HAS TO BE YOU!"
+          },
+          {
+            "x": 533,
+            "y": 1545,
+            "w": 84,
+            "h": 34,
+            "phrase_id": 5,
+            "text": "I KNOW IT HAS TO BE YOU!"
+          }
+        ],
+        "word": [
+          {
+            "x": 1093,
+            "y": 325,
+            "w": 34,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "IS"
+          },
+          {
+            "x": 1063,
+            "y": 349,
+            "w": 88,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "THAT..."
+          },
+          {
+            "x": 937,
+            "y": 630,
+            "w": 76,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WHAT"
+          },
+          {
+            "x": 929,
+            "y": 656,
+            "w": 94,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "MAKES"
+          },
+          {
+            "x": 955,
+            "y": 684,
+            "w": 45,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "ME"
+          },
+          {
+            "x": 923,
+            "y": 709,
+            "w": 106,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "SPECIAL"
+          },
+          {
+            "x": 959,
+            "y": 737,
+            "w": 39,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "TO"
+          },
+          {
+            "x": 940,
+            "y": 762,
+            "w": 73,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "YOU?"
+          },
+          {
+            "x": 564,
+            "y": 202,
+            "w": 77,
+            "h": 32,
+            "phrase_id": 3,
+            "text": "HOW"
+          },
+          {
+            "x": 545,
+            "y": 234,
+            "w": 44,
+            "h": 28,
+            "phrase_id": 3,
+            "text": "DO"
+          },
+          {
+            "x": 598,
+            "y": 235,
+            "w": 63,
+            "h": 28,
+            "phrase_id": 3,
+            "text": "YOU"
+          },
+          {
+            "x": 557,
+            "y": 264,
+            "w": 93,
+            "h": 29,
+            "phrase_id": 3,
+            "text": "KNOW"
+          },
+          {
+            "x": 565,
+            "y": 293,
+            "w": 79,
+            "h": 31,
+            "phrase_id": 3,
+            "text": "THAT"
+          },
+          {
+            "x": 543,
+            "y": 324,
+            "w": 50,
+            "h": 30,
+            "phrase_id": 3,
+            "text": "I'M"
+          },
+          {
+            "x": 603,
+            "y": 325,
+            "w": 59,
+            "h": 29,
+            "phrase_id": 3,
+            "text": "THE"
+          },
+          {
+            "x": 564,
+            "y": 355,
+            "w": 82,
+            "h": 30,
+            "phrase_id": 3,
+            "text": "ONLY"
+          },
+          {
+            "x": 561,
+            "y": 385,
+            "w": 85,
+            "h": 31,
+            "phrase_id": 3,
+            "text": "ONE?"
+          },
+          {
+            "x": 311,
+            "y": 318,
+            "w": 78,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "THAT"
+          },
+          {
+            "x": 398,
+            "y": 319,
+            "w": 44,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "NO"
+          },
+          {
+            "x": 303,
+            "y": 349,
+            "w": 63,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "ONE"
+          },
+          {
+            "x": 377,
+            "y": 349,
+            "w": 73,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "ELSE"
+          },
+          {
+            "x": 303,
+            "y": 379,
+            "w": 96,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "COULD"
+          },
+          {
+            "x": 410,
+            "y": 379,
+            "w": 42,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "BE"
+          },
+          {
+            "x": 293,
+            "y": 409,
+            "w": 118,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "SPECIAL"
+          },
+          {
+            "x": 422,
+            "y": 409,
+            "w": 41,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "TO"
+          },
+          {
+            "x": 310,
+            "y": 439,
+            "w": 62,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "YOU"
+          },
+          {
+            "x": 383,
+            "y": 439,
+            "w": 61,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "BUT"
+          },
+          {
+            "x": 344,
+            "y": 468,
+            "w": 68,
+            "h": 31,
+            "phrase_id": 4,
+            "text": "ME?"
+          },
+          {
+            "x": 504,
+            "y": 1443,
+            "w": 24,
+            "h": 33,
+            "phrase_id": 5,
+            "text": "I"
+          },
+          {
+            "x": 537,
+            "y": 1445,
+            "w": 104,
+            "h": 31,
+            "phrase_id": 5,
+            "text": "KNOW"
+          },
+          {
+            "x": 516,
+            "y": 1478,
+            "w": 33,
+            "h": 32,
+            "phrase_id": 5,
+            "text": "IT"
+          },
+          {
+            "x": 559,
+            "y": 1478,
+            "w": 68,
+            "h": 32,
+            "phrase_id": 5,
+            "text": "HAS"
+          },
+          {
+            "x": 521,
+            "y": 1512,
+            "w": 46,
+            "h": 32,
+            "phrase_id": 5,
+            "text": "TO"
+          },
+          {
+            "x": 578,
+            "y": 1512,
+            "w": 45,
+            "h": 32,
+            "phrase_id": 5,
+            "text": "BE"
+          },
+          {
+            "x": 533,
+            "y": 1545,
+            "w": 84,
+            "h": 34,
+            "phrase_id": 5,
+            "text": "YOU!"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/21.png"
         }
@@ -4410,6 +5764,459 @@
             "h": 812
           }
         ],
+        "phrase": [
+          {
+            "x": 908,
+            "y": 463,
+            "w": 110,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "I MEAN, YOU'RE ALL I CAN THINK ABOUT!"
+          },
+          {
+            "x": 915,
+            "y": 490,
+            "w": 99,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "I MEAN, YOU'RE ALL I CAN THINK ABOUT!"
+          },
+          {
+            "x": 919,
+            "y": 517,
+            "w": 89,
+            "h": 26,
+            "phrase_id": 1,
+            "text": "I MEAN, YOU'RE ALL I CAN THINK ABOUT!"
+          },
+          {
+            "x": 892,
+            "y": 543,
+            "w": 146,
+            "h": 26,
+            "phrase_id": 1,
+            "text": "I MEAN, YOU'RE ALL I CAN THINK ABOUT!"
+          },
+          {
+            "x": 911,
+            "y": 569,
+            "w": 103,
+            "h": 29,
+            "phrase_id": 1,
+            "text": "I MEAN, YOU'RE ALL I CAN THINK ABOUT!"
+          },
+          {
+            "x": 362,
+            "y": 552,
+            "w": 82,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "AND IT MAKES ME HAPPY..."
+          },
+          {
+            "x": 359,
+            "y": 578,
+            "w": 88,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "AND IT MAKES ME HAPPY..."
+          },
+          {
+            "x": 384,
+            "y": 603,
+            "w": 41,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "AND IT MAKES ME HAPPY..."
+          },
+          {
+            "x": 352,
+            "y": 627,
+            "w": 102,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "AND IT MAKES ME HAPPY..."
+          },
+          {
+            "x": 271,
+            "y": 648,
+            "w": 59,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "AND SAD ALL AT ONCE..."
+          },
+          {
+            "x": 273,
+            "y": 673,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "AND SAD ALL AT ONCE..."
+          },
+          {
+            "x": 253,
+            "y": 696,
+            "w": 92,
+            "h": 26,
+            "phrase_id": 3,
+            "text": "AND SAD ALL AT ONCE..."
+          },
+          {
+            "x": 253,
+            "y": 722,
+            "w": 93,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "AND SAD ALL AT ONCE..."
+          },
+          {
+            "x": 859,
+            "y": 1124,
+            "w": 62,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "BUT EVEN IF I CRY MY EYES OUT..."
+          },
+          {
+            "x": 854,
+            "y": 1154,
+            "w": 73,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "BUT EVEN IF I CRY MY EYES OUT..."
+          },
+          {
+            "x": 832,
+            "y": 1179,
+            "w": 114,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "BUT EVEN IF I CRY MY EYES OUT..."
+          },
+          {
+            "x": 829,
+            "y": 1207,
+            "w": 121,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "BUT EVEN IF I CRY MY EYES OUT..."
+          },
+          {
+            "x": 848,
+            "y": 1233,
+            "w": 79,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "BUT EVEN IF I CRY MY EYES OUT..."
+          },
+          {
+            "x": 217,
+            "y": 1289,
+            "w": 120,
+            "h": 29,
+            "phrase_id": 5,
+            "text": "I NEVER WANT TO LOSE THAT FEELING."
+          },
+          {
+            "x": 238,
+            "y": 1319,
+            "w": 77,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "I NEVER WANT TO LOSE THAT FEELING."
+          },
+          {
+            "x": 220,
+            "y": 1345,
+            "w": 115,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "I NEVER WANT TO LOSE THAT FEELING."
+          },
+          {
+            "x": 243,
+            "y": 1371,
+            "w": 69,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "I NEVER WANT TO LOSE THAT FEELING."
+          },
+          {
+            "x": 218,
+            "y": 1398,
+            "w": 115,
+            "h": 28,
+            "phrase_id": 5,
+            "text": "I NEVER WANT TO LOSE THAT FEELING."
+          }
+        ],
+        "word": [
+          {
+            "x": 934,
+            "y": 463,
+            "w": 81,
+            "h": 26,
+            "phrase_id": 1,
+            "text": "MEAN,"
+          },
+          {
+            "x": 909,
+            "y": 464,
+            "w": 18,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 915,
+            "y": 490,
+            "w": 99,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "YOU'RE"
+          },
+          {
+            "x": 923,
+            "y": 517,
+            "w": 53,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "ALL"
+          },
+          {
+            "x": 985,
+            "y": 517,
+            "w": 17,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 892,
+            "y": 544,
+            "w": 55,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "CAN"
+          },
+          {
+            "x": 955,
+            "y": 544,
+            "w": 79,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "THINK"
+          },
+          {
+            "x": 911,
+            "y": 569,
+            "w": 103,
+            "h": 29,
+            "phrase_id": 1,
+            "text": "ABOUT!"
+          },
+          {
+            "x": 421,
+            "y": 553,
+            "w": 23,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "IT"
+          },
+          {
+            "x": 364,
+            "y": 554,
+            "w": 48,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "AND"
+          },
+          {
+            "x": 359,
+            "y": 578,
+            "w": 88,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "MAKES"
+          },
+          {
+            "x": 384,
+            "y": 603,
+            "w": 41,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "ME"
+          },
+          {
+            "x": 352,
+            "y": 627,
+            "w": 102,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "HAPPY..."
+          },
+          {
+            "x": 271,
+            "y": 648,
+            "w": 59,
+            "h": 25,
+            "phrase_id": 3,
+            "text": "AND"
+          },
+          {
+            "x": 273,
+            "y": 673,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "SAD"
+          },
+          {
+            "x": 254,
+            "y": 698,
+            "w": 48,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "ALL"
+          },
+          {
+            "x": 309,
+            "y": 698,
+            "w": 33,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "AT"
+          },
+          {
+            "x": 253,
+            "y": 722,
+            "w": 93,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "ONCE..."
+          },
+          {
+            "x": 859,
+            "y": 1124,
+            "w": 62,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "BUT"
+          },
+          {
+            "x": 854,
+            "y": 1154,
+            "w": 73,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "EVEN"
+          },
+          {
+            "x": 866,
+            "y": 1179,
+            "w": 19,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "I"
+          },
+          {
+            "x": 833,
+            "y": 1180,
+            "w": 24,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "IF"
+          },
+          {
+            "x": 892,
+            "y": 1181,
+            "w": 54,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "CRY"
+          },
+          {
+            "x": 831,
+            "y": 1207,
+            "w": 42,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "MY"
+          },
+          {
+            "x": 881,
+            "y": 1207,
+            "w": 65,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "EYES"
+          },
+          {
+            "x": 848,
+            "y": 1233,
+            "w": 79,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "OUT..."
+          },
+          {
+            "x": 246,
+            "y": 1292,
+            "w": 89,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "NEVER"
+          },
+          {
+            "x": 220,
+            "y": 1293,
+            "w": 19,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "I"
+          },
+          {
+            "x": 238,
+            "y": 1319,
+            "w": 77,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "WANT"
+          },
+          {
+            "x": 220,
+            "y": 1345,
+            "w": 38,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "TO"
+          },
+          {
+            "x": 264,
+            "y": 1345,
+            "w": 70,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "LOSE"
+          },
+          {
+            "x": 243,
+            "y": 1371,
+            "w": 69,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "THAT"
+          },
+          {
+            "x": 218,
+            "y": 1398,
+            "w": 115,
+            "h": 28,
+            "phrase_id": 5,
+            "text": "FEELING."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/22.png"
         }
@@ -4436,6 +6243,403 @@
             "h": 454
           }
         ],
+        "phrase": [
+          {
+            "x": 934,
+            "y": 289,
+            "w": 111,
+            "h": 28,
+            "phrase_id": 1,
+            "text": "YOU'RE THE ONLY ONE FOR ME."
+          },
+          {
+            "x": 919,
+            "y": 318,
+            "w": 142,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "YOU'RE THE ONLY ONE FOR ME."
+          },
+          {
+            "x": 924,
+            "y": 345,
+            "w": 133,
+            "h": 29,
+            "phrase_id": 1,
+            "text": "YOU'RE THE ONLY ONE FOR ME."
+          },
+          {
+            "x": 960,
+            "y": 374,
+            "w": 53,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "YOU'RE THE ONLY ONE FOR ME."
+          },
+          {
+            "x": 316,
+            "y": 578,
+            "w": 23,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "I LOVE YOU, YUU!"
+          },
+          {
+            "x": 290,
+            "y": 605,
+            "w": 74,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "I LOVE YOU, YUU!"
+          },
+          {
+            "x": 292,
+            "y": 633,
+            "w": 68,
+            "h": 29,
+            "phrase_id": 2,
+            "text": "I LOVE YOU, YUU!"
+          },
+          {
+            "x": 289,
+            "y": 662,
+            "w": 76,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "I LOVE YOU, YUU!"
+          },
+          {
+            "x": 332,
+            "y": 1014,
+            "w": 60,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "HER HANDS GRIPPED MINE SO TIGHTLY..."
+          },
+          {
+            "x": 317,
+            "y": 1038,
+            "w": 88,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HER HANDS GRIPPED MINE SO TIGHTLY..."
+          },
+          {
+            "x": 310,
+            "y": 1061,
+            "w": 107,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HER HANDS GRIPPED MINE SO TIGHTLY..."
+          },
+          {
+            "x": 308,
+            "y": 1084,
+            "w": 110,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HER HANDS GRIPPED MINE SO TIGHTLY..."
+          },
+          {
+            "x": 306,
+            "y": 1107,
+            "w": 111,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HER HANDS GRIPPED MINE SO TIGHTLY..."
+          },
+          {
+            "x": 927,
+            "y": 1355,
+            "w": 136,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "I REALIZED IT WASN'T MY HAND THAT WAS SHAKING."
+          },
+          {
+            "x": 932,
+            "y": 1377,
+            "w": 128,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "I REALIZED IT WASN'T MY HAND THAT WAS SHAKING."
+          },
+          {
+            "x": 940,
+            "y": 1401,
+            "w": 111,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "I REALIZED IT WASN'T MY HAND THAT WAS SHAKING."
+          },
+          {
+            "x": 937,
+            "y": 1424,
+            "w": 119,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "I REALIZED IT WASN'T MY HAND THAT WAS SHAKING."
+          },
+          {
+            "x": 936,
+            "y": 1446,
+            "w": 113,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "I REALIZED IT WASN'T MY HAND THAT WAS SHAKING."
+          },
+          {
+            "x": 349,
+            "y": 1499,
+            "w": 40,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "IT WAS HERS."
+          },
+          {
+            "x": 340,
+            "y": 1521,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "IT WAS HERS."
+          },
+          {
+            "x": 322,
+            "y": 1543,
+            "w": 85,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "IT WAS HERS."
+          }
+        ],
+        "word": [
+          {
+            "x": 934,
+            "y": 289,
+            "w": 111,
+            "h": 28,
+            "phrase_id": 1,
+            "text": "YOU'RE"
+          },
+          {
+            "x": 984,
+            "y": 318,
+            "w": 73,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "ONLY"
+          },
+          {
+            "x": 921,
+            "y": 319,
+            "w": 54,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "THE"
+          },
+          {
+            "x": 925,
+            "y": 346,
+            "w": 61,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "ONE"
+          },
+          {
+            "x": 993,
+            "y": 346,
+            "w": 60,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "FOR"
+          },
+          {
+            "x": 960,
+            "y": 374,
+            "w": 53,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "ME."
+          },
+          {
+            "x": 316,
+            "y": 578,
+            "w": 23,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "I"
+          },
+          {
+            "x": 290,
+            "y": 605,
+            "w": 74,
+            "h": 28,
+            "phrase_id": 2,
+            "text": "LOVE"
+          },
+          {
+            "x": 292,
+            "y": 633,
+            "w": 68,
+            "h": 29,
+            "phrase_id": 2,
+            "text": "YOU,"
+          },
+          {
+            "x": 289,
+            "y": 662,
+            "w": 76,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "YUU!"
+          },
+          {
+            "x": 332,
+            "y": 1014,
+            "w": 60,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "HER"
+          },
+          {
+            "x": 317,
+            "y": 1038,
+            "w": 88,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HANDS"
+          },
+          {
+            "x": 310,
+            "y": 1061,
+            "w": 107,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "GRIPPED"
+          },
+          {
+            "x": 308,
+            "y": 1085,
+            "w": 66,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "MINE"
+          },
+          {
+            "x": 376,
+            "y": 1086,
+            "w": 38,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "SO"
+          },
+          {
+            "x": 306,
+            "y": 1107,
+            "w": 111,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "TIGHTLY..."
+          },
+          {
+            "x": 927,
+            "y": 1356,
+            "w": 18,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "I"
+          },
+          {
+            "x": 948,
+            "y": 1356,
+            "w": 113,
+            "h": 20,
+            "phrase_id": 4,
+            "text": "REALIZED"
+          },
+          {
+            "x": 933,
+            "y": 1378,
+            "w": 28,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "IT"
+          },
+          {
+            "x": 962,
+            "y": 1378,
+            "w": 96,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "WASN'T"
+          },
+          {
+            "x": 940,
+            "y": 1401,
+            "w": 40,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "MY"
+          },
+          {
+            "x": 980,
+            "y": 1401,
+            "w": 68,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "HAND"
+          },
+          {
+            "x": 938,
+            "y": 1424,
+            "w": 59,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "THAT"
+          },
+          {
+            "x": 1000,
+            "y": 1424,
+            "w": 54,
+            "h": 21,
+            "phrase_id": 4,
+            "text": "WAS"
+          },
+          {
+            "x": 936,
+            "y": 1446,
+            "w": 113,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "SHAKING."
+          },
+          {
+            "x": 349,
+            "y": 1499,
+            "w": 40,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "IT"
+          },
+          {
+            "x": 340,
+            "y": 1521,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "WAS"
+          },
+          {
+            "x": 322,
+            "y": 1543,
+            "w": 85,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "HERS."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/23.png"
         }
@@ -4456,6 +6660,323 @@
             "h": 547
           }
         ],
+        "phrase": [
+          {
+            "x": 918,
+            "y": 137,
+            "w": 55,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "SHE WAS STILL SCARED."
+          },
+          {
+            "x": 917,
+            "y": 160,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "SHE WAS STILL SCARED."
+          },
+          {
+            "x": 912,
+            "y": 182,
+            "w": 66,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "SHE WAS STILL SCARED."
+          },
+          {
+            "x": 891,
+            "y": 205,
+            "w": 104,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "SHE WAS STILL SCARED."
+          },
+          {
+            "x": 407,
+            "y": 457,
+            "w": 94,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "I LOVE YOU SO MUCH, YUU..."
+          },
+          {
+            "x": 406,
+            "y": 484,
+            "w": 100,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "I LOVE YOU SO MUCH, YUU..."
+          },
+          {
+            "x": 413,
+            "y": 509,
+            "w": 81,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "I LOVE YOU SO MUCH, YUU..."
+          },
+          {
+            "x": 415,
+            "y": 534,
+            "w": 78,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "I LOVE YOU SO MUCH, YUU..."
+          },
+          {
+            "x": 333,
+            "y": 654,
+            "w": 40,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "SO PLEASE..."
+          },
+          {
+            "x": 306,
+            "y": 678,
+            "w": 95,
+            "h": 26,
+            "phrase_id": 3,
+            "text": "SO PLEASE..."
+          },
+          {
+            "x": 964,
+            "y": 1216,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "SHE WAS SCARED..."
+          },
+          {
+            "x": 963,
+            "y": 1239,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "SHE WAS SCARED..."
+          },
+          {
+            "x": 929,
+            "y": 1261,
+            "w": 120,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "SHE WAS SCARED..."
+          },
+          {
+            "x": 213,
+            "y": 1310,
+            "w": 56,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "BUT SHE STILL MANAGED TO SAY IT."
+          },
+          {
+            "x": 177,
+            "y": 1332,
+            "w": 122,
+            "h": 25,
+            "phrase_id": 5,
+            "text": "BUT SHE STILL MANAGED TO SAY IT."
+          },
+          {
+            "x": 181,
+            "y": 1357,
+            "w": 118,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "BUT SHE STILL MANAGED TO SAY IT."
+          },
+          {
+            "x": 182,
+            "y": 1379,
+            "w": 115,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "BUT SHE STILL MANAGED TO SAY IT."
+          }
+        ],
+        "word": [
+          {
+            "x": 918,
+            "y": 137,
+            "w": 55,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "SHE"
+          },
+          {
+            "x": 917,
+            "y": 160,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "WAS"
+          },
+          {
+            "x": 912,
+            "y": 182,
+            "w": 66,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "STILL"
+          },
+          {
+            "x": 891,
+            "y": 205,
+            "w": 104,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "SCARED."
+          },
+          {
+            "x": 410,
+            "y": 458,
+            "w": 16,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "I"
+          },
+          {
+            "x": 434,
+            "y": 458,
+            "w": 64,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "LOVE"
+          },
+          {
+            "x": 466,
+            "y": 484,
+            "w": 37,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "SO"
+          },
+          {
+            "x": 407,
+            "y": 485,
+            "w": 49,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "YOU"
+          },
+          {
+            "x": 413,
+            "y": 509,
+            "w": 81,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "MUCH,"
+          },
+          {
+            "x": 415,
+            "y": 534,
+            "w": 78,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "YUU..."
+          },
+          {
+            "x": 333,
+            "y": 654,
+            "w": 40,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "SO"
+          },
+          {
+            "x": 306,
+            "y": 678,
+            "w": 95,
+            "h": 26,
+            "phrase_id": 3,
+            "text": "PLEASE"
+          },
+          {
+            "x": 964,
+            "y": 1216,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "SHE"
+          },
+          {
+            "x": 963,
+            "y": 1239,
+            "w": 57,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "WAS"
+          },
+          {
+            "x": 929,
+            "y": 1261,
+            "w": 120,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "SCARED..."
+          },
+          {
+            "x": 213,
+            "y": 1310,
+            "w": 56,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "BUT"
+          },
+          {
+            "x": 178,
+            "y": 1333,
+            "w": 55,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "SHE"
+          },
+          {
+            "x": 235,
+            "y": 1333,
+            "w": 62,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "STILL"
+          },
+          {
+            "x": 181,
+            "y": 1357,
+            "w": 118,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "MANAGED"
+          },
+          {
+            "x": 216,
+            "y": 1379,
+            "w": 51,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "SAY"
+          },
+          {
+            "x": 268,
+            "y": 1379,
+            "w": 26,
+            "h": 21,
+            "phrase_id": 5,
+            "text": "IT."
+          },
+          {
+            "x": 182,
+            "y": 1380,
+            "w": 31,
+            "h": 20,
+            "phrase_id": 5,
+            "text": "TO"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/24.png"
         }
@@ -4476,6 +6997,139 @@
             "h": 1677
           }
         ],
+        "phrase": [
+          {
+            "x": 601,
+            "y": 267,
+            "w": 126,
+            "h": 33,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          },
+          {
+            "x": 603,
+            "y": 300,
+            "w": 124,
+            "h": 34,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          },
+          {
+            "x": 604,
+            "y": 333,
+            "w": 125,
+            "h": 34,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          },
+          {
+            "x": 623,
+            "y": 367,
+            "w": 84,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          },
+          {
+            "x": 591,
+            "y": 398,
+            "w": 148,
+            "h": 35,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          },
+          {
+            "x": 622,
+            "y": 433,
+            "w": 88,
+            "h": 31,
+            "phrase_id": 1,
+            "text": "I WANT YOU TO STAY IN LOVE WITH ME, TOO!"
+          }
+        ],
+        "word": [
+          {
+            "x": 602,
+            "y": 269,
+            "w": 20,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 636,
+            "y": 269,
+            "w": 90,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "WANT"
+          },
+          {
+            "x": 682,
+            "y": 301,
+            "w": 44,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "TO"
+          },
+          {
+            "x": 603,
+            "y": 302,
+            "w": 67,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "YOU"
+          },
+          {
+            "x": 604,
+            "y": 334,
+            "w": 81,
+            "h": 31,
+            "phrase_id": 1,
+            "text": "STAY"
+          },
+          {
+            "x": 693,
+            "y": 335,
+            "w": 33,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "IN"
+          },
+          {
+            "x": 623,
+            "y": 367,
+            "w": 84,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "LOVE"
+          },
+          {
+            "x": 591,
+            "y": 400,
+            "w": 77,
+            "h": 30,
+            "phrase_id": 1,
+            "text": "WITH"
+          },
+          {
+            "x": 679,
+            "y": 400,
+            "w": 57,
+            "h": 31,
+            "phrase_id": 1,
+            "text": "ME,"
+          },
+          {
+            "x": 622,
+            "y": 433,
+            "w": 88,
+            "h": 31,
+            "phrase_id": 1,
+            "text": "TOO!"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/25.png"
         }
@@ -4502,6 +7156,331 @@
             "h": 1680
           }
         ],
+        "phrase": [
+          {
+            "x": 973,
+            "y": 198,
+            "w": 82,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "THAT'S NOT FAIR, SENPAI."
+          },
+          {
+            "x": 959,
+            "y": 221,
+            "w": 109,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "THAT'S NOT FAIR, SENPAI."
+          },
+          {
+            "x": 971,
+            "y": 244,
+            "w": 87,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "THAT'S NOT FAIR, SENPAI."
+          },
+          {
+            "x": 952,
+            "y": 1108,
+            "w": 111,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "I WANTED TO FALL IN LOVE.."
+          },
+          {
+            "x": 964,
+            "y": 1130,
+            "w": 88,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "I WANTED TO FALL IN LOVE.."
+          },
+          {
+            "x": 953,
+            "y": 1152,
+            "w": 108,
+            "h": 22,
+            "phrase_id": 2,
+            "text": "I WANTED TO FALL IN LOVE.."
+          },
+          {
+            "x": 856,
+            "y": 1242,
+            "w": 48,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 826,
+            "y": 1263,
+            "w": 111,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 857,
+            "y": 1286,
+            "w": 49,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 836,
+            "y": 1307,
+            "w": 88,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 833,
+            "y": 1328,
+            "w": 92,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 848,
+            "y": 1350,
+            "w": 66,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "IN A WAY THAT WAS BEYOND REASON, TOO..."
+          },
+          {
+            "x": 439,
+            "y": 323,
+            "w": 64,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "YOU REALLY DON'T PLAY FAIR."
+          },
+          {
+            "x": 418,
+            "y": 349,
+            "w": 110,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "YOU REALLY DON'T PLAY FAIR."
+          },
+          {
+            "x": 427,
+            "y": 379,
+            "w": 90,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "YOU REALLY DON'T PLAY FAIR."
+          },
+          {
+            "x": 434,
+            "y": 408,
+            "w": 74,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "YOU REALLY DON'T PLAY FAIR."
+          },
+          {
+            "x": 434,
+            "y": 437,
+            "w": 70,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "YOU REALLY DON'T PLAY FAIR."
+          }
+        ],
+        "word": [
+          {
+            "x": 973,
+            "y": 198,
+            "w": 82,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "THAT'S"
+          },
+          {
+            "x": 959,
+            "y": 222,
+            "w": 47,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "NOT"
+          },
+          {
+            "x": 1014,
+            "y": 222,
+            "w": 53,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "FAIR,"
+          },
+          {
+            "x": 971,
+            "y": 244,
+            "w": 87,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "SENPAI."
+          },
+          {
+            "x": 976,
+            "y": 1109,
+            "w": 85,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "WANTED"
+          },
+          {
+            "x": 953,
+            "y": 1110,
+            "w": 14,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "I"
+          },
+          {
+            "x": 964,
+            "y": 1131,
+            "w": 31,
+            "h": 19,
+            "phrase_id": 2,
+            "text": "TO"
+          },
+          {
+            "x": 999,
+            "y": 1131,
+            "w": 51,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "FALL"
+          },
+          {
+            "x": 954,
+            "y": 1152,
+            "w": 25,
+            "h": 21,
+            "phrase_id": 2,
+            "text": "IN"
+          },
+          {
+            "x": 983,
+            "y": 1152,
+            "w": 74,
+            "h": 20,
+            "phrase_id": 2,
+            "text": "LOVE..."
+          },
+          {
+            "x": 858,
+            "y": 1242,
+            "w": 22,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "IN"
+          },
+          {
+            "x": 885,
+            "y": 1243,
+            "w": 18,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "A"
+          },
+          {
+            "x": 879,
+            "y": 1264,
+            "w": 56,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "THAT"
+          },
+          {
+            "x": 827,
+            "y": 1265,
+            "w": 46,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "WAY"
+          },
+          {
+            "x": 857,
+            "y": 1286,
+            "w": 49,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "WAS"
+          },
+          {
+            "x": 836,
+            "y": 1307,
+            "w": 88,
+            "h": 21,
+            "phrase_id": 3,
+            "text": "BEYOND"
+          },
+          {
+            "x": 833,
+            "y": 1328,
+            "w": 92,
+            "h": 22,
+            "phrase_id": 3,
+            "text": "REASON,"
+          },
+          {
+            "x": 848,
+            "y": 1350,
+            "w": 66,
+            "h": 20,
+            "phrase_id": 3,
+            "text": "TOO..."
+          },
+          {
+            "x": 439,
+            "y": 323,
+            "w": 64,
+            "h": 26,
+            "phrase_id": 4,
+            "text": "YOU"
+          },
+          {
+            "x": 418,
+            "y": 349,
+            "w": 110,
+            "h": 30,
+            "phrase_id": 4,
+            "text": "REALLY"
+          },
+          {
+            "x": 427,
+            "y": 379,
+            "w": 90,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "DON'T"
+          },
+          {
+            "x": 434,
+            "y": 408,
+            "w": 74,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "PLAY"
+          },
+          {
+            "x": 434,
+            "y": 437,
+            "w": 70,
+            "h": 29,
+            "phrase_id": 4,
+            "text": "FAIR."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/26.png"
         }
@@ -4534,6 +7513,171 @@
             "h": 1162
           }
         ],
+        "phrase": [
+          {
+            "x": 1110,
+            "y": 573,
+            "w": 19,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "I THOUGH THAT LOVE..."
+          },
+          {
+            "x": 1061,
+            "y": 597,
+            "w": 120,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "I THOUGH THAT LOVE..."
+          },
+          {
+            "x": 1089,
+            "y": 622,
+            "w": 66,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "I THOUGH THAT LOVE..."
+          },
+          {
+            "x": 1076,
+            "y": 647,
+            "w": 89,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "I THOUGH THAT LOVE..."
+          },
+          {
+            "x": 1020,
+            "y": 725,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "WAS SUPPOSED TO BE A SPECIAL FEELING..."
+          },
+          {
+            "x": 981,
+            "y": 750,
+            "w": 133,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "WAS SUPPOSED TO BE A SPECIAL FEELING..."
+          },
+          {
+            "x": 997,
+            "y": 773,
+            "w": 102,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WAS SUPPOSED TO BE A SPECIAL FEELING..."
+          },
+          {
+            "x": 998,
+            "y": 799,
+            "w": 97,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "WAS SUPPOSED TO BE A SPECIAL FEELING..."
+          },
+          {
+            "x": 986,
+            "y": 822,
+            "w": 122,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "WAS SUPPOSED TO BE A SPECIAL FEELING..."
+          }
+        ],
+        "word": [
+          {
+            "x": 1110,
+            "y": 573,
+            "w": 19,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "I"
+          },
+          {
+            "x": 1061,
+            "y": 597,
+            "w": 120,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "THOUGHT"
+          },
+          {
+            "x": 1089,
+            "y": 622,
+            "w": 66,
+            "h": 25,
+            "phrase_id": 1,
+            "text": "THAT"
+          },
+          {
+            "x": 1076,
+            "y": 647,
+            "w": 89,
+            "h": 24,
+            "phrase_id": 1,
+            "text": "LOVE..."
+          },
+          {
+            "x": 1020,
+            "y": 725,
+            "w": 57,
+            "h": 25,
+            "phrase_id": 2,
+            "text": "WAS"
+          },
+          {
+            "x": 981,
+            "y": 750,
+            "w": 133,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "SUPPOSED"
+          },
+          {
+            "x": 997,
+            "y": 774,
+            "w": 35,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "TO"
+          },
+          {
+            "x": 1038,
+            "y": 775,
+            "w": 35,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "BE"
+          },
+          {
+            "x": 1078,
+            "y": 775,
+            "w": 19,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "A"
+          },
+          {
+            "x": 998,
+            "y": 799,
+            "w": 97,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "SPECIAL"
+          },
+          {
+            "x": 986,
+            "y": 822,
+            "w": 122,
+            "h": 27,
+            "phrase_id": 2,
+            "text": "FEELING..."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/27.png"
         }
