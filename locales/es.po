@@ -346,13 +346,13 @@ msgid "Remove the fold line from double-page spreads"
 msgstr "Quitar la línea central de las páginas dobles"
 
 msgid "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
-msgstr "Algunos escaneos unen las dos páginas de una página doble con una franja negra. Quita esa franja y une las dos mitades, en la página de lectura y en el visor de paneles. Si la página está tan ampliada que se dibuja por partes, la franja se mantiene."
+msgstr "Algunos escaneos unen las dos páginas de una página doble con una franja negra. Esta opción remueve esa franja y une las dos mitades tanto la página de lectura como en el visor de paneles. Si la página está lo suficientemente ampliada como para que se dibuje por partes, la franja se mantiene."
 
 msgid "Remove spread fold line (Actual: "
-msgstr "Quitar línea central de páginas dobles (Actual: "
+msgstr "Quitar línea central de ilustraciones de doble página (Actual: "
 
 msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
-msgstr "Gira las páginas dobles un cuarto de vuelta para que llenen una pantalla vertical. En el visor de paneles se gira la imagen de la página doble completa y el dispositivo no cambia. Durante la lectura, la pantalla se gira cuando se llega a una página doble y se restaura en la siguiente página normal, en la misma dirección."
+msgstr "Gira las páginas dobles 25° grados para que llenen una pantalla vertical. En el visor de paneles se gira la imagen de la página doble completa y el dispositivo se mantiene tal y como está. Durante la lectura, la pantalla gira cuando se llega a una página doble y se restaura su rotación en la siguiente página normal, en la misma dirección."
 
 msgid "Off"
 msgstr "Desactivado"
@@ -379,10 +379,10 @@ msgid "Reading"
 msgstr "Lectura"
 
 msgid "Spread rotation direction"
-msgstr "Dirección de giro de las páginas dobles"
+msgstr "Dirección de giro en las páginas dobles"
 
 msgid "Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows \"Invert default rotation in portrait mode\" in KOReader's rotation settings."
-msgstr "Hacia dónde se giran las páginas dobles, en el visor de paneles y durante la lectura. La primera opción sigue \"Invertir la rotación predeterminada en modo vertical\" de los ajustes de rotación de KOReader."
+msgstr "Establece el sentido del giro en las páginas dobles, en el visor de paneles y durante la lectura. La primera opción sigue \"Invertir la rotación predeterminada en modo vertical\" de los ajustes de rotación de KOReader."
 
 msgid "Same as KOReader's image viewer"
 msgstr "Igual que el visor de imágenes de KOReader"
