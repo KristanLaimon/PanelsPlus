@@ -88,7 +88,7 @@ SPDX-License-Identifier: MIT
 --- @field rotate_screen_for_double_pages boolean Rotate the screen while a double-page spread is on the reading page.
 --- @field spread_rotation_direction string `"auto"` (follow KOReader's image viewer), `"cw"` or `"ccw"`.
 --- @field join_spread_fold boolean Remove the black strip between the halves of a double-page spread in the panel viewer.
---- @field ocr_bundled_language string Three-letter bundled OCR language code: eng, spa, or ita.
+--- @field ocr_bundled_language string Bundled OCR language code (eng, spa, ita), or koreader for installed OCR data.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
