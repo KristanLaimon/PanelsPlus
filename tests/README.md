@@ -40,12 +40,12 @@ tests/
 
 The OCR dataset evaluates both the configured English model and the bundled
 English model. Set `PANELSPLUS_REQUIRE_DATASETS=1` to require every
-annotated word (currently 266 across 16 pages); otherwise missing pages print a
-partial-dataset warning. Bundled English text recognition requires at least 90%
-matches (240/266 on the current dataset). Configured models must retain their
-saved accuracy. Word-box geometry also requires at least 90%.
+annotated word (currently 668 across 35 pages); otherwise missing pages print a
+partial-dataset warning. Bundled English text recognition requires at least 95%
+matches. Configured models must retain their saved accuracy. Word-box geometry
+also requires at least 95%.
 Complete evaluations save improvements under `ocr` in the book's
-`bestbenchmark.json`, even while the 90% target is still unmet. Subsequent runs
+`bestbenchmark.json`, even while the 95% target is still unmet. Subsequent runs
 must match or exceed each saved result; exact correct/evaluated counts enforce
 this without rounding tolerance. Configured and bundled models have separate
 CLI and native records. Partial datasets neither compare nor update these full
@@ -53,6 +53,14 @@ dataset records, and explicitly report this limitation.
 Text comparisons ignore case and punctuation, except that punctuation-only
 annotations require an actual matching transcription and cannot match an empty
 OCR result.
+For a focused diagnostic run, `PANELSPLUS_OCR_PAGES=6,7` selects 1-indexed pages;
+unselected annotations still count toward total coverage, so the run cannot
+update full-dataset records or pass `PANELSPLUS_REQUIRE_DATASETS=1`.
+`PANELSPLUS_OCR_CANDIDATE=/path/to/tessdata` tests an alternative
+`eng_fast.traineddata` through the bundled English path without updating records.
+The dataset runner caches decoded pages and found boxes across its three checks.
+The bundled model was trained on part of this dataset; see
+[training and held-out validation details](../tools/ocr-training/README.md).
 Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed
 model instead of the system Tesseract default. These CLI results are a stand-in
 for the reader. [OCR_REPORT.md](../OCR_REPORT.md) also documents the native

@@ -525,8 +525,8 @@ class AnnotatorMainWindow(QMainWindow):
         self.chk_precision = QCheckBox("🎯 Precision Fine-Tuning")
         self.chk_precision.setChecked(True)
         self.chk_precision.setToolTip(
-            "Magnetic snapping to borders/edges with Loupe HUD.\n"
-            "Uncheck for completely freeform drawing. (Shortcut: P, or hold Alt to bypass)"
+            "Loupe HUD in all rectangle modes; magnetic snapping to borders/edges in Panel mode.\n"
+            "Uncheck to turn off precision aids. (Shortcut: P, or hold Alt to bypass snapping)"
         )
         self.chk_precision.toggled.connect(self.canvas.set_precision_mode)
         self.canvas.precision_mode_changed.connect(

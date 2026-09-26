@@ -10,6 +10,13 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Fixed
 
+- **Expanded OCR accuracy**: bundled English was fine-tuned on 545 annotated
+  crops, with 121 crops from separate pages held out from training. Word finding
+  now separates tightly spaced dialogue while preserving tracked headings and
+  retries a narrower crop when adjoining art obscures the boundary. The 668-word
+  development benchmark requires 95% for both recognition and word boxes; see
+  [OCR_REPORT.md](OCR_REPORT.md) for measured scores and validation limits.
+
 - **Swiping down for Kobo-style zoom on the left edge no longer exits the panel viewer**
   - The left-edge swipe-down gesture doubled as both "zoom out" (when already zoomed in) and "close the viewer" (at standard zoom), because both paths shared the same gesture zone. That meant a swipe meant purely for one-handed zoom control could unexpectedly kick the reader out of the panel viewer entirely. It now always zooms out, at any zoom level, and never closes the viewer -- closing stays on the existing "Close" button and tap-outside-frame gesture.
 

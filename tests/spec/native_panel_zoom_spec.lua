@@ -28,7 +28,9 @@ describe("NativePanelZoom embedded-image hold hook", function()
             ui = { highlight = highlight },
             enabled = true,
             embedded_result = true,
+            settings = { panel_gesture = "hold" },
         }
+        setmetatable(plugin, { __index = NativePanelZoom })
         function plugin:isEnabled()
             return self.enabled
         end

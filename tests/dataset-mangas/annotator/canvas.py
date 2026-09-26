@@ -113,6 +113,8 @@ class MangaCanvas(QWidget):
         self.panels = self._collections[mode]
         self.selected_panel_index = -1
         self._mode = "idle"
+        self._snap_guide_x = None
+        self._snap_guide_y = None
         self._undo_stack.clear()
         self._redo_stack.clear()
         self.panel_selected.emit(-1)
@@ -514,7 +516,7 @@ class MangaCanvas(QWidget):
     ) -> Tuple[int, int]:
         """Magnetically snap coordinate outside the black borders of panels, page edges, or existing panels.
         Holding Alt disables magnetic snap for freeform adjustments."""
-        if not self.precision_mouse_enabled or is_alt_held:
+        if self.annotation_mode != "panel" or not self.precision_mouse_enabled or is_alt_held:
             self._snap_guide_x = None
             self._snap_guide_y = None
             return ix, iy
