@@ -37,13 +37,14 @@ local WordFinder = {}
 -- not by data directory. Reusing "eng" could silently keep KOReader's model.
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local FAST_MODEL_DIR = (source:match("^(.*)[/\\]src[/\\]_wordfinder%.lua$") or ".") .. "/data/ocr"
-local BUNDLED_LANGUAGES = { eng = true, spa = true, ita = true }
+local BUNDLED_LANGUAGES = { "eng", "spa", "ita" }
+local BUNDLED_LANGUAGE_SET = { eng = true, spa = true, ita = true }
 
 --- Resolve an installed plugin model without accepting arbitrary path names.
 --- @param language string|nil Three-letter bundled language code.
 --- @return string|nil datadir, string|nil model_language
 function WordFinder.bundledModel(language)
-    if not BUNDLED_LANGUAGES[language] then
+    if not BUNDLED_LANGUAGE_SET[language] then
         return nil
     end
     local model_language = language .. "_fast"
@@ -55,15 +56,22 @@ function WordFinder.bundledModel(language)
     return FAST_MODEL_DIR, model_language
 end
 
---- Whether this package contains the complete bundled language set.
---- @return boolean
-function WordFinder.hasBundledData()
-    for language in pairs(BUNDLED_LANGUAGES) do
-        if not WordFinder.bundledModel(language) then
-            return false
+--- Return the bundled models actually present in this plugin package.
+--- @return string[] languages
+function WordFinder.availableBundledLanguages()
+    local languages = {}
+    for _, language in ipairs(BUNDLED_LANGUAGES) do
+        if WordFinder.bundledModel(language) then
+            languages[#languages + 1] = language
         end
     end
-    return true
+    return languages
+end
+
+--- Whether this package contains at least one bundled model.
+--- @return boolean
+function WordFinder.hasBundledData()
+    return #WordFinder.availableBundledLanguages() > 0
 end
 
 -- Crop rendered around the tap point, as a fraction of native page size.

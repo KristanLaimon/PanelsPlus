@@ -19,13 +19,16 @@ engine caches models by language name without checking the data directory.
 This keeps the bundled models separate
 from KOReader's installed models when switching between them.
 
-The `panelsplus_with_ocrmodels.koplugin` build includes these three models and always
-uses them for zoomed-panel word lookup. English is selected by default; the
-panel viewer's **More Config… → OCR language** entries select Spanish or
-Italian persistently. The separate `panelsplus.koplugin` build
-excludes this directory and uses KOReader's configured OCR language and
-`data/tessdata` files. Install only one build. If a bundled model is missing
-or cannot be read, Panels+ falls back to KOReader's configured OCR data. An
+The `panelsplus_with_ocrmodels.koplugin` build includes these three models.
+English is selected by default; **KOReader menu → Panels+ → OCR language**
+selects any bundled language or **Use KOReader's**, showing KOReader's current
+OCR language. The active choice is marked **(Selected)**. This setting applies
+only inside Panels+. The separate
+`panelsplus.koplugin` build excludes this directory, uses KOReader's configured
+OCR language and `data/tessdata` files, and displays the OCR language control
+dimmed. The control becomes available when at least one readable bundled model
+is present. Install only one build. If a selected bundled model is missing
+or cannot be read, Panels+ uses an available bundled model or KOReader's configured OCR data. An
 OCR engine error or empty result falls back to KOReader's document OCR path.
 
 ## English model

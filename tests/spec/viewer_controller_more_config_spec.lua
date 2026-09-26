@@ -40,6 +40,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = setmetatable({
             settings = settings,
             saveSettings = saved,
+            getOCRLanguageMenuItems = MainMenu.getOCRLanguageMenuItems,
         }, { __index = ViewerController })
         return controller, saved
     end
@@ -83,27 +84,69 @@ describe("ViewerController page-turn animation settings", function()
     it("selects a bundled language in the current viewer and saves it", function()
         local controller, saved = makeController(Settings.withDefaults({}))
         local viewer = { ocr_bundled_language = "eng" }
-        controller:showMoreConfigMenu(viewer)
-        local items = UIManager._last_shown.item_table
-        assert.is_true(items[9].checked_func())
-
-        items[11].callback()
+        controller:setBundledOcrLanguage(viewer, "ita")
         assert.equals("ita", controller.settings.ocr_bundled_language)
         assert.equals("ita", viewer.ocr_bundled_language)
         assert.equals(1, saved:callCount())
-        assert.is_true(UIManager._last_shown.item_table[11].checked_func())
     end)
 
-    it("does not offer bundled languages in the manual OCR package", function()
-        local original_has_bundled = WordFinder.hasBundledData
-        WordFinder.hasBundledData = function()
-            return false
+    it("shows one main-menu OCR entry with bundled choices and visible selection", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        controller.ui = { document = { configurable = { doc_language = "spa" } } }
+        local menu_items = {}
+        MainMenu.addToMainMenu(controller, menu_items)
+        local ocr_entry = menu_items.panels_plus.sub_item_table[5]
+        assert.equals("OCR language", ocr_entry.text)
+        assert.is_true(ocr_entry.enabled_func())
+        local choices = ocr_entry.sub_item_table_func()
+        assert.equals(4, #choices)
+        assert.equals("English (Selected)", choices[1].text_func())
+        assert.equals("Spanish", choices[2].text_func())
+        assert.equals("Italian", choices[3].text_func())
+        assert.is_true(choices[4].text_func():match("^Use KOReader's: .-spa") ~= nil)
+        assert.is_true(choices[1].checked_func())
+
+        choices[4].callback()
+        assert.equals("koreader", controller.settings.ocr_bundled_language)
+        assert.equals(1, saved:callCount())
+        assert.is_true(choices[4].text_func():match("%(Selected%)$") ~= nil)
+        assert.is_false(choices[1].checked_func())
+        assert.equals("koreader", Settings.withDefaults({ ocr_bundled_language = "koreader" }).ocr_bundled_language)
+
+        choices[3].callback()
+        assert.equals("ita", controller.settings.ocr_bundled_language)
+        assert.equals("Italian (Selected)", choices[3].text_func())
+    end)
+
+    it("shows a disabled OCR entry in the manual package", function()
+        local original_available = WordFinder.availableBundledLanguages
+        WordFinder.availableBundledLanguages = function()
+            return {}
         end
         local controller = makeController(Settings.withDefaults({}))
+        local menu_items = {}
+        MainMenu.addToMainMenu(controller, menu_items)
+        local ocr_entry = menu_items.panels_plus.sub_item_table[5]
+        assert.is_false(ocr_entry.enabled_func())
         controller:showMoreConfigMenu({})
         local items = UIManager._last_shown.item_table
-        WordFinder.hasBundledData = original_has_bundled
+        WordFinder.availableBundledLanguages = original_available
         assert.equals(8, #items)
+    end)
+
+    it("offers a partial bundle and falls back to its available model", function()
+        local original_available = WordFinder.availableBundledLanguages
+        WordFinder.availableBundledLanguages = function()
+            return { "spa" }
+        end
+        local controller = makeController(Settings.withDefaults({}))
+        local menu_items = {}
+        MainMenu.addToMainMenu(controller, menu_items)
+        local choices = menu_items.panels_plus.sub_item_table[5].sub_item_table_func()
+        assert.equals(2, #choices)
+        assert.equals("Spanish (Selected)", choices[1].text_func())
+        assert.is_true(choices[1].checked_func())
+        WordFinder.availableBundledLanguages = original_available
     end)
 
     it("groups all More config items by their prefixed categories", function()
@@ -166,10 +209,9 @@ describe("ViewerController page-turn animation settings", function()
 
         controller:showMoreConfigMenu({ nav_transition_mode = "classic" })
         local items = UIManager._last_shown.item_table
-        assert.equals(11, #items)
+        assert.equals(8, #items)
         assert.equals("[Performance]: Pre-render next panel (Actual: true)", items[7].text)
         assert.equals("[Text Selection]: Touch & hold (Actual: true)", items[8].text)
-        assert.equals("[OCR language]: English", items[9].text)
 
         Device.canDoSwipeAnimation = old_can_do_swipe_animation
     end)
@@ -191,6 +233,7 @@ describe("ViewerController page-turn animation settings", function()
         for _, item in ipairs(menu_items.panels_plus.sub_item_table) do
             assert.is_nil(moved[item.text])
         end
+        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[5].text)
     end)
 end)
 

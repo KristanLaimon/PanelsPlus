@@ -543,19 +543,34 @@ end
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 local function selectedBundledOcrLanguage(settings)
-    if not WordFinder.hasBundledData() then
+    local languages = WordFinder.availableBundledLanguages()
+    if #languages == 0 or settings.ocr_bundled_language == "koreader" then
         return false
     end
     local language = settings.ocr_bundled_language
-    return (language == "spa" or language == "ita") and language or "eng"
+    for _, available in ipairs(languages) do
+        if language == available then
+            return language
+        end
+    end
+    return languages[1]
+end
+
+function ViewerController:getSelectedBundledOcrLanguage()
+    return selectedBundledOcrLanguage(self.settings)
 end
 
 function ViewerController:setBundledOcrLanguage(viewer, language)
-    if language ~= "eng" and language ~= "spa" and language ~= "ita" then
+    if not WordFinder.hasBundledData() then
+        return
+    end
+    if language ~= "koreader" and not WordFinder.bundledModel(language) then
         return
     end
     self.settings.ocr_bundled_language = language
-    viewer.ocr_bundled_language = selectedBundledOcrLanguage(self.settings)
+    if viewer then
+        viewer.ocr_bundled_language = selectedBundledOcrLanguage(self.settings)
+    end
     self:saveSettings()
 end
 
@@ -564,7 +579,6 @@ function ViewerController:showMoreConfigMenu(viewer)
     local _ = require("gettext")
     local controller = self
     local menu
-    local has_bundled_ocr = WordFinder.hasBundledData()
 
     local function categorizedText(category, label)
         return "[" .. category .. "]: " .. label
@@ -731,30 +745,8 @@ function ViewerController:showMoreConfigMenu(viewer)
         help_text = _(
             "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
         ),
-        separator = has_bundled_ocr,
+        separator = false,
     })
-
-    if has_bundled_ocr then
-        local ocr_category = _("OCR language")
-        for _, option in ipairs({
-            { code = "eng", label = _("English") },
-            { code = "spa", label = _("Spanish") },
-            { code = "ita", label = _("Italian") },
-        }) do
-            table.insert(menu_items, {
-                text = categorizedText(ocr_category, option.label),
-                radio = true,
-                checked_func = function()
-                    return (controller.settings.ocr_bundled_language or "eng") == option.code
-                end,
-                callback = function()
-                    controller:setBundledOcrLanguage(viewer, option.code)
-                    UIManager:close(menu)
-                    controller:showMoreConfigMenu(viewer)
-                end,
-            })
-        end
-    end
 
     menu = Menu:new({
         title = _("More Panel Viewer Settings"),

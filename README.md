@@ -168,7 +168,9 @@ Keep holding for about four seconds to expand the selection to the nearby dialog
 `build.sh` and `build.ps1` create two plugin folders. Install **one** of them:
 
 - `dist/panelsplus.koplugin` includes no OCR language data. Install the language files you need in KOReader's `data/tessdata` directory and set the OCR language in KOReader.
-- `dist/panelsplus_with_ocrmodels.koplugin` includes English, Spanish, and Italian Tesseract language data. It uses these files for zoomed-panel word lookup without a manual OCR model installation. English is the default; select Spanish or Italian in the panel viewer's **More Config…** menu.
+- `dist/panelsplus_with_ocrmodels.koplugin` includes English, Spanish, and Italian Tesseract language data. English is the default for zoomed-panel word lookup. Open **KOReader menu → Panels+ → OCR language** to choose a bundled language or **Use KOReader's**, which shows KOReader's current OCR language. The active choice is marked **(Selected)**. This choice applies only inside Panels+.
+
+The OCR language control is dimmed in the package without bundled models. It becomes available when the plugin's `data/ocr` folder contains at least one readable `*_fast.traineddata` model.
 
 Both packages use KOReader's OCR runtime. You do not need a separate Tesseract executable on the reader.
 

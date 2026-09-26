@@ -125,6 +125,7 @@ function Settings.withDefaults(settings)
         settings.ocr_bundled_language ~= "eng"
         and settings.ocr_bundled_language ~= "spa"
         and settings.ocr_bundled_language ~= "ita"
+        and settings.ocr_bundled_language ~= "koreader"
     then
         settings.ocr_bundled_language = "eng"
     end
