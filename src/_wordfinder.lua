@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 local Blitbuffer = require("ffi/blitbuffer")
 local Document = require("document/document")
 local Geom = require("ui/geometry")
+local Memory = require("src._memory")
 local Timing = require("src._timing")
 local ffi = require("ffi")
 local logger = require("logger")
@@ -204,13 +205,17 @@ local function toGreyscale(bb)
     if bb:getType() == Blitbuffer.TYPE_BB8 and bb:getRotation() == 0 and bb:getInverse() == 0 then
         return bb, nil
     end
+    local target
     local ok, grey = pcall(function()
-        local target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
+        target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
         target:blitFrom(bb, 0, 0, 0, 0, bb.w, bb.h)
         return target
     end)
     if ok and grey then
         return grey, grey
+    end
+    if target then
+        target:free()
     end
     return bb, nil
 end
@@ -218,7 +223,7 @@ end
 --- @param bb table Buffer to sample.
 --- @return fun(x:integer, y:integer):integer sample Luminance accessor.
 local function makeSampler(bb)
-    if bb:getType() == Blitbuffer.TYPE_BB8 then
+    if bb:getType() == Blitbuffer.TYPE_BB8 and bb:getRotation() == 0 and bb:getInverse() == 0 then
         local ok, data = pcall(ffi.cast, "uint8_t *", bb.data)
         if ok and data ~= nil then
             local stride = tonumber(bb.stride)
@@ -345,8 +350,8 @@ end
 --- Purge any cached OCREngine instances in DocCache to release Tesseract C++ DAWGs
 --- and prevent memory leak warnings on KOReader shutdown.
 function WordFinder.cleanup()
-    local ok_cache, DocCache = pcall(require, "document/doccache")
-    if ok_cache and DocCache and DocCache.cache then
+    local DocCache = package.loaded["document/doccache"]
+    if type(DocCache) == "table" and DocCache.cache then
         pcall(function()
             if DocCache.cache.delete then
                 DocCache.cache:delete("ocrengine")
@@ -355,8 +360,8 @@ function WordFinder.cleanup()
     end
     -- The tight-crop path below uses k2pdfopt's OCR engine directly, outside
     -- DocCache. Release that engine when the viewer closes as well.
-    local ok_kopt, KOPTContext = pcall(require, "ffi/koptcontext")
-    if ok_kopt and KOPTContext and KOPTContext.k2pdfopt then
+    local KOPTContext = package.loaded["ffi/koptcontext"]
+    if type(KOPTContext) == "table" and KOPTContext.k2pdfopt then
         pcall(KOPTContext.k2pdfopt.k2pdfopt_tocr_end)
     end
 end
@@ -550,6 +555,15 @@ function WordFinder.padBox(box, ratio, native)
     return { x = x0, y = y0, w = x1 - x0, h = y1 - y0 }
 end
 
+-- A session owns at most one small OCR bitmap. It lives for one lookup only;
+-- changing crop or resolution frees it before allocating its replacement.
+local function releaseOCRSession(session)
+    if session.context then
+        pcall(session.context.free, session.context)
+        session.context = nil
+    end
+end
+
 --- OCR a single box through KOReader's bundled engine and normalize the result.
 ---
 --- @param document table KOReader document object.
@@ -569,10 +583,21 @@ function WordFinder.ocrWord(document, pageno, box, bundled_language, native, opt
     local backend = document and document._document
     if interface and interface.createContext and backend and backend.openPage and box.h > 0 then
         local context, page
+        local session = options and options.session
+        local render_height = options and options.height or 30
         local ok, raw = pcall(function()
             local bbox = { x0 = box.x, y0 = box.y, x1 = box.x + box.w, y1 = box.y + box.h }
             local datadir, language = interface.tessocr_data, document.configurable.doc_language
-            local bundled_dir, bundled_model = WordFinder.bundledModel(bundled_language)
+            local bundled_dir, bundled_model
+            if session and session.model_resolved then
+                bundled_dir, bundled_model = session.bundled_dir, session.bundled_model
+            else
+                bundled_dir, bundled_model = WordFinder.bundledModel(bundled_language)
+                if session then
+                    session.model_resolved = true
+                    session.bundled_dir, session.bundled_model = bundled_dir, bundled_model
+                end
+            end
             if bundled_dir then
                 datadir, language = bundled_dir, bundled_model
                 -- Keep the measured English crop adjustment; other languages
@@ -583,10 +608,21 @@ function WordFinder.ocrWord(document, pageno, box, bundled_language, native, opt
                     bbox.x1 = math.min(native and native.w or math.huge, bbox.x1 + margin)
                 end
             end
-            context = interface:createContext(document, pageno, bbox)
-            context:setZoom((options and options.height or 30) / box.h)
-            page = backend:openPage(pageno)
-            page:getPagePix(context, document.render_mode, document.configurable.background_cleanup)
+            if session and session.box == box and session.height == render_height then
+                context = session.context
+            end
+            if not context then
+                if session then
+                    releaseOCRSession(session)
+                end
+                context = interface:createContext(document, pageno, bbox)
+                context:setZoom(render_height / box.h)
+                page = backend:openPage(pageno)
+                page:getPagePix(context, document.render_mode, document.configurable.background_cleanup)
+                if session then
+                    session.context, session.box, session.height = context, box, render_height
+                end
+            end
             local width, height = context:getPageDim()
             return context:getTOCRWord(
                 "src",
@@ -604,8 +640,11 @@ function WordFinder.ocrWord(document, pageno, box, bundled_language, native, opt
         if page then
             pcall(page.close, page)
         end
-        if context then
+        if context and (not session or not ok or not raw or raw == "") then
             pcall(context.free, context)
+            if session then
+                session.context = nil
+            end
         end
         if ok and raw and raw ~= "" then
             return WordFinder.normalizeWord(raw)
@@ -729,25 +768,32 @@ end
 --- @param native PPPageSize|nil Native page dimensions, to clamp the retry box.
 --- @param bundled_language string|nil Bundled model, or nil for KOReader's model.
 --- @return string|nil word Plausible OCR word, or nil.
-function WordFinder.readWord(document, pageno, box, native, bundled_language)
+local function readWord(document, pageno, box, native, bundled_language, session)
     -- The highlight includes a comfortable margin. Recognition needs the
     -- tighter ink crop so neighbouring lines cannot enter that margin.
     local ocr_box = box.ocr_box or box
-    local word = WordFinder.ocrWord(document, pageno, ocr_box, bundled_language, native)
+    local word = WordFinder.ocrWord(document, pageno, ocr_box, bundled_language, native, { session = session })
     if
         bundled_language == "eng"
-        and WordFinder.bundledModel("eng")
+        and session.bundled_model
         and document.koptinterface
         and document.koptinterface.createContext
     then
         -- Comic lettering can produce a plausible but wrong first result.
         -- Compare two resolutions; a third character-mode read breaks a
         -- disagreement. Equal candidates keep the first transcription.
-        local smaller = WordFinder.ocrWord(document, pageno, ocr_box, bundled_language, native, { height = 20 })
+        local smaller =
+            WordFinder.ocrWord(document, pageno, ocr_box, bundled_language, native, { height = 20, session = session })
         local first_key, second_key = candidateKey(word), candidateKey(smaller)
         if first_key == "" or first_key ~= second_key then
-            local character =
-                WordFinder.ocrWord(document, pageno, ocr_box, bundled_language, native, { height = 20, mode = 10 })
+            local character = WordFinder.ocrWord(
+                document,
+                pageno,
+                ocr_box,
+                bundled_language,
+                native,
+                { height = 20, mode = 10, session = session }
+            )
             local third_key = candidateKey(character)
             if second_key ~= "" and second_key == third_key then
                 word = smaller
@@ -761,7 +807,7 @@ function WordFinder.readWord(document, pageno, box, native, bundled_language)
     end
 
     local retry_box = WordFinder.padBox(ocr_box, RETRY_PAD_RATIO, native)
-    local retry_word = WordFinder.ocrWord(document, pageno, retry_box, bundled_language, native)
+    local retry_word = WordFinder.ocrWord(document, pageno, retry_box, bundled_language, native, { session = session })
     if Timing.enabled then
         WordFinder.logDiagnostic("retry OCR with padded box", {
             first = tostring(word),
@@ -773,6 +819,16 @@ function WordFinder.readWord(document, pageno, box, native, bundled_language)
         return retry_word
     end
     return nil
+end
+
+function WordFinder.readWord(document, pageno, box, native, bundled_language)
+    local session = {}
+    local ok, word = pcall(readWord, document, pageno, box, native, bundled_language, session)
+    releaseOCRSession(session)
+    if not ok then
+        error(word)
+    end
+    return word
 end
 
 --- Find the nearest row/column index carrying ink, within a bounded distance.
@@ -892,6 +948,13 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
     local scaled = rect.scaled_rect
     local origin_x = (scaled and scaled.x) or math.floor(cx0 * CROP_ZOOM + 0.001)
     local origin_y = (scaled and scaled.y) or math.floor(cy0 * CROP_ZOOM + 0.001)
+
+    -- Rendering may temporarily hold a color tile plus its grayscale copy.
+    -- Preserve the same 40 MiB reserve used by panel transitions, including
+    -- on unusually large scans. Leave the reader's existing selection intact.
+    if not Memory.hasAllocationHeadroom(40 * 1024 * 1024, scaled.w * scaled.h * 6) then
+        return nil
+    end
 
     local tile
     local ok, err = pcall(function()
@@ -1031,13 +1094,15 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
             end
         end
 
-        -- Column ink projection restricted to this text line only.
+        -- Only presence is used by gap detection and snapping. Stop at the
+        -- first ink pixel instead of counting every dark pixel in the column.
         local col_ink = {}
         for x = 0, w - 1 do
             local count = 0
             for y = y0, y1 do
                 if isInk(sample, x, y, background, is_inverted) then
-                    count = count + 1
+                    count = 1
+                    break
                 end
             end
             col_ink[x] = count

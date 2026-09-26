@@ -261,7 +261,7 @@ end)
 preload("util", function()
     local util = {}
     function util.calcFreeMem()
-        return 0
+        return 512 * 1024 * 1024
     end
     -- Specs never exercise a real filesystem write.
     function util.makePath()

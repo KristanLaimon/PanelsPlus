@@ -729,6 +729,37 @@ describe("WordFinder.ocrWord tight native OCR path", function()
         end
     end)
 
+    it("reuses the tie-break crop and frees each context exactly once", function()
+        for _, fail_tiebreak in ipairs({ false, true }) do
+            local document, _, context, page = newNativeDocument()
+            local renders, frees, reads, closes = 0, 0, 0, 0
+            page.getPagePix = function()
+                renders = renders + 1
+            end
+            page.close = function()
+                closes = closes + 1
+            end
+            context.free = function()
+                frees = frees + 1
+            end
+            context.getTOCRWord = function()
+                reads = reads + 1
+                if fail_tiebreak and reads == 3 then
+                    error("OCR failure")
+                end
+                return ({ "Sove", "Love", "LOVE!" })[reads]
+            end
+            document.getOCRWord = function()
+                return "Love"
+            end
+            assert.equals("Love", WordFinder.readWord(document, 1, box, nil, "eng"))
+            assert.equals(3, reads)
+            assert.equals(2, renders)
+            assert.equals(2, frees)
+            assert.equals(2, closes)
+        end
+    end)
+
     it("renders the tighter OCR crop without changing the highlight", function()
         local document, observed = newNativeDocument()
         local highlight = { x = 10, y = 20, w = 80, h = 20, ocr_box = { x = 12, y = 22, w = 76, h = 16 } }
@@ -804,6 +835,23 @@ describe("WordFinder.ocrWord tight native OCR path", function()
 end)
 
 describe("WordFinder.cleanup OCR cache purging", function()
+    it("does not load OCR libraries merely to close a viewer", function()
+        local names = { "ffi/koptcontext", "document/doccache" }
+        local saved = {}
+        for _, name in ipairs(names) do
+            saved[name] = { package.loaded[name], package.preload[name] }
+            package.loaded[name] = nil
+            package.preload[name] = function()
+                error("unexpected library load")
+            end
+        end
+        WordFinder.cleanup()
+        for _, name in ipairs(names) do
+            assert.is_nil(package.loaded[name])
+            package.loaded[name], package.preload[name] = saved[name][1], saved[name][2]
+        end
+    end)
+
     it("executes safely without errors", function()
         local ok = pcall(WordFinder.cleanup)
         assert.is_true(ok, "expected WordFinder.cleanup to execute without errors")
@@ -856,5 +904,80 @@ describe("WordFinder.evictOCRWordCache OCR cache-collision workaround", function
         package.preload["document/doccache"] = nil
         local ok = pcall(WordFinder.evictOCRWordCache, { file = "book.cbz" }, 1, { x = 0, y = 0, w = 10, h = 10 })
         assert.is_true(ok, "expected evictOCRWordCache to execute without errors")
+    end)
+end)
+
+describe("WordFinder memory headroom", function()
+    it("skips crop allocation under memory pressure", function()
+        local Memory = require("src._memory")
+        local old = Memory.freeBytes
+        Memory.freeBytes = function()
+            return 40 * 1024 * 1024
+        end
+        local document = newFakeDocument(1264, 1680, {})
+        local rendered = false
+        document.renderPage = function()
+            rendered = true
+        end
+        local ok, box = pcall(WordFinder.findWordBox, document, 1, 600, 800)
+        Memory.freeBytes = old
+        assert.is_true(ok)
+        assert.is_nil(box)
+        assert.is_false(rendered)
+    end)
+end)
+
+describe("WordFinder grayscale ownership", function()
+    it("frees a failed conversion and samples the transformed source through its API", function()
+        local BB = require("ffi/blitbuffer")
+        local ffi = require("ffi")
+        local old_new, old_cast = BB.new, ffi.cast
+        local freed, sampled, cast = 0, 0, false
+        BB.new = function()
+            return {
+                blitFrom = function()
+                    error("conversion failed")
+                end,
+                free = function()
+                    freed = freed + 1
+                end,
+            }
+        end
+        ffi.cast = function()
+            cast = true
+            return nil
+        end
+        local document = newFakeDocument(200, 200, {})
+        document.renderPage = function()
+            return {
+                bb = {
+                    w = 120,
+                    h = 80,
+                    getType = function()
+                        return BB.TYPE_BB8
+                    end,
+                    getRotation = function()
+                        return 1
+                    end,
+                    getInverse = function()
+                        return 0
+                    end,
+                    getPixel = function()
+                        sampled = sampled + 1
+                        return {
+                            getColor8 = function()
+                                return { a = 255 }
+                            end,
+                        }
+                    end,
+                },
+            }
+        end
+        local ok = pcall(WordFinder.findWordBox, document, 1, 100, 100)
+        BB.new, ffi.cast = old_new, old_cast
+        assert.is_true(ok)
+        assert.equals(1, freed)
+        assert.is_true(sampled > 0)
+        assert.is_false(cast)
     end)
 end)
