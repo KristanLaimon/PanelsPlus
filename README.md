@@ -31,12 +31,49 @@
 
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup required, install Panels+ and *it just works*.
 
+### Features
+- Includes 3 reading modes: 
+<table>
+  <!-- Videos (mismo alto y centrados) -->
+  <tr valign="middle">
+    <td width="25%" align="center">
+      <video height="180" src="https://github.com/user-attachments/assets/7200f3e1-74d8-4b24-bd64-c775600d35ed"></video>
+    </td>
+    <td width="25%" align="center">
+      <video height="180" src="https://github.com/user-attachments/assets/c247ed18-57db-4748-9205-7a50035096a3"></video>
+    </td>
+    <td width="25%" align="center">
+      <video height="180" src="https://github.com/user-attachments/assets/e5be3a1a-9f97-407e-acac-e2033af7f912"></video>
+    </td>
+    <td width="25%" align="center">
+      <video height="180" src="https://github.com/user-attachments/assets/54ce079c-176b-420e-acb6-d6f9738b6f70"></video>
+    </td>
+  </tr>
+
+  <!-- Títulos -->
+  <tr>
+    <td align="center"><b>1. Animated mode</b></td>
+    <td align="center"><b>2. Smooth mode</b></td>
+    <td align="center"><b>3. Classic mode</b></td>
+    <td align="center"><b>Trained to work in non-standard panels</b></td>
+  </tr>
+
+  <!-- Subtítulos -->
+  <tr>
+    <td align="center"><em>Swipe through your manga with fade-in/fade-out transitions. (Only available in e-ink devices).  You can swipe or tap on edges, configurable in "More Config" button.</em></td>
+    <td align="center"><em>Make the current zoom view to move smoothly between panels (Duration and FPS between panels customizable). (Works better in non-eink devices, like Android and Desktop)</em></td>
+    <td align="center"><em>Move between panels with no transitions at all, simply and classic.</em></td>
+    <td align="center"><em>Panels+ has improved panel recognition for non-perfect rectangles panels. In case it can't find panel, it shows the whole page or selects 2+ panels, to avoid losing panels or wrong order.</em></td>
+  </tr>
+</table>
+
 - Zoom-friendly screenshot support while reading panels.
 - Open panels with a long press or, if you prefer, a two-finger tap.
 - Panels finding on dark-background pages.
 - Animated panel transitions (or even pages transition, optional)
 - Comics & Mangas support
 - Customizable and performant in low-end e-ink devices.
+- Move between panels with swipes and/or taps on edges.
 - And much more.
 
 > Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, check our [Translation Quick Guide](docs/translations/README.md).
