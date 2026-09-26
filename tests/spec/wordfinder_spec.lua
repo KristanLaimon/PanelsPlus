@@ -189,6 +189,45 @@ describe("WordFinder:findWordBox short lines inside a speech bubble", function()
     end)
 end)
 
+describe("WordFinder:findWordBox sparse and mixed spacing", function()
+    it("separates connected short words when word gaps dominate the median", function()
+        local pixels = blankPixels(1000, 1000)
+        fillInk(pixels, 100, 90, 119, 112)
+        fillInk(pixels, 122, 90, 139, 112)
+        fillInk(pixels, 151, 90, 169, 112)
+        fillInk(pixels, 182, 90, 200, 112)
+        local box = WordFinder.findWordBox(newFakeDocument(1000, 1000, pixels), 1, 160, 100)
+        assert.is_not_nil(box)
+        assert.is_true(box.x > 139 and box.x + box.w < 182, "isolate the middle word")
+    end)
+
+    it("keeps a two-pixel internal gap in a sparsely connected word", function()
+        local pixels = blankPixels(1000, 1000)
+        fillInk(pixels, 100, 90, 119, 112)
+        fillInk(pixels, 121, 90, 139, 112)
+        fillInk(pixels, 142, 90, 170, 112)
+        local box = WordFinder.findWordBox(newFakeDocument(1000, 1000, pixels), 1, 150, 100)
+        assert.is_not_nil(box)
+        assert.is_true(box.x <= 100 and box.x + box.w >= 171, "retain every glyph group")
+    end)
+
+    it("preserves a well-sampled tracked heading with a few tighter pairs", function()
+        local pixels = blankPixels(1000, 1000)
+        local x = 300
+        for _, gap in ipairs({ 2, 3, 3, 3, 4, 4, 5, 5, 5 }) do
+            fillInk(pixels, x, 90, x + 4, 109)
+            x = x + 5 + gap
+        end
+        fillInk(pixels, x, 90, x + 4, 109)
+        local next_word = x + 19
+        fillInk(pixels, next_word, 90, next_word + 19, 109)
+        local box = WordFinder.findWordBox(newFakeDocument(1000, 1000, pixels), 1, 340, 100)
+        assert.is_not_nil(box)
+        assert.is_true(box.x <= 300 and box.x + box.w >= x + 5, "retain the tracked letters")
+        assert.is_true(box.x + box.w < next_word, "exclude the next word")
+    end)
+end)
+
 describe("WordFinder:findWordBox on x-height-only text (regression: 'eater' -> 'a')", function()
     -- A short line (x-height only, no ascenders/descenders reaching further
     -- up or down -- e.g. "eater") with wider-than-usual letter kerning, as

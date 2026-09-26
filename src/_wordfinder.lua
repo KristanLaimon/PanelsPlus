@@ -843,9 +843,11 @@ end
 --- @param pageno number Page number.
 --- @param px number Native page x coordinate.
 --- @param py number Native page y coordinate.
+--- @param narrow_retry boolean|nil Internal flag limiting crop retries to one.
 --- @return PPRect|nil box Tight word box in native page coordinates, or nil.
 --- @return PPPageSize|nil native Native page dimensions, when a box was found.
-function WordFinder.findWordBox(document, pageno, px, py)
+function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
+    WordFinder.last_diagnostics = nil
     if not (document and pageno and px and py) then
         return nil
     end
@@ -855,7 +857,7 @@ function WordFinder.findWordBox(document, pageno, px, py)
         return nil
     end
 
-    local half_w = math.max(40, native.w * CROP_HALF_W_FRAC)
+    local half_w = math.max(40, native.w * (narrow_retry and 0.08 or CROP_HALF_W_FRAC))
     local half_h = math.max(20, native.h * CROP_HALF_H_FRAC)
 
     local cx0 = math.max(0, px - half_w)
@@ -909,6 +911,7 @@ function WordFinder.findWordBox(document, pageno, px, py)
 
         --- Log why the search gave up, and return nil.
         local function abort(reason)
+            WordFinder.last_diagnostics = { abort_reason = reason }
             if Timing.enabled then
                 WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
                     reason = reason,
@@ -1102,7 +1105,28 @@ function WordFinder.findWordBox(document, pageno, px, py)
         else
             gap_threshold = math.floor(line_h * WORD_GAP_RATIO)
         end
-        gap_threshold = math.max(4, gap_threshold)
+        -- Two native pixels of whitespace can occur inside connected lettering.
+        -- Keep such small gaps inside the word even with a sparse sample.
+        gap_threshold = math.max(6, gap_threshold)
+        -- Short dialogue lines may contain more word gaps than letter gaps,
+        -- inflating the median. Cap that estimate only when tightly connected
+        -- letters establish a smaller spacing scale. A well-populated, uniform
+        -- gap sample (such as widely tracked chapter headings) keeps its median.
+        if
+            line_h >= 36
+            and #gaps > 0
+            and gaps[1] <= line_h * 0.15
+            and (#gaps <= 8 or gaps[math.ceil(#gaps / 4)] <= median_gap * 0.5)
+        then
+            gap_threshold = math.min(gap_threshold, math.max(4, math.floor(line_h * 0.21)))
+        end
+        WordFinder.last_diagnostics = {
+            gap_threshold = gap_threshold,
+            median_gap = median_gap,
+            line_h = line_h,
+            gaps = gaps,
+            shear = shear,
+        }
 
         local x0, x1, gap = tap_x, tap_x, 0
         while x0 > 0 do
@@ -1287,12 +1311,22 @@ function WordFinder.findWordBox(document, pageno, px, py)
     end -- search()
 
     local ok2, result_box, result_native = pcall(search)
+    if not ok2 then
+        if owned then
+            pcall(owned.free, owned)
+        end
+        logger.warn("[Panels+] word box search failed:", result_box)
+        return nil
+    end
+    local reason = WordFinder.last_diagnostics and WordFinder.last_diagnostics.abort_reason
+    local edge_abort = not result_box and reason and reason:find("ink runs off", 1, true)
     if owned then
         pcall(owned.free, owned)
     end
-    if not ok2 then
-        logger.warn("[Panels+] word box search failed:", result_box)
-        return nil
+    if not result_box and edge_abort and not narrow_retry then
+        -- A smaller search region can exclude adjoining artwork that bridged
+        -- the row projection. Require the retry to find its own bounded box.
+        return WordFinder.findWordBox(document, pageno, px, py, true)
     end
     return result_box, result_native
 end

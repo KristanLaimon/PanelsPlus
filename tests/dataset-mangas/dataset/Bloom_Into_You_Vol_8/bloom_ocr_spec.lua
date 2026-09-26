@@ -17,7 +17,14 @@ local BOOK_DIR = "tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8"
 local PAGE_W, PAGE_H = 1264, 1680
 local NATIVE_OCR = os.getenv("PANELSPLUS_OCR_NATIVE") == "1"
 local MODEL_DIR = os.getenv("PANELSPLUS_OCR_TESSDATA")
+local CANDIDATE_DIR = os.getenv("PANELSPLUS_OCR_CANDIDATE")
 local ocr_seconds, ocr_calls = 0, 0
+local page_cache, box_cache = {}, {}
+local selected_pages = os.getenv("PANELSPLUS_OCR_PAGES")
+
+local function includePage(index)
+    return not selected_pages or ("," .. selected_pages .. ","):find("," .. index .. ",", 1, true) ~= nil
+end
 
 local function quote(value)
     return "'" .. value:gsub("'", "'\\''") .. "'"
@@ -34,6 +41,10 @@ local function checkCoverage(evaluated, total)
 end
 
 local function recordScore(metric, correct, evaluated, total)
+    if CANDIDATE_DIR then
+        print("  candidate model evaluation: benchmark record was not updated")
+        return
+    end
     local ok, message = OCRBenchmark.checkAndUpdate(BOOK_DIR, metric, {
         correct = correct,
         evaluated = evaluated,
@@ -46,6 +57,9 @@ local function recordScore(metric, correct, evaluated, total)
 end
 
 local function loadPage(index)
+    if page_cache[index] then
+        return page_cache[index][1], page_cache[index][2]
+    end
     local path = string.format("%s/%02d.png", BOOK_DIR, index - 1)
     local file = io.open(path, "rb")
     if not file then
@@ -57,11 +71,26 @@ local function loadPage(index)
     local pixels = pipe:read("*a")
     assert.is_true(pipe:close(), "ImageMagick failed to decode " .. path)
     assert.equals(PAGE_W * PAGE_H, #pixels, "unexpected image dimensions in " .. path)
+    page_cache[index] = { pixels, path }
     return pixels, path
+end
+
+local function findBox(document, page, expected)
+    local key = string.format("%d:%.4f:%.4f", page, expected.x + expected.w / 2, expected.y + expected.h / 2)
+    if not box_cache[key] then
+        local box, native =
+            WordFinder.findWordBox(document, page, expected.x + expected.w / 2, expected.y + expected.h / 2)
+        box_cache[key] = { box or false, native or false }
+    end
+    local cached = box_cache[key]
+    return cached[1] or nil, cached[2] or nil
 end
 
 local function fakeDocument(pixels, path)
     local function readCrop(rect, zoom, datadir, language, mode)
+        if CANDIDATE_DIR and language == "eng_fast" then
+            datadir = CANDIDATE_DIR
+        end
         local x0 = math.max(0, math.floor(rect.x0))
         local y0 = math.max(0, math.floor(rect.y0))
         local x1 = math.min(PAGE_W, math.ceil(rect.x1))
@@ -222,15 +251,13 @@ describe("Bloom Into You annotated word boxes", function()
         local evaluated, good, total = 0, 0, 0
         local failures = {}
         for _, page in ipairs(annotations) do
-            if page.word and #page.word > 0 then
-                total = total + #page.word
+            total = total + #(page.word or {})
+            if page.word and #page.word > 0 and includePage(page.page_index) then
                 local pixels, path = loadPage(page.page_index)
                 if pixels then
                     local document = fakeDocument(pixels, path)
                     for _, expected in ipairs(page.word) do
-                        local tap_x = expected.x + expected.w / 2
-                        local tap_y = expected.y + expected.h / 2
-                        local actual = WordFinder.findWordBox(document, page.page_index, tap_x, tap_y)
+                        local actual = findBox(document, page.page_index, expected)
                         evaluated = evaluated + 1
                         local overlap = actual and intersection(actual, expected) or 0
                         local coverage = overlap / (expected.w * expected.h)
@@ -241,7 +268,7 @@ describe("Bloom Into You annotated word boxes", function()
                         else
                             local diag = WordFinder.last_diagnostics or {}
                             failures[#failures + 1] = string.format(
-                                "page %d %s: coverage %.2f extra %.2f box %s threshold %s median %s line %s gaps %s reason %s",
+                                "page %d %s: coverage %.2f extra %.2f box %s threshold %s median %s line %s shear %s gaps %s reason %s",
                                 page.page_index,
                                 expected.text or "?",
                                 coverage,
@@ -251,6 +278,7 @@ describe("Bloom Into You annotated word boxes", function()
                                 tostring(diag.gap_threshold),
                                 tostring(diag.median_gap),
                                 tostring(diag.line_h),
+                                tostring(diag.shear),
                                 table.concat(diag.gaps or {}, ","),
                                 tostring(diag.abort_reason)
                             )
@@ -265,7 +293,7 @@ describe("Bloom Into You annotated word boxes", function()
             print("  " .. failure)
         end
         recordScore("word_boxes", good, evaluated, total)
-        assert.is_true(good >= math.ceil(evaluated * 0.90), "annotated word-box accuracy must reach 90%")
+        assert.is_true(good >= math.ceil(evaluated * 0.95), "annotated word-box accuracy must reach 95%")
     end)
 
     local function checkText(bundled_language)
@@ -276,18 +304,13 @@ describe("Bloom Into You annotated word boxes", function()
         local evaluated, correct, total = 0, 0, 0
         ocr_seconds, ocr_calls = 0, 0
         for _, page in ipairs(annotations) do
-            if page.word and #page.word > 0 then
-                total = total + #page.word
+            total = total + #(page.word or {})
+            if page.word and #page.word > 0 and includePage(page.page_index) then
                 local pixels, path = loadPage(page.page_index)
                 if pixels then
                     local document = fakeDocument(pixels, path)
                     for _, expected in ipairs(page.word) do
-                        local box, native = WordFinder.findWordBox(
-                            document,
-                            page.page_index,
-                            expected.x + expected.w / 2,
-                            expected.y + expected.h / 2
-                        )
+                        local box, native = findBox(document, page.page_index, expected)
                         local actual = box
                             and WordFinder.readWord(document, page.page_index, box, native, bundled_language)
                         local normalized_actual = actual and actual:upper():gsub("[^%w]", "") or ""
@@ -342,10 +365,10 @@ describe("Bloom Into You annotated word boxes", function()
             total
         )
         if bundled_language then
-            local minimum = math.ceil(evaluated * 0.90)
+            local minimum = math.ceil(evaluated * 0.95)
             assert.is_true(
                 correct >= minimum,
-                string.format("OCR accuracy below 90%%: %d/%d correct; need at least %d", correct, evaluated, minimum)
+                string.format("OCR accuracy below 95%%: %d/%d correct; need at least %d", correct, evaluated, minimum)
             )
         end
     end
