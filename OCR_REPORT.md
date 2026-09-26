@@ -1,5 +1,63 @@
 # Panels+ OCR investigation and handoff
 
+## Expanded OCR dataset: 95% acceptance gates (2026-09-26)
+
+All **668 word annotations across 35 pages** are required for a complete run.
+Bundled English recognition and word-box geometry now both require at least
+95%, in addition to the exact-count regression guards. The initial CLI run on
+this expansion measured 615/668 text matches (92.0659%) and 621/668 box matches
+(92.9641%).
+
+| Final check | Result |
+| --- | ---: |
+| Word-box geometry | 637/668 (95.3593%) |
+| Bundled English, Tesseract CLI | 637/668 (95.3593%) |
+| Bundled English, KOReader native OCR library | 639/668 (95.6587%) |
+| System English, CLI | 542/668 (81.1377%) |
+| Manually installed English, native | 580/668 (86.8263%) |
+
+The complete CLI OCR suite passed **55 tests**, and all three native dataset
+checks passed. Both runs evaluated all 668 annotations with the 95% gates enabled.
+Configured models retain their separately measured regression records; the
+95% text requirement applies to bundled English.
+
+The finder now keeps small internal glyph gaps inside words, limits inflated
+spacing estimates on short connected dialogue, and preserves well-sampled
+tracking in headings. When adjoining artwork floods the first search region,
+one narrower retry must still locate a bounded word. Three synthetic regression
+cases cover these spacing behaviors.
+
+The English model was fine-tuned from the pinned floating-point upstream model
+using 545 annotated word crops. Another 121 crops, from every fifth annotated
+page, were held out from training. On these supplied validation crops, the
+floating checkpoint measured 0.826% character/word error; the deployed integer
+model measured 3.030% character error and 3.306% word error. The old bundled
+model measured 12.887% and 17.355%, respectively, on the same crops.
+
+**The full benchmark includes training samples and is a development score.**
+The 121 validation crops were excluded from model training, but all pages have
+informed segmentation tuning. These results do not establish accuracy on unseen
+books or physical readers. Native OCR used 7.856 seconds of desktop OCR CPU
+over 1,346 calls, excluding rendering. Sound effects over artwork, rotated text,
+and ornate headings remain among the misses.
+
+The candidate was tested before replacing the bundled model. Its checksum,
+source annotation hash, split, reproduction commands, and training limits are
+documented in [tools/ocr-training](tools/ocr-training/README.md). Regenerated
+training inputs matched all 666 original crops and both sample lists exactly.
+The model remains 5,199,098 bytes and uses the existing OCR runtime.
+
+The broad non-dataset suite passes 250 Lua tests and 46 Python tests, with one
+unavailable Python dataset check skipped. Two stale test fixtures were corrected:
+the annotator coverage check now uses the existing 725-panel count and does not
+depend on the user's project-finished toggle; the native hold-hook fixture now
+supplies its gesture setting. No annotation labels or rectangles were changed.
+
+For diagnostics, `PANELSPLUS_OCR_PAGES=6,7` selects pages while retaining the
+full coverage denominator. `PANELSPLUS_OCR_CANDIDATE=/path/to/tessdata` tests an
+`eng_fast.traineddata` candidate without updating records. Normal full runs keep
+all annotations and save their measured best scores.
+
 ## Expanded OCR dataset: current results (2026-09-23)
 
 All **266 annotations across 16 pages** were evaluated. The 90% text requirement
