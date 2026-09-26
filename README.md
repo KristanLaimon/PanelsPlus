@@ -36,34 +36,27 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 <table>
   <!-- Videos (mismo alto y centrados) -->
   <tr valign="middle">
-    <td width="25%" align="center">
+    <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/7200f3e1-74d8-4b24-bd64-c775600d35ed"></video>
     </td>
-    <td width="25%" align="center">
+    <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/c247ed18-57db-4748-9205-7a50035096a3"></video>
     </td>
-    <td width="25%" align="center">
-      <video height="180" src="https://github.com/user-attachments/assets/e5be3a1a-9f97-407e-acac-e2033af7f912"></video>
-    </td>
-    <td width="25%" align="center">
+    <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/54ce079c-176b-420e-acb6-d6f9738b6f70"></video>
     </td>
   </tr>
 
-  <!-- Títulos -->
   <tr>
     <td align="center"><b>1. Animated mode</b></td>
     <td align="center"><b>2. Smooth mode</b></td>
     <td align="center"><b>3. Classic mode</b></td>
-    <td align="center"><b>Trained to work in non-standard panels</b></td>
   </tr>
 
-  <!-- Subtítulos -->
   <tr>
     <td align="center"><em>Swipe through your manga with fade-in/fade-out transitions. (Only available in e-ink devices).  You can swipe or tap on edges, configurable in "More Config" button, and rotate only the panel view or whole device from the same place. So you can read your panels even in landscape mode.</em></td>
     <td align="center"><em>Make the current zoom view to move smoothly between panels (Duration and FPS between panels customizable). (Works better in non-eink devices, like Android and Desktop)</em></td>
     <td align="center"><em>Move between panels with no transitions at all, simple...classic.</em></td>
-    <td align="center"><em>Panels+ has improved panel recognition for non-perfect rectangles panels. In case it can't find panel, it shows the whole page or selects 2+ panels, to avoid losing panels or wrong order.</em></td>
   </tr>
 </table>
 
