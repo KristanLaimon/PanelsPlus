@@ -95,7 +95,7 @@ describe("ViewerController page-turn animation settings", function()
         controller.ui = { document = { configurable = { doc_language = "spa" } } }
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[5]
+        local ocr_entry = menu_items.panels_plus.sub_item_table[8]
         assert.equals("OCR language", ocr_entry.text)
         assert.is_true(ocr_entry.enabled_func())
         local choices = ocr_entry.sub_item_table_func()
@@ -126,7 +126,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[5]
+        local ocr_entry = menu_items.panels_plus.sub_item_table[8]
         assert.is_false(ocr_entry.enabled_func())
         controller:showMoreConfigMenu({})
         local items = UIManager._last_shown.item_table
@@ -142,7 +142,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local choices = menu_items.panels_plus.sub_item_table[5].sub_item_table_func()
+        local choices = menu_items.panels_plus.sub_item_table[8].sub_item_table_func()
         assert.equals(2, #choices)
         assert.equals("Spanish (Selected)", choices[1].text_func())
         assert.is_true(choices[1].checked_func())
@@ -236,7 +236,7 @@ describe("ViewerController page-turn animation settings", function()
         for _, item in ipairs(menu_items.panels_plus.sub_item_table) do
             assert.is_nil(moved[item.text])
         end
-        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[5].text)
+        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[8].text)
     end)
 end)
 
