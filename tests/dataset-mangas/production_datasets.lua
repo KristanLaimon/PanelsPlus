@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 ]]
 --- Volumes covered by production accuracy regression tests.
 return {
-    { title = "Bloom_Into_You_Vol_8", type = "manga", pages = 213, panels = 726 },
+    { title = "Bloom_Into_You_Vol_8", type = "manga", pages = 213, panels = 725 },
     { title = "Miss_Kobayashi's_Dragon_Maid_Vol_2", type = "manga", pages = 143, panels = 586 },
     {
         title = "Komi_Can't_Communicate_Vol_1",

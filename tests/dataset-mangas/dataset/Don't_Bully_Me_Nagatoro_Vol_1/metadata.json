@@ -3,7 +3,14 @@
   "type": "manga",
   "total_pages": 165,
   "finished": false,
-  "current_page": 100,
-  "last_opened": "2026-09-19T21:42:21.183216",
-  "source_file": "/home/kristanlaimon/KrsLibrary/Panels+_HardMangas/Don't Bully Me Nagatoro Vol 1.cbz"
+  "current_page": 2,
+  "last_opened": "2026-09-28T15:55:21.207383",
+  "source_file": "/home/kristanlaimon/KrsLibrary/Panels+_HardMangas/Don't Bully Me Nagatoro Vol 1.cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
 }
