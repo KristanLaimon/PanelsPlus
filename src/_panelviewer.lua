@@ -25,6 +25,7 @@ local Screenshoter = require("ui/widget/screenshoter")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local PageBitmap = require("src._pagebitmap")
+local PageRender = require("src._pagerender")
 local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
 local logger = require("logger")
@@ -1910,7 +1911,7 @@ function PanelViewer:animateSwitchToImageNum(target)
         if self.image_union_renderer then
             return self.image_union_renderer(union, zoom_union), true
         end
-        return self.reader_ui.document:drawPagePart(self.page, union, 0), false
+        return PageRender.drawPagePart(self.reader_ui, self.page, union, 0), false
     end)
     if not ok or not content_image then
         logger.warn(
@@ -2105,7 +2106,7 @@ function PanelViewer:animateBoundaryTransition(direction)
             end
             return img
         end
-        return self.reader_ui.document:drawPagePart(self.page, rect_a, 0)
+        return PageRender.drawPagePart(self.reader_ui, self.page, rect_a, 0)
     end)
     if not ok_a or not tile_a then
         logger.warn("[Panels+] boundary transition tile A render failed, falling back:", tostring(tile_a))
@@ -2119,7 +2120,7 @@ function PanelViewer:animateBoundaryTransition(direction)
             end
             return img
         end
-        return self.reader_ui.document:drawPagePart(resolved.next_page, rect_b, 0)
+        return PageRender.drawPagePart(self.reader_ui, resolved.next_page, rect_b, 0)
     end)
     if not ok_b or not tile_b then
         logger.warn("[Panels+] boundary transition tile B render failed, falling back:", tostring(tile_b))

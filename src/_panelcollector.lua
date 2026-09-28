@@ -17,8 +17,8 @@ local DoubleSpread = require("src._doublespread")
 local FoldJoin = require("src._foldjoin")
 local PageBitmap = require("src._pagebitmap")
 local Document = require("document/document")
-local Geom = require("ui/geometry")
 local PanelViewport = require("src._panelviewport")
+local PageRender = require("src._pagerender")
 local Settings = require("src._settings")
 local Screen = require("device").screen
 
@@ -33,15 +33,9 @@ local PanelCollector = {}
 --- Render a spread at its rotated fit size, while leaving its pixels upright.
 --- `drawPagePart` only chooses that larger zoom when KOReader's global image
 --- auto-rotation is enabled; this feature needs the same resolution locally.
-local function drawSpreadPart(document, page, rect)
-    if not document.transformRect or not document.renderPage then
-        return document:drawPagePart(page, rect, 0)
-    end
+local function drawSpreadPart(ui, page, rect)
     local zoom = math.min(Screen:getWidth() / rect.h, Screen:getHeight() / rect.w)
-    local render_rect = Geom:new({ x = rect.x, y = rect.y, w = rect.w, h = rect.h })
-    render_rect.scaled_rect = document:transformRect(render_rect, zoom, 0)
-    local tile = document:renderPage(page, render_rect, zoom, 0, 1.0, 1.0, true)
-    return tile and tile.bb, false
+    return PageRender.drawPagePart(ui, page, rect, 0, zoom)
 end
 
 --- Expand a panel crop by the configured bleed while staying inside the page.
@@ -96,20 +90,20 @@ end
 --- and centers its height vertically in the screen. Any region outside the document
 --- page boundaries is filled with a white background.
 ---
---- @param document table KOReader document instance.
+--- @param ui table KOReader reader UI object.
 --- @param page number Document page number.
 --- @param rect PPPanel Native panel rectangle.
 --- @param page_size PPPageSize Page dimensions.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
-local function buildNoCropImage(document, page, rect, page_size, images)
+local function buildNoCropImage(ui, page, rect, page_size, images)
     local screen_w = Screen:getWidth()
     local screen_h = Screen:getHeight()
     local viewport = PanelViewport.noCrop(rect, page_size)
     if not viewport then
         local image_rect = rect
         return function()
-            local img, rotate = document:drawPagePart(page, image_rect, 0)
+            local img, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
             images.rotated = rotate
             if img and img.copy then
                 return img:copy()
@@ -133,7 +127,7 @@ local function buildNoCropImage(document, page, rect, page_size, images)
             return canvas
         end
 
-        local content_image, rotate = document:drawPagePart(page, image_rect, 0)
+        local content_image, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
         images.rotated = rotate
         if not content_image then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
@@ -308,7 +302,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
             and settings.image_rotation == nil
             and DoubleSpread.shouldRotate(rect, is_full_page, #panels == 1)
         if settings.crop_mode == "none" and not direct_spread then
-            local image_func, image_rect = buildNoCropImage(document, page, rect, page_size, images)
+            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else
@@ -319,9 +313,9 @@ function PanelCollector.buildImages(ui, page, panels, settings)
             table.insert(images, function()
                 local image, rotate
                 if direct_spread then
-                    image, rotate = drawSpreadPart(document, page, image_rect)
+                    image, rotate = drawSpreadPart(ui, page, image_rect)
                 else
-                    image, rotate = document:drawPagePart(page, image_rect, 0)
+                    image, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
                 end
                 images.rotated = rotate
                 local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
