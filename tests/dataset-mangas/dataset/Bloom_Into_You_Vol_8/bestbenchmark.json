@@ -13,16 +13,16 @@
     "true_positives": 655
   },
   "full_volume": {
-    "f1": 0.7992,
+    "f1": 0.7985,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.8782,
+    "mean_iou": 0.8768,
     "pages_evaluated": 213,
-    "precision": 0.7458,
-    "recall": 0.8609,
+    "precision": 0.7446,
+    "recall": 0.8607,
     "total_detected": 838,
-    "total_ground_truth": 726,
-    "true_positives": 625
+    "total_ground_truth": 725,
+    "true_positives": 624
   },
   "ocr": {
     "text_cli_bundled_eng": {
@@ -73,5 +73,5 @@
     "total_ground_truth": 3,
     "true_positives": 3
   },
-  "updated_at": "2026-09-09"
+  "updated_at": "2026-09-28"
 }

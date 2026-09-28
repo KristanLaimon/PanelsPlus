@@ -2,7 +2,7 @@ dist/
 frontend/
 .agents/
 .codex/
-.krsnvim/
+.foxnvim/
 crash.log
 
 crash.old.donotread.log
