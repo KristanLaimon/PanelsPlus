@@ -388,6 +388,18 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(shortcuts.get("Use Selected Phrase Box as Word"), "W")
         win.close()
 
+    def test_d_is_reserved_for_next_page(self):
+        from PyQt6.QtGui import QAction
+
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "shortcut_dataset"))
+        shortcuts = {
+            action.text(): action.shortcut().toString()
+            for action in win.findChildren(QAction)
+        }
+        self.assertEqual(win.btn_next.shortcut().toString(), "D")
+        self.assertEqual(shortcuts.get("Toggle Double Illustration"), "")
+        win.close()
+
     def test_phrase_distance_slider_persists_local_config(self):
         config_path = os.path.join(self.test_dir, "manga-annotator.config.json")
         dataset_path = os.path.join(self.test_dir, "config_dataset")

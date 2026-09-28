@@ -5,7 +5,7 @@ Features:
 - Extraction of .cbz, .cbr, .pdf, .mobi, .epub into dataset/<bookfriendlyname>/00.png, 01.png...
 - Dark-themed canvas panel annotator with single-page (F) and double-page spread (S) shortcuts.
 - Canvas panel annotator with sequential badges, full-page shortcut (F), 8-handle resizing.
-- Double-illustration shortcut (D) for one full-page panel with an explicit label.
+- Double-illustration control for one full-page panel with an explicit label.
 - Finished book shortcut (Ctrl+M), auto-saving, and PanelsPlus schema compatibility.
 """
 
@@ -512,7 +512,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_illustration_type.setStyleSheet("color: #bbbbbb; font-size: 11px;")
         p_layout.addWidget(self.lbl_illustration_type)
 
-        self.btn_double_illustration = QPushButton("Mark Double Illustration (D)")
+        self.btn_double_illustration = QPushButton("Mark Double Illustration")
         self.btn_double_illustration.setToolTip(
             "Replace this page's boxes with one full-page panel and label it as a double illustration."
         )
@@ -632,8 +632,7 @@ class AnnotatorMainWindow(QMainWindow):
         act_double.triggered.connect(self.set_double_page_illustration)
         edit_menu.addAction(act_double)
 
-        act_toggle_double = QAction("Toggle &Double Illustration", self)
-        act_toggle_double.setShortcut(QKeySequence(Qt.Key.Key_D))
+        act_toggle_double = QAction("Toggle Double Illustration", self)
         act_toggle_double.triggered.connect(self.canvas.toggle_double_illustration)
         edit_menu.addAction(act_toggle_double)
 
@@ -1062,8 +1061,8 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _refresh_panel_list(self):
         self.btn_double_illustration.setText(
-            "Unmark Double Illustration (D)" if self.canvas.double_illustration
-            else "Mark Double Illustration (D)"
+            "Unmark Double Illustration" if self.canvas.double_illustration
+            else "Mark Double Illustration"
         )
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
