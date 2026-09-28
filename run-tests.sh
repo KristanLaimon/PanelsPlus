@@ -85,6 +85,10 @@ if [ -n "$FOCUS" ]; then
         echo "--$FOCUS cannot be combined with --check-only, --python, or --quicker" >&2
         exit 2
     fi
+    if [ "$FOCUS" = "ocr" ] && command -v go &>/dev/null; then
+        echo "==> Running Go OCR worker tests..."
+        GOCACHE=/tmp/panelsplus-go-build-cache go test ./tools/dataset_ocr
+    fi
     echo "==> Running $FOCUS Lua tests..."
     python3 tests/run_parallel.py "--$FOCUS" "${FORWARD_ARGS[@]}"
     exit $?
@@ -106,23 +110,28 @@ if [ "$CHECK_ONLY" = true ]; then
 fi
 
 if [ "$QUICK" = false ]; then
-    echo "==> [1/3] Running Code Style and Linter Checks..."
+    echo "==> [1/4] Running Code Style and Linter Checks..."
     ./check.sh
 fi
 
 if command -v python3 &>/dev/null; then
-    echo "==> [2/3] Running Python Unit and Annotator Tests..."
+    echo "==> [2/4] Running Python Unit and Annotator Tests..."
     python3 -m unittest discover -s tests -p "test_*.py"
     if [ -f "tests/dataset-mangas/annotator/test_annotator.py" ]; then
         python3 -m unittest tests/dataset-mangas/annotator/test_annotator.py
     fi
 fi
 
+if command -v go &>/dev/null; then
+    echo "==> [3/4] Running Go OCR Worker Tests..."
+    GOCACHE=/tmp/panelsplus-go-build-cache go test ./tools/dataset_ocr
+fi
+
 if [ "$SKIP_DATASETS" = true ]; then
-    echo "==> [3/3] Running Lua Test Suite (dataset and benchmark specs skipped)..."
+    echo "==> [4/4] Running Lua Test Suite (dataset and benchmark specs skipped)..."
     python3 tests/run_parallel.py --skip-datasets "${FORWARD_ARGS[@]}"
 else
-    echo "==> [3/3] Running Lua Test Suite & Manga Dataset Specs..."
+    echo "==> [4/4] Running Lua Test Suite & Manga Dataset Specs..."
     python3 tests/run_parallel.py "${FORWARD_ARGS[@]}"
 fi
 

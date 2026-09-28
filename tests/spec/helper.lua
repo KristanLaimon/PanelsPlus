@@ -125,6 +125,16 @@ preload("ui/geometry", function()
     return Geom
 end)
 
+-- ui/canvascontext: panel crop rendering uses the active canvas just like
+-- KOReader's Document:drawPagePart(). Keep it aligned with the fake screen.
+preload("ui/canvascontext", function()
+    return {
+        getSize = function()
+            return { w = 600, h = 800 }
+        end,
+    }
+end)
+
 -- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path.
 -- Every `invertRect` call lands in the shared log for highlight specs.
 preload("ffi/blitbuffer", function()

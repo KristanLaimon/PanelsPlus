@@ -555,6 +555,16 @@ function WordFinder.padBox(box, ratio, native)
     return { x = x0, y = y0, w = x1 - x0, h = y1 - y0 }
 end
 
+--- Return the single bounded retry crop used after an unreadable tight crop.
+--- Exposed so the dataset harness can schedule the same request in a batch;
+--- the reader still owns the policy and the Go worker only recognizes pixels.
+--- @param box PPRect Tight OCR crop.
+--- @param native PPPageSize|nil Native page dimensions.
+--- @return PPRect retry_box
+function WordFinder.retryBox(box, native)
+    return WordFinder.padBox(box, RETRY_PAD_RATIO, native)
+end
+
 -- A session owns at most one small OCR bitmap. It lives for one lookup only;
 -- changing crop or resolution frees it before allocating its replacement.
 local function releaseOCRSession(session)
@@ -682,6 +692,15 @@ local function candidateKey(word)
     return table.concat(key)
 end
 
+--- Normalize an OCR candidate for agreement checks between render sizes.
+--- Dataset tests use this to schedule only the character-mode jobs that the
+--- reader's real `readWord` path would request.
+--- @param word string|nil OCR candidate.
+--- @return string key
+function WordFinder.ocrCandidateKey(word)
+    return candidateKey(word)
+end
+
 --- Expand a word to its nearby dialogue block. Split wide line gaps before
 --- joining adjacent lines so side-by-side bubbles remain separate.
 function WordFinder.readPhrase(document, pageno, seed, bundled_language)
@@ -806,7 +825,7 @@ local function readWord(document, pageno, box, native, bundled_language, session
         return word
     end
 
-    local retry_box = WordFinder.padBox(ocr_box, RETRY_PAD_RATIO, native)
+    local retry_box = WordFinder.retryBox(ocr_box, native)
     local retry_word = WordFinder.ocrWord(document, pageno, retry_box, bundled_language, native, { session = session })
     if Timing.enabled then
         WordFinder.logDiagnostic("retry OCR with padded box", {

@@ -6,6 +6,10 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 
 ### Added
 
+- **Parallel dataset OCR worker**
+  - CLI OCR datasets now send independent crop requests to a small Go worker, which runs up to four ImageMagick/Tesseract pipelines concurrently and returns only raw text to the Lua test. Lua remains responsible for `WordFinder`'s candidate selection, failure reporting, accuracy gates, and benchmark records.
+  - The Lua harness caches raw results using page/model content hashes, tool versions, crop geometry, and render settings. Unchanged reruns reuse exact OCR output, while changes to images, models, tools, or crop geometry invalidate the affected entries automatically. Set `PANELSPLUS_OCR_WORKERS` to tune concurrency or `PANELSPLUS_DISABLE_GO_OCR=1` to compare the legacy sequential path.
+
 - **Fold line removal for double-page spreads on the reading page**
   - The fold line option also applies while reading. KOReader draws a page from a cached tile, so the plugin wraps the open document's `drawPage`. It keeps a joined copy of the tile's bitmap and puts it in the tile's place while KOReader's own `drawPage` runs, so night mode inversion and dithering work as usual. The cached tile's pixels are not changed, and the copy has the same size, so zoom and panning are unchanged. Positions next to the fold move by at most half the strip's width. It works on the plain and the optimized (contrast, white threshold) render paths.
   - Only a tile that covers the whole page is processed. When a page is zoomed in so far that KOReader renders it in parts, the strip stays. At most three joined copies are kept, and they are dropped when the option changes or the document closes.
@@ -25,6 +29,9 @@ All notable changes to the **Panels+** KOReader plugin are documented in this fi
 - "Open panels with" setting: a long press, as before, or a two-finger tap. With two-finger tap, a long press is left to KOReader and other plugins (for example Bubble Zoom).
 
 ### Fixed
+
+- **Panel images now respect KOReader contrast and saturation settings**
+  - Panel crops, smooth transitions, page-boundary animations, and background pre-rendering now use the active document contrast and saturation instead of resetting both values to `1.0`. The adjusted render remains in KOReader's normal tile cache, so pre-rendering still warms the exact image shown by the viewer without adding another image-processing pass.
 
 - **Touch-and-hold hits the right word in a view rotated by a quarter turn**
   - `PanelViewer:screenToPageTransform` and `pageToScreenTransform` had the 90 and 270 cases swapped relative to the angle `ImageWidget` draws (`rotation_angle` turns the bitmap counter-clockwise). In a view rotated from the rotation picker or by KOReader's "auto-rotate for best fit", a press mapped to the diagonally opposite point of the page, and the lookup underline was drawn there. The round-trip spec passed because both functions were wrong in the same way. New specs check the mapping against the position of the page's corner in the drawn bitmap. For KOReader's boolean auto-rotation the angle is now read from the widget.

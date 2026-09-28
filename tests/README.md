@@ -59,6 +59,16 @@ update full-dataset records or pass `PANELSPLUS_REQUIRE_DATASETS=1`.
 `PANELSPLUS_OCR_CANDIDATE=/path/to/tessdata` tests an alternative
 `eng_fast.traineddata` through the bundled English path without updating records.
 The dataset runner caches decoded pages and found boxes across its three checks.
+CLI OCR dataset checks also build the small Go worker in `tools/dataset_ocr` and
+run independent ImageMagick/Tesseract crops concurrently. Go only returns raw
+recognized text; Lua still runs `WordFinder`, reports failures, and enforces or
+updates every benchmark gate. Raw OCR results are content-addressed by the page,
+model, tool versions, crop, and render size in
+`tests/dataset-mangas/.cache/ocr-results-v1.json`, making unchanged follow-up
+runs nearly instant without accepting stale results after an input changes.
+`PANELSPLUS_OCR_WORKERS` changes the default of four workers. Set
+`PANELSPLUS_DISABLE_GO_OCR=1` to exercise the legacy sequential subprocess path.
+Native-library OCR checks remain sequential and unchanged.
 The bundled model was trained on part of this dataset; see
 [training and held-out validation details](../tools/ocr-training/README.md).
 Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed
