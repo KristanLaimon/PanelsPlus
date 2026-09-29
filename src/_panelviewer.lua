@@ -1077,6 +1077,13 @@ end
 --- @param x number Canvas X offset.
 --- @param y number Canvas Y offset.
 function PanelViewer:paintHighlights(bb, x, y)
+    -- ReaderHighlight may keep its last temporary boxes/selected_text while a
+    -- dictionary popup is open (or after it closes). Only the active gesture
+    -- owns a panel overlay; otherwise those page-space boxes can be painted
+    -- again on a later panel that happens to overlap them.
+    if not self._panels_plus_text_holding then
+        return
+    end
     local reader_ui = self.reader_ui
     if not reader_ui or not reader_ui.view or not reader_ui.highlight then
         return

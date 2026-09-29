@@ -83,9 +83,11 @@ flowchart TD
 
 ## Rendering the selection
 
-`PanelViewer:paintHighlights` draws `view.highlight.temp[page]` (or the
-selection directly) as screen rectangles via `pageToScreenTransform`, the
-inverse of the transform above. A box covering ≥60% of the current panel
+While a text hold is active, `PanelViewer:paintHighlights` draws
+`view.highlight.temp[page]` (or the selection directly) as screen rectangles
+via `pageToScreenTransform`, the inverse of the transform above. It stops
+painting on release, so retained OCR boxes cannot reappear on later panels.
+A box covering ≥60% of the current panel
 crop's area is treated as anomalous — a coarse or oversized OCR/text-layer
 box, common on comic/manga art — and drawn as a thin outline instead of a
 solid "invert" fill, so a bad box gives feedback without painting a large
