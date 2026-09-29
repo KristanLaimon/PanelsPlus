@@ -631,6 +631,9 @@ function ViewerController:setBundledOcrLanguage(viewer, language)
         viewer.ocr_bundled_language = selectedBundledOcrLanguage(self.settings)
     end
     self:saveSettings()
+    if self.saveDocSettings then
+        self:saveDocSettings(true)
+    end
 end
 
 function ViewerController:showMoreConfigMenu(viewer)

@@ -81,7 +81,7 @@ SPDX-License-Identifier: MIT
 --- @field invert_taps boolean
 --- @field kobo_vertical_gesture boolean Whether vertical swipes on the left edge zoom in/out (Kobo-style).
 --- @field panel_gesture string Gesture that opens panels on a page: "hold" (long press, the default) or "two_finger_tap".
---- @field remember_doc_settings boolean Whether per-document settings (mode, nav mode, progress bar, crop mode) are saved & restored.
+--- @field remember_doc_settings boolean Whether per-document settings (mode, nav mode, progress bar, crop mode, OCR language) are saved & restored.
 --- @field doc_settings table<string, table>|nil Per-document settings map fallback.
 --- @field progress_bar_visible boolean
 --- @field auto_rotate_double_pages boolean Rotate wide full-page images inside a portrait panel viewer, without rotating the device.
