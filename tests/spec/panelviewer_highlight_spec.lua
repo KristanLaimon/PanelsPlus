@@ -42,8 +42,9 @@ local function newViewerAndBB()
 
     local viewer = PanelViewer:new({
         page = 1,
+        _panels_plus_text_holding = true,
         _images_list_cur = 1,
-        image_rects = { crop_rect },
+        image_rects = { crop_rect, { x = 40, y = 0, w = 300, h = 400 } },
         rotated = false,
         _image_wg = wg,
         reader_ui = {
@@ -96,5 +97,23 @@ describe("PanelViewer:paintHighlights anomalous box guard", function()
         viewer:paintHighlights(bb, 0, 0)
 
         assert.equals(1, invert_spy:callCount())
+    end)
+
+    it("does not repaint a retained OCR box after the hold ends", function()
+        local viewer, bb, invert_spy = newViewerAndBB()
+        local box = { x = 50, y = 50, w = 30, h = 20 }
+        viewer.reader_ui.view.highlight.temp[1] = { box }
+        viewer.reader_ui.highlight.selected_text = { text = "word", sboxes = { box } }
+
+        viewer:paintHighlights(bb, 0, 0)
+        assert.equals(1, invert_spy:callCount())
+
+        viewer.reader_ui.highlight.onHoldRelease = function() end
+        viewer:onHoldRelease(nil, { pos = {} })
+        viewer._images_list_cur = 2 -- The next panel overlaps the old word's page-space box.
+        viewer:paintHighlights(bb, 0, 0)
+
+        assert.equals(1, invert_spy:callCount(), "released selection must not reappear on a later redraw")
+        assert.is_not_nil(viewer.reader_ui.view.highlight.temp[1], "reader-owned selection is left to KOReader")
     end)
 end)
