@@ -19,6 +19,7 @@ local UIManager = require("ui/uimanager")
 local PanelCollector = require("src._panelcollector")
 local PanelViewer = require("src._panelviewer")
 local MainMenu = require("src.menu")
+local PanelsPlus = require("main")
 local Settings = require("src._settings")
 local ViewerController = require("src.viewer_controller")
 local WordFinder = require("src._wordfinder")
@@ -79,6 +80,7 @@ describe("ViewerController page-turn animation settings", function()
         assert.is_true(settings.nav_animated_panels)
         assert.is_true(settings.nav_animated_pages)
         assert.equals("eng", settings.ocr_bundled_language)
+        assert.is_true(settings.prefer_native_text_layer)
     end)
 
     it("selects a bundled language in the current viewer and saves it", function()
@@ -95,7 +97,7 @@ describe("ViewerController page-turn animation settings", function()
         controller.ui = { document = { configurable = { doc_language = "spa" } } }
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[8]
+        local ocr_entry = menu_items.panels_plus.sub_item_table[9]
         assert.equals("OCR language", ocr_entry.text)
         assert.is_true(ocr_entry.enabled_func())
         local choices = ocr_entry.sub_item_table_func()
@@ -118,6 +120,25 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals("Italian (Selected)", choices[3].text_func())
     end)
 
+    it("shows the full native-text preference in the main menu and persists toggles", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        controller.setPreferNativeTextLayer = PanelsPlus.setPreferNativeTextLayer
+        controller.active_panel_viewer = { prefer_native_text_layer = true }
+        local menu_items = {}
+        MainMenu.addToMainMenu(controller, menu_items)
+        local preference = menu_items.panels_plus.sub_item_table[8]
+
+        assert.equals("Prefer native-text layer in PDF files over Panels+ text recognition", preference.text)
+        assert.is_true(preference.help_text:find(preference.text, 1, true) == 1)
+        assert.equals("function", type(preference.font_func))
+        assert.is_true(preference.checked_func())
+        preference.callback()
+        assert.is_false(preference.checked_func())
+        assert.is_false(controller.settings.prefer_native_text_layer)
+        assert.is_false(controller.active_panel_viewer.prefer_native_text_layer)
+        assert.equals(1, saved:callCount())
+    end)
+
     it("shows a disabled OCR entry in the manual package", function()
         local original_available = WordFinder.availableBundledLanguages
         WordFinder.availableBundledLanguages = function()
@@ -126,7 +147,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[8]
+        local ocr_entry = menu_items.panels_plus.sub_item_table[9]
         assert.is_false(ocr_entry.enabled_func())
         controller:showMoreConfigMenu({})
         local items = UIManager._last_shown.item_table
@@ -142,7 +163,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local choices = menu_items.panels_plus.sub_item_table[8].sub_item_table_func()
+        local choices = menu_items.panels_plus.sub_item_table[9].sub_item_table_func()
         assert.equals(2, #choices)
         assert.equals("Spanish (Selected)", choices[1].text_func())
         assert.is_true(choices[1].checked_func())
@@ -236,7 +257,7 @@ describe("ViewerController page-turn animation settings", function()
         for _, item in ipairs(menu_items.panels_plus.sub_item_table) do
             assert.is_nil(moved[item.text])
         end
-        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[8].text)
+        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[9].text)
     end)
 end)
 
