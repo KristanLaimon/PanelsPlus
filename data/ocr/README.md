@@ -36,7 +36,7 @@ OCR engine error or empty result falls back to KOReader's document OCR path.
 English was fine-tuned from the Apache-2.0 `tessdata_best` model on 545 annotated
 Bloom word crops, with 121 crops from separate pages held out from training.
 The training recipe, input checksums, and validation details are in
-[`tools/ocr-training`](../../tools/ocr-training/README.md).
+[`tools/ocr_training`](../../tools/ocr_training/README.md).
 
 Word lookup compares two render sizes, using a third OCR read on disagreement.
 The expanded Bloom development dataset contains 668 words across 35 pages and

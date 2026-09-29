@@ -22,7 +22,7 @@ SPDX-License-Identifier: MIT
 ---   lua tools/benchmark_panels.lua --threshold 0.75        # Strict IoU threshold
 
 local script_dir = arg[0]:match("(.*/)") or "./"
-local repo_root = script_dir .. "../"
+local repo_root = script_dir .. "../../"
 package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;" .. package.path
 
 require("tests.spec.helper")
@@ -112,7 +112,7 @@ end
 
 if #pages == 0 then
     print(string.format("No pages found in dataset directory '%s'.", dataset_dir))
-    print("Run the annotator app (python3 tests/dataset-mangas/annotator.py) to build your dataset,")
+    print("Run the annotator app (./start-manga-annotator.sh) to build your dataset,")
     print("or specify --dataset <path> pointing to your annotated dataset folder.")
     os.exit(0)
 end

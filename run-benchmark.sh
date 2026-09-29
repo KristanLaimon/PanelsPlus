@@ -88,4 +88,4 @@ if [ "$HAS_TARGET" = false ]; then
 fi
 
 echo "==> Running Manga/Comic Panel Detection Benchmark..."
-exec lua tools/benchmark_panels.lua "${ARGS[@]}"
+exec lua tools/benchmarking/benchmark_panels.lua "${ARGS[@]}"

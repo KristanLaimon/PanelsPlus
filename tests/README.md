@@ -59,7 +59,7 @@ update full-dataset records or pass `PANELSPLUS_REQUIRE_DATASETS=1`.
 `PANELSPLUS_OCR_CANDIDATE=/path/to/tessdata` tests an alternative
 `eng_fast.traineddata` through the bundled English path without updating records.
 The dataset runner caches decoded pages and found boxes across its three checks.
-CLI OCR dataset checks also build the small Go worker in `tools/dataset_ocr` and
+CLI OCR dataset checks also build the small Go worker in `tools/ocr_worker` and
 run independent ImageMagick/Tesseract crops concurrently. Go only returns raw
 recognized text; Lua still runs `WordFinder`, reports failures, and enforces or
 updates every benchmark gate. Raw OCR results are content-addressed by the page,
@@ -70,11 +70,11 @@ runs nearly instant without accepting stale results after an input changes.
 `PANELSPLUS_DISABLE_GO_OCR=1` to exercise the legacy sequential subprocess path.
 Native-library OCR checks remain sequential and unchanged.
 The bundled model was trained on part of this dataset; see
-[training and held-out validation details](../tools/ocr-training/README.md).
+[training and held-out validation details](../tools/ocr_training/README.md).
 Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed
 model instead of the system Tesseract default. These CLI results are a stand-in
 for the reader. [OCR_REPORT.md](../OCR_REPORT.md) also documents the native
-KOReader OCR benchmark in `tools/benchmark_ocr_native.lua`, its separate accuracy
+KOReader OCR benchmark in `tools/benchmarking/benchmark_ocr_native.lua`, its separate accuracy
 gates, and the limits of both measurements.
 
 The shell runner requires Python 3.9+ and defaults to at most four Lua workers.
@@ -99,7 +99,7 @@ Formats with StyLua and validates with Luacheck:
 
 ## Panel Segmentation Benchmark Tool
 
-A dedicated CLI tool (`tools/benchmark_panels.lua`) evaluates panel detection across real manga and comic pages.
+A dedicated CLI tool (`tools/benchmarking/benchmark_panels.lua`) evaluates panel detection across real manga and comic pages.
 
 The reader's connected-component detector can be evaluated with
 `./run-benchmark.sh --detector components --all`. The default benchmark remains
@@ -124,7 +124,7 @@ before the neighbor-scan optimization:
 
 ```bash
 git show c2a2e29:src/_componentdetector.lua > /tmp/component-reference.lua
-MAGICK_THREAD_LIMIT=1 luajit tools/benchmark_component_scan.lua /tmp/component-reference.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/component-reference.lua
 ```
 
 An optional final argument limits the run to the first N pages of each book.
@@ -154,23 +154,23 @@ hardware measurement.
 
 ### Evaluate the Curated Golden Set
 ```bash
-lua tools/benchmark_panels.lua
+lua tools/benchmarking/benchmark_panels.lua
 ```
 
 ### Evaluate Every Discovered Dataset
 ```bash
-lua tools/benchmark_panels.lua --all
+lua tools/benchmarking/benchmark_panels.lua --all
 ```
 
 ### Evaluate a Specific Book or Page
 ```bash
-lua tools/benchmark_panels.lua --book tojime_no_siora
-lua tools/benchmark_panels.lua --book rasetugari --page 1
+lua tools/benchmarking/benchmark_panels.lua --book tojime_no_siora
+lua tools/benchmarking/benchmark_panels.lua --book rasetugari --page 1
 ```
 
 ### Strict Matching & Failures Only
 ```bash
-lua tools/benchmark_panels.lua --threshold 0.75 --failures-only
+lua tools/benchmarking/benchmark_panels.lua --threshold 0.75 --failures-only
 ```
 
 ---
@@ -194,10 +194,10 @@ A PyQt6 desktop annotator application is provided to build custom ground-truth m
 
 ```bash
 # Launch annotator app
-python3 tests/dataset-mangas/annotator.py
+./start-manga-annotator.sh
 
 # Or launch directly with a comic file
-python3 tests/dataset-mangas/annotator.py path/to/manga.cbz
+./start-manga-annotator.sh path/to/manga.cbz
 ```
 
 ### Supported Formats

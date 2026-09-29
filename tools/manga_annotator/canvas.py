@@ -13,7 +13,10 @@ from PyQt6.QtGui import (
 )
 from PyQt6.QtWidgets import QWidget
 
-from .dataset_manager import Panel, PhraseRect, WordRect
+try:
+    from .dataset_manager import Panel, PhraseRect, WordRect
+except (ImportError, ValueError):
+    from dataset_manager import Panel, PhraseRect, WordRect
 
 HANDLE_SIZE = 8
 MIN_BOX_SIZE = 8

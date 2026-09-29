@@ -1,4 +1,4 @@
-// Command dataset_ocr runs independent ImageMagick/Tesseract dataset jobs in
+// Command ocr_worker runs independent ImageMagick/Tesseract dataset jobs in
 // parallel. It performs no scoring or assertions: the Lua test suite remains
 // responsible for interpreting the returned OCR text and enforcing baselines.
 package main
@@ -83,7 +83,7 @@ func main() {
 }
 
 func fatal(err error) {
-	fmt.Fprintln(os.Stderr, "dataset_ocr:", err)
+	fmt.Fprintln(os.Stderr, "ocr_worker:", err)
 	os.Exit(1)
 }
 

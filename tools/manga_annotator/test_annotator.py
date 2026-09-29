@@ -19,21 +19,33 @@ from PIL import Image
 os.environ["QT_QPA_PLATFORM"] = "offscreen"
 
 import sys
-pkg_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-if pkg_dir not in sys.path:
-    sys.path.insert(0, pkg_dir)
+
+repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+if repo_root not in sys.path:
+    sys.path.insert(0, repo_root)
+cur_dir = os.path.dirname(os.path.abspath(__file__))
+if cur_dir not in sys.path:
+    sys.path.insert(0, cur_dir)
 
 import fitz  # PyMuPDF
 from PyQt6.QtWidgets import QApplication
 from PyQt6.QtCore import Qt
 from PyQt6.QtTest import QTest
 
-from annotator.document_reader import DocumentReader, natural_sort_key
-from annotator.dataset_manager import (
-    DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
-)
-from annotator.canvas import MangaCanvas
-from annotator.app import AnnotatorMainWindow
+try:
+    from tools.manga_annotator.document_reader import DocumentReader, natural_sort_key
+    from tools.manga_annotator.dataset_manager import (
+        DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
+    )
+    from tools.manga_annotator.canvas import MangaCanvas
+    from tools.manga_annotator.app import AnnotatorMainWindow
+except ImportError:
+    from document_reader import DocumentReader, natural_sort_key
+    from dataset_manager import (
+        DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
+    )
+    from canvas import MangaCanvas
+    from app import AnnotatorMainWindow
 
 
 class TestAnnotator(unittest.TestCase):

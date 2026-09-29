@@ -24,7 +24,7 @@ import sys
 import tempfile
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent
 HOLDOUT_PAGES = (5, 10, 15, 20, 25, 30, 35, 45)
 BEFORE_RUNNER = r"""
 local root = assert(os.getenv("PANELSPLUS_ROOT"))
@@ -313,7 +313,7 @@ def main() -> int:
         run_case(
             "current_full",
             None,
-            ROOT / "tools/benchmark_ocr_native.lua",
+            ROOT / "tools/benchmarking/benchmark_ocr_native.lua",
             koreader_dir,
             tessdata_dir,
             old_wordfinder,
@@ -331,7 +331,7 @@ def main() -> int:
         run_case(
             "current_holdout",
             HOLDOUT_PAGES,
-            ROOT / "tools/benchmark_ocr_native.lua",
+            ROOT / "tools/benchmarking/benchmark_ocr_native.lua",
             koreader_dir,
             tessdata_dir,
             old_wordfinder,
