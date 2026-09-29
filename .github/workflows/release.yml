@@ -75,7 +75,7 @@ jobs:
       - name: Build plugin
         run: ./build.sh panelsplus
 
-      - name: Package plugin
+      - name: Package plugin editions
         id: package
         run: |
           set -euo pipefail
@@ -84,17 +84,27 @@ jobs:
           from pathlib import Path
           from zipfile import ZIP_DEFLATED, ZipFile
 
-          source_dir = Path("dist/panelsplus.koplugin")
-          target_zip = Path("panels_plus.koplugin.zip")
+          packages = {
+              "panelsplus.koplugin.zip": Path("dist/panelsplus.koplugin"),
+              "panelsplus_with_ocrmodels.koplugin.zip": Path(
+                  "dist/panelsplus_with_ocrmodels.koplugin"
+              ),
+          }
 
-          with ZipFile(target_zip, "w", ZIP_DEFLATED) as archive:
-              for path in sorted(source_dir.rglob("*")):
-                  if path.is_file():
-                      archive.write(path, path.relative_to("dist"))
+          for archive_name, source_dir in packages.items():
+              if not source_dir.is_dir():
+                  raise SystemExit(f"Missing package directory: {source_dir}")
+
+              with ZipFile(archive_name, "w", ZIP_DEFLATED) as archive:
+                  for path in sorted(source_dir.rglob("*")):
+                      if path.is_file():
+                          archive.write(path, path.relative_to("dist"))
           PY
 
-          echo "name=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
-          echo "path=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "vanilla_name=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "vanilla_path=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "ocr_name=panelsplus_with_ocrmodels.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "ocr_path=panelsplus_with_ocrmodels.koplugin.zip" >> "${GITHUB_OUTPUT}"
 
       - name: Write release notes draft
         env:
@@ -165,27 +175,35 @@ jobs:
           echo "release_url=${release_url}" >> "${GITHUB_OUTPUT}"
           echo "edit_url=${edit_url}" >> "${GITHUB_OUTPUT}"
 
-      - name: Upload release asset
+      - name: Upload release assets
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.release.outputs.tag }}
-          PACKAGE_NAME: ${{ steps.package.outputs.name }}
-          PACKAGE_PATH: ${{ steps.package.outputs.path }}
+          VANILLA_NAME: ${{ steps.package.outputs.vanilla_name }}
+          VANILLA_PATH: ${{ steps.package.outputs.vanilla_path }}
+          OCR_NAME: ${{ steps.package.outputs.ocr_name }}
+          OCR_PATH: ${{ steps.package.outputs.ocr_path }}
         run: |
           set -euo pipefail
 
-          test -s "${PACKAGE_PATH}"
-          gh release upload "${TAG}" "${PACKAGE_PATH}" --clobber
+          for package_path in "${VANILLA_PATH}" "${OCR_PATH}"; do
+            test -s "${package_path}"
+          done
 
-          if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${PACKAGE_NAME}" >/dev/null; then
-            echo "::error::Release asset ${PACKAGE_NAME} was not uploaded."
-            exit 1
-          fi
+          gh release upload "${TAG}" "${VANILLA_PATH}" "${OCR_PATH}" --clobber
+
+          for package_name in "${VANILLA_NAME}" "${OCR_NAME}"; do
+            if ! gh release view "${TAG}" --json assets --jq '.assets[].name' | grep -Fx "${package_name}" >/dev/null; then
+              echo "::error::Release asset ${package_name} was not uploaded."
+              exit 1
+            fi
+          done
 
       - name: Link release editor
         env:
           TAG: ${{ steps.release.outputs.tag }}
-          PACKAGE_NAME: ${{ steps.package.outputs.name }}
+          VANILLA_NAME: ${{ steps.package.outputs.vanilla_name }}
+          OCR_NAME: ${{ steps.package.outputs.ocr_name }}
           RELEASE_URL: ${{ steps.create_release.outputs.release_url }}
           EDIT_URL: ${{ steps.create_release.outputs.edit_url }}
         run: |
@@ -195,7 +213,8 @@ jobs:
             echo "## Draft release created"
             echo
             echo "- Tag: \`${TAG}\`"
-            echo "- Asset: \`${PACKAGE_NAME}\`"
+            echo "- Vanilla asset: \`${VANILLA_NAME}\`"
+            echo "- OCR-model asset: \`${OCR_NAME}\`"
             echo "- Release: ${RELEASE_URL}"
             echo "- Edit before publishing: ${EDIT_URL}"
           } >> "${GITHUB_STEP_SUMMARY}"
