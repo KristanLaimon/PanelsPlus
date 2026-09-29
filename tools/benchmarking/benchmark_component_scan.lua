@@ -14,8 +14,10 @@ SPDX-License-Identifier: MIT
 --   MAGICK_THREAD_LIMIT=1 luajit tools/benchmark_component_scan.lua reference.lua [pages_per_book]
 -- Image decoding is excluded from timings. Only one page map is retained.
 -- Neither annotations nor bestbenchmark.json records are modified.
-assert(arg[1], "Usage: luajit tools/benchmark_component_scan.lua reference.lua [pages_per_book]")
-package.path = "./?.lua;./?/init.lua;" .. package.path
+assert(arg[1], "Usage: luajit tools/benchmarking/benchmark_component_scan.lua reference.lua [pages_per_book]")
+local script_dir = arg[0]:match("(.*/)") or "./"
+local repo_root = script_dir .. "../../"
+package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;./?.lua;./?/init.lua;" .. package.path
 require("ffi")
 require("tests.spec.helper")
 local before = dofile(arg[1])

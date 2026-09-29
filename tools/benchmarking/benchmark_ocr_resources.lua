@@ -7,7 +7,10 @@ local BB = require("ffi/blitbuffer")
 local Kopt = require("ffi/koptcontext")
 local MuPDF = require("ffi/mupdf")
 local DC = require("ffi/drawcontext")
-local root = assert(arg[0]:match("^(/.*)/tools/benchmark_ocr_resources%.lua$"))
+local root = assert(
+    arg[0]:match("^(/.*)/tools/benchmarking/benchmark_ocr_resources%.lua$")
+        or arg[0]:match("^(/.*)/tools/benchmark_ocr_resources%.lua$")
+)
 package.path = root .. "/?.lua;" .. package.path
 require("tests.spec.helper")
 local Finder = arg[1] and assert(loadfile(arg[1]))() or require("src._wordfinder")

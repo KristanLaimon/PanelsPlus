@@ -12,7 +12,11 @@ SPDX-License-Identifier: MIT
 -- ImageMagick supplies crops; this does not initialize the reader UI.
 assert(os.getenv("PANELSPLUS_OCR_NATIVE") == "1", "set PANELSPLUS_OCR_NATIVE=1")
 assert(os.getenv("PANELSPLUS_OCR_TESSDATA"), "set PANELSPLUS_OCR_TESSDATA to KOReader's tessdata directory")
-local root = assert(arg[0]:match("^(/.*)/tools/benchmark_ocr_native%.lua$"), "use an absolute script path")
+local root = assert(
+    arg[0]:match("^(/.*)/tools/benchmarking/benchmark_ocr_native%.lua$")
+        or arg[0]:match("^(/.*)/tools/benchmark_ocr_native%.lua$"),
+    "use an absolute script path"
+)
 require("setupkoenv")
 require("ffi/koptcontext")
 require("ffi/blitbuffer")

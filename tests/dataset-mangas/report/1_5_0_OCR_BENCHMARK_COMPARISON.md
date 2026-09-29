@@ -80,5 +80,5 @@ The raw run logs from this measurement are
 `/tmp/panels_ocr_before_full.log`, `/tmp/panels_ocr_now_full.log`,
 `/tmp/panels_ocr_before_holdout.log`, and `/tmp/panels_ocr_now_holdout.log`.
 See [OCR_REPORT.md](OCR_REPORT.md) and
-[tools/ocr-training/README.md](tools/ocr-training/README.md) for the earlier
+[tools/ocr_training/README.md](tools/ocr_training/README.md) for the earlier
 milestones and training recipe.

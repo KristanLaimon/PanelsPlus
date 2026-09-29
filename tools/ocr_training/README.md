@@ -11,7 +11,7 @@ Install Tesseract's training programs and Pillow. Supply the local dataset
 images and the upstream floating-point English model:
 
 ```sh
-bash tools/ocr-training/train-annotated.sh \
+bash tools/ocr_training/train-annotated.sh \
   tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8 \
   /path/to/tessdata_best/eng.traineddata \
   /tmp/panelsplus-ocr-training-new

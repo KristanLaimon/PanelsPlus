@@ -29,9 +29,14 @@ from PyQt6.QtWidgets import (
     QDialogButtonBox
 )
 
-from .document_reader import DocumentReader
-from .dataset_manager import DatasetManager, Panel, PageAnnotation
-from .canvas import MangaCanvas
+try:
+    from .document_reader import DocumentReader
+    from .dataset_manager import DatasetManager, Panel, PageAnnotation
+    from .canvas import MangaCanvas
+except (ImportError, ValueError):
+    from document_reader import DocumentReader
+    from dataset_manager import DatasetManager, Panel, PageAnnotation
+    from canvas import MangaCanvas
 
 
 DARK_THEME_STYLESHEET = """
@@ -245,7 +250,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.resize(1300, 860)
 
         # Default dataset directory: tests/dataset-mangas/dataset
-        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
+        repo_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
         default_ds_dir = os.path.join(repo_root, "tests", "dataset-mangas", "dataset")
         os.makedirs(default_ds_dir, exist_ok=True)
 

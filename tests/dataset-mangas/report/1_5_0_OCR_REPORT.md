@@ -43,7 +43,7 @@ and ornate headings remain among the misses.
 
 The candidate was tested before replacing the bundled model. Its checksum,
 source annotation hash, split, reproduction commands, and training limits are
-documented in [tools/ocr-training](tools/ocr-training/README.md). Regenerated
+documented in [tools/ocr_training](tools/ocr_training/README.md). Regenerated
 training inputs matched all 666 original crops and both sample lists exactly.
 The model remains 5,199,098 bytes and uses the existing OCR runtime.
 
@@ -75,7 +75,7 @@ The production word finder now handles slanted lettering and sparse spacing
 samples, keeps a tighter crop for recognition than for highlighting, and compares
 two English OCR render sizes with a third read on disagreement. The bundled
 English model was fine-tuned on independent synthetic lettering; its reproducible
-recipe and provenance are in [tools/ocr-training](tools/ocr-training/README.md).
+recipe and provenance are in [tools/ocr_training](tools/ocr_training/README.md).
 The CLI stand-in now reproduces the native OCR border, resize dimensions, and
 first-word extraction. It uses an explicit TSV setting because bundled model
 directories do not contain Tesseract's `configs/tsv` file.

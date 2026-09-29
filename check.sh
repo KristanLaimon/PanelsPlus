@@ -16,9 +16,9 @@ fi
 echo "Formatting Lua files with StyLua..."
 stylua .
 
-if command -v gofmt &> /dev/null && [ -d "tools/dataset_ocr" ]; then
+if command -v gofmt &> /dev/null && [ -d "tools/ocr_worker" ]; then
     echo "Formatting Go files with gofmt..."
-    gofmt -w tools/dataset_ocr
+    gofmt -w tools/ocr_worker
 fi
 
 echo "Linting Lua files with Luacheck..."

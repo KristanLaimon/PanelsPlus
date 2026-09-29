@@ -347,10 +347,10 @@ local function buildGoHelper()
         return nil, "Go is unavailable"
     end
     local cache_dir = "tests/dataset-mangas/.cache"
-    local helper = cache_dir .. "/dataset_ocr"
+    local helper = cache_dir .. "/ocr_worker"
     os.execute("mkdir -p " .. quote(cache_dir))
     local result =
-        os.execute("GOCACHE=/tmp/panelsplus-go-build-cache go build -o " .. quote(helper) .. " ./tools/dataset_ocr")
+        os.execute("GOCACHE=/tmp/panelsplus-go-build-cache go build -o " .. quote(helper) .. " ./tools/ocr_worker")
     if not commandSucceeded(result) then
         return nil, "Go OCR helper build failed"
     end

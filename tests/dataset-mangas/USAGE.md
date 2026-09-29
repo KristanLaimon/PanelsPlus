@@ -65,13 +65,13 @@ From the repository root:
 
 ```bash
 # General launcher (opens to Recent Projects library)
-python3 tests/dataset-mangas/annotator.py
+./start-manga-annotator.sh
 
 # Open a specific file directly
-python3 tests/dataset-mangas/annotator.py /path/to/manga.cbz
+./start-manga-annotator.sh /path/to/manga.cbz
 
-# Or launch directly from tests/dataset-mangas/dataset/
-python3 tests/dataset-mangas/dataset/app.py
+# Or launch directly via tools/manga_annotator/start.sh
+./tools/manga_annotator/start.sh
 ```
 
 ---
