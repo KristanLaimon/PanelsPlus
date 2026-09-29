@@ -131,7 +131,7 @@ function PanelsPlus:getDocSettings()
     return nil
 end
 
---- Save current per-document settings (mode, nav_transition_mode, progress_bar_visible, crop_mode).
+--- Save current per-document reading and OCR settings.
 ---
 --- @param force boolean|nil Save even if the document hasn't had explicit per-document settings set yet.
 function PanelsPlus:saveDocSettings(force)
@@ -147,6 +147,7 @@ function PanelsPlus:saveDocSettings(force)
         nav_transition_mode = self.settings.nav_transition_mode,
         progress_bar_visible = self.settings.progress_bar_visible,
         crop_mode = self.settings.crop_mode,
+        ocr_bundled_language = self.settings.ocr_bundled_language,
     }
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
         self.ui.doc_settings:saveSetting("panelsplus", doc_data)
@@ -183,10 +184,14 @@ function PanelsPlus:loadDocSettings()
             local c = doc_data.crop_mode
             self.settings.crop_mode = (c == "loose" or c == "margin" or c == "none") and c or "strict"
         end
+        local language = doc_data.ocr_bundled_language
+        if language == "eng" or language == "spa" or language == "ita" or language == "koreader" then
+            self.settings.ocr_bundled_language = language
+        end
     end
 end
 
---- Toggle whether per-document settings (reading mode, navigation mode, crop mode, progress bar) are remembered.
+--- Toggle whether per-document reading and OCR settings are remembered.
 ---
 --- @param enabled any Truthy value enables per-document settings memory.
 function PanelsPlus:setRememberDocSettings(enabled)

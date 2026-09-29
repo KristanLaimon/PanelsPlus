@@ -9,7 +9,7 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
---- Specs for per-document settings persistence (reading mode, navigation mode, crop mode, progress bar).
+--- Specs for per-document reading and OCR settings persistence.
 
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
@@ -28,6 +28,7 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
             crop_mode = "strict",
             progress_bar_visible = true,
             nav_transition_mode = "classic",
+            ocr_bundled_language = "eng",
             remember_doc_settings = true,
             doc_settings = {},
         },
@@ -44,7 +45,7 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
 end
 
 describe("PanelsPlus per-document settings persistence", function()
-    it("saves per-document settings when changing mode, crop mode, progress bar, or nav transition mode", function()
+    it("saves per-document settings when changing reading options or OCR language", function()
         local doc_store = {}
         local doc_settings_mock = {
             file = "/sdcard/Books/manga_vol1.cbz",
@@ -61,11 +62,13 @@ describe("PanelsPlus per-document settings persistence", function()
         plugin:setCropMode("loose")
         plugin:setProgressBarVisible(false)
         plugin:setNavTransitionMode("smooth")
+        plugin:setBundledOcrLanguage(nil, "spa")
 
         assert.equals("comic", doc_store.panels_plus.mode)
         assert.equals("loose", doc_store.panels_plus.crop_mode)
         assert.is_false(doc_store.panels_plus.progress_bar_visible)
         assert.equals("smooth", doc_store.panels_plus.nav_transition_mode)
+        assert.equals("spa", doc_store.panels_plus.ocr_bundled_language)
     end)
 
     it("restores per-document settings when opening a document", function()
@@ -75,6 +78,7 @@ describe("PanelsPlus per-document settings persistence", function()
                 crop_mode = "margin",
                 progress_bar_visible = false,
                 nav_transition_mode = "animated",
+                ocr_bundled_language = "koreader",
             },
         }
         local doc_settings_mock = {
@@ -94,23 +98,27 @@ describe("PanelsPlus per-document settings persistence", function()
         assert.equals("margin", plugin.settings.crop_mode)
         assert.is_false(plugin.settings.progress_bar_visible)
         assert.equals("animated", plugin.settings.nav_transition_mode)
+        assert.equals("koreader", plugin.settings.ocr_bundled_language)
     end)
 
     it("falls back to internal doc_settings dictionary when doc_settings object is unavailable", function()
         local plugin1 = newPluginInstance("/sdcard/Books/doc_a.pdf", nil)
         plugin1:setMode("comic")
         plugin1:setCropMode("none")
+        plugin1:setBundledOcrLanguage(nil, "ita")
 
         local saved_dict = plugin1.settings.doc_settings
         assert.is_not_nil(saved_dict["/sdcard/Books/doc_a.pdf"])
         assert.equals("comic", saved_dict["/sdcard/Books/doc_a.pdf"].mode)
         assert.equals("none", saved_dict["/sdcard/Books/doc_a.pdf"].crop_mode)
+        assert.equals("ita", saved_dict["/sdcard/Books/doc_a.pdf"].ocr_bundled_language)
 
         local plugin2 = newPluginInstance("/sdcard/Books/doc_a.pdf", nil, { doc_settings = saved_dict })
         plugin2:loadDocSettings()
 
         assert.equals("comic", plugin2.settings.mode)
         assert.equals("none", plugin2.settings.crop_mode)
+        assert.equals("ita", plugin2.settings.ocr_bundled_language)
     end)
 
     it("does not save or load per-document settings when remember_doc_settings is false", function()
@@ -118,6 +126,7 @@ describe("PanelsPlus per-document settings persistence", function()
             panels_plus = {
                 mode = "comic",
                 crop_mode = "margin",
+                ocr_bundled_language = "spa",
             },
         }
         local doc_settings_mock = {
@@ -136,6 +145,7 @@ describe("PanelsPlus per-document settings persistence", function()
         plugin:loadDocSettings()
         assert.equals("manga", plugin.settings.mode)
         assert.equals("strict", plugin.settings.crop_mode)
+        assert.equals("eng", plugin.settings.ocr_bundled_language)
 
         local doc_store2 = {}
         local doc_settings_mock2 = {
@@ -149,6 +159,7 @@ describe("PanelsPlus per-document settings persistence", function()
         }
         plugin.ui.doc_settings = doc_settings_mock2
         plugin:setMode("comic")
+        plugin:setBundledOcrLanguage(nil, "ita")
         assert.is_nil(doc_store2.panels_plus)
     end)
 
@@ -187,4 +198,45 @@ describe("PanelsPlus per-document settings persistence", function()
             assert.equals("margin", doc_store.panels_plus.crop_mode)
         end
     )
+
+    it("restores each book's OCR choice after switching documents", function()
+        local stores = {}
+        local function docSettings(file)
+            local store = stores[file] or {}
+            stores[file] = store
+            return {
+                file = file,
+                readSetting = function(_, key)
+                    return store[key]
+                end,
+                saveSetting = function(_, key, value)
+                    store[key] = value
+                end,
+            }
+        end
+
+        local plugin = newPluginInstance("/sdcard/Books/a.cbz", docSettings("/sdcard/Books/a.cbz"))
+        plugin:setBundledOcrLanguage(nil, "spa")
+        plugin.ui.doc_settings = docSettings("/sdcard/Books/b.cbz")
+        plugin:setBundledOcrLanguage(nil, "koreader")
+        plugin.ui.doc_settings = docSettings("/sdcard/Books/a.cbz")
+        plugin:loadDocSettings()
+
+        assert.equals("spa", plugin.settings.ocr_bundled_language)
+        plugin.ui.doc_settings = docSettings("/sdcard/Books/b.cbz")
+        plugin:loadDocSettings()
+        assert.equals("koreader", plugin.settings.ocr_bundled_language)
+    end)
+
+    it("keeps the current OCR choice when older document settings have no OCR language", function()
+        local plugin = newPluginInstance("/sdcard/Books/old.cbz", {
+            file = "/sdcard/Books/old.cbz",
+            readSetting = function()
+                return { mode = "comic" }
+            end,
+        }, { ocr_bundled_language = "ita" })
+
+        plugin:loadDocSettings()
+        assert.equals("ita", plugin.settings.ocr_bundled_language)
+    end)
 end)

@@ -24,7 +24,8 @@ under the normal `panelsplus.koplugin` plugin directory.
 English is selected by default; **KOReader menu → Panels+ → OCR language**
 selects any bundled language or **Use KOReader's**, showing KOReader's current
 OCR language. The active choice is marked **(Selected)**. This setting applies
-only inside Panels+. The separate
+only inside Panels+. With **Remember per-document settings** enabled, the choice
+is saved and restored for each book. The separate
 `panelsplus.koplugin` build excludes this directory, uses KOReader's configured
 OCR language and `data/tessdata` files, and displays the OCR language control
 dimmed. The control becomes available when at least one readable bundled model
