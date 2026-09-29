@@ -12,6 +12,7 @@ SPDX-License-Identifier: MIT
 local DoubleSpread = require("src._doublespread")
 local _ = require("gettext")
 local WordFinder = require("src._wordfinder")
+local NATIVE_TEXT_LABEL = _("Prefer native-text layer in PDF files over Panels+ text recognition")
 
 --- Main-menu methods mixed into `PanelsPlus`.
 ---
@@ -271,6 +272,24 @@ function Menu:addToMainMenu(menu_items)
                     "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
                 ),
                 separator = true,
+            },
+            {
+                text = NATIVE_TEXT_LABEL,
+                font_func = function(size)
+                    local Font = require("ui/font")
+                    return Font:getFace("smallinfofont", math.min(size, math.max(12, math.floor(size * 0.6))))
+                end,
+                checked_func = function()
+                    return self.settings.prefer_native_text_layer ~= false
+                end,
+                callback = function()
+                    self:setPreferNativeTextLayer(self.settings.prefer_native_text_layer == false)
+                end,
+                help_text = NATIVE_TEXT_LABEL
+                    .. "\n\n"
+                    .. _(
+                        "Use a word from the document's own text layer when it covers the pressed position. Otherwise, try KOReader's word detection and Panels+ text recognition."
+                    ),
             },
             {
                 text = _("OCR language"),

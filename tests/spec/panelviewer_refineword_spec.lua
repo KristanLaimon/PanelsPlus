@@ -26,6 +26,10 @@ local describe, it, assert = framework.describe, framework.it, framework.assert
 
 local PanelViewer = require("src._panelviewer")
 local WordFinder = require("src._wordfinder")
+local native_boxes = {
+    { { word = "wrong", x0 = 10, y0 = 200, x1 = 90, y1 = 260 } },
+    { { word = "other", x0 = 10, y0 = 280, x1 = 90, y1 = 320 } },
+}
 
 --- A viewer whose word finder is stubbed to return `box`/`word`, wired to a
 --- reader UI in the state `ReaderHighlight:onHold` leaves behind: a word
@@ -102,7 +106,7 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
 
     it("preserves a selection from a usable embedded text layer", function()
         local refined = { x = 12, y = 214, w = 44, h = 26 }
-        local viewer, koreader_sboxes, restore, calls = newViewer(refined, "shift", { {}, {} })
+        local viewer, koreader_sboxes, restore, calls = newViewer(refined, "shift", native_boxes)
         local highlight = viewer.reader_ui.highlight
 
         viewer:_refineWordSelection(highlight, { page = 3, x = 30, y = 220 })
@@ -112,6 +116,27 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
         assert.equals(koreader_sboxes, viewer.reader_ui.view.highlight.temp[3])
         assert.equals(0, calls.find, "a text-layer selection must not use Panels+ WordFinder")
         assert.equals(0, calls.read, "a text-layer selection must not run Panels+ OCR")
+    end)
+
+    it("refines with Panels+ when native text is elsewhere on the page", function()
+        local refined = { x = 12, y = 214, w = 44, h = 26 }
+        local viewer, _, restore, calls = newViewer(refined, "shift", native_boxes)
+        viewer:_refineWordSelection(viewer.reader_ui.highlight, { page = 3, x = 300, y = 220 })
+        restore()
+
+        assert.equals("shift", viewer.reader_ui.highlight.selected_text.text)
+        assert.equals(1, calls.find)
+        assert.equals(1, calls.read)
+    end)
+
+    it("uses Panels+ recognition on text-layer pages when the preference is off", function()
+        local viewer, _, restore, calls = newViewer({ x = 12, y = 214, w = 44, h = 26 }, "shift", native_boxes)
+        viewer.prefer_native_text_layer = false
+        viewer:_refineWordSelection(viewer.reader_ui.highlight, { page = 3, x = 30, y = 220 })
+        restore()
+
+        assert.equals("shift", viewer.reader_ui.highlight.selected_text.text)
+        assert.equals(1, calls.find)
     end)
 
     it("uses Panels+ WordFinder for an image-only manga PDF", function()
@@ -129,7 +154,7 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
 
     it("still refines when KOReader is configured to force OCR", function()
         local refined = { x = 12, y = 214, w = 44, h = 26 }
-        local viewer, _, restore = newViewer(refined, "shift", { {}, {} })
+        local viewer, _, restore = newViewer(refined, "shift", native_boxes)
         viewer.reader_ui.document.configurable.forced_ocr = 1
         local highlight = viewer.reader_ui.highlight
 

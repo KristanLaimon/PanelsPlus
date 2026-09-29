@@ -145,6 +145,7 @@ local PanelViewer = ImageViewer:extend({
     closed_callback = nil,
     progress_bar_visible = true,
     hold_text_selection = true,
+    prefer_native_text_layer = true,
     ocr_bundled_language = false,
     nav_transition_mode = "classic",
     nav_animated_panels = true,
@@ -1185,6 +1186,60 @@ function PanelViewer:paintTo(bb, x, y)
     self:paintHighlights(bb, x, y)
 end
 
+--- Check KOReader's raw document text boxes without triggering its OCR fallback.
+--- KOReader treats a page as having a usable text layer when it has multiple
+--- lines, but its normal lookup can select the nearest word across the page.
+--- Only a word covering the hold position should win over OCR here.
+local function nativeTextAtPosition(document, page_pos)
+    if
+        not document
+        or type(document.getPageTextBoxes) ~= "function"
+        or not page_pos
+        or PageBitmap.getBlockReason(document)
+    then
+        return false, false
+    end
+    local ok, lines = pcall(document.getPageTextBoxes, document, page_pos.page)
+    if not ok or type(lines) ~= "table" or #lines == 0 then
+        return false, false
+    end
+    local koreader_uses_layer = #lines > 1
+    for _, line in ipairs(lines) do
+        if type(line) == "table" then
+            for _, word in ipairs(line) do
+                if
+                    type(word) == "table"
+                    and type(word.word) == "string"
+                    and word.word:match("%S")
+                    and type(word.x0) == "number"
+                    and type(word.y0) == "number"
+                    and type(word.x1) == "number"
+                    and type(word.y1) == "number"
+                    and word.x1 > word.x0
+                    and word.y1 > word.y0
+                    and word.x0 <= page_pos.x
+                    and page_pos.x <= word.x1
+                    and word.y0 <= page_pos.y
+                    and page_pos.y <= word.y1
+                then
+                    return koreader_uses_layer,
+                        true,
+                        {
+                            word = word.word,
+                            box = {
+                                x = word.x0,
+                                y = line.y0 or word.y0,
+                                w = word.x1 - word.x0,
+                                h = (line.y1 or word.y1) - (line.y0 or word.y0),
+                            },
+                        }
+                end
+            end
+        end
+    end
+    return koreader_uses_layer, false
+end
+
 --- Re-locate the word KOReader's native `highlight.onHold` just selected,
 --- using a comic-lettering-aware box finder, and re-point the selection at
 --- the tighter box before OCR/dictionary lookup runs.
@@ -1198,7 +1253,7 @@ end
 ---
 --- @param highlight table KOReader `ReaderHighlight` module instance.
 --- @param page_pos PPPagePosition Tap position in unrotated page coordinates.
-function PanelViewer:_refineWordSelection(highlight, page_pos)
+function PanelViewer:_refineWordSelection(highlight, page_pos, native_hit)
     local reader_ui = self.reader_ui
     local document = reader_ui and reader_ui.document
     if not document or not page_pos or not page_pos.page then
@@ -1208,15 +1263,14 @@ function PanelViewer:_refineWordSelection(highlight, page_pos)
         return
     end
 
-    -- Preserve KOReader's selection only when it came from a usable embedded
-    -- text layer. `getWordFromPosition` itself falls back to OCR when a PDF
-    -- has no such layer, where Panels+' comic-lettering-aware finder remains
-    -- the better path.
-    local get_page_text_boxes = document.getPageTextBoxes
-    if type(get_page_text_boxes) == "function" then
-        local ok_text, text_boxes = pcall(get_page_text_boxes, document, page_pos.page)
-        local configurable = document.configurable or {}
-        if ok_text and text_boxes and #text_boxes > 1 and configurable.forced_ocr ~= 1 then
+    if
+        self.prefer_native_text_layer ~= false and (not document.configurable or document.configurable.forced_ocr ~= 1)
+    then
+        if native_hit == nil then
+            local _, hit = nativeTextAtPosition(document, page_pos)
+            native_hit = hit
+        end
+        if native_hit then
             return
         end
     end
@@ -1362,6 +1416,41 @@ function PanelViewer:onHold(arg, ges)
     local bundled_dir, bundled_model = WordFinder.bundledModel(self.ocr_bundled_language)
     local original_language = configurable and configurable.doc_language
     local original_dir = interface and rawget(interface, "tessocr_data")
+    local original_forced_ocr = configurable and configurable.forced_ocr
+    local native_layer, native_hit, native_word = nativeTextAtPosition(document, page_pos)
+    if self.prefer_native_text_layer ~= false and native_hit and not native_layer and original_forced_ocr ~= 1 then
+        -- KOReader's getTextBoxes ignores a valid text layer with just one
+        -- line, so carry that word into its usual release/dictionary flow.
+        if type(highlight.clear) == "function" then
+            highlight:clear()
+        end
+        highlight.hold_pos = page_pos
+        highlight.allow_hold_pan_corner_scroll = false
+        highlight.is_word_selection = true
+        highlight.selected_link = nil
+        highlight.selected_text = {
+            text = native_word.word,
+            pos0 = page_pos,
+            pos1 = page_pos,
+            sboxes = { native_word.box },
+            pboxes = { native_word.box },
+        }
+        local painted = reader_ui.view.highlight
+        if painted and painted.temp then
+            painted.temp[page_pos.page] = highlight.selected_text.sboxes
+        end
+        if type(highlight._resetHoldTimer) == "function" then
+            highlight:_resetHoldTimer()
+        end
+        self._panels_plus_text_holding = true
+        UIManager:setDirty(self, "ui")
+        reader_ui.view.screenToPageTransform = orig_screenToPage
+        highlight.panel_zoom_enabled = orig_panel_zoom_enabled
+        return true
+    end
+    if configurable and native_layer and (self.prefer_native_text_layer == false or not native_hit) then
+        configurable.forced_ocr = 1
+    end
     if bundled_dir and configurable and interface then
         configurable.doc_language = bundled_model
         interface.tessocr_data = bundled_dir
@@ -1370,6 +1459,9 @@ function PanelViewer:onHold(arg, ges)
     if bundled_dir and configurable and interface then
         configurable.doc_language = original_language
         interface.tessocr_data = original_dir
+    end
+    if configurable then
+        configurable.forced_ocr = original_forced_ocr
     end
 
     reader_ui.view.screenToPageTransform = orig_screenToPage
@@ -1382,12 +1474,16 @@ function PanelViewer:onHold(arg, ges)
     -- its ImageViewer for an image, which has no selected_text to release to
     -- the dictionary.
     local selected_text = highlight.selected_text
-    local selected_word = selected_text and selected_text.text ~= nil
+    local selected_word = selected_text
+        and type(selected_text.text) == "string"
+        and selected_text.text:match("%S") ~= nil
     if ok and selected_word and handled ~= false then
         self._panels_plus_text_holding = true
         if highlight.is_word_selection then
-            self:_startPhraseHold(highlight, page_pos)
-            self:_refineWordSelection(highlight, page_pos)
+            if self.prefer_native_text_layer == false or not native_hit or original_forced_ocr == 1 then
+                self:_startPhraseHold(highlight, page_pos)
+            end
+            self:_refineWordSelection(highlight, page_pos, native_hit)
         end
         UIManager:setDirty(self, "ui")
         return true

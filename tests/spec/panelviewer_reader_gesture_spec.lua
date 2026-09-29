@@ -82,6 +82,88 @@ describe("PanelViewer reader gesture lifecycle", function()
 end)
 
 describe("PanelViewer bundled OCR selection", function()
+    it("selects a native word from a single-line PDF text layer", function()
+        local seen = {}
+        local document = {
+            configurable = { text_wrap = 0 },
+            getPageTextBoxes = function()
+                return { { y0 = 10, y1 = 32, { word = "native", x0 = 10, y0 = 12, x1 = 50, y1 = 30 } } }
+            end,
+        }
+        local view = { screenToPageTransform = function() end, highlight = { temp = {} } }
+        local highlight = {
+            clear = function()
+                seen.cleared = true
+            end,
+            _resetHoldTimer = function()
+                seen.timer = true
+            end,
+            onHold = function()
+                seen.ocr_called = true
+            end,
+            onHoldRelease = function(self)
+                seen.released = self.selected_text.text
+            end,
+        }
+        local viewer = newViewer({ document = document, view = view, highlight = highlight })
+        viewer.screenToPageTransform = function()
+            return { page = 1, x = 20, y = 20 }
+        end
+
+        assert.is_true(viewer:onHold(nil, { pos = {} }))
+        assert.equals("native", highlight.selected_text.text)
+        assert.equals(22, highlight.selected_text.sboxes[1].h)
+        assert.is_true(seen.cleared)
+        assert.is_true(seen.timer)
+        assert.is_nil(seen.ocr_called)
+        assert.is_true(viewer:onHoldRelease(nil, { pos = {} }))
+        assert.equals("native", seen.released)
+    end)
+
+    it("tries a native text-layer word first and forces recognition on misses or when disabled", function()
+        local boxes = {
+            { { word = "native", x0 = 10, y0 = 10, x1 = 50, y1 = 30 } },
+            { { word = "elsewhere", x0 = 10, y0 = 80, x1 = 80, y1 = 100 } },
+        }
+        for _, case in ipairs({
+            { x = 20, preferred = true, forced = 0, hit = true },
+            { x = 200, preferred = true, forced = 1, hit = false },
+            { x = 20, preferred = false, forced = 1, hit = true },
+            { x = 20, preferred = true, initial_forced = 1, forced = 1, hit = true },
+        }) do
+            local seen = {}
+            local document = {
+                configurable = { text_wrap = 0, forced_ocr = case.initial_forced or 0 },
+                getPageTextBoxes = function()
+                    return boxes
+                end,
+            }
+            local view = { screenToPageTransform = function() end, highlight = { temp = {} } }
+            local highlight = {
+                onHold = function(self)
+                    seen.forced = document.configurable.forced_ocr
+                    self.selected_text = { text = "native", sboxes = {} }
+                    self.is_word_selection = true
+                    return true
+                end,
+            }
+            local viewer = newViewer({ document = document, view = view, highlight = highlight })
+            viewer.prefer_native_text_layer = case.preferred
+            viewer.screenToPageTransform = function()
+                return { page = 1, x = case.x, y = 20 }
+            end
+            viewer._refineWordSelection = function(_, _, _, native_hit)
+                seen.hit = native_hit
+            end
+
+            assert.is_true(viewer:onHold(nil, { pos = {} }))
+            assert.equals(case.forced, seen.forced)
+            assert.equals(case.hit, seen.hit)
+            assert.equals(case.initial_forced or 0, document.configurable.forced_ocr)
+            assert.equals(case.forced == 1, viewer._phrase_hold_action ~= nil)
+        end
+    end)
+
     it("uses the selected language for KOReader's initial hold and restores its settings", function()
         local seen = {}
         local document = {

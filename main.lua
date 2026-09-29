@@ -384,6 +384,15 @@ function PanelsPlus:setHoldTextSelection(enabled)
     self:saveSettings()
 end
 
+--- Prefer a document's own text layer when selecting words in zoomed panels.
+function PanelsPlus:setPreferNativeTextLayer(enabled)
+    self.settings.prefer_native_text_layer = enabled and true or false
+    if self.active_panel_viewer and not self.active_panel_viewer._panels_plus_closed then
+        self.active_panel_viewer.prefer_native_text_layer = self.settings.prefer_native_text_layer
+    end
+    self:saveSettings()
+end
+
 --- Select Classic, Smooth camera-pan, or framebuffer Animated navigation.
 ---
 --- @param mode PPNavTransitionMode Requested mode; anything unknown maps to "classic".
