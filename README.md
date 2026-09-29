@@ -173,7 +173,7 @@ Configuration is as easy as just using the plugin itself!
 ### 🎬 Developer's Personal Tip: The Cinematic Experience
 
 For a more fluent and immersive navigation, my personal recommendation is to set KOReader to **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. <br>
-While playing and testing this pluging from months of usage I found this setup the most convenient way to experience your manga (and probably the way it was intended).
+While playing and testing this pluging from months of usage I found this setup the most convenient way to experience your manga (and probably the way it was intended)
 
 <div align="center">
   <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
@@ -232,34 +232,9 @@ Currently there is only ***English*** and ***Spanish*** support.
 
 ---
 
-## 🛠️ Pull Requests\Developer Setup
+## 🛠️ Want to contribute to Panels+? (Pull Requests, Forks, etc..)
 
-You would need the following to start developing in Panels+
-
-1. [KOReader](https://github.com/koreader/koreader). Can be obvious, but needed. My recommendation is to set a WSL environment if windows, or directly use a linux distro.
-
-2. [LuaJIT](https://luajit.org/install.html) or [Lua 5.1](https://www.lua.org/download.html). It's the main language of this plugin. So your PR code must run without errors in both of them (Compatibility with KOReader emmbeded lua runtime).
-
-3. [uv](https://docs.astral.sh/uv/getting-started/installation/) (not python3). Is the python manager used in this repo and used for dataset tools extraction, also needed to run the tests with `./run-tests.sh`.
-
-4. [Stylua](https://github.com/JohnnyMorganz/StyLua) (Codebase's Formatter). Used to have a consistent code style (indentation, tabs, etc...)
-
-5. [Luacheck](https://github.com/mpeterv/luacheck) (Codebase's Linter). Used to have consistent code patterns (Which globals are available in intelissense, function declaration styles, etc...)
-
-From the repository root, create the development environment and install the Python dependencies using the following command:
-
-```bash
-uv sync
-```
-
-With Lua, LuaJIT, StyLua, and Luacheck installed, run the full test suite through uv so `run-tests.sh` uses the synced Python environment with the following:
-
-```bash
-# Unix environment
-./run-tests.sh
-```
-
-Now you're ready, now go to [CONTRIBUTING.md](CONTRIBUTING.md) for the rest of the contribution guidelines, project documentation, linting, building, guides, etc...
+Go to [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup instructions, documentation and guides.
 
 ---
 
