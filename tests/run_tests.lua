@@ -32,6 +32,7 @@ local spec_modules = {
     "tests.spec.panelviewer_kobo_bluetooth_spec",
     "tests.spec.native_panel_zoom_spec",
     "tests.spec.memory_spec",
+    "tests.spec.resource_lifecycle_spec",
     "tests.spec.embedded_image_spec",
     "tests.spec.nativedetector_spec",
     "tests.spec.panelviewer_reader_gesture_spec",

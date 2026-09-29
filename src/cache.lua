@@ -141,10 +141,15 @@ function Cache:preloadPanels(page)
     end
 
     local delay = self.settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay
+    local document = self.ui and self.ui.document
     local action
     action = function()
-        if self.panel_prefetch_actions[key] == action then
-            self.panel_prefetch_actions[key] = nil
+        if self.panel_prefetch_actions[key] ~= action then
+            return
+        end
+        self.panel_prefetch_actions[key] = nil
+        if not self.ui or self.ui.document ~= document or not Memory.hasHeadroom(minimum) then
+            return
         end
         if self:getCachedPanels(page) then
             return

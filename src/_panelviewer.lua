@@ -1393,7 +1393,8 @@ function PanelViewer:onHold(arg, ges)
     if not PageBitmap.getBlockReason(document) and page_pos and page_pos.page then
         local wf_ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
         if wf_ok and box then
-            local word_ok, word = pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_bundled_language)
+            local word_ok, word =
+                pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_bundled_language)
             if word_ok and word then
                 -- Build a synthetic selection identical to what ReaderHighlight
                 -- would have built, so onHoldRelease triggers dictionary lookup.
@@ -1757,7 +1758,8 @@ function PanelViewer:onCloseWidget()
         end)
     end)
     self._panels_plus_closing = nil
-    if self.image_disposable and active_image and active_image.free then
+    -- The base viewer frees and clears self.image on successful disposal.
+    if self.image == active_image and self.image_disposable and active_image and active_image.free then
         active_image:free()
     end
     self.image = nil
@@ -1978,8 +1980,9 @@ function PanelViewer:animateSwitchToImageNum(target)
 
     local scale = target_zoom / zoom_union -- applied once, below, via self.scale_factor
 
+    local canvas
     local ok_canvas, canvas_image = pcall(function()
-        local canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
+        canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
         canvas:fill(Blitbuffer.COLOR_WHITE)
         -- Clamp against float-rounding drift between this module's zoom math and
         -- drawPagePart()'s own internal rect scaling, so the blit never reads or
@@ -1997,6 +2000,9 @@ function PanelViewer:animateSwitchToImageNum(target)
         content_image:free()
     end
     if not ok_canvas or not canvas_image then
+        if canvas then
+            canvas:free()
+        end
         return self:switchToImageNum(target)
     end
     -- Document renders are DocCache-owned; image-union renderers return an
@@ -2152,12 +2158,24 @@ function PanelViewer:animateBoundaryTransition(direction)
 
     local target_zoom = canvasFitZoom(rect_b)
     local target_margin_factor = self:getMarginShrinkFactorForPanel(nil, resolved.target_is_full_page) or 1
+    local owned_a, owned_b
+    local function releaseTiles()
+        if owned_a then
+            owned_a:free()
+            owned_a = nil
+        end
+        if owned_b then
+            owned_b:free()
+            owned_b = nil
+        end
+    end
 
     local ok_a, tile_a, rotated_a = pcall(function()
         if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
             local img = self._images_list[self._images_list_cur]
             if type(img) == "function" then
-                return img()
+                owned_a = img()
+                return owned_a
             end
             return img
         end
@@ -2171,17 +2189,20 @@ function PanelViewer:animateBoundaryTransition(direction)
         if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
             local img = resolved.next_images[resolved.start_idx]
             if type(img) == "function" then
-                return img()
+                owned_b = img()
+                return owned_b
             end
             return img
         end
         return PageRender.drawPagePart(self.reader_ui, resolved.next_page, rect_b, 0)
     end)
     if not ok_b or not tile_b then
+        releaseTiles()
         logger.warn("[Panels+] boundary transition tile B render failed, falling back:", tostring(tile_b))
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
     if (rotated_a and true or false) ~= (rotated_b and true or false) then
+        releaseTiles()
         -- Mismatched auto-rotation between the two pages' slices can't be
         -- composited safely -- rare (differing panel aspect ratios right at
         -- the boundary); not worth reconciling for this iteration.
@@ -2193,6 +2214,12 @@ function PanelViewer:animateBoundaryTransition(direction)
     -- This is a single one-shot rescale, not a per-frame cost.
     local zoom_a = canvasFitZoom(rect_a)
     local scale_a = target_zoom / zoom_a
+    local scaled_pixels = math.max(1, math.ceil(tile_a:getWidth() * scale_a))
+        * math.max(1, math.ceil(tile_a:getHeight() * scale_a))
+    if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, scaled_pixels * 4) then
+        releaseTiles()
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
     local ok_scale, tile_a_scaled = pcall(function()
         if scale_a == 1 then
             return tile_a
@@ -2202,6 +2229,7 @@ function PanelViewer:animateBoundaryTransition(direction)
         return RenderImage:scaleBlitBuffer(tile_a, new_w, new_h, false)
     end)
     if not ok_scale or not tile_a_scaled then
+        releaseTiles()
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 
@@ -2224,27 +2252,21 @@ function PanelViewer:animateBoundaryTransition(direction)
     local screen_area = viewport_w * viewport_h
     if
         canvas_w * canvas_h > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
-        or not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES)
+        or not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, canvas_w * canvas_h * 4)
     then
         if tile_a_scaled ~= tile_a and tile_a_scaled.free then
             tile_a_scaled:free()
         end
-        if self.crop_mode == "none" then
-            if tile_a and tile_a.free then
-                tile_a:free()
-            end
-            if tile_b and tile_b.free then
-                tile_b:free()
-            end
-        end
+        releaseTiles()
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 
     local a_left = travel_west and (2 * half_w_b) or 0
     local b_left = travel_west and 0 or (2 * half_w_a)
 
+    local canvas
     local ok_canvas, canvas_image = pcall(function()
-        local canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
+        canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
         canvas:fill(Blitbuffer.COLOR_WHITE)
         local a_x = math.max(0, math.floor(a_left + half_w_a - tile_a_scaled:getWidth() / 2))
         local a_y = math.max(0, math.floor(canvas_h / 2 - tile_a_scaled:getHeight() / 2))
@@ -2265,15 +2287,11 @@ function PanelViewer:animateBoundaryTransition(direction)
     if tile_a_scaled ~= tile_a and tile_a_scaled.free then
         tile_a_scaled:free() -- pixels already copied into canvas_image
     end
-    if self.crop_mode == "none" then
-        if tile_a and tile_a.free then
-            tile_a:free()
-        end
-        if tile_b and tile_b.free then
-            tile_b:free()
-        end
-    end
+    releaseTiles()
     if not ok_canvas or not canvas_image then
+        if canvas then
+            canvas:free()
+        end
         return self.boundary_callback and self.boundary_callback(direction, self)
     end
 

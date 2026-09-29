@@ -92,7 +92,11 @@ local function cropImage(source, rect)
         return nil
     end
     local crop = Blitbuffer.new(w, h, source:getType())
-    crop:blitFrom(source, 0, 0, x, y, w, h)
+    local ok, err = pcall(crop.blitFrom, crop, source, 0, 0, x, y, w, h)
+    if not ok then
+        crop:free()
+        error(err)
+    end
     return crop
 end
 

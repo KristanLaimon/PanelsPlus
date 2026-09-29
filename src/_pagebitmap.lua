@@ -93,7 +93,7 @@ local function renderSmall(document, page, target_width)
         return nil
     end
 
-    local zoom = math.min(1, target_width / native.w)
+    local zoom = math.min(1, target_width / native.w, target_width * 2 / native.h)
     local rect = Geom:new({ x = 0, y = 0, w = native.w, h = native.h })
     rect.scaled_rect = document:transformRect(rect, zoom, 0)
     if rect.scaled_rect.w < 32 or rect.scaled_rect.h < 32 then
@@ -236,13 +236,17 @@ local function normalizeForSampling(bb)
             return bb, nil, true
         end
 
+        local target
         local ok, normalized = pcall(function()
-            local target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BBRGB32)
+            target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BBRGB32)
             target:blitFrom(bb, 0, 0, 0, 0, bb.w, bb.h)
             return target
         end)
         if ok and normalized then
             return normalized, normalized, true
+        end
+        if target then
+            target:free()
         end
         return bb, nil, true
     else
@@ -253,13 +257,17 @@ local function normalizeForSampling(bb)
             return bb, nil, false
         end
 
+        local target
         local ok, normalized = pcall(function()
-            local target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
+            target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
             target:blitFrom(bb, 0, 0, 0, 0, bb.w, bb.h)
             return target
         end)
         if ok and normalized then
             return normalized, normalized, false
+        end
+        if target then
+            target:free()
         end
         return bb, nil, false
     end
@@ -748,7 +756,7 @@ function PageBitmap.build(document, page, settings)
 
         -- Guard against a render path that ignored our zoom: subsample instead
         -- of scanning a full-resolution buffer cell by cell.
-        local step = math.max(1, math.floor(src_w / target_width))
+        local step = math.max(1, math.ceil(src_w / target_width), math.ceil(src_h / (target_width * 2)))
         local w = math.floor(src_w / step)
         local h = math.floor(src_h / step)
         if w < 16 or h < 16 then

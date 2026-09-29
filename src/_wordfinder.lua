@@ -328,8 +328,8 @@ local function savePGM(filename, sample, w, h, x0, x1, y0, y1)
             return
         end
         f:write(string.format("P5\n%d %d\n255\n", w, h))
-        local buf = {}
         for y = 0, h - 1 do
+            local buf = {}
             for x = 0, w - 1 do
                 local val = sample(x, y)
                 if x0 and x1 and y0 and y1 then
@@ -341,8 +341,8 @@ local function savePGM(filename, sample, w, h, x0, x1, y0, y1)
                 end
                 table.insert(buf, string.char(val))
             end
+            f:write(table.concat(buf))
         end
-        f:write(table.concat(buf))
         f:close()
     end)
 end

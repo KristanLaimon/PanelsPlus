@@ -96,12 +96,23 @@ function ViewerController:prerenderNextPanel(viewer, index)
     end
 
     local delay = self.settings.panel_prerender_delay or Settings.defaults.panel_prerender_delay
+    local document = self.ui and self.ui.document
     local action
     action = function()
-        if self.panel_prerender_action == action then
-            self.panel_prerender_action = nil
+        if self.panel_prerender_action ~= action then
+            return
         end
-        if viewer._panels_plus_closed or not self:hasMemoryForPrerender() then
+        self.panel_prerender_action = nil
+        if
+            not self.ui
+            or self.ui.document ~= document
+            or viewer._panels_plus_closed
+            or not self:hasMemoryForPrerender()
+        then
+            return
+        end
+        local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
+        if not Memory.hasAllocationHeadroom(minimum, Screen:getWidth() * Screen:getHeight() * 8) then
             return
         end
         local stop = Timing.span("prerender panel " .. (index + 1))
