@@ -156,9 +156,15 @@ function FoldJoin.joinBitmap(bb, opts)
     local pad = math.floor(removed / 2)
     local right_w = width - x1 - 1
     local joined = Blitbuffer.new(width, height, bb:getType())
-    joined:fill(Blitbuffer.COLOR_WHITE)
-    joined:blitFrom(bb, pad, 0, 0, 0, x0, height)
-    joined:blitFrom(bb, pad + x0, 0, x1 + 1, 0, right_w, height)
+    local ok, err = pcall(function()
+        joined:fill(Blitbuffer.COLOR_WHITE)
+        joined:blitFrom(bb, pad, 0, 0, 0, x0, height)
+        joined:blitFrom(bb, pad + x0, 0, x1 + 1, 0, right_w, height)
+    end)
+    if not ok then
+        joined:free()
+        error(err)
+    end
     return joined, { u0 = x0 / width, u1 = (x1 + 1) / width, pad = pad / width }
 end
 
