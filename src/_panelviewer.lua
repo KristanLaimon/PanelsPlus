@@ -1321,6 +1321,11 @@ function PanelViewer:onHold(arg, ges)
     if self.hold_text_selection == false then
         return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
     end
+    -- Once text selection is enabled, a stationary hold belongs to the OCR
+    -- path even if neither KOReader nor WordFinder can find a word. Remember
+    -- that fact so its paired release cannot reach ImageViewer's deliberate
+    -- full-refresh-on-hold behavior.
+    self._panels_plus_hold_consumed = true
 
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
@@ -1363,7 +1368,15 @@ function PanelViewer:onHold(arg, ges)
     reader_ui.view.screenToPageTransform = orig_screenToPage
     highlight.panel_zoom_enabled = orig_panel_zoom_enabled
 
-    if ok and handled then
+    -- Current KOReader returns true here after it has selected a word. Older
+    -- releases have also existed where the return value was not reliable, so
+    -- accept their state-based success signal as well. Do *not* treat a bare
+    -- true as text selection: ReaderHighlight also returns true after opening
+    -- its ImageViewer for an image, which has no selected_text to release to
+    -- the dictionary.
+    local selected_text = highlight.selected_text
+    local selected_word = selected_text and selected_text.text ~= nil
+    if ok and selected_word and handled ~= false then
         self._panels_plus_text_holding = true
         if highlight.is_word_selection then
             self:_startPhraseHold(highlight, page_pos)
@@ -1404,7 +1417,13 @@ function PanelViewer:onHold(arg, ges)
         end
     end
 
-    return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
+    -- A failed OCR lookup must not fall through to ImageViewer:onHold. Its
+    -- release handler deliberately issues a full e-ink refresh for an
+    -- unmoved hold, which is the Kindle-only-looking flash users see instead
+    -- of a lookup. A native handler that returned true already owns the
+    -- gesture (for example, it opened an image viewer); otherwise consume the
+    -- unsuccessful text-selection gesture quietly.
+    return true
 end
 
 --- Forward touch drag during text selection inside a zoomed panel.
@@ -1450,10 +1469,15 @@ end
 function PanelViewer:onHoldRelease(arg, ges)
     self:_cancelPhraseHold()
     if not self._panels_plus_text_holding then
+        if self._panels_plus_hold_consumed then
+            self._panels_plus_hold_consumed = nil
+            return true
+        end
         return ImageViewer.onHoldRelease and ImageViewer.onHoldRelease(self, arg, ges)
     end
 
     self._panels_plus_text_holding = nil
+    self._panels_plus_hold_consumed = nil
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
     if self._phrase_selected and highlight and type(highlight.onTranslateText) == "function" then

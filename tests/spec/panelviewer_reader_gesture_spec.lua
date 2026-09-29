@@ -16,6 +16,7 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 
 local PanelViewer = require("src._panelviewer")
+local ImageViewer = require("ui/widget/imageviewer")
 
 local function newViewer(reader_ui, close_spy)
     return setmetatable({
@@ -90,9 +91,11 @@ describe("PanelViewer bundled OCR selection", function()
         local view = { screenToPageTransform = function() end }
         local highlight = {
             panel_zoom_enabled = true,
-            onHold = function()
+            onHold = function(self)
                 seen.language = document.configurable.doc_language
                 seen.datadir = document.koptinterface.tessocr_data
+                self.selected_text = { text = "hola", sboxes = {} }
+                self.is_word_selection = true
                 return true
             end,
         }
@@ -108,5 +111,73 @@ describe("PanelViewer bundled OCR selection", function()
         assert.equals("jpn", document.configurable.doc_language)
         assert.equals("/reader/tessdata", document.koptinterface.tessocr_data)
         assert.is_true(highlight.panel_zoom_enabled)
+    end)
+
+    it("accepts the selected-text state from older KOReader hold handlers", function()
+        local document = { configurable = { text_wrap = 0 } }
+        local view = {
+            screenToPageTransform = function()
+                return nil
+            end,
+            highlight = { temp = {} },
+        }
+        local highlight = {
+            panel_zoom_enabled = true,
+            onHold = function(self)
+                -- Older builds may complete selection without returning true.
+                self.selected_text = { text = "legacy", sboxes = {} }
+                self.is_word_selection = true
+            end,
+        }
+        local viewer = newViewer({ document = document, view = view, highlight = highlight })
+        viewer.screenToPageTransform = function()
+            return { page = 1, x = 5, y = 5 }
+        end
+
+        assert.is_true(viewer:onHold(nil, { pos = {} }))
+        assert.is_true(viewer._panels_plus_text_holding)
+    end)
+
+    it("does not start ImageViewer panning after an unsuccessful OCR hold", function()
+        local document = { configurable = { text_wrap = 0 } }
+        local view = {
+            screenToPageTransform = function()
+                return nil
+            end,
+            highlight = { temp = {} },
+        }
+        local highlight = {
+            panel_zoom_enabled = true,
+            onHold = function()
+                return false
+            end,
+        }
+        local viewer = newViewer({ document = document, view = view, highlight = highlight })
+        viewer.screenToPageTransform = function()
+            return { page = 1, x = 5, y = 5 }
+        end
+        local original_on_hold = ImageViewer.onHold
+        local original_on_hold_release = ImageViewer.onHoldRelease
+        local image_hold_called = false
+        local image_hold_release_called = false
+        ImageViewer.onHold = function()
+            image_hold_called = true
+            return true
+        end
+        ImageViewer.onHoldRelease = function()
+            image_hold_release_called = true
+            return true
+        end
+
+        local handled = viewer:onHold(nil, { pos = {} })
+        local released = viewer:onHoldRelease(nil, { pos = {} })
+        ImageViewer.onHold = original_on_hold
+        ImageViewer.onHoldRelease = original_on_hold_release
+
+        assert.is_true(handled)
+        assert.is_true(released)
+        assert.is_false(image_hold_called)
+        assert.is_false(image_hold_release_called)
+        assert.is_nil(viewer._panels_plus_text_holding)
     end)
 end)
