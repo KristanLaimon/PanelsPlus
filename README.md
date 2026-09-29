@@ -32,7 +32,7 @@
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup required, install Panels+ and *it just works*.
 
 ### Features
-- Includes 3 reading modes: 
+- Includes 3 reading modes:
 <table>
   <!-- Videos (mismo alto y centrados) -->
   <tr valign="middle">
@@ -186,13 +186,6 @@ Of course if you prefer vertical, with margin, loose cropped or even animated, t
 ### 🔍 OCR Word Lookup Setup (Experimental)
 
 Panels+ introduces experimental OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
-
-For English lettering, try **Panels+ → Lightweight English OCR**, then open a
-panel. This optional 3.92 MiB model is included and works offline through
-KOReader's existing OCR engine. It applies only when the document OCR language
-is English and is off by default. It improved the current manga dataset with
-KOReader's desktop OCR library; accuracy and speed still need device testing.
-See [OCR_REPORT.md](OCR_REPORT.md) for results and remaining limitations.
 
 <strong>IMPORTANT:</strong> To use this feature, you'll need to set up a couple of things first:
 
