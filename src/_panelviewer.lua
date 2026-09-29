@@ -1373,6 +1373,37 @@ function PanelViewer:onHold(arg, ges)
         return true
     end
 
+    -- KOReader's own word detection failed (getWordFromPosition returned nil).
+    -- This is common on Kindle/e-ink for image-only pages (CBZ, manga) where
+    -- k2pdfopt's generic word-box finder cannot detect comic lettering.
+    -- Fall back to Panels+'s own WordFinder, which is built for this case.
+    if not PageBitmap.getBlockReason(document) and page_pos and page_pos.page then
+        local wf_ok, box, native = pcall(WordFinder.findWordBox, document, page_pos.page, page_pos.x, page_pos.y)
+        if wf_ok and box then
+            local word_ok, word = pcall(WordFinder.readWord, document, page_pos.page, box, native, self.ocr_bundled_language)
+            if word_ok and word then
+                -- Build a synthetic selection identical to what ReaderHighlight
+                -- would have built, so onHoldRelease triggers dictionary lookup.
+                highlight.hold_pos = page_pos
+                highlight.is_word_selection = true
+                highlight.selected_text = {
+                    text = word,
+                    pos0 = { page = page_pos.page, x = page_pos.x, y = page_pos.y },
+                    pos1 = { page = page_pos.page, x = page_pos.x, y = page_pos.y },
+                    sboxes = { box },
+                    pboxes = { box },
+                }
+                if reader_ui.view and reader_ui.view.highlight and reader_ui.view.highlight.temp then
+                    reader_ui.view.highlight.temp[page_pos.page] = highlight.selected_text.sboxes
+                end
+                self._panels_plus_text_holding = true
+                self:_startPhraseHold(highlight, page_pos)
+                UIManager:setDirty(self, "ui")
+                return true
+            end
+        end
+    end
+
     return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
 end
 

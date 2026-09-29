@@ -87,7 +87,7 @@ jobs:
           packages = {
               "panelsplus.koplugin.zip": Path("dist/panelsplus.koplugin"),
               "panelsplus_with_ocrmodels.koplugin.zip": Path(
-                  "dist/panelsplus_with_ocrmodels.koplugin"
+                  "dist/with_ocrmodels/panelsplus.koplugin"
               ),
           }
 
@@ -98,7 +98,9 @@ jobs:
               with ZipFile(archive_name, "w", ZIP_DEFLATED) as archive:
                   for path in sorted(source_dir.rglob("*")):
                       if path.is_file():
-                          archive.write(path, path.relative_to("dist"))
+                          # Both editions must have the same root directory.
+                          # KOReader uses that directory name as the plugin ID.
+                          archive.write(path, Path("panelsplus.koplugin") / path.relative_to(source_dir))
           PY
 
           echo "vanilla_name=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"

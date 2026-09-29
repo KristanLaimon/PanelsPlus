@@ -116,7 +116,7 @@ Both editions include the same panel-reading features. Choose **one**—do not i
 | Edition | Choose this if… | Plugin folder |
 | --- | --- | --- |
 | **Panels+ Vanilla** | You do not use OCR, or you need an OCR language other than English, Spanish, or Italian. You can add Tesseract language data later. | `panelsplus.koplugin` |
-| **Panels+ with bundled OCR models** | You want Panels+-tuned OCR ready immediately for English, Spanish, or experimental Italian manga and comic text. | `panelsplus_with_ocrmodels.koplugin` |
+| **Panels+ with bundled OCR models** | You want Panels+-tuned OCR ready immediately for English, Spanish, or experimental Italian manga and comic text. | `panelsplus.koplugin` |
 
 > **Recommendation:** Choose **Panels+ with bundled OCR models** if you read English, Spanish, or Italian and want to use word lookup. Otherwise, choose **Panels+ Vanilla**.
 
@@ -138,7 +138,7 @@ Panels+ is structured for installation via KOReader package and plugin managers:
    | If you chose… | Download | Extracted folder |
    | --- | --- | --- |
    | **Panels+ Vanilla** | `panelsplus.koplugin.zip` | `panelsplus.koplugin` |
-   | **Panels+ with bundled OCR models** | `panelsplus_with_ocrmodels.koplugin.zip` | `panelsplus_with_ocrmodels.koplugin` |
+| **Panels+ with bundled OCR models** | `panelsplus_with_ocrmodels.koplugin.zip` | `panelsplus.koplugin` |
 
 2. Extract the ZIP. You should have the folder shown in the last column above.
 
@@ -161,7 +161,6 @@ Your final path should look like one of these:
 
 ```text
 <koreader plugins directory>/panelsplus.koplugin
-<koreader plugins directory>/panelsplus_with_ocrmodels.koplugin
 ```
 
 4. Restart KOReader after copying the folder.
@@ -218,7 +217,7 @@ Keep holding for about four seconds to expand the selection to the nearby dialog
 </ul>
 
 - **Panels+ Vanilla** (`panelsplus.koplugin`) includes no OCR language data. To use OCR, install the language files you need in KOReader's `data/tessdata` directory, then select that language in KOReader.
-- **Panels+ with bundled OCR models** (`panelsplus_with_ocrmodels.koplugin`) includes fine-tuned English, Spanish, and experimental Italian models. English is selected by default for zoomed-panel word lookup.
+- **Panels+ with bundled OCR models** (`panelsplus_with_ocrmodels.koplugin.zip`) includes fine-tuned English, Spanish, and experimental Italian models. English is selected by default for zoomed-panel word lookup.
     ||| Open **KOReader menu → Panels+ → OCR language** to select a bundled language or **Use KOReader's**, which uses KOReader's current OCR language. The active choice is marked **(Selected)** and applies only inside Panels+.
 
 

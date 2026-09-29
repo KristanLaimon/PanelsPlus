@@ -4,7 +4,7 @@ set -eu
 PLUGIN_NAME="${1:-panelsplus}"
 SCRIPT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 OUT_DIR="$SCRIPT_DIR/dist"
-BUNDLED_DIR="$OUT_DIR/${PLUGIN_NAME}_with_ocrmodels.koplugin"
+BUNDLED_DIR="$OUT_DIR/with_ocrmodels/${PLUGIN_NAME}.koplugin"
 MANUAL_DIR="$OUT_DIR/${PLUGIN_NAME}.koplugin"
 OCR_DIR="$SCRIPT_DIR/data/ocr"
 
@@ -27,13 +27,15 @@ copy_plugin() {
     cp -Rp "$SCRIPT_DIR/src" "$destination/"
     cp -Rp "$SCRIPT_DIR/locales" "$destination/"
     cp -Rp "$SCRIPT_DIR/data" "$destination/"
+    # Development-tool caches are not plugin data and must not leak into releases.
+    rm -rf "$destination/data/ocr/.ruff_cache"
 }
 
-rm -rf "$BUNDLED_DIR" "$MANUAL_DIR" "$OUT_DIR/${PLUGIN_NAME}-manual-ocr.koplugin"
+rm -rf "$BUNDLED_DIR" "$MANUAL_DIR" "$OUT_DIR/${PLUGIN_NAME}_with_ocrmodels.koplugin" "$OUT_DIR/${PLUGIN_NAME}-manual-ocr.koplugin"
 copy_plugin "$BUNDLED_DIR"
 copy_plugin "$MANUAL_DIR"
 rm -rf "$MANUAL_DIR/data/ocr"
 
 echo "Bundled OCR: $BUNDLED_DIR"
 echo "Manual OCR:  $MANUAL_DIR"
-echo "Install only one of these folders in KOReader's plugins directory."
+echo "Each edition installs as ${PLUGIN_NAME}.koplugin; install only one."

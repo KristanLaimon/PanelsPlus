@@ -19,7 +19,8 @@ engine caches models by language name without checking the data directory.
 This keeps the bundled models separate
 from KOReader's installed models when switching between them.
 
-The `panelsplus_with_ocrmodels.koplugin` build includes these three models.
+The `panelsplus_with_ocrmodels.koplugin.zip` release includes these three models
+under the normal `panelsplus.koplugin` plugin directory.
 English is selected by default; **KOReader menu → Panels+ → OCR language**
 selects any bundled language or **Use KOReader's**, showing KOReader's current
 OCR language. The active choice is marked **(Selected)**. This setting applies

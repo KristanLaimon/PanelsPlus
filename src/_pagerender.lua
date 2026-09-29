@@ -9,7 +9,12 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
-local CanvasContext = require("ui/canvascontext")
+-- Try the newer module path first; fall back to the path shipped by
+-- KOReader ≤ v2025.04 ("document/canvascontext") for backward compat.
+local ok, CanvasContext = pcall(require, "ui/canvascontext")
+if not ok then
+    CanvasContext = require("document/canvascontext")
+end
 local Geom = require("ui/geometry")
 
 --- Page-crop rendering shared by panel images, transitions, and pre-rendering.
