@@ -111,10 +111,6 @@ function ViewerController:prerenderNextPanel(viewer, index)
         then
             return
         end
-        local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
-        if not Memory.hasAllocationHeadroom(minimum, Screen:getWidth() * Screen:getHeight() * 8) then
-            return
-        end
         local stop = Timing.span("prerender panel " .. (index + 1))
         pcall(function()
             PageRender.drawPagePart(self.ui, viewer.page, next_rect, 0)

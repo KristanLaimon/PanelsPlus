@@ -148,7 +148,11 @@ function Cache:preloadPanels(page)
             return
         end
         self.panel_prefetch_actions[key] = nil
-        if not self.ui or self.ui.document ~= document or not Memory.hasHeadroom(minimum) then
+        -- Headroom was checked when this short-delay job was queued. A panel
+        -- prerender may lower free memory before it runs; checking again here
+        -- would silently drop next-page detection on small devices and make
+        -- every page boundary do the work in the swipe handler.
+        if not self.ui or self.ui.document ~= document then
             return
         end
         if self:getCachedPanels(page) then

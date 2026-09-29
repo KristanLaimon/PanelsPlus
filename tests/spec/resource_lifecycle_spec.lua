@@ -84,7 +84,7 @@ describe("Low-memory resource lifecycle", function()
         assert.equals(1, fallbacks)
     end)
 
-    it("rechecks memory at execution and rejects canceled prefetch callbacks", function()
+    it("keeps queued next-page detection after a memory dip and rejects stale callbacks", function()
         local original = Memory.hasHeadroom
         local enough, calls = true, 0
         Memory.hasHeadroom = function()
@@ -107,18 +107,57 @@ describe("Low-memory resource lifecycle", function()
             local pending = UIManager._last_scheduled
             enough = false
             pending()
-            assert.equals(0, calls)
+            assert.equals(1, calls)
             enough = true
-            instance:preloadPanels(2)
+            instance:preloadPanels(3)
             pending = UIManager._last_scheduled
             instance:cancelPanelPrefetch()
             pending()
-            assert.equals(0, calls)
-            instance:preloadPanels(2)
+            assert.equals(1, calls)
+            instance:preloadPanels(4)
+            instance.ui.document = {}
             UIManager._last_scheduled()
+            assert.equals(1, calls)
+            enough = false
+            instance:preloadPanels(5)
             assert.equals(1, calls)
         end)
         Memory.hasHeadroom = original
+        assert.is_true(ok, tostring(err))
+    end)
+
+    it("warms the next panel with the stable 40MB memory floor", function()
+        local ViewerController = require("src.viewer_controller")
+        local PageRender = require("src._pagerender")
+        local original_headroom = Memory.hasHeadroom
+        local original_allocation_headroom = Memory.hasAllocationHeadroom
+        local original_draw = PageRender.drawPagePart
+        local rendered = 0
+        Memory.hasHeadroom = function()
+            return true
+        end
+        Memory.hasAllocationHeadroom = function()
+            return false
+        end
+        PageRender.drawPagePart = function()
+            rendered = rendered + 1
+        end
+        local document = {}
+        local controller = setmetatable({
+            settings = {},
+            ui = { document = document },
+        }, { __index = ViewerController })
+        local ok, err = pcall(function()
+            controller:prerenderNextPanel({
+                page = 1,
+                image_rects = { { x = 0, y = 0, w = 10, h = 10 }, { x = 10, y = 0, w = 10, h = 10 } },
+            }, 1)
+            UIManager._last_scheduled()
+            assert.equals(1, rendered)
+        end)
+        Memory.hasHeadroom = original_headroom
+        Memory.hasAllocationHeadroom = original_allocation_headroom
+        PageRender.drawPagePart = original_draw
         assert.is_true(ok, tostring(err))
     end)
 end)
