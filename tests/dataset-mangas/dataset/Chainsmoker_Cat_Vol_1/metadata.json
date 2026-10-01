@@ -1,0 +1,16 @@
+{
+  "book_title": "Chainsmoker_Cat_Vol_1",
+  "type": "manga",
+  "total_pages": 214,
+  "finished": false,
+  "current_page": 76,
+  "last_opened": "2026-09-30T20:45:40.874921",
+  "source_file": "/mnt/host/HakunekoDownloads/MangaFire/Chainsmoker Cat/Chainsmoker Cat Vol. 1.cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
+}
