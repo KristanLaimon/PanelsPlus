@@ -144,6 +144,64 @@ describe("Experimental component detector", function()
         assert.equals(960, panels[1].w)
     end)
 
+    it("keeps one framed illustration despite straight lines inside its artwork", function()
+        local map = page()
+        frame(map, 20, 20, 440, 600)
+        for _, y in ipairs({ 160, 300, 440 }) do
+            for x = 20, 459 do
+                ink(map, x, y)
+            end
+        end
+        map.dark = map.data
+        local panels = Detector.detectPage(map, { mode = "manga" })
+        assert.equals(1, #panels)
+        assert.equals(38, panels[1].x)
+        assert.equals(1204, panels[1].h)
+    end)
+
+    it("retains the parent when structural fragments leave substantial artwork uncovered", function()
+        local map, alternate = page(), page()
+        frame(map, 20, 20, 440, 600)
+        frame(alternate, 25, 25, 430, 250)
+        frame(alternate, 25, 360, 430, 250)
+        map.structural = alternate.data
+        local panels = Detector.detectPage(map, { mode = "manga" })
+        assert.equals(1, #panels)
+        assert.equals(1204, panels[1].h)
+    end)
+
+    it("still separates complete frames joined only by gray shading", function()
+        local map = page()
+        frame(map, 20, 20, 200, 600)
+        frame(map, 240, 20, 200, 600)
+        local structural = {}
+        for i = 0, map.w * map.h - 1 do
+            structural[i] = map.data[i]
+        end
+        for y = 100, 500 do
+            for x = 219, 240 do
+                ink(map, x, y)
+            end
+        end
+        map.structural = structural
+        local panels = Detector.detectPage(map, { mode = "manga" })
+        assert.equals(2, #panels)
+    end)
+
+    it("does not overwrite caller coverage settings or global defaults", function()
+        local map = page()
+        local settings = { mode = "manga", segment_page_coverage_min = 0.7 }
+        Detector.detectPage(map, settings)
+        assert.equals(0.7, settings.segment_page_coverage_min)
+        settings = { mode = "manga" }
+        Detector.detectPage(map, settings)
+        assert.is_nil(settings.segment_page_coverage_min)
+        local defaults = require("src._settings").defaults
+        local previous = defaults.segment_page_coverage_min
+        Detector.detectPage(map)
+        assert.equals(previous, defaults.segment_page_coverage_min)
+    end)
+
     it("reuses scratch buffers across detections and cleans up on clearScratch", function()
         local map = page()
         frame(map, 20, 20, 440, 600)

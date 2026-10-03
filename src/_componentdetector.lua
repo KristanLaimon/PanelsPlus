@@ -246,20 +246,27 @@ end
 local function splitJoinedFrames(map, box, settings, depth, shared_borders)
     depth = depth or 0
     if depth == 0 then
-        local edges = (box.x <= 1 and 1 or 0) + (box.y <= 1 and 1 or 0)
-            + (box.x + box.w >= map.w - 1 and 1 or 0) + (box.y + box.h >= map.h - 1 and 1 or 0)
-        shared_borders = (settings.mode ~= "comic") and ((box.frame_sides or 0) < 3)
+        -- A closed frame is stronger evidence than straight lines in its art.
+        if (box.frame_sides or 0) >= 3 then
+            return { box }
+        end
+        shared_borders = settings.mode ~= "comic" and map.dark ~= nil
     end
-    if depth >= 5 then return { box } end
+    if depth >= 5 then
+        return { box }
+    end
     local rows, cols, brows, bcols = {}, {}, {}, {}
-    for x = box.x, box.x + box.w - 1 do cols[x] = 0; bcols[x] = 0 end
+    for x = box.x, box.x + box.w - 1 do
+        cols[x] = 0
+        bcols[x] = 0
+    end
     for y = box.y, box.y + box.h - 1 do
         local count, bcount = 0, 0
         for x = box.x, box.x + box.w - 1 do
             local value = map.data[y * map.w + x]
             count = count + value
             cols[x] = cols[x] + value
-            local dark = (map.dark or map.data)[y * map.w + x]
+            local dark = map.dark and map.dark[y * map.w + x] or 0
             bcols[x] = bcols[x] + dark
             bcount = bcount + dark
         end
@@ -271,11 +278,14 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
         local last = first + length - 1
         local i = first + minimum
         while i <= last - minimum do
-            local white = projection[i] <= span * 0.04
+            local white = projection[i] <= span * 0.025
             local black = shared_borders and border[i] >= span * 0.90
             if white or black then
                 local start = i
-                repeat i = i + 1 until i > last or (white and projection[i] > span * 0.025)
+                repeat
+                    i = i + 1
+                until i > last
+                    or (white and projection[i] > span * 0.025)
                     or (black and border[i] < span * 0.90)
                 local stop = i - 1
                 local width = stop - start + 1
@@ -288,7 +298,9 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
                     end
                     valid = valid and width >= 2 and before >= span * 0.85 and after >= span * 0.85
                 else
-                    valid = valid and width <= 4 and (border[start - 2] or span) < span * 0.90
+                    valid = valid
+                        and width <= 4
+                        and (border[start - 2] or span) < span * 0.90
                         and (border[stop + 2] or span) < span * 0.90
                 end
                 if valid then
@@ -298,12 +310,16 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
                         best = { axis = axis, start = start, stop = stop, white = white, score = score }
                     end
                 end
-            else i = i + 1 end
+            else
+                i = i + 1
+            end
         end
     end
     search(rows, brows, box.y, box.w, box.h, math.max(12, math.floor(map.h * 0.10)), "y")
     search(cols, bcols, box.x, box.h, box.w, math.max(12, math.floor(map.w * 0.12)), "x")
-    if not best then return { box } end
+    if not best then
+        return { box }
+    end
     local lo = best.white and best.start - 1 or best.stop
     local hi = best.white and best.stop + 1 or best.start
     local a, b
@@ -315,7 +331,9 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
         b = { x = hi, y = box.y, w = box.x + box.w - hi, h = box.h }
     end
     local parts = splitJoinedFrames(map, a, settings, depth + 1, shared_borders)
-    for _, part in ipairs(splitJoinedFrames(map, b, settings, depth + 1, shared_borders)) do parts[#parts+1] = part end
+    for _, part in ipairs(splitJoinedFrames(map, b, settings, depth + 1, shared_borders)) do
+        parts[#parts + 1] = part
+    end
     if depth == 0 and #parts == 2 then
         local framed_count = 0
         for _, p in ipairs(parts) do
@@ -354,10 +372,19 @@ function ComponentDetector.segment(map, settings)
                 break
             end
         end
-        if keep and (box.w < map.w * 0.07 and box.h < map.h * 0.07) or (box.w * box.h < map.w * map.h * 0.008) or (box.h < map.h * 0.03) or (box.w < map.w * 0.03) then
+        if
+            keep
+            and (
+                (box.w < map.w * 0.07 and box.h < map.h * 0.07)
+                or (box.w * box.h < map.w * map.h * 0.008)
+                or (box.h < map.h * 0.03)
+                or (box.w < map.w * 0.03)
+            )
+        then
             keep = false
         elseif keep and (box.w < map.w * 0.10 or box.h < map.h * 0.10 or box.w * box.h < map.w * map.h * 0.01) then
-            keep = ((box.frame_sides or 0) >= 3 or hasFrame(map, box)) and (box.w >= map.w * 0.05 and box.h >= map.h * 0.03)
+            keep = ((box.frame_sides or 0) >= 3 or hasFrame(map, box))
+                and (box.w >= map.w * 0.05 and box.h >= map.h * 0.03)
         end
         if keep then
             cells[#cells + 1] = box
@@ -376,10 +403,16 @@ function ComponentDetector.segment(map, settings)
         for _, box in ipairs(cells) do
             if box.w * box.h >= map.w * map.h * 0.5 then
                 local parts = splitJoinedFrames(map, box, settings)
-                if #parts > 1 then framed = { box }; floating = {}; break end
+                if #parts > 1 then
+                    framed = { box }
+                    floating = {}
+                    break
+                end
             end
         end
-        if #framed == 0 then return {} end
+        if #framed == 0 then
+            return {}
+        end
     end
     local groups = {}
     for _, box in ipairs(floating) do
@@ -480,7 +513,9 @@ local function sharedBalloon(map, parts)
     local size = map.w * map.h
     ensureWhiteScratch(size)
     local white = scratch_white
-    for k = 0, size - 1 do white[k] = 1 - map.data[k] end
+    for k = 0, size - 1 do
+        white[k] = 1 - map.data[k]
+    end
     local holes = collectComponents({ w = map.w, h = map.h, data = white }, 0.015, size * 0.001)
     for _, h in ipairs(holes) do
         if h.frame_sides < 3 and h.w * h.h < size * 0.15 and h.w / h.h < 4 and h.h / h.w < 4 then
@@ -494,9 +529,13 @@ local function sharedBalloon(map, parts)
             for _, q in ipairs(parts) do
                 local inter = math.max(0, math.min(hole.x + hole.w, q.x + q.w) - math.max(hole.x, q.x))
                     * math.max(0, math.min(hole.y + hole.h, q.y + q.h) - math.max(hole.y, q.y))
-                if inter > hole.w * hole.h * 0.15 then hits = hits + 1 end
+                if inter > hole.w * hole.h * 0.15 then
+                    hits = hits + 1
+                end
             end
-            if hits >= 2 then return true end
+            if hits >= 2 then
+                return true
+            end
         end
     end
     return false
@@ -514,12 +553,16 @@ function ComponentDetector.detectPage(map, settings)
     -- that layer and use its candidates to refine oversized merged regions.
     if map.structural then
         local alternate = {}
-        for k, v in pairs(map) do alternate[k] = v end
+        for k, v in pairs(map) do
+            alternate[k] = v
+        end
         alternate.data = map.structural
         local candidates = ComponentDetector.segment(alternate, settings)
 
         local refined = {}
-        if #panels == 0 then panels = { { x = 0, y = 0, w = map.native_w, h = map.native_h } } end
+        if #panels == 0 then
+            panels = { { x = 0, y = 0, w = map.native_w, h = map.native_h } }
+        end
         for _, p in ipairs(panels) do
             local parts, area = {}, 0
             for _, q in ipairs(candidates) do
@@ -530,16 +573,48 @@ function ComponentDetector.detectPage(map, settings)
                     area = area + q.w * q.h
                 end
             end
-            local min_sides_needed = (p.w * p.h >= map.native_w * map.native_h * 0.75) and 3 or 2
-            local well_framed = 0
-            for _, q in ipairs(parts) do if (q.frame_sides or 0) >= min_sides_needed then well_framed = well_framed + 1 end end
-            if #parts >= 2 and area >= p.w * p.h * 0.7 and well_framed >= #parts - 1 and not sharedBalloon(map, parts) then
-                for _, q in ipairs(parts) do refined[#refined + 1] = q end
+            -- Replacing a parent must account for almost all of it, with
+            -- independently framed, non-overlapping children. Otherwise keep
+            -- the wider crop instead of zooming into fragments of artwork.
+            local reliable = #parts >= 2 and area >= p.w * p.h * 0.85
+            for i, q in ipairs(parts) do
+                if (q.frame_sides or 0) < 3 then
+                    reliable = false
+                end
+                for j = i + 1, #parts do
+                    local r = parts[j]
+                    local overlap = math.max(0, math.min(q.x + q.w, r.x + r.w) - math.max(q.x, r.x))
+                        * math.max(0, math.min(q.y + q.h, r.y + r.h) - math.max(q.y, r.y))
+                    if overlap > math.min(q.w * q.h, r.w * r.h) * 0.02 then
+                        reliable = false
+                    end
+                end
+            end
+            if reliable and not sharedBalloon(map, parts) then
+                for _, q in ipairs(parts) do
+                    refined[#refined + 1] = q
+                end
             else
                 refined[#refined + 1] = p
             end
         end
-        panels = refined
+        if #refined <= (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
+            panels = refined
+        end
+    end
+
+    -- Comic mode fallback: if multiple panels were found but they lack 3-sided frames,
+    -- this is a splash/full-page art layout without real panel boxes.
+    if settings.mode == "comic" and #panels > 1 then
+        local framed_area = 0
+        for _, p in ipairs(panels) do
+            if (p.frame_sides or 0) >= 3 then
+                framed_area = framed_area + p.w * p.h
+            end
+        end
+        if framed_area < map.native_w * map.native_h * 0.05 then
+            panels = { { x = 0, y = 0, w = map.native_w, h = map.native_h } }
+        end
     end
 
     -- Remove nested "zoom panels": extra sub-boxes found inside a bigger panel
@@ -557,7 +632,11 @@ function ComponentDetector.detectPage(map, settings)
                     local inter = inter_w * inter_h
                     local a_area = a.w * a.h
                     local b_area = b_box.w * b_box.h
-                    if inter >= a_area * 0.85 and (b_area >= map.native_w * map.native_h * 0.55 or (a.frame_sides or 0) < 3) then
+                    if
+                        (b_area > a_area or (b_area == a_area and j < i))
+                        and inter >= a_area * 0.85
+                        and (b_area >= map.native_w * map.native_h * 0.55 or (a.frame_sides or 0) < 3)
+                    then
                         is_zoom_fp = true
                         break
                     end
@@ -570,14 +649,17 @@ function ComponentDetector.detectPage(map, settings)
         panels = filtered
     end
 
-    -- Relax page coverage for the sub-split panels which may have small gaps.
-    settings.segment_page_coverage_min = 0.5
-    local accepted, reason = Segmenter.accept(panels, map, settings)
+    -- Keep caller settings (including the shared defaults table) immutable.
+    local acceptance = {}
+    for key, value in pairs(settings) do
+        acceptance[key] = value
+    end
+    acceptance.segment_page_coverage_min = settings.segment_page_coverage_min or 0.5
+    local accepted, reason = Segmenter.accept(panels, map, acceptance)
     if not accepted then
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
     end
     return Geometry.sortReadingOrder(panels, settings.mode or "manga"), true
 end
 
-ComponentDetector.collectComponents = collectComponents
 return ComponentDetector

@@ -49,6 +49,8 @@ local EMBEDDED_RESIZE_MIN_FREE_BYTES = 15 * 1024 * 1024
 --- @field scale_y number Native units per map cell, vertically.
 --- @field background integer Estimated page background luminance (0-255).
 --- @field background_color table<{r:integer, g:integer, b:integer}> Estimated page background RGB colour.
+--- @field dark ffi.cdata* `uint8_t[w*h]` dark strokes (luminance <= 100).
+--- @field structural ffi.cdata* `uint8_t[w*h]` high-contrast ink (background delta > 100).
 --- @field inverted boolean Whether the page background is dark.
 --- @field border ffi.cdata*|nil `uint8_t[w*h]` of 0/1 border-stroke candidate flags, comic mode only.
 
@@ -589,6 +591,8 @@ local function buildMapFromBuffer(
 
     local src_w, src_h = work.w, work.h
     local data = ffi.new("uint8_t[?]", w * h)
+    local dark = ffi.new("uint8_t[?]", w * h)
+    local structural = ffi.new("uint8_t[?]", w * h)
     local border = detect_borders and ffi.new("uint8_t[?]", w * h) or nil
     local ink = 0
     local border_cells = 0
@@ -612,6 +616,8 @@ local function buildMapFromBuffer(
                         delta = -delta
                     end
                     local idx = map_row + x
+                    dark[idx] = val <= 100 and 1 or 0
+                    structural[idx] = delta > 100 and 1 or 0
                     if delta > ink_delta then
                         data[idx] = 1
                         ink = ink + 1
@@ -633,6 +639,8 @@ local function buildMapFromBuffer(
                     if delta < 0 then
                         delta = -delta
                     end
+                    dark[map_row + x] = val <= 100 and 1 or 0
+                    structural[map_row + x] = delta > 100 and 1 or 0
                     if delta > ink_delta then
                         data[map_row + x] = 1
                         ink = ink + 1
@@ -665,6 +673,8 @@ local function buildMapFromBuffer(
                     end
                     local delta = dr > dg and (dr > db and dr or db) or (dg > db and dg or db)
                     local idx = row + x
+                    dark[idx] = luminance(r, g, b) <= 100 and 1 or 0
+                    structural[idx] = delta > 100 and 1 or 0
                     if delta > ink_delta then
                         data[idx] = 1
                         ink = ink + 1
@@ -694,6 +704,8 @@ local function buildMapFromBuffer(
                         db = -db
                     end
                     local delta = dr > dg and (dr > db and dr or db) or (dg > db and dg or db)
+                    dark[row + x] = luminance(r, g, b) <= 100 and 1 or 0
+                    structural[row + x] = delta > 100 and 1 or 0
                     if delta > ink_delta then
                         data[row + x] = 1
                         ink = ink + 1
@@ -707,6 +719,8 @@ local function buildMapFromBuffer(
         w = w,
         h = h,
         data = data,
+        dark = dark,
+        structural = structural,
         border = border,
         ink = ink,
         native_w = native_w,
