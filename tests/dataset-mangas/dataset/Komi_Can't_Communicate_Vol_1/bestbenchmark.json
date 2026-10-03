@@ -26,5 +26,18 @@
     "gap_tolerance": 35,
     "iou_threshold": 0.5
   },
-  "updated_at": "2026-10-03"
+  "updated_at": "2026-10-03",
+  "components_conservative_full_volume": {
+    "pages_evaluated": 190,
+    "total_ground_truth": 747,
+    "total_detected": 746,
+    "true_positives": 729,
+    "false_positives": 17,
+    "precision": 0.9772,
+    "recall": 0.9759,
+    "f1": 0.9766,
+    "mean_iou": 0.9701,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5
+  }
 }

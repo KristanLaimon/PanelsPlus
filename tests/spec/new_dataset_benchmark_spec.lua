@@ -108,26 +108,36 @@ describe("Manga and comic full-volume production benchmarks", function()
             local mean_iou = matched_pages > 0 and iou_sum / matched_pages or 0
             local book_dir = book.directory
             local baseline = BenchmarkTracker.load(book_dir)
-            print(string.format(
-                "%s%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
-                expected.title,
-                expected.experimental and " [experimental / hard]" or expected.challenging and " [challenging]" or "",
-                expected.pages, precision * 100, recall * 100, f1 * 100, expected.target_f1 * 100, mean_iou
-            ))
+            print(
+                string.format(
+                    "%s%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
+                    expected.title,
+                    expected.experimental and " [experimental / hard]"
+                        or expected.challenging and " [challenging]"
+                        or "",
+                    expected.pages,
+                    precision * 100,
+                    recall * 100,
+                    f1 * 100,
+                    expected.target_f1 * 100,
+                    mean_iou
+                )
+            )
             if expected.experimental then
                 return -- Report hard layouts without driving production tuning.
             end
-            assert.is_true(f1 > expected.minimum_f1,
-                string.format("Mapped-page F1 must exceed %.0f%% (got %.2f%%)",
-                    expected.minimum_f1 * 100, f1 * 100))
-            if baseline and baseline.components_full_volume then
+            assert.is_true(
+                f1 > expected.minimum_f1,
+                string.format("Mapped-page F1 must exceed %.0f%% (got %.2f%%)", expected.minimum_f1 * 100, f1 * 100)
+            )
+            if baseline and baseline.components_conservative_full_volume then
                 local ok, reason = BenchmarkTracker.verifyNoRegression({
                     precision = precision,
                     recall = recall,
                     f1 = f1,
                     mean_iou = mean_iou,
                     false_positives = total_detected - total_matched,
-                }, baseline.components_full_volume)
+                }, baseline.components_conservative_full_volume)
                 assert.is_true(ok, reason)
             end
             if not expected.gate_95 then

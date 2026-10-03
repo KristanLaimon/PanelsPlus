@@ -73,6 +73,88 @@ describe("PageBitmap colour-aware background sampling", function()
         end
     end)
 
+    it("builds the same dark and structural layers used by dataset detection", function()
+        local Blitbuffer = require("ffi/blitbuffer")
+        local values = { 40, 100, 154, 155, 200, 215 }
+        local bb = {
+            w = 20,
+            h = 20,
+            isRGB = function()
+                return true
+            end,
+            getType = function()
+                return Blitbuffer.TYPE_BBRGB24
+            end,
+            getRotation = function()
+                return 0
+            end,
+            getInverse = function()
+                return 0
+            end,
+            getPixel = function(_, x, y)
+                local value = y >= 4 and y <= 15 and values[x - 3] or 255
+                return {
+                    getColorRGB24 = function()
+                        return { r = value, g = value, b = value }
+                    end,
+                }
+            end,
+        }
+        for _, mode in ipairs({ "manga", "comic" }) do
+            for _, border in ipairs({ false, true }) do
+                local map = PageBitmap.buildFromBlitbuffer(bb, {
+                    mode = mode,
+                    segment_target_width = 480,
+                    segment_border_split = border,
+                })
+                assert.is_not_nil(map.dark)
+                assert.is_not_nil(map.structural)
+                for i, value in ipairs(values) do
+                    local index = 8 * map.w + i + 3
+                    assert.equals(value <= 100 and 1 or 0, map.dark[index])
+                    assert.equals(255 - value > 100 and 1 or 0, map.structural[index])
+                    assert.equals(255 - value > 40 and 1 or 0, map.data[index])
+                end
+            end
+        end
+        -- Exercise the raw grayscale path as well as the generic RGB path.
+        local ffi = require("ffi")
+        local raw = ffi.new("uint8_t[?]", 400)
+        for y = 0, 19 do
+            for x = 0, 19 do
+                raw[y * 20 + x] = y >= 4 and y <= 15 and values[x - 3] or 255
+            end
+        end
+        local cast = ffi.cast
+        local ok, err = pcall(function()
+            ffi.cast = function(_, data)
+                return data
+            end
+            bb.data, bb.stride = raw, 20
+            bb.isRGB = function()
+                return false
+            end
+            bb.getType = function()
+                return Blitbuffer.TYPE_BB8
+            end
+            for _, border in ipairs({ false, true }) do
+                local map = PageBitmap.buildFromBlitbuffer(bb, {
+                    mode = "comic",
+                    segment_target_width = 480,
+                    segment_border_split = border,
+                })
+                for i, value in ipairs(values) do
+                    local index = 8 * map.w + i + 3
+                    assert.equals(value <= 100 and 1 or 0, map.dark[index])
+                    assert.equals(255 - value > 100 and 1 or 0, map.structural[index])
+                    assert.equals(255 - value > 40 and 1 or 0, map.data[index])
+                end
+            end
+        end)
+        ffi.cast = cast
+        assert.is_true(ok, tostring(err))
+    end)
+
     it("normalizes extracted-image detection to the fixed-page target raster", function()
         local width, height = PageBitmap._detectionRasterSize(1600, 2400, 480)
         assert.equals(480, width)

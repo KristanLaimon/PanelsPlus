@@ -106,12 +106,19 @@ The reader's connected-component detector can be evaluated with
 the original Lua segmenter so its historical `bestbenchmark.json` records stay
 comparable.
 
-Every local volume has a separate `components_full_volume` production baseline.
-Tests guard precision, recall, F1, and mean IoU to the four-decimal record
-precision, without rewriting records. A passing regression test means scores
-were preserved; it does **not** mean every metric reached 95%. The existing
-Komi/Scott F1, recall, and IoU gates remain in place, but Scott's precision is
-currently below 95%, and Bloom/Kobayashi's recall and F1 are below 95%.
+Every discovered annotated volume is evaluated on its mapped pages. Unmapped
+pages in unfinished books are excluded. SHY is experimental; its accuracy is
+reported without a production target gate.
+
+The production detector now retains a wider crop when a proposed split lacks
+sufficient evidence. Reader and dataset maps include the same dark-stroke and
+structural-ink layers. See [the stability report](dataset-mangas/report/panel-stability-2026-10-03.md)
+for all eight volumes, false-positive counts, and the recall tradeoff.
+Current regression checks use `components_conservative_full_volume`; historical
+`components_full_volume` records remain intact. Tests guard precision, recall,
+F1, mean IoU and false positives without rewriting records. A regression pass
+means the recorded behavior was preserved; it does not mean every book reached
+95% F1.
 
 Run `PANELSPLUS_REQUIRE_DATASETS=1 lua tests/run_tests.lua` to require all private
 page images. Otherwise unavailable full-volume production checks are reported

@@ -234,6 +234,7 @@ local avg_m_iou = evaluated_count > 0 and (sum_iou / evaluated_count) or 0
 print("SUMMARY METRICS:")
 print(string.format("  Pages Evaluated:       %d (%d with issues)", page_count, failure_count))
 print(string.format("  Total Panels:          %d Ground Truth, %d Detected, %d Matched", total_gt, total_det, total_tp))
+print(string.format("  False Positives:       %d", total_det - total_tp))
 print(string.format("  Global Precision:      %.1f%%", global_prec * 100))
 print(string.format("  Global Recall:         %.1f%%", global_rec * 100))
 print(string.format("  Global F1 Score:       %.1f%%", global_f1 * 100))
@@ -256,8 +257,9 @@ if not target_page and (target_book or run_all) and iou_threshold == 0.5 then
             local book_dir = book.directory
             local mode = metrics.pages_evaluated == #book.pages and "full_volume" or "preview"
             if detector_name == "components" then
-                mode = "components_" .. mode
+                mode = "components_conservative_" .. mode
             end
+            metrics.false_positives = metrics.total_detected - metrics.true_positives
             metrics.precision = metrics.total_detected > 0 and metrics.true_positives / metrics.total_detected or 0
             metrics.recall = metrics.total_ground_truth > 0 and metrics.true_positives / metrics.total_ground_truth or 0
             local denominator = metrics.total_ground_truth + metrics.total_detected
@@ -266,12 +268,13 @@ if not target_page and (target_book or run_all) and iou_threshold == 0.5 then
             metrics.gap_tolerance, metrics.iou_threshold = 35, iou_threshold
             print(
                 string.format(
-                    "  %s: Precision %.2f%%, Recall %.2f%%, F1 %.2f%%, IoU %.4f",
+                    "  %s: Precision %.2f%%, Recall %.2f%%, F1 %.2f%%, IoU %.4f, False positives %d",
                     book.book_title,
                     metrics.precision * 100,
                     metrics.recall * 100,
                     metrics.f1 * 100,
-                    metrics.mean_iou
+                    metrics.mean_iou,
+                    metrics.false_positives
                 )
             )
             local ok, reason = BenchmarkTracker.checkAndUpdate(book_dir, mode, metrics, update_best)

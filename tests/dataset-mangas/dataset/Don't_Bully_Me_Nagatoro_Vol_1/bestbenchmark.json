@@ -13,5 +13,18 @@
     "mean_iou": 0.9744,
     "gap_tolerance": 35,
     "iou_threshold": 0.5
+  },
+  "components_conservative_full_volume": {
+    "pages_evaluated": 108,
+    "total_ground_truth": 434,
+    "total_detected": 433,
+    "true_positives": 427,
+    "false_positives": 6,
+    "precision": 0.9861,
+    "recall": 0.9839,
+    "f1": 0.985,
+    "mean_iou": 0.9744,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5
   }
 }

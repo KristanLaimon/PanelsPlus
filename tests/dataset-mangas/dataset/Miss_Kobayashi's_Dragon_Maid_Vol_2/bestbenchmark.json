@@ -26,5 +26,18 @@
     "true_positives": 367,
     "false_positives": 156
   },
-  "updated_at": "2026-10-03"
+  "updated_at": "2026-10-03",
+  "components_conservative_full_volume": {
+    "pages_evaluated": 143,
+    "total_ground_truth": 586,
+    "total_detected": 560,
+    "true_positives": 548,
+    "false_positives": 12,
+    "precision": 0.9786,
+    "recall": 0.9352,
+    "f1": 0.9564,
+    "mean_iou": 0.9616,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5
+  }
 }
