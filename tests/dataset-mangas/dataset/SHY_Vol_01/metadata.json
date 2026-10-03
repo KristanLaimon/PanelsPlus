@@ -1,0 +1,16 @@
+{
+  "book_title": "SHY_Vol_01",
+  "type": "manga",
+  "total_pages": 179,
+  "finished": true,
+  "current_page": 179,
+  "last_opened": "2026-10-02T17:49:43.752652",
+  "source_file": "/mnt/host/SHY - Tomo 01 (#001-006).cbr",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
+}
