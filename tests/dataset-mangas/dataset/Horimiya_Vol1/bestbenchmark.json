@@ -1,0 +1,17 @@
+{
+  "book_title": "Horimiya_Vol1",
+  "updated_at": "2026-10-03",
+  "components_full_volume": {
+    "pages_evaluated": 181,
+    "total_ground_truth": 746,
+    "total_detected": 668,
+    "true_positives": 627,
+    "false_positives": 41,
+    "precision": 0.9386,
+    "recall": 0.8404,
+    "f1": 0.8868,
+    "mean_iou": 0.9224,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5
+  }
+}

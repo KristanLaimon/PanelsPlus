@@ -1,0 +1,17 @@
+{
+  "book_title": "SHY_Vol_01",
+  "updated_at": "2026-10-03",
+  "components_full_volume": {
+    "pages_evaluated": 179,
+    "total_ground_truth": 771,
+    "total_detected": 517,
+    "true_positives": 418,
+    "false_positives": 99,
+    "precision": 0.8085,
+    "recall": 0.5421,
+    "f1": 0.649,
+    "mean_iou": 0.8727,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5
+  }
+}

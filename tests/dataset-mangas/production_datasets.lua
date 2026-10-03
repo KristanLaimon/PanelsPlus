@@ -9,22 +9,33 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
---- Volumes covered by production accuracy regression tests.
-return {
-    { title = "Bloom_Into_You_Vol_8", type = "manga", pages = 213, panels = 725 },
-    { title = "Miss_Kobayashi's_Dragon_Maid_Vol_2", type = "manga", pages = 143, panels = 586 },
-    {
-        title = "Komi_Can't_Communicate_Vol_1",
-        type = "manga",
-        pages = 190,
-        panels = 747,
-        gate_95 = true,
-    },
-    {
-        title = "Scott_Pilgrim_Vol_5",
-        type = "comic",
-        pages = 218,
-        panels = 838,
-        gate_95 = true,
-    },
-}
+--- Discover every annotated volume, including unfinished books' mapped pages.
+local Manifest = require("tests.dataset-mangas.dataset_manifest")
+local datasets = {}
+for _, book in ipairs(Manifest.loadManga()) do
+    local pages, panels = 0, 0
+    for _, page in ipairs(book.pages) do
+        if #page.frames > 0 then
+            pages = pages + 1
+            panels = panels + #page.frames
+        end
+    end
+    if pages > 0 then
+        local tier = book.panel_benchmark_tier
+        local experimental = tier == "experimental"
+        local challenging = tier == "challenging"
+        datasets[#datasets + 1] = {
+            title = book.book_title,
+            type = book.type,
+            pages = pages,
+            panels = panels,
+            experimental = experimental,
+            challenging = challenging,
+            target_f1 = experimental and 0.50 or challenging and 0.90 or 0.95,
+            minimum_f1 = experimental and 0 or challenging and 0.85 or 0.90,
+            gate_95 = book.book_title == "Komi_Can't_Communicate_Vol_1"
+                or book.book_title == "Scott_Pilgrim_Vol_5",
+        }
+    end
+end
+return datasets

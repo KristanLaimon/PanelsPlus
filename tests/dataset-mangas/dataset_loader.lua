@@ -272,12 +272,16 @@ function DatasetLoader.loadPageMap(image_path, settings)
     -- Match the reader's byte-per-cell storage under LuaJIT while keeping
     -- this standalone loader usable with plain Lua too.
     local ink_data = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
+    local structural = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
+    local dark = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
     local total_ink = 0
     for y = 0, target_h - 1 do
         local row_base = y * target_w
         for x = 0, target_w - 1 do
             local idx = row_base + x + 1
             local val = raw:byte(idx)
+            dark[row_base + x] = val <= 100 and 1 or 0
+            structural[row_base + x] = math.abs(val - bg) > 100 and 1 or 0
             local diff = math.abs(val - bg)
             local is_ink = (diff > ink_delta) and 1 or 0
             ink_data[row_base + x] = is_ink
@@ -291,6 +295,8 @@ function DatasetLoader.loadPageMap(image_path, settings)
         w = target_w,
         h = target_h,
         data = ink_data,
+        dark = dark,
+        structural = structural,
         ink = total_ink,
         native_w = native_w,
         native_h = native_h,

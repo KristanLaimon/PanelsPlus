@@ -133,6 +133,18 @@ function BenchmarkTracker.verifyNoRegression(current, best, tolerance)
             )
     end
 
+    -- 4. Check False Positives regression (should be as low as possible)
+    if best.false_positives and current.false_positives then
+        if current.false_positives > best.false_positives then
+            return false,
+                string.format(
+                    "REGRESSION in False Positives: got %d, best was %d",
+                    current.false_positives,
+                    best.false_positives
+                )
+        end
+    end
+
     return true, nil
 end
 
@@ -166,6 +178,7 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
                 total_ground_truth = current.total_ground_truth,
                 total_detected = current.total_detected,
                 true_positives = current.true_positives,
+                false_positives = current.false_positives or ((current.total_detected and current.true_positives) and (current.total_detected - current.true_positives)) or 0,
                 precision = math.floor((current.precision or 0) * 10000 + 0.5) / 10000,
                 recall = math.floor((current.recall or 0) * 10000 + 0.5) / 10000,
                 f1 = math.floor((current.f1 or 0) * 10000 + 0.5) / 10000,
