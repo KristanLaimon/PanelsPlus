@@ -4,7 +4,7 @@
   "total_pages": 179,
   "finished": true,
   "current_page": 179,
-  "last_opened": "2026-10-02T17:49:43.752652",
+  "last_opened": "2026-10-02T17:50:24.317149",
   "source_file": "/mnt/host/SHY - Tomo 01 (#001-006).cbr",
   "annotation_schema_version": 2,
   "annotation_layers": [
@@ -12,5 +12,6 @@
     "phrase",
     "word"
   ],
-  "text_direction": "ltr"
+  "text_direction": "ltr",
+  "panel_benchmark_tier": "experimental"
 }

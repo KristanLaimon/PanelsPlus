@@ -54,6 +54,29 @@ describe("Dataset regression safeguards", function()
         assert.is_true(ok, tostring(err))
     end)
 
+    it("discovers every mapped volume and excludes unmapped pages", function()
+        local registry = require("tests.dataset-mangas.production_datasets")
+        local registered = {}
+        for _, entry in ipairs(registry) do
+            registered[entry.title] = entry
+        end
+        for _, book in ipairs(Manifest.loadManga()) do
+            local mapped = Manifest.getMappedPages(book)
+            if #mapped > 0 then
+                assert.is_not_nil(registered[book.book_title], "Unscheduled dataset: " .. book.book_title)
+                assert.equals(#mapped, registered[book.book_title].pages)
+            end
+        end
+        local unfinished = { pages = {
+            { page_index = 1, frames = {} },
+            { page_index = 3, frames = { { x = 0, y = 0, w = 100, h = 100 } } },
+            { page_index = 5, frames = {} },
+        } }
+        local mapped = Manifest.getMappedPages(unfinished)
+        assert.equals(1, #mapped)
+        assert.equals(3, mapped[1].page_index)
+    end)
+
     it("rejects drops in every recorded metric, including precision and IoU", function()
         local baseline = { precision = 0.96, recall = 0.96, f1 = 0.96, mean_iou = 0.96 }
         for metric in pairs(baseline) do

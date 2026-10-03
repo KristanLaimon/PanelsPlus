@@ -2,12 +2,13 @@
   "components_full_volume": {
     "pages_evaluated": 143,
     "total_ground_truth": 586,
-    "total_detected": 561,
-    "true_positives": 533,
-    "precision": 0.9501,
-    "recall": 0.9096,
-    "f1": 0.9294,
-    "mean_iou": 0.9569,
+    "total_detected": 565,
+    "true_positives": 552,
+    "false_positives": 13,
+    "precision": 0.9769,
+    "recall": 0.9419,
+    "f1": 0.9591,
+    "mean_iou": 0.9614,
     "gap_tolerance": 35,
     "iou_threshold": 0.5
   },
@@ -15,14 +16,15 @@
   "full_volume": {
     "f1": 0.6619,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5000,
+    "iou_threshold": 0.5,
     "mean_iou": 0.8411,
     "pages_evaluated": 143,
     "precision": 0.7017,
     "recall": 0.6263,
     "total_detected": 523,
     "total_ground_truth": 586,
-    "true_positives": 367
+    "true_positives": 367,
+    "false_positives": 156
   },
-  "updated_at": "2026-09-09"
+  "updated_at": "2026-10-03"
 }

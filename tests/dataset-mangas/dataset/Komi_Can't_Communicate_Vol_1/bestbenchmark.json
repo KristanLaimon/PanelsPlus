@@ -10,19 +10,21 @@
     "f1": 0.8759,
     "mean_iou": 0.9363,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5
+    "iou_threshold": 0.5,
+    "false_positives": 73
   },
   "components_full_volume": {
     "pages_evaluated": 190,
     "total_ground_truth": 747,
-    "total_detected": 734,
-    "true_positives": 714,
-    "precision": 0.9728,
-    "recall": 0.9558,
-    "f1": 0.9642,
-    "mean_iou": 0.9708,
+    "total_detected": 760,
+    "true_positives": 738,
+    "false_positives": 22,
+    "precision": 0.971,
+    "recall": 0.9879,
+    "f1": 0.9794,
+    "mean_iou": 0.9713,
     "gap_tolerance": 35,
     "iou_threshold": 0.5
   },
-  "updated_at": "2026-09-11"
+  "updated_at": "2026-10-03"
 }

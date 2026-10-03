@@ -76,7 +76,7 @@ local function loadDatasetMetadata(book_dir)
             error(metadata_path .. ': color_mode must be "true_b/w", "colorless_b/w", or "color"')
         end
     end
-    return dataset_type, color_mode
+    return dataset_type, color_mode, metadata
 end
 
 local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
@@ -92,10 +92,14 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 effective_book_dir = nested_dir
             end
         end
-        local dataset_type, color_mode = loadDatasetMetadata(effective_book_dir)
+        local dataset_type, color_mode, metadata = loadDatasetMetadata(effective_book_dir)
+        metadata = metadata or {}
         local book = {
             book_title = raw_book.book_title,
             directory = effective_book_dir,
+            finished = metadata.finished,
+            total_pages = metadata.total_pages,
+            panel_benchmark_tier = metadata.panel_benchmark_tier,
             type = dataset_type,
             color_mode = color_mode,
             pages = {},
@@ -273,6 +277,17 @@ function Manifest.loadManga(dataset_dir)
 
     Manifest._manga_cache[dataset_dir] = books
     return books
+end
+
+--- Pages with panel annotations; unfinished/unmapped pages are not negatives.
+function Manifest.getMappedPages(book)
+    local pages = {}
+    for _, page in ipairs(book.pages) do
+        if #page.frames > 0 then
+            pages[#pages + 1] = page
+        end
+    end
+    return pages
 end
 
 --- Get all pages across all books as a flat list.
