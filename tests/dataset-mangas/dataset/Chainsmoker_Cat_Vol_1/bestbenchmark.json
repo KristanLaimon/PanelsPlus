@@ -1,30 +1,30 @@
 {
   "book_title": "Chainsmoker_Cat_Vol_1",
-  "updated_at": "2026-10-03",
-  "components_full_volume": {
+  "components_conservative_full_volume": {
+    "f1": 0.9397,
+    "false_positives": 63,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9395,
     "pages_evaluated": 214,
+    "precision": 0.9359,
+    "recall": 0.9436,
+    "total_detected": 983,
     "total_ground_truth": 975,
-    "total_detected": 957,
-    "true_positives": 885,
+    "true_positives": 920
+  },
+  "components_full_volume": {
+    "f1": 0.9161,
     "false_positives": 72,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9429,
+    "pages_evaluated": 214,
     "precision": 0.9248,
     "recall": 0.9077,
-    "f1": 0.9161,
-    "mean_iou": 0.9429,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  },
-  "components_conservative_full_volume": {
-    "pages_evaluated": 214,
+    "total_detected": 957,
     "total_ground_truth": 975,
-    "total_detected": 930,
-    "true_positives": 861,
-    "false_positives": 69,
-    "precision": 0.9258,
-    "recall": 0.8831,
-    "f1": 0.9039,
-    "mean_iou": 0.9392,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  }
+    "true_positives": 885
+  },
+  "updated_at": "2026-10-03"
 }

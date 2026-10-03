@@ -1,43 +1,43 @@
 {
   "book_title": "Scott_Pilgrim_Vol_5",
-  "full_volume": {
-    "pages_evaluated": 218,
-    "total_ground_truth": 838,
-    "total_detected": 909,
-    "true_positives": 702,
-    "precision": 0.7723,
-    "recall": 0.8377,
-    "f1": 0.8037,
-    "mean_iou": 0.9097,
+  "components_conservative_full_volume": {
+    "f1": 0.9721,
+    "false_positives": 27,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "false_positives": 207
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9570,
+    "pages_evaluated": 218,
+    "precision": 0.9680,
+    "recall": 0.9761,
+    "total_detected": 845,
+    "total_ground_truth": 838,
+    "true_positives": 818
   },
   "components_full_volume": {
-    "pages_evaluated": 218,
-    "total_ground_truth": 838,
-    "total_detected": 839,
-    "true_positives": 824,
+    "f1": 0.9827,
     "false_positives": 15,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9564,
+    "pages_evaluated": 218,
     "precision": 0.9821,
     "recall": 0.9833,
-    "f1": 0.9827,
-    "mean_iou": 0.9564,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
+    "total_detected": 839,
+    "total_ground_truth": 838,
+    "true_positives": 824
   },
-  "updated_at": "2026-10-03",
-  "components_conservative_full_volume": {
-    "pages_evaluated": 218,
-    "total_ground_truth": 838,
-    "total_detected": 839,
-    "true_positives": 824,
-    "false_positives": 15,
-    "precision": 0.9821,
-    "recall": 0.9833,
-    "f1": 0.9827,
-    "mean_iou": 0.9564,
+  "full_volume": {
+    "f1": 0.8037,
+    "false_positives": 207,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  }
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9097,
+    "pages_evaluated": 218,
+    "precision": 0.7723,
+    "recall": 0.8377,
+    "total_detected": 909,
+    "total_ground_truth": 838,
+    "true_positives": 702
+  },
+  "updated_at": "2026-10-03"
 }
