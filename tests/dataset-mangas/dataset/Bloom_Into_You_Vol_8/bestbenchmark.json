@@ -1,30 +1,43 @@
 {
   "book_title": "Bloom_Into_You_Vol_8",
-  "components_full_volume": {
+  "components_conservative_full_volume": {
+    "f1": 0.9464,
+    "false_positives": 51,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9392,
     "pages_evaluated": 213,
+    "precision": 0.9318,
+    "recall": 0.9614,
+    "total_detected": 748,
     "total_ground_truth": 725,
-    "total_detected": 709,
-    "true_positives": 678,
+    "true_positives": 697
+  },
+  "components_full_volume": {
+    "f1": 0.9456,
     "false_positives": 31,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9366,
+    "pages_evaluated": 213,
     "precision": 0.9562,
     "recall": 0.9351,
-    "f1": 0.9456,
-    "mean_iou": 0.9366,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
+    "total_detected": 709,
+    "total_ground_truth": 725,
+    "true_positives": 678
   },
   "full_volume": {
     "f1": 0.7985,
+    "false_positives": 214,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.8768,
     "pages_evaluated": 213,
     "precision": 0.7446,
     "recall": 0.8607,
     "total_detected": 838,
     "total_ground_truth": 725,
-    "true_positives": 624,
-    "false_positives": 214
+    "true_positives": 624
   },
   "ocr": {
     "text_cli_bundled_eng": {
@@ -65,29 +78,16 @@
   },
   "preview": {
     "f1": 1,
+    "false_positives": 0,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9583,
     "pages_evaluated": 3,
     "precision": 1,
     "recall": 1,
     "total_detected": 3,
     "total_ground_truth": 3,
-    "true_positives": 3,
-    "false_positives": 0
+    "true_positives": 3
   },
-  "updated_at": "2026-10-03",
-  "components_conservative_full_volume": {
-    "pages_evaluated": 213,
-    "total_ground_truth": 725,
-    "total_detected": 702,
-    "true_positives": 679,
-    "false_positives": 23,
-    "precision": 0.9672,
-    "recall": 0.9366,
-    "f1": 0.9516,
-    "mean_iou": 0.9409,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  }
+  "updated_at": "2026-10-03"
 }

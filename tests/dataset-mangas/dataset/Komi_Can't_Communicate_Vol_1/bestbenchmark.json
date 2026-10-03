@@ -1,43 +1,43 @@
 {
   "book_title": "Komi_Can't_Communicate_Vol_1",
-  "full_volume": {
-    "pages_evaluated": 190,
-    "total_ground_truth": 747,
-    "total_detected": 712,
-    "true_positives": 639,
-    "precision": 0.8975,
-    "recall": 0.8554,
-    "f1": 0.8759,
-    "mean_iou": 0.9363,
+  "components_conservative_full_volume": {
+    "f1": 0.9653,
+    "false_positives": 29,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "false_positives": 73
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9609,
+    "pages_evaluated": 190,
+    "precision": 0.9615,
+    "recall": 0.9692,
+    "total_detected": 753,
+    "total_ground_truth": 747,
+    "true_positives": 724
   },
   "components_full_volume": {
-    "pages_evaluated": 190,
-    "total_ground_truth": 747,
-    "total_detected": 760,
-    "true_positives": 738,
-    "false_positives": 22,
-    "precision": 0.971,
-    "recall": 0.9879,
     "f1": 0.9794,
+    "false_positives": 22,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9713,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  },
-  "updated_at": "2026-10-03",
-  "components_conservative_full_volume": {
     "pages_evaluated": 190,
+    "precision": 0.9710,
+    "recall": 0.9879,
+    "total_detected": 760,
     "total_ground_truth": 747,
-    "total_detected": 746,
-    "true_positives": 729,
-    "false_positives": 17,
-    "precision": 0.9772,
-    "recall": 0.9759,
-    "f1": 0.9766,
-    "mean_iou": 0.9701,
+    "true_positives": 738
+  },
+  "full_volume": {
+    "f1": 0.8759,
+    "false_positives": 73,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  }
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9363,
+    "pages_evaluated": 190,
+    "precision": 0.8975,
+    "recall": 0.8554,
+    "total_detected": 712,
+    "total_ground_truth": 747,
+    "true_positives": 639
+  },
+  "updated_at": "2026-10-03"
 }

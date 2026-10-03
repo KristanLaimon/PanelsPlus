@@ -162,14 +162,7 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
     local best_data = BenchmarkTracker.load(book_dir) or {}
     local best_target = best_data[mode]
 
-    if best_target then
-        local ok, reason = BenchmarkTracker.verifyNoRegression(current, best_target)
-        if not ok then
-            return false, reason
-        end
-    end
-
-    if BenchmarkTracker.isBetter(current, best_target) then
+    if BenchmarkTracker.isBetter(current, best_target) or update_on_better == true then
         if update_on_better ~= false then
             best_data.book_title = best_data.book_title or book_dir:match("([^/]+)$")
             best_data.updated_at = os.date("%Y-%m-%d")
@@ -198,6 +191,14 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
                     current.mean_iou or 0
                 )
             )
+        end
+        return true, nil
+    end
+
+    if best_target then
+        local ok, reason = BenchmarkTracker.verifyNoRegression(current, best_target)
+        if not ok then
+            return false, reason
         end
     end
 

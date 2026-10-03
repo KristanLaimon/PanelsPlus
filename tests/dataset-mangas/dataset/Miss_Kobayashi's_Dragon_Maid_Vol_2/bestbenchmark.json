@@ -1,43 +1,43 @@
 {
-  "components_full_volume": {
+  "book_title": "Miss_Kobayashi's_Dragon_Maid_Vol_2",
+  "components_conservative_full_volume": {
+    "f1": 0.9680,
+    "false_positives": 11,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9618,
     "pages_evaluated": 143,
+    "precision": 0.9807,
+    "recall": 0.9556,
+    "total_detected": 571,
     "total_ground_truth": 586,
-    "total_detected": 565,
-    "true_positives": 552,
+    "true_positives": 560
+  },
+  "components_full_volume": {
+    "f1": 0.9591,
     "false_positives": 13,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9614,
+    "pages_evaluated": 143,
     "precision": 0.9769,
     "recall": 0.9419,
-    "f1": 0.9591,
-    "mean_iou": 0.9614,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
+    "total_detected": 565,
+    "total_ground_truth": 586,
+    "true_positives": 552
   },
-  "book_title": "Miss_Kobayashi's_Dragon_Maid_Vol_2",
   "full_volume": {
     "f1": 0.6619,
+    "false_positives": 156,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.8411,
     "pages_evaluated": 143,
     "precision": 0.7017,
     "recall": 0.6263,
     "total_detected": 523,
     "total_ground_truth": 586,
-    "true_positives": 367,
-    "false_positives": 156
+    "true_positives": 367
   },
-  "updated_at": "2026-10-03",
-  "components_conservative_full_volume": {
-    "pages_evaluated": 143,
-    "total_ground_truth": 586,
-    "total_detected": 560,
-    "true_positives": 548,
-    "false_positives": 12,
-    "precision": 0.9786,
-    "recall": 0.9352,
-    "f1": 0.9564,
-    "mean_iou": 0.9616,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5
-  }
+  "updated_at": "2026-10-03"
 }
