@@ -3,11 +3,11 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "Panels: Classic"
-msgstr "Paneles: Clásico"
+msgid "Panels Finding: Legacy"
+msgstr "Detección de viñetas: Heredado"
 
-msgid "Panels: Detailed"
-msgstr "Paneles: Detallado"
+msgid "Panels Finding: Normal"
+msgstr "Detección de viñetas: Normal"
 
 msgid " (fps)"
 msgstr " (fps)"

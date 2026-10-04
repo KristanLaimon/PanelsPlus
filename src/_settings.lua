@@ -26,7 +26,7 @@ local Settings = {
         enabled = true,
         mode = "manga",
         crop_mode = "strict",
-        panel_finding_mode = "classic",
+        panel_finding_mode = "legacy",
         panel_margin_ratio = 0.12,
         invert_swipe = false,
         invert_taps = false,
@@ -95,9 +95,9 @@ local Settings = {
     },
 }
 
---- Map stored names from the first selector release to the current choices.
+--- Map stored names from earlier selector versions to the current choices.
 function Settings.normalizePanelFindingMode(mode)
-    return (mode == "detailed" or mode == "aggressive") and "detailed" or "classic"
+    return (mode == "normal" or mode == "detailed" or mode == "aggressive") and "normal" or "legacy"
 end
 
 --- Fill missing settings and migrate older performance-sensitive defaults.

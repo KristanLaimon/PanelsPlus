@@ -196,7 +196,7 @@ describe("EmbeddedImage native page animation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
-                panel_finding_mode = "detailed",
+                panel_finding_mode = "normal",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},
@@ -371,7 +371,7 @@ describe("EmbeddedImage device rotation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
-                panel_finding_mode = "detailed",
+                panel_finding_mode = "normal",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},

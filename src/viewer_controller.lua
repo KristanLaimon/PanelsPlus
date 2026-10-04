@@ -183,7 +183,7 @@ function ViewerController:toggleViewerPanelFindingMode(viewer)
         x = current.x + current.w / 2,
         y = current.y + current.h / 2,
     }
-    self:setPanelFindingMode(self.settings.panel_finding_mode == "detailed" and "classic" or "detailed")
+    self:setPanelFindingMode(self.settings.panel_finding_mode == "normal" and "legacy" or "normal")
     local panels = self:collectPanels(viewer.page)
     local start_idx = center and PanelCollector.startIndex(panels, center) or 1
     UIManager:close(viewer)

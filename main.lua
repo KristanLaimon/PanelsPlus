@@ -571,9 +571,9 @@ function PanelsPlus:teardownDocumentResources()
     if ok and ComponentDetector.clearScratch then
         ComponentDetector.clearScratch()
     end
-    local classic_ok, ClassicComponentDetector = pcall(require, "src._classiccomponentdetector")
-    if classic_ok and ClassicComponentDetector.clearScratch then
-        ClassicComponentDetector.clearScratch()
+    local legacy_ok, LegacyComponentDetector = pcall(require, "src._legacycomponentdetector")
+    if legacy_ok and LegacyComponentDetector.clearScratch then
+        LegacyComponentDetector.clearScratch()
     end
 
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes

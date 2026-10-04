@@ -18,8 +18,8 @@ local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
 local NativeDetector = require("src._nativedetector")
 local ComponentDetector = require("src._componentdetector")
-local ClassicComponentDetector = require("src._classiccomponentdetector")
-local ClassicGeometry = require("src._classicgeometry")
+local LegacyComponentDetector = require("src._legacycomponentdetector")
+local LegacyGeometry = require("src._legacygeometry")
 local PageBitmap = require("src._pagebitmap")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
@@ -236,8 +236,8 @@ end
 local function detectPanels(image, settings)
     local map = PageBitmap.buildFromBlitbuffer(image, settings)
     if map then
-        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "classic"
-                and ClassicComponentDetector
+        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "legacy"
+                and LegacyComponentDetector
             or ComponentDetector
         local panels = detector.detectPage(map, settings)
         return panels, "components"
@@ -273,8 +273,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return false
         end
     end
-    local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "classic"
-            and ClassicGeometry
+    local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "legacy" and LegacyGeometry
         or Geometry
     panels = ordering.sortReadingOrder(panels, self.settings.mode)
 
@@ -363,7 +362,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return self:reopenEmbeddedImagePanels(current_viewer)
         end,
         panel_finding_toggle_callback = function(current_viewer)
-            self:setPanelFindingMode(self.settings.panel_finding_mode == "detailed" and "classic" or "detailed")
+            self:setPanelFindingMode(self.settings.panel_finding_mode == "normal" and "legacy" or "normal")
             return self:reopenEmbeddedImagePanels(current_viewer, { redetect = true })
         end,
         margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)

@@ -1,12 +1,12 @@
 # Panel finding modes
 
-Panels+ offers **Classic Panel Finding** and **Detailed Panel Finding** from the
+Panels+ offers **Panels Finding: Legacy** and **Panels Finding: Normal** from the
 middle button in the panel viewer's bottom row. Tap to cycle between them. The
 current choice is saved with the document when document settings are enabled.
-Classic is the default when no panel finding choice is saved. An explicitly
-saved Detailed choice is preserved.
+Legacy is the default when no panel finding choice is saved. An explicitly
+saved Normal choice is preserved.
 
-Detailed uses the current component detector and reading-order rules. Classic
+Normal uses the current component detector and reading-order rules. Legacy
 uses the conservative v1.4.0 component detector and reading-order rules. The
 button redetects the open page and opens the panel nearest the one being read.
 Stored legacy detector preferences still migrate to the component pipeline;
@@ -97,7 +97,7 @@ Spread rotation is one entry with four choices (off, in the panel viewer, while 
 in the panel viewer and while reading). It and the fold line option are in the Panels+ menu and under `[Rotation]` in
 `More Panel Viewer Settings`.
 
-The panel finding button cycles between Classic and Detailed on the current page.
+The panel finding button cycles between Legacy and Normal on the current page.
 
 ## Diagnosing detection
 

@@ -1,10 +1,10 @@
 # Panel detection
 
-Panels+ offers **Classic Panel Finding** (the default) and **Detailed Panel
-Finding**. Both use the map built by `_pagebitmap.lua`. Detailed uses
-`_componentdetector.lua` and the current reading-order sorter; Classic uses the
-v1.4.0 detector in `_classiccomponentdetector.lua` and its sorter in
-`_classicgeometry.lua`. The panel viewer's bottom-row button cycles between them
+Panels+ offers **Panels Finding: Legacy** (the default) and **Panels Finding:
+Normal**. Both use the map built by `_pagebitmap.lua`. Normal uses
+`_componentdetector.lua` and the current reading-order sorter; Legacy uses the
+v1.4.0 detector in `_legacycomponentdetector.lua` and its sorter in
+`_legacygeometry.lua`. The panel viewer's bottom-row button cycles between them
 and redetects the open page.
 
 This document describes the image-processing problem, the data flowing through
@@ -12,7 +12,7 @@ the pipeline, the heuristics used to turn pixels into panel rectangles, and the
 failure behavior. Start with [INTRO.md](INTRO.md) if terms such as binary image,
 connected component, or bounding box are unfamiliar.
 
-The component policy below describes Detailed; Classic retains the
+The component policy below describes Normal; Legacy retains the
 v1.4.0 grouping and reading-order policy.
 
 ## Detection is geometry recovery, not semantic recognition
