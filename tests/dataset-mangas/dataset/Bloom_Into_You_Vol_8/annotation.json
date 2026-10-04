@@ -9751,6 +9751,7 @@
             "h": 542
           }
         ],
+        "wordless": true,
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/35.png"
         }
@@ -9765,6 +9766,7 @@
             "h": 1281
           }
         ],
+        "wordless": true,
         "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/36.png"
@@ -9856,6 +9858,7 @@
             "h": 883
           }
         ],
+        "wordless": true,
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/38.png"
         }
@@ -9870,6 +9873,7 @@
             "h": 1674
           }
         ],
+        "wordless": true,
         "illustration_type": "single_page",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/39.png"
@@ -9903,6 +9907,7 @@
             "h": 920
           }
         ],
+        "wordless": true,
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/40.png"
         }
@@ -9929,6 +9934,7 @@
             "h": 1359
           }
         ],
+        "wordless": true,
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/41.png"
         }
@@ -10404,6 +10410,118 @@
             "h": 25,
             "phrase_id": 4,
             "text": "IN THAT CASE, I REALLY HOPE I'M ON YOUR TEAM!"
+          },
+          {
+            "x": 893,
+            "y": 463,
+            "w": 52,
+            "h": 24,
+            "phrase_id": 5,
+            "text": "HEY, YUU...."
+          },
+          {
+            "x": 881,
+            "y": 487,
+            "w": 70,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "HEY, YUU...."
+          },
+          {
+            "x": 698,
+            "y": 502,
+            "w": 58,
+            "h": 25,
+            "phrase_id": 6,
+            "text": "HM?"
+          },
+          {
+            "x": 524,
+            "y": 477,
+            "w": 43,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "DID SOMETHING GOOD HAPPEN?"
+          },
+          {
+            "x": 479,
+            "y": 502,
+            "w": 133,
+            "h": 21,
+            "phrase_id": 7,
+            "text": "DID SOMETHING GOOD HAPPEN?"
+          },
+          {
+            "x": 512,
+            "y": 523,
+            "w": 70,
+            "h": 23,
+            "phrase_id": 7,
+            "text": "DID SOMETHING GOOD HAPPEN?"
+          },
+          {
+            "x": 491,
+            "y": 546,
+            "w": 106,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "DID SOMETHING GOOD HAPPEN?"
+          },
+          {
+            "x": 964,
+            "y": 972,
+            "w": 60,
+            "h": 24,
+            "phrase_id": 8,
+            "text": "HEH HEH..."
+          },
+          {
+            "x": 952,
+            "y": 996,
+            "w": 80,
+            "h": 25,
+            "phrase_id": 8,
+            "text": "HEH HEH..."
+          },
+          {
+            "x": 400,
+            "y": 1218,
+            "w": 49,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "UM, YEAH."
+          },
+          {
+            "x": 391,
+            "y": 1243,
+            "w": 68,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "UM, YEAH."
+          },
+          {
+            "x": 344,
+            "y": 1288,
+            "w": 20,
+            "h": 23,
+            "phrase_id": 10,
+            "text": "I GUESS SO."
+          },
+          {
+            "x": 313,
+            "y": 1311,
+            "w": 81,
+            "h": 24,
+            "phrase_id": 10,
+            "text": "I GUESS SO."
+          },
+          {
+            "x": 333,
+            "y": 1335,
+            "w": 42,
+            "h": 22,
+            "phrase_id": 10,
+            "text": "I GUESS SO."
           }
         ],
         "word": [
@@ -10638,6 +10756,118 @@
             "h": 25,
             "phrase_id": 4,
             "text": "TEAM!"
+          },
+          {
+            "x": 893,
+            "y": 463,
+            "w": 52,
+            "h": 24,
+            "phrase_id": 5,
+            "text": "HEY,"
+          },
+          {
+            "x": 881,
+            "y": 487,
+            "w": 70,
+            "h": 22,
+            "phrase_id": 5,
+            "text": "YUU..."
+          },
+          {
+            "x": 698,
+            "y": 502,
+            "w": 58,
+            "h": 25,
+            "phrase_id": 6,
+            "text": "HM?"
+          },
+          {
+            "x": 524,
+            "y": 477,
+            "w": 43,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "DID"
+          },
+          {
+            "x": 479,
+            "y": 502,
+            "w": 133,
+            "h": 21,
+            "phrase_id": 7,
+            "text": "SOMETHING"
+          },
+          {
+            "x": 512,
+            "y": 523,
+            "w": 70,
+            "h": 23,
+            "phrase_id": 7,
+            "text": "GOOD"
+          },
+          {
+            "x": 491,
+            "y": 546,
+            "w": 106,
+            "h": 24,
+            "phrase_id": 7,
+            "text": "HAPPEN?"
+          },
+          {
+            "x": 964,
+            "y": 972,
+            "w": 60,
+            "h": 24,
+            "phrase_id": 8,
+            "text": "HEH"
+          },
+          {
+            "x": 952,
+            "y": 996,
+            "w": 80,
+            "h": 25,
+            "phrase_id": 8,
+            "text": "HEH..."
+          },
+          {
+            "x": 400,
+            "y": 1218,
+            "w": 49,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "UM,"
+          },
+          {
+            "x": 391,
+            "y": 1243,
+            "w": 68,
+            "h": 25,
+            "phrase_id": 9,
+            "text": "YEAH."
+          },
+          {
+            "x": 344,
+            "y": 1288,
+            "w": 20,
+            "h": 23,
+            "phrase_id": 10,
+            "text": "I"
+          },
+          {
+            "x": 313,
+            "y": 1311,
+            "w": 81,
+            "h": 24,
+            "phrase_id": 10,
+            "text": "GUESS"
+          },
+          {
+            "x": 333,
+            "y": 1335,
+            "w": 42,
+            "h": 22,
+            "phrase_id": 10,
+            "text": "SO."
           }
         ],
         "text_direction": "ltr",
@@ -10679,6 +10909,59 @@
             "h": 610
           }
         ],
+        "phrase": [
+          {
+            "x": 669,
+            "y": 1159,
+            "w": 67,
+            "h": 19,
+            "phrase_id": 1,
+            "text": "GOOD MORNING SAYAKA."
+          },
+          {
+            "x": 649,
+            "y": 1178,
+            "w": 106,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "GOOD MORNING SAYAKA."
+          },
+          {
+            "x": 658,
+            "y": 1201,
+            "w": 89,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "GOOD MORNING SAYAKA."
+          }
+        ],
+        "word": [
+          {
+            "x": 669,
+            "y": 1159,
+            "w": 67,
+            "h": 19,
+            "phrase_id": 1,
+            "text": "GOOD"
+          },
+          {
+            "x": 649,
+            "y": 1178,
+            "w": 106,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "MORNING,"
+          },
+          {
+            "x": 658,
+            "y": 1201,
+            "w": 89,
+            "h": 20,
+            "phrase_id": 1,
+            "text": "SAYAKA."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/45.png"
         }
@@ -10717,6 +11000,59 @@
             "h": 644
           }
         ],
+        "phrase": [
+          {
+            "x": 1013,
+            "y": 173,
+            "w": 70,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "GOOD MORNING, TOUKO."
+          },
+          {
+            "x": 994,
+            "y": 196,
+            "w": 104,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "GOOD MORNING, TOUKO."
+          },
+          {
+            "x": 1009,
+            "y": 218,
+            "w": 77,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "GOOD MORNING, TOUKO."
+          }
+        ],
+        "word": [
+          {
+            "x": 1013,
+            "y": 173,
+            "w": 70,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "GOOD"
+          },
+          {
+            "x": 994,
+            "y": 196,
+            "w": 104,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "MORNING,"
+          },
+          {
+            "x": 1009,
+            "y": 218,
+            "w": 77,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "TOUKO."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/46.png"
         }

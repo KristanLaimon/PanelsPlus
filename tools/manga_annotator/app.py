@@ -16,12 +16,12 @@ import sys
 from typing import Optional, List
 from PIL import Image
 
-from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal
+from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal, QRect, QPoint
 from PyQt6.QtGui import (
     QAction, QIcon, QImage, QPixmap, QKeySequence, QFont, QColor
 )
 from PyQt6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout,
+    QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
     QPushButton, QLabel, QLineEdit, QFileDialog, QMessageBox,
     QListWidget, QListWidgetItem, QSpinBox, QSlider, QStatusBar,
     QSplitter, QGroupBox, QTabWidget, QScrollArea, QFrame,
@@ -58,6 +58,13 @@ QStatusBar { background-color: #252526; color: #cccccc; }
 QToolTip { background-color: #252526; color: #ffffff; border: 1px solid #555555; }
 """
 
+# Subtle mode colors for the window surfaces and canvas surround.
+MODE_SURFACE_COLORS = {
+    "panel": ("#28211d", "#302823", "#393029"),
+    "phrase": ("#251f2b", "#2d2634", "#362e40"),
+    "word": ("#202a23", "#28332b", "#303d33"),
+}
+
 
 def apply_dark_theme(app: Optional[QApplication] = None) -> None:
     """Apply the annotator's default dark theme once per Qt application."""
@@ -77,8 +84,131 @@ def pil_to_qpixmap(pil_img: Image.Image) -> QPixmap:
     return QPixmap.fromImage(qimg)
 
 
-class BookCardWidget(QFrame):
-    """Card widget representing a book in the KOReader-style Recent Projects view."""
+class TextAnnotationDialog(QDialog):
+    """Movable text entry dialog with persistent screen coordinates across runs."""
+
+    def __init__(
+        self,
+        title: str,
+        label: str,
+        initial_text: str = "",
+        saved_pos: Optional[dict] = None,
+        on_moved: Optional[callable] = None,
+        parent=None,
+    ):
+        super().__init__(parent)
+        self.setWindowTitle(title)
+        self.setMinimumWidth(380)
+        self._saved_pos = saved_pos
+        self._on_moved = on_moved
+        self._pos_restored = False
+
+        self.setStyleSheet("""
+            QDialog {
+                background-color: #252526;
+                border: 1px solid #3e3e42;
+                border-radius: 6px;
+            }
+            QLabel {
+                color: #e0e0e0;
+                font-size: 12px;
+            }
+            QLineEdit {
+                background-color: #1e1e1e;
+                color: #ffffff;
+                border: 1px solid #007acc;
+                border-radius: 4px;
+                padding: 6px 10px;
+                font-size: 13px;
+                selection-background-color: #094771;
+            }
+            QPushButton {
+                background-color: #3e3e42;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 6px 14px;
+                font-size: 12px;
+                min-width: 65px;
+            }
+            QPushButton:hover {
+                background-color: #505050;
+            }
+            QPushButton:default {
+                background-color: #007acc;
+                border: 1px solid #0098ff;
+            }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(16, 16, 16, 16)
+        layout.setSpacing(12)
+
+        self.lbl_prompt = QLabel(label)
+        self.lbl_prompt.setWordWrap(True)
+        layout.addWidget(self.lbl_prompt)
+
+        self.txt_input = QLineEdit(initial_text)
+        layout.addWidget(self.txt_input)
+
+        self.button_box = QDialogButtonBox(
+            QDialogButtonBox.StandardButton.Ok | QDialogButtonBox.StandardButton.Cancel
+        )
+        self.btn_ok = self.button_box.button(QDialogButtonBox.StandardButton.Ok)
+        if self.btn_ok:
+            self.btn_ok.setText("Save")
+        self.btn_cancel = self.button_box.button(QDialogButtonBox.StandardButton.Cancel)
+        if self.btn_cancel:
+            self.btn_cancel.setText("Cancel")
+
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
+        layout.addWidget(self.button_box)
+
+        self.txt_input.textChanged.connect(self._on_text_changed)
+        self._on_text_changed(initial_text)
+
+        self._restore_position()
+
+    def _on_text_changed(self, text: str):
+        if self.btn_ok:
+            self.btn_ok.setEnabled(bool(text.strip()))
+
+    def _restore_position(self):
+        if self._saved_pos and isinstance(self._saved_pos, dict):
+            x = self._saved_pos.get("x")
+            y = self._saved_pos.get("y")
+            if x is not None and y is not None:
+                screens = QApplication.screens()
+                valid = any(s.geometry().intersects(QRect(int(x), int(y), 100, 100)) for s in screens)
+                if valid:
+                    self.move(int(x), int(y))
+                    self._pos_restored = True
+
+    def showEvent(self, event):
+        super().showEvent(event)
+        if self._saved_pos and not self._pos_restored:
+            self._restore_position()
+        QTimer.singleShot(0, lambda: (self.txt_input.setFocus(), self.txt_input.selectAll()))
+
+    def moveEvent(self, event):
+        super().moveEvent(event)
+        pos = self.pos()
+        if self._on_moved and (pos.x() != 0 or pos.y() != 0):
+            self._on_moved(pos.x(), pos.y())
+
+    def done(self, r):
+        pos = self.pos()
+        if self._on_moved and (pos.x() != 0 or pos.y() != 0):
+            self._on_moved(pos.x(), pos.y())
+        super().done(r)
+
+    def get_text(self) -> str:
+        return self.txt_input.text().strip()
+
+
+class BookRowCardWidget(QFrame):
+    """Card widget representing a book in Rows (list) view."""
 
     open_requested = pyqtSignal(str)  # book_title
     toggle_finished_requested = pyqtSignal(str)  # book_title
@@ -88,13 +218,13 @@ class BookCardWidget(QFrame):
         self.book_title = book_info["book_title"]
         self.setFrameShape(QFrame.Shape.StyledPanel)
         self.setStyleSheet("""
-            BookCardWidget {
+            BookRowCardWidget {
                 background-color: #252526;
                 border: 1px solid #3e3e42;
                 border-radius: 8px;
                 padding: 10px;
             }
-            BookCardWidget:hover {
+            BookRowCardWidget:hover {
                 border: 1px solid #007acc;
                 background-color: #2d2d30;
             }
@@ -136,7 +266,7 @@ class BookCardWidget(QFrame):
 
         # 2. Book details & progress info
         details_layout = QVBoxLayout()
-        details_layout.setSpacing(6)
+        details_layout.setSpacing(5)
 
         # Title + status badge
         title_row = QHBoxLayout()
@@ -165,32 +295,57 @@ class BookCardWidget(QFrame):
         title_row.addStretch(1)
         details_layout.addLayout(title_row)
 
-        # Progress bar
-        pct = book_info.get("progress_percent", 0)
-        pbar = QProgressBar()
-        pbar.setRange(0, 100)
-        pbar.setValue(pct)
-        pbar.setFixedHeight(12)
-        pbar.setTextVisible(False)
-        pbar_color = "#4caf50" if is_finished else "#2196f3"
-        pbar.setStyleSheet(f"""
+        tot_cnt = book_info.get("total_pages", 0)
+
+        # Panels Progress bar
+        panels_pct = book_info.get("panels_progress_percent", book_info.get("progress_percent", 0))
+        panels_ann = book_info.get("panels_annotated_pages", book_info.get("annotated_pages", 0))
+        pbar_panels = QProgressBar()
+        pbar_panels.setRange(0, 100)
+        pbar_panels.setValue(panels_pct)
+        pbar_panels.setFixedHeight(10)
+        pbar_panels.setTextVisible(False)
+        pbar_panels_color = "#4caf50" if is_finished else "#2196f3"
+        pbar_panels.setStyleSheet(f"""
             QProgressBar {{
                 background-color: #333333;
-                border-radius: 6px;
+                border-radius: 5px;
             }}
             QProgressBar::chunk {{
-                background-color: {pbar_color};
-                border-radius: 6px;
+                background-color: {pbar_panels_color};
+                border-radius: 5px;
             }}
         """)
-        details_layout.addWidget(pbar)
+        details_layout.addWidget(pbar_panels)
 
-        # Progress metrics label
-        ann_cnt = book_info.get("annotated_pages", 0)
-        tot_cnt = book_info.get("total_pages", 0)
-        lbl_info = QLabel(f"Progress: <b>{pct}%</b> ({ann_cnt} of {tot_cnt} pages annotated)")
-        lbl_info.setStyleSheet("color: #cccccc; font-size: 11px;")
-        details_layout.addWidget(lbl_info)
+        lbl_panels_info = QLabel(f"Panels: <b>{panels_pct}%</b> ({panels_ann} of {tot_cnt} pages annotated)")
+        lbl_panels_info.setStyleSheet("color: #cccccc; font-size: 11px;")
+        details_layout.addWidget(lbl_panels_info)
+
+        # OCR Progress bar
+        ocr_pct = book_info.get("ocr_progress_percent", 0)
+        ocr_ann = book_info.get("ocr_annotated_pages", 0)
+        pbar_ocr = QProgressBar()
+        pbar_ocr.setRange(0, 100)
+        pbar_ocr.setValue(ocr_pct)
+        pbar_ocr.setFixedHeight(10)
+        pbar_ocr.setTextVisible(False)
+        pbar_ocr_color = "#4caf50" if (ocr_pct >= 100 and tot_cnt > 0) else "#ab47bc"
+        pbar_ocr.setStyleSheet(f"""
+            QProgressBar {{
+                background-color: #333333;
+                border-radius: 5px;
+            }}
+            QProgressBar::chunk {{
+                background-color: {pbar_ocr_color};
+                border-radius: 5px;
+            }}
+        """)
+        details_layout.addWidget(pbar_ocr)
+
+        lbl_ocr_info = QLabel(f"OCR Testing: <b>{ocr_pct}%</b> ({ocr_ann} of {tot_cnt} pages annotated for OCR)")
+        lbl_ocr_info.setStyleSheet("color: #cccccc; font-size: 11px;")
+        details_layout.addWidget(lbl_ocr_info)
 
         # Source file or date
         last_opened = book_info.get("last_opened", "")
@@ -235,6 +390,194 @@ class BookCardWidget(QFrame):
         self.open_requested.emit(self.book_title)
 
 
+class BookMosaicCardWidget(QFrame):
+    """Card widget representing a book in Mosaic (grid) view."""
+
+    open_requested = pyqtSignal(str)  # book_title
+    toggle_finished_requested = pyqtSignal(str)  # book_title
+
+    def __init__(self, book_info: dict, parent=None):
+        super().__init__(parent)
+        self.book_title = book_info["book_title"]
+        self.setFrameShape(QFrame.Shape.StyledPanel)
+        self.setMinimumWidth(210)
+        self.setMaximumWidth(270)
+        self.setMinimumHeight(410)
+        self.setStyleSheet("""
+            BookMosaicCardWidget {
+                background-color: #252526;
+                border: 1px solid #3e3e42;
+                border-radius: 8px;
+                padding: 10px;
+            }
+            BookMosaicCardWidget:hover {
+                border: 1px solid #007acc;
+                background-color: #2d2d30;
+            }
+        """)
+
+        layout = QVBoxLayout(self)
+        layout.setContentsMargins(10, 10, 10, 10)
+        layout.setSpacing(6)
+
+        # 1. Cover image
+        self.lbl_cover = QLabel()
+        self.lbl_cover.setFixedSize(140, 180)
+        self.lbl_cover.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.lbl_cover.setStyleSheet("""
+            background-color: #1a1a1a;
+            border: 1px solid #444444;
+            border-radius: 4px;
+        """)
+
+        cover_path = book_info.get("cover_path")
+        if cover_path and os.path.exists(cover_path):
+            try:
+                pix = QPixmap(cover_path)
+                if not pix.isNull():
+                    scaled = pix.scaled(
+                        140, 180,
+                        Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation
+                    )
+                    self.lbl_cover.setPixmap(scaled)
+                else:
+                    self.lbl_cover.setText("📖\nCover")
+            except Exception:
+                self.lbl_cover.setText("📖\nCover")
+        else:
+            self.lbl_cover.setText("📖\nCover")
+
+        cover_row = QHBoxLayout()
+        cover_row.addStretch(1)
+        cover_row.addWidget(self.lbl_cover)
+        cover_row.addStretch(1)
+        layout.addLayout(cover_row)
+
+        # 2. Title
+        lbl_title = QLabel(self.book_title)
+        font = QFont()
+        font.setPointSize(11)
+        font.setBold(True)
+        lbl_title.setFont(font)
+        lbl_title.setStyleSheet("color: #ffffff;")
+        lbl_title.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        lbl_title.setWordWrap(True)
+        layout.addWidget(lbl_title)
+
+        # 3. Status badge
+        is_finished = book_info.get("finished", False)
+        badge_row = QHBoxLayout()
+        badge_row.addStretch(1)
+        lbl_badge = QLabel(" FINISHED " if is_finished else " IN PROGRESS ")
+        badge_style = """
+            font-size: 9px;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+        """
+        if is_finished:
+            badge_style += "background-color: #2e7d32; color: #ffffff;"
+        else:
+            badge_style += "background-color: #e65100; color: #ffffff;"
+        lbl_badge.setStyleSheet(badge_style)
+        badge_row.addWidget(lbl_badge)
+        badge_row.addStretch(1)
+        layout.addLayout(badge_row)
+
+        tot_cnt = book_info.get("total_pages", 0)
+
+        # 4. Panels Progress Bar
+        panels_pct = book_info.get("panels_progress_percent", book_info.get("progress_percent", 0))
+        panels_ann = book_info.get("panels_annotated_pages", book_info.get("annotated_pages", 0))
+        pbar_panels = QProgressBar()
+        pbar_panels.setRange(0, 100)
+        pbar_panels.setValue(panels_pct)
+        pbar_panels.setFixedHeight(8)
+        pbar_panels.setTextVisible(False)
+        pbar_panels_color = "#4caf50" if is_finished else "#2196f3"
+        pbar_panels.setStyleSheet(f"""
+            QProgressBar {{
+                background-color: #333333;
+                border-radius: 4px;
+            }}
+            QProgressBar::chunk {{
+                background-color: {pbar_panels_color};
+                border-radius: 4px;
+            }}
+        """)
+        layout.addWidget(pbar_panels)
+
+        lbl_panels_info = QLabel(f"Panels: <b>{panels_pct}%</b> ({panels_ann}/{tot_cnt})")
+        lbl_panels_info.setStyleSheet("color: #cccccc; font-size: 10px;")
+        lbl_panels_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(lbl_panels_info)
+
+        # 5. OCR Progress Bar
+        ocr_pct = book_info.get("ocr_progress_percent", 0)
+        ocr_ann = book_info.get("ocr_annotated_pages", 0)
+        pbar_ocr = QProgressBar()
+        pbar_ocr.setRange(0, 100)
+        pbar_ocr.setValue(ocr_pct)
+        pbar_ocr.setFixedHeight(8)
+        pbar_ocr.setTextVisible(False)
+        pbar_ocr_color = "#4caf50" if (ocr_pct >= 100 and tot_cnt > 0) else "#ab47bc"
+        pbar_ocr.setStyleSheet(f"""
+            QProgressBar {{
+                background-color: #333333;
+                border-radius: 4px;
+            }}
+            QProgressBar::chunk {{
+                background-color: {pbar_ocr_color};
+                border-radius: 4px;
+            }}
+        """)
+        layout.addWidget(pbar_ocr)
+
+        lbl_ocr_info = QLabel(f"OCR: <b>{ocr_pct}%</b> ({ocr_ann}/{tot_cnt})")
+        lbl_ocr_info.setStyleSheet("color: #cccccc; font-size: 10px;")
+        lbl_ocr_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(lbl_ocr_info)
+
+        layout.addStretch(1)
+
+        # 6. Action buttons
+        btn_row = QHBoxLayout()
+        btn_row.setSpacing(6)
+
+        btn_open = QPushButton("▶ Continue")
+        btn_open.setStyleSheet("""
+            font-weight: bold;
+            padding: 5px 8px;
+            font-size: 11px;
+            background-color: #007acc;
+            color: white;
+            border-radius: 4px;
+        """)
+        btn_open.clicked.connect(lambda: self.open_requested.emit(self.book_title))
+        btn_row.addWidget(btn_open, 1)
+
+        btn_toggle = QPushButton("↩" if is_finished else "✓ Finished")
+        btn_toggle.setToolTip("Mark In Progress" if is_finished else "Mark Finished")
+        btn_toggle.setStyleSheet("""
+            padding: 5px 6px;
+            font-size: 11px;
+            background-color: #3e3e42;
+            color: #d4d4d4;
+            border-radius: 4px;
+        """)
+        btn_toggle.clicked.connect(lambda: self.toggle_finished_requested.emit(self.book_title))
+        btn_row.addWidget(btn_toggle)
+
+        layout.addLayout(btn_row)
+
+    def mouseDoubleClickEvent(self, event):
+        self.open_requested.emit(self.book_title)
+
+
+BookCardWidget = BookRowCardWidget
+
+
 class AnnotatorMainWindow(QMainWindow):
     """Main application window with Library / Recent tab and Annotator tab."""
 
@@ -273,13 +616,29 @@ class AnnotatorMainWindow(QMainWindow):
             self.import_or_open_file(initial_file)
 
     def _load_annotator_config(self) -> dict:
-        config = {"phrase_auto_advance_distance": 120}
+        config = {
+            "phrase_auto_advance_distance": 120,
+            "library_display_mode": "mosaic",
+            "text_popup_pos": None,
+        }
         try:
             with open(self.config_path, "r", encoding="utf-8") as config_file:
                 loaded = json.load(config_file)
             if isinstance(loaded, dict):
-                distance = int(loaded.get("phrase_auto_advance_distance", 120))
-                config["phrase_auto_advance_distance"] = max(0, min(5000, distance))
+                if "phrase_auto_advance_distance" in loaded:
+                    distance = int(loaded.get("phrase_auto_advance_distance", 120))
+                    config["phrase_auto_advance_distance"] = max(0, min(5000, distance))
+                if "library_display_mode" in loaded:
+                    mode = str(loaded.get("library_display_mode", "mosaic")).lower()
+                    if mode in ("mosaic", "rows"):
+                        config["library_display_mode"] = mode
+                if "text_popup_pos" in loaded and isinstance(loaded["text_popup_pos"], dict):
+                    pos = loaded["text_popup_pos"]
+                    if "x" in pos and "y" in pos:
+                        config["text_popup_pos"] = {
+                            "x": int(pos["x"]),
+                            "y": int(pos["y"]),
+                        }
         except (OSError, ValueError, TypeError, json.JSONDecodeError):
             pass
         return config
@@ -340,11 +699,25 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_import.clicked.connect(self._search_system_dialog)
         top_bar.addWidget(self.btn_import)
 
-        top_bar.addSpacing(20)
+        top_bar.addSpacing(16)
         self.txt_search = QLineEdit()
         self.txt_search.setPlaceholderText("Filter recent books...")
         self.txt_search.textChanged.connect(self.refresh_library)
         top_bar.addWidget(self.txt_search, 1)
+
+        # Toggle Display Mode Button (Mosaic / Rows)
+        self.btn_toggle_display_mode = QPushButton()
+        self.btn_toggle_display_mode.setStyleSheet("""
+            font-size: 12px;
+            font-weight: bold;
+            padding: 7px 14px;
+            background-color: #3e3e42;
+            color: #ffffff;
+            border-radius: 4px;
+        """)
+        self.btn_toggle_display_mode.clicked.connect(self.toggle_library_display_mode)
+        top_bar.addWidget(self.btn_toggle_display_mode)
+        self._update_toggle_display_mode_button()
 
         self.lbl_book_count = QLabel("0 books")
         self.lbl_book_count.setStyleSheet("color: #888888; font-weight: bold;")
@@ -353,18 +726,34 @@ class AnnotatorMainWindow(QMainWindow):
         layout.addLayout(top_bar)
 
         # Scroll area for book cards
-        scroll = QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setStyleSheet("background-color: #1e1e1e; border: none;")
+        self.scroll_library = QScrollArea()
+        self.scroll_library.setWidgetResizable(True)
+        self.scroll_library.setStyleSheet("background-color: #1e1e1e; border: none;")
 
         self.cards_container = QWidget()
-        self.cards_layout = QVBoxLayout(self.cards_container)
-        self.cards_layout.setContentsMargins(4, 4, 4, 4)
-        self.cards_layout.setSpacing(10)
-        self.cards_layout.addStretch(1)
+        self.cards_layout = None
+        self.scroll_library.setWidget(self.cards_container)
+        layout.addWidget(self.scroll_library, 1)
 
-        scroll.setWidget(self.cards_container)
-        layout.addWidget(scroll, 1)
+    def _update_toggle_display_mode_button(self):
+        mode = self.annotator_config.get("library_display_mode", "mosaic")
+        if mode == "mosaic":
+            self.btn_toggle_display_mode.setText("⊞ Mosaic Mode")
+            self.btn_toggle_display_mode.setToolTip("Display mode: Mosaic (Grid). Click to switch to Rows (List) view.")
+        else:
+            self.btn_toggle_display_mode.setText("☰ Rows Mode")
+            self.btn_toggle_display_mode.setToolTip("Display mode: Rows (List). Click to switch to Mosaic (Grid) view.")
+
+    def toggle_library_display_mode(self):
+        current = self.annotator_config.get("library_display_mode", "mosaic")
+        new_mode = "rows" if current == "mosaic" else "mosaic"
+        self.annotator_config["library_display_mode"] = new_mode
+        try:
+            self._save_annotator_config()
+        except OSError:
+            pass
+        self._update_toggle_display_mode_button()
+        self.refresh_library()
 
     def _init_annotator_tab(self, parent: QWidget):
         layout = QVBoxLayout(parent)
@@ -380,6 +769,27 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_current_book = QLabel("No book loaded")
         self.lbl_current_book.setStyleSheet("font-size: 13px; font-weight: bold; color: #ffffff;")
         top_nav.addWidget(self.lbl_current_book)
+
+        top_nav.addSpacing(16)
+
+        # Top Mode Selector Pills
+        self.top_mode_buttons = {}
+        top_mode_widget = QWidget()
+        top_mode_layout = QHBoxLayout(top_mode_widget)
+        top_mode_layout.setContentsMargins(0, 0, 0, 0)
+        top_mode_layout.setSpacing(4)
+        lbl_top_mode = QLabel("Mode:")
+        lbl_top_mode.setStyleSheet("font-weight: bold; color: #aaaaaa; font-size: 11px;")
+        top_mode_layout.addWidget(lbl_top_mode)
+
+        for mode, label in (("panel", "1 Panels"), ("phrase", "2 Phrases"), ("word", "3 Words")):
+            btn = QPushButton(label)
+            btn.setCheckable(True)
+            btn.clicked.connect(lambda checked=False, m=mode: self.canvas.set_annotation_mode(m))
+            self.top_mode_buttons[mode] = btn
+            top_mode_layout.addWidget(btn)
+
+        top_nav.addWidget(top_mode_widget)
 
         top_nav.addStretch(1)
 
@@ -416,6 +826,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.phrase_id_changed.connect(self._on_phrase_id_changed)
         self.canvas.phrase_text_requested.connect(self._prompt_new_phrase_text)
         self.canvas.word_text_requested.connect(self._prompt_new_word_text)
+        self.canvas.wordless_changed.connect(self._on_canvas_wordless_changed)
         self.canvas.status_message.connect(lambda message: self.status_bar.showMessage(message, 3000))
         canvas_layout.addWidget(self.canvas, 1)
 
@@ -461,13 +872,12 @@ class AnnotatorMainWindow(QMainWindow):
 
         mode_layout = QHBoxLayout()
         self.mode_buttons = {}
-        for mode, label in (("panel", "1 Panel"), ("phrase", "2 Phrase"), ("word", "3 Word")):
+        for mode, label in (("panel", "1 Panels"), ("phrase", "2 Phrases"), ("word", "3 Words")):
             button = QPushButton(label)
             button.setCheckable(True)
             button.clicked.connect(lambda checked=False, m=mode: self.canvas.set_annotation_mode(m))
             self.mode_buttons[mode] = button
             mode_layout.addWidget(button)
-        self.mode_buttons["panel"].setChecked(True)
         p_layout.addLayout(mode_layout)
 
         phrase_layout = QHBoxLayout()
@@ -564,6 +974,11 @@ class AnnotatorMainWindow(QMainWindow):
         )
         self.btn_phrase_to_word.clicked.connect(self._add_word_from_selected_phrase)
         p_layout.addWidget(self.btn_phrase_to_word)
+
+        self.btn_wordless = QPushButton("∅ Mark Wordless Page (N)")
+        self.btn_wordless.setToolTip("Mark this page as containing no dialogue/words for OCR testing (Shortcut: N).")
+        self.btn_wordless.clicked.connect(self.toggle_current_page_wordless)
+        p_layout.addWidget(self.btn_wordless)
 
         reorder_layout = QHBoxLayout()
         self.btn_move_up = QPushButton("▲ Move Up")
@@ -682,6 +1097,11 @@ class AnnotatorMainWindow(QMainWindow):
         act_phrase_to_word.triggered.connect(self._add_word_from_selected_phrase)
         edit_menu.addAction(act_phrase_to_word)
 
+        act_wordless = QAction("Toggle &Wordless Page", self)
+        act_wordless.setShortcut(QKeySequence("N"))
+        act_wordless.triggered.connect(self.toggle_current_page_wordless)
+        edit_menu.addAction(act_wordless)
+
         view_menu = menubar.addMenu("&View")
         act_fit_win = QAction("Fit &Window", self)
         act_fit_win.triggered.connect(lambda: self.canvas.fit_to_window(self.canvas.rect()))
@@ -707,27 +1127,93 @@ class AnnotatorMainWindow(QMainWindow):
 
     def refresh_library(self):
         """Re-scan dataset folder and update book cards in Library tab."""
-        # Clear existing cards
-        while self.cards_layout.count() > 1:
-            item = self.cards_layout.takeAt(0)
-            if item.widget():
-                item.widget().deleteLater()
+        # Clear existing cards and layout
+        if self.cards_container.layout() is not None:
+            old_layout = self.cards_container.layout()
+            while old_layout.count() > 0:
+                item = old_layout.takeAt(0)
+                if item.widget():
+                    item.widget().deleteLater()
+            QWidget().setLayout(old_layout)
 
+        mode = self.annotator_config.get("library_display_mode", "mosaic")
         books = self.dataset_mgr.get_recent_books()
         filter_text = self.txt_search.text().lower().strip() if hasattr(self, 'txt_search') else ""
 
-        matched_count = 0
-        for b in books:
-            if filter_text and filter_text not in b["book_title"].lower():
-                continue
+        filtered_books = [
+            b for b in books
+            if not filter_text or filter_text in b["book_title"].lower()
+        ]
 
-            card = BookCardWidget(b)
-            card.open_requested.connect(self.open_book_by_title)
-            card.toggle_finished_requested.connect(self._on_toggle_finished_card)
-            self.cards_layout.insertWidget(self.cards_layout.count() - 1, card)
-            matched_count += 1
+        if mode == "mosaic":
+            grid = QGridLayout(self.cards_container)
+            grid.setContentsMargins(10, 10, 10, 10)
+            grid.setSpacing(14)
+            grid.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+            self.cards_layout = grid
 
-        self.lbl_book_count.setText(f"{matched_count} book(s)")
+            viewport_w = self.scroll_library.viewport().width() if hasattr(self, 'scroll_library') else 1000
+            viewport_w = max(viewport_w, self.width() - 80) if viewport_w <= 10 else viewport_w
+            cols = max(1, viewport_w // 255)
+            self._current_mosaic_cols = cols
+
+            for i, b in enumerate(filtered_books):
+                card = BookMosaicCardWidget(b)
+                card.open_requested.connect(self.open_book_by_title)
+                card.toggle_finished_requested.connect(self._on_toggle_finished_card)
+                row = i // cols
+                col = i % cols
+                grid.addWidget(card, row, col)
+        else:
+            vbox = QVBoxLayout(self.cards_container)
+            vbox.setContentsMargins(4, 4, 4, 4)
+            vbox.setSpacing(10)
+            self.cards_layout = vbox
+
+            for b in filtered_books:
+                card = BookRowCardWidget(b)
+                card.open_requested.connect(self.open_book_by_title)
+                card.toggle_finished_requested.connect(self._on_toggle_finished_card)
+                vbox.addWidget(card)
+            vbox.addStretch(1)
+
+        self.lbl_book_count.setText(f"{len(filtered_books)} book(s)")
+
+    def _update_mosaic_layout_columns(self):
+        if not hasattr(self, 'scroll_library') or not hasattr(self, 'cards_container'):
+            return
+        layout = self.cards_container.layout()
+        if not isinstance(layout, QGridLayout):
+            return
+        viewport_w = self.scroll_library.viewport().width()
+        if viewport_w < 100:
+            return
+        cols = max(1, viewport_w // 255)
+        if getattr(self, "_current_mosaic_cols", None) == cols:
+            return
+        self._current_mosaic_cols = cols
+
+        widgets = []
+        for i in range(layout.count()):
+            item = layout.itemAt(i)
+            if item and item.widget():
+                widgets.append(item.widget())
+
+        for w in widgets:
+            layout.removeWidget(w)
+
+        for i, w in enumerate(widgets):
+            row = i // cols
+            col = i % cols
+            layout.addWidget(w, row, col)
+
+    def resizeEvent(self, event):
+        super().resizeEvent(event)
+        if hasattr(self, 'canvas') and getattr(self.canvas, "_pending_fit_width", False) and self.canvas.native_w > 0:
+            self.canvas.fit_to_width(self.canvas.rect())
+        if hasattr(self, 'tabs') and self.tabs.currentIndex() == 0:
+            if self.annotator_config.get("library_display_mode") == "mosaic":
+                self._update_mosaic_layout_columns()
 
     def _on_toggle_finished_card(self, book_title: str):
         meta = self.dataset_mgr.load_book_metadata(book_title)
@@ -916,6 +1402,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.set_page(
             pixmap, panels, phrases, words, fit_width=fit_width,
             double_illustration=pa.double_illustration,
+            wordless=pa.wordless,
         )
         if fit_width:
             self.canvas.fit_to_width(self.canvas.rect())
@@ -929,6 +1416,7 @@ class AnnotatorMainWindow(QMainWindow):
 
         self._refresh_panel_list()
         self._refresh_illustration_type()
+        self._refresh_wordless_ui()
         self.lbl_status_zoom.setText(f"Zoom: {int(self.canvas.zoom_factor * 100)}%")
 
     def _commit_current_page_panels(self):
@@ -943,6 +1431,7 @@ class AnnotatorMainWindow(QMainWindow):
                 self.current_page_num,
                 self.canvas.get_phrases(),
                 self.canvas.get_words(),
+                wordless=self.canvas.wordless,
             )
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
 
@@ -1105,10 +1594,85 @@ class AnnotatorMainWindow(QMainWindow):
         self.panel_list.blockSignals(False)
         self._update_phrase_to_word_button()
 
+    def _update_mode_highlights(self, active_mode: str):
+        mode_styles = {
+            "panel": {
+                "active": """
+                    QPushButton {
+                        background-color: #e65100;
+                        color: #ffffff;
+                        font-weight: bold;
+                        border: 2px solid #ff9800;
+                        border-radius: 4px;
+                        padding: 5px 9px;
+                    }
+                """,
+            },
+            "phrase": {
+                "active": """
+                    QPushButton {
+                        background-color: #7b1fa2;
+                        color: #ffffff;
+                        font-weight: bold;
+                        border: 2px solid #ce93d8;
+                        border-radius: 4px;
+                        padding: 5px 9px;
+                    }
+                """,
+            },
+            "word": {
+                "active": """
+                    QPushButton {
+                        background-color: #2e7d32;
+                        color: #ffffff;
+                        font-weight: bold;
+                        border: 2px solid #81c784;
+                        border-radius: 4px;
+                        padding: 5px 9px;
+                    }
+                """,
+            },
+        }
+        inactive_style = """
+            QPushButton {
+                background-color: #2a2a2d;
+                color: #888888;
+                font-weight: normal;
+                border: 1px solid #3e3e42;
+                border-radius: 4px;
+                padding: 5px 9px;
+            }
+            QPushButton:hover {
+                background-color: #38383c;
+                color: #d4d4d4;
+            }
+        """
+
+        if hasattr(self, "mode_buttons"):
+            for mode_name, btn in self.mode_buttons.items():
+                btn.setChecked(mode_name == active_mode)
+                if mode_name == active_mode:
+                    btn.setStyleSheet(mode_styles.get(mode_name, {}).get("active", ""))
+                else:
+                    btn.setStyleSheet(inactive_style)
+
+        if hasattr(self, "top_mode_buttons"):
+            for mode_name, btn in self.top_mode_buttons.items():
+                btn.setChecked(mode_name == active_mode)
+                if mode_name == active_mode:
+                    btn.setStyleSheet(mode_styles.get(mode_name, {}).get("active", ""))
+                else:
+                    btn.setStyleSheet(inactive_style)
+
     def _on_annotation_mode_changed(self, mode: str):
-        for name, button in self.mode_buttons.items():
-            button.setChecked(name == mode)
-        self.annotation_group.setTitle(f"{mode.title()} Rectangles")
+        self._apply_mode_tint(mode)
+        self._update_mode_highlights(mode)
+        mode_titles = {
+            "panel": "1 Panels",
+            "phrase": "2 Phrases",
+            "word": "3 Words",
+        }
+        self.annotation_group.setTitle(f"Mode {mode_titles.get(mode, mode.title())} Rectangles")
         phrase_controls_enabled = mode == "phrase"
         self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
         self.btn_next_phrase.setEnabled(phrase_controls_enabled)
@@ -1121,8 +1685,88 @@ class AnnotatorMainWindow(QMainWindow):
             "phrase": "Edit Phrase Text (T)",
             "word": "Edit Word Text (T)",
         }
-        self.btn_edit_text.setText(edit_labels[mode])
+        self.btn_edit_text.setText(edit_labels.get(mode, "Edit Annotation Text (T)"))
+        self._refresh_wordless_ui()
         self._refresh_panel_list()
+
+    def _apply_mode_tint(self, mode: str):
+        """Tint the window's neutral surfaces for the active annotation mode."""
+        base, surface, selected = MODE_SURFACE_COLORS.get(
+            mode, MODE_SURFACE_COLORS["panel"]
+        )
+        self.setStyleSheet(
+            DARK_THEME_STYLESHEET
+            .replace("#1e1e1e", base)
+            .replace("#252526", surface)
+            .replace("#2d2d30", selected)
+        )
+        self.canvas.background_color = QColor(base)
+        self.canvas.update()
+
+    def _on_canvas_wordless_changed(self, wordless: bool):
+        self._commit_current_page_panels()
+        self._refresh_wordless_ui()
+
+    def toggle_current_page_wordless(self):
+        if not self.book_title or not self.reader:
+            return
+        if self.canvas.annotation_mode not in ("phrase", "word"):
+            self.status_bar.showMessage("Wordless toggle is available in Phrase (2) or Word (3) mode.", 3000)
+            return
+        was_wordless = self.canvas.wordless
+        self.canvas.toggle_wordless()
+        if self.canvas.wordless == was_wordless:
+            return
+        if self.canvas.wordless:
+            self.status_bar.showMessage("Page marked as wordless (OCR annotated).", 3000)
+        else:
+            self.status_bar.showMessage("Page unmarked as wordless.", 3000)
+
+    def _refresh_wordless_ui(self):
+        if not hasattr(self, "btn_wordless"):
+            return
+        is_wordless = getattr(self.canvas, "wordless", False)
+        mode = getattr(self.canvas, "annotation_mode", "panel")
+        is_ocr_mode = mode in ("phrase", "word")
+        self.btn_wordless.setEnabled(is_ocr_mode and bool(self.book_title and self.reader))
+        if is_wordless:
+            self.btn_wordless.setText("✓ Wordless Page (N)")
+            self.btn_wordless.setToolTip("This page is marked as containing no dialogue/words (Wordless). Shortcut: N")
+            self.btn_wordless.setStyleSheet("""
+                QPushButton {
+                    background-color: #2e7d32;
+                    color: #ffffff;
+                    font-weight: bold;
+                    border: 2px solid #81c784;
+                    border-radius: 4px;
+                    padding: 5px 9px;
+                }
+                QPushButton:hover {
+                    background-color: #388e3c;
+                }
+            """)
+        else:
+            self.btn_wordless.setText("∅ Mark Wordless Page (N)")
+            self.btn_wordless.setToolTip("Mark this page as containing no dialogue/words for OCR testing (Shortcut: N).")
+            self.btn_wordless.setStyleSheet("""
+                QPushButton {
+                    background-color: #2a2a2d;
+                    color: #e0e0e0;
+                    font-weight: bold;
+                    border: 1px solid #546e7a;
+                    border-radius: 4px;
+                    padding: 5px 9px;
+                }
+                QPushButton:hover {
+                    background-color: #38383c;
+                    color: #ffffff;
+                }
+                QPushButton:disabled {
+                    background-color: #202022;
+                    color: #555555;
+                    border: 1px solid #333336;
+                }
+            """)
 
     def _update_phrase_to_word_button(self):
         self.btn_phrase_to_word.setEnabled(
@@ -1218,29 +1862,26 @@ class AnnotatorMainWindow(QMainWindow):
         self._refresh_panel_list()
 
     def _ask_annotation_text(self, title: str, label: str, current_text: str):
-        dialog = QInputDialog(self)
-        dialog.setWindowTitle(title)
-        dialog.setLabelText(label)
-        dialog.setInputMode(QInputDialog.InputMode.TextInput)
-        dialog.setTextValue(current_text)
-        dialog.setOkButtonText("Save")
-        dialog.setCancelButtonText("Cancel")
+        saved_pos = self.annotator_config.get("text_popup_pos")
 
-        line_edit = dialog.findChild(QLineEdit)
-        button_box = dialog.findChild(QDialogButtonBox)
-        ok_button = button_box.button(QDialogButtonBox.StandardButton.Ok) if button_box else None
+        def on_moved(x, y):
+            self.annotator_config["text_popup_pos"] = {"x": int(x), "y": int(y)}
+            try:
+                self._save_annotator_config()
+            except OSError:
+                pass
 
-        def update_ok_button(value: str):
-            if ok_button:
-                ok_button.setEnabled(bool(value.strip()))
-
-        dialog.textValueChanged.connect(update_ok_button)
-        update_ok_button(dialog.textValue())
-        if line_edit:
-            QTimer.singleShot(0, lambda: (line_edit.setFocus(), line_edit.selectAll()))
+        dialog = TextAnnotationDialog(
+            title=title,
+            label=label,
+            initial_text=current_text,
+            saved_pos=saved_pos,
+            on_moved=on_moved,
+            parent=self,
+        )
 
         accepted = dialog.exec() == QDialog.DialogCode.Accepted
-        text = dialog.textValue().strip()
+        text = dialog.get_text()
         return accepted and bool(text), text
 
     def _on_list_row_selected(self, row: int):

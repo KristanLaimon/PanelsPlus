@@ -50,6 +50,7 @@ class MangaCanvas(QWidget):
     phrase_id_changed = pyqtSignal(int)
     phrase_text_requested = pyqtSignal(int)
     word_text_requested = pyqtSignal(int)
+    wordless_changed = pyqtSignal(bool)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -60,12 +61,14 @@ class MangaCanvas(QWidget):
         self.native_w = 0
         self.native_h = 0
         self.annotation_mode = "panel"
+        self.background_color = QColor("#1e1e1e")
         self.current_phrase_id = 1
         self.phrase_auto_advance_distance = 120
         self._collections = {"panel": [], "phrase": [], "word": []}
         # Kept as an active-list alias for compatibility with the existing editor code.
         self.panels: List[Panel] = self._collections["panel"]
         self.double_illustration = False
+        self.wordless = False
         self.selected_panel_index = -1
 
         # View transform
@@ -86,10 +89,11 @@ class MangaCanvas(QWidget):
         self._bpl: int = 0
 
         # Undo / Redo history stacks
-        self._undo_stack: List[Tuple[List[Panel], bool]] = []
-        self._redo_stack: List[Tuple[List[Panel], bool]] = []
+        self._undo_stack: List[Tuple[List[Panel], bool, bool]] = []
+        self._redo_stack: List[Tuple[List[Panel], bool, bool]] = []
         self._panels_at_drag_start: List[Panel] = []
         self._double_illustration_at_drag_start = False
+        self._wordless_at_drag_start = False
 
         # Interaction state
         self._mode = "idle"  # "idle", "drawing", "resizing", "moving", "panning"
@@ -101,6 +105,22 @@ class MangaCanvas(QWidget):
         self._panel_before_drag: Optional[Panel] = None
         self._space_pressed = False
         self._pan_start_pos: Optional[QPoint] = None
+
+    def set_wordless(self, enabled: bool):
+        """Mark or unmark the page as wordless (no OCR text/dialogue)."""
+        new_val = bool(enabled)
+        if new_val and (self.get_phrases() or self.get_words()):
+            self.status_message.emit("Remove the page's phrases and words before marking it wordless.")
+            return
+        if self.wordless != new_val:
+            self.push_undo()
+            self.wordless = new_val
+            self.wordless_changed.emit(self.wordless)
+            self.update()
+
+    def toggle_wordless(self):
+        """Toggle wordless page status."""
+        self.set_wordless(not self.wordless)
 
     def get_panels(self) -> List[Panel]:
         return self._collections["panel"]
@@ -199,6 +219,9 @@ class MangaCanvas(QWidget):
         ):
             return False
         self.get_words().append(WordRect(*geometry, phrase.phrase_id, text.strip()))
+        if self.wordless:
+            self.wordless = False
+            self.wordless_changed.emit(False)
         self.panels_changed.emit()
         self.update()
         return True
@@ -278,8 +301,8 @@ class MangaCanvas(QWidget):
         self.update()
 
     def push_undo(self):
-        """Save panel boxes and the page label as one undo state."""
-        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
+        """Save panel boxes, double illustration label, and wordless status as one undo state."""
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
         if len(self._undo_stack) > 50:
             self._undo_stack.pop(0)
         self._redo_stack.clear()
@@ -288,12 +311,13 @@ class MangaCanvas(QWidget):
         """Revert to previous panels state."""
         if not self._undo_stack:
             return
-        self._redo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
-        self.panels, self.double_illustration = self._undo_stack.pop()
+        self._redo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
+        self.panels, self.double_illustration, self.wordless = self._undo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
+        self.wordless_changed.emit(self.wordless)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
@@ -303,12 +327,13 @@ class MangaCanvas(QWidget):
         """Reapply previously undone panels state."""
         if not self._redo_stack:
             return
-        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration))
-        self.panels, self.double_illustration = self._redo_stack.pop()
+        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
+        self.panels, self.double_illustration, self.wordless = self._redo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
         self.selected_panel_index = min(self.selected_panel_index, len(self.panels) - 1)
+        self.wordless_changed.emit(self.wordless)
         self.panels_changed.emit()
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
@@ -322,6 +347,7 @@ class MangaCanvas(QWidget):
         words: Optional[List[WordRect]] = None,
         fit_width: bool = False,
         double_illustration: bool = False,
+        wordless: bool = False,
     ):
         """Update current page pixmap and panels."""
         self._pixmap = pixmap
@@ -354,6 +380,7 @@ class MangaCanvas(QWidget):
         self.refresh_word_assignments()
         self.phrase_id_changed.emit(self.current_phrase_id)
         self.double_illustration = bool(double_illustration)
+        self.wordless = bool(wordless)
         self.selected_panel_index = -1
         self._mode = "idle"
         self._undo_stack.clear()
@@ -806,6 +833,10 @@ class MangaCanvas(QWidget):
             self.step_phrase_id(-1)
         elif event.key() == Qt.Key.Key_R and event.modifiers() == Qt.KeyboardModifier.NoModifier:
             self.step_phrase_id(1)
+        elif event.key() == Qt.Key.Key_N and event.modifiers() == Qt.KeyboardModifier.NoModifier:
+            if self.annotation_mode in ("phrase", "word"):
+                self.toggle_wordless()
+                return
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.delete_selected_panel()
         elif event.key() == Qt.Key.Key_Escape:
@@ -1120,6 +1151,7 @@ class MangaCanvas(QWidget):
                 self._undo_stack.append((
                     [p.copy() for p in self._panels_at_drag_start],
                     self._double_illustration_at_drag_start,
+                    self._wordless_at_drag_start,
                 ))
                 self._redo_stack.clear()
                 if self.annotation_mode == "phrase":
@@ -1153,6 +1185,9 @@ class MangaCanvas(QWidget):
                     self.word_text_requested.emit(self.selected_panel_index)
                     if new_panel not in self.panels:
                         self.selected_panel_index = -1
+                if new_panel in self.panels and self.annotation_mode in ("phrase", "word") and self.wordless:
+                    self.wordless = False
+                    self.wordless_changed.emit(False)
                 self.panels_changed.emit()
                 self.panel_selected.emit(self.selected_panel_index)
 
@@ -1178,6 +1213,7 @@ class MangaCanvas(QWidget):
                 self._undo_stack.append((
                     [p.copy() for p in self._panels_at_drag_start],
                     self._double_illustration_at_drag_start,
+                    self._wordless_at_drag_start,
                 ))
                 self._redo_stack.clear()
                 if self.annotation_mode == "panel":
@@ -1202,7 +1238,7 @@ class MangaCanvas(QWidget):
         painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
 
         # Background canvas fill
-        painter.fillRect(self.rect(), QColor("#1e1e1e"))
+        painter.fillRect(self.rect(), self.background_color)
 
         # Dimensions
         img_w = self.native_w * self.zoom_factor
@@ -1338,9 +1374,10 @@ class MangaCanvas(QWidget):
             # Keep loupe away from cursor
             if self._current_mouse_pos and self._current_mouse_pos.x() > self.rect().width() - (loupe_size + 40) and self._current_mouse_pos.y() < (loupe_size + 40):
                 lx = margin
+                ly = margin + 34
             else:
                 lx = self.rect().width() - loupe_size - margin
-            ly = margin
+                ly = margin
 
             crop_size = 48
             half = crop_size // 2
@@ -1379,5 +1416,34 @@ class MangaCanvas(QWidget):
                 Qt.AlignmentFlag.AlignCenter,
                 f"🎯 {mag_ratio}× ({self._active_ix}, {self._active_iy}) [Alt=free]"
             )
+
+        # On-Canvas Mode Indicator HUD Badge (Top-Left)
+        mode_configs = {
+            "panel": ("MODE 1: PANELS", QColor("#e65100"), QColor("#ffa726")),
+            "phrase": (f"MODE 2: PHRASES (ID: {self.current_phrase_id})", QColor("#7b1fa2"), QColor("#ce93d8")),
+            "word": ("MODE 3: WORDS", QColor("#2e7d32"), QColor("#81c784")),
+        }
+        mode_text, bg_color, border_color = mode_configs.get(
+            self.annotation_mode,
+            (f"MODE: {self.annotation_mode.upper()}", QColor("#333333"), QColor("#666666"))
+        )
+        if self.wordless and self.annotation_mode in ("phrase", "word"):
+            mode_text += " • WORDLESS"
+        mode_font = QFont("SansSerif", 9, QFont.Weight.Bold)
+        painter.setFont(mode_font)
+        mode_fm = QFontMetrics(mode_font)
+        m_tw = mode_fm.horizontalAdvance(mode_text) + 20
+        m_th = 26
+        m_rect = QRectF(14, 14, m_tw, m_th)
+
+        painter.save()
+        painter.setPen(QPen(border_color, 1.5))
+        bg_brush = QColor(bg_color.red(), bg_color.green(), bg_color.blue(), 230)
+        painter.setBrush(QBrush(bg_brush))
+        painter.drawRoundedRect(m_rect, 6, 6)
+
+        painter.setPen(QColor("#ffffff"))
+        painter.drawText(m_rect, Qt.AlignmentFlag.AlignCenter, mode_text)
+        painter.restore()
 
         painter.end()

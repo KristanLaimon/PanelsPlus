@@ -38,14 +38,20 @@ try:
         DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
     )
     from tools.manga_annotator.canvas import MangaCanvas
-    from tools.manga_annotator.app import AnnotatorMainWindow
+    from tools.manga_annotator.app import (
+        AnnotatorMainWindow, BookCardWidget, BookRowCardWidget,
+        BookMosaicCardWidget, TextAnnotationDialog,
+    )
 except ImportError:
     from document_reader import DocumentReader, natural_sort_key
     from dataset_manager import (
         DatasetManager, Panel, PhraseRect, WordRect, PageAnnotation,
     )
     from canvas import MangaCanvas
-    from app import AnnotatorMainWindow
+    from app import (
+        AnnotatorMainWindow, BookCardWidget, BookRowCardWidget,
+        BookMosaicCardWidget, TextAnnotationDialog,
+    )
 
 
 class TestAnnotator(unittest.TestCase):
@@ -1211,6 +1217,229 @@ class TestAnnotator(unittest.TestCase):
                 self.assertLessEqual(f.y + f.h, 1680)
 
         self.assertEqual(total_panels, 725, "Expected exactly 725 human-mapped panels")
+
+    def test_mosaic_mode_default_and_toggle_persistence(self):
+        ds_dir = os.path.join(self.test_dir, "mosaic_test_ds")
+        cfg_path = os.path.join(self.test_dir, "test_annotator_config.json")
+        win = AnnotatorMainWindow(dataset_dir=ds_dir, config_path=cfg_path)
+
+        # 1. By default, main menu display mode must be "mosaic"
+        self.assertEqual(win.annotator_config.get("library_display_mode"), "mosaic")
+        self.assertIn("Mosaic", win.btn_toggle_display_mode.text())
+
+        # 2. Toggle to "rows" mode
+        win.toggle_library_display_mode()
+        self.assertEqual(win.annotator_config.get("library_display_mode"), "rows")
+        self.assertIn("Rows", win.btn_toggle_display_mode.text())
+
+        # Verify disk persistence (non-RAM)
+        self.assertTrue(os.path.exists(cfg_path))
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            saved_data = json.load(f)
+        self.assertEqual(saved_data.get("library_display_mode"), "rows")
+
+        # 3. Toggle back to "mosaic" mode
+        win.toggle_library_display_mode()
+        self.assertEqual(win.annotator_config.get("library_display_mode"), "mosaic")
+        self.assertIn("Mosaic", win.btn_toggle_display_mode.text())
+        win.close()
+
+        # 4. In a new session/instance, config must be reloaded from disk
+        win2 = AnnotatorMainWindow(dataset_dir=ds_dir, config_path=cfg_path)
+        self.assertEqual(win2.annotator_config.get("library_display_mode"), "mosaic")
+        win2.close()
+
+    def test_two_progress_bars_for_panels_and_ocr(self):
+        ds_dir = os.path.join(self.test_dir, "progress_test_ds")
+        mgr = DatasetManager(ds_dir)
+        book_title = "ocr_test_series"
+        book_dir = mgr.get_book_dir(book_title)
+        os.makedirs(book_dir, exist_ok=True)
+
+        # Create 4 dummy pages
+        for i in range(4):
+            img = self._create_dummy_image(200, 300)
+            img.save(os.path.join(book_dir, f"{i:02d}.png"))
+
+        # Page 1: Panels only (1 panel, 0 OCR text)
+        mgr.set_page_frames(book_title, 1, [Panel(10, 10, 80, 80)])
+
+        # Page 2: OCR text only (0 panels, 1 phrase, 1 word)
+        mgr.set_page_text_annotations(
+            book_title, 2,
+            [PhraseRect(20, 20, 100, 30, 1, "Hello")],
+            [WordRect(22, 22, 40, 20, 1, "Hello")]
+        )
+
+        # Page 3: Both Panels and OCR text
+        mgr.set_page_frames(book_title, 3, [Panel(15, 15, 70, 70)])
+        mgr.set_page_text_annotations(
+            book_title, 3,
+            [PhraseRect(20, 20, 100, 30, 1, "World")],
+            [WordRect(22, 22, 40, 20, 1, "World")]
+        )
+
+        # Page 4: Unannotated
+
+        recent = mgr.get_recent_books()
+        self.assertEqual(len(recent), 1)
+        info = recent[0]
+
+        # Total pages = 4
+        self.assertEqual(info["total_pages"], 4)
+
+        # Panels: Pages 1 and 3 -> 2/4 = 50%
+        self.assertEqual(info["panels_annotated_pages"], 2)
+        self.assertEqual(info["panels_progress_percent"], 50)
+        self.assertEqual(info["annotated_pages"], 2)
+        self.assertEqual(info["progress_percent"], 50)
+
+        # OCR: Pages 2 and 3 -> 2/4 = 50%
+        self.assertEqual(info["ocr_annotated_pages"], 2)
+        self.assertEqual(info["ocr_progress_percent"], 50)
+
+        # Verify UI card widgets construct with both progress indicators
+        row_card = BookRowCardWidget(info)
+        self.assertEqual(row_card.book_title, book_title)
+
+        mosaic_card = BookMosaicCardWidget(info)
+        self.assertEqual(mosaic_card.book_title, book_title)
+
+    def test_editor_mode_highlighting_and_indicators(self):
+        ds_dir = os.path.join(self.test_dir, "editor_mode_ds")
+        cfg_path = os.path.join(self.test_dir, "test_mode_cfg.json")
+        win = AnnotatorMainWindow(dataset_dir=ds_dir, config_path=cfg_path)
+
+        # 1. Mode 1: Panels (default)
+        self.assertEqual(win.canvas.annotation_mode, "panel")
+        self.assertTrue(win.mode_buttons["panel"].isChecked())
+        self.assertTrue(win.top_mode_buttons["panel"].isChecked())
+        self.assertIn("1 Panels", win.annotation_group.title())
+        self.assertIn("#28211d", win.styleSheet())
+        self.assertEqual(win.canvas.background_color.name(), "#28211d")
+
+        # 2. Switch to Mode 2: Phrases
+        win.canvas.set_annotation_mode("phrase")
+        self.assertEqual(win.canvas.annotation_mode, "phrase")
+        self.assertTrue(win.mode_buttons["phrase"].isChecked())
+        self.assertTrue(win.top_mode_buttons["phrase"].isChecked())
+        self.assertFalse(win.mode_buttons["panel"].isChecked())
+        self.assertIn("2 Phrases", win.annotation_group.title())
+        self.assertIn("#251f2b", win.styleSheet())
+        self.assertEqual(win.canvas.background_color.name(), "#251f2b")
+
+        # 3. Switch to Mode 3: Words
+        win.canvas.set_annotation_mode("word")
+        self.assertEqual(win.canvas.annotation_mode, "word")
+        self.assertTrue(win.mode_buttons["word"].isChecked())
+        self.assertTrue(win.top_mode_buttons["word"].isChecked())
+        self.assertFalse(win.mode_buttons["phrase"].isChecked())
+        self.assertIn("3 Words", win.annotation_group.title())
+        self.assertIn("#202a23", win.styleSheet())
+        self.assertEqual(win.canvas.background_color.name(), "#202a23")
+
+        win.close()
+
+    def test_ocr_progress_counts_wordless_and_text_pages_even_when_finished(self):
+        ds_dir = os.path.join(self.test_dir, "ocr_progress_ds")
+        mgr = DatasetManager(ds_dir)
+        book = "progress_book"
+        book_dir = mgr.get_book_dir(book)
+        os.makedirs(book_dir, exist_ok=True)
+        for i in range(3):
+            self._create_dummy_image().save(os.path.join(book_dir, f"{i:02d}.png"))
+
+        mgr.mark_book_finished(book, True)
+        self.assertEqual(mgr.get_recent_books()[0]["ocr_progress_percent"], 0)
+
+        mgr.set_page_wordless(book, 1)
+        mgr.set_page_text_annotations(book, 2, [PhraseRect(1, 1, 20, 20, 1, "text")], [])
+        mgr.set_page_text_annotations(book, 3, [], [WordRect(1, 1, 20, 20, 1, "word")])
+        info = mgr.get_recent_books()[0]
+        self.assertEqual(info["ocr_annotated_pages"], 3)
+        self.assertEqual(info["ocr_progress_percent"], 100)
+        # Complete both text layers before saving (dataset validation requires them).
+        mgr.set_page_text_annotations(
+            book, 2, [PhraseRect(1, 1, 20, 20, 1, "text")],
+            [WordRect(1, 1, 20, 20, 1, "text")],
+        )
+        mgr.set_page_text_annotations(
+            book, 3, [PhraseRect(1, 1, 20, 20, 1, "word")],
+            [WordRect(1, 1, 20, 20, 1, "word")],
+        )
+        mgr.save_book_dataset(book)
+        reloaded = DatasetManager(ds_dir)
+        self.assertTrue(reloaded.get_page_annotation(book, 1).wordless)
+        self.assertEqual(reloaded.get_recent_books()[0]["ocr_progress_percent"], 100)
+
+    def test_wordless_toggle_survives_page_switch_and_is_undoable(self):
+        ds_dir = os.path.join(self.test_dir, "wordless_ds")
+        book = "wordless_book"
+        book_dir = os.path.join(ds_dir, book)
+        os.makedirs(book_dir, exist_ok=True)
+        for i in range(2):
+            self._create_dummy_image().save(os.path.join(book_dir, f"{i:02d}.png"))
+
+        win = AnnotatorMainWindow(
+            dataset_dir=ds_dir,
+            config_path=os.path.join(self.test_dir, "wordless_config.json"),
+        )
+        win.open_book_by_title(book)
+        win.canvas.set_annotation_mode("phrase")
+        win.btn_wordless.click()
+        self.assertTrue(win.dataset_mgr.get_page_annotation(book, 1).wordless)
+        win.show()
+        win.canvas.setFocus()
+        QTest.keyClick(win.canvas, Qt.Key.Key_N)
+        self.assertFalse(win.canvas.wordless)
+        QTest.keyClick(win.canvas, Qt.Key.Key_N)
+        self.assertTrue(win.canvas.wordless)
+        win.next_page()
+        self.assertFalse(win.canvas.wordless)
+        self.assertTrue(win.dataset_mgr.get_page_annotation(book, 1).wordless)
+        self.assertFalse(win.dataset_mgr.get_page_annotation(book, 2).wordless)
+        win.prev_page()
+        self.assertTrue(win.canvas.wordless)
+        win.toggle_current_page_wordless()
+        self.assertFalse(win.canvas.wordless)
+        win.canvas.undo()
+        self.assertTrue(win.canvas.wordless)
+        win.close()
+
+    def test_text_annotation_dialog_location_persistence_across_sessions(self):
+        cfg_path = os.path.join(self.test_dir, "popup_pos_cfg.json")
+        ds_dir = os.path.join(self.test_dir, "popup_ds")
+
+        # First session
+        win = AnnotatorMainWindow(dataset_dir=ds_dir, config_path=cfg_path)
+        self.assertIsNone(win.annotator_config.get("text_popup_pos"))
+
+        # User moves dialog to a new position
+        target_pos = {"x": 420, "y": 280}
+        win.annotator_config["text_popup_pos"] = target_pos
+        win._save_annotator_config()
+        win.close()
+
+        # Check config file was written to disk
+        self.assertTrue(os.path.exists(cfg_path))
+        with open(cfg_path, "r", encoding="utf-8") as f:
+            cfg_on_disk = json.load(f)
+        self.assertEqual(cfg_on_disk.get("text_popup_pos"), target_pos)
+
+        # Second session: verify persistence across running sessions
+        win2 = AnnotatorMainWindow(dataset_dir=ds_dir, config_path=cfg_path)
+        self.assertEqual(win2.annotator_config.get("text_popup_pos"), target_pos)
+
+        # Verify TextAnnotationDialog respects saved_pos
+        dialog = TextAnnotationDialog(
+            title="Phrase Text",
+            label="Type text:",
+            initial_text="Testing",
+            saved_pos=win2.annotator_config.get("text_popup_pos"),
+        )
+        self.assertEqual(dialog.get_text(), "Testing")
+        dialog.close()
+        win2.close()
 
 
 if __name__ == "__main__":

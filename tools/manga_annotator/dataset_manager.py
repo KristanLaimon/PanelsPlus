@@ -112,6 +112,7 @@ class PageAnnotation:
         page_index: int,
         image_rel_path: Optional[str] = None,
         illustration_type: Optional[str] = None,
+        wordless: bool = False,
     ):
         self.page_index = page_index  # 1-indexed
         self.image_rel_path = image_rel_path
@@ -119,6 +120,15 @@ class PageAnnotation:
         self.phrases: List[PhraseRect] = []
         self.words: List[WordRect] = []
         self.illustration_type = illustration_type if illustration_type in self.ILLUSTRATION_TYPES else None
+        self.wordless = bool(wordless)
+
+    @property
+    def is_wordless(self) -> bool:
+        return self.wordless
+
+    @is_wordless.setter
+    def is_wordless(self, enabled: bool) -> None:
+        self.wordless = bool(enabled)
 
     @property
     def double_illustration(self) -> bool:
@@ -169,6 +179,8 @@ class PageAnnotation:
             d["word"] = [w.to_dict() for w in self.words]
         if self.phrases or self.words:
             d["text_direction"] = "ltr"
+        if self.wordless:
+            d["wordless"] = True
         illustration_type = self.effective_illustration_type
         if illustration_type:
             d["illustration_type"] = illustration_type
@@ -186,10 +198,12 @@ class PageAnnotation:
         if "image_paths" in d and isinstance(d["image_paths"], dict):
             rel_img = d["image_paths"].get("en") or d["image_paths"].get("ja") or next(iter(d["image_paths"].values()), None)
         illustration_type = d.get("illustration_type")
+        wordless = bool(d.get("wordless") or d.get("is_wordless") or d.get("wordless_page"))
         pa = cls(
             page_index=d["page_index"],
             image_rel_path=rel_img,
             illustration_type=illustration_type,
+            wordless=wordless,
         )
         if d.get("double_illustration") is True:
             pa.double_illustration = True
@@ -203,7 +217,7 @@ class PageAnnotation:
         return pa
 
     def copy(self) -> "PageAnnotation":
-        pa = PageAnnotation(self.page_index, self.image_rel_path, self.illustration_type)
+        pa = PageAnnotation(self.page_index, self.image_rel_path, self.illustration_type, self.wordless)
         pa.frames = [p.copy() for p in self.frames]
         pa.phrases = [p.copy() for p in self.phrases]
         pa.words = [w.copy() for w in self.words]
@@ -341,15 +355,16 @@ class DatasetManager:
 
                 # Count annotated pages
                 book_pages = self.books.get(book_title, {})
-                annotated_count = sum(1 for pa in book_pages.values() if pa.frames)
+                panels_annotated_count = sum(1 for pa in book_pages.values() if pa.frames)
+                ocr_annotated_count = sum(1 for pa in book_pages.values() if pa.phrases or pa.words or pa.wordless)
 
-                # Progress percentage
-                if meta.get("finished", False):
-                    progress_pct = 100
-                elif total_pages > 0:
-                    progress_pct = min(100, int((annotated_count / total_pages) * 100))
+                # Progress percentages (OCR percentage is strictly based on annotated OCR pages)
+                if total_pages > 0:
+                    panels_progress_pct = 100 if meta.get("finished", False) else min(100, int((panels_annotated_count / total_pages) * 100))
+                    ocr_progress_pct = min(100, int((ocr_annotated_count / total_pages) * 100))
                 else:
-                    progress_pct = 0
+                    panels_progress_pct = 100 if meta.get("finished", False) else 0
+                    ocr_progress_pct = 0
 
                 recent_list.append({
                     "book_title": book_title,
@@ -357,8 +372,12 @@ class DatasetManager:
                     "book_dir": book_dir,
                     "cover_path": cover_file if os.path.exists(cover_file) else None,
                     "total_pages": total_pages,
-                    "annotated_pages": annotated_count,
-                    "progress_percent": progress_pct,
+                    "annotated_pages": panels_annotated_count,
+                    "panels_annotated_pages": panels_annotated_count,
+                    "ocr_annotated_pages": ocr_annotated_count,
+                    "progress_percent": panels_progress_pct,
+                    "panels_progress_percent": panels_progress_pct,
+                    "ocr_progress_percent": ocr_progress_pct,
                     "finished": meta.get("finished", False),
                     "current_page": meta.get("current_page", 1),
                     "last_opened": meta.get("last_opened", ""),
@@ -393,8 +412,11 @@ class DatasetManager:
         page_index: int,
         phrases: List[PhraseRect],
         words: List[WordRect],
+        wordless: Optional[bool] = None,
     ) -> None:
         pa = self.get_page_annotation(book_title, page_index)
+        if wordless is not None:
+            pa.wordless = bool(wordless)
         pa.phrases = sorted(
             (p.copy() for p in phrases), key=lambda p: (p.phrase_id, p.y, p.x)
         )
@@ -406,9 +428,16 @@ class DatasetManager:
         pa.reassign_word_phrases()
         pa.words.sort(key=lambda w: (w.phrase_id is None, w.phrase_id or 0, w.y, w.x))
 
+    def set_page_wordless(self, book_title: str, page_index: int, wordless: bool = True) -> None:
+        """Mark or unmark a page as having no OCR text/words."""
+        pa = self.get_page_annotation(book_title, page_index)
+        pa.wordless = bool(wordless)
+
     def validate_page_text_annotations(self, book_title: str, page_index: int) -> List[str]:
         """Return human-readable errors without rejecting legacy panel-only pages."""
         pa = self.get_page_annotation(book_title, page_index)
+        if pa.wordless and not pa.phrases and not pa.words:
+            return []
         errors: List[str] = []
         phrase_ids = sorted({p.phrase_id for p in pa.phrases})
         word_phrase_ids = {w.phrase_id for w in pa.words if w.phrase_id is not None}
@@ -494,7 +523,7 @@ class DatasetManager:
         pages_list = []
         for p_idx in sorted(pages_dict.keys()):
             pa = pages_dict[p_idx]
-            if pa.frames or pa.phrases or pa.words or pa.image_rel_path:
+            if pa.frames or pa.phrases or pa.words or pa.wordless or pa.image_rel_path:
                 d = pa.to_dict()
                 if "image_paths" in d and isinstance(d["image_paths"], dict):
                     for lang in list(d["image_paths"].keys()):
@@ -528,7 +557,7 @@ class DatasetManager:
             pages_list = []
             for p_idx in sorted(pages_dict.keys()):
                 pa = pages_dict[p_idx]
-                if pa.frames or pa.phrases or pa.words or pa.image_rel_path:
+                if pa.frames or pa.phrases or pa.words or pa.wordless or pa.image_rel_path:
                     d = pa.to_dict()
                     if "image_paths" in d and isinstance(d["image_paths"], dict):
                         for lang in list(d["image_paths"].keys()):
