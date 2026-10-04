@@ -40,7 +40,7 @@ function Cache:clearPanelCache()
     self.panel_cache_order = {}
 end
 
---- Build the cache key for a document page in the current reading mode and Deep detector namespace.
+--- Build the cache key for a document page, reading mode, and finding mode.
 ---
 --- Mode changes panel order, while the stable `components` value separates
 --- current results from cache keys written by detector-selectable releases.
@@ -55,6 +55,8 @@ function Cache:getPanelCacheKey(page)
         .. (self.settings.mode or "manga")
         .. ":"
         .. self:getDetector()
+        .. ":"
+        .. Settings.normalizePanelFindingMode(self.settings.panel_finding_mode)
         .. (self.settings.segment_border_split == true and ":bs" or "")
 end
 

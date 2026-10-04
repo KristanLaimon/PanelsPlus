@@ -26,6 +26,7 @@ local Settings = {
         enabled = true,
         mode = "manga",
         crop_mode = "strict",
+        panel_finding_mode = "classic",
         panel_margin_ratio = 0.12,
         invert_swipe = false,
         invert_taps = false,
@@ -94,6 +95,11 @@ local Settings = {
     },
 }
 
+--- Map stored names from the first selector release to the current choices.
+function Settings.normalizePanelFindingMode(mode)
+    return (mode == "detailed" or mode == "aggressive") and "detailed" or "classic"
+end
+
 --- Fill missing settings and migrate older performance-sensitive defaults.
 ---
 --- Existing values are preserved unless the stored performance profile predates
@@ -118,6 +124,7 @@ function Settings.withDefaults(settings)
         settings.debug_mode = settings.debug_timing
     end
     settings.debug_timing = nil
+    settings.panel_finding_mode = Settings.normalizePanelFindingMode(settings.panel_finding_mode)
     for key, value in pairs(Settings.defaults) do
         if settings[key] == nil then
             settings[key] = value

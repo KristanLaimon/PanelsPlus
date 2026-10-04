@@ -148,6 +148,7 @@ function PanelsPlus:saveDocSettings(force)
         nav_transition_mode = self.settings.nav_transition_mode,
         progress_bar_visible = self.settings.progress_bar_visible,
         crop_mode = self.settings.crop_mode,
+        panel_finding_mode = self.settings.panel_finding_mode,
         ocr_bundled_language = self.settings.ocr_bundled_language,
     }
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
@@ -184,6 +185,9 @@ function PanelsPlus:loadDocSettings()
         if doc_data.crop_mode ~= nil then
             local c = doc_data.crop_mode
             self.settings.crop_mode = (c == "loose" or c == "margin" or c == "none") and c or "strict"
+        end
+        if doc_data.panel_finding_mode ~= nil then
+            self.settings.panel_finding_mode = Settings.normalizePanelFindingMode(doc_data.panel_finding_mode)
         end
         local language = doc_data.ocr_bundled_language
         if language == "eng" or language == "spa" or language == "ita" or language == "koreader" then
@@ -248,6 +252,19 @@ function PanelsPlus:setCropMode(crop_mode)
     else
         self.settings.crop_mode = "strict"
     end
+    self:saveSettings()
+    self:saveDocSettings(true)
+end
+
+--- Choose between the v1.4.0 detector and the current detector.
+function PanelsPlus:setPanelFindingMode(mode)
+    local selected = Settings.normalizePanelFindingMode(mode)
+    if self.settings.panel_finding_mode == selected then
+        return
+    end
+    self.settings.panel_finding_mode = selected
+    self:clearPanelCache()
+    self:cancelPanelPrerender()
     self:saveSettings()
     self:saveDocSettings(true)
 end
@@ -553,6 +570,10 @@ function PanelsPlus:teardownDocumentResources()
     local ok, ComponentDetector = pcall(require, "src._componentdetector")
     if ok and ComponentDetector.clearScratch then
         ComponentDetector.clearScratch()
+    end
+    local classic_ok, ClassicComponentDetector = pcall(require, "src._classiccomponentdetector")
+    if classic_ok and ClassicComponentDetector.clearScratch then
+        ClassicComponentDetector.clearScratch()
     end
 
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes

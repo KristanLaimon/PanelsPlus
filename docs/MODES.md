@@ -1,16 +1,24 @@
-# Deep mode
+# Panel finding modes
 
-Panels+ has one panel-detection mode: **Deep mode**. Stored detector preferences
-from older versions are migrated to the single current implementation
-(`components`) when settings are loaded.
+Panels+ offers **Classic Panel Finding** and **Detailed Panel Finding** from the
+middle button in the panel viewer's bottom row. Tap to cycle between them. The
+current choice is saved with the document when document settings are enabled.
+Classic is the default when no panel finding choice is saved. An explicitly
+saved Detailed choice is preserved.
+
+Detailed uses the current component detector and reading-order rules. Classic
+uses the conservative v1.4.0 component detector and reading-order rules. The
+button redetects the open page and opens the panel nearest the one being read.
+Stored legacy detector preferences still migrate to the component pipeline;
+this selection is a separate setting.
 
 See [DETECTION.md](DETECTION.md) for the full algorithm and
 [ARCHITECTURE.md](ARCHITECTURE.md) for how detection fits into the viewer.
 
-## What Deep mode does
+## What both modes do
 
-Deep mode renders a reduced page bitmap, estimates the page background, and
-turns the raster into a binary ink map. `ComponentDetector` then finds
+Both modes render a reduced page bitmap, estimate the page background, and
+turn the raster into a binary ink map. The selected component detector finds
 8-connected ink components, checks their boundaries for straight panel-frame
 support, removes contained or implausibly small regions, groups nearby artwork,
 validates the result, and sorts it in the selected reading order.
@@ -89,7 +97,7 @@ Spread rotation is one entry with four choices (off, in the panel viewer, while 
 in the panel viewer and while reading). It and the fold line option are in the Panels+ menu and under `[Rotation]` in
 `More Panel Viewer Settings`.
 
-There is no detector selector or detector cycle in the current UI.
+The panel finding button cycles between Classic and Detailed on the current page.
 
 ## Diagnosing detection
 
@@ -97,6 +105,5 @@ Enable **Panels+ → Enable debugging logs**, reopen the page, and inspect
 KOReader's `crash.log`. Panels+ messages begin with `[Panels+]`. They report
 bitmap construction, native fallback, render timings, and memory checks.
 
-There is no alternate detector mode to switch to when a page is misread. See
-[DETECTION.md](DETECTION.md) for the relevant heuristics, settings, and known
-limitations.
+Switch the panel finding button if a page is misread. See
+[DETECTION.md](DETECTION.md) for heuristics, settings, and known limitations.

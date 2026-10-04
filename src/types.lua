@@ -41,6 +41,8 @@ SPDX-License-Identifier: MIT
 --- Crop behavior for drawing panel image parts.
 --- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'|'"none"'
 
+--- @alias PPPanelFindingMode '"classic"'|'"detailed"'
+
 --- Direction reported when the viewer crosses the first or last panel.
 --- @alias PPBoundaryDirection '"next"'|'"previous"'
 
@@ -76,6 +78,7 @@ SPDX-License-Identifier: MIT
 --- @field enabled boolean
 --- @field mode PPReadingMode
 --- @field crop_mode PPCropMode
+--- @field panel_finding_mode PPPanelFindingMode
 --- @field panel_margin_ratio number Zoom-out fraction the "margin" crop mode applies to non-full-page panels.
 --- @field invert_swipe boolean
 --- @field invert_taps boolean

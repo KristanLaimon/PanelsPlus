@@ -4,7 +4,7 @@ How Panels+ is put together, and what happens between a long-hold on a page and
 a panel appearing on screen.
 
 See also: [DETECTION.md](DETECTION.md) for how panels are found,
-[MODES.md](MODES.md) for the single Deep detection mode,
+[MODES.md](MODES.md) for Classic and Detailed panel finding,
 [WORD-LOOKUP.md](WORD-LOOKUP.md) for text selection and dictionary lookup,
 [PERFORMANCE.md](PERFORMANCE.md) for what each step costs.
 
@@ -243,9 +243,9 @@ stateDiagram-v2
 
 The button bar's mode button switches between **Manga mode** and **Comic
 mode**. That changes reading order and reopens the page at the panel you were
-reading, matched by its centre; it does not change the detector. Panel
-detection always uses the single internal **Deep mode** pipeline described in
-[MODES.md](MODES.md).
+reading, matched by its centre. The separate panel finding button cycles
+between the Classic and Detailed detectors and reopens the page near the current
+panel. See [MODES.md](MODES.md).
 
 When a swipe runs off the end of a page, `onPanelViewerBoundary` turns the
 underlying reader page and reopens the viewer on the adjacent page — at panel 1

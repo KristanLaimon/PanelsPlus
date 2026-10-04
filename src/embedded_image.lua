@@ -18,6 +18,8 @@ local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
 local NativeDetector = require("src._nativedetector")
 local ComponentDetector = require("src._componentdetector")
+local ClassicComponentDetector = require("src._classiccomponentdetector")
+local ClassicGeometry = require("src._classicgeometry")
 local PageBitmap = require("src._pagebitmap")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
@@ -234,7 +236,10 @@ end
 local function detectPanels(image, settings)
     local map = PageBitmap.buildFromBlitbuffer(image, settings)
     if map then
-        local panels = ComponentDetector.detectPage(map, settings)
+        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "classic"
+                and ClassicComponentDetector
+            or ComponentDetector
+        local panels = detector.detectPage(map, settings)
         return panels, "components"
     end
     local native = NativeDetector.collectFromBlitbuffer(image, settings)
@@ -268,7 +273,10 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return false
         end
     end
-    panels = Geometry.sortReadingOrder(panels, self.settings.mode)
+    local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "classic"
+            and ClassicGeometry
+        or Geometry
+    panels = ordering.sortReadingOrder(panels, self.settings.mode)
 
     -- A forward boundary lands at the first panel of the next image, while a
     -- backward boundary must land at the last panel of the previous image.
@@ -312,6 +320,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         embedded_source_image = image,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        panel_finding_mode = self.settings.panel_finding_mode,
         margin_ratio = self.settings.panel_margin_ratio,
         bleed_ratio = self.settings.panel_bleed_ratio,
         detector = "exact",
@@ -352,6 +361,10 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             local next_mode = { strict = "loose", loose = "margin", margin = "none", none = "strict" }
             self:setCropMode(next_mode[self.settings.crop_mode] or "strict")
             return self:reopenEmbeddedImagePanels(current_viewer)
+        end,
+        panel_finding_toggle_callback = function(current_viewer)
+            self:setPanelFindingMode(self.settings.panel_finding_mode == "detailed" and "classic" or "detailed")
+            return self:reopenEmbeddedImagePanels(current_viewer, { redetect = true })
         end,
         margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)
             self:setMarginRatio(ratio)
@@ -469,7 +482,7 @@ function EmbeddedImage:reopenEmbeddedImagePanels(viewer, options)
             y = (panel.y or 0) + (panel.h or 0) / 2,
         }
     local image = viewer.embedded_source_image
-    local panels = viewer.panels
+    local panels = not (options and options.redetect) and viewer.panels or nil
     local buttons_visible = options and options.buttons_visible
     if buttons_visible == nil then
         buttons_visible = true

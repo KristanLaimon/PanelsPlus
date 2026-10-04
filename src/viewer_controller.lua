@@ -176,6 +176,20 @@ function ViewerController:toggleViewerCropMode(viewer)
     return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
 end
 
+--- Change panel finding mode and reopen this page at the nearest new panel.
+function ViewerController:toggleViewerPanelFindingMode(viewer)
+    local current = viewer.panels and viewer.panels[viewer._images_list_cur or 1]
+    local center = current and {
+        x = current.x + current.w / 2,
+        y = current.y + current.h / 2,
+    }
+    self:setPanelFindingMode(self.settings.panel_finding_mode == "detailed" and "classic" or "detailed")
+    local panels = self:collectPanels(viewer.page)
+    local start_idx = center and PanelCollector.startIndex(panels, center) or 1
+    UIManager:close(viewer)
+    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
+end
+
 --- Persist a new "With margin" zoom-out ratio from an open viewer's slider dialog.
 ---
 --- Unlike crop mode itself, the ratio doesn't change any crop rectangle, so the
@@ -931,6 +945,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        panel_finding_mode = self.settings.panel_finding_mode,
         margin_ratio = self.settings.panel_margin_ratio,
         bleed_ratio = self.settings.panel_bleed_ratio,
         detector = "components",
@@ -961,6 +976,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         crop_toggle_callback = function(current_viewer)
             return self:toggleViewerCropMode(current_viewer)
+        end,
+        panel_finding_toggle_callback = function(current_viewer)
+            return self:toggleViewerPanelFindingMode(current_viewer)
         end,
         margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)
             return self:setViewerMarginRatio(current_viewer, ratio, activate_margin_mode)

@@ -14,6 +14,8 @@ local describe, it, assert, spy = framework.describe, framework.it, framework.as
 local Collector = require("src._panelcollector")
 local Bitmap = require("src._pagebitmap")
 local Native = require("src._nativedetector")
+local Detailed = require("src._componentdetector")
+local Classic = require("src._classiccomponentdetector")
 local Controller = require("src.viewer_controller")
 local Settings = require("src._settings")
 local UIManager = require("ui/uimanager")
@@ -33,10 +35,34 @@ local function document()
 end
 
 describe("Reader component detector integration", function()
+    it("routes maps to the selected detector", function()
+        local old_build, old_classic, old_detailed = Bitmap.build, Classic.detectPage, Detailed.detectPage
+        Bitmap.build = function()
+            return { native_w = 960, native_h = 1280 }
+        end
+        Classic.detectPage = function()
+            return { { x = 10, y = 0, w = 100, h = 100 } }
+        end
+        Detailed.detectPage = function()
+            return { { x = 20, y = 0, w = 100, h = 100 } }
+        end
+        local classic_panels = Collector.collect({ document = document() }, { panel_finding_mode = "classic" }, 1)
+        local detailed_panels = Collector.collect({ document = document() }, { panel_finding_mode = "detailed" }, 1)
+        local default_panels = Collector.collect({ document = document() }, {}, 1)
+        Bitmap.build, Classic.detectPage, Detailed.detectPage = old_build, old_classic, old_detailed
+        assert.equals(10, classic_panels[1].x)
+        assert.equals(20, detailed_panels[1].x)
+        assert.equals(10, default_panels[1].x)
+    end)
+
     it("activates the new detector for existing saved settings", function()
         local settings = Settings.withDefaults({ detector = "exact", embedded_detector = "exact" })
         assert.equals("components", settings.detector)
         assert.equals("components", settings.embedded_detector)
+        assert.equals("classic", settings.panel_finding_mode)
+        assert.equals("classic", Settings.withDefaults({ panel_finding_mode = "safe" }).panel_finding_mode)
+        assert.equals("detailed", Settings.withDefaults({ panel_finding_mode = "aggressive" }).panel_finding_mode)
+        assert.equals("detailed", Settings.withDefaults({ panel_finding_mode = "detailed" }).panel_finding_mode)
     end)
 
     it("keeps a blank bitmap in panel view without probing the native detector", function()
@@ -131,5 +157,42 @@ describe("Viewer page boundaries with no detected panels", function()
         Controller.onPanelViewerBoundary({ ui = { document = document() } }, "next", viewer)
         assert.is_false(closed:called())
         assert.is_nil(viewer._panels_plus_boundary_pending)
+    end)
+end)
+
+describe("Viewer panel finding selection", function()
+    it("redetects and reopens at the panel nearest the current position", function()
+        local old_close = UIManager.close
+        local closed = spy()
+        UIManager.close = closed
+        local new_panels = {
+            { x = 0, y = 0, w = 90, h = 100 },
+            { x = 100, y = 0, w = 90, h = 100 },
+        }
+        local reopened = spy()
+        local controller = setmetatable({
+            settings = { panel_finding_mode = "detailed" },
+            setPanelFindingMode = function(self, mode)
+                self.settings.panel_finding_mode = mode
+            end,
+            collectPanels = function()
+                return new_panels
+            end,
+            showPanelViewerForPage = reopened,
+        }, { __index = Controller })
+        local viewer = {
+            page = 3,
+            _images_list_cur = 1,
+            panels = { { x = 105, y = 5, w = 80, h = 80 } },
+        }
+        controller:toggleViewerPanelFindingMode(viewer)
+        UIManager.close = old_close
+        assert.equals("classic", controller.settings.panel_finding_mode)
+        assert.is_true(closed:called())
+        assert.equals(viewer, closed:lastCall()[2])
+        assert.equals(3, reopened:lastCall()[2])
+        assert.equals(new_panels, reopened:lastCall()[3])
+        assert.equals(2, reopened:lastCall()[4])
+        assert.is_true(reopened:lastCall()[5].buttons_visible)
     end)
 end)

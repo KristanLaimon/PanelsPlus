@@ -18,6 +18,30 @@ local PanelViewer = require("src._panelviewer")
 local UIManager = require("ui/uimanager")
 local Screen = require("device").screen
 
+describe("EmbeddedImage panel finding selection", function()
+    it("passes the source image back through detection when switching modes", function()
+        local old_close = UIManager.close
+        local closed = spy()
+        UIManager.close = closed
+        local opened = spy()
+        local image = {}
+        local viewer = {
+            embedded_source_image = image,
+            panels = { { x = 10, y = 20, w = 100, h = 80 } },
+            _images_list_cur = 1,
+        }
+        local plugin = { showEmbeddedImagePanelsForImage = opened }
+        EmbeddedImage.reopenEmbeddedImagePanels(plugin, viewer, { redetect = true })
+        UIManager.close = old_close
+        assert.is_true(closed:called())
+        assert.is_nil(viewer.embedded_source_image)
+        assert.equals(image, opened:lastCall()[2])
+        assert.is_nil(opened:lastCall()[3].panels)
+        assert.equals(60, opened:lastCall()[3].start_point.x)
+        assert.is_true(opened:lastCall()[3].buttons_visible)
+    end)
+end)
+
 describe("EmbeddedImage KEPUB compatibility", function()
     it("opens image panels for direct and Kobo-synced KEPUB filenames", function()
         for _, filename in ipairs({ "/books/manga.kepub", "/books/manga.kepub.epub", "/books/MANGA.KEPUB" }) do
@@ -172,6 +196,7 @@ describe("EmbeddedImage native page animation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
+                panel_finding_mode = "detailed",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},
@@ -346,6 +371,7 @@ describe("EmbeddedImage device rotation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
+                panel_finding_mode = "detailed",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},

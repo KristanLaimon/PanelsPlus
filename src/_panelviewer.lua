@@ -80,6 +80,7 @@ end
 --- @class PanelViewer : ImageViewer
 --- @field reading_mode PPReadingMode Current left/right panel order.
 --- @field crop_mode PPCropMode Current crop rendering mode.
+--- @field panel_finding_mode PPPanelFindingMode Current panel detector choice.
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
 --- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
@@ -112,6 +113,7 @@ end
 --- @field boundary_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 --- @field mode_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field crop_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field panel_finding_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field margin_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_margin_mode:boolean|nil):boolean|nil
 --- @field bleed_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_loose_mode:boolean|nil):boolean|nil
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
@@ -130,6 +132,7 @@ local PanelViewer = ImageViewer:extend({
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
+    panel_finding_mode = "classic",
     margin_ratio = 0.12,
     bleed_ratio = 0.08,
     panel_is_full_page = nil,
@@ -166,6 +169,7 @@ local PanelViewer = ImageViewer:extend({
     boundary_callback = nil,
     mode_toggle_callback = nil,
     crop_toggle_callback = nil,
+    panel_finding_toggle_callback = nil,
     margin_ratio_callback = nil,
     bleed_ratio_callback = nil,
     progress_bar_toggle_callback = nil,
@@ -1885,6 +1889,7 @@ function PanelViewer:onCloseWidget()
     self.detector_cycle_callback = nil
     self.mode_toggle_callback = nil
     self.crop_toggle_callback = nil
+    self.panel_finding_toggle_callback = nil
     self.margin_ratio_callback = nil
     self.bleed_ratio_callback = nil
     self.panel_prerender_callback = nil
@@ -2466,6 +2471,13 @@ function PanelViewer:getCropModeText()
     return _("Strict crop")
 end
 
+function PanelViewer:getPanelFindingModeText()
+    if self.panel_finding_mode == "detailed" then
+        return _("Panels: Detailed")
+    end
+    return _("Panels: Classic")
+end
+
 --- Return the button label for the panel navigation transition mode in use.
 ---
 --- @return string text Localized navigation-mode label.
@@ -3028,6 +3040,19 @@ function PanelViewer:replaceButtonTable()
                 callback = function()
                     if self.more_config_callback then
                         self.more_config_callback(self)
+                    end
+                end,
+            },
+            {
+                id = "panel_finding",
+                text = self:getPanelFindingModeText(),
+                callback = function()
+                    if self.panel_finding_toggle_callback then
+                        self.panel_finding_toggle_callback(self)
+                    else
+                        self.panel_finding_mode = self.panel_finding_mode == "detailed" and "classic" or "detailed"
+                        self:replaceButtonTable()
+                        self:update()
                     end
                 end,
             },

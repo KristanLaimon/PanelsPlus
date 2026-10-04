@@ -1,14 +1,19 @@
 # Panel detection
 
-Panels+ exposes one panel-detection mode: **Deep mode**. Internally it is the
-`components` pipeline implemented by `_pagebitmap.lua` and
-`_componentdetector.lua`. No alternate detector is selectable in the current
-code.
+Panels+ offers **Classic Panel Finding** (the default) and **Detailed Panel
+Finding**. Both use the map built by `_pagebitmap.lua`. Detailed uses
+`_componentdetector.lua` and the current reading-order sorter; Classic uses the
+v1.4.0 detector in `_classiccomponentdetector.lua` and its sorter in
+`_classicgeometry.lua`. The panel viewer's bottom-row button cycles between them
+and redetects the open page.
 
 This document describes the image-processing problem, the data flowing through
 the pipeline, the heuristics used to turn pixels into panel rectangles, and the
 failure behavior. Start with [INTRO.md](INTRO.md) if terms such as binary image,
 connected component, or bounding box are unfamiliar.
+
+The component policy below describes Detailed; Classic retains the
+v1.4.0 grouping and reading-order policy.
 
 ## Detection is geometry recovery, not semantic recognition
 
@@ -22,7 +27,7 @@ flood fill over a 480-pixel-wide map is cheap enough for low-end e-readers and
 requires no model files, but an unframed collage may contain no geometric
 signal that distinguishes “panel” from “artwork.”
 
-## One mode, two source backends
+## Two source backends
 
 The format changes how pixels enter the algorithm, not which algorithm runs.
 
@@ -31,8 +36,8 @@ The format changes how pixels enter the algorithm, not which algorithm runs.
 | **Fixed page** | CBZ, CBR, PDF, DjVu | page rendered at bounded resolution | native document-page space |
 | **Embedded image** | EPUB, KEPUB, MOBI | decoded image resampled to bounded resolution | original image space |
 
-Both inputs become the same `PPPageMap`, pass through `ComponentDetector`, and
-are sorted by the same geometry code. Embedded images need a separate path
+Both inputs become the same `PPPageMap` and pass through the selected component
+detector and its reading-order sorter. Embedded images need a separate path
 because a reflow page's coordinates describe laid-out text, not the pixels of
 the image inside it.
 
@@ -65,7 +70,8 @@ For a fixed page, `PageBitmap.build()` asks KOReader for native dimensions and
 renders at:
 
 ```lua
-zoom = math.min(1, segment_target_width / native_width)
+zoom = math.min(1, segment_target_width / native_width,
+                segment_target_width * 2 / native_height)
 ```
 
 The current target width is 480 pixels. The algorithm never enlarges a source.
@@ -232,7 +238,7 @@ latent bug whenever raster dimensions are rounded independently.
 
 `ComponentDetector.detectPage()` passes its rectangles to
 `Segmenter.accept()`. The module name is historical; this function is a
-detector-independent page-level validator still used by Deep mode.
+detector-independent page-level validator used by both finding modes.
 
 It checks:
 
@@ -281,16 +287,16 @@ Both paths check a 100 MB free-memory floor plus an estimated working set. If
 the guard fails, they return no rectangles; the caller uses a full-page result
 when source dimensions are available.
 
-This fallback is deliberately described as an implementation detail of Deep
-mode. Users cannot select `exact`, `auto`, or `fast`: settings migration and
-setters normalize detector values to `components`.
+This fallback applies to both panel finding modes. Users cannot select
+`exact`, `auto`, or `fast`: settings migration and setters normalize legacy
+detector values to `components`.
 
 ## Current tuning values
 
 Settings retain the `segment_` prefix for compatibility with older versions.
 That prefix does not mean the legacy segmenter is the active detector.
 
-| Setting | Default | Deep-mode effect |
+| Setting | Default | Effect |
 | --- | --- | --- |
 | `segment_target_width` | `480` | maximum fixed-page map width; embedded images also fit within twice this height |
 | `segment_ink_delta` | `40` | minimum background-relative channel difference counted as ink |
@@ -352,7 +358,7 @@ Representative lines include:
 [Panels+] native detect skipped: low memory (...)
 ```
 
-`page bitmap` confirms that the primary Deep input was built. A `native detect`
+`page bitmap` confirms that the primary detector input was built. A `native detect`
 line means map construction was unavailable and the internal compatibility
 fallback ran. It does not mean that a different user mode was selected.
 

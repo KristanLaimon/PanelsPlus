@@ -3,6 +3,12 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "Panels: Classic"
+msgstr "Paneles: Clásico"
+
+msgid "Panels: Detailed"
+msgstr "Paneles: Detallado"
+
 msgid " (fps)"
 msgstr " (fps)"
 

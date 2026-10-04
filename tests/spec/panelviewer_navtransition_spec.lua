@@ -109,3 +109,27 @@ describe("PanelViewer nav transition hold options", function()
         assert.equals(1, animation_spy:callCount())
     end)
 end)
+
+describe("PanelViewer panel finding button", function()
+    local function button(viewer)
+        for _, row in ipairs(viewer.button_table.buttons or {}) do
+            for _, item in ipairs(row) do
+                if item.id == "panel_finding" then
+                    return item
+                end
+            end
+        end
+    end
+
+    it("shows the selected mode in the middle of the bottom row and cycles on tap", function()
+        local viewer = PanelViewer:new({})
+        viewer:replaceButtonTable()
+        assert.equals("panel_finding", viewer.button_table.buttons[3][2].id)
+        assert.equals("Panels: Classic", button(viewer).text)
+        button(viewer).callback()
+        assert.equals("detailed", viewer.panel_finding_mode)
+        assert.equals("Panels: Detailed", button(viewer).text)
+        button(viewer).callback()
+        assert.equals("classic", viewer.panel_finding_mode)
+    end)
+end)
