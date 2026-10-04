@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")"

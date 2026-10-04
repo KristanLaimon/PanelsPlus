@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 set -euo pipefail
 
 # this script expects you have installe koreader in your linux environment (koreader is not for windows yet (august/2026))

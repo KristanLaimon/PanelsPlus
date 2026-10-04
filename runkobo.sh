@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 set -euo pipefail
 
 echo "Launching KOReader (Kobo Emulation Mode)..." #At least, the most I can emulate kobo devices

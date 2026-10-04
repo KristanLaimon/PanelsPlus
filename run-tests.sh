@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 # ==============================================================================
 # run-tests.sh - Test runner for PanelsPlus and manga dataset specifications
 # ==============================================================================

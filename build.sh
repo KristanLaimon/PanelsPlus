@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/bash
 set -eu
 
 PLUGIN_NAME="${1:-panelsplus}"
