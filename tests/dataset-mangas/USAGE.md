@@ -291,12 +291,38 @@ PanelsPlus provides convenient root executable scripts to run benchmarks and tes
 
 ### 2. Regression Tracking with `bestbenchmark.json`
 
-Each manga dataset directory (`tests/dataset-mangas/dataset/<manganame>/`) contains a `bestbenchmark.json` file recording the highest precision, recall, F1 score, and mean IoU ever achieved.
+Each manga dataset directory (`tests/dataset-mangas/dataset/<manganame>/`) contains a `bestbenchmark.json` file recording detection and ordering metrics from a benchmark run. Improvements must pass every recorded regression check before replacing a record.
+
+Ordering uses the saved annotation `frame` array as the expected sequence, for
+both manga and comics. It does not sort the annotations with the detector's sorter.
+Check annotation order in the annotator when investigating an unexpected mismatch.
+
+- `reading_order_accuracy`: fraction of evaluated pages whose panels all match
+  one-to-one **and** appear in the annotated order. Missed, merged, and extra
+  panels fail this strict score. Single-panel pages count when matched.
+- `reading_order_pair_accuracy`: fraction of matched panel pairs appearing in
+  the correct relative order. This isolates sequencing among recognized panels;
+  it must be read alongside precision and recall because unmatched panels do not
+  contribute pairs. Pages with fewer than two matches contribute no pairs; the
+  rate is absent (CLI: `N/A`) if the whole dataset has no comparable pairs.
+- `reading_order_pages`, `reading_order_pages_correct`, `reading_order_pairs`,
+  and `reading_order_pairs_correct` preserve the denominators and numerators.
+
+Rates are stored as fractions rounded to four decimals: `0.8704` means 87.04%.
+CLI summaries display both percentages per dataset. `--failures-only` also shows
+ordering failures when detection F1 is perfect. Unannotated pages are excluded.
+Historical records without ordering fields remain valid; `--update-best` adds
+measured ordering fields when the current run passes the existing baseline.
+
+```bash
+./run-benchmark.sh --all --detector components --summary-only --update-best
+```
 
 - **Regression Protection**: Tests in `<manganame>_spec.lua` enforce that results are **never worse** than `bestbenchmark.json`. If a refactor causes accuracy to drop, the test fails with a `REGRESSION` alert.
 - **Record Updates**: Tests do not rewrite their baselines. Use `--update-best`
   explicitly after reviewing an improvement. Records for the reader's detector
-  use `components_full_volume`, separate from the legacy segmenter's `full_volume`.
+  use `components_conservative_full_volume`, separate from historical
+  `components_full_volume` and the legacy segmenter's `full_volume`.
   Both `--all` and individual-book runs check the selected detector's records
   and exit unsuccessfully on regressions. Non-default IoU thresholds are not
   compared with or written into the default-threshold records.

@@ -148,31 +148,52 @@ local function sortTopAlignedRows(panels, mode)
         local deferred = {}
 
         for row_index, row in ipairs(rows) do
+            local row_defer_until = row_index
             for item_index, item in ipairs(row.items) do
                 local rect = item.rect
                 local defer_until = row_index
+                local stack_count = 0
                 local bottom = (rect.y or 0) + math.max(1, rect.h or 0)
 
-                if item_index > 1 then
-                    for later_index = row_index + 1, #rows do
-                        local later_row = rows[later_index]
-                        if later_row.top >= bottom then
-                            break
-                        end
-                        for _, later_item in ipairs(later_row.items) do
-                            local later_rect = later_item.rect
-                            local later_right = (later_rect.x or 0) + math.max(1, later_rect.w or 0)
-                            local rect_right = (rect.x or 0) + math.max(1, rect.w or 0)
-                            local is_in_leading_stack = mode == "comic" and later_right <= (rect.x or 0)
-                                or mode ~= "comic" and (later_rect.x or 0) >= rect_right
-                            if is_in_leading_stack then
-                                defer_until = later_index
-                                break
-                            end
+                for later_index = row_index + 1, #rows do
+                    local later_row = rows[later_index]
+                    if later_row.top >= bottom then
+                        break
+                    end
+                    for _, later_item in ipairs(later_row.items) do
+                        local later_rect = later_item.rect
+                        local later_right = (later_rect.x or 0) + math.max(1, later_rect.w or 0)
+                        local rect_right = (rect.x or 0) + math.max(1, rect.w or 0)
+                        -- Native crops include border padding. Allow a small
+                        -- horizontal overlap, but require at least half of
+                        -- the shorter panel vertically: a few shared pixels
+                        -- at a row boundary are not a nested stack.
+                        local horizontal_slack = math.min(rect.w or 0, later_rect.w or 0) * 0.05
+                        local overlap = math.min(bottom, (later_rect.y or 0) + (later_rect.h or 0))
+                            - math.max(rect.y or 0, later_rect.y or 0)
+                        local substantial_overlap = overlap >= math.min(rect.h or 0, later_rect.h or 0) * 0.50
+                        local is_in_leading_stack = substantial_overlap
+                            and (
+                                mode == "comic" and later_right <= (rect.x or 0) + horizontal_slack
+                                or mode ~= "comic" and (later_rect.x or 0) >= rect_right - horizontal_slack
+                            )
+                        if is_in_leading_stack then
+                            defer_until = later_index
+                            stack_count = stack_count + 1
                         end
                     end
                 end
 
+                -- Without a neighbour on this top-aligned row, require
+                -- multiple leading panels to establish a stack. A single
+                -- staggered panel must not reverse ordinary top-to-bottom flow.
+                if item_index == 1 and stack_count < 2 then
+                    defer_until = row_index
+                end
+                -- A later panel in the same row must not overtake a deferred
+                -- predecessor while its leading stack is being completed.
+                defer_until = math.max(defer_until, row_defer_until)
+                row_defer_until = defer_until
                 if defer_until > row_index then
                     deferred[defer_until] = deferred[defer_until] or {}
                     table.insert(deferred[defer_until], item)

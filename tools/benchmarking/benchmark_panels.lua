@@ -151,6 +151,7 @@ for _, page in ipairs(pages) do
             book_metrics[page.book_title] = metrics
         end
         metrics.pages_evaluated = metrics.pages_evaluated + 1
+        Evaluator.addReadingOrder(metrics, result)
         metrics.total_ground_truth = metrics.total_ground_truth + result.ground_truth_count
         metrics.total_detected = metrics.total_detected + result.detected_count
         metrics.true_positives = metrics.true_positives + result.true_positives
@@ -268,13 +269,19 @@ if not target_page and (target_book or run_all) and iou_threshold == 0.5 then
             metrics.gap_tolerance, metrics.iou_threshold = 35, iou_threshold
             print(
                 string.format(
-                    "  %s: Precision %.2f%%, Recall %.2f%%, F1 %.2f%%, IoU %.4f, False positives %d",
+                    "  %s: Precision %.2f%%, Recall %.2f%%, F1 %.2f%%, IoU %.4f, False positives %d, Perfect order %.2f%% (%d/%d), Matched pair order %s",
                     book.book_title,
                     metrics.precision * 100,
                     metrics.recall * 100,
                     metrics.f1 * 100,
                     metrics.mean_iou,
-                    metrics.false_positives
+                    metrics.false_positives,
+                    metrics.reading_order_accuracy * 100,
+                    metrics.reading_order_pages_correct,
+                    metrics.reading_order_pages,
+                    metrics.reading_order_pair_accuracy
+                            and string.format("%.2f%%", metrics.reading_order_pair_accuracy * 100)
+                        or "N/A"
                 )
             )
             local ok, reason = BenchmarkTracker.checkAndUpdate(book_dir, mode, metrics, update_best)

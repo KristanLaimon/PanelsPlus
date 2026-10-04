@@ -88,11 +88,13 @@ describe("Manga and comic full-volume production benchmarks", function()
             end
             local total_gt, total_detected, total_matched = 0, 0, 0
             local iou_sum, matched_pages = 0, 0
+            local ordering = {}
 
             for _, page in ipairs(Manifest.getMappedPages(book)) do
                 local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
                 local detected = ComponentDetector.detectPage(map, { mode = page.reading_order })
                 local result = Evaluator.evaluate(page.frames, detected, 0.50, 35)
+                Evaluator.addReadingOrder(ordering, result)
                 total_gt = total_gt + result.ground_truth_count
                 total_detected = total_detected + result.detected_count
                 total_matched = total_matched + result.true_positives
@@ -137,6 +139,8 @@ describe("Manga and comic full-volume production benchmarks", function()
                     f1 = f1,
                     mean_iou = mean_iou,
                     false_positives = total_detected - total_matched,
+                    reading_order_accuracy = ordering.reading_order_accuracy,
+                    reading_order_pair_accuracy = ordering.reading_order_pair_accuracy,
                 }, baseline.components_conservative_full_volume)
                 assert.is_true(ok, reason)
             end

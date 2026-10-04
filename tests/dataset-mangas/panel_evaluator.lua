@@ -132,6 +132,22 @@ function PanelEvaluator.evaluate(ground_truth, detected, iou_threshold, gap_tole
         end
     end
 
+    -- Compare relative order of matched panels even when detection is incomplete.
+    -- Unmatched panels are still penalized by precision/recall and the strict page score.
+    local order_pairs, order_pairs_correct = 0, 0
+    for g_idx = 1, n_gt do
+        if matched_gt[g_idx] then
+            for next_idx = g_idx + 1, n_gt do
+                if matched_gt[next_idx] then
+                    order_pairs = order_pairs + 1
+                    if matched_gt[g_idx] < matched_gt[next_idx] then
+                        order_pairs_correct = order_pairs_correct + 1
+                    end
+                end
+            end
+        end
+    end
+
     -- Failure analysis
     local failures = {}
     if tp < n_gt or tp < n_det then
@@ -151,7 +167,8 @@ function PanelEvaluator.evaluate(ground_truth, detected, iou_threshold, gap_tole
                 table.insert(failures, string.format("ghost_det_panel_%d", d_idx))
             end
         end
-    elseif not order_correct then
+    end
+    if order_pairs_correct < order_pairs then
         table.insert(failures, "reading_order_mismatch")
     end
 
@@ -166,9 +183,26 @@ function PanelEvaluator.evaluate(ground_truth, detected, iou_threshold, gap_tole
         f1 = f1,
         mean_iou = m_iou,
         reading_order_correct = order_correct,
+        reading_order_pairs = order_pairs,
+        reading_order_pairs_correct = order_pairs_correct,
         matches = matches,
         failures = failures,
     }
+end
+
+--- Accumulate page-weighted exact order and pair-weighted matched-panel order.
+--- Rates are fractions (multiply by 100 for percentages); no pairs means unmeasured.
+function PanelEvaluator.addReadingOrder(metrics, result)
+    metrics.reading_order_pages = (metrics.reading_order_pages or 0) + 1
+    metrics.reading_order_pages_correct = (metrics.reading_order_pages_correct or 0)
+        + (result.reading_order_correct and 1 or 0)
+    metrics.reading_order_pairs = (metrics.reading_order_pairs or 0) + result.reading_order_pairs
+    metrics.reading_order_pairs_correct = (metrics.reading_order_pairs_correct or 0)
+        + result.reading_order_pairs_correct
+    metrics.reading_order_accuracy = metrics.reading_order_pages_correct / metrics.reading_order_pages
+    metrics.reading_order_pair_accuracy = metrics.reading_order_pairs > 0
+            and metrics.reading_order_pairs_correct / metrics.reading_order_pairs
+        or nil
 end
 
 return PanelEvaluator

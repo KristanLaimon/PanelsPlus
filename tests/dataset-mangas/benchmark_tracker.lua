@@ -18,6 +18,13 @@ SPDX-License-Identifier: MIT
 local JSON = require("tests.helpers.json")
 
 local BenchmarkTracker = {}
+local ORDER_RATES = { "reading_order_accuracy", "reading_order_pair_accuracy" }
+local ORDER_COUNTS = {
+    "reading_order_pages",
+    "reading_order_pages_correct",
+    "reading_order_pairs",
+    "reading_order_pairs_correct",
+}
 
 --- Load the best benchmark baseline for a book.
 ---
@@ -54,7 +61,8 @@ end
 
 --- Determine if current metrics represent an improvement over best metrics.
 ---
---- Primary metric is F1 score; secondary is Recall, tertiary is Mean IoU.
+--- Recognizes new/improved ordering measurements, then F1, Recall, and Mean IoU.
+--- The caller must check all regression guards before saving an improvement.
 ---
 --- @param current table Current evaluation metrics {f1, recall, precision, mean_iou}
 --- @param best table Best benchmark metrics {f1, recall, precision, mean_iou}
@@ -62,6 +70,11 @@ end
 function BenchmarkTracker.isBetter(current, best)
     if not best then
         return true
+    end
+    for _, key in ipairs(ORDER_RATES) do
+        if current[key] ~= nil and (best[key] == nil or current[key] > best[key] + 0.00005) then
+            return true
+        end
     end
     local f1_diff = (current.f1 or 0) - (best.f1 or 0)
     if f1_diff > 0.001 then
@@ -93,6 +106,17 @@ function BenchmarkTracker.verifyNoRegression(current, best, tolerance)
         return true, nil
     end
     local tol = tolerance or 0.000050000001
+    for _, key in ipairs(ORDER_RATES) do
+        if best[key] ~= nil then
+            if current[key] == nil then
+                return false, "Missing recorded ordering metric: " .. key
+            end
+            if current[key] < best[key] - tol then
+                return false,
+                    string.format("REGRESSION in %s: got %.2f%%, best %.2f%%", key, current[key] * 100, best[key] * 100)
+            end
+        end
+    end
 
     -- Precision was previously unguarded, so added false positives could pass.
     if (current.precision or 0) < (best.precision or 0) - tol then
@@ -162,7 +186,13 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
     local best_data = BenchmarkTracker.load(book_dir) or {}
     local best_target = best_data[mode]
 
-    if BenchmarkTracker.isBetter(current, best_target) or update_on_better == true then
+    -- An improvement in one metric must never overwrite a regression in another.
+    local ok, reason = BenchmarkTracker.verifyNoRegression(current, best_target)
+    if not ok then
+        return false, reason
+    end
+
+    if BenchmarkTracker.isBetter(current, best_target) then
         if update_on_better ~= false then
             best_data.book_title = best_data.book_title or book_dir:match("([^/]+)$")
             best_data.updated_at = os.date("%Y-%m-%d")
@@ -171,7 +201,9 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
                 total_ground_truth = current.total_ground_truth,
                 total_detected = current.total_detected,
                 true_positives = current.true_positives,
-                false_positives = current.false_positives or ((current.total_detected and current.true_positives) and (current.total_detected - current.true_positives)) or 0,
+                false_positives = current.false_positives
+                    or ((current.total_detected and current.true_positives) and (current.total_detected - current.true_positives))
+                    or 0,
                 precision = math.floor((current.precision or 0) * 10000 + 0.5) / 10000,
                 recall = math.floor((current.recall or 0) * 10000 + 0.5) / 10000,
                 f1 = math.floor((current.f1 or 0) * 10000 + 0.5) / 10000,
@@ -179,10 +211,18 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
                 gap_tolerance = current.gap_tolerance or 35,
                 iou_threshold = current.iou_threshold or 0.50,
             }
+            for _, key in ipairs(ORDER_RATES) do
+                if current[key] ~= nil then
+                    best_data[mode][key] = math.floor(current[key] * 10000 + 0.5) / 10000
+                end
+            end
+            for _, key in ipairs(ORDER_COUNTS) do
+                best_data[mode][key] = current[key]
+            end
             BenchmarkTracker.save(book_dir, best_data)
             print(
                 string.format(
-                    "\n  [NEW RECORD] %s (%s): F1 improved to %.2f%% (Recall: %.2f%%, Prec: %.2f%%, IoU: %.2f). Updated bestbenchmark.json!\n",
+                    "\n  [NEW RECORD] %s (%s): F1 %.2f%% (Recall: %.2f%%, Prec: %.2f%%, IoU: %.2f). Updated bestbenchmark.json!\n",
                     best_data.book_title,
                     mode,
                     (current.f1 or 0) * 100,
@@ -193,13 +233,6 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
             )
         end
         return true, nil
-    end
-
-    if best_target then
-        local ok, reason = BenchmarkTracker.verifyNoRegression(current, best_target)
-        if not ok then
-            return false, reason
-        end
     end
 
     return true, nil

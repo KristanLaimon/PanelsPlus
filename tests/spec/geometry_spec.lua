@@ -28,6 +28,90 @@ local function orderedIDs(panels)
     return table.concat(ids, ",")
 end
 
+describe("Geometry.sortReadingOrder padded and nested layouts", function()
+    local layouts = {
+        {
+            name = "finishes each row despite overlapping crop padding",
+            -- Horimiya-style borders overlap the next tier by six pixels.
+            boxes = {
+                panel("1", 500, 0, 400, 406),
+                panel("2", 0, 0, 450, 406),
+                panel("3", 500, 400, 400, 406),
+                panel("4", 0, 400, 450, 406),
+                panel("5", 500, 800, 400, 400),
+                panel("6", 0, 800, 450, 400),
+            },
+            expected = "1,2,3,4,5,6",
+        },
+        {
+            name = "finishes an inset stack before the taller trailing panel",
+            -- Nagatoro p.37: the full-height left panel begins above the stack.
+            boxes = {
+                panel("1", 585, 135, 411, 378),
+                panel("2", 585, 536, 411, 345),
+                panel("3", 585, 901, 411, 316),
+                panel("4", 585, 1237, 411, 340),
+                panel("5", 33, 0, 548, 1696),
+            },
+            expected = "1,2,3,4,5",
+        },
+        {
+            name = "recognizes a nested stack despite horizontal border padding",
+            -- Nagatoro p.75: children overlap their neighbour by ten pixels.
+            boxes = {
+                panel("1", 33, 0, 1086, 681),
+                panel("2", 634, 700, 366, 464),
+                panel("3", 634, 1155, 366, 541),
+                panel("4", 33, 700, 611, 996),
+            },
+            expected = "1,2,3,4",
+        },
+        {
+            name = "keeps later row members behind a deferred predecessor",
+            boxes = {
+                panel("1", 790, 996, 350, 334),
+                panel("2", 790, 1312, 326, 347),
+                panel("3", 464, 1015, 326, 644),
+                panel("4", 69, 1015, 395, 403),
+                panel("5", 69, 1436, 395, 223),
+            },
+            expected = "1,2,3,4,5",
+        },
+        {
+            name = "does not defer a panel for a partly overlapping staggered neighbour",
+            -- Mirrored Scott p.89: the next tier only overlaps the lower third.
+            boxes = {
+                panel("1", 708, 0, 474, 620),
+                panel("2", 82, 34, 674, 1013),
+                panel("3", 745, 670, 437, 1010),
+                panel("4", 160, 1095, 619, 356),
+                panel("5", 108, 1495, 648, 113),
+            },
+            expected = "1,2,3,4,5",
+        },
+    }
+    for _, mode in ipairs({ "manga", "comic" }) do
+        for _, layout in ipairs(layouts) do
+            it(mode .. " " .. layout.name, function()
+                for _, scale in ipairs({ 0.5, 1, 2 }) do
+                    for offset = 0, #layout.boxes - 1 do
+                        local panels = {}
+                        for i = 1, #layout.boxes do
+                            local box = layout.boxes[(i + offset - 1) % #layout.boxes + 1]
+                            local x = mode == "comic" and 1300 - box.x - box.w or box.x
+                            panels[i] = panel(box.id, x * scale, box.y * scale, box.w * scale, box.h * scale)
+                        end
+                        assert.equals(panels, Geometry.sortReadingOrder(panels, mode))
+                        assert.equals(layout.expected, orderedIDs(panels))
+                        Geometry.sortReadingOrder(panels, mode)
+                        assert.equals(layout.expected, orderedIDs(panels), "Sorting must be idempotent")
+                    end
+                end
+            end)
+        end
+    end
+end)
+
 describe("Geometry.sortReadingOrder comic mode", function()
     it("keeps vertically staggered tiers out of one left-to-right row", function()
         -- The former union-find grouping links each neighbouring pair and

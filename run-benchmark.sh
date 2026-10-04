@@ -27,7 +27,7 @@ Options:
   -p, --page <number>  Benchmark a specific 1-indexed page
   -a, --all            Benchmark all books discovered in tests/dataset-mangas/dataset/
   -u, --update-best    Update bestbenchmark.json if the current run beats the historical record
-  -f, --failures-only  Display only pages with imperfect detection (F1 < 1.0)
+  -f, --failures-only  Display only pages with detection or reading-order issues
   --summary-only       Display aggregate metrics only
   -t, --threshold <n>  IoU threshold for true positive match (default: 0.50)
   --detector <name>    segmenter (default) or experimental components
