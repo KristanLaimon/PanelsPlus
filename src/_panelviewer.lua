@@ -1869,6 +1869,16 @@ function PanelViewer:onCloseWidget()
     self._images_list = nil
     self.image_rects = nil
     self:releaseEmbeddedSource()
+    -- Old crops wait two UI ticks so ImageViewer can replace its child widget.
+    -- A reader can close before those ticks run; release them now that the
+    -- widget tree is gone instead of retaining several screen-sized buffers.
+    for _, pending in ipairs(self._pending_panel_images or {}) do
+        if pending.image and pending.image.free then
+            pending.image:free()
+            pending.image = nil
+        end
+    end
+    self._pending_panel_images = nil
     self.panels = nil
     self.panel_is_full_page = nil
     self.boundary_callback = nil
@@ -1924,9 +1934,23 @@ function PanelViewer:releasePreviousPanelImage(image)
         return
     end
 
+    local pending = { image = image }
+    self._pending_panel_images = self._pending_panel_images or {}
+    table.insert(self._pending_panel_images, pending)
     UIManager:tickAfterNext(function()
-        if image ~= self.image then
-            image:free()
+        local previous = pending.image
+        if previous and previous ~= self.image then
+            previous:free()
+        end
+        pending.image = nil
+        local images = self._pending_panel_images
+        if images then
+            for i = #images, 1, -1 do
+                if images[i] == pending then
+                    table.remove(images, i)
+                    break
+                end
+            end
         end
     end)
 end

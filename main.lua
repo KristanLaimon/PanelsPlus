@@ -30,6 +30,7 @@ local EmbeddedImage = require("src.embedded_image")
 local Menu = require("src.menu")
 local Memory = require("src._memory")
 local NativePanelZoom = require("src.native_panel_zoom")
+local PanelViewer = require("src._panelviewer")
 local ReadingPageFold = require("src.reading_page_fold")
 local Settings = require("src._settings")
 local SpreadRotation = require("src.spread_rotation")
@@ -519,25 +520,31 @@ function PanelsPlus:onSaveSettings()
     self:keepSpreadRotationOutOfDocSettings()
 end
 
---- KOReader close hook: drop scheduled work and restore native panel zoom.
----
---- This lives here rather than in a mixin because `include()` copies methods by
---- name: several modules need teardown, but only one could own the hook name.
---- Every step must be safe to run when the matching feature never started.
----
---- This hook fires on every `ReaderUI` teardown -- closing a document, going
---- home, switching documents, and quitting KOReader all go through it, not
---- just the low-memory device case a full collect was meant for. A full
---- `collectgarbage("collect")` is a blocking, stop-the-world pass whose cost
---- scales with how much the plugin's heap has grown that session; running it
---- unconditionally stalls teardown (and, on app exit, freezes the screen on
---- whatever was last drawn) even when memory is not actually tight. Only pay
---- for it when headroom is genuinely low; otherwise let Lua's normal
---- incremental GC reclaim this cache without a synchronous pause.
-function PanelsPlus:onCloseWidget()
+--- Close every panel window owned by this reader before its document is freed.
+--- An embedded-image viewer is also a PanelViewer, but is not tracked by
+--- `active_panel_viewer`; a prior interrupted replacement may leave more than
+--- one on the stack. Closing by owner covers both cases.
+function PanelsPlus:closePanelViewers()
+    local windows = UIManager._window_stack or {}
+    for i = #windows, 1, -1 do
+        local viewer = windows[i].widget
+        if viewer and viewer.reader_ui == self.ui and viewer.name == PanelViewer.name then
+            UIManager:close(viewer)
+        end
+    end
+    self.active_panel_viewer = nil
+end
+
+--- Release document-owned resources while the document still exists.
+function PanelsPlus:teardownDocumentResources()
+    if self._panels_plus_torn_down then
+        return
+    end
+    self._panels_plus_torn_down = true
     self:cancelEmbeddedImageSearch()
     self:cancelPanelPrefetch()
     self:cancelPanelPrerender()
+    self:closePanelViewers()
     self:clearPanelCache()
     self:removePanelGestureZones()
     self:restoreNativePanelZoom()
@@ -551,6 +558,27 @@ function PanelsPlus:onCloseWidget()
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
     if not Memory.hasHeadroom(minimum) then
         collectgarbage("collect")
+    end
+end
+
+--- KOReader sends CloseDocument before it disposes the document or reader.
+function PanelsPlus:onCloseDocument()
+    self:teardownDocumentResources()
+    SpreadRotation.onCloseDocument(self)
+end
+
+--- KOReader close hook: safety net for teardown paths without CloseDocument.
+---
+--- This lives here rather than in a mixin because `include()` copies methods by
+--- name: several modules need teardown, but only one could own the hook name.
+--- Every step must be safe to run when the matching feature never started.
+---
+--- Closing a book normally runs `onCloseDocument` first. If KOReader skips
+--- that event, this hook still releases the overlay and restores the screen.
+function PanelsPlus:onCloseWidget()
+    if not self._panels_plus_torn_down then
+        self:teardownDocumentResources()
+        SpreadRotation.onCloseDocument(self)
     end
 end
 

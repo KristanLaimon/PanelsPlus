@@ -169,7 +169,17 @@ end
 ---
 --- @param page number Current document page number.
 function Cache:preloadNextPanels(page)
-    self:preloadPanels(self.ui.document:getNextPage(page))
+    local next_page = self.ui.document:getNextPage(page)
+    local wanted_key = next_page and next_page ~= 0 and self:getPanelCacheKey(next_page)
+    -- Fast page turns can outrun the delay. Keep the one job that can help the
+    -- current viewer; stale jobs otherwise run expensive detection in a burst.
+    for key, action in pairs(self.panel_prefetch_actions or {}) do
+        if key ~= wanted_key then
+            UIManager:unschedule(action)
+            self.panel_prefetch_actions[key] = nil
+        end
+    end
+    self:preloadPanels(next_page)
 end
 
 return Cache

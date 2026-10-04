@@ -1010,6 +1010,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
             return self:showMoreConfigMenu(current_viewer)
         end,
         closed_callback = function(closed_viewer)
+            self:cancelPanelPrerender()
             SpreadRotation.onPanelViewerClosed(self, closed_viewer)
         end,
     })
