@@ -38,8 +38,8 @@ local WordFinder = {}
 -- not by data directory. Reusing "eng" could silently keep KOReader's model.
 local source = debug.getinfo(1, "S").source:gsub("^@", "")
 local FAST_MODEL_DIR = (source:match("^(.*)[/\\]src[/\\]_wordfinder%.lua$") or ".") .. "/data/ocr"
-local BUNDLED_LANGUAGES = { "eng", "spa", "ita" }
-local BUNDLED_LANGUAGE_SET = { eng = true, spa = true, ita = true }
+local BUNDLED_LANGUAGES = { "eng", "spa" }
+local BUNDLED_LANGUAGE_SET = { eng = true, spa = true }
 
 --- Resolve an installed plugin model without accepting arbitrary path names.
 --- @param language string|nil Three-letter bundled language code.

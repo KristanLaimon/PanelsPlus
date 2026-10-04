@@ -115,10 +115,10 @@ Both editions include the same panel-reading features. Choose **one**—do not i
 
 | Edition | Choose this if… | Plugin folder |
 | --- | --- | --- |
-| **Panels+ Vanilla** | You do not use OCR, or you need an OCR language other than English, Spanish, or Italian. You can add Tesseract language data later. | `panelsplus.koplugin` |
-| **Panels+ with bundled OCR models** | You want Panels+-tuned OCR ready immediately for English, Spanish, or experimental Italian manga and comic text. | `panelsplus.koplugin` |
+| **Panels+ Vanilla** | You do not use OCR, or you need an OCR language other than English or Spanish. You can add Tesseract language data later. | `panelsplus.koplugin` |
+| **Panels+ with bundled OCR models** | You want bundled OCR ready immediately for English or Spanish manga and comic text. | `panelsplus.koplugin` |
 
-> **Recommendation:** Choose **Panels+ with bundled OCR models** if you read English, Spanish, or Italian and want to use word lookup. Otherwise, choose **Panels+ Vanilla**.
+> **Recommendation:** Choose **Panels+ with bundled OCR models** if you read English or Spanish and want to use word lookup. Otherwise, choose **Panels+ Vanilla**.
 
 ### 🛍️ Package managers
 
@@ -217,7 +217,7 @@ Keep holding for about four seconds to expand the selection to the nearby dialog
 </ul>
 
 - **Panels+ Vanilla** (`panelsplus.koplugin`) includes no OCR language data. To use OCR, install the language files you need in KOReader's `data/tessdata` directory, then select that language in KOReader.
-- **Panels+ with bundled OCR models** (`panelsplus_with_ocrmodels.koplugin.zip`) includes fine-tuned English, Spanish, and experimental Italian models. English is selected by default for zoomed-panel word lookup.
+- **Panels+ with bundled OCR models** (`panelsplus_with_ocrmodels.koplugin.zip`) includes a fine-tuned English model and an unmodified Spanish model. English is selected by default for zoomed-panel word lookup.
     ||| Open **KOReader menu → Panels+ → OCR language** to select a bundled language or **Use KOReader's**, which uses KOReader's current OCR language. The active choice is marked **(Selected)** and applies only inside Panels+.
     ||| When **Remember per-document settings** is enabled, Panels+ also saves and restores the OCR choice for each book.
     ||| **Prefer native-text layer in PDF files over Panels+ text recognition** is enabled by default in the main Panels+ menu. A word under the pressed position uses the document's text layer; when there is no word there, selection continues through KOReader and Panels+ recognition. Turn it off to use recognition for text-layer pages too.

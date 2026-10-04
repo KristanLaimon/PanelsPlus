@@ -673,7 +673,7 @@ end
 function ViewerController:showOcrLanguageMenu(viewer)
     local Menu = require("ui/widget/menu")
     local _ = require("gettext")
-    local labels = { eng = _("English"), spa = _("Spanish"), ita = _("Italian") }
+    local labels = { eng = _("English"), spa = _("Spanish") }
     local items = {}
     local menu
     local container

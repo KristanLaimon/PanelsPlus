@@ -195,14 +195,13 @@ function PanelsPlus:loadDocSettings()
         if
             language == "eng"
             or language == "spa"
-            or language == "ita"
             or language == "koreader"
             or (type(language) == "string" and language:match("^user:[%w_%-]+$"))
         then
             self.settings.ocr_bundled_language = language
         end
         local bundled_preference = doc_data.ocr_preferred_bundled_language
-        if bundled_preference == "eng" or bundled_preference == "spa" or bundled_preference == "ita" then
+        if bundled_preference == "eng" or bundled_preference == "spa" then
             self.settings.ocr_preferred_bundled_language = bundled_preference
         end
         local user_preference = doc_data.ocr_preferred_user_language

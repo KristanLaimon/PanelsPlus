@@ -1,7 +1,7 @@
 # Bundled OCR language data
 
 Panels+ bundles an English model fine-tuned on annotated comic lettering and
-the unmodified Spanish and Italian models from
+the unmodified Spanish model from
 [Tesseract's `tessdata_fast`](https://github.com/tesseract-ocr/tessdata_fast)
 at revision [`87416418657359cb625c412a48b6e1d6d41c29bd`](https://github.com/tesseract-ocr/tessdata_fast/tree/87416418657359cb625c412a48b6e1d6d41c29bd).
 They are compatible with Tesseract 4 and 5 and use KOReader's existing OCR
@@ -12,14 +12,13 @@ hashes are in [SHA256SUMS](SHA256SUMS); both build scripts verify them.
 | --- | --- | ---: |
 | `eng_fast.traineddata` | Fine-tuned `tessdata_best/eng.traineddata`, integer conversion | 5,199,098 bytes |
 | `spa_fast.traineddata` | `spa.traineddata` | 2,294,433 bytes |
-| `ita_fast.traineddata` | `ita.traineddata` | 2,701,314 bytes |
 
 The language names have a `_fast` suffix because KOReader's k2pdfopt OCR
 engine caches models by language name without checking the data directory.
 This keeps the bundled models separate
 from KOReader's installed models when switching between them.
 
-The `panelsplus_with_ocrmodels.koplugin.zip` release includes these three models
+The `panelsplus_with_ocrmodels.koplugin.zip` release includes these two models
 under the normal `panelsplus.koplugin` plugin directory.
 English is selected by default; **KOReader menu → Panels+ → OCR language**
 selects any bundled language or **Use KOReader's**, showing KOReader's current

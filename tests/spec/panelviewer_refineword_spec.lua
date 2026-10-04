@@ -166,10 +166,10 @@ describe("PanelViewer:_refineWordSelection highlight/lookup box sync", function(
 
     it("passes the selected bundled language to word recognition", function()
         local viewer, _, restore, calls = newViewer({ x = 12, y = 214, w = 44, h = 26 }, "shift")
-        viewer.ocr_bundled_language = "ita"
+        viewer.ocr_bundled_language = "spa"
         viewer:_refineWordSelection(viewer.reader_ui.highlight, { page = 3, x = 30, y = 220 })
         restore()
-        assert.equals("ita", calls.bundled_language)
+        assert.equals("spa", calls.bundled_language)
     end)
 
     it("leaves the selection and the painted box alone when OCR finds nothing", function()

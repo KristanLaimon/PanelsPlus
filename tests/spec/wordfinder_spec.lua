@@ -772,15 +772,13 @@ describe("WordFinder.ocrWord tight native OCR path", function()
         assert.equals(80, highlight.w)
     end)
 
-    it("routes Spanish and Italian to their bundled models regardless of document language", function()
-        for _, language in ipairs({ "spa", "ita" }) do
-            local document, observed = newNativeDocument()
-            document.configurable.doc_language = "eng+spa"
-            WordFinder.ocrWord(document, 1, box, language)
-            assert.equals(language .. "_fast", observed.ocr[6])
-            assert.is_true(observed.datadir:match("/data/ocr$") ~= nil)
-            assert.equals(10, observed.bbox.x0)
-        end
+    it("routes Spanish to its bundled model regardless of document language", function()
+        local document, observed = newNativeDocument()
+        document.configurable.doc_language = "eng+spa"
+        WordFinder.ocrWord(document, 1, box, "spa")
+        assert.equals("spa_fast", observed.ocr[6])
+        assert.is_true(observed.datadir:match("/data/ocr$") ~= nil)
+        assert.equals(10, observed.bbox.x0)
     end)
 
     it("uses KOReader's configured model when the bundle is disabled", function()

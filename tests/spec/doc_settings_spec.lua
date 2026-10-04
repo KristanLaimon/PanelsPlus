@@ -128,20 +128,20 @@ describe("PanelsPlus per-document settings persistence", function()
         local plugin1 = newPluginInstance("/sdcard/Books/doc_a.pdf", nil)
         plugin1:setMode("comic")
         plugin1:setCropMode("none")
-        plugin1:setBundledOcrLanguage(nil, "ita")
+        plugin1:setBundledOcrLanguage(nil, "spa")
 
         local saved_dict = plugin1.settings.doc_settings
         assert.is_not_nil(saved_dict["/sdcard/Books/doc_a.pdf"])
         assert.equals("comic", saved_dict["/sdcard/Books/doc_a.pdf"].mode)
         assert.equals("none", saved_dict["/sdcard/Books/doc_a.pdf"].crop_mode)
-        assert.equals("ita", saved_dict["/sdcard/Books/doc_a.pdf"].ocr_bundled_language)
+        assert.equals("spa", saved_dict["/sdcard/Books/doc_a.pdf"].ocr_bundled_language)
 
         local plugin2 = newPluginInstance("/sdcard/Books/doc_a.pdf", nil, { doc_settings = saved_dict })
         plugin2:loadDocSettings()
 
         assert.equals("comic", plugin2.settings.mode)
         assert.equals("none", plugin2.settings.crop_mode)
-        assert.equals("ita", plugin2.settings.ocr_bundled_language)
+        assert.equals("spa", plugin2.settings.ocr_bundled_language)
     end)
 
     it("does not save or load per-document settings when remember_doc_settings is false", function()
@@ -182,7 +182,7 @@ describe("PanelsPlus per-document settings persistence", function()
         }
         plugin.ui.doc_settings = doc_settings_mock2
         plugin:setMode("comic")
-        plugin:setBundledOcrLanguage(nil, "ita")
+        plugin:setBundledOcrLanguage(nil, "spa")
         assert.is_nil(doc_store2.panels_plus)
     end)
 
@@ -257,10 +257,10 @@ describe("PanelsPlus per-document settings persistence", function()
             readSetting = function()
                 return { mode = "comic" }
             end,
-        }, { ocr_bundled_language = "ita" })
+        }, { ocr_bundled_language = "spa" })
 
         plugin:loadDocSettings()
-        assert.equals("ita", plugin.settings.ocr_bundled_language)
+        assert.equals("spa", plugin.settings.ocr_bundled_language)
     end)
 
     it("restores an installed model choice for a document", function()

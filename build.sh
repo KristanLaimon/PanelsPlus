@@ -9,7 +9,7 @@ MANUAL_DIR="$OUT_DIR/${PLUGIN_NAME}.koplugin"
 OCR_DIR="$SCRIPT_DIR/data/ocr"
 
 # A package missing a model would silently fall back to KOReader's data.
-# Keep builds reproducible by checking all three pinned files first.
+# Keep builds reproducible by checking both pinned files first.
 if command -v sha256sum >/dev/null 2>&1; then
     (cd "$OCR_DIR" && sha256sum -c SHA256SUMS)
 elif command -v shasum >/dev/null 2>&1; then
