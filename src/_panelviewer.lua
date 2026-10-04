@@ -93,6 +93,7 @@ end
 --- @field tap_navigation boolean Whether tapping the left/right screen edges navigates between panels.
 --- @field swipe_navigation boolean Whether horizontal swipes navigate between panels.
 --- @field more_config_callback fun(viewer:PanelViewer):boolean|nil
+--- @field ocr_language_callback fun(viewer:PanelViewer):boolean|nil
 --- @field closed_callback fun(viewer:PanelViewer)|nil Called once the viewer has closed.
 --- @field progress_bar_visible boolean Whether the bottom progress bar is shown.
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
@@ -132,7 +133,7 @@ local PanelViewer = ImageViewer:extend({
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
-    panel_finding_mode = "legacy",
+    panel_finding_mode = "normal",
     margin_ratio = 0.12,
     bleed_ratio = 0.08,
     panel_is_full_page = nil,
@@ -142,9 +143,10 @@ local PanelViewer = ImageViewer:extend({
     detector = "exact",
     invert_swipe = false,
     invert_taps = false,
-    tap_navigation = false,
+    tap_navigation = true,
     swipe_navigation = true,
     more_config_callback = nil,
+    ocr_language_callback = nil,
     closed_callback = nil,
     progress_bar_visible = true,
     hold_text_selection = true,
@@ -1417,7 +1419,7 @@ function PanelViewer:onHold(arg, ges)
     local document = reader_ui.document
     local interface = document and document.koptinterface
     local configurable = document and document.configurable
-    local bundled_dir, bundled_model = WordFinder.bundledModel(self.ocr_bundled_language)
+    local bundled_dir, bundled_model = WordFinder.selectedModel(self.ocr_bundled_language)
     local original_language = configurable and configurable.doc_language
     local original_dir = interface and rawget(interface, "tessocr_data")
     local original_forced_ocr = configurable and configurable.forced_ocr
@@ -2984,6 +2986,15 @@ function PanelViewer:replaceButtonTable()
                         self.progress_bar_visible = not self.progress_bar_visible
                         self:replaceButtonTable()
                         self:update()
+                    end
+                end,
+            },
+            {
+                id = "ocr_language",
+                text = _("OCR Language"),
+                callback = function()
+                    if self.ocr_language_callback then
+                        self.ocr_language_callback(self)
                     end
                 end,
             },

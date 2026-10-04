@@ -795,6 +795,27 @@ describe("WordFinder.ocrWord tight native OCR path", function()
         end
     end)
 
+    it("uses the selected user model without changing KOReader's document OCR choice", function()
+        local document, observed = newNativeDocument()
+        document.configurable.doc_language = "jpn"
+        document.koptinterface.tessocr_data = "/reader/default-tessdata"
+        local old_available = WordFinder.availableUserLanguages
+        local old_directory = WordFinder.userModelDirectory
+        WordFinder.availableUserLanguages = function()
+            return { "spa" }
+        end
+        WordFinder.userModelDirectory = function()
+            return "/reader/data/tessdata"
+        end
+        WordFinder.ocrWord(document, 1, box, "user:spa")
+        assert.equals("spa", observed.ocr[6])
+        assert.equals("/reader/data/tessdata", observed.datadir)
+        assert.equals("jpn", document.configurable.doc_language)
+        assert.equals("/reader/default-tessdata", document.koptinterface.tessocr_data)
+        WordFinder.availableUserLanguages = old_available
+        WordFinder.userModelDirectory = old_directory
+    end)
+
     it("uses installed English when the selected bundled model file is absent", function()
         local document, observed = newNativeDocument()
         local original_open = io.open

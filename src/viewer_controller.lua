@@ -12,6 +12,8 @@ SPDX-License-Identifier: MIT
 local Event = require("ui/event")
 local Device = require("device")
 local Screen = Device.screen
+local CenterContainer = require("ui/widget/container/centercontainer")
+local Geom = require("ui/geometry")
 local DoubleSpread = require("src._doublespread")
 local SpreadRotation = require("src.spread_rotation")
 local Memory = require("src._memory")
@@ -610,39 +612,56 @@ function ViewerController:toggleViewerJoinSpreadFold(viewer)
     return self:rebuildViewerForSpreadOptions(viewer)
 end
 
---- Show a multi-options menu popup for miscellaneous panel viewer settings
---- that don't need their own dedicated button.
----
---- @param viewer PanelViewer Active panel viewer instance.
---- @return boolean handled Always true for viewer callback dispatch.
-local function selectedBundledOcrLanguage(settings)
-    local languages = WordFinder.availableBundledLanguages()
-    if #languages == 0 or settings.ocr_bundled_language == "koreader" then
-        return false
+--- Resolve a saved OCR choice against models currently installed on this device.
+local function selectedOcrModel(settings, document)
+    local choice = settings.ocr_bundled_language
+    -- Older settings used "koreader" to mean the document's OCR language.
+    if choice == "koreader" then
+        local language = document and document.configurable and document.configurable.doc_language
+        choice = language and ("user:" .. language) or nil
     end
-    local language = settings.ocr_bundled_language
-    for _, available in ipairs(languages) do
-        if language == available then
-            return language
+    local bundled = WordFinder.availableBundledLanguages()
+    for _, language in ipairs(bundled) do
+        if choice == language then
+            return choice
         end
     end
-    return languages[1]
+    local installed = WordFinder.availableUserLanguages()
+    for _, language in ipairs(installed) do
+        if choice == "user:" .. language then
+            return choice
+        end
+    end
+    if #bundled > 0 then
+        return bundled[1]
+    end
+    return installed[1] and ("user:" .. installed[1]) or false
 end
 
-function ViewerController:getSelectedBundledOcrLanguage()
-    return selectedBundledOcrLanguage(self.settings)
+function ViewerController:getSelectedOcrModel()
+    return selectedOcrModel(self.settings, self.ui and self.ui.document)
 end
 
 function ViewerController:setBundledOcrLanguage(viewer, language)
-    if not WordFinder.hasBundledData() then
+    if language ~= "koreader" and not WordFinder.selectedModel(language) then
         return
     end
-    if language ~= "koreader" and not WordFinder.bundledModel(language) then
-        return
+    local previous = self:getSelectedOcrModel()
+    if previous and previous ~= language then
+        if previous:match("^user:") then
+            self.settings.ocr_preferred_user_language = previous
+        else
+            self.settings.ocr_preferred_bundled_language = previous
+        end
     end
     self.settings.ocr_bundled_language = language
+    if language:match("^user:") then
+        self.settings.ocr_preferred_user_language = language
+    elseif language ~= "koreader" then
+        self.settings.ocr_preferred_bundled_language = language
+    end
     if viewer then
-        viewer.ocr_bundled_language = selectedBundledOcrLanguage(self.settings)
+        viewer.ocr_bundled_language = self:getSelectedOcrModel()
     end
     self:saveSettings()
     if self.saveDocSettings then
@@ -650,6 +669,123 @@ function ViewerController:setBundledOcrLanguage(viewer, language)
     end
 end
 
+--- Show all installed OCR models in a scrollable KOReader menu over the viewer.
+function ViewerController:showOcrLanguageMenu(viewer)
+    local Menu = require("ui/widget/menu")
+    local _ = require("gettext")
+    local labels = { eng = _("English"), spa = _("Spanish"), ita = _("Italian") }
+    local items = {}
+    local menu
+    local container
+    local active = self:getSelectedOcrModel()
+    local active_index
+    local bundled = WordFinder.availableBundledLanguages()
+    local installed = WordFinder.availableUserLanguages()
+
+    local function chosenInGroup(candidates, prefix, preferred)
+        for _, code in ipairs(candidates) do
+            local id = prefix .. code
+            if id == active then
+                return id
+            end
+        end
+        for _, code in ipairs(candidates) do
+            local id = prefix .. code
+            if id == preferred then
+                return id
+            end
+        end
+        return candidates[1] and (prefix .. candidates[1]) or nil
+    end
+
+    local chosen_bundled = chosenInGroup(bundled, "", self.settings.ocr_preferred_bundled_language)
+    local chosen_user = chosenInGroup(installed, "user:", self.settings.ocr_preferred_user_language)
+
+    local function addChoice(id, label, group_choice)
+        local is_selected = group_choice == id
+        items[#items + 1] = {
+            text = (is_selected and "◉ " or "○ ") .. label,
+            bold = is_selected,
+            mandatory = active == id and _("In use") or nil,
+            callback = function()
+                self:setBundledOcrLanguage(viewer, id)
+                menu.close_callback = nil
+                UIManager:close(container)
+                self:showOcrLanguageMenu(viewer)
+            end,
+        }
+        if active == id then
+            active_index = #items
+        end
+    end
+
+    if #bundled > 0 then
+        items[#items + 1] = {
+            text = _("Panels+ Fine-Tuned"),
+            bold = true,
+            select_enabled = false,
+        }
+        for _, language in ipairs(bundled) do
+            addChoice(language, labels[language] or language, chosen_bundled)
+        end
+    end
+
+    if #installed > 0 then
+        items[#items + 1] = {
+            text = _("KOReader User Installed"),
+            bold = true,
+            select_enabled = false,
+            separator = #bundled > 0,
+        }
+        local ok, iso_language = pcall(require, "ui/data/isolanguage")
+        for _, language in ipairs(installed) do
+            local name = ok and iso_language:getLocalizedLanguage(language) or nil
+            addChoice("user:" .. language, name and (name .. " (" .. language .. ")") or language, chosen_user)
+        end
+    end
+
+    if #bundled == 0 and #installed == 0 then
+        items[#items + 1] = {
+            text = "",
+            select_enabled = false,
+        }
+        items[#items + 1] = {
+            text = _("Install Panels+ with OCR bundled, or install your own OCR models in /koreader/data/tessdata"),
+            select_enabled = false,
+        }
+    end
+    items[#items + 1] = {
+        text = _("Close"),
+        separator = true,
+        callback = function()
+            menu.close_callback = nil
+            UIManager:close(container)
+        end,
+    }
+    items.current = active_index
+    local screen_width, screen_height = Screen:getWidth(), Screen:getHeight()
+    container = CenterContainer:new({ dimen = Geom:new({ w = screen_width, h = screen_height }) })
+    menu = Menu:new({
+        title = _("Select OCR Model"),
+        item_table = items,
+        width = math.min(math.floor(screen_width * 0.88), math.floor(screen_height * 0.9)),
+        height = math.floor(screen_height * 0.82),
+        items_per_page = math.min(8, #items),
+        show_parent = container,
+    })
+    menu.close_callback = function()
+        UIManager:close(container)
+    end
+    container[1] = menu
+    UIManager:show(container)
+    return true
+end
+
+--- Show a multi-options menu popup for miscellaneous panel viewer settings
+--- that don't need their own dedicated button.
+---
+--- @param viewer PanelViewer Active panel viewer instance.
+--- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:showMoreConfigMenu(viewer)
     local Menu = require("ui/widget/menu")
     local _ = require("gettext")
@@ -957,7 +1093,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         hold_text_selection = self.settings.hold_text_selection ~= false,
         prefer_native_text_layer = self.settings.prefer_native_text_layer ~= false,
-        ocr_bundled_language = selectedBundledOcrLanguage(self.settings),
+        ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
         spread_rotation_direction = self.settings.spread_rotation_direction,
@@ -1026,6 +1162,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)
+        end,
+        ocr_language_callback = function(current_viewer)
+            return self:showOcrLanguageMenu(current_viewer)
         end,
         closed_callback = function(closed_viewer)
             self:cancelPanelPrerender()

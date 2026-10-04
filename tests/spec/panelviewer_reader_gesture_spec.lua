@@ -16,6 +16,7 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 
 local PanelViewer = require("src._panelviewer")
+local WordFinder = require("src._wordfinder")
 local ImageViewer = require("ui/widget/imageviewer")
 
 local function newViewer(reader_ui, close_spy)
@@ -193,6 +194,44 @@ describe("PanelViewer bundled OCR selection", function()
         assert.equals("jpn", document.configurable.doc_language)
         assert.equals("/reader/tessdata", document.koptinterface.tessocr_data)
         assert.is_true(highlight.panel_zoom_enabled)
+    end)
+
+    it("uses a selected user model only during the Panels+ hold", function()
+        local old_available = WordFinder.availableUserLanguages
+        local old_directory = WordFinder.userModelDirectory
+        WordFinder.availableUserLanguages = function()
+            return { "spa" }
+        end
+        WordFinder.userModelDirectory = function()
+            return "/reader/data/tessdata"
+        end
+        local seen = {}
+        local document = {
+            configurable = { doc_language = "jpn" },
+            koptinterface = { tessocr_data = "/reader/default-tessdata" },
+        }
+        local highlight = {
+            onHold = function(self)
+                seen.language = document.configurable.doc_language
+                seen.directory = document.koptinterface.tessocr_data
+                self.selected_text = { text = "hola", sboxes = {} }
+                self.is_word_selection = true
+                return true
+            end,
+        }
+        local viewer =
+            newViewer({ document = document, view = { screenToPageTransform = function() end }, highlight = highlight })
+        viewer.ocr_bundled_language = "user:spa"
+        viewer.screenToPageTransform = function()
+            return { page = 1, x = 5, y = 5 }
+        end
+        assert.is_true(viewer:onHold(nil, { pos = {} }))
+        assert.equals("spa", seen.language)
+        assert.equals("/reader/data/tessdata", seen.directory)
+        assert.equals("jpn", document.configurable.doc_language)
+        assert.equals("/reader/default-tessdata", document.koptinterface.tessocr_data)
+        WordFinder.availableUserLanguages = old_available
+        WordFinder.userModelDirectory = old_directory
     end)
 
     it("accepts the selected-text state from older KOReader hold handlers", function()

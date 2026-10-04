@@ -150,6 +150,8 @@ function PanelsPlus:saveDocSettings(force)
         crop_mode = self.settings.crop_mode,
         panel_finding_mode = self.settings.panel_finding_mode,
         ocr_bundled_language = self.settings.ocr_bundled_language,
+        ocr_preferred_bundled_language = self.settings.ocr_preferred_bundled_language,
+        ocr_preferred_user_language = self.settings.ocr_preferred_user_language,
     }
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
         self.ui.doc_settings:saveSetting("panelsplus", doc_data)
@@ -190,8 +192,22 @@ function PanelsPlus:loadDocSettings()
             self.settings.panel_finding_mode = Settings.normalizePanelFindingMode(doc_data.panel_finding_mode)
         end
         local language = doc_data.ocr_bundled_language
-        if language == "eng" or language == "spa" or language == "ita" or language == "koreader" then
+        if
+            language == "eng"
+            or language == "spa"
+            or language == "ita"
+            or language == "koreader"
+            or (type(language) == "string" and language:match("^user:[%w_%-]+$"))
+        then
             self.settings.ocr_bundled_language = language
+        end
+        local bundled_preference = doc_data.ocr_preferred_bundled_language
+        if bundled_preference == "eng" or bundled_preference == "spa" or bundled_preference == "ita" then
+            self.settings.ocr_preferred_bundled_language = bundled_preference
+        end
+        local user_preference = doc_data.ocr_preferred_user_language
+        if type(user_preference) == "string" and user_preference:match("^user:[%w_%-]+$") then
+            self.settings.ocr_preferred_user_language = user_preference
         end
     end
 end

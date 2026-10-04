@@ -41,9 +41,12 @@ describe("ViewerController page-turn animation settings", function()
         local controller = setmetatable({
             settings = settings,
             saveSettings = saved,
-            getOCRLanguageMenuItems = MainMenu.getOCRLanguageMenuItems,
         }, { __index = ViewerController })
         return controller, saved
+    end
+
+    local function shownOcrMenu()
+        return UIManager._last_shown[1]
     end
 
     it("animates pages only when Animated mode and its page option are enabled", function()
@@ -92,32 +95,108 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(1, saved:callCount())
     end)
 
-    it("shows one main-menu OCR entry with bundled choices and visible selection", function()
+    it("places OCR Language between progress and navigation controls", function()
+        local opened
+        local viewer = PanelViewer:new({
+            width = 600,
+            ocr_language_callback = function(current)
+                opened = current
+            end,
+        })
+        viewer:replaceButtonTable()
+        local row = viewer.button_table.buttons[2]
+        assert.equals(4, #row)
+        assert.equals("progress_bar", row[2].id)
+        assert.equals("ocr_language", row[3].id)
+        assert.equals("nav_transition", row[4].id)
+        row[3].callback()
+        assert.equals(viewer, opened)
+    end)
+
+    it("finds installed tessdata models and rejects path-like choices", function()
+        local old_storage, old_lfs = package.loaded.datastorage, package.loaded.lfs
+        package.loaded.datastorage = {
+            getDataDir = function()
+                return "/reader/data"
+            end,
+        }
+        package.loaded.lfs = {
+            dir = function()
+                local names = { ".", "spa.traineddata", "notes.txt", "eng.traineddata", "../bad.traineddata" }
+                local index = 0
+                return function()
+                    index = index + 1
+                    return names[index]
+                end
+            end,
+            attributes = function(_, attribute)
+                return attribute == "mode" and "file" or nil
+            end,
+        }
+        local languages = WordFinder.availableUserLanguages()
+        assert.equals(2, #languages)
+        assert.equals("eng", languages[1])
+        assert.equals("spa", languages[2])
+        local dir, code = WordFinder.selectedModel("user:spa")
+        assert.equals("/reader/data/tessdata", dir)
+        assert.equals("spa", code)
+        assert.is_nil(WordFinder.selectedModel("user:../bad"))
+        package.loaded.datastorage, package.loaded.lfs = old_storage, old_lfs
+    end)
+
+    it("offers bundled and installed models in the in-zoom picker with one selection", function()
         local controller, saved = makeController(Settings.withDefaults({}))
-        controller.ui = { document = { configurable = { doc_language = "spa" } } }
-        local menu_items = {}
-        MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[9]
-        assert.equals("OCR language", ocr_entry.text)
-        assert.is_true(ocr_entry.enabled_func())
-        local choices = ocr_entry.sub_item_table_func()
-        assert.equals(4, #choices)
-        assert.equals("English (Selected)", choices[1].text_func())
-        assert.equals("Spanish", choices[2].text_func())
-        assert.equals("Italian", choices[3].text_func())
-        assert.is_true(choices[4].text_func():match("^Use KOReader's: .-spa") ~= nil)
-        assert.is_true(choices[1].checked_func())
+        local original_installed = WordFinder.availableUserLanguages
+        local original_directory = WordFinder.userModelDirectory
+        WordFinder.availableUserLanguages = function()
+            return { "eng", "spa" }
+        end
+        WordFinder.userModelDirectory = function()
+            return "/reader/data/tessdata"
+        end
+        local viewer = { ocr_bundled_language = "eng" }
+        controller:showOcrLanguageMenu(viewer)
+        local choices = shownOcrMenu().item_table
+        assert.equals("Select OCR Model", shownOcrMenu().title)
+        assert.is_true(shownOcrMenu().width < 600)
+        assert.is_true(shownOcrMenu().height < 800)
+        assert.equals("Panels+ Fine-Tuned", choices[1].text)
+        assert.equals("◉ English", choices[2].text)
+        assert.is_true(choices[2].bold)
+        assert.equals("In use", choices[2].mandatory)
+        assert.equals(2, choices.current)
+        assert.equals("○ Spanish", choices[3].text)
+        assert.is_nil(choices[3].mandatory)
+        assert.equals("KOReader User Installed", choices[5].text)
+        assert.is_true(choices[6].text:match("^◉ ") ~= nil)
+        assert.is_nil(choices[6].mandatory)
+        assert.equals("Close", choices[#choices].text)
 
-        choices[4].callback()
-        assert.equals("koreader", controller.settings.ocr_bundled_language)
+        choices[7].callback()
+        assert.equals("user:spa", controller.settings.ocr_bundled_language)
+        assert.equals("user:spa", controller.settings.ocr_preferred_user_language)
+        assert.equals("user:spa", viewer.ocr_bundled_language)
         assert.equals(1, saved:callCount())
-        assert.is_true(choices[4].text_func():match("%(Selected%)$") ~= nil)
-        assert.is_false(choices[1].checked_func())
-        assert.equals("koreader", Settings.withDefaults({ ocr_bundled_language = "koreader" }).ocr_bundled_language)
+        local updated = shownOcrMenu().item_table
+        assert.equals("◉ English", updated[2].text)
+        assert.is_nil(updated[2].mandatory)
+        assert.is_true(updated[6].text:match("^○ ") ~= nil)
+        assert.is_true(updated[7].text:match("^◉ ") ~= nil)
+        assert.equals("In use", updated[7].mandatory)
+        assert.equals(7, updated.current)
 
-        choices[3].callback()
+        updated[4].callback()
+        local switched_back = shownOcrMenu().item_table
         assert.equals("ita", controller.settings.ocr_bundled_language)
-        assert.equals("Italian (Selected)", choices[3].text_func())
+        assert.equals("ita", controller.settings.ocr_preferred_bundled_language)
+        assert.is_true(switched_back[4].text:match("^◉ ") ~= nil)
+        assert.equals("In use", switched_back[4].mandatory)
+        assert.equals(4, switched_back.current)
+        assert.is_true(switched_back[7].text:match("^◉ ") ~= nil)
+        assert.is_nil(switched_back[7].mandatory)
+        switched_back[#switched_back].callback()
+        WordFinder.availableUserLanguages = original_installed
+        WordFinder.userModelDirectory = original_directory
     end)
 
     it("shows the full native-text preference in the main menu and persists toggles", function()
@@ -139,35 +218,97 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(1, saved:callCount())
     end)
 
-    it("shows a disabled OCR entry in the manual package", function()
+    it("explains installation when the manual package has no OCR models", function()
         local original_available = WordFinder.availableBundledLanguages
+        local original_installed = WordFinder.availableUserLanguages
         WordFinder.availableBundledLanguages = function()
+            return {}
+        end
+        WordFinder.availableUserLanguages = function()
             return {}
         end
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        local ocr_entry = menu_items.panels_plus.sub_item_table[9]
-        assert.is_false(ocr_entry.enabled_func())
+        assert.equals(9, #menu_items.panels_plus.sub_item_table)
+        controller:showOcrLanguageMenu({})
+        local choices = shownOcrMenu().item_table
+        assert.equals(3, #choices)
+        assert.is_true(choices[2].text:find("/koreader/data/tessdata", 1, true) ~= nil)
+        assert.equals("Close", choices[3].text)
         controller:showMoreConfigMenu({})
         local items = UIManager._last_shown.item_table
         WordFinder.availableBundledLanguages = original_available
+        WordFinder.availableUserLanguages = original_installed
         assert.equals(11, #items)
+    end)
+
+    it("allows a user model as the only available OCR choice", function()
+        local original_available = WordFinder.availableBundledLanguages
+        local original_installed = WordFinder.availableUserLanguages
+        local original_directory = WordFinder.userModelDirectory
+        WordFinder.availableBundledLanguages = function()
+            return {}
+        end
+        WordFinder.availableUserLanguages = function()
+            return { "jpn" }
+        end
+        WordFinder.userModelDirectory = function()
+            return "/reader/data/tessdata"
+        end
+        local controller = makeController(Settings.withDefaults({}))
+        local viewer = {}
+        controller:showOcrLanguageMenu(viewer)
+        local choices = shownOcrMenu().item_table
+        assert.equals(3, #choices)
+        assert.is_true(choices[2].text:match("^◉ ") ~= nil)
+        assert.equals("In use", choices[2].mandatory)
+        choices[2].callback()
+        assert.equals("user:jpn", controller.settings.ocr_bundled_language)
+        assert.equals("user:jpn", viewer.ocr_bundled_language)
+        WordFinder.availableBundledLanguages = original_available
+        WordFinder.availableUserLanguages = original_installed
+        WordFinder.userModelDirectory = original_directory
+    end)
+
+    it("opens a long model list on the page containing the active radio choice", function()
+        local original_available = WordFinder.availableBundledLanguages
+        local original_installed = WordFinder.availableUserLanguages
+        WordFinder.availableBundledLanguages = function()
+            return {}
+        end
+        WordFinder.availableUserLanguages = function()
+            return { "a", "b", "c", "d", "e", "f", "g", "h", "i", "j" }
+        end
+        local controller = makeController(Settings.withDefaults({ ocr_bundled_language = "user:j" }))
+        controller:showOcrLanguageMenu({})
+        local menu = shownOcrMenu()
+        assert.equals(8, menu.items_per_page)
+        assert.equals(12, #menu.item_table)
+        assert.equals(11, menu.item_table.current)
+        assert.equals("◉ j", menu.item_table[11].text)
+        assert.equals("In use", menu.item_table[11].mandatory)
+        WordFinder.availableBundledLanguages = original_available
+        WordFinder.availableUserLanguages = original_installed
     end)
 
     it("offers a partial bundle and falls back to its available model", function()
         local original_available = WordFinder.availableBundledLanguages
+        local original_installed = WordFinder.availableUserLanguages
         WordFinder.availableBundledLanguages = function()
             return { "spa" }
         end
+        WordFinder.availableUserLanguages = function()
+            return {}
+        end
         local controller = makeController(Settings.withDefaults({}))
-        local menu_items = {}
-        MainMenu.addToMainMenu(controller, menu_items)
-        local choices = menu_items.panels_plus.sub_item_table[9].sub_item_table_func()
-        assert.equals(2, #choices)
-        assert.equals("Spanish (Selected)", choices[1].text_func())
-        assert.is_true(choices[1].checked_func())
+        controller:showOcrLanguageMenu({})
+        local choices = shownOcrMenu().item_table
+        assert.equals(3, #choices)
+        assert.equals("◉ Spanish", choices[2].text)
+        assert.equals("In use", choices[2].mandatory)
         WordFinder.availableBundledLanguages = original_available
+        WordFinder.availableUserLanguages = original_installed
     end)
 
     it("groups all More config items by their prefixed categories", function()
@@ -257,7 +398,7 @@ describe("ViewerController page-turn animation settings", function()
         for _, item in ipairs(menu_items.panels_plus.sub_item_table) do
             assert.is_nil(moved[item.text])
         end
-        assert.equals("OCR language", menu_items.panels_plus.sub_item_table[9].text)
+        assert.equals(9, #menu_items.panels_plus.sub_item_table)
     end)
 end)
 

@@ -11,7 +11,6 @@ SPDX-License-Identifier: MIT
 ]]
 local DoubleSpread = require("src._doublespread")
 local _ = require("gettext")
-local WordFinder = require("src._wordfinder")
 local NATIVE_TEXT_LABEL = _("Prefer native-text layer in PDF files over Panels+ text recognition")
 
 --- Main-menu methods mixed into `PanelsPlus`.
@@ -41,64 +40,6 @@ function Menu:getModeText()
         return _("Panels+: comic mode")
     end
     return _("Panels+: manga mode")
-end
-
-local function selectedText(label, selected)
-    return selected and (label .. " " .. _("(Selected)")) or label
-end
-
---- Show the language KOReader currently uses for OCR on this document.
-local function koreaderOCRLanguageLabel(plugin)
-    local document = plugin.ui and plugin.ui.document
-    local code = document and document.configurable and document.configurable.doc_language
-    local defaults = rawget(_G, "G_defaults")
-    if not code and defaults then
-        code = defaults:readSetting("DKOPTREADER_CONFIG_DOC_DEFAULT_LANG_CODE")
-    end
-    if not code then
-        return _("unknown")
-    end
-    local ok, iso_language = pcall(require, "ui/data/isolanguage")
-    local name = ok and iso_language:getLocalizedLanguage(code) or nil
-    return name and (name .. " (" .. code .. ")") or code
-end
-
---- Build OCR choices when the submenu opens so model availability and KOReader's
---- document language are both current.
-function Menu:getOCRLanguageMenuItems()
-    local labels = { eng = _("English"), spa = _("Spanish"), ita = _("Italian") }
-    local items = {}
-    for _, language in ipairs(WordFinder.availableBundledLanguages()) do
-        local code = language
-        items[#items + 1] = {
-            text_func = function()
-                return selectedText(labels[code] or code, self:getSelectedBundledOcrLanguage() == code)
-            end,
-            radio = true,
-            checked_func = function()
-                return self:getSelectedBundledOcrLanguage() == code
-            end,
-            callback = function()
-                self:setBundledOcrLanguage(nil, code)
-            end,
-        }
-    end
-    items[#items + 1] = {
-        text_func = function()
-            return selectedText(
-                _("Use KOReader's: ") .. koreaderOCRLanguageLabel(self),
-                self.settings.ocr_bundled_language == "koreader"
-            )
-        end,
-        radio = true,
-        checked_func = function()
-            return self.settings.ocr_bundled_language == "koreader"
-        end,
-        callback = function()
-            self:setBundledOcrLanguage(nil, "koreader")
-        end,
-    }
-    return items
 end
 
 --- Add the plugin's submenu to KOReader's main menu.
@@ -290,16 +231,6 @@ function Menu:addToMainMenu(menu_items)
                     .. _(
                         "Use a word from the document's own text layer when it covers the pressed position. Otherwise, try KOReader's word detection and Panels+ text recognition."
                     ),
-            },
-            {
-                text = _("OCR language"),
-                enabled_func = function()
-                    return WordFinder.hasBundledData()
-                end,
-                sub_item_table_func = function()
-                    return self:getOCRLanguageMenuItems()
-                end,
-                separator = true,
             },
             {
                 text = _("Enable debugging logs"),

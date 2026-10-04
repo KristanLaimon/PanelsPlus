@@ -138,6 +138,9 @@ function Settings.withDefaults(settings)
         and settings.ocr_bundled_language ~= "spa"
         and settings.ocr_bundled_language ~= "ita"
         and settings.ocr_bundled_language ~= "koreader"
+        and not (
+            type(settings.ocr_bundled_language) == "string" and settings.ocr_bundled_language:match("^user:[%w_%-]+$")
+        )
     then
         settings.ocr_bundled_language = "eng"
     end

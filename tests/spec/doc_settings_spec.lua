@@ -15,6 +15,7 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 
 local PanelsPlus = require("main")
+local Settings = require("src._settings")
 
 local function newPluginInstance(doc_file, doc_settings_mock, global_settings_overrides)
     local plugin = {
@@ -72,6 +73,7 @@ describe("PanelsPlus per-document settings persistence", function()
         assert.is_false(doc_store.panels_plus.progress_bar_visible)
         assert.equals("smooth", doc_store.panels_plus.nav_transition_mode)
         assert.equals("spa", doc_store.panels_plus.ocr_bundled_language)
+        assert.equals("spa", doc_store.panels_plus.ocr_preferred_bundled_language)
     end)
 
     it("restores per-document settings when opening a document", function()
@@ -259,5 +261,23 @@ describe("PanelsPlus per-document settings persistence", function()
 
         plugin:loadDocSettings()
         assert.equals("ita", plugin.settings.ocr_bundled_language)
+    end)
+
+    it("restores an installed model choice for a document", function()
+        local plugin = newPluginInstance("/sdcard/Books/installed.cbz", {
+            file = "/sdcard/Books/installed.cbz",
+            readSetting = function()
+                return {
+                    ocr_bundled_language = "user:jpn",
+                    ocr_preferred_bundled_language = "spa",
+                    ocr_preferred_user_language = "user:jpn",
+                }
+            end,
+        })
+        plugin:loadDocSettings()
+        assert.equals("user:jpn", plugin.settings.ocr_bundled_language)
+        assert.equals("spa", plugin.settings.ocr_preferred_bundled_language)
+        assert.equals("user:jpn", plugin.settings.ocr_preferred_user_language)
+        assert.equals("user:jpn", Settings.withDefaults({ ocr_bundled_language = "user:jpn" }).ocr_bundled_language)
     end)
 end)

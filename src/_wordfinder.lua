@@ -75,6 +75,55 @@ function WordFinder.hasBundledData()
     return #WordFinder.availableBundledLanguages() > 0
 end
 
+--- Find KOReader models installed by the user, including packages without bundled OCR.
+--- The directory is resolved on each open so newly installed files appear immediately.
+function WordFinder.userModelDirectory()
+    local ok, storage = pcall(require, "datastorage")
+    if ok and storage and storage.getDataDir then
+        return storage:getDataDir() .. "/tessdata"
+    end
+    return nil
+end
+
+function WordFinder.availableUserLanguages()
+    local directory = WordFinder.userModelDirectory()
+    local ok, lfs = pcall(require, "lfs")
+    if not directory or not ok then
+        return {}
+    end
+    local opened, iterator, state = pcall(lfs.dir, directory)
+    if not opened or not iterator then
+        return {}
+    end
+    local languages = {}
+    for filename in iterator, state do
+        local language = filename:match("^([%w_%-]+)%.traineddata$")
+        if language and lfs.attributes(directory .. "/" .. filename, "mode") == "file" then
+            languages[#languages + 1] = language
+        end
+    end
+    table.sort(languages)
+    return languages
+end
+
+--- Resolve a Panels+ choice to an OCR data directory and engine language.
+--- User selections are restricted to filenames found in KOReader's tessdata.
+function WordFinder.selectedModel(choice)
+    if type(choice) ~= "string" then
+        return nil
+    end
+    local user_language = choice:match("^user:([%w_%-]+)$")
+    if user_language then
+        for _, language in ipairs(WordFinder.availableUserLanguages()) do
+            if language == user_language then
+                return WordFinder.userModelDirectory(), language
+            end
+        end
+        return nil
+    end
+    return WordFinder.bundledModel(choice)
+end
+
 -- Crop rendered around the tap point, as a fraction of native page size.
 -- Wide enough to comfortably contain a full speech-bubble line either side
 -- of the tap, tall enough for a couple of lines above/below it.
@@ -602,7 +651,7 @@ function WordFinder.ocrWord(document, pageno, box, bundled_language, native, opt
             if session and session.model_resolved then
                 bundled_dir, bundled_model = session.bundled_dir, session.bundled_model
             else
-                bundled_dir, bundled_model = WordFinder.bundledModel(bundled_language)
+                bundled_dir, bundled_model = WordFinder.selectedModel(bundled_language)
                 if session then
                     session.model_resolved = true
                     session.bundled_dir, session.bundled_model = bundled_dir, bundled_model
