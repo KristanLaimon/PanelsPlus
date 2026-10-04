@@ -61,6 +61,7 @@ class MangaCanvas(QWidget):
         self.native_w = 0
         self.native_h = 0
         self.annotation_mode = "panel"
+        self.display_mode_override: Optional[str] = None
         self.background_color = QColor("#1e1e1e")
         self.current_phrase_id = 1
         self.phrase_auto_advance_distance = 120
@@ -1423,10 +1424,13 @@ class MangaCanvas(QWidget):
             "phrase": (f"MODE 2: PHRASES (ID: {self.current_phrase_id})", QColor("#7b1fa2"), QColor("#ce93d8")),
             "word": ("MODE 3: WORDS", QColor("#2e7d32"), QColor("#81c784")),
         }
+        display_mode = self.display_mode_override or self.annotation_mode
         mode_text, bg_color, border_color = mode_configs.get(
-            self.annotation_mode,
+            display_mode,
             (f"MODE: {self.annotation_mode.upper()}", QColor("#333333"), QColor("#666666"))
         )
+        if self.display_mode_override == "word":
+            mode_text = "MODE 3: WORDS (TEMP)"
         if self.wordless and self.annotation_mode in ("phrase", "word"):
             mode_text += " • WORDLESS"
         mode_font = QFont("SansSerif", 9, QFont.Weight.Bold)

@@ -11085,6 +11085,283 @@
             "h": 1193
           }
         ],
+        "phrase": [
+          {
+            "x": 914,
+            "y": 39,
+            "w": 45,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 897,
+            "y": 66,
+            "w": 82,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 899,
+            "y": 88,
+            "w": 77,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 915,
+            "y": 111,
+            "w": 48,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 898,
+            "y": 134,
+            "w": 80,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 905,
+            "y": 157,
+            "w": 64,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "I'M GONNA ERASE THE BOARD NOW."
+          },
+          {
+            "x": 658,
+            "y": 256,
+            "w": 67,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WAIT,"
+          },
+          {
+            "x": 664,
+            "y": 282,
+            "w": 55,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "WAIT,"
+          },
+          {
+            "x": 662,
+            "y": 306,
+            "w": 57,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "WAIT,"
+          },
+          {
+            "x": 1060,
+            "y": 543,
+            "w": 49,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HEY, KOITO-SAN?"
+          },
+          {
+            "x": 1042,
+            "y": 566,
+            "w": 83,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "HEY, KOITO-SAN?"
+          },
+          {
+            "x": 1054,
+            "y": 590,
+            "w": 63,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HEY, KOITO-SAN?"
+          },
+          {
+            "x": 974,
+            "y": 579,
+            "w": 25,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "A SENPAI'S ASKING FOR YOU."
+          },
+          {
+            "x": 936,
+            "y": 603,
+            "w": 103,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "A SENPAI'S ASKING FOR YOU."
+          },
+          {
+            "x": 942,
+            "y": 626,
+            "w": 88,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "A SENPAI'S ASKING FOR YOU."
+          },
+          {
+            "x": 962,
+            "y": 649,
+            "w": 50,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "A SENPAI'S ASKING FOR YOU."
+          },
+          {
+            "x": 959,
+            "y": 671,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "A SENPAI'S ASKING FOR YOU."
+          }
+        ],
+        "word": [
+          {
+            "x": 914,
+            "y": 39,
+            "w": 45,
+            "h": 27,
+            "phrase_id": 1,
+            "text": "I'M"
+          },
+          {
+            "x": 897,
+            "y": 66,
+            "w": 82,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "GONNA"
+          },
+          {
+            "x": 899,
+            "y": 88,
+            "w": 77,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "ERASE"
+          },
+          {
+            "x": 915,
+            "y": 111,
+            "w": 48,
+            "h": 22,
+            "phrase_id": 1,
+            "text": "THE"
+          },
+          {
+            "x": 898,
+            "y": 134,
+            "w": 80,
+            "h": 23,
+            "phrase_id": 1,
+            "text": "BOARD"
+          },
+          {
+            "x": 905,
+            "y": 157,
+            "w": 64,
+            "h": 21,
+            "phrase_id": 1,
+            "text": "NOW."
+          },
+          {
+            "x": 658,
+            "y": 256,
+            "w": 67,
+            "h": 26,
+            "phrase_id": 2,
+            "text": "WAIT,"
+          },
+          {
+            "x": 664,
+            "y": 282,
+            "w": 55,
+            "h": 23,
+            "phrase_id": 2,
+            "text": "NOT"
+          },
+          {
+            "x": 662,
+            "y": 306,
+            "w": 57,
+            "h": 24,
+            "phrase_id": 2,
+            "text": "YET!"
+          },
+          {
+            "x": 1060,
+            "y": 543,
+            "w": 49,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "HEY"
+          },
+          {
+            "x": 1042,
+            "y": 566,
+            "w": 83,
+            "h": 24,
+            "phrase_id": 3,
+            "text": "KOITO-"
+          },
+          {
+            "x": 1054,
+            "y": 590,
+            "w": 63,
+            "h": 23,
+            "phrase_id": 3,
+            "text": "SAN?"
+          },
+          {
+            "x": 974,
+            "y": 579,
+            "w": 25,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "A"
+          },
+          {
+            "x": 936,
+            "y": 603,
+            "w": 103,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "SENPAI'S"
+          },
+          {
+            "x": 942,
+            "y": 626,
+            "w": 88,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "ASKING"
+          },
+          {
+            "x": 962,
+            "y": 649,
+            "w": 50,
+            "h": 22,
+            "phrase_id": 4,
+            "text": "FOR"
+          },
+          {
+            "x": 959,
+            "y": 671,
+            "w": 54,
+            "h": 23,
+            "phrase_id": 4,
+            "text": "YOU."
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Bloom_Into_You_Vol_8/47.png"
         }

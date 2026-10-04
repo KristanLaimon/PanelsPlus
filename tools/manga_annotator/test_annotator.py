@@ -332,21 +332,27 @@ class TestAnnotator(unittest.TestCase):
         win.canvas.set_page(None, [], [phrase], [])
         win.canvas.set_annotation_mode("phrase")
         win.canvas.select_panel(0)
+        win.show()
+        QApplication.processEvents()
         self.assertTrue(win.btn_phrase_to_word.isEnabled())
-
-        prompts = []
-
-        win._ask_annotation_text = lambda *args: (False, "")
-        win._add_word_from_selected_phrase()
+        canvas_size = win.canvas.size()
+        win.canvas.setFocus()
+        QTest.keyClick(win.canvas, Qt.Key.Key_W)
+        self.assertFalse(win.text_entry_bar.isHidden())
+        self.assertEqual(win.canvas.size(), canvas_size)
+        self.assertLessEqual(win.text_entry_bar.geometry().bottom(), win.canvas.height())
+        self.assertEqual(win.canvas.background_color.name(), "#202a23")
+        self.assertEqual(win.canvas.display_mode_override, "word")
+        self.assertEqual(win.annotation_group.title(), "Temporary Word Entry (W)")
+        win.btn_text_entry_cancel.click()
         self.assertEqual(win.canvas.get_words(), [])
-
-        def answer(title, label, current_text):
-            prompts.append(current_text)
-            return True, "WORD"
-        win._ask_annotation_text = answer
+        self.assertEqual(win.canvas.background_color.name(), "#251f2b")
+        self.assertIsNone(win.canvas.display_mode_override)
+        self.assertIn("2 Phrases", win.annotation_group.title())
         win._add_word_from_selected_phrase()
-
-        self.assertEqual(prompts, [""])
+        self.assertEqual(win.text_entry_input.text(), "")
+        win.text_entry_input.setText("WORD")
+        win.btn_text_entry_save.click()
         self.assertEqual(len(win.canvas.get_phrases()), 1)
         self.assertEqual(len(win.canvas.get_words()), 1)
         word = win.canvas.get_words()[0]
@@ -354,42 +360,58 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual((word.phrase_id, word.text), (2, "WORD"))
         win._add_word_from_selected_phrase()
         self.assertEqual(len(win.canvas.get_words()), 1)
-        self.assertEqual(prompts, [""])
+        self.assertTrue(win.text_entry_bar.isHidden())
         win.close()
 
-    def test_word_text_prompt_autofocuses_and_enter_saves(self):
-        from PyQt6.QtCore import QTimer
-        from PyQt6.QtWidgets import QLineEdit
+    def test_phrase_text_edits_in_inline_bar(self):
+        win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "phrase_entry_ds"))
+        phrase = PhraseRect(20, 30, 70, 24, 2, "old text")
+        win.canvas.set_page(None, [], [phrase], [])
+        win.canvas.set_annotation_mode("phrase")
+        win._refresh_panel_list()
+        win.panel_list.setCurrentRow(0)
+        win._edit_selected_annotation_text()
+        self.assertFalse(win.text_entry_bar.isHidden())
+        self.assertEqual(win.text_entry_input.text(), "old text")
+        self.assertEqual(win.canvas.background_color.name(), "#251f2b")
+        win.text_entry_input.setText("new text")
+        win.btn_text_entry_save.click()
+        self.assertEqual(win.canvas.get_phrases()[0].text, "new text")
+        self.assertTrue(win.text_entry_bar.isHidden())
+        new_phrase = PhraseRect(25, 60, 70, 24, 3, "")
+        win.canvas.get_phrases().append(new_phrase)
+        win._prompt_new_phrase_text(1)
+        self.assertFalse(win.text_entry_bar.isHidden())
+        win.btn_text_entry_cancel.click()
+        self.assertEqual(len(win.canvas.get_phrases()), 1)
+        win.close()
 
+    def test_word_text_bar_autofocuses_and_enter_saves(self):
         win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "prompt_dataset"))
         word = WordRect(10, 10, 40, 20, 1)
         win.canvas._collections["word"] = [word]
         win.canvas.set_annotation_mode("word")
-        observed = {}
-
-        def type_and_confirm():
-            dialog = QApplication.activeModalWidget()
-            line_edit = dialog.findChild(QLineEdit)
-            observed["focused"] = line_edit.hasFocus()
-            line_edit.setText("¡Hola!")
-            QTest.keyClick(line_edit, Qt.Key.Key_Return)
-
-        QTimer.singleShot(20, type_and_confirm)
+        win.show()
+        QApplication.processEvents()
         win._prompt_word_text(0, discard_on_cancel=False)
-        self.assertTrue(observed["focused"])
+        self.assertIsNone(QApplication.activeModalWidget())
+        self.assertTrue(win.text_entry_input.hasFocus())
+        QTest.keyClicks(win.text_entry_input, "A word 123")
+        self.assertEqual(win.text_entry_input.text(), "A word 123")
+        win.text_entry_input.setText("¡Hola!")
+        QTest.keyClick(win.text_entry_input, Qt.Key.Key_Return)
         self.assertEqual(word.text, "¡Hola!")
+        self.assertTrue(win.text_entry_bar.isHidden())
         win.close()
 
-    def test_cancel_new_word_prompt_discards_rectangle(self):
-        from PyQt6.QtCore import QTimer
-
+    def test_cancel_new_word_entry_discards_rectangle(self):
         win = AnnotatorMainWindow(dataset_dir=os.path.join(self.test_dir, "cancel_prompt_dataset"))
         win.canvas._collections["word"] = [WordRect(10, 10, 40, 20, 1)]
         win.canvas.set_annotation_mode("word")
-
-        QTimer.singleShot(20, lambda: QApplication.activeModalWidget().reject())
         win._prompt_word_text(0, discard_on_cancel=True)
+        QTest.keyClick(win.text_entry_input, Qt.Key.Key_Escape)
         self.assertEqual(win.canvas.get_words(), [])
+        self.assertTrue(win.text_entry_bar.isHidden())
         win.close()
 
     def test_edit_text_has_left_hand_t_shortcut(self):

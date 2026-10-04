@@ -16,7 +16,7 @@ import sys
 from typing import Optional, List
 from PIL import Image
 
-from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal, QRect, QPoint
+from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal, QRect, QPoint, QEvent
 from PyQt6.QtGui import (
     QAction, QIcon, QImage, QPixmap, QKeySequence, QFont, QColor
 )
@@ -606,6 +606,8 @@ class AnnotatorMainWindow(QMainWindow):
         self.reader: Optional[DocumentReader] = None
         self.current_page_num = 1
         self.book_title = ""
+        self._pending_text_entry = None
+        self._suspended_shortcuts = []
 
         self._init_ui()
 
@@ -829,6 +831,30 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.wordless_changed.connect(self._on_canvas_wordless_changed)
         self.canvas.status_message.connect(lambda message: self.status_bar.showMessage(message, 3000))
         canvas_layout.addWidget(self.canvas, 1)
+
+        # Text entry floats over the canvas bottom, leaving the page image in place.
+        self.text_entry_bar = QFrame(self.canvas)
+        self.text_entry_bar.setFixedHeight(58)
+        self.text_entry_bar.setAttribute(Qt.WidgetAttribute.WA_NoMousePropagation, True)
+        text_entry_layout = QHBoxLayout(self.text_entry_bar)
+        text_entry_layout.setContentsMargins(10, 8, 10, 8)
+        self.lbl_text_entry = QLabel()
+        text_entry_layout.addWidget(self.lbl_text_entry)
+        self.text_entry_input = QLineEdit()
+        self.text_entry_input.returnPressed.connect(self._save_text_entry)
+        self.text_entry_input.textChanged.connect(
+            lambda value: self.btn_text_entry_save.setEnabled(bool(value.strip()))
+        )
+        self.text_entry_input.installEventFilter(self)
+        text_entry_layout.addWidget(self.text_entry_input, 1)
+        self.btn_text_entry_save = QPushButton("Save")
+        self.btn_text_entry_save.clicked.connect(self._save_text_entry)
+        text_entry_layout.addWidget(self.btn_text_entry_save)
+        self.btn_text_entry_cancel = QPushButton("Cancel")
+        self.btn_text_entry_cancel.clicked.connect(self._cancel_text_entry)
+        text_entry_layout.addWidget(self.btn_text_entry_cancel)
+        self.text_entry_bar.hide()
+        self.canvas.installEventFilter(self)
 
         # Bottom Page Navigation
         page_nav = QHBoxLayout()
@@ -1215,6 +1241,26 @@ class AnnotatorMainWindow(QMainWindow):
             if self.annotator_config.get("library_display_mode") == "mosaic":
                 self._update_mosaic_layout_columns()
 
+    def eventFilter(self, watched, event):
+        if watched is getattr(self, "canvas", None) and event.type() == QEvent.Type.Resize:
+            self._position_text_entry_bar()
+        elif watched is getattr(self, "text_entry_input", None):
+            if event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Escape:
+                self._cancel_text_entry()
+                return True
+        return super().eventFilter(watched, event)
+
+    def _position_text_entry_bar(self):
+        if not hasattr(self, "text_entry_bar"):
+            return
+        width = max(1, min(880, self.canvas.width() - 24))
+        self.text_entry_bar.setGeometry(
+            (self.canvas.width() - width) // 2,
+            max(0, self.canvas.height() - self.text_entry_bar.height() - 8),
+            width,
+            self.text_entry_bar.height(),
+        )
+
     def _on_toggle_finished_card(self, book_title: str):
         meta = self.dataset_mgr.load_book_metadata(book_title)
         new_state = not meta.get("finished", False)
@@ -1235,6 +1281,7 @@ class AnnotatorMainWindow(QMainWindow):
 
     def open_book_by_title(self, book_title: str):
         """Open an existing book directory from dataset/<book_title>/."""
+        self._cancel_text_entry()
         book_dir = self.dataset_mgr.get_book_dir(book_title)
         if not os.path.exists(book_dir):
             QMessageBox.warning(self, "Book Not Found", f"Directory does not exist: {book_dir}")
@@ -1459,23 +1506,27 @@ class AnnotatorMainWindow(QMainWindow):
 
     def prev_page(self):
         if self.current_page_num > 1:
+            self._cancel_text_entry()
             self._commit_current_page_panels()
             self.current_page_num -= 1
             self._render_current_page()
 
     def next_page(self):
         if self.reader and self.current_page_num < self.reader.total_pages:
+            self._cancel_text_entry()
             self._commit_current_page_panels()
             self.current_page_num += 1
             self._render_current_page()
 
     def go_to_page(self, page_num: int):
         if self.reader and 1 <= page_num <= self.reader.total_pages and page_num != self.current_page_num:
+            self._cancel_text_entry()
             self._commit_current_page_panels()
             self.current_page_num = page_num
             self._render_current_page()
 
     def save_dataset(self, show_dialog: bool = True):
+        self._cancel_text_entry()
         self._commit_current_page_panels()
         if not self.book_title:
             if show_dialog:
@@ -1511,6 +1562,7 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _on_tab_changed(self, idx: int):
         if idx == 0:
+            self._cancel_text_entry()
             self._commit_current_page_panels()
             self.refresh_library()
         elif idx == 1:
@@ -1519,7 +1571,8 @@ class AnnotatorMainWindow(QMainWindow):
 
     def _on_panels_changed(self):
         self._clear_invalid_double_page_marker()
-        self._commit_current_page_panels()
+        if not (self._pending_text_entry and self._pending_text_entry["discard"]):
+            self._commit_current_page_panels()
         self._refresh_panel_list()
         self._refresh_illustration_type()
 
@@ -1665,6 +1718,8 @@ class AnnotatorMainWindow(QMainWindow):
                     btn.setStyleSheet(inactive_style)
 
     def _on_annotation_mode_changed(self, mode: str):
+        if self._pending_text_entry and self._pending_text_entry["mode_at_start"] != mode:
+            self._cancel_text_entry()
         self._apply_mode_tint(mode)
         self._update_mode_highlights(mode)
         mode_titles = {
@@ -1704,7 +1759,8 @@ class AnnotatorMainWindow(QMainWindow):
         self.canvas.update()
 
     def _on_canvas_wordless_changed(self, wordless: bool):
-        self._commit_current_page_panels()
+        if not (self._pending_text_entry and self._pending_text_entry["discard"]):
+            self._commit_current_page_panels()
         self._refresh_wordless_ui()
 
     def toggle_current_page_wordless(self):
@@ -1813,11 +1869,10 @@ class AnnotatorMainWindow(QMainWindow):
             self.status_bar.showMessage("A word already uses this rectangle.", 3000)
             return
         initial_text = phrase.text if len(phrase.text.split()) == 1 else ""
-        accepted, text = self._ask_annotation_text(
-            "Word Text", "Type the word in this phrase rectangle:", initial_text
+        self._begin_text_entry(
+            "word", phrase, initial_text, "Word from phrase:",
+            source="phrase_to_word",
         )
-        if accepted and self.canvas.add_word_from_phrase(index, text):
-            self.status_bar.showMessage("Word created from phrase rectangle.", 3000)
 
     def _edit_selected_annotation_text(self):
         if self.canvas.annotation_mode not in ("phrase", "word"):
@@ -1833,56 +1888,136 @@ class AnnotatorMainWindow(QMainWindow):
         phrases = self.canvas.get_phrases()
         if not (0 <= index < len(phrases)):
             return
-
-        accepted, text = self._ask_annotation_text(
-            "Phrase Text",
-            f"Type the complete text for phrase {phrases[index].phrase_id}:",
-            phrases[index].text,
+        phrase = phrases[index]
+        self._begin_text_entry(
+            "phrase", phrase, phrase.text, f"Phrase {phrase.phrase_id}:",
+            discard_on_cancel=discard_on_cancel,
         )
-        if accepted:
-            self.canvas.set_phrase_text(index, text)
-        elif discard_on_cancel:
-            self.canvas.discard_phrase(index)
-        self._refresh_panel_list()
 
     def _prompt_word_text(self, index: int, discard_on_cancel: bool):
         words = self.canvas.get_words()
         if not (0 <= index < len(words)):
             return
-
-        accepted, text = self._ask_annotation_text(
-            "Word Text",
-            "Type the text inside this word rectangle:",
-            words[index].text,
+        word = words[index]
+        self._begin_text_entry(
+            "word", word, word.text, "Word:",
+            discard_on_cancel=discard_on_cancel,
         )
-        if accepted:
-            self.canvas.set_word_text(index, text)
-        elif discard_on_cancel:
-            self.canvas.discard_word(index)
+
+    def _begin_text_entry(
+        self, kind: str, target, initial_text: str, label: str,
+        discard_on_cancel: bool = False, source: str = "annotation",
+    ):
+        if self._pending_text_entry:
+            self._cancel_text_entry()
+        self._pending_text_entry = {
+            "kind": kind,
+            "target": target,
+            "discard": discard_on_cancel,
+            "source": source,
+            "was_wordless": self.canvas.wordless,
+            "mode_at_start": self.canvas.annotation_mode,
+        }
+        self.lbl_text_entry.setText(label)
+        self.text_entry_input.setText(initial_text)
+        self.btn_text_entry_save.setEnabled(bool(initial_text.strip()))
+        accent = "#2e7d32" if kind == "word" else "#7b1fa2"
+        background = "#1c2c20" if kind == "word" else "#2b2030"
+        self.text_entry_bar.setStyleSheet(
+            f"QFrame {{ background-color: {background}; border: 2px solid {accent}; "
+            "border-radius: 7px; } "
+            "QLabel { border: none; color: #ffffff; font-weight: bold; } "
+            "QLineEdit { background-color: #1e1e1e; color: #ffffff; "
+            "border: 1px solid #777777; padding: 5px; } "
+            "QPushButton { border: 1px solid #777777; color: #ffffff; "
+            "background-color: #3e3e42; padding: 5px 10px; }"
+        )
+        if source == "phrase_to_word":
+            self._apply_mode_tint("word")
+            self._update_mode_highlights("word")
+            self.annotation_group.setTitle("Temporary Word Entry (W)")
+            self.canvas.display_mode_override = "word"
+            self.canvas.update()
+        self._suspend_text_entry_shortcuts()
+        self._position_text_entry_bar()
+        self.text_entry_bar.show()
+        self.text_entry_bar.raise_()
+        self.text_entry_input.setFocus()
+        self.text_entry_input.selectAll()
+
+    def _suspend_text_entry_shortcuts(self):
+        self._suspended_shortcuts = []
+        for widget in (*self.findChildren(QAction), *self.findChildren(QPushButton)):
+            shortcut = widget.shortcut()
+            if not shortcut.isEmpty():
+                self._suspended_shortcuts.append((widget, shortcut))
+                widget.setShortcut(QKeySequence())
+
+    def _finish_text_entry(self, pending):
+        self.text_entry_bar.hide()
+        self._pending_text_entry = None
+        for widget, shortcut in self._suspended_shortcuts:
+            widget.setShortcut(shortcut)
+        self._suspended_shortcuts = []
+        if pending["source"] == "phrase_to_word":
+            self.canvas.display_mode_override = None
+            self._apply_mode_tint(self.canvas.annotation_mode)
+            self._update_mode_highlights(self.canvas.annotation_mode)
+            mode_title = {
+                "panel": "1 Panels", "phrase": "2 Phrases", "word": "3 Words",
+            }[self.canvas.annotation_mode]
+            self.annotation_group.setTitle(f"Mode {mode_title} Rectangles")
+            self.canvas.update()
+        self.canvas.setFocus()
+
+    def _text_entry_target_index(self, pending):
+        collection = (
+            self.canvas.get_phrases()
+            if pending["kind"] == "phrase" or pending["source"] == "phrase_to_word"
+            else self.canvas.get_words()
+        )
+        return next(
+            (index for index, item in enumerate(collection) if item is pending["target"]),
+            -1,
+        )
+
+    def _save_text_entry(self):
+        pending = self._pending_text_entry
+        if not pending:
+            return
+        text = self.text_entry_input.text().strip()
+        if not text:
+            return
+        index = self._text_entry_target_index(pending)
+        self._finish_text_entry(pending)
+        if index < 0:
+            self.status_bar.showMessage("Annotation is no longer available.", 3000)
+            return
+        if pending["source"] == "phrase_to_word":
+            success = self.canvas.add_word_from_phrase(index, text)
+        elif pending["kind"] == "phrase":
+            success = self.canvas.set_phrase_text(index, text)
+        else:
+            success = self.canvas.set_word_text(index, text)
+        if success:
+            self.status_bar.showMessage("Annotation text saved.", 3000)
         self._refresh_panel_list()
 
-    def _ask_annotation_text(self, title: str, label: str, current_text: str):
-        saved_pos = self.annotator_config.get("text_popup_pos")
-
-        def on_moved(x, y):
-            self.annotator_config["text_popup_pos"] = {"x": int(x), "y": int(y)}
-            try:
-                self._save_annotator_config()
-            except OSError:
-                pass
-
-        dialog = TextAnnotationDialog(
-            title=title,
-            label=label,
-            initial_text=current_text,
-            saved_pos=saved_pos,
-            on_moved=on_moved,
-            parent=self,
-        )
-
-        accepted = dialog.exec() == QDialog.DialogCode.Accepted
-        text = dialog.get_text()
-        return accepted and bool(text), text
+    def _cancel_text_entry(self):
+        pending = self._pending_text_entry
+        if not pending:
+            return
+        index = self._text_entry_target_index(pending)
+        self._finish_text_entry(pending)
+        if pending["discard"] and index >= 0:
+            if pending["kind"] == "phrase":
+                self.canvas.discard_phrase(index)
+            else:
+                self.canvas.discard_word(index)
+            if pending["was_wordless"]:
+                self.canvas.set_wordless(True)
+            self._commit_current_page_panels()
+        self._refresh_panel_list()
 
     def _on_list_row_selected(self, row: int):
         self.canvas.select_panel(row)

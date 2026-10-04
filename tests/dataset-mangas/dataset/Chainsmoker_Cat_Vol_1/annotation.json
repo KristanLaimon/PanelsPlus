@@ -13,6 +13,27 @@
             "h": 1696
           }
         ],
+        "phrase": [
+          {
+            "x": 114,
+            "y": 90,
+            "w": 215,
+            "h": 126,
+            "phrase_id": 1,
+            "text": "1mg"
+          }
+        ],
+        "word": [
+          {
+            "x": 114,
+            "y": 90,
+            "w": 215,
+            "h": 126,
+            "phrase_id": 1,
+            "text": "1mg"
+          }
+        ],
+        "text_direction": "ltr",
         "illustration_type": "single_page",
         "image_paths": {
           "en": "Chainsmoker_Cat_Vol_1/00.png"
@@ -58,6 +79,67 @@
             "h": 665
           }
         ],
+        "phrase": [
+          {
+            "x": 362,
+            "y": 0,
+            "w": 803,
+            "h": 50,
+            "phrase_id": 1,
+            "text": "¡Tendré Cuidado la Próxima Vez, Nya!"
+          }
+        ],
+        "word": [
+          {
+            "x": 378,
+            "y": 0,
+            "w": 150,
+            "h": 37,
+            "phrase_id": 1,
+            "text": "Tendré"
+          },
+          {
+            "x": 535,
+            "y": 0,
+            "w": 186,
+            "h": 37,
+            "phrase_id": 1,
+            "text": "Cuidado"
+          },
+          {
+            "x": 729,
+            "y": 0,
+            "w": 48,
+            "h": 36,
+            "phrase_id": 1,
+            "text": "La"
+          },
+          {
+            "x": 784,
+            "y": 0,
+            "w": 180,
+            "h": 37,
+            "phrase_id": 1,
+            "text": "Próxima"
+          },
+          {
+            "x": 969,
+            "y": 0,
+            "w": 87,
+            "h": 40,
+            "phrase_id": 1,
+            "text": "Vez,"
+          },
+          {
+            "x": 1063,
+            "y": 0,
+            "w": 102,
+            "h": 46,
+            "phrase_id": 1,
+            "text": "Nya!"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Chainsmoker_Cat_Vol_1/01.png"
         }
@@ -90,6 +172,7 @@
             "h": 411
           }
         ],
+        "wordless": true,
         "image_paths": {
           "en": "Chainsmoker_Cat_Vol_1/02.png"
         }
@@ -208,6 +291,62 @@
             "h": 24,
             "phrase_id": 3,
             "text": "PERO AUN ASI, SEGUIRE, NYA~"
+          },
+          {
+            "x": 834,
+            "y": 1047,
+            "w": 69,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "MUY-MUY BUENO, NYA-"
+          },
+          {
+            "x": 838,
+            "y": 1081,
+            "w": 62,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "MUY-MUY BUENO, NYA-"
+          },
+          {
+            "x": 822,
+            "y": 1110,
+            "w": 89,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "MUY-MUY BUENO, NYA-"
+          },
+          {
+            "x": 837,
+            "y": 1141,
+            "w": 58,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "MUY-MUY BUENO, NYA-"
+          },
+          {
+            "x": 168,
+            "y": 1069,
+            "w": 53,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "NYA HA HA HA"
+          },
+          {
+            "x": 157,
+            "y": 1099,
+            "w": 79,
+            "h": 27,
+            "phrase_id": 5,
+            "text": "NYA HA HA HA"
+          },
+          {
+            "x": 178,
+            "y": 1130,
+            "w": 38,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "NYA HA HA HA"
           }
         ],
         "word": [
@@ -330,6 +469,70 @@
             "h": 24,
             "phrase_id": 3,
             "text": "NYA~"
+          },
+          {
+            "x": 834,
+            "y": 1047,
+            "w": 69,
+            "h": 28,
+            "phrase_id": 4,
+            "text": "MUY-"
+          },
+          {
+            "x": 838,
+            "y": 1081,
+            "w": 62,
+            "h": 25,
+            "phrase_id": 4,
+            "text": "MUY"
+          },
+          {
+            "x": 822,
+            "y": 1110,
+            "w": 89,
+            "h": 27,
+            "phrase_id": 4,
+            "text": "BUENO,"
+          },
+          {
+            "x": 837,
+            "y": 1141,
+            "w": 58,
+            "h": 24,
+            "phrase_id": 4,
+            "text": "NYA-"
+          },
+          {
+            "x": 168,
+            "y": 1069,
+            "w": 53,
+            "h": 26,
+            "phrase_id": 5,
+            "text": "NYA"
+          },
+          {
+            "x": 199,
+            "y": 1100,
+            "w": 35,
+            "h": 24,
+            "phrase_id": 5,
+            "text": "HA"
+          },
+          {
+            "x": 157,
+            "y": 1101,
+            "w": 36,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "HA"
+          },
+          {
+            "x": 178,
+            "y": 1130,
+            "w": 38,
+            "h": 23,
+            "phrase_id": 5,
+            "text": "HA"
           }
         ],
         "text_direction": "ltr",
@@ -365,6 +568,43 @@
             "h": 893
           }
         ],
+        "phrase": [
+          {
+            "x": 559,
+            "y": 0,
+            "w": 586,
+            "h": 46,
+            "phrase_id": 1,
+            "text": "¡Cigarrllo Envenenado, Nya!"
+          }
+        ],
+        "word": [
+          {
+            "x": 571,
+            "y": 0,
+            "w": 192,
+            "h": 46,
+            "phrase_id": 1,
+            "text": "Cigarrillo"
+          },
+          {
+            "x": 772,
+            "y": 0,
+            "w": 269,
+            "h": 38,
+            "phrase_id": 1,
+            "text": "Envenenado,"
+          },
+          {
+            "x": 1046,
+            "y": 0,
+            "w": 95,
+            "h": 44,
+            "phrase_id": 1,
+            "text": "Nya!"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "Chainsmoker_Cat_Vol_1/04.png"
         }

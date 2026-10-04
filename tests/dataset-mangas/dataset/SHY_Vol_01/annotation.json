@@ -110,6 +110,139 @@
             "h": 850
           }
         ],
+        "phrase": [
+          {
+            "x": 1075,
+            "y": 70,
+            "w": 185,
+            "h": 57,
+            "phrase_id": 1,
+            "text": "MIENTRAS TANTO, LA HEROÍNA JAPONESA..."
+          },
+          {
+            "x": 1081,
+            "y": 126,
+            "w": 179,
+            "h": 56,
+            "phrase_id": 1,
+            "text": "MIENTRAS TANTO, LA HEROÍNA JAPONESA..."
+          },
+          {
+            "x": 1090,
+            "y": 180,
+            "w": 153,
+            "h": 57,
+            "phrase_id": 1,
+            "text": "MIENTRAS TANTO, LA HEROÍNA JAPONESA..."
+          },
+          {
+            "x": 1066,
+            "y": 234,
+            "w": 195,
+            "h": 59,
+            "phrase_id": 1,
+            "text": "MIENTRAS TANTO, LA HEROÍNA JAPONESA..."
+          },
+          {
+            "x": 982,
+            "y": 674,
+            "w": 180,
+            "h": 47,
+            "phrase_id": 2,
+            "text": "H-HOLA A TODOS..."
+          },
+          {
+            "x": 988,
+            "y": 725,
+            "w": 158,
+            "h": 42,
+            "phrase_id": 2,
+            "text": "H-HOLA A TODOS..."
+          },
+          {
+            "x": 1059,
+            "y": 1257,
+            "w": 148,
+            "h": 38,
+            "phrase_id": 3,
+            "text": "¡¡Hola!!"
+          }
+        ],
+        "word": [
+          {
+            "x": 1075,
+            "y": 70,
+            "w": 185,
+            "h": 57,
+            "phrase_id": 1,
+            "text": "MIENTRAS"
+          },
+          {
+            "x": 1081,
+            "y": 127,
+            "w": 119,
+            "h": 54,
+            "phrase_id": 1,
+            "text": "TANTO,"
+          },
+          {
+            "x": 1212,
+            "y": 127,
+            "w": 46,
+            "h": 54,
+            "phrase_id": 1,
+            "text": "LA"
+          },
+          {
+            "x": 1090,
+            "y": 180,
+            "w": 153,
+            "h": 57,
+            "phrase_id": 1,
+            "text": "HEROÍNA"
+          },
+          {
+            "x": 1066,
+            "y": 234,
+            "w": 195,
+            "h": 59,
+            "phrase_id": 1,
+            "text": "JAPONESA..."
+          },
+          {
+            "x": 982,
+            "y": 675,
+            "w": 142,
+            "h": 45,
+            "phrase_id": 2,
+            "text": "H-HOLA"
+          },
+          {
+            "x": 1128,
+            "y": 678,
+            "w": 23,
+            "h": 41,
+            "phrase_id": 2,
+            "text": "A"
+          },
+          {
+            "x": 988,
+            "y": 725,
+            "w": 158,
+            "h": 42,
+            "phrase_id": 2,
+            "text": "TODOS..."
+          },
+          {
+            "x": 1059,
+            "y": 1257,
+            "w": 148,
+            "h": 38,
+            "phrase_id": 3,
+            "text": "¡¡Hola!!"
+          }
+        ],
+        "text_direction": "ltr",
         "image_paths": {
           "en": "SHY_Vol_01/06.png"
         }
