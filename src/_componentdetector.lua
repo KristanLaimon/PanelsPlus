@@ -55,7 +55,9 @@ end
 
 local function lineSupport(values, first, last, tolerance)
     local span = last - first
-    if span <= 0 then return 0 end
+    if span <= 0 then
+        return 0
+    end
     local best = 0
     for a = 0, 4 do
         for b = a + 3, 8 do
@@ -72,7 +74,9 @@ local function lineSupport(values, first, last, tolerance)
                 local ratio = count / (span + 1)
                 if ratio > best then
                     best = ratio
-                    if best >= 0.80 then return best end
+                    if best >= 0.80 then
+                        return best
+                    end
                 end
             end
         end
@@ -97,17 +101,33 @@ local function frameSides(pixels, count, width, box, tolerance)
         local index = pixels[i]
         local y = math.floor(index / width)
         local x = index - y * width
-        if x < scratch_left[y] then scratch_left[y] = x end
-        if x > scratch_right[y] then scratch_right[y] = x end
-        if y < scratch_top[x] then scratch_top[x] = y end
-        if y > scratch_bottom[x] then scratch_bottom[x] = y end
+        if x < scratch_left[y] then
+            scratch_left[y] = x
+        end
+        if x > scratch_right[y] then
+            scratch_right[y] = x
+        end
+        if y < scratch_top[x] then
+            scratch_top[x] = y
+        end
+        if y > scratch_bottom[x] then
+            scratch_bottom[x] = y
+        end
     end
 
     local sides = 0
-    if lineSupport(scratch_left, top, bottom, tolerance) >= 0.80 then sides = sides + 1 end
-    if lineSupport(scratch_right, top, bottom, tolerance) >= 0.80 then sides = sides + 1 end
-    if lineSupport(scratch_top, left, right, tolerance) >= 0.80 then sides = sides + 1 end
-    if lineSupport(scratch_bottom, left, right, tolerance) >= 0.80 then sides = sides + 1 end
+    if lineSupport(scratch_left, top, bottom, tolerance) >= 0.80 then
+        sides = sides + 1
+    end
+    if lineSupport(scratch_right, top, bottom, tolerance) >= 0.80 then
+        sides = sides + 1
+    end
+    if lineSupport(scratch_top, left, right, tolerance) >= 0.80 then
+        sides = sides + 1
+    end
+    if lineSupport(scratch_bottom, left, right, tolerance) >= 0.80 then
+        sides = sides + 1
+    end
     return sides
 end
 
@@ -141,10 +161,18 @@ local function collectComponents(map, min_side, min_area, visit)
                 local y = math.floor(index / width)
                 local x = index - y * width
 
-                if x < left then left = x end
-                if x > right then right = x end
-                if y < top then top = y end
-                if y > bottom then bottom = y end
+                if x < left then
+                    left = x
+                end
+                if x > right then
+                    right = x
+                end
+                if y < top then
+                    top = y
+                end
+                if y > bottom then
+                    bottom = y
+                end
 
                 for dy = -1, 1 do
                     local ny = y + dy
@@ -171,37 +199,67 @@ local function collectComponents(map, min_side, min_area, visit)
                 local box = { x = left, y = top, w = w, h = h }
                 box.frame_sides = frameSides(queue, tail, width, box, math.max(1, math.min(width, height) * 0.003))
                 components[#components + 1] = box
-                if visit then visit(box, queue, tail) end
+                if visit then
+                    visit(box, queue, tail)
+                end
             end
         end
     end
     return components
 end
 
-local function countEdges(map, box)
+local function countEdges(map, box, include_page_edges)
     local top, bottom, left, right = 0, 0, 0, 0
     local band = math.min(3, box.w, box.h)
     for x = box.x, box.x + box.w - 1 do
         for offset = 0, band - 1 do
-            if map.data[(box.y + offset) * map.w + x] == 1 then top = top + 1; break end
+            if map.data[(box.y + offset) * map.w + x] == 1 then
+                top = top + 1
+                break
+            end
         end
         for offset = 0, band - 1 do
-            if map.data[(box.y + box.h - 1 - offset) * map.w + x] == 1 then bottom = bottom + 1; break end
+            if map.data[(box.y + box.h - 1 - offset) * map.w + x] == 1 then
+                bottom = bottom + 1
+                break
+            end
         end
     end
     for y = box.y, box.y + box.h - 1 do
         for offset = 0, band - 1 do
-            if map.data[y * map.w + box.x + offset] == 1 then left = left + 1; break end
+            if map.data[y * map.w + box.x + offset] == 1 then
+                left = left + 1
+                break
+            end
         end
         for offset = 0, band - 1 do
-            if map.data[y * map.w + box.x + box.w - 1 - offset] == 1 then right = right + 1; break end
+            if map.data[y * map.w + box.x + box.w - 1 - offset] == 1 then
+                right = right + 1
+                break
+            end
         end
     end
-    local top_b = (box.y <= 3 or top > box.w * 0.75) and 1 or 0
-    local bot_b = (box.y + box.h >= map.h - 4 or bottom > box.w * 0.75) and 1 or 0
-    local left_b = (box.x <= 3 or left > box.h * 0.75) and 1 or 0
-    local right_b = (box.x + box.w >= map.w - 4 or right > box.h * 0.75) and 1 or 0
+    local page_edges = include_page_edges ~= false
+    local top_b = ((page_edges and box.y <= 3) or top > box.w * 0.75) and 1 or 0
+    local bot_b = ((page_edges and box.y + box.h >= map.h - 4) or bottom > box.w * 0.75) and 1 or 0
+    local left_b = ((page_edges and box.x <= 3) or left > box.h * 0.75) and 1 or 0
+    local right_b = ((page_edges and box.x + box.w >= map.w - 4) or right > box.h * 0.75) and 1 or 0
     return top_b + bot_b + left_b + right_b
+end
+
+local function emptySplitMargin(map, box)
+    if not box.split_child or countEdges(map, box, false) >= 3 then
+        return false
+    end
+    local inset = math.max(4, math.floor(math.min(box.w, box.h) * 0.03))
+    for y = box.y + inset, box.y + box.h - inset - 1 do
+        for x = box.x + inset, box.x + box.w - inset - 1 do
+            if map.data[y * map.w + x] == 1 then
+                return false
+            end
+        end
+    end
+    return true
 end
 
 local function hasFrame(map, box)
@@ -282,6 +340,34 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
                     local b_prev = math.min(border[start - 2] or 0, border[start - 3] or 0)
                     local b_next = math.min(border[stop + 2] or 0, border[stop + 3] or 0)
                     valid = valid and width <= 4 and b_prev < span * 0.80 and b_next < span * 0.80
+                    local peak = 0
+                    for k = start, stop do
+                        peak = math.max(peak, border[k] or 0)
+                    end
+                    local weak_unframed = depth == 0 and (box.frame_sides or 0) == 0 and peak < span * 0.88
+                    if valid and (width >= 3 or weak_unframed) then
+                        -- Dense text/hair can add up to a high projection without
+                        -- forming a separator. Require a continuous half-span too.
+                        local run, longest, gap = 0, 0, 0
+                        local max_gap = math.ceil(span * 0.01)
+                        local cross_first = axis == "y" and box.x or box.y
+                        for cross = cross_first, cross_first + span - 1 do
+                            local hit = false
+                            for k = start, stop do
+                                local index = axis == "y" and k * map.w + cross or cross * map.w + k
+                                if map.dark[index] == 1 then
+                                    hit = true
+                                    break
+                                end
+                            end
+                            gap = hit and 0 or gap + 1
+                            run = gap <= max_gap and run + 1 or 0
+                            if hit then
+                                longest = math.max(longest, run)
+                            end
+                        end
+                        valid = longest >= span * 0.50
+                    end
                 end
                 if valid then
                     local score
@@ -290,7 +376,9 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
                     else
                         local b_max = 0
                         for k = start, stop do
-                            if (border[k] or 0) > b_max then b_max = border[k] end
+                            if (border[k] or 0) > b_max then
+                                b_max = border[k]
+                            end
                         end
                         score = 1.0 + (b_max / span) * 2.0 + math.min(start - first, last - stop) / length * 0.3
                     end
@@ -322,6 +410,7 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
         a = { x = box.x, y = box.y, w = lo - box.x + 1, h = box.h }
         b = { x = hi, y = box.y, w = box.x + box.w - hi, h = box.h }
     end
+    a.split_child, b.split_child = true, true
     local parts = splitJoinedFrames(map, a, settings, depth + 1, shared_borders)
     for _, part in ipairs(splitJoinedFrames(map, b, settings, depth + 1, shared_borders)) do
         parts[#parts + 1] = part
@@ -432,7 +521,9 @@ function ComponentDetector.segment(map, settings)
                         for cx = min_x, max_x do
                             local dark_c = 0
                             for cy = y_start, y_end do
-                                if map.dark[cy * map.w + cx] == 1 then dark_c = dark_c + 1 end
+                                if map.dark[cy * map.w + cx] == 1 then
+                                    dark_c = dark_c + 1
+                                end
                             end
                             if dark_c >= h_span * 0.75 then
                                 has_border = true
@@ -441,12 +532,20 @@ function ComponentDetector.segment(map, settings)
                         end
                     end
                 end
-                if not has_border and (gap <= map.w * 0.25 or (overlap >= box.h * 0.75 and overlap >= other.h * 0.75)) then
+                if
+                    not has_border and (gap <= map.w * 0.25 or (overlap >= box.h * 0.75 and overlap >= other.h * 0.75))
+                then
                     target, distance = other, gap
                 end
             end
         end
-        if target and #framed >= 2 and box.w > map.w * 0.25 and box.h > map.h * 0.25 and box.w * box.h > map.w * map.h * 0.10 then
+        if
+            target
+            and #framed >= 2
+            and box.w > map.w * 0.25
+            and box.h > map.h * 0.25
+            and box.w * box.h > map.w * map.h * 0.10
+        then
             target = nil
         end
         if target then
@@ -486,10 +585,18 @@ function ComponentDetector.segment(map, settings)
                         and hole.y + hole.h <= parent.y + parent.h + tolerance
                     then
                         local aligned = 0
-                        if math.abs(hole.x - parent.x) <= tolerance then aligned = aligned + 1 end
-                        if math.abs(hole.y - parent.y) <= tolerance then aligned = aligned + 1 end
-                        if math.abs(hole.x + hole.w - parent.x - parent.w) <= tolerance then aligned = aligned + 1 end
-                        if math.abs(hole.y + hole.h - parent.y - parent.h) <= tolerance then aligned = aligned + 1 end
+                        if math.abs(hole.x - parent.x) <= tolerance then
+                            aligned = aligned + 1
+                        end
+                        if math.abs(hole.y - parent.y) <= tolerance then
+                            aligned = aligned + 1
+                        end
+                        if math.abs(hole.x + hole.w - parent.x - parent.w) <= tolerance then
+                            aligned = aligned + 1
+                        end
+                        if math.abs(hole.y + hole.h - parent.y - parent.h) <= tolerance then
+                            aligned = aligned + 1
+                        end
                         if aligned >= 2 then
                             extras[#extras + 1] = hole
                             break
@@ -512,9 +619,12 @@ function ComponentDetector.segment(map, settings)
     local panels = {}
     for _, box in ipairs(refined) do
         local sides = box.frame_sides
-        if sides == nil then sides = countEdges(map, box) end
-        local is_sliver = (box.h < map.h * 0.08 or box.w < map.w * 0.08 or box.w * box.h < map.w * map.h * 0.015) and sides < 2
-        if not is_sliver then
+        if sides == nil then
+            sides = countEdges(map, box)
+        end
+        local is_sliver = (box.h < map.h * 0.08 or box.w < map.w * 0.08 or box.w * box.h < map.w * map.h * 0.015)
+            and sides < 2
+        if not is_sliver and not emptySplitMargin(map, box) then
             local x = math.max(0, (box.x - 1) * map.scale_x)
             local y = math.max(0, (box.y - 1) * map.scale_y)
             local right = math.min(map.native_w, (box.x + box.w + 1) * map.scale_x)
@@ -537,7 +647,14 @@ local function sharedBalloon(map, parts)
     end
     local shared = false
     collectComponents({ w = map.w, h = map.h, data = white }, 0.015, size * 0.001, function(h, pixels, count)
-        if shared or count < h.w * h.h * 0.4 or h.frame_sides >= 3 or h.w * h.h >= size * 0.15 or h.w / h.h >= 4 or h.h / h.w >= 4 then
+        if
+            shared
+            or count < h.w * h.h * 0.4
+            or h.frame_sides >= 3
+            or h.w * h.h >= size * 0.15
+            or h.w / h.h >= 4
+            or h.h / h.w >= 4
+        then
             return
         end
         local counts = {}
@@ -547,17 +664,26 @@ local function sharedBalloon(map, parts)
             local owner
             for j, q in ipairs(parts) do
                 if x >= q.x and x < q.x + q.w and y >= q.y and y < q.y + q.h then
-                    if owner then owner = nil; break end
+                    if owner then
+                        owner = nil
+                        break
+                    end
                     owner = j
                 end
             end
-            if owner then counts[owner] = (counts[owner] or 0) + 1 end
+            if owner then
+                counts[owner] = (counts[owner] or 0) + 1
+            end
         end
         local hits = 0
         for _, n in pairs(counts) do
-            if n > count * 0.15 then hits = hits + 1 end
+            if n > count * 0.15 then
+                hits = hits + 1
+            end
         end
-        if hits >= 2 then shared = true end
+        if hits >= 2 then
+            shared = true
+        end
     end)
     return shared
 end
@@ -591,10 +717,14 @@ function ComponentDetector.detectPage(map, settings)
             local strong, sides = 0, 0
             for _, q in ipairs(parts) do
                 sides = sides + (q.frame_sides or 0)
-                if (q.frame_sides or 0) >= 3 then strong = strong + 1 end
+                if (q.frame_sides or 0) >= 3 then
+                    strong = strong + 1
+                end
             end
-            local reliable = #parts >= 2 and area >= p.w * p.h * 0.85
-                and strong >= math.ceil(#parts * 0.6) and sides >= #parts * 2
+            local reliable = #parts >= 2
+                and area >= p.w * p.h * 0.85
+                and strong >= math.ceil(#parts * 0.6)
+                and sides >= #parts * 2
             for i, q in ipairs(parts) do
                 for j = i + 1, #parts do
                     local r = parts[j]
@@ -644,7 +774,10 @@ function ComponentDetector.detectPage(map, settings)
                     local union = a.w * a.h + b.w * b.h - inter
                     local min_area = math.min(a.w * a.h, b.w * b.h)
                     if union > 0 and inter / union >= 0.50 then
-                        if (b.frame_sides or 0) > (a.frame_sides or 0) or ((b.frame_sides or 0) == (a.frame_sides or 0) and j < i) then
+                        if
+                            (b.frame_sides or 0) > (a.frame_sides or 0)
+                            or ((b.frame_sides or 0) == (a.frame_sides or 0) and j < i)
+                        then
                             drop = true
                             break
                         end
@@ -677,9 +810,12 @@ function ComponentDetector.detectPage(map, settings)
     end
     local strong_count = 0
     for _, p in ipairs(panels) do
-        if (p.frame_sides or 0) >= 3 then strong_count = strong_count + 1 end
+        if (p.frame_sides or 0) >= 3 then
+            strong_count = strong_count + 1
+        end
     end
-    acceptance.segment_page_coverage_min = (strong_count >= 2 or (#panels >= 2 and strong_count >= 1)) and 0.20 or (settings.segment_page_coverage_min or 0.5)
+    acceptance.segment_page_coverage_min = (strong_count >= 2 or (#panels >= 2 and strong_count >= 1)) and 0.20
+        or (settings.segment_page_coverage_min or 0.5)
     local accepted, reason = Segmenter.accept(panels, map, acceptance)
     if not accepted then
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
