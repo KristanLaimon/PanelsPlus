@@ -296,3 +296,14 @@ Thanks for using the plugin or at least, taking a look into this repo.
 ## 📜 License
 
 MIT License, check "LICENSE" file in this repository.
+
+---
+
+<h3 align="center">Sponsors</h3>
+
+![sponsors_tier_gold_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part1.png)
+
+![sponsors_bakers_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part2.png)
+
+![past_sponsors_not actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.past.png)
+
