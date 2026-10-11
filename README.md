@@ -293,9 +293,9 @@ Contributions are welcome for:
 Thanks for using the plugin or at least, taking a look into this repo.
 
 ---
-## 📜 License
+## 📜 License (MIT)
 
-MIT License, check "LICENSE" file in this repository.
+Check "LICENSE" file in this repository.
 
 ---
 
