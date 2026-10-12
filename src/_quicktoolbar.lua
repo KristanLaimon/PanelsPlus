@@ -69,34 +69,39 @@ function Toolbar.build(controls, width, height)
     local Tile = InputContainer:extend({})
     function Tile:init()
         self.dimen = Geom:new({ w = self.width, h = self.height })
-        self.ges_events.Tap = { GestureRange:new({ ges = "tap", range = self.dimen }) }
-        self.ges_events.Hold = { GestureRange:new({ ges = "hold", range = self.dimen }) }
-        self.ges_events.HoldRelease = { GestureRange:new({ ges = "hold_release", range = self.dimen }) }
+        -- Generic viewer events propagate to children without gesture hit-testing.
+        -- Distinct names ensure actions run only after this tile's range matches.
+        self.ges_events.QuickActionTap = { GestureRange:new({ ges = "tap", range = self.dimen }) }
+        self.ges_events.QuickActionHold = { GestureRange:new({ ges = "hold", range = self.dimen }) }
+        self.ges_events.QuickActionHoldRelease = { GestureRange:new({ ges = "hold_release", range = self.dimen }) }
     end
-    function Tile:onTap()
+    function Tile:onQuickActionTap()
         self.control.callback()
         return true
     end
-    function Tile:onHold()
+    function Tile:onQuickActionHold()
         if self.control.hold_callback then
             self.control.hold_callback()
         end
         return true
     end
-    function Tile:onHoldRelease()
+    function Tile:onQuickActionHoldRelease()
         return true
     end
     local item_height = math.max(1, math.min(Screen:scaleBySize(64), math.floor(height / #Toolbar.order)))
-    local icon_size =
-        math.max(8, math.min(Screen:scaleBySize(32), width - Screen:scaleBySize(12), math.floor(item_height * 0.60)))
     local rail = VerticalGroup:new({ align = "center", allow_mirroring = false })
     for _, id in ipairs(Toolbar.order) do
         local control = controls[id]
         control.width = width
+        local caption = TextWidget:new({ text = control.text, face = Font:getFace("cfont", 11), max_width = width - 4 })
+        local icon_size = math.max(
+            1,
+            math.min(Screen:scaleBySize(40), width - Screen:scaleBySize(12), item_height - caption:getSize().h)
+        )
         local content = VerticalGroup:new({
             align = "center",
             IconWidget:new({ file = control.icon_file, width = icon_size, height = icon_size, alpha = true }),
-            TextWidget:new({ text = control.text, face = Font:getFace("cfont", 11), max_width = width - 4 }),
+            caption,
         })
         local tile = Tile:new({
             width = width,

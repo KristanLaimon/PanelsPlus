@@ -5,7 +5,137 @@ local Toolbar = require("src._quicktoolbar")
 local ImageViewer = require("ui/widget/imageviewer")
 local Screen = require("device").screen
 
+-- Model KOReader's child-first event propagation, including the second dispatch
+-- of named events after GestureRange matching (generic Tap skips that matching).
+local function withRail(width, height, callback)
+    local saved = {}
+    local Widget = {}
+    function Widget:extend(value)
+        return setmetatable(value, { __index = self })
+    end
+    function Widget:new(value)
+        value = self:extend(value)
+        value.ges_events = {}
+        if value.init then
+            value:init()
+        end
+        return value
+    end
+    function Widget:getSize()
+        return { w = self.width or 40, h = self.height or 12 }
+    end
+    function Widget:handleEvent(name, gesture)
+        for _, child in ipairs(self) do
+            if child:handleEvent(name, gesture) then
+                return true
+            end
+        end
+        local handler = self["on" .. name]
+        if handler then
+            return handler(self, nil, gesture)
+        end
+    end
+    function Widget:onGesture(_, gesture)
+        for name, ranges in pairs(self.ges_events) do
+            local range = ranges[1]
+            local rect, pos = range.range, gesture.pos
+            if
+                range.ges == gesture.ges
+                and pos.x >= rect.x
+                and pos.x < rect.x + rect.w
+                and pos.y >= rect.y
+                and pos.y < rect.y + rect.h
+            then
+                return self:handleEvent(name, gesture)
+            end
+        end
+    end
+    local modules = {
+        ["ui/widget/container/inputcontainer"] = Widget,
+        ["ui/widget/container/centercontainer"] = Widget,
+        ["ui/widget/verticalgroup"] = Widget,
+        ["ui/widget/iconwidget"] = Widget,
+        ["ui/widget/textwidget"] = Widget,
+        ["ui/gesturerange"] = Widget,
+        ["ui/font"] = { getFace = function() end },
+    }
+    for name, value in pairs(modules) do
+        saved[name] = { package.loaded[name] }
+        package.loaded[name] = value
+    end
+    local old_scale = Screen.scaleBySize
+    Screen.scaleBySize = function(_, value)
+        return value
+    end
+    local ok, err = pcall(function()
+        local calls, actions = {}, {}
+        for _, id in ipairs(Toolbar.order) do
+            actions[id] = {
+                text = id,
+                callback = function()
+                    calls[id] = (calls[id] or 0) + 1
+                end,
+            }
+        end
+        local rail = Toolbar.build(Toolbar.controls(actions), width, height)
+        for index, tile in ipairs(rail) do
+            tile.dimen.x = 600 - width
+            tile.dimen.y = (index - 1) * tile.height
+        end
+        callback(rail, calls)
+    end)
+    Screen.scaleBySize = old_scale
+    for name, value in pairs(saved) do
+        package.loaded[name] = value[1]
+    end
+    if not ok then
+        error(err)
+    end
+end
+
 describe("Panel viewer compact controls", function()
+    it("lets center taps hide controls without closing the viewer or opening rotation", function()
+        withRail(72, 420, function(rail, calls)
+            local viewer = PanelViewer:new({
+                buttons_visible = true,
+                update = function() end,
+                onClose = function()
+                    error("Center tap must not close Panels+")
+                end,
+            })
+            local center = { ges = "tap", pos = { x = 300, y = 200 } }
+            assert.is_nil(rail:handleEvent("Gesture", center))
+            assert.is_nil(rail:handleEvent("Tap", center))
+            assert.is_true(viewer:onTap(nil, center))
+            assert.is_false(viewer.buttons_visible)
+            assert.is_nil(calls.rotate)
+            assert.is_true(viewer:onTap(nil, center))
+            assert.is_true(viewer.buttons_visible)
+            for index, id in ipairs(Toolbar.order) do
+                local tile = rail[index]
+                assert.is_true(rail:handleEvent("Gesture", {
+                    ges = "tap",
+                    pos = { x = tile.dimen.x + 10, y = tile.dimen.y + 10 },
+                }))
+                assert.equals(1, calls[id])
+            end
+            assert.is_nil(rail:handleEvent("Hold", center))
+            assert.is_nil(rail:handleEvent("HoldRelease", center))
+        end)
+    end)
+
+    it("uses larger icons while fitting captions inside compact tiles", function()
+        withRail(72, 420, function(rail)
+            assert.equals(40, rail[1][1][1][1].width)
+        end)
+        withRail(52, 160, function(rail)
+            for _, tile in ipairs(rail) do
+                local content = tile[1][1]
+                assert.is_true(content[1].height + content[2]:getSize().h <= tile.height)
+            end
+        end)
+    end)
+
     it("places settings in two rows of three and Close across the bottom", function()
         local viewer = PanelViewer:new({ width = 600 })
         viewer:replaceButtonTable()
