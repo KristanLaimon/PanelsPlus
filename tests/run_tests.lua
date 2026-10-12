@@ -55,6 +55,7 @@ local spec_modules = {
     "tests.spec.componentdetector_spec",
     "tests.spec.panelcollector_spec",
     "tests.spec.panelviewer_navtransition_spec",
+    "tests.spec.panelviewer_controls_spec",
     "tests.spec.dataset_benchmark_spec",
     "tests.spec.dataset_support_spec",
     "tests.spec.algorithm_benchmark_spec",

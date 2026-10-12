@@ -39,6 +39,7 @@ function Copy-PluginFiles([string]$Destination) {
 
     Copy-Item -LiteralPath (Join-Path $ScriptDir "src") -Destination $Destination -Recurse -Force
     Copy-Item -LiteralPath (Join-Path $ScriptDir "locales") -Destination $Destination -Recurse -Force
+    Copy-Item -LiteralPath (Join-Path $ScriptDir "assets") -Destination $Destination -Recurse -Force
     Copy-Item -LiteralPath (Join-Path $ScriptDir "data") -Destination $Destination -Recurse -Force
     # Development-tool caches are not plugin data and must not leak into releases.
     $RuffCache = Join-Path $Destination "data/ocr/.ruff_cache"

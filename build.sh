@@ -26,6 +26,7 @@ copy_plugin() {
         -exec cp -p {} "$destination/" \;
     cp -Rp "$SCRIPT_DIR/src" "$destination/"
     cp -Rp "$SCRIPT_DIR/locales" "$destination/"
+    cp -Rp "$SCRIPT_DIR/assets" "$destination/"
     cp -Rp "$SCRIPT_DIR/data" "$destination/"
     # Development-tool caches are not plugin data and must not leak into releases.
     rm -rf "$destination/data/ocr/.ruff_cache"

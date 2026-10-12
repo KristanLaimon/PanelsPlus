@@ -65,6 +65,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - Panels finding on dark-background pages.
 - Safe panel detection (default) preserves conservative v1.4.0 grouping; Smart separates more complex layouts.
 - Settings profiles bundle rotation, reading order, progress, OCR language, navigation, and crop. Create, edit, rename, replace, or delete them from the panel viewer's Settings Profile menu. None is selected by default and keeps current settings; manual changes clear the selection.
+- Zoom controls use a right-side icon rail for rotation, OCR, screenshots, progress, and image sizing. Reading and detection settings sit below the panel in two rows, with a full-width Close button; tap the panel to hide the controls.
 - The deletable Recommended profile uses landscape left, manga order, hidden progress, English OCR, and no crop, with Animated navigation on e-readers or Smooth on Android/desktop. Apply it explicitly to use these settings.
 - Animated panel transitions (or even pages transition, optional)
 - Comics & Mangas support

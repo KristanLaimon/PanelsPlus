@@ -95,7 +95,7 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(1, saved:callCount())
     end)
 
-    it("places OCR Language between progress and navigation controls", function()
+    it("opens OCR Language from the quick-action rail", function()
         local opened
         local viewer = PanelViewer:new({
             width = 600,
@@ -104,12 +104,8 @@ describe("ViewerController page-turn animation settings", function()
             end,
         })
         viewer:replaceButtonTable()
-        local row = viewer.button_table.buttons[2]
-        assert.equals(4, #row)
-        assert.equals("progress_bar", row[2].id)
-        assert.equals("ocr_language", row[3].id)
-        assert.equals("nav_transition", row[4].id)
-        row[3].callback()
+        assert.equals("ocr_language", viewer.quick_controls.ocr_language.id)
+        viewer.quick_controls.ocr_language.callback()
         assert.equals(viewer, opened)
     end)
 

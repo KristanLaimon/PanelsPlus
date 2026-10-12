@@ -26,6 +26,7 @@ local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local PageBitmap = require("src._pagebitmap")
 local PageRender = require("src._pagerender")
+local QuickToolbar = require("src._quicktoolbar")
 local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
 local logger = require("logger")
@@ -1897,6 +1898,9 @@ function PanelViewer:onCloseWidget()
     self.panel_prerender_callback = nil
     self.embedded_cleanup_callback = nil
     self.screen_resize_callback = nil
+    QuickToolbar.free(self.quick_controls)
+    self.quick_controls = nil
+    self.quick_rail = nil
     local closed_callback = self.closed_callback
     self.closed_callback = nil
     if closed_callback then
@@ -2556,6 +2560,15 @@ end
 --- image inside it -- a cheap zoom-out that reads as breathing room around
 --- the panel without touching the actual crop rectangle.
 function PanelViewer:_new_image_wg()
+    QuickToolbar.free(self.quick_controls)
+    local viewer_width = self.width
+    local rail_width = self.buttons_visible
+            and self.quick_controls
+            and QuickToolbar.width(viewer_width, function(value)
+                return Screen:scaleBySize(value)
+            end)
+        or 0
+    self.width = viewer_width - rail_width
     local factor = self:getMarginShrinkFactor()
     if not factor then
         ImageViewer._new_image_wg(self)
@@ -2569,6 +2582,7 @@ function PanelViewer:_new_image_wg()
         self.image_container.dimen.w = orig_width
         self.image_container.dimen.h = orig_container_h
     end
+    self.width = viewer_width
 
     -- Base ImageViewer only ever treats `self.rotated` as a boolean, picking
     -- 90 or 270 itself via a screen-orientation heuristic and never producing
@@ -2578,6 +2592,18 @@ function PanelViewer:_new_image_wg()
     -- only read lazily on first render, so this still lands before paint.
     if type(self.rotated) == "number" then
         self._image_wg.rotation_angle = self.rotated
+    end
+    if rail_width > 0 then
+        local HorizontalGroup = require("ui/widget/horizontalgroup")
+        self.quick_rail = QuickToolbar.build(self.quick_controls, rail_width, self.img_container_h)
+        self.image_container = HorizontalGroup:new({
+            align = "top",
+            allow_mirroring = false,
+            self.image_container,
+            self.quick_rail,
+        })
+    else
+        self.quick_rail = nil
     end
 end
 
@@ -3102,14 +3128,19 @@ function PanelViewer:replaceButtonTable()
         },
     }
 
-    -- Reflowable images use an image-space renderer rather than a document
-    -- page render. Cross-image movement still stays classic.
-    if self.embedded_source_image then
-        -- Image-space renderers support smooth movement within the extracted
-        -- bitmap. Page-boundary movement remains classic in `onPanelBoundary`.
-        buttons[1][3].enabled = true
-        buttons[2][3].enabled = true
+    local actions = {}
+    for _, row in ipairs(buttons) do
+        for _, action in ipairs(row) do
+            actions[action.id] = action
+        end
     end
+    QuickToolbar.free(self.quick_controls)
+    self.quick_controls = QuickToolbar.controls(actions)
+    buttons = {
+        { actions.mode, actions.nav_transition, actions.crop },
+        { actions.more_config, actions.settings_profile, actions.panel_finding },
+        { actions.close },
+    }
 
     local width = (self.width or 600) - 2 * (self.button_padding or 0)
     self.button_table = ButtonTable:new({
@@ -3118,6 +3149,13 @@ function PanelViewer:replaceButtonTable()
         zero_sep = true,
         show_parent = self,
     })
+    -- ImageViewer:update() still relabels scale/rotate through this lookup.
+    -- Keep those controls available without putting them in the bottom rows.
+    local get_button = self.button_table.getButtonById
+    local quick_controls = self.quick_controls
+    self.button_table.getButtonById = function(table_widget, id)
+        return quick_controls[id] or (get_button and get_button(table_widget, id))
+    end
     self.button_container = CenterContainer:new({
         dimen = Geom:new({
             w = self.width or (self.button_table and self.button_table:getSize().w) or 600,

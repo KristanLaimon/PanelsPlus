@@ -3,6 +3,18 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "Shot"
+msgstr "Captura"
+
+msgid "Show"
+msgstr "Mostrar"
+
+msgid "Hide"
+msgstr "Ocultar"
+
+msgid "Fit"
+msgstr "Ajustar"
+
 msgid "None"
 msgstr "Ninguno"
 
