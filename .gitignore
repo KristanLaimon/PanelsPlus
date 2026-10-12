@@ -74,3 +74,8 @@ worktree-*/
 panelsplus_super_stable_fast_but_without_all_new_features.koplugin
 panelsplus_1_4_0_stable.koplugin
 panelsplus_OCR_stable_kindaold.koplugin
+
+
+INSTRUCTION*.md
+/PLAN.md
+panels_plus_v1_4_0_old/
