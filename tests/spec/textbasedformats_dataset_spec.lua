@@ -15,7 +15,7 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 
 local BenchmarkTracker = require("tests.dataset-mangas.benchmark_tracker")
-local ComponentDetector = require("src._componentdetector")
+local ComponentDetector = require("src._smartcomponentdetector")
 local Evaluator = require("tests.dataset-mangas.panel_evaluator")
 local JSON = require("tests.helpers.json")
 local Loader = require("tests.dataset-mangas.dataset_loader")

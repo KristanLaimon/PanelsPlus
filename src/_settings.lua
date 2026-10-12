@@ -26,7 +26,7 @@ local Settings = {
         enabled = true,
         mode = "manga",
         crop_mode = "strict",
-        panel_finding_mode = "legacy",
+        panel_finding_mode = "safe",
         panel_margin_ratio = 0.12,
         invert_swipe = false,
         invert_taps = false,
@@ -97,7 +97,7 @@ local Settings = {
 
 --- Map stored names from earlier selector versions to the current choices.
 function Settings.normalizePanelFindingMode(mode)
-    return (mode == "normal" or mode == "detailed" or mode == "aggressive") and "normal" or "legacy"
+    return (mode == "smart" or mode == "normal" or mode == "detailed" or mode == "aggressive") and "smart" or "safe"
 end
 
 --- Fill missing settings and migrate older performance-sensitive defaults.
@@ -160,6 +160,11 @@ function Settings.withDefaults(settings)
         settings.segment_target_width = Settings.defaults.segment_target_width
         settings.segment_gutter_ratio = Settings.defaults.segment_gutter_ratio
         settings.performance_profile_version = Settings.defaults.performance_profile_version
+    end
+    for _, document in pairs(settings.doc_settings or {}) do
+        if type(document) == "table" and document.panel_finding_mode ~= nil then
+            document.panel_finding_mode = Settings.normalizePanelFindingMode(document.panel_finding_mode)
+        end
     end
     return settings
 end

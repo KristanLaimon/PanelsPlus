@@ -27,7 +27,7 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
         settings = {
             mode = "manga",
             crop_mode = "strict",
-            panel_finding_mode = "normal",
+            panel_finding_mode = "smart",
             progress_bar_visible = true,
             nav_transition_mode = "classic",
             ocr_bundled_language = "eng",
@@ -62,14 +62,14 @@ describe("PanelsPlus per-document settings persistence", function()
 
         plugin:setMode("comic")
         plugin:setCropMode("loose")
-        plugin:setPanelFindingMode("legacy")
+        plugin:setPanelFindingMode("safe")
         plugin:setProgressBarVisible(false)
         plugin:setNavTransitionMode("smooth")
         plugin:setBundledOcrLanguage(nil, "spa")
 
         assert.equals("comic", doc_store.panels_plus.mode)
         assert.equals("loose", doc_store.panels_plus.crop_mode)
-        assert.equals("legacy", doc_store.panels_plus.panel_finding_mode)
+        assert.equals("safe", doc_store.panels_plus.panel_finding_mode)
         assert.is_false(doc_store.panels_plus.progress_bar_visible)
         assert.equals("smooth", doc_store.panels_plus.nav_transition_mode)
         assert.equals("spa", doc_store.panels_plus.ocr_bundled_language)
@@ -81,7 +81,7 @@ describe("PanelsPlus per-document settings persistence", function()
             panels_plus = {
                 mode = "comic",
                 crop_mode = "margin",
-                panel_finding_mode = "legacy",
+                panel_finding_mode = "safe",
                 progress_bar_visible = false,
                 nav_transition_mode = "animated",
                 ocr_bundled_language = "koreader",
@@ -102,26 +102,26 @@ describe("PanelsPlus per-document settings persistence", function()
 
         assert.equals("comic", plugin.settings.mode)
         assert.equals("margin", plugin.settings.crop_mode)
-        assert.equals("legacy", plugin.settings.panel_finding_mode)
+        assert.equals("safe", plugin.settings.panel_finding_mode)
         assert.is_false(plugin.settings.progress_bar_visible)
         assert.equals("animated", plugin.settings.nav_transition_mode)
         assert.equals("koreader", plugin.settings.ocr_bundled_language)
     end)
 
-    it("migrates a saved Safe document choice to Legacy", function()
+    it("preserves a saved Safe document choice", function()
         local plugin = newPluginInstance("/sdcard/Books/old.cbz", nil, {
             doc_settings = { ["/sdcard/Books/old.cbz"] = { panel_finding_mode = "safe" } },
         })
         plugin:loadDocSettings()
-        assert.equals("legacy", plugin.settings.panel_finding_mode)
+        assert.equals("safe", plugin.settings.panel_finding_mode)
     end)
 
-    it("migrates a saved Detailed document choice to Normal", function()
+    it("migrates a saved Detailed document choice to Smart", function()
         local plugin = newPluginInstance("/sdcard/Books/previous.cbz", nil, {
             doc_settings = { ["/sdcard/Books/previous.cbz"] = { panel_finding_mode = "detailed" } },
         })
         plugin:loadDocSettings()
-        assert.equals("normal", plugin.settings.panel_finding_mode)
+        assert.equals("smart", plugin.settings.panel_finding_mode)
     end)
 
     it("falls back to internal doc_settings dictionary when doc_settings object is unavailable", function()

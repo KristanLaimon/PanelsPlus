@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 ]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
-local Detector = require("src._componentdetector")
+local Detector = require("src._smartcomponentdetector")
 
 local function page()
     local map = { w = 480, h = 640, native_w = 960, native_h = 1280, scale_x = 2, scale_y = 2, ink = 0, data = {} }

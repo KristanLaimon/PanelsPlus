@@ -63,6 +63,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - Zoom-friendly screenshot support while reading panels.
 - Open panels with a long press or, if you prefer, a two-finger tap.
 - Panels finding on dark-background pages.
+- Safe panel detection (default) preserves conservative v1.4.0 grouping; Smart separates more complex layouts.
 - Animated panel transitions (or even pages transition, optional)
 - Comics & Mangas support
 - Customizable and performant in low-end e-ink devices.

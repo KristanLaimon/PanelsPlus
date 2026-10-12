@@ -21,7 +21,7 @@ package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;./?.lua;./?/ini
 require("ffi")
 require("tests.spec.helper")
 local before = dofile(arg[1])
-local after = require("src._componentdetector")
+local after = require("src._smartcomponentdetector")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local totals = {}

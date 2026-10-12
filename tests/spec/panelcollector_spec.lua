@@ -14,8 +14,8 @@ local describe, it, assert, spy = framework.describe, framework.it, framework.as
 local Collector = require("src._panelcollector")
 local Bitmap = require("src._pagebitmap")
 local Native = require("src._nativedetector")
-local Normal = require("src._componentdetector")
-local Legacy = require("src._legacycomponentdetector")
+local Smart = require("src._smartcomponentdetector")
+local Safe = require("src._safecomponentdetector")
 local Controller = require("src.viewer_controller")
 local Settings = require("src._settings")
 local UIManager = require("ui/uimanager")
@@ -36,22 +36,22 @@ end
 
 describe("Reader component detector integration", function()
     it("routes maps to the selected detector", function()
-        local old_build, old_legacy, old_normal = Bitmap.build, Legacy.detectPage, Normal.detectPage
+        local old_build, old_safe, old_smart = Bitmap.build, Safe.detectPage, Smart.detectPage
         Bitmap.build = function()
             return { native_w = 960, native_h = 1280 }
         end
-        Legacy.detectPage = function()
+        Safe.detectPage = function()
             return { { x = 10, y = 0, w = 100, h = 100 } }
         end
-        Normal.detectPage = function()
+        Smart.detectPage = function()
             return { { x = 20, y = 0, w = 100, h = 100 } }
         end
-        local legacy_panels = Collector.collect({ document = document() }, { panel_finding_mode = "legacy" }, 1)
-        local normal_panels = Collector.collect({ document = document() }, { panel_finding_mode = "normal" }, 1)
+        local safe_panels = Collector.collect({ document = document() }, { panel_finding_mode = "safe" }, 1)
+        local smart_panels = Collector.collect({ document = document() }, { panel_finding_mode = "smart" }, 1)
         local default_panels = Collector.collect({ document = document() }, {}, 1)
-        Bitmap.build, Legacy.detectPage, Normal.detectPage = old_build, old_legacy, old_normal
-        assert.equals(10, legacy_panels[1].x)
-        assert.equals(20, normal_panels[1].x)
+        Bitmap.build, Safe.detectPage, Smart.detectPage = old_build, old_safe, old_smart
+        assert.equals(10, safe_panels[1].x)
+        assert.equals(20, smart_panels[1].x)
         assert.equals(10, default_panels[1].x)
     end)
 
@@ -59,11 +59,11 @@ describe("Reader component detector integration", function()
         local settings = Settings.withDefaults({ detector = "exact", embedded_detector = "exact" })
         assert.equals("components", settings.detector)
         assert.equals("components", settings.embedded_detector)
-        assert.equals("legacy", settings.panel_finding_mode)
-        assert.equals("legacy", Settings.withDefaults({ panel_finding_mode = "safe" }).panel_finding_mode)
-        assert.equals("legacy", Settings.withDefaults({ panel_finding_mode = "classic" }).panel_finding_mode)
-        assert.equals("normal", Settings.withDefaults({ panel_finding_mode = "aggressive" }).panel_finding_mode)
-        assert.equals("normal", Settings.withDefaults({ panel_finding_mode = "detailed" }).panel_finding_mode)
+        assert.equals("safe", settings.panel_finding_mode)
+        assert.equals("safe", Settings.withDefaults({ panel_finding_mode = "safe" }).panel_finding_mode)
+        assert.equals("safe", Settings.withDefaults({ panel_finding_mode = "classic" }).panel_finding_mode)
+        assert.equals("smart", Settings.withDefaults({ panel_finding_mode = "aggressive" }).panel_finding_mode)
+        assert.equals("smart", Settings.withDefaults({ panel_finding_mode = "detailed" }).panel_finding_mode)
     end)
 
     it("keeps a blank bitmap in panel view without probing the native detector", function()
@@ -172,7 +172,7 @@ describe("Viewer panel finding selection", function()
         }
         local reopened = spy()
         local controller = setmetatable({
-            settings = { panel_finding_mode = "normal" },
+            settings = { panel_finding_mode = "smart" },
             setPanelFindingMode = function(self, mode)
                 self.settings.panel_finding_mode = mode
             end,
@@ -188,7 +188,7 @@ describe("Viewer panel finding selection", function()
         }
         controller:toggleViewerPanelFindingMode(viewer)
         UIManager.close = old_close
-        assert.equals("legacy", controller.settings.panel_finding_mode)
+        assert.equals("safe", controller.settings.panel_finding_mode)
         assert.is_true(closed:called())
         assert.equals(viewer, closed:lastCall()[2])
         assert.equals(3, reopened:lastCall()[2])

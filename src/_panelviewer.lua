@@ -16,7 +16,7 @@ local DoubleSpread = require("src._doublespread")
 local FoldJoin = require("src._foldjoin")
 local Event = require("ui/event")
 local Geom = require("ui/geometry")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local ImageViewer = require("ui/widget/imageviewer")
 local Memory = require("src._memory")
 local RenderImage = require("ui/renderimage")
@@ -133,7 +133,7 @@ local PanelViewer = ImageViewer:extend({
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
     crop_mode = "strict",
-    panel_finding_mode = "normal",
+    panel_finding_mode = "safe",
     margin_ratio = 0.12,
     bleed_ratio = 0.08,
     panel_is_full_page = nil,
@@ -2474,10 +2474,10 @@ function PanelViewer:getCropModeText()
 end
 
 function PanelViewer:getPanelFindingModeText()
-    if self.panel_finding_mode == "normal" then
-        return _("Panels Finding: Normal")
+    if self.panel_finding_mode == "smart" then
+        return _("Panels Finding: Smart")
     end
-    return _("Panels Finding: Legacy")
+    return _("Panels Finding: Safe")
 end
 
 --- Return the button label for the panel navigation transition mode in use.
@@ -3061,7 +3061,7 @@ function PanelViewer:replaceButtonTable()
                     if self.panel_finding_toggle_callback then
                         self.panel_finding_toggle_callback(self)
                     else
-                        self.panel_finding_mode = self.panel_finding_mode == "normal" and "legacy" or "normal"
+                        self.panel_finding_mode = self.panel_finding_mode == "smart" and "safe" or "smart"
                         self:replaceButtonTable()
                         self:update()
                     end

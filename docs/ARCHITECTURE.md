@@ -68,7 +68,7 @@ flowchart TD
 
     subgraph plain ["Plain modules"]
         PC["_panelcollector.lua<br/><i>Deep detection, fallback, crops</i>"]
-        CD["_componentdetector.lua<br/><i>components and frame evidence</i>"]
+        CD["_smartcomponentdetector.lua<br/><i>components and frame evidence</i>"]
         SEG["_segmenter.lua<br/><i>legacy X-Y cut, shared validation</i>"]
         PB["_pagebitmap.lua<br/><i>low-res ink map</i>"]
         ND["_nativedetector.lua<br/><i>batched k2pdfopt probes</i>"]
@@ -77,7 +77,7 @@ flowchart TD
         WF["_wordfinder.lua<br/><i>comic-lettering word boxes</i>"]
         RP["_rotationpicker.lua<br/><i>rotation dialog</i>"]
         OD["_ocrdebug.lua<br/><i>OCR review loop</i>"]
-        GEO["_geometry.lua"]
+        GEO["_smartgeometry.lua"]
         SET["_settings.lua"]
         TIM["_timing.lua"]
         MEM["_memory.lua<br/><i>free-memory headroom check</i>"]
@@ -133,7 +133,7 @@ flowchart TD
 | `src/actions.lua` | Dispatcher-registered gesture actions |
 | `src/menu.lua` | Main-menu submenu construction |
 | `src/_panelcollector.lua` | Runs ComponentDetector, provides full-page fallback, builds lazy panel images |
-| `src/_componentdetector.lua` | Primary 8-connected flood fill panel detector with straight-line boundary verification |
+| `src/_smartcomponentdetector.lua` | Primary 8-connected flood fill panel detector with straight-line boundary verification |
 | `src/_pagebitmap.lua` | Renders a page small and binarizes it into an ink map |
 | `src/_segmenter.lua` | Legacy recursive X-Y cut over the ink map, plus its acceptance test |
 | `src/_nativedetector.lua` | KOReader's k2pdfopt detector, batched over one rasterization (fallback) |
@@ -146,7 +146,7 @@ flowchart TD
 | `src/spread_rotation.lua` | Screen rotation for double-page spreads on the reading page, and the hand-over to the panel viewer |
 | `src/_ocrdebug.lua` | Opt-in OCR review loop: correct/incorrect prompts, session log, cropped debug images (see [WORD-LOOKUP.md](WORD-LOOKUP.md)) |
 | `src/native_panel_zoom.lua` | Patching and restoring `onPanelZoom` |
-| `src/_geometry.lua` | Rectangle helpers and reading-order sorting |
+| `src/_smartgeometry.lua` | Rectangle helpers and reading-order sorting |
 | `src/_settings.lua` | Defaults, persistence and profile migration |
 | `src/_timing.lua` | Opt-in timing spans |
 | `src/_memory.lua` | Free-memory headroom check, shared by prerender and native detection |

@@ -14,7 +14,7 @@ SPDX-License-Identifier: MIT
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 
 local function panel(id, x, y, w, h)
     return { id = id, x = x, y = y, w = w, h = h }

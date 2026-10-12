@@ -40,7 +40,7 @@ story structure. Its output is deliberately small:
 ```
 
 A page becomes an array of `PPPanel` rectangles. Detection decides which
-rectangles exist; `src/_geometry.lua` decides their order; the viewer later
+rectangles exist; `src/_smartgeometry.lua` decides their order; the viewer later
 renders each rectangle on demand. Keeping these responsibilities separate is
 important: changing manga/comic order must not change what the detector sees,
 and changing crop style must not mutate the detected bounds.
@@ -125,7 +125,7 @@ connected ink. Classification happens later.
 
 ### 3. Find 8-connected components
 
-`src/_componentdetector.lua` scans the map linearly. When it finds an unvisited
+`src/_smartcomponentdetector.lua` scans the map linearly. When it finds an unvisited
 ink cell, it performs a breadth-first flood fill through all eight neighbors.
 During traversal it updates `left`, `right`, `top`, and `bottom`, producing the
 component's bounding box without retaining a Lua table for every pixel.
@@ -272,10 +272,10 @@ define the same method name.
 | `src/viewer_controller.lua` | Open/rebuild viewers, cross-page flow, prerender requests |
 | `src/embedded_image.lua` | Extract and navigate images in reflowable documents |
 | `src/_pagebitmap.lua` | Raster acquisition, background estimation, binary ink map |
-| `src/_componentdetector.lua` | Deep mode's connected-component and frame heuristics |
+| `src/_smartcomponentdetector.lua` | Deep mode's connected-component and frame heuristics |
 | `src/_segmenter.lua` | Legacy X-Y cut; its page-level acceptance helper is still reused |
 | `src/_nativedetector.lua` | Internal K2PDFOpt compatibility fallback |
-| `src/_geometry.lua` | Rectangle operations and reading-order sorting |
+| `src/_smartgeometry.lua` | Rectangle operations and reading-order sorting |
 | `src/_panelcollector.lua` | Detection orchestration and lazy crop construction |
 | `src/_panelviewer.lua` | `ImageViewer` subclass, controls, gestures, panel switching |
 | `src/_panelviewport.lua` | Crop/viewport geometry |

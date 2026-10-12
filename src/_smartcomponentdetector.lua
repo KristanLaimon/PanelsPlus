@@ -1,5 +1,5 @@
 local ffi = require("ffi")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
 

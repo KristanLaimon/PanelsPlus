@@ -22,7 +22,7 @@ local PageBitmap = require("src._pagebitmap")
 describe("PageBitmap colour-aware background sampling", function()
     it("detects the same manga panels before and after conversion trims the paper margin", function()
         local Blitbuffer = require("ffi/blitbuffer")
-        local ComponentDetector = require("src._componentdetector")
+        local ComponentDetector = require("src._smartcomponentdetector")
         local settings = { mode = "manga", segment_target_width = 480 }
         local function image(margin)
             return {

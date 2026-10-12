@@ -9,7 +9,7 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
 local ffi = require("ffi")

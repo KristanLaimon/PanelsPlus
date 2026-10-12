@@ -178,7 +178,7 @@ end)
 describe("EmbeddedImage native page animation", function()
     it("arms one normal page animation only when replacing the source viewer", function()
         local PageBitmap = require("src._pagebitmap")
-        local ComponentDetector = require("src._componentdetector")
+        local ComponentDetector = require("src._smartcomponentdetector")
         local old_build = PageBitmap.buildFromBlitbuffer
         local old_detect = ComponentDetector.detectPage
         local old_close, old_show = UIManager.close, UIManager.show
@@ -196,7 +196,7 @@ describe("EmbeddedImage native page animation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
-                panel_finding_mode = "normal",
+                panel_finding_mode = "smart",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},
@@ -344,7 +344,7 @@ describe("EmbeddedImage device rotation", function()
 
     it("reuses detected panels when auto-rotation rebuilds an embedded viewer", function()
         local PageBitmap = require("src._pagebitmap")
-        local ComponentDetector = require("src._componentdetector")
+        local ComponentDetector = require("src._smartcomponentdetector")
         local old_build = PageBitmap.buildFromBlitbuffer
         local old_detect = ComponentDetector.detectPage
         local old_width, old_height = Screen.getWidth, Screen.getHeight
@@ -371,7 +371,7 @@ describe("EmbeddedImage device rotation", function()
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
-                panel_finding_mode = "normal",
+                panel_finding_mode = "smart",
                 embedded_nav_transition_mode = "classic",
             },
             ui = {},

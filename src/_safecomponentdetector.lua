@@ -1,6 +1,6 @@
 local ffi = require("ffi")
--- v1.4.0 panel grouping and reading order, kept separate from the current detector.
-local Geometry = require("src._legacygeometry")
+-- Safe: v1.4.0 panel grouping and reading order.
+local Geometry = require("src._safegeometry")
 local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
 

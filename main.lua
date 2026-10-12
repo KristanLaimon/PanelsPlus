@@ -271,7 +271,7 @@ function PanelsPlus:setCropMode(crop_mode)
     self:saveDocSettings(true)
 end
 
---- Choose between the v1.4.0 detector and the current detector.
+--- Choose between the Safe v1.4.0 detector and the Smart detector.
 function PanelsPlus:setPanelFindingMode(mode)
     local selected = Settings.normalizePanelFindingMode(mode)
     if self.settings.panel_finding_mode == selected then
@@ -582,13 +582,13 @@ function PanelsPlus:teardownDocumentResources()
     self:restoreNativePanelZoom()
     self:removeReadingPageFold()
 
-    local ok, ComponentDetector = pcall(require, "src._componentdetector")
+    local ok, ComponentDetector = pcall(require, "src._smartcomponentdetector")
     if ok and ComponentDetector.clearScratch then
         ComponentDetector.clearScratch()
     end
-    local legacy_ok, LegacyComponentDetector = pcall(require, "src._legacycomponentdetector")
-    if legacy_ok and LegacyComponentDetector.clearScratch then
-        LegacyComponentDetector.clearScratch()
+    local safe_ok, SafeComponentDetector = pcall(require, "src._safecomponentdetector")
+    if safe_ok and SafeComponentDetector.clearScratch then
+        SafeComponentDetector.clearScratch()
     end
 
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes

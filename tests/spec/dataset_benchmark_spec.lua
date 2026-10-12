@@ -21,7 +21,7 @@ local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Evaluator = require("tests.dataset-mangas.panel_evaluator")
 local Segmenter = require("src._segmenter")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 
 describe("Manga dataset golden set panel detection", function()
     local golden_pages = Manifest.getGoldenPages()

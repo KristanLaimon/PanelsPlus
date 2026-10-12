@@ -3,11 +3,11 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
-msgid "Panels Finding: Legacy"
-msgstr "Detección de viñetas: Heredado"
+msgid "Panels Finding: Safe"
+msgstr "Detección de viñetas: Segura"
 
-msgid "Panels Finding: Normal"
-msgstr "Detección de viñetas: Normal"
+msgid "Panels Finding: Smart"
+msgstr "Detección de viñetas: Inteligente"
 
 msgid " (fps)"
 msgstr " (fps)"

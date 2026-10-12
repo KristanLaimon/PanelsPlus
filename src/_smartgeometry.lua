@@ -1,6 +1,6 @@
 --[[
 Panels+
-File: src/_geometry.lua
+File: src/_smartgeometry.lua
 Name: Geometry
 Description: Provides rectangle operations and manga/comic panel reading-order sorting.
 Author: KristanLaimon

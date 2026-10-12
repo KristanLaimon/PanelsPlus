@@ -10,10 +10,10 @@ License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
 local Blitbuffer = require("ffi/blitbuffer")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local NativeDetector = require("src._nativedetector")
-local ComponentDetector = require("src._componentdetector")
-local LegacyComponentDetector = require("src._legacycomponentdetector")
+local ComponentDetector = require("src._smartcomponentdetector")
+local SafeComponentDetector = require("src._safecomponentdetector")
 local DoubleSpread = require("src._doublespread")
 local FoldJoin = require("src._foldjoin")
 local PageBitmap = require("src._pagebitmap")
@@ -195,8 +195,8 @@ end
 function PanelCollector.collect(ui, settings, page, hold_pos)
     local map = PageBitmap.build(ui.document, page, settings)
     if map then
-        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "legacy"
-                and LegacyComponentDetector
+        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "safe"
+                and SafeComponentDetector
             or ComponentDetector
         return detector.detectPage(map, settings)
     end

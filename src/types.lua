@@ -41,7 +41,7 @@ SPDX-License-Identifier: MIT
 --- Crop behavior for drawing panel image parts.
 --- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'|'"none"'
 
---- @alias PPPanelFindingMode '"legacy"'|'"normal"'
+--- @alias PPPanelFindingMode '"safe"'|'"smart"'
 
 --- Direction reported when the viewer crosses the first or last panel.
 --- @alias PPBoundaryDirection '"next"'|'"previous"'

@@ -392,3 +392,9 @@ msgstr "KOReader"
 
 msgid "Spread direction (Actual: "
 msgstr "Spread direction (Actual: "
+
+msgid "Panels Finding: Safe"
+msgstr "Panels Finding: Safe"
+
+msgid "Panels Finding: Smart"
+msgstr "Panels Finding: Smart"

@@ -11,15 +11,15 @@ SPDX-License-Identifier: MIT
 ]]
 local Blitbuffer = require("ffi/blitbuffer")
 local Event = require("ui/event")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local DoubleSpread = require("src._doublespread")
 local PanelViewport = require("src._panelviewport")
 local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
 local NativeDetector = require("src._nativedetector")
-local ComponentDetector = require("src._componentdetector")
-local LegacyComponentDetector = require("src._legacycomponentdetector")
-local LegacyGeometry = require("src._legacygeometry")
+local ComponentDetector = require("src._smartcomponentdetector")
+local SafeComponentDetector = require("src._safecomponentdetector")
+local SafeGeometry = require("src._safegeometry")
 local PageBitmap = require("src._pagebitmap")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
@@ -236,8 +236,8 @@ end
 local function detectPanels(image, settings)
     local map = PageBitmap.buildFromBlitbuffer(image, settings)
     if map then
-        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "legacy"
-                and LegacyComponentDetector
+        local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "safe"
+                and SafeComponentDetector
             or ComponentDetector
         local panels = detector.detectPage(map, settings)
         return panels, "components"
@@ -273,7 +273,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return false
         end
     end
-    local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "legacy" and LegacyGeometry
+    local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "safe" and SafeGeometry
         or Geometry
     panels = ordering.sortReadingOrder(panels, self.settings.mode)
 
@@ -362,7 +362,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return self:reopenEmbeddedImagePanels(current_viewer)
         end,
         panel_finding_toggle_callback = function(current_viewer)
-            self:setPanelFindingMode(self.settings.panel_finding_mode == "normal" and "legacy" or "normal")
+            self:setPanelFindingMode(self.settings.panel_finding_mode == "smart" and "safe" or "smart")
             return self:reopenEmbeddedImagePanels(current_viewer, { redetect = true })
         end,
         margin_ratio_callback = function(current_viewer, ratio, activate_margin_mode)

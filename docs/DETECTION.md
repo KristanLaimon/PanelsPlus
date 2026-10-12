@@ -1,10 +1,10 @@
 # Panel detection
 
-Panels+ offers **Panels Finding: Legacy** (the default) and **Panels Finding:
-Normal**. Both use the map built by `_pagebitmap.lua`. Normal uses
-`_componentdetector.lua` and the current reading-order sorter; Legacy uses the
-v1.4.0 detector in `_legacycomponentdetector.lua` and its sorter in
-`_legacygeometry.lua`. The panel viewer's bottom-row button cycles between them
+Panels+ offers **Panels Finding: Safe** (the default) and **Panels Finding:
+Smart**. Both use the map built by `_pagebitmap.lua`. Smart uses
+`_smartcomponentdetector.lua` and the current reading-order sorter; Safe uses the
+v1.4.0 detector in `_safecomponentdetector.lua` and its sorter in
+`_safegeometry.lua`. The panel viewer's bottom-row button cycles between them
 and redetects the open page.
 
 This document describes the image-processing problem, the data flowing through
@@ -12,7 +12,7 @@ the pipeline, the heuristics used to turn pixels into panel rectangles, and the
 failure behavior. Start with [INTRO.md](INTRO.md) if terms such as binary image,
 connected component, or bounding box are unfamiliar.
 
-The component policy below describes Normal; Legacy retains the
+The component policy below describes Smart; Safe retains the
 v1.4.0 grouping and reading-order policy.
 
 ## Detection is geometry recovery, not semantic recognition
@@ -135,7 +135,7 @@ axis-aligned bounding box. Components below the initial floors are discarded:
 - height less than 2% of map height;
 - bounding-box area less than 0.2% of map area.
 
-Those constants are local to `_componentdetector.lua`; they are not separate
+Those constants are local to `_smartcomponentdetector.lua`; they are not separate
 reader modes or learned parameters.
 
 ### Why reusable FFI arrays matter

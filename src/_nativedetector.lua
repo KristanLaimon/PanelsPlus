@@ -10,7 +10,7 @@ License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
 local Document = require("document/document")
-local Geometry = require("src._geometry")
+local Geometry = require("src._smartgeometry")
 local Memory = require("src._memory")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
