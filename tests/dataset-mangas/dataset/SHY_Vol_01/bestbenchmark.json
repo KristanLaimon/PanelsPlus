@@ -32,5 +32,43 @@
     "total_ground_truth": 771,
     "true_positives": 418
   },
-  "updated_at": "2026-10-03"
+  "safe_full_volume": {
+    "f1": 0.4814,
+    "false_positives": 109,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.8693,
+    "pages_evaluated": 179,
+    "precision": 0.7191,
+    "reading_order_accuracy": 0.2570,
+    "reading_order_pages": 179,
+    "reading_order_pages_correct": 46,
+    "reading_order_pair_accuracy": 0.9921,
+    "reading_order_pairs": 382,
+    "reading_order_pairs_correct": 379,
+    "recall": 0.3619,
+    "total_detected": 388,
+    "total_ground_truth": 771,
+    "true_positives": 279
+  },
+  "smart_full_volume": {
+    "f1": 0.7264,
+    "false_positives": 125,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.8722,
+    "pages_evaluated": 179,
+    "precision": 0.8035,
+    "reading_order_accuracy": 0.3575,
+    "reading_order_pages": 179,
+    "reading_order_pages_correct": 64,
+    "reading_order_pair_accuracy": 1,
+    "reading_order_pairs": 891,
+    "reading_order_pairs_correct": 891,
+    "recall": 0.6628,
+    "total_detected": 636,
+    "total_ground_truth": 771,
+    "true_positives": 511
+  },
+  "updated_at": "2026-10-12"
 }

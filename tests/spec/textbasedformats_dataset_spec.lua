@@ -20,6 +20,7 @@ local Evaluator = require("tests.dataset-mangas.panel_evaluator")
 local JSON = require("tests.helpers.json")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
+local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
 
 local DATASET_DIR = "tests/dataset-mangas/dataset-textbasedformats"
 local EXPECTED_COUNTS = { 2, 3, 6 }
@@ -83,6 +84,15 @@ describe("EPUB, KEPUB, and MOBI embedded manga compatibility", function()
 
     for _, format in ipairs(FORMATS) do
         local title = "Bloom_Into_You_Vol_8_" .. format.name
+        for _, algorithm in ipairs({ "safe", "smart" }) do
+            it("preserves " .. algorithm .. " baseline for " .. format.name, function()
+                local current = AlgorithmBenchmark.evaluate(findBook(books, title), algorithm)
+                local baseline = BenchmarkTracker.load(DATASET_DIR .. "/" .. title)
+                assert.is_not_nil(baseline and baseline[algorithm .. "_full_volume"], "Missing algorithm baseline")
+                local ok, reason = AlgorithmBenchmark.verify(baseline, algorithm, current)
+                assert.is_true(ok, reason)
+            end)
+        end
         it("preserves multi-panel detection for " .. format.name, function()
             local book = findBook(books, title)
             local total_ground_truth, total_detected, total_matched = 0, 0, 0

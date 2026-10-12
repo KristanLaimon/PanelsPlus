@@ -15,10 +15,8 @@ local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
-local Loader = require("tests.dataset-mangas.dataset_loader")
-local Evaluator = require("tests.dataset-mangas.panel_evaluator")
-local ComponentDetector = require("src._componentdetector")
 local BenchmarkTracker = require("tests.dataset-mangas.benchmark_tracker")
+local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
 
 local DATASETS = require("tests.dataset-mangas.production_datasets")
 local selected_dataset = os.getenv("PANELSPLUS_TEST_DATASET")
@@ -77,88 +75,79 @@ describe("Manga and comic full-volume production benchmarks", function()
             assert.equals(expected.panels, panel_count)
         end)
 
-        it("preserves " .. expected.title .. " production accuracy", function()
-            local book = findBook(expected.title)
-            local available_images = countAvailableImages(book)
-            if available_images ~= expected.pages then
-                local reason =
-                    string.format("%s: %d/%d images available", expected.title, available_images, expected.pages)
-                assert.is_true(os.getenv("PANELSPLUS_REQUIRE_DATASETS") ~= "1", reason)
-                framework.skip(reason .. "; full-volume accuracy was not measured")
-            end
-            local total_gt, total_detected, total_matched = 0, 0, 0
-            local iou_sum, matched_pages = 0, 0
-            local ordering = {}
-
-            for _, page in ipairs(Manifest.getMappedPages(book)) do
-                local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
-                local detected = ComponentDetector.detectPage(map, { mode = page.reading_order })
-                local result = Evaluator.evaluate(page.frames, detected, 0.50, 35)
-                Evaluator.addReadingOrder(ordering, result)
-                total_gt = total_gt + result.ground_truth_count
-                total_detected = total_detected + result.detected_count
-                total_matched = total_matched + result.true_positives
-                if result.true_positives > 0 then
-                    iou_sum = iou_sum + result.mean_iou
-                    matched_pages = matched_pages + 1
+        for _, algorithm in ipairs({ "safe", "smart" }) do
+            it("preserves " .. expected.title .. " " .. algorithm .. " production accuracy", function()
+                local book = findBook(expected.title)
+                local available_images = countAvailableImages(book)
+                if available_images ~= expected.pages then
+                    local reason =
+                        string.format("%s: %d/%d images available", expected.title, available_images, expected.pages)
+                    assert.is_true(os.getenv("PANELSPLUS_REQUIRE_DATASETS") ~= "1", reason)
+                    framework.skip(reason .. "; full-volume accuracy was not measured")
                 end
-            end
-
-            local precision = total_detected > 0 and total_matched / total_detected or 0
-            local recall = total_gt > 0 and total_matched / total_gt or 0
-            local f1 = total_gt + total_detected > 0 and 2 * total_matched / (total_gt + total_detected) or 0
-            local mean_iou = matched_pages > 0 and iou_sum / matched_pages or 0
-            local book_dir = book.directory
-            local baseline = BenchmarkTracker.load(book_dir)
-            print(
-                string.format(
-                    "%s%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
-                    expected.title,
-                    expected.experimental and " [experimental / hard]"
-                        or expected.challenging and " [challenging]"
-                        or "",
-                    expected.pages,
-                    precision * 100,
-                    recall * 100,
-                    f1 * 100,
-                    expected.target_f1 * 100,
-                    mean_iou
+                local current = AlgorithmBenchmark.evaluate(book, algorithm)
+                local baseline_data = BenchmarkTracker.load(book.directory)
+                assert.is_not_nil(
+                    baseline_data and baseline_data[algorithm .. "_full_volume"],
+                    "Missing algorithm baseline"
                 )
-            )
-            if expected.experimental then
-                return -- Report hard layouts without driving production tuning.
-            end
-            assert.is_true(
-                f1 > expected.minimum_f1,
-                string.format("Mapped-page F1 must exceed %.0f%% (got %.2f%%)", expected.minimum_f1 * 100, f1 * 100)
-            )
-            if baseline and baseline.components_conservative_full_volume then
-                local ok, reason = BenchmarkTracker.verifyNoRegression({
-                    precision = precision,
-                    recall = recall,
-                    f1 = f1,
-                    mean_iou = mean_iou,
-                    false_positives = total_detected - total_matched,
-                    reading_order_accuracy = ordering.reading_order_accuracy,
-                    reading_order_pair_accuracy = ordering.reading_order_pair_accuracy,
-                }, baseline.components_conservative_full_volume)
-                assert.is_true(ok, reason)
-            end
-            if not expected.gate_95 then
-                return
-            end
-            assert.is_true(
-                f1 > 0.95,
-                string.format(
-                    "%s must remain above 95%% F1 (precision %.2f%%, recall %.2f%%, F1 %.2f%%)",
-                    expected.title,
-                    precision * 100,
-                    recall * 100,
-                    f1 * 100
+                local baseline_ok, baseline_reason = AlgorithmBenchmark.verify(baseline_data, algorithm, current)
+                assert.is_true(baseline_ok, baseline_reason)
+                print(
+                    string.format(
+                        "%s [%s]: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%%, IoU %.4f",
+                        expected.title,
+                        algorithm,
+                        current.pages_evaluated,
+                        current.precision * 100,
+                        current.recall * 100,
+                        current.f1 * 100,
+                        current.mean_iou
+                    )
                 )
-            )
-            assert.is_true(recall > 0.95, "Recall must remain above 95%")
-            assert.is_true(mean_iou > 0.95, "Mean matched IoU must remain above 0.95")
-        end)
+                if algorithm == "safe" then
+                    return -- Safe is guarded only by its own baseline, never Smart's accuracy target.
+                end
+                local precision, recall, f1 = current.precision, current.recall, current.f1
+                local mean_iou = current.mean_iou
+                print(
+                    string.format(
+                        "%s%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
+                        expected.title,
+                        expected.experimental and " [experimental / hard]"
+                            or expected.challenging and " [challenging]"
+                            or "",
+                        expected.pages,
+                        precision * 100,
+                        recall * 100,
+                        f1 * 100,
+                        expected.target_f1 * 100,
+                        mean_iou
+                    )
+                )
+                if expected.experimental then
+                    return -- Report hard layouts without driving production tuning.
+                end
+                assert.is_true(
+                    f1 > expected.minimum_f1,
+                    string.format("Mapped-page F1 must exceed %.0f%% (got %.2f%%)", expected.minimum_f1 * 100, f1 * 100)
+                )
+                if not expected.gate_95 then
+                    return
+                end
+                assert.is_true(
+                    f1 > 0.95,
+                    string.format(
+                        "%s must remain above 95%% F1 (precision %.2f%%, recall %.2f%%, F1 %.2f%%)",
+                        expected.title,
+                        precision * 100,
+                        recall * 100,
+                        f1 * 100
+                    )
+                )
+                assert.is_true(recall > 0.95, "Recall must remain above 95%")
+                assert.is_true(mean_iou > 0.95, "Mean matched IoU must remain above 0.95")
+            end)
+        end
     end
 end)

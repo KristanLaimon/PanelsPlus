@@ -106,6 +106,14 @@ The reader's connected-component detector can be evaluated with
 the original Lua segmenter so its historical `bestbenchmark.json` records stay
 comparable.
 
+Component runs evaluate both **Safe** and **Smart** by default. Use
+`--algorithm safe`, `--algorithm smart`, or `--algorithm both` to select them.
+Complete evaluations keep separate `safe_full_volume` and `smart_full_volume`
+records per book, including embedded-image datasets. Safe is guarded against
+its own measured baseline; Smart retains production accuracy targets. Nagatoro
+includes all 161 mapped pages and must exceed 95% F1, recall, and matched IoU.
+Regression runs are read-only; `--update-best` explicitly records improvements.
+
 Every discovered annotated volume is evaluated on its mapped pages. Unmapped
 pages in unfinished books are excluded. SHY is experimental; its accuracy is
 reported without a production target gate.
@@ -114,8 +122,8 @@ The production detector now retains a wider crop when a proposed split lacks
 sufficient evidence. Reader and dataset maps include the same dark-stroke and
 structural-ink layers. See [the stability report](dataset-mangas/report/panel-stability-2026-10-03.md)
 for all eight volumes, false-positive counts, and the recall tradeoff.
-Current regression checks use `components_conservative_full_volume`; historical
-`components_full_volume` records remain intact. Tests guard precision, recall,
+Current regression checks use `safe_full_volume` and `smart_full_volume`; historical
+`components_conservative_full_volume`, `components_full_volume`, and OCR records remain intact. Tests guard precision, recall,
 F1, mean IoU and false positives without rewriting records. A regression pass
 means the recorded behavior was preserved; it does not mean every book reached
 95% F1.

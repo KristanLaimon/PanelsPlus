@@ -30,7 +30,8 @@ Options:
   -f, --failures-only  Display only pages with detection or reading-order issues
   --summary-only       Display aggregate metrics only
   -t, --threshold <n>  IoU threshold for true positive match (default: 0.50)
-  --detector <name>    segmenter (default) or experimental components
+  --detector <name>    segmenter (default) or components
+  --algorithm <name>   safe, smart, or both (default for components: both)
 
 Examples:
   ./run-benchmark.sh

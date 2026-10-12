@@ -33,7 +33,9 @@ for _, book in ipairs(Manifest.loadManga()) do
             challenging = challenging,
             target_f1 = experimental and 0.50 or challenging and 0.90 or 0.95,
             minimum_f1 = experimental and 0 or challenging and 0.85 or 0.90,
-            gate_95 = book.book_title == "Komi_Can't_Communicate_Vol_1" or book.book_title == "Scott_Pilgrim_Vol_5",
+            gate_95 = book.book_title == "Komi_Can't_Communicate_Vol_1"
+                or book.book_title == "Scott_Pilgrim_Vol_5"
+                or book.book_title == "Don't_Bully_Me_Nagatoro_Vol_1",
         }
     end
 end
