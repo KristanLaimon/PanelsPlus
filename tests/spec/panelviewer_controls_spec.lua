@@ -7,7 +7,7 @@ local Screen = require("device").screen
 
 -- Model KOReader's child-first event propagation, including the second dispatch
 -- of named events after GestureRange matching (generic Tap skips that matching).
-local function withRail(width, height, callback)
+local function withRail(width, height, callback, horizontal)
     local saved = {}
     local Widget = {}
     function Widget:extend(value)
@@ -54,6 +54,7 @@ local function withRail(width, height, callback)
         ["ui/widget/container/inputcontainer"] = Widget,
         ["ui/widget/container/centercontainer"] = Widget,
         ["ui/widget/verticalgroup"] = Widget,
+        ["ui/widget/horizontalgroup"] = Widget,
         ["ui/widget/iconwidget"] = Widget,
         ["ui/widget/textwidget"] = Widget,
         ["ui/gesturerange"] = Widget,
@@ -77,7 +78,7 @@ local function withRail(width, height, callback)
                 end,
             }
         end
-        local rail = Toolbar.build(Toolbar.controls(actions), width, height)
+        local rail = Toolbar.build(Toolbar.controls(actions), width, height, horizontal)
         for index, tile in ipairs(rail) do
             tile.dimen.x = 600 - width
             tile.dimen.y = (index - 1) * tile.height
@@ -134,6 +135,20 @@ describe("Panel viewer compact controls", function()
                 assert.is_true(content[1].height + content[2]:getSize().h <= tile.height)
             end
         end)
+    end)
+
+    it("fits five borderless actions in one compact portrait row", function()
+        for _, width in ipairs({ 600, 240 }) do
+            withRail(width, 64, function(rail)
+                local row_width = 0
+                for index, tile in ipairs(rail) do
+                    assert.equals(Toolbar.order[index], tile.control.id)
+                    assert.equals(64, tile.height)
+                    row_width = row_width + tile.width
+                end
+                assert.is_true(row_width <= width)
+            end, true)
+        end
     end)
 
     it("places settings in two rows of three and Close across the bottom", function()
@@ -226,6 +241,7 @@ describe("Panel viewer compact controls", function()
         end
         local viewer = PanelViewer:new({
             width = 600,
+            height = 400,
             img_container_h = 420,
             buttons_visible = true,
             crop_mode = "margin",
@@ -250,6 +266,44 @@ describe("Panel viewer compact controls", function()
         assert.equals(180, visible_image.rotation_angle)
         assert.equals(600, hidden_container.dimen.w)
         assert.near(600 * 0.8, hidden_image.width, 0.001)
+        assert.is_nil(viewer.quick_rail)
+    end)
+
+    it("places the portrait icon row below the full-width panel and removes it when hidden", function()
+        local old_new, old_build, old_scale = ImageViewer._new_image_wg, Toolbar.build, Screen.scaleBySize
+        local old_group = package.loaded["ui/widget/verticalgroup"]
+        package.loaded["ui/widget/verticalgroup"] = {
+            new = function(_, value)
+                return value
+            end,
+        }
+        Screen.scaleBySize = function(_, value)
+            return value
+        end
+        Toolbar.build = function(_, width, height, horizontal)
+            return { width = width, height = height, horizontal = horizontal }
+        end
+        ImageViewer._new_image_wg = function(self)
+            self._image_wg = { width = self.width, height = self.img_container_h }
+            self.image_container = { dimen = { w = self.width, h = self.img_container_h } }
+        end
+        local viewer = PanelViewer:new({ width = 600, height = 800, img_container_h = 500, buttons_visible = true })
+        viewer:replaceButtonTable()
+        viewer:_new_image_wg()
+        local visible, rail = viewer.image_container, viewer.quick_rail
+        viewer.buttons_visible = false
+        viewer:_new_image_wg()
+        ImageViewer._new_image_wg, Toolbar.build, Screen.scaleBySize = old_new, old_build, old_scale
+        package.loaded["ui/widget/verticalgroup"] = old_group
+        assert.equals(600, visible[1].dimen.w)
+        assert.equals(436, visible[1].dimen.h)
+        assert.equals(600, visible[2].dimen.w)
+        assert.equals(64, visible[2].dimen.h)
+        assert.is_true(rail.horizontal)
+        assert.equals(rail, visible[2][1])
+        assert.equals(600, viewer.image_container.dimen.w)
+        assert.equals(500, viewer.image_container.dimen.h)
+        assert.equals(500, viewer.img_container_h)
         assert.is_nil(viewer.quick_rail)
     end)
 end)

@@ -2562,13 +2562,22 @@ end
 function PanelViewer:_new_image_wg()
     QuickToolbar.free(self.quick_controls)
     local viewer_width = self.width
+    local viewer_container_h = self.img_container_h
+    local portrait = viewer_width <= (self.height or Screen:getHeight())
+    local row_height = self.buttons_visible
+            and self.quick_controls
+            and portrait
+            and math.min(Screen:scaleBySize(64), math.max(1, viewer_container_h - 1))
+        or 0
     local rail_width = self.buttons_visible
             and self.quick_controls
+            and not portrait
             and QuickToolbar.width(viewer_width, function(value)
                 return Screen:scaleBySize(value)
             end)
         or 0
     self.width = viewer_width - rail_width
+    self.img_container_h = viewer_container_h - row_height
     local factor = self:getMarginShrinkFactor()
     if not factor then
         ImageViewer._new_image_wg(self)
@@ -2583,6 +2592,7 @@ function PanelViewer:_new_image_wg()
         self.image_container.dimen.h = orig_container_h
     end
     self.width = viewer_width
+    self.img_container_h = viewer_container_h
 
     -- Base ImageViewer only ever treats `self.rotated` as a boolean, picking
     -- 90 or 270 itself via a screen-orientation heuristic and never producing
@@ -2593,7 +2603,15 @@ function PanelViewer:_new_image_wg()
     if type(self.rotated) == "number" then
         self._image_wg.rotation_angle = self.rotated
     end
-    if rail_width > 0 then
+    if row_height > 0 then
+        local VerticalGroup = require("ui/widget/verticalgroup")
+        self.quick_rail = QuickToolbar.build(self.quick_controls, viewer_width, row_height, true)
+        self.image_container = VerticalGroup:new({
+            align = "center",
+            self.image_container,
+            CenterContainer:new({ dimen = Geom:new({ w = viewer_width, h = row_height }), self.quick_rail }),
+        })
+    elseif rail_width > 0 then
         local HorizontalGroup = require("ui/widget/horizontalgroup")
         self.quick_rail = QuickToolbar.build(self.quick_controls, rail_width, self.img_container_h)
         self.image_container = HorizontalGroup:new({

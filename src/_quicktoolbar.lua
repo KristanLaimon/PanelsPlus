@@ -56,7 +56,7 @@ function Toolbar.free(controls)
     end
 end
 
-function Toolbar.build(controls, width, height)
+function Toolbar.build(controls, width, height, horizontal)
     local InputContainer = require("ui/widget/container/inputcontainer")
     local CenterContainer = require("ui/widget/container/centercontainer")
     local Geom = require("ui/geometry")
@@ -88,15 +88,20 @@ function Toolbar.build(controls, width, height)
     function Tile:onQuickActionHoldRelease()
         return true
     end
-    local item_height = math.max(1, math.min(Screen:scaleBySize(64), math.floor(height / #Toolbar.order)))
-    local rail = VerticalGroup:new({ align = "center", allow_mirroring = false })
+    local item_height =
+        math.max(1, math.min(Screen:scaleBySize(64), horizontal and height or math.floor(height / #Toolbar.order)))
+    local item_width = horizontal and math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / #Toolbar.order)))
+        or width
+    local Group = horizontal and require("ui/widget/horizontalgroup") or VerticalGroup
+    local rail = Group:new({ align = "center", allow_mirroring = false })
     for _, id in ipairs(Toolbar.order) do
         local control = controls[id]
-        control.width = width
-        local caption = TextWidget:new({ text = control.text, face = Font:getFace("cfont", 11), max_width = width - 4 })
+        control.width = item_width
+        local caption =
+            TextWidget:new({ text = control.text, face = Font:getFace("cfont", 11), max_width = item_width - 4 })
         local icon_size = math.max(
             1,
-            math.min(Screen:scaleBySize(40), width - Screen:scaleBySize(12), item_height - caption:getSize().h)
+            math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12), item_height - caption:getSize().h)
         )
         local content = VerticalGroup:new({
             align = "center",
@@ -104,10 +109,10 @@ function Toolbar.build(controls, width, height)
             caption,
         })
         local tile = Tile:new({
-            width = width,
+            width = item_width,
             height = item_height,
             control = control,
-            CenterContainer:new({ dimen = Geom:new({ w = width, h = item_height }), content }),
+            CenterContainer:new({ dimen = Geom:new({ w = item_width, h = item_height }), content }),
         })
         control.widget = tile
         rail[#rail + 1] = tile
