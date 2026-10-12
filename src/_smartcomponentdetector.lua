@@ -774,9 +774,19 @@ function ComponentDetector.detectPage(map, settings)
                     local union = a.w * a.h + b.w * b.h - inter
                     local min_area = math.min(a.w * a.h, b.w * b.h)
                     if union > 0 and inter / union >= 0.50 then
+                        local a_area, b_area = a.w * a.h, b.w * b.h
+                        -- Equally framed overlapping candidates can originate
+                        -- from unordered component groups. Prefer the wider
+                        -- evidence, then a stable geometric tie-break, so Lua
+                        -- and LuaJIT retain the same crop.
+                        local prefer_b = b_area > a_area
+                            or (b_area == a_area and (b.y < a.y or (b.y == a.y and b.x < a.x)))
                         if
                             (b.frame_sides or 0) > (a.frame_sides or 0)
-                            or ((b.frame_sides or 0) == (a.frame_sides or 0) and j < i)
+                            or (
+                                (b.frame_sides or 0) == (a.frame_sides or 0)
+                                and (prefer_b or (b_area == a_area and b.y == a.y and b.x == a.x and j < i))
+                            )
                         then
                             drop = true
                             break

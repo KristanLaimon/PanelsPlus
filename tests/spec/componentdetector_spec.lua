@@ -41,6 +41,30 @@ local function frame(map, x, y, w, h, slope)
 end
 
 describe("Experimental component detector", function()
+    it("retains the larger equally framed overlap regardless of component iteration order", function()
+        local Segmenter = require("src._segmenter")
+        local old_segment, old_accept = Detector.segment, Segmenter.accept
+        local larger = { x = 0, y = 0, w = 400, h = 600, frame_sides = 3 }
+        local smaller = { x = 0, y = 200, w = 400, h = 400, frame_sides = 3 }
+        local separate = { x = 500, y = 0, w = 400, h = 600, frame_sides = 3 }
+        Segmenter.accept = function()
+            return true
+        end
+        local results = {}
+        for _, candidates in ipairs({ { smaller, larger, separate }, { larger, smaller, separate } }) do
+            Detector.segment = function()
+                return candidates
+            end
+            results[#results + 1] = Detector.detectPage({ native_w = 1000, native_h = 800 }, { mode = "comic" })
+        end
+        Detector.segment, Segmenter.accept = old_segment, old_accept
+        for _, panels in ipairs(results) do
+            assert.equals(2, #panels)
+            assert.equals(larger, panels[1])
+            assert.equals(separate, panels[2])
+        end
+    end)
+
     it("preserves thin frames around empty artwork", function()
         local map = page()
         frame(map, 20, 20, 440, 600)
