@@ -43,6 +43,23 @@ SPDX-License-Identifier: MIT
 
 --- @alias PPPanelFindingMode '"safe"'|'"smart"'
 
+--- @class PPSettingsProfile
+--- @field id string Stable profile identifier.
+--- @field name string Unique display name.
+--- @field values PPProfileValues
+
+--- @class PPProfileValues
+--- @field rotation PPProfileRotation
+--- @field mode PPReadingMode
+--- @field progress_bar_visible boolean
+--- @field ocr_bundled_language string
+--- @field nav_transition_mode PPNavTransitionMode Applied to fixed pages and embedded images.
+--- @field crop_mode PPCropMode
+
+--- @class PPProfileRotation
+--- @field kind '"device"'|'"image"'
+--- @field value integer|boolean|nil Device quarter turns (0–3), image degrees (90/180/270), false (no image rotation), nil (Auto).
+
 --- Direction reported when the viewer crosses the first or last panel.
 --- @alias PPBoundaryDirection '"next"'|'"previous"'
 
@@ -75,6 +92,11 @@ SPDX-License-Identifier: MIT
 
 --- Persisted plugin settings.
 --- @class PPSettings
+--- @field profiles PPSettingsProfile[] Global user-editable profiles.
+--- @field profiles_initialized boolean Whether the bundled profile has been seeded.
+--- @field profile_next_id integer|nil Next user profile identifier.
+--- @field selected_profile_id string|nil Applied profile; nil means None.
+--- @field profile_rotation PPProfileRotation|nil Rotation snapshot for document persistence.
 --- @field enabled boolean
 --- @field mode PPReadingMode
 --- @field crop_mode PPCropMode

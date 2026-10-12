@@ -3,6 +3,141 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "None"
+msgstr "None"
+
+msgid "The profile's OCR model is unavailable. The available fallback is in use; profile selection is None."
+msgstr "The profile's OCR model is unavailable. The available fallback is in use; profile selection is None."
+
+msgid "Rename profile"
+msgstr "Rename profile"
+
+msgid "Create profile from current settings"
+msgstr "Create profile from current settings"
+
+msgid "Cancel"
+msgstr "Cancel"
+
+msgid "In use"
+msgstr "In use"
+
+msgid "Create from current settings..."
+msgstr "Create from current settings..."
+
+msgid "Manage profiles..."
+msgstr "Manage profiles..."
+
+msgid "Settings Profiles"
+msgstr "Settings Profiles"
+
+msgid "Back"
+msgstr "Back"
+
+msgid "Manage Profiles"
+msgstr "Manage Profiles"
+
+msgid "Manga"
+msgstr "Manga"
+
+msgid "Comic"
+msgstr "Comic"
+
+msgid "Shown"
+msgstr "Shown"
+
+msgid "Hidden"
+msgstr "Hidden"
+
+msgid "Classic"
+msgstr "Classic"
+
+msgid "Smooth"
+msgstr "Smooth"
+
+msgid "Animated"
+msgstr "Animated"
+
+msgid "Portrait"
+msgstr "Portrait"
+
+msgid "Landscape right"
+msgstr "Landscape right"
+
+msgid "Inverted portrait"
+msgstr "Inverted portrait"
+
+msgid "Landscape left"
+msgstr "Landscape left"
+
+msgid "Device"
+msgstr "Device"
+
+msgid "Image"
+msgstr "Image"
+
+msgid "English"
+msgstr "English"
+
+msgid "Spanish"
+msgstr "Spanish"
+
+msgid "Apply"
+msgstr "Apply"
+
+msgid "Edit settings..."
+msgstr "Edit settings..."
+
+msgid "Rename..."
+msgstr "Rename..."
+
+msgid "Replace with current settings..."
+msgstr "Replace with current settings..."
+
+msgid "Replace this profile with the current reading settings?"
+msgstr "Replace this profile with the current reading settings?"
+
+msgid "Delete..."
+msgstr "Delete..."
+
+msgid "Delete profile?"
+msgstr "Delete profile?"
+
+msgid "Edit profile"
+msgstr "Edit profile"
+
+msgid "Profile setting"
+msgstr "Profile setting"
+
+msgid "Choose a non-empty name other than None."
+msgstr "Choose a non-empty name other than None."
+
+msgid "A profile with this name already exists."
+msgstr "A profile with this name already exists."
+
+msgid "Reading order"
+msgstr "Reading order"
+
+msgid "Progress"
+msgstr "Progress"
+
+msgid "OCR"
+msgstr "OCR"
+
+msgid "Crop"
+msgstr "Crop"
+
+msgid "Settings Profile:"
+msgstr "Settings Profile:"
+
+msgid "Panels Finding: Safe"
+msgstr "Panels Finding: Safe"
+
+msgid "Panels Finding: Smart"
+msgstr "Panels Finding: Smart"
+
+msgid "Recommended"
+msgstr "Recommended"
+
 msgid " (fps)"
 msgstr " (fps)"
 
@@ -392,9 +527,3 @@ msgstr "KOReader"
 
 msgid "Spread direction (Actual: "
 msgstr "Spread direction (Actual: "
-
-msgid "Panels Finding: Safe"
-msgstr "Panels Finding: Safe"
-
-msgid "Panels Finding: Smart"
-msgstr "Panels Finding: Smart"

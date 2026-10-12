@@ -251,6 +251,9 @@ function RotationPickerDialog:init()
         width = outer_w - 2 * Size.padding.large,
         callback = function()
             UIManager:close(self, "full")
+            if self.on_close then
+                self.on_close()
+            end
         end,
     })
 

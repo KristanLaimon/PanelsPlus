@@ -319,6 +319,12 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         embedded_source_image = image,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        profile_name_callback = function()
+            return require("src.profile_menu").getSettingsProfileName(self)
+        end,
+        settings_profile_callback = function(current_viewer)
+            return self:showSettingsProfileMenu(current_viewer)
+        end,
         panel_finding_mode = self.settings.panel_finding_mode,
         margin_ratio = self.settings.panel_margin_ratio,
         bleed_ratio = self.settings.panel_bleed_ratio,

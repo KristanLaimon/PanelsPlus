@@ -3,6 +3,135 @@ msgstr ""
 "Project-Id-Version: mangacomicsmoother\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 
+msgid "None"
+msgstr "Ninguno"
+
+msgid "The profile's OCR model is unavailable. The available fallback is in use; profile selection is None."
+msgstr "El modelo OCR del perfil no está disponible. Se usa el modelo alternativo disponible; el perfil seleccionado es Ninguno."
+
+msgid "Rename profile"
+msgstr "Renombrar perfil"
+
+msgid "Create profile from current settings"
+msgstr "Crear perfil con los ajustes actuales"
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "In use"
+msgstr "En uso"
+
+msgid "Create from current settings..."
+msgstr "Crear con los ajustes actuales..."
+
+msgid "Manage profiles..."
+msgstr "Gestionar perfiles..."
+
+msgid "Settings Profiles"
+msgstr "Perfiles de ajustes"
+
+msgid "Back"
+msgstr "Atrás"
+
+msgid "Manage Profiles"
+msgstr "Gestionar perfiles"
+
+msgid "Manga"
+msgstr "Manga"
+
+msgid "Comic"
+msgstr "Cómic"
+
+msgid "Shown"
+msgstr "Visible"
+
+msgid "Hidden"
+msgstr "Oculto"
+
+msgid "Classic"
+msgstr "Clásica"
+
+msgid "Smooth"
+msgstr "Suave"
+
+msgid "Animated"
+msgstr "Animada"
+
+msgid "Portrait"
+msgstr "Vertical"
+
+msgid "Landscape right"
+msgstr "Horizontal a la derecha"
+
+msgid "Inverted portrait"
+msgstr "Vertical invertida"
+
+msgid "Landscape left"
+msgstr "Horizontal a la izquierda"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Image"
+msgstr "Imagen"
+
+msgid "English"
+msgstr "Inglés"
+
+msgid "Spanish"
+msgstr "Español"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Edit settings..."
+msgstr "Editar ajustes..."
+
+msgid "Rename..."
+msgstr "Renombrar..."
+
+msgid "Replace with current settings..."
+msgstr "Reemplazar con los ajustes actuales..."
+
+msgid "Replace this profile with the current reading settings?"
+msgstr "¿Reemplazar este perfil con los ajustes de lectura actuales?"
+
+msgid "Delete..."
+msgstr "Eliminar..."
+
+msgid "Delete profile?"
+msgstr "¿Eliminar perfil?"
+
+msgid "Edit profile"
+msgstr "Editar perfil"
+
+msgid "Profile setting"
+msgstr "Ajuste del perfil"
+
+msgid "Choose a non-empty name other than None."
+msgstr "Elige un nombre no vacío distinto de Ninguno."
+
+msgid "A profile with this name already exists."
+msgstr "Ya existe un perfil con este nombre."
+
+msgid "Reading order"
+msgstr "Orden de lectura"
+
+msgid "Progress"
+msgstr "Progreso"
+
+msgid "OCR"
+msgstr "OCR"
+
+msgid "Crop"
+msgstr "Recorte"
+
+msgid "Settings Profile:"
+msgstr "Perfil de ajustes:"
+
+msgid "Recommended"
+msgstr "Recomendado"
+
 msgid "Panels Finding: Safe"
 msgstr "Detección de viñetas: Segura"
 

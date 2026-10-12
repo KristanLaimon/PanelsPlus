@@ -166,6 +166,7 @@ function Settings.withDefaults(settings)
             document.panel_finding_mode = Settings.normalizePanelFindingMode(document.panel_finding_mode)
         end
     end
+    require("src.profiles").initialize(settings)
     return settings
 end
 

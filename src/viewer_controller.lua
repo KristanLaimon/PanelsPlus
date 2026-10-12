@@ -259,6 +259,14 @@ end
 --- @param mode integer Target `Screen.DEVICE_ROTATED_*` rotation mode.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:setDeviceRotation(viewer, mode)
+    if self.settings.selected_profile_id then
+        self.settings.selected_profile_id = nil
+        self:saveSettings()
+        self:saveDocSettings(true)
+    end
+    if viewer.embedded_source_image then
+        return require("src.embedded_image").setDeviceRotation(self, viewer, mode)
+    end
     local page = viewer.page
     local panels = viewer.panels
     local start_idx = viewer._images_list_cur or 1
@@ -1081,6 +1089,12 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
+        profile_name_callback = function()
+            return require("src.profile_menu").getSettingsProfileName(self)
+        end,
+        settings_profile_callback = function(current_viewer)
+            return self:showSettingsProfileMenu(current_viewer)
+        end,
         panel_finding_mode = self.settings.panel_finding_mode,
         margin_ratio = self.settings.panel_margin_ratio,
         bleed_ratio = self.settings.panel_bleed_ratio,

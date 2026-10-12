@@ -33,6 +33,8 @@ local NativePanelZoom = require("src.native_panel_zoom")
 local PanelViewer = require("src._panelviewer")
 local ReadingPageFold = require("src.reading_page_fold")
 local Settings = require("src._settings")
+local Profiles = require("src.profiles")
+local ProfileMenu = require("src.profile_menu")
 local SpreadRotation = require("src.spread_rotation")
 local Timing = require("src._timing")
 local ViewerController = require("src.viewer_controller")
@@ -76,6 +78,7 @@ include(PanelsPlus, Menu)
 include(PanelsPlus, NativePanelZoom)
 include(PanelsPlus, SpreadRotation)
 include(PanelsPlus, ReadingPageFold)
+include(PanelsPlus, ProfileMenu)
 
 --- Initialize settings, panel cache state, menu registration, actions, and hook.
 function PanelsPlus:init()
@@ -135,7 +138,11 @@ end
 --- Save current per-document reading and OCR settings.
 ---
 --- @param force boolean|nil Save even if the document hasn't had explicit per-document settings set yet.
-function PanelsPlus:saveDocSettings(force)
+--- @param skip_global_save boolean|nil Caller will persist the combined settings once.
+function PanelsPlus:saveDocSettings(force, skip_global_save)
+    if self._applying_profile then
+        return
+    end
     if self.settings.remember_doc_settings == false then
         return
     end
@@ -152,6 +159,11 @@ function PanelsPlus:saveDocSettings(force)
         ocr_bundled_language = self.settings.ocr_bundled_language,
         ocr_preferred_bundled_language = self.settings.ocr_preferred_bundled_language,
         ocr_preferred_user_language = self.settings.ocr_preferred_user_language,
+        selected_profile_id = self.settings.selected_profile_id,
+        image_rotation = self.settings.image_rotation,
+        profile_rotation = self.settings.profile_rotation,
+        embedded_nav_transition_mode = self.settings.embedded_nav_transition_mode,
+        profile_settings_version = 1,
     }
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
         self.ui.doc_settings:saveSetting("panelsplus", doc_data)
@@ -160,7 +172,9 @@ function PanelsPlus:saveDocSettings(force)
     if doc_key then
         self.settings.doc_settings = self.settings.doc_settings or {}
         self.settings.doc_settings[doc_key] = doc_data
-        self:saveSettings()
+        if not skip_global_save then
+            self:saveSettings()
+        end
     end
     self.doc_has_custom_settings = true
 end
@@ -208,7 +222,19 @@ function PanelsPlus:loadDocSettings()
         if type(user_preference) == "string" and user_preference:match("^user:[%w_%-]+$") then
             self.settings.ocr_preferred_user_language = user_preference
         end
+        if doc_data.profile_settings_version == 1 then
+            self.settings.image_rotation = doc_data.image_rotation
+            self.settings.profile_rotation = doc_data.profile_rotation
+        end
+        if doc_data.embedded_nav_transition_mode ~= nil then
+            local mode = doc_data.embedded_nav_transition_mode
+            self.settings.embedded_nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
+        end
+        self.settings.selected_profile_id = doc_data.selected_profile_id
+    else
+        self.settings.selected_profile_id = nil
     end
+    Profiles.invalidate(self.settings)
 end
 
 --- Toggle whether per-document reading and OCR settings are remembered.
@@ -224,6 +250,10 @@ end
 
 --- Persist current plugin settings to KOReader reader settings.
 function PanelsPlus:saveSettings()
+    if self._applying_profile then
+        return
+    end
+    Profiles.invalidate(self.settings)
     Settings.save(self.settings)
 end
 
@@ -309,6 +339,7 @@ end
 function PanelsPlus:setImageRotation(angle)
     self.settings.image_rotation = angle
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Enable or disable automatic image-only rotation for full-page spreads.
@@ -505,6 +536,7 @@ function PanelsPlus:setEmbeddedNavTransitionMode(mode)
     self.settings.embedded_nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
     Timing.log("embedded navigation transition -> " .. self.settings.embedded_nav_transition_mode)
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Enable or disable splitting comic panels on their drawn border strokes.

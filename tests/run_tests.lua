@@ -24,6 +24,7 @@ require("tests.spec.helper")
 
 local spec_modules = {
     "tests.spec.doc_settings_spec",
+    "tests.spec.profiles_spec",
     "tests.spec.doublespread_spec",
     "tests.spec.spread_rotation_spec",
     "tests.spec.foldjoin_spec",

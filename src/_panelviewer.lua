@@ -3055,6 +3055,17 @@ function PanelViewer:replaceButtonTable()
                 end,
             },
             {
+                id = "settings_profile",
+                text = _("Settings Profile:")
+                    .. " "
+                    .. (self.profile_name_callback and self.profile_name_callback() or _("None")),
+                callback = function()
+                    if self.settings_profile_callback then
+                        self.settings_profile_callback(self)
+                    end
+                end,
+            },
+            {
                 id = "panel_finding",
                 text = self:getPanelFindingModeText(),
                 callback = function()
