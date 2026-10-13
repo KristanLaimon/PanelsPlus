@@ -11,18 +11,20 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 2,
       "frame": [
         {
-          "x": 0,
+          "x": 42,
           "y": 0,
-          "w": 1264,
+          "w": 1179,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 3,
@@ -33,7 +35,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 4,
@@ -67,7 +70,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 6,
@@ -398,7 +402,8 @@
           "w": 564,
           "h": 421
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 17,
@@ -409,7 +414,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 18,
@@ -450,12 +456,13 @@
       "page_index": 19,
       "frame": [
         {
-          "x": 0,
+          "x": 70,
           "y": 0,
-          "w": 1264,
+          "w": 1123,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 20,
@@ -822,7 +829,8 @@
           "w": 561,
           "h": 419
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 31,
@@ -833,7 +841,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 32,
@@ -844,7 +853,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 33,
@@ -934,7 +944,7 @@
         {
           "x": 559,
           "y": 0,
-          "w": 559,
+          "w": 610,
           "h": 852
         },
         {
@@ -1264,6 +1274,12 @@
           "y": 935,
           "w": 755,
           "h": 666
+        },
+        {
+          "x": 456,
+          "y": 1640,
+          "w": 356,
+          "h": 40
         }
       ]
     },
@@ -1276,7 +1292,8 @@
           "w": 557,
           "h": 414
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 45,
@@ -1287,7 +1304,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 46,
@@ -1333,7 +1351,8 @@
           "w": 1120,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 48,
@@ -1702,7 +1721,8 @@
           "w": 558,
           "h": 421
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 57,
@@ -1713,7 +1733,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 58,
@@ -1754,12 +1775,13 @@
       "page_index": 59,
       "frame": [
         {
-          "x": 0,
+          "x": 14,
           "y": 0,
-          "w": 1264,
+          "w": 1239,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 60,
@@ -2114,7 +2136,8 @@
           "w": 559,
           "h": 424
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 71,
@@ -2125,7 +2148,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 72,
@@ -2159,7 +2183,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 74,
@@ -2387,7 +2412,8 @@
           "w": 1198,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 80,
@@ -2484,7 +2510,13 @@
           "x": 134,
           "y": 913,
           "w": 998,
-          "h": 767
+          "h": 694
+        },
+        {
+          "x": 469,
+          "y": 1640,
+          "w": 322,
+          "h": 40
         }
       ]
     },
@@ -2497,7 +2529,8 @@
           "w": 556,
           "h": 419
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 84,
@@ -2508,7 +2541,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 85,
@@ -2548,7 +2582,8 @@
           "w": 1124,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 87,
@@ -2903,6 +2938,12 @@
           "y": 762,
           "w": 338,
           "h": 840
+        },
+        {
+          "x": 459,
+          "y": 1638,
+          "w": 344,
+          "h": 42
         }
       ]
     },
@@ -2915,7 +2956,8 @@
           "w": 555,
           "h": 415
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 98,
@@ -2926,7 +2968,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 99,
@@ -2973,12 +3016,13 @@
       "page_index": 100,
       "frame": [
         {
-          "x": 0,
+          "x": 55,
           "y": 0,
-          "w": 1264,
+          "w": 1153,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 101,
@@ -3332,7 +3376,13 @@
           "x": 122,
           "y": 958,
           "w": 998,
-          "h": 722
+          "h": 649
+        },
+        {
+          "x": 455,
+          "y": 1642,
+          "w": 329,
+          "h": 38
         }
       ]
     },
@@ -3345,7 +3395,8 @@
           "w": 554,
           "h": 423
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 112,
@@ -3356,7 +3407,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 113,
@@ -3384,7 +3436,8 @@
           "w": 1126,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 115,
@@ -3569,10 +3622,16 @@
           "h": 342
         },
         {
-          "x": 134,
-          "y": 874,
-          "w": 1079,
-          "h": 806
+          "x": 398,
+          "y": 885,
+          "w": 813,
+          "h": 791
+        },
+        {
+          "x": 132,
+          "y": 931,
+          "w": 289,
+          "h": 747
         }
       ]
     },
@@ -3598,10 +3657,22 @@
           "h": 401
         },
         {
-          "x": 25,
+          "x": 258,
           "y": 888,
-          "w": 1212,
-          "h": 792
+          "w": 975,
+          "h": 383
+        },
+        {
+          "x": 26,
+          "y": 882,
+          "w": 252,
+          "h": 385
+        },
+        {
+          "x": 25,
+          "y": 1271,
+          "w": 1208,
+          "h": 403
         }
       ]
     },
@@ -3643,7 +3714,8 @@
           "w": 547,
           "h": 416
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 126,
@@ -3654,7 +3726,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 127,
@@ -4131,7 +4204,13 @@
           "x": 97,
           "y": 917,
           "w": 1071,
-          "h": 763
+          "h": 686
+        },
+        {
+          "x": 452,
+          "y": 1639,
+          "w": 349,
+          "h": 41
         }
       ]
     },
@@ -4215,23 +4294,25 @@
       "page_index": 142,
       "frame": [
         {
-          "x": 0,
+          "x": 44,
           "y": 0,
-          "w": 1264,
+          "w": 1174,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 143,
       "frame": [
         {
-          "x": 0,
+          "x": 68,
           "y": 0,
-          "w": 1264,
+          "w": 1128,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     }
   ]
 }

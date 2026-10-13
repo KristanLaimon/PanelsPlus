@@ -3,7 +3,14 @@
   "type": "manga",
   "total_pages": 143,
   "finished": true,
-  "current_page": 66,
-  "last_opened": "2026-10-12T03:07:57.678387",
-  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Mangas/Kobayashi chi no maid dragon/Miss Kobayashi's Dragon Maid Vol. 2 - Coolkyousinnjya.cbz"
+  "current_page": 143,
+  "last_opened": "2026-10-13T22:14:03.043936",
+  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Mangas/Kobayashi chi no maid dragon/Miss Kobayashi's Dragon Maid Vol. 2 - Coolkyousinnjya.cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
 }

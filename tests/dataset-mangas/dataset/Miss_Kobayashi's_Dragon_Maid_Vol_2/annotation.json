@@ -1,6 +1,7 @@
 [
   {
     "book_title": "Miss_Kobayashi's_Dragon_Maid_Vol_2",
+    "annotation_schema_version": 2,
     "pages": [
       {
         "page_index": 1,
@@ -12,6 +13,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/00.png"
         }
@@ -20,12 +22,13 @@
         "page_index": 2,
         "frame": [
           {
-            "x": 0,
+            "x": 42,
             "y": 0,
-            "w": 1264,
+            "w": 1179,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/01.png"
         }
@@ -40,6 +43,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/02.png"
         }
@@ -80,6 +84,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/04.png"
         }
@@ -444,6 +449,7 @@
             "h": 421
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/15.png"
         }
@@ -458,6 +464,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/16.png"
         }
@@ -504,12 +511,13 @@
         "page_index": 19,
         "frame": [
           {
-            "x": 0,
+            "x": 70,
             "y": 0,
-            "w": 1264,
+            "w": 1123,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/18.png"
         }
@@ -910,6 +918,7 @@
             "h": 419
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/29.png"
         }
@@ -924,6 +933,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/30.png"
         }
@@ -938,6 +948,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/31.png"
         }
@@ -1036,7 +1047,7 @@
           {
             "x": 559,
             "y": 0,
-            "w": 559,
+            "w": 610,
             "h": 852
           },
           {
@@ -1390,6 +1401,12 @@
             "y": 935,
             "w": 755,
             "h": 666
+          },
+          {
+            "x": 456,
+            "y": 1640,
+            "w": 356,
+            "h": 40
           }
         ],
         "image_paths": {
@@ -1406,6 +1423,7 @@
             "h": 414
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/43.png"
         }
@@ -1420,6 +1438,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/44.png"
         }
@@ -1472,6 +1491,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/46.png"
         }
@@ -1868,6 +1888,7 @@
             "h": 421
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/55.png"
         }
@@ -1882,6 +1903,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/56.png"
         }
@@ -1928,12 +1950,13 @@
         "page_index": 59,
         "frame": [
           {
-            "x": 0,
+            "x": 14,
             "y": 0,
-            "w": 1264,
+            "w": 1239,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/58.png"
         }
@@ -2322,6 +2345,7 @@
             "h": 424
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/69.png"
         }
@@ -2336,6 +2360,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/70.png"
         }
@@ -2376,6 +2401,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/72.png"
         }
@@ -2622,6 +2648,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/78.png"
         }
@@ -2727,7 +2754,13 @@
             "x": 134,
             "y": 913,
             "w": 998,
-            "h": 767
+            "h": 694
+          },
+          {
+            "x": 469,
+            "y": 1640,
+            "w": 322,
+            "h": 40
           }
         ],
         "image_paths": {
@@ -2744,6 +2777,7 @@
             "h": 419
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/82.png"
         }
@@ -2758,6 +2792,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/83.png"
         }
@@ -2804,6 +2839,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/85.png"
         }
@@ -3188,6 +3224,12 @@
             "y": 762,
             "w": 338,
             "h": 840
+          },
+          {
+            "x": 459,
+            "y": 1638,
+            "w": 344,
+            "h": 42
           }
         ],
         "image_paths": {
@@ -3204,6 +3246,7 @@
             "h": 415
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/96.png"
         }
@@ -3218,6 +3261,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/97.png"
         }
@@ -3270,12 +3314,13 @@
         "page_index": 100,
         "frame": [
           {
-            "x": 0,
+            "x": 55,
             "y": 0,
-            "w": 1264,
+            "w": 1153,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/99.png"
         }
@@ -3659,7 +3704,13 @@
             "x": 122,
             "y": 958,
             "w": 998,
-            "h": 722
+            "h": 649
+          },
+          {
+            "x": 455,
+            "y": 1642,
+            "w": 329,
+            "h": 38
           }
         ],
         "image_paths": {
@@ -3676,6 +3727,7 @@
             "h": 423
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/110.png"
         }
@@ -3690,6 +3742,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/111.png"
         }
@@ -3724,6 +3777,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/113.png"
         }
@@ -3932,10 +3986,16 @@
             "h": 342
           },
           {
-            "x": 134,
-            "y": 874,
-            "w": 1079,
-            "h": 806
+            "x": 398,
+            "y": 885,
+            "w": 813,
+            "h": 791
+          },
+          {
+            "x": 132,
+            "y": 931,
+            "w": 289,
+            "h": 747
           }
         ],
         "image_paths": {
@@ -3964,10 +4024,22 @@
             "h": 401
           },
           {
-            "x": 25,
+            "x": 258,
             "y": 888,
-            "w": 1212,
-            "h": 792
+            "w": 975,
+            "h": 383
+          },
+          {
+            "x": 26,
+            "y": 882,
+            "w": 252,
+            "h": 385
+          },
+          {
+            "x": 25,
+            "y": 1271,
+            "w": 1208,
+            "h": 403
           }
         ],
         "image_paths": {
@@ -4016,6 +4088,7 @@
             "h": 416
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/124.png"
         }
@@ -4030,6 +4103,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/125.png"
         }
@@ -4545,7 +4619,13 @@
             "x": 97,
             "y": 917,
             "w": 1071,
-            "h": 763
+            "h": 686
+          },
+          {
+            "x": 452,
+            "y": 1639,
+            "w": 349,
+            "h": 41
           }
         ],
         "image_paths": {
@@ -4638,12 +4718,13 @@
         "page_index": 142,
         "frame": [
           {
-            "x": 0,
+            "x": 44,
             "y": 0,
-            "w": 1264,
+            "w": 1174,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/141.png"
         }
@@ -4652,12 +4733,13 @@
         "page_index": 143,
         "frame": [
           {
-            "x": 0,
+            "x": 68,
             "y": 0,
-            "w": 1264,
+            "w": 1128,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Miss_Kobayashi's_Dragon_Maid_Vol_2/142.png"
         }
