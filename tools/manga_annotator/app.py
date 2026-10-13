@@ -319,9 +319,27 @@ class BookRowCardWidget(QFrame):
         """)
         details_layout.addWidget(pbar_panels)
 
-        lbl_panels_info = QLabel(f"Panels: <b>{panels_pct}%</b> ({panels_ann} of {tot_cnt} pages annotated)")
+        lbl_panels_info = QLabel(f"Smart Panels: <b>{panels_pct}%</b> ({panels_ann} of {tot_cnt} pages annotated)")
         lbl_panels_info.setStyleSheet("color: #cccccc; font-size: 11px;")
         details_layout.addWidget(lbl_panels_info)
+
+        # Safe panel mapping progress is independent of Smart and the Finished badge.
+        safe_pct = book_info.get("safe_panels_progress_percent", 0)
+        safe_ann = book_info.get("safe_panels_annotated_pages", 0)
+        self.pbar_safe_panels = QProgressBar()
+        self.pbar_safe_panels.setRange(0, 100)
+        self.pbar_safe_panels.setValue(safe_pct)
+        self.pbar_safe_panels.setFixedHeight(10)
+        self.pbar_safe_panels.setTextVisible(False)
+        safe_color = "#4caf50" if safe_pct >= 100 and tot_cnt > 0 else "#ffb74d"
+        self.pbar_safe_panels.setStyleSheet(f"""
+            QProgressBar {{ background-color: #333333; border-radius: 4px; }}
+            QProgressBar::chunk {{ background-color: {safe_color}; border-radius: 4px; }}
+        """)
+        details_layout.addWidget(self.pbar_safe_panels)
+        self.lbl_safe_panels_info = QLabel(f"Safe Panels: <b>{safe_pct}%</b> ({safe_ann} of {tot_cnt} pages annotated)")
+        self.lbl_safe_panels_info.setStyleSheet("color: #cccccc; font-size: 11px;")
+        details_layout.addWidget(self.lbl_safe_panels_info)
 
         # OCR Progress bar
         ocr_pct = book_info.get("ocr_progress_percent", 0)
@@ -401,9 +419,9 @@ class BookMosaicCardWidget(QFrame):
         super().__init__(parent)
         self.book_title = book_info["book_title"]
         self.setFrameShape(QFrame.Shape.StyledPanel)
-        self.setMinimumWidth(210)
+        self.setMinimumWidth(230)
         self.setMaximumWidth(270)
-        self.setMinimumHeight(410)
+        self.setMinimumHeight(510)
         self.setStyleSheet("""
             BookMosaicCardWidget {
                 background-color: #252526;
@@ -423,7 +441,7 @@ class BookMosaicCardWidget(QFrame):
 
         # 1. Cover image
         self.lbl_cover = QLabel()
-        self.lbl_cover.setFixedSize(140, 180)
+        self.lbl_cover.setFixedSize(190, 250)
         self.lbl_cover.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.lbl_cover.setStyleSheet("""
             background-color: #1a1a1a;
@@ -437,7 +455,7 @@ class BookMosaicCardWidget(QFrame):
                 pix = QPixmap(cover_path)
                 if not pix.isNull():
                     scaled = pix.scaled(
-                        140, 180,
+                        190, 250,
                         Qt.AspectRatioMode.KeepAspectRatio,
                         Qt.TransformationMode.SmoothTransformation
                     )
@@ -509,10 +527,29 @@ class BookMosaicCardWidget(QFrame):
         """)
         layout.addWidget(pbar_panels)
 
-        lbl_panels_info = QLabel(f"Panels: <b>{panels_pct}%</b> ({panels_ann}/{tot_cnt})")
+        lbl_panels_info = QLabel(f"Smart Panels: <b>{panels_pct}%</b> ({panels_ann}/{tot_cnt})")
         lbl_panels_info.setStyleSheet("color: #cccccc; font-size: 10px;")
         lbl_panels_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
         layout.addWidget(lbl_panels_info)
+
+        # Safe panel mapping progress is independent of Smart and the Finished badge.
+        safe_pct = book_info.get("safe_panels_progress_percent", 0)
+        safe_ann = book_info.get("safe_panels_annotated_pages", 0)
+        self.pbar_safe_panels = QProgressBar()
+        self.pbar_safe_panels.setRange(0, 100)
+        self.pbar_safe_panels.setValue(safe_pct)
+        self.pbar_safe_panels.setFixedHeight(8)
+        self.pbar_safe_panels.setTextVisible(False)
+        safe_color = "#4caf50" if safe_pct >= 100 and tot_cnt > 0 else "#ffb74d"
+        self.pbar_safe_panels.setStyleSheet(f"""
+            QProgressBar {{ background-color: #333333; border-radius: 4px; }}
+            QProgressBar::chunk {{ background-color: {safe_color}; border-radius: 4px; }}
+        """)
+        layout.addWidget(self.pbar_safe_panels)
+        self.lbl_safe_panels_info = QLabel(f"Safe Panels: <b>{safe_pct}%</b> ({safe_ann}/{tot_cnt})")
+        self.lbl_safe_panels_info.setStyleSheet("color: #cccccc; font-size: 10px;")
+        self.lbl_safe_panels_info.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        layout.addWidget(self.lbl_safe_panels_info)
 
         # 5. OCR Progress Bar
         ocr_pct = book_info.get("ocr_progress_percent", 0)

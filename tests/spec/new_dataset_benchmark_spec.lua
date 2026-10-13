@@ -96,11 +96,6 @@ describe("Manga and comic full-volume production benchmarks", function()
                 end
                 local baseline_ok, baseline_reason = AlgorithmBenchmark.verify(baseline_data, algorithm, current)
                 assert.is_true(baseline_ok, baseline_reason)
-                if algorithm == "safe" then
-                    local ok, reason =
-                        BenchmarkTracker.checkAndUpdate(book.directory, "full_volume", current, true, algorithm)
-                    assert.is_true(ok, reason)
-                end
                 print(
                     string.format(
                         "%s [%s]: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%%, IoU %.4f",
@@ -113,19 +108,17 @@ describe("Manga and comic full-volume production benchmarks", function()
                         current.mean_iou
                     )
                 )
-                if algorithm == "safe" then
-                    return -- Safe is guarded only by its own baseline, never Smart's accuracy target.
-                end
                 local precision, recall, f1 = current.precision, current.recall, current.f1
                 local mean_iou = current.mean_iou
                 print(
                     string.format(
-                        "%s%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
+                        "%s [%s]%s: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%% (target %.0f%%), IoU %.4f",
                         expected.title,
+                        algorithm,
                         expected.experimental and " [experimental / hard]"
                             or expected.challenging and " [challenging]"
                             or "",
-                        expected.pages,
+                        current.pages_evaluated,
                         precision * 100,
                         recall * 100,
                         f1 * 100,
@@ -133,28 +126,14 @@ describe("Manga and comic full-volume production benchmarks", function()
                         mean_iou
                     )
                 )
-                if expected.experimental then
-                    return -- Report hard layouts without driving production tuning.
+                local target_ok, target_reason = AlgorithmBenchmark.verifyProductionTargets(expected, current)
+                assert.is_true(target_ok, algorithm .. ": " .. tostring(target_reason))
+                -- Never establish a Safe record from a run that fails production targets.
+                if algorithm == "safe" then
+                    local ok, reason =
+                        BenchmarkTracker.checkAndUpdate(book.directory, "full_volume", current, true, algorithm)
+                    assert.is_true(ok, reason)
                 end
-                assert.is_true(
-                    f1 > expected.minimum_f1,
-                    string.format("Mapped-page F1 must exceed %.0f%% (got %.2f%%)", expected.minimum_f1 * 100, f1 * 100)
-                )
-                if not expected.gate_95 then
-                    return
-                end
-                assert.is_true(
-                    f1 > 0.95,
-                    string.format(
-                        "%s must remain above 95%% F1 (precision %.2f%%, recall %.2f%%, F1 %.2f%%)",
-                        expected.title,
-                        precision * 100,
-                        recall * 100,
-                        f1 * 100
-                    )
-                )
-                assert.is_true(recall > 0.95, "Recall must remain above 95%")
-                assert.is_true(mean_iou > 0.95, "Mean matched IoU must remain above 0.95")
             end)
         end
     end

@@ -380,3 +380,11 @@ annotations are preserved as `legacy_safe_against_smart_full_volume` and are no
 longer regression guards. The first mapped Safe run establishes its own baseline.
 Later coverage or evaluator changes require reviewing that baseline, as with Smart.
 OCR benchmark records remain shared.
+
+Safe and Smart share the same production quality requirements and dataset tiers.
+For datasets with the 95% requirement, precision, recall, F1, mean IoU and correct
+matched-panel-pair reading order must each exceed 95%. With no comparable panel
+pairs, the measured exact-page ordering score must exceed 95% instead. Missing
+ordering measurements fail the requirement. Challenging and experimental tiers
+retain their existing targets for both algorithms. Safe baselines are saved only
+after the run passes these requirements and its independent regression guards.

@@ -1357,7 +1357,7 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(win2.annotator_config.get("library_display_mode"), "mosaic")
         win2.close()
 
-    def test_two_progress_bars_for_panels_and_ocr(self):
+    def test_three_progress_bars_for_smart_safe_panels_and_ocr(self):
         ds_dir = os.path.join(self.test_dir, "progress_test_ds")
         mgr = DatasetManager(ds_dir)
         book_title = "ocr_test_series"
@@ -1387,7 +1387,8 @@ class TestAnnotator(unittest.TestCase):
             [WordRect(22, 22, 40, 20, 1, "World")]
         )
 
-        # Page 4: Unannotated
+        # Page 4: Only Safe panels mapped; shared OCR and Smart stay independent.
+        mgr.set_page_frames(book_title, 4, [Panel(0, 0, 200, 300)], algorithm="safe")
 
         recent = mgr.get_recent_books()
         self.assertEqual(len(recent), 1)
@@ -1406,12 +1407,27 @@ class TestAnnotator(unittest.TestCase):
         self.assertEqual(info["ocr_annotated_pages"], 2)
         self.assertEqual(info["ocr_progress_percent"], 50)
 
-        # Verify UI card widgets construct with both progress indicators
+        self.assertEqual(info["safe_panels_annotated_pages"], 1)
+        self.assertEqual(info["safe_panels_progress_percent"], 25)
+
+        # All three progress indicators are visible in both library layouts.
         row_card = BookRowCardWidget(info)
         self.assertEqual(row_card.book_title, book_title)
+        self.assertEqual(row_card.pbar_safe_panels.value(), 25)
+        self.assertIn("1 of 4", row_card.lbl_safe_panels_info.text())
 
         mosaic_card = BookMosaicCardWidget(info)
         self.assertEqual(mosaic_card.book_title, book_title)
+        self.assertEqual(mosaic_card.pbar_safe_panels.value(), 25)
+        self.assertIn("1/4", mosaic_card.lbl_safe_panels_info.text())
+
+        mgr.mark_book_finished(book_title)
+        self.assertEqual(mgr.get_recent_books()[0]["safe_panels_progress_percent"], 25)
+        mgr.save_book_dataset(book_title)
+        reloaded = DatasetManager(ds_dir)
+        self.assertEqual(reloaded.get_recent_books()[0]["safe_panels_progress_percent"], 25)
+        reloaded.copy_panel_mapping(book_title, "smart", "safe")
+        self.assertEqual(reloaded.get_recent_books()[0]["safe_panels_progress_percent"], 50)
 
     def test_editor_mode_highlighting_and_indicators(self):
         ds_dir = os.path.join(self.test_dir, "editor_mode_ds")

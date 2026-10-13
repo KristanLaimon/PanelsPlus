@@ -89,4 +89,31 @@ describe("Independent algorithm baselines", function()
         Benchmark.detectors.safe, Benchmark.detectors.smart = safe_detector, smart_detector
         assert.is_true(ok, tostring(err))
     end)
+    it("enforces identical production thresholds for Safe and Smart, including precision and ordering", function()
+        local expected = { minimum_f1 = 0.90, gate_95 = true }
+        for _, algorithm in ipairs({ "safe", "smart" }) do
+            local current = metrics(0.96)
+            current.reading_order_pairs = 10
+            current.reading_order_pair_accuracy = 1
+            assert.is_true(Benchmark.verifyProductionTargets(expected, current), algorithm)
+            for _, key in ipairs({ "precision", "recall", "f1", "mean_iou", "reading_order_pair_accuracy" }) do
+                local saved = current[key]
+                current[key] = 0.95
+                assert.is_false(Benchmark.verifyProductionTargets(expected, current), algorithm .. " " .. key)
+                current[key] = saved
+            end
+            current.reading_order_pair_accuracy = nil
+            assert.is_false(Benchmark.verifyProductionTargets(expected, current), "Missing ordering must fail")
+            current.reading_order_pairs = 0
+            current.reading_order_accuracy = 1
+            assert.is_true(Benchmark.verifyProductionTargets(expected, current), "Single-panel ordering")
+            current.reading_order_accuracy = 0.95
+            assert.is_false(Benchmark.verifyProductionTargets(expected, current))
+        end
+    end)
+    it("keeps the existing challenging and experimental dataset targets for both algorithms", function()
+        assert.is_true(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.90)))
+        assert.is_false(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.85)))
+        assert.is_true(Benchmark.verifyProductionTargets({ experimental = true }, metrics(0.50)))
+    end)
 end)

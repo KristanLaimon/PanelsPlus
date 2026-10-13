@@ -70,4 +70,32 @@ function Benchmark.verify(data, algorithm, metrics)
     return Tracker.verifyNoRegression(metrics, Benchmark.baseline(data, algorithm, metrics))
 end
 
+-- Both algorithms share production targets, evaluated against their own annotations.
+function Benchmark.verifyProductionTargets(expected, metrics)
+    if expected.experimental then
+        return true
+    end
+    if (metrics.f1 or 0) <= expected.minimum_f1 then
+        return false, string.format("Mapped-page F1 must exceed %.0f%%", expected.minimum_f1 * 100)
+    end
+    if not expected.gate_95 then
+        return true
+    end
+    for _, key in ipairs({ "precision", "recall", "f1", "mean_iou" }) do
+        if (metrics[key] or 0) <= 0.95 then
+            return false, key .. " must remain above 95%"
+        end
+    end
+    -- Pair accuracy isolates sequencing. With no comparable pairs (e.g. all
+    -- single-panel pages), use the measured exact-page ordering score instead.
+    local ordering = metrics.reading_order_pair_accuracy
+    if (metrics.reading_order_pairs or 0) == 0 then
+        ordering = metrics.reading_order_accuracy
+    end
+    if ordering == nil or ordering <= 0.95 then
+        return false, "Correct panel reading order must remain above 95%"
+    end
+    return true
+end
+
 return Benchmark

@@ -467,6 +467,13 @@ class DatasetManager:
                 # Count annotated pages
                 book_pages = self.books.get(book_title, {})
                 panels_annotated_count = sum(1 for pa in book_pages.values() if pa.frames)
+                safe_panels_annotated_count = sum(
+                    1 for pa in self.safe_books.get(book_title, {}).values() if pa.frames
+                )
+                safe_panels_progress_pct = (
+                    min(100, int(safe_panels_annotated_count / total_pages * 100))
+                    if total_pages > 0 else 0
+                )
                 ocr_annotated_count = sum(1 for pa in book_pages.values() if pa.phrases or pa.words or pa.wordless)
 
                 # Progress percentages (OCR percentage is strictly based on annotated OCR pages)
@@ -485,6 +492,8 @@ class DatasetManager:
                     "total_pages": total_pages,
                     "annotated_pages": panels_annotated_count,
                     "panels_annotated_pages": panels_annotated_count,
+                    "safe_panels_annotated_pages": safe_panels_annotated_count,
+                    "safe_panels_progress_percent": safe_panels_progress_pct,
                     "ocr_annotated_pages": ocr_annotated_count,
                     "progress_percent": panels_progress_pct,
                     "panels_progress_percent": panels_progress_pct,
