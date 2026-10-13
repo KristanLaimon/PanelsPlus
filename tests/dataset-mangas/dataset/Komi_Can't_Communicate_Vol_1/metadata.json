@@ -3,7 +3,14 @@
   "type": "manga",
   "total_pages": 190,
   "finished": true,
-  "current_page": 48,
-  "last_opened": "2026-10-04T13:40:10.541604",
-  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Mangas/Komi-san wa, Komyushõ desu/Komi Can't Communicate, Vol. 1 - Tomohito Oda (12).cbz"
+  "current_page": 41,
+  "last_opened": "2026-10-13T23:47:48.275739",
+  "source_file": "/home/kristanlaimon/KOReader_KrsLibrary/Mangas/Komi-san wa, Komyushõ desu/Komi Can't Communicate, Vol. 1 - Tomohito Oda (12).cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
 }

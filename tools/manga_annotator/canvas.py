@@ -11,7 +11,7 @@ from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QPixmap, QImage, QCursor,
     QPaintEvent, QMouseEvent, QWheelEvent, QKeyEvent, QFontMetrics
 )
-from PyQt6.QtWidgets import QWidget
+from PyQt6.QtWidgets import QWidget, QApplication
 
 try:
     from .dataset_manager import Panel, PhraseRect, WordRect
@@ -69,6 +69,9 @@ class MangaCanvas(QWidget):
         # Kept as an active-list alias for compatibility with the existing editor code.
         self.panels: List[Panel] = self._collections["panel"]
         self.double_illustration = False
+        self.other_panels: List[Panel] = []
+        self.other_double_illustration = False
+        self._edit_both = False
         self.wordless = False
         self.selected_panel_index = -1
 
@@ -90,8 +93,8 @@ class MangaCanvas(QWidget):
         self._bpl: int = 0
 
         # Undo / Redo history stacks
-        self._undo_stack: List[Tuple[List[Panel], bool, bool]] = []
-        self._redo_stack: List[Tuple[List[Panel], bool, bool]] = []
+        self._undo_stack = []
+        self._redo_stack = []
         self._panels_at_drag_start: List[Panel] = []
         self._double_illustration_at_drag_start = False
         self._wordless_at_drag_start = False
@@ -301,9 +304,52 @@ class MangaCanvas(QWidget):
         self.setCursor(QCursor(Qt.CursorShape.ArrowCursor))
         self.update()
 
+    def _history_state(self, panels=None, double=None, wordless=None):
+        return (
+            [p.copy() for p in (self.panels if panels is None else panels)],
+            self.double_illustration if double is None else double,
+            self.wordless if wordless is None else wordless,
+            [p.copy() for p in self.other_panels], self.other_double_illustration,
+        )
+
+    def _both_modifier(self):
+        return self.annotation_mode == "panel" and bool(
+            QApplication.keyboardModifiers() & Qt.KeyboardModifier.ControlModifier
+        )
+
+    def _mirror_panel(self, index, before, replacement=None):
+        """Match geometry first; use reading-order position for divergent mappings."""
+        geometry = (before.x, before.y, before.w, before.h)
+        target = next((i for i, p in enumerate(self.other_panels)
+                       if (p.x, p.y, p.w, p.h) == geometry), None)
+        if target is None and index < len(self.other_panels):
+            target = index
+        if target is None:
+            if replacement is not None:
+                self.other_panels.insert(min(index, len(self.other_panels)), replacement.copy())
+        elif replacement is None:
+            self.other_panels.pop(target)
+        else:
+            self.other_panels[target] = replacement.copy()
+        self.other_double_illustration = False
+
+    def reorder_panels(self, order):
+        """Apply a sidebar permutation without changing any rectangle geometry."""
+        if self.annotation_mode != "panel" or sorted(order) != list(range(len(self.panels))):
+            return
+        if order == list(range(len(self.panels))):
+            return
+        self.push_undo()
+        selected = self.selected_panel_index
+        self.panels[:] = [self.panels[i] for i in order]
+        self.selected_panel_index = order.index(selected) if selected >= 0 else -1
+        self.panels_changed.emit()
+        self.panel_selected.emit(self.selected_panel_index)
+        self.update()
+
     def push_undo(self):
         """Save panel boxes, double illustration label, and wordless status as one undo state."""
-        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
+        self._undo_stack.append(self._history_state())
         if len(self._undo_stack) > 50:
             self._undo_stack.pop(0)
         self._redo_stack.clear()
@@ -312,8 +358,9 @@ class MangaCanvas(QWidget):
         """Revert to previous panels state."""
         if not self._undo_stack:
             return
-        self._redo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
-        self.panels, self.double_illustration, self.wordless = self._undo_stack.pop()
+        self._redo_stack.append(self._history_state())
+        (self.panels, self.double_illustration, self.wordless,
+         self.other_panels, self.other_double_illustration) = self._undo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
@@ -328,8 +375,9 @@ class MangaCanvas(QWidget):
         """Reapply previously undone panels state."""
         if not self._redo_stack:
             return
-        self._undo_stack.append(([p.copy() for p in self.panels], self.double_illustration, self.wordless))
-        self.panels, self.double_illustration, self.wordless = self._redo_stack.pop()
+        self._undo_stack.append(self._history_state())
+        (self.panels, self.double_illustration, self.wordless,
+         self.other_panels, self.other_double_illustration) = self._redo_stack.pop()
         self._collections[self.annotation_mode] = self.panels
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
@@ -349,8 +397,13 @@ class MangaCanvas(QWidget):
         fit_width: bool = False,
         double_illustration: bool = False,
         wordless: bool = False,
+        other_panels: Optional[List[Panel]] = None,
+        other_double_illustration: bool = False,
     ):
         """Update current page pixmap and panels."""
+        self.other_panels = [p.copy() for p in (other_panels or [])]
+        self.other_double_illustration = bool(other_double_illustration)
+        self._edit_both = False
         self._pixmap = pixmap
         if pixmap and not pixmap.isNull():
             self.native_w = pixmap.width()
@@ -716,6 +769,8 @@ class MangaCanvas(QWidget):
         """Remove currently selected panel."""
         if 0 <= self.selected_panel_index < len(self.panels):
             self.push_undo()
+            if self._both_modifier():
+                self._mirror_panel(self.selected_panel_index, self.panels[self.selected_panel_index])
             self.panels.pop(self.selected_panel_index)
             if self.annotation_mode in ("phrase", "word"):
                 self.refresh_word_assignments()
@@ -728,9 +783,12 @@ class MangaCanvas(QWidget):
 
     def clear_panels(self):
         """Clear all panels on this page."""
-        if not self.panels:
+        if not self.panels and not (self._both_modifier() and self.other_panels):
             return
         self.push_undo()
+        if self._both_modifier():
+            self.other_panels.clear()
+            self.other_double_illustration = False
         self.panels.clear()
         if self.annotation_mode in ("phrase", "word"):
             self.refresh_word_assignments()
@@ -842,6 +900,9 @@ class MangaCanvas(QWidget):
             self.delete_selected_panel()
         elif event.key() == Qt.Key.Key_Escape:
             if self._mode != "idle":
+                if self._mode in ("moving", "resizing"):
+                    self.panels[:] = [p.copy() for p in self._panels_at_drag_start]
+                self._edit_both = False
                 self._mode = "idle"
                 self._current_image_box = None
                 self.update()
@@ -973,6 +1034,10 @@ class MangaCanvas(QWidget):
             return
 
         if event.button() == Qt.MouseButton.LeftButton:
+            self._edit_both = self.annotation_mode == "panel" and bool(
+                event.modifiers() & Qt.KeyboardModifier.ControlModifier
+            )
+            self._wordless_at_drag_start = self.wordless
             self._panels_at_drag_start = [p.copy() for p in self.panels]
             self._double_illustration_at_drag_start = self.double_illustration
             self._current_image_box = None
@@ -1149,8 +1214,8 @@ class MangaCanvas(QWidget):
             h = abs(iy2 - iy1)
 
             if w >= MIN_BOX_SIZE and h >= MIN_BOX_SIZE:
-                self._undo_stack.append((
-                    [p.copy() for p in self._panels_at_drag_start],
+                self._undo_stack.append(self._history_state(
+                    self._panels_at_drag_start,
                     self._double_illustration_at_drag_start,
                     self._wordless_at_drag_start,
                 ))
@@ -1173,6 +1238,9 @@ class MangaCanvas(QWidget):
                 else:
                     new_panel = Panel(x, y, w, h)
                 self.panels.append(new_panel)
+                if self._edit_both:
+                    self.other_panels.append(new_panel.copy())
+                    self.other_double_illustration = False
                 if self.annotation_mode in ("phrase", "word"):
                     self.refresh_word_assignments()
                 else:
@@ -1211,13 +1279,16 @@ class MangaCanvas(QWidget):
                 changed = True
 
             if changed:
-                self._undo_stack.append((
-                    [p.copy() for p in self._panels_at_drag_start],
+                self._undo_stack.append(self._history_state(
+                    self._panels_at_drag_start,
                     self._double_illustration_at_drag_start,
                     self._wordless_at_drag_start,
                 ))
                 self._redo_stack.clear()
                 if self.annotation_mode == "panel":
+                    if self._edit_both:
+                        index = self.selected_panel_index
+                        self._mirror_panel(index, self._panels_at_drag_start[index], self.panels[index])
                     self.double_illustration = False
 
             if self.annotation_mode in ("phrase", "word"):

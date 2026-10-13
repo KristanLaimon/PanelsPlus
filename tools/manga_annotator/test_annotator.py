@@ -71,6 +71,172 @@ class TestAnnotator(unittest.TestCase):
         img = Image.new("RGB", (width, height), color=color)
         return img
 
+    @staticmethod
+    def _panel_geometry(panels):
+        return [(p.x, p.y, p.w, p.h) for p in panels]
+
+    def _panel_gesture(self, canvas, start, end, modifiers=Qt.KeyboardModifier.ControlModifier):
+        from PyQt6.QtCore import QEvent, QPointF
+        from PyQt6.QtGui import QMouseEvent
+        for kind, point, button in (
+            (QEvent.Type.MouseButtonPress, start, Qt.MouseButton.LeftButton),
+            (QEvent.Type.MouseMove, end, Qt.MouseButton.NoButton),
+            (QEvent.Type.MouseButtonRelease, end, Qt.MouseButton.LeftButton),
+        ):
+            event = QMouseEvent(kind, QPointF(*point), button,
+                                Qt.MouseButton.LeftButton, modifiers)
+            {QEvent.Type.MouseButtonPress: canvas.mousePressEvent,
+             QEvent.Type.MouseMove: canvas.mouseMoveEvent,
+             QEvent.Type.MouseButtonRelease: canvas.mouseReleaseEvent}[kind](event)
+
+    def _paired_canvas(self, panels=(), other=(), double=False):
+        from PyQt6.QtGui import QPixmap
+        canvas = MangaCanvas()
+        pixmap = QPixmap(400, 600)
+        pixmap.fill(Qt.GlobalColor.white)
+        canvas.set_page(pixmap, list(panels), other_panels=list(other),
+                        other_double_illustration=double)
+        canvas.precision_mouse_enabled = False
+        return canvas
+
+    def test_ctrl_draw_both_and_atomic_history(self):
+        canvas = self._paired_canvas()
+        self._panel_gesture(canvas, (40, 50), (120, 150))
+        expected = [(40, 50, 80, 100)]
+        self.assertEqual(self._panel_geometry(canvas.get_panels()), expected)
+        self.assertEqual(self._panel_geometry(canvas.other_panels), expected)
+        self.assertIsNot(canvas.get_panels()[0], canvas.other_panels[0])
+        canvas.undo()
+        self.assertEqual(canvas.get_panels(), [])
+        self.assertEqual(canvas.other_panels, [])
+        canvas.redo()
+        self.assertEqual(self._panel_geometry(canvas.other_panels), expected)
+        # Ordinary drawing is independent, including undo/redo.
+        self._panel_gesture(canvas, (200, 200), (260, 280), Qt.KeyboardModifier.NoModifier)
+        self.assertEqual(len(canvas.get_panels()), 2)
+        self.assertEqual(len(canvas.other_panels), 1)
+        canvas.undo()
+        canvas.redo()
+        self.assertEqual(len(canvas.other_panels), 1)
+
+    def test_ctrl_move_resize_matches_geometry_before_order(self):
+        panel = Panel(40, 50, 80, 100)
+        unrelated = Panel(250, 300, 60, 70)
+        canvas = self._paired_canvas([panel, unrelated], [unrelated, panel])
+        self._panel_gesture(canvas, (80, 100), (100, 120))
+        self.assertEqual(self._panel_geometry(canvas.other_panels),
+                         [(250, 300, 60, 70), (60, 70, 80, 100)])
+        # Resize from the selected bottom-right handle.
+        self._panel_gesture(canvas, (140, 170), (170, 200))
+        self.assertEqual(self._panel_geometry(canvas.other_panels)[1], (60, 70, 110, 130))
+        canvas.undo()
+        self.assertEqual(self._panel_geometry(canvas.other_panels)[1], (60, 70, 80, 100))
+        canvas.undo()
+        self.assertEqual(self._panel_geometry(canvas.other_panels)[1], (40, 50, 80, 100))
+
+    def test_paired_edits_divergent_empty_and_cancelled(self):
+        panel = Panel(40, 50, 80, 100)
+        for other in ([Panel(45, 55, 85, 105)], []):
+            canvas = self._paired_canvas([panel], other)
+            self._panel_gesture(canvas, (80, 100), (100, 120))
+            self.assertEqual(self._panel_geometry(canvas.other_panels), [(60, 70, 80, 100)])
+            canvas.undo()
+            self.assertEqual(self._panel_geometry(canvas.other_panels), self._panel_geometry(other))
+        canvas = self._paired_canvas([panel], [panel])
+        from PyQt6.QtGui import QKeyEvent, QMouseEvent
+        from PyQt6.QtCore import QEvent, QPointF
+        canvas.mousePressEvent(QMouseEvent(QEvent.Type.MouseButtonPress, QPointF(80, 100),
+                                          Qt.MouseButton.LeftButton, Qt.MouseButton.LeftButton,
+                                          Qt.KeyboardModifier.ControlModifier))
+        canvas.mouseMoveEvent(QMouseEvent(QEvent.Type.MouseMove, QPointF(100, 120),
+                                         Qt.MouseButton.NoButton, Qt.MouseButton.LeftButton,
+                                         Qt.KeyboardModifier.ControlModifier))
+        canvas.keyPressEvent(QKeyEvent(QEvent.Type.KeyPress, Qt.Key.Key_Escape,
+                                       Qt.KeyboardModifier.NoModifier))
+        self.assertEqual(self._panel_geometry(canvas.get_panels()), [(40, 50, 80, 100)])
+        self.assertEqual(self._panel_geometry(canvas.other_panels), [(40, 50, 80, 100)])
+        self.assertEqual(canvas._undo_stack, [])
+
+    def test_paired_delete_clear_markers_and_panel_mode_scope(self):
+        panel = Panel(0, 0, 400, 600)
+        canvas = self._paired_canvas([panel], [panel], double=True)
+        canvas.select_panel(0)
+        with patch.object(QApplication, "keyboardModifiers", return_value=Qt.KeyboardModifier.ControlModifier):
+            canvas.delete_selected_panel()
+        self.assertEqual(canvas.other_panels, [])
+        self.assertFalse(canvas.other_double_illustration)
+        canvas.undo()
+        self.assertTrue(canvas.other_double_illustration)
+        with patch.object(QApplication, "keyboardModifiers", return_value=Qt.KeyboardModifier.ControlModifier):
+            canvas.clear_panels()
+        self.assertEqual(canvas.other_panels, [])
+        canvas.undo()
+        canvas.set_annotation_mode("phrase")
+        canvas.phrase_text_requested.connect(lambda i: canvas.set_phrase_text(i, "test"))
+        self._panel_gesture(canvas, (40, 50), (120, 150))
+        self.assertEqual(self._panel_geometry(canvas.other_panels), [(0, 0, 400, 600)])
+        self.assertEqual(self._panel_geometry(canvas.get_panels()), [(0, 0, 400, 600)])
+
+    def test_sidebar_previews_drop_selection_and_persistence(self):
+        from PyQt6.QtWidgets import QListWidget
+        from PyQt6.QtCore import QPointF
+        from PyQt6.QtGui import QDropEvent
+        ds = os.path.join(self.test_dir, "reorder")
+        book_dir = os.path.join(ds, "book")
+        os.makedirs(book_dir)
+        self._create_dummy_image().save(os.path.join(book_dir, "00.png"))
+        win = AnnotatorMainWindow(dataset_dir=ds, config_path=os.path.join(self.test_dir, "config.json"))
+        win.open_book_by_title("book")
+        boxes = [Panel(40, 50, 80, 100), Panel(200, 200, 60, 70), Panel(300, 400, 40, 50)]
+        win.dataset_mgr.set_page_frames("book", 1, boxes)
+        win.dataset_mgr.set_page_frames("book", 1, boxes, algorithm="safe")
+        win._render_current_page()
+        win.canvas.select_panel(2)
+        self.assertTrue(all(not win.panel_list.item(i).icon().isNull() for i in range(3)))
+        # Exercise the drop adapter with Qt's completed internal row move.
+        mime = win.panel_list.mimeData([win.panel_list.item(2)])
+        event = QDropEvent(QPointF(5, 5), Qt.DropAction.MoveAction, mime,
+                           Qt.MouseButton.LeftButton, Qt.KeyboardModifier.NoModifier)
+        def completed_move(widget, event):
+            widget.insertItem(0, widget.takeItem(2))
+        with patch.object(QListWidget, "dropEvent", completed_move):
+            win.panel_list.dropEvent(event)
+        expected = self._panel_geometry([boxes[2], boxes[0], boxes[1]])
+        self.assertEqual(self._panel_geometry(win.canvas.get_panels()), expected)
+        self.assertEqual(win.canvas.selected_panel_index, 0)
+        self.assertEqual(win.panel_list.currentRow(), 0)
+        win.canvas.undo()
+        self.assertEqual(self._panel_geometry(win.canvas.get_panels()), self._panel_geometry(boxes))
+        win.canvas.redo()
+        win.canvas.set_zoom(1.0)
+        win.canvas.offset_x = win.canvas.offset_y = 0
+        win.canvas.precision_mouse_enabled = False
+        self._panel_gesture(win.canvas, (10, 10), (30, 30))
+        win.dataset_mgr.save_book_dataset("book")
+        reloaded = DatasetManager(ds)
+        self.assertEqual(self._panel_geometry(reloaded.get_panel_annotation("book", 1, "smart").frames),
+                         expected + [(10, 10, 20, 20)])
+        self.assertEqual(self._panel_geometry(reloaded.get_panel_annotation("book", 1, "safe").frames),
+                         self._panel_geometry(boxes) + [(10, 10, 20, 20)])
+        # Switching preserves the current view and is disabled outside Panels mode.
+        win.show()
+        win.tabs.setCurrentIndex(1)
+        win.activateWindow()
+        win.canvas.setFocus()
+        self.app.processEvents()
+        win.canvas.fit_to_width()
+        win.canvas.set_zoom(1.0)
+        view = (win.canvas.zoom_factor, win.canvas.offset_x, win.canvas.offset_y)
+        QTest.keyClick(win.canvas, Qt.Key.Key_Tab, Qt.KeyboardModifier.ControlModifier)
+        self.app.processEvents()
+        self.assertEqual(win.panel_algorithm, "safe")
+        self.assertEqual((win.canvas.zoom_factor, win.canvas.offset_x, win.canvas.offset_y), view)
+        win.canvas.set_annotation_mode("phrase")
+        self.assertFalse(win.act_panel_algorithm.isEnabled())
+        win.toggle_panel_algorithm()
+        self.assertEqual(win.panel_algorithm, "safe")
+        win.close()
+
     def test_algorithm_panel_files_preserve_legacy_smart_and_shared_ocr(self):
         ds = os.path.join(self.test_dir, "algorithms")
         book_dir = os.path.join(ds, "book")

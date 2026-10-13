@@ -27,7 +27,7 @@ from PyQt6.QtWidgets import (
     QListWidget, QListWidgetItem, QSpinBox, QSlider, QStatusBar,
     QSplitter, QGroupBox, QTabWidget, QScrollArea, QFrame,
     QProgressBar, QProgressDialog, QInputDialog, QCheckBox, QDialog,
-    QDialogButtonBox
+    QDialogButtonBox, QAbstractItemView
 )
 
 try:
@@ -38,6 +38,22 @@ except (ImportError, ValueError):
     from document_reader import DocumentReader
     from dataset_manager import DatasetManager, Panel, PageAnnotation
     from canvas import MangaCanvas
+
+
+class PanelListWidget(QListWidget):
+    """Report a completed internal move as a permutation of canvas indices."""
+
+    panels_reordered = pyqtSignal(list)
+
+    def dropEvent(self, event):
+        self.blockSignals(True)
+        try:
+            super().dropEvent(event)
+            order = [self.item(i).data(Qt.ItemDataRole.UserRole)
+                     for i in range(self.count())]
+        finally:
+            self.blockSignals(False)
+        self.panels_reordered.emit(order)
 
 
 DARK_THEME_STYLESHEET = """
@@ -1029,9 +1045,28 @@ class AnnotatorMainWindow(QMainWindow):
         )
         p_layout.addWidget(self.chk_precision)
 
-        self.panel_list = QListWidget()
+        self.panel_list = PanelListWidget()
+        self.panel_list.setIconSize(QSize(96, 72))
+        self.panel_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
+        self.panel_list.setDefaultDropAction(Qt.DropAction.MoveAction)
+        self.panel_list.setDropIndicatorShown(True)
+        self.panel_list.setToolTip("Drag panel rows to change reading order. Ctrl+drag on the canvas edits both Smart and Safe.")
+        self.panel_list.panels_reordered.connect(self.canvas.reorder_panels)
         self.panel_list.currentRowChanged.connect(self._on_list_row_selected)
         self.panel_list.itemDoubleClicked.connect(lambda: self._edit_selected_annotation_text())
+        self.lbl_panel_edit_help = QLabel(
+            "Ctrl+Tab: Smart / Safe\n"
+            "Ctrl+draw / move / resize: edit both\n"
+            "Ctrl+Delete / Clear: remove from both\n"
+            "Drag rows to change reading order"
+        )
+        self.lbl_panel_edit_help.setWordWrap(True)
+        self.lbl_panel_edit_help.setToolTip(
+            "Paired edits match the original box in the other mapping first, then its "
+            "reading-order position. If neither exists, the edited box is inserted. "
+            "Undo / redo restores both mappings."
+        )
+        p_layout.addWidget(self.lbl_panel_edit_help)
         p_layout.addWidget(self.panel_list, 1)
 
         self.btn_edit_text = QPushButton("Edit Annotation Text (T)")
@@ -1147,6 +1182,12 @@ class AnnotatorMainWindow(QMainWindow):
             action.setShortcut(QKeySequence(key))
             action.triggered.connect(lambda checked=False, m=mode: self.canvas.set_annotation_mode(m))
             edit_menu.addAction(action)
+
+        self.act_panel_algorithm = QAction("Switch Smart / Safe Panels", self)
+        self.act_panel_algorithm.setShortcut(QKeySequence("Ctrl+Tab"))
+        self.act_panel_algorithm.triggered.connect(self.toggle_panel_algorithm)
+        edit_menu.addAction(self.act_panel_algorithm)
+        self.btn_panel_algorithm.setToolTip("Switch Smart / Safe panels (Ctrl+Tab)")
 
         act_prev_phrase = QAction("Previous Phrase ID", self)
         act_prev_phrase.setShortcut(QKeySequence("Q"))
@@ -1494,10 +1535,16 @@ class AnnotatorMainWindow(QMainWindow):
         phrases = [p.copy() for p in pa.phrases]
         words = [w.copy() for w in pa.words]
 
+        other_algorithm = "safe" if self.panel_algorithm == "smart" else "smart"
+        other_pa = self.dataset_mgr.get_panel_annotation(
+            self.book_title, self.current_page_num, other_algorithm
+        )
         self.canvas.set_page(
             pixmap, panels, phrases, words, fit_width=fit_width,
             double_illustration=panel_pa.double_illustration,
             wordless=pa.wordless,
+            other_panels=other_pa.frames,
+            other_double_illustration=other_pa.double_illustration,
         )
         if fit_width:
             self.canvas.fit_to_width(self.canvas.rect())
@@ -1522,6 +1569,18 @@ class AnnotatorMainWindow(QMainWindow):
                 double_illustration=self.canvas.double_illustration,
                 algorithm=self.panel_algorithm,
             )
+            other_algorithm = "safe" if self.panel_algorithm == "smart" else "smart"
+            other_pa = self.dataset_mgr.get_panel_annotation(
+                self.book_title, self.current_page_num, other_algorithm
+            )
+            geometry = lambda panels: [(p.x, p.y, p.w, p.h) for p in panels]
+            if (geometry(other_pa.frames) != geometry(self.canvas.other_panels)
+                    or other_pa.double_illustration != self.canvas.other_double_illustration):
+                self.dataset_mgr.set_page_frames(
+                    self.book_title, self.current_page_num, self.canvas.other_panels,
+                    double_illustration=self.canvas.other_double_illustration,
+                    algorithm=other_algorithm,
+                )
             self.dataset_mgr.set_page_text_annotations(
                 self.book_title,
                 self.current_page_num,
@@ -1532,6 +1591,8 @@ class AnnotatorMainWindow(QMainWindow):
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
 
     def toggle_panel_algorithm(self):
+        if self.canvas.annotation_mode != "panel" or self.canvas._mode != "idle":
+            return
         self._commit_current_page_panels()
         self.panel_algorithm = "safe" if self.panel_algorithm == "smart" else "smart"
         label = "Smart(er)" if self.panel_algorithm == "smart" else "Safe"
@@ -1704,6 +1765,11 @@ class AnnotatorMainWindow(QMainWindow):
         )
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
+        is_panel = self.canvas.annotation_mode == "panel"
+        self.panel_list.setDragDropMode(
+            QAbstractItemView.DragDropMode.InternalMove if is_panel
+            else QAbstractItemView.DragDropMode.NoDragDrop
+        )
         for idx, p in enumerate(self.canvas.panels):
             if self.canvas.annotation_mode == "phrase":
                 prefix = f"P{p.phrase_id}.{idx + 1}"
@@ -1722,7 +1788,22 @@ class AnnotatorMainWindow(QMainWindow):
                 if self.canvas.annotation_mode == "panel" and self.canvas.double_illustration and idx == 0
                 else ""
             )
-            item = QListWidgetItem(f"{label}[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}")
+            text = (
+                f"{label}Panel {prefix}\n{p.w} × {p.h} · ({p.x}, {p.y})"
+                if is_panel else f"{label}[{prefix}] x={p.x}, y={p.y} ({p.w}x{p.h}){suffix}"
+            )
+            item = QListWidgetItem(text)
+            item.setData(Qt.ItemDataRole.UserRole, idx)
+            if is_panel and self.canvas._pixmap and not self.canvas._pixmap.isNull():
+                crop = QRect(p.x, p.y, p.w, p.h).intersected(self.canvas._pixmap.rect())
+                if not crop.isEmpty():
+                    preview = self.canvas._pixmap.copy(crop).scaled(
+                        96, 72, Qt.AspectRatioMode.KeepAspectRatio,
+                        Qt.TransformationMode.SmoothTransformation,
+                    )
+                    item.setIcon(QIcon(preview))
+                item.setSizeHint(QSize(0, 80))
+                item.setToolTip(f"Panel {idx + 1} · Drag to change reading order")
             self.panel_list.addItem(item)
         if 0 <= self.canvas.selected_panel_index < self.panel_list.count():
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
@@ -1821,6 +1902,9 @@ class AnnotatorMainWindow(QMainWindow):
         self.annotation_group.setTitle(f"Mode {mode_titles.get(mode, mode.title())} Rectangles")
         self.btn_panel_algorithm.setVisible(mode == "panel")
         self.btn_copy_panels.setVisible(mode == "panel")
+        self.lbl_panel_edit_help.setVisible(mode == "panel")
+        if hasattr(self, "act_panel_algorithm"):
+            self.act_panel_algorithm.setEnabled(mode == "panel")
         phrase_controls_enabled = mode == "phrase"
         self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
         self.btn_next_phrase.setEnabled(phrase_controls_enabled)

@@ -1,6 +1,7 @@
 [
   {
     "book_title": "Komi_Can't_Communicate_Vol_1",
+    "annotation_schema_version": 2,
     "pages": [
       {
         "page_index": 1,
@@ -12,6 +13,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/00.png"
         }
@@ -26,6 +28,7 @@
             "h": 1677
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/01.png"
         }
@@ -34,12 +37,13 @@
         "page_index": 3,
         "frame": [
           {
-            "x": 0,
+            "x": 112,
             "y": 0,
-            "w": 1264,
+            "w": 1038,
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/02.png"
         }
@@ -74,6 +78,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/04.png"
         }
@@ -88,6 +93,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/05.png"
         }
@@ -388,10 +394,28 @@
             "h": 413
           },
           {
-            "x": 78,
-            "y": 1090,
-            "w": 568,
-            "h": 590
+            "x": 343,
+            "y": 1092,
+            "w": 259,
+            "h": 508
+          },
+          {
+            "x": 263,
+            "y": 1093,
+            "w": 370,
+            "h": 587
+          },
+          {
+            "x": 79,
+            "y": 1092,
+            "w": 195,
+            "h": 306
+          },
+          {
+            "x": 79,
+            "y": 1273,
+            "w": 214,
+            "h": 407
           }
         ],
         "image_paths": {
@@ -449,7 +473,13 @@
             "x": 58,
             "y": 1106,
             "w": 1016,
-            "h": 499
+            "h": 413
+          },
+          {
+            "x": 57,
+            "y": 1552,
+            "w": 538,
+            "h": 44
           }
         ],
         "image_paths": {
@@ -564,6 +594,12 @@
             "y": 1115,
             "w": 754,
             "h": 405
+          },
+          {
+            "x": 102,
+            "y": 1548,
+            "w": 540,
+            "h": 48
           }
         ],
         "image_paths": {
@@ -580,6 +616,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/20.png"
         }
@@ -620,22 +657,28 @@
         "page_index": 23,
         "frame": [
           {
-            "x": 78,
+            "x": 162,
             "y": 0,
-            "w": 1044,
-            "h": 603
+            "w": 960,
+            "h": 109
           },
           {
-            "x": 78,
-            "y": 615,
-            "w": 979,
-            "h": 607
+            "x": 80,
+            "y": 109,
+            "w": 973,
+            "h": 488
           },
           {
-            "x": 78,
-            "y": 1237,
-            "w": 977,
-            "h": 279
+            "x": 80,
+            "y": 611,
+            "w": 973,
+            "h": 610
+          },
+          {
+            "x": 80,
+            "y": 1235,
+            "w": 973,
+            "h": 281
           }
         ],
         "image_paths": {
@@ -769,9 +812,9 @@
         "frame": [
           {
             "x": 413,
-            "y": 0,
+            "y": 72,
             "w": 759,
-            "h": 590
+            "h": 518
           },
           {
             "x": 95,
@@ -796,6 +839,12 @@
             "y": 1052,
             "w": 1075,
             "h": 628
+          },
+          {
+            "x": 492,
+            "y": 0,
+            "w": 677,
+            "h": 39
           }
         ],
         "image_paths": {
@@ -1085,7 +1134,13 @@
             "x": 97,
             "y": 1107,
             "w": 1069,
-            "h": 573
+            "h": 491
+          },
+          {
+            "x": 100,
+            "y": 1635,
+            "w": 564,
+            "h": 45
           }
         ],
         "image_paths": {
@@ -1360,6 +1415,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/41.png"
         }
@@ -1482,6 +1538,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/45.png"
         }
@@ -1543,7 +1600,13 @@
             "x": 98,
             "y": 1190,
             "w": 1068,
-            "h": 490
+            "h": 409
+          },
+          {
+            "x": 100,
+            "y": 1637,
+            "w": 563,
+            "h": 43
           }
         ],
         "image_paths": {
@@ -1605,9 +1668,21 @@
         "frame": [
           {
             "x": 137,
-            "y": 0,
+            "y": 142,
             "w": 989,
-            "h": 1678
+            "h": 1474
+          },
+          {
+            "x": 133,
+            "y": 1641,
+            "w": 624,
+            "h": 37
+          },
+          {
+            "x": 316,
+            "y": 0,
+            "w": 682,
+            "h": 134
           }
         ],
         "image_paths": {
@@ -1813,7 +1888,13 @@
             "x": 98,
             "y": 1155,
             "w": 1013,
-            "h": 448
+            "h": 363
+          },
+          {
+            "x": 94,
+            "y": 1550,
+            "w": 546,
+            "h": 46
           }
         ],
         "image_paths": {
@@ -1825,9 +1906,9 @@
         "frame": [
           {
             "x": 95,
-            "y": 0,
+            "y": 71,
             "w": 1075,
-            "h": 512
+            "h": 441
           },
           {
             "x": 894,
@@ -1852,6 +1933,12 @@
             "y": 1342,
             "w": 1075,
             "h": 338
+          },
+          {
+            "x": 98,
+            "y": 0,
+            "w": 543,
+            "h": 39
           }
         ],
         "image_paths": {
@@ -2189,7 +2276,13 @@
             "x": 100,
             "y": 1235,
             "w": 1063,
-            "h": 445
+            "h": 358
+          },
+          {
+            "x": 103,
+            "y": 1632,
+            "w": 654,
+            "h": 48
           }
         ],
         "image_paths": {
@@ -2381,7 +2474,13 @@
             "x": 54,
             "y": 1041,
             "w": 1017,
-            "h": 562
+            "h": 480
+          },
+          {
+            "x": 60,
+            "y": 1553,
+            "w": 651,
+            "h": 52
           }
         ],
         "image_paths": {
@@ -2898,6 +2997,12 @@
             "y": 1135,
             "w": 911,
             "h": 402
+          },
+          {
+            "x": 142,
+            "y": 1565,
+            "w": 584,
+            "h": 45
           }
         ],
         "image_paths": {
@@ -2909,9 +3014,15 @@
         "frame": [
           {
             "x": 108,
-            "y": 0,
+            "y": 117,
             "w": 1046,
-            "h": 1680
+            "h": 1563
+          },
+          {
+            "x": 115,
+            "y": 0,
+            "w": 1033,
+            "h": 83
           }
         ],
         "image_paths": {
@@ -2960,6 +3071,7 @@
             "h": 1518
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/91.png"
         }
@@ -3170,6 +3282,12 @@
             "y": 1070,
             "w": 1017,
             "h": 453
+          },
+          {
+            "x": 103,
+            "y": 1562,
+            "w": 557,
+            "h": 42
           }
         ],
         "image_paths": {
@@ -3196,6 +3314,12 @@
             "y": 951,
             "w": 617,
             "h": 648
+          },
+          {
+            "x": 99,
+            "y": 1638,
+            "w": 610,
+            "h": 42
           }
         ],
         "image_paths": {
@@ -3474,6 +3598,7 @@
             "h": 1524
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/108.png"
         }
@@ -3504,6 +3629,12 @@
             "y": 1133,
             "w": 1074,
             "h": 475
+          },
+          {
+            "x": 99,
+            "y": 1636,
+            "w": 590,
+            "h": 44
           }
         ],
         "image_paths": {
@@ -3542,6 +3673,12 @@
             "y": 1103,
             "w": 1020,
             "h": 417
+          },
+          {
+            "x": 96,
+            "y": 1545,
+            "w": 330,
+            "h": 46
           }
         ],
         "image_paths": {
@@ -3590,6 +3727,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/112.png"
         }
@@ -3854,22 +3992,34 @@
         "page_index": 122,
         "frame": [
           {
-            "x": 93,
-            "y": 443,
-            "w": 1076,
-            "h": 374
+            "x": 97,
+            "y": 0,
+            "w": 1070,
+            "h": 426
           },
           {
-            "x": 95,
-            "y": 838,
-            "w": 1074,
-            "h": 372
+            "x": 94,
+            "y": 439,
+            "w": 1073,
+            "h": 380
           },
           {
             "x": 96,
-            "y": 1230,
-            "w": 1073,
-            "h": 450
+            "y": 832,
+            "w": 1071,
+            "h": 381
+          },
+          {
+            "x": 96,
+            "y": 1227,
+            "w": 1071,
+            "h": 379
+          },
+          {
+            "x": 97,
+            "y": 1626,
+            "w": 749,
+            "h": 54
           }
         ],
         "image_paths": {
@@ -3972,6 +4122,12 @@
             "y": 1036,
             "w": 997,
             "h": 456
+          },
+          {
+            "x": 91,
+            "y": 1509,
+            "w": 588,
+            "h": 54
           }
         ],
         "image_paths": {
@@ -4111,7 +4267,13 @@
             "x": 96,
             "y": 1208,
             "w": 1024,
-            "h": 384
+            "h": 325
+          },
+          {
+            "x": 93,
+            "y": 1547,
+            "w": 660,
+            "h": 52
           }
         ],
         "image_paths": {
@@ -4128,6 +4290,7 @@
             "h": 642
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/129.png"
         }
@@ -4142,6 +4305,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/130.png"
         }
@@ -4270,6 +4434,7 @@
             "h": 1523
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/134.png"
         }
@@ -4326,6 +4491,12 @@
             "y": 1221,
             "w": 1074,
             "h": 388
+          },
+          {
+            "x": 95,
+            "y": 1627,
+            "w": 689,
+            "h": 53
           }
         ],
         "image_paths": {
@@ -4357,7 +4528,13 @@
             "x": 126,
             "y": 1320,
             "w": 1010,
-            "h": 360
+            "h": 296
+          },
+          {
+            "x": 130,
+            "y": 1640,
+            "w": 566,
+            "h": 40
           }
         ],
         "image_paths": {
@@ -4752,6 +4929,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/150.png"
         }
@@ -4996,6 +5174,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/158.png"
         }
@@ -5304,6 +5483,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/168.png"
         }
@@ -5896,6 +6076,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/185.png"
         }
@@ -5986,6 +6167,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/188.png"
         }
@@ -6000,6 +6182,7 @@
             "h": 1680
           }
         ],
+        "illustration_type": "single_page",
         "image_paths": {
           "en": "Komi_Can't_Communicate_Vol_1/189.png"
         }
