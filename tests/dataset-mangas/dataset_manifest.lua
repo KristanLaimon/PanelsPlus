@@ -79,6 +79,23 @@ local function loadDatasetMetadata(book_dir)
     return dataset_type, color_mode, metadata
 end
 
+-- Dedicated panel files override legacy Smart frames. Missing Safe data stays pending.
+local function loadPanelPages(book_dir, algorithm)
+    local path = book_dir .. "/panels_" .. algorithm .. ".json"
+    local file = io.open(path, "r")
+    if not file then
+        return nil
+    end
+    local data = JSON.decode(file:read("*a"))
+    file:close()
+    assert(data.algorithm == algorithm, "Wrong algorithm in " .. path)
+    local pages = {}
+    for _, page in ipairs(data.pages or {}) do
+        pages[page.page_index] = page
+    end
+    return pages
+end
+
 local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
     local books = {}
     for _, raw_book in ipairs(raw_books) do
@@ -86,10 +103,13 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
         -- A root annotation file can contain books with different metadata.
         if effective_book_dir == dataset_dir then
             local nested_dir = dataset_dir .. "/" .. (raw_book.book_title or "")
-            local nested_meta = io.open(nested_dir .. "/metadata.json", "r")
-            if nested_meta then
-                nested_meta:close()
-                effective_book_dir = nested_dir
+            for _, filename in ipairs({ "metadata.json", "panels_smart.json", "panels_safe.json" }) do
+                local nested_file = io.open(nested_dir .. "/" .. filename, "r")
+                if nested_file then
+                    nested_file:close()
+                    effective_book_dir = nested_dir
+                    break
+                end
             end
         end
         local dataset_type, color_mode, metadata = loadDatasetMetadata(effective_book_dir)
@@ -104,7 +124,31 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
             color_mode = color_mode,
             pages = {},
         }
-        for _, raw_page in ipairs(raw_book.pages or {}) do
+        local smart_pages = loadPanelPages(effective_book_dir, "smart")
+        local safe_pages = loadPanelPages(effective_book_dir, "safe")
+        local raw_pages, seen = {}, {}
+        for _, page in ipairs(raw_book.pages or {}) do
+            raw_pages[#raw_pages + 1] = page
+            seen[page.page_index] = true
+        end
+        -- Panel-only pages still use the shared image convention.
+        for _, mappings in ipairs({ smart_pages or {}, safe_pages or {} }) do
+            for index in pairs(mappings) do
+                if not seen[index] then
+                    raw_pages[#raw_pages + 1] = {
+                        page_index = index,
+                        image_paths = { en = string.format("%s/%02d.png", raw_book.book_title, index - 1) },
+                    }
+                    seen[index] = true
+                end
+            end
+        end
+        table.sort(raw_pages, function(a, b)
+            return a.page_index < b.page_index
+        end)
+        for _, raw_page in ipairs(raw_pages) do
+            local smart_page = smart_pages and (smart_pages[raw_page.page_index] or {}) or raw_page
+            local safe_page = safe_pages and safe_pages[raw_page.page_index] or {}
             local rel_img = nil
             if raw_page.image_paths and type(raw_page.image_paths) == "table" then
                 rel_img = raw_page.image_paths.en or raw_page.image_paths.ja
@@ -119,7 +163,7 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
             end
             local img_path = resolveImagePath(dataset_dir, effective_book_dir, rel_img)
             local frames = {}
-            for _, rf in ipairs(raw_page.frame or {}) do
+            for _, rf in ipairs(smart_page.frame or {}) do
                 table.insert(frames, {
                     x = rf.x,
                     y = rf.y,
@@ -149,8 +193,8 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                     text = rw.text,
                 })
             end
-            local illustration_type = raw_page.illustration_type
-            if raw_page.double_illustration == true then
+            local illustration_type = smart_page.illustration_type
+            if smart_page.double_illustration == true then
                 illustration_type = "double_page"
             end
             if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
@@ -166,6 +210,15 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 image_path = img_path,
                 reading_order = dataset_type,
                 frames = frames,
+                panel_mappings = {
+                    smart = { frames = frames, illustration_type = illustration_type },
+                    safe = {
+                        frames = safe_page.frame or {},
+                        illustration_type = safe_page.illustration_type
+                            or (safe_page.double_illustration and "double_page")
+                            or (#(safe_page.frame or {}) == 1 and "single_page" or nil),
+                    },
+                },
                 phrases = phrases,
                 words = words,
                 text_direction = raw_page.text_direction or "ltr",
@@ -280,11 +333,29 @@ function Manifest.loadManga(dataset_dir)
 end
 
 --- Pages with panel annotations; unfinished/unmapped pages are not negatives.
-function Manifest.getMappedPages(book)
+function Manifest.getMappedPages(book, algorithm)
+    algorithm = algorithm or "smart"
+    assert(algorithm == "safe" or algorithm == "smart", "Unknown panel algorithm")
     local pages = {}
     for _, page in ipairs(book.pages) do
-        if #page.frames > 0 then
-            pages[#pages + 1] = page
+        local mapping = page.panel_mappings and page.panel_mappings[algorithm]
+        local frames = mapping and mapping.frames or (algorithm == "smart" and page.frames or {})
+        if #frames > 0 then
+            local selected = {}
+            for key, value in pairs(page) do
+                selected[key] = value
+            end
+            selected.frames = frames
+            if mapping then
+                selected.illustration_type = mapping.illustration_type
+            elseif algorithm == "smart" then
+                selected.illustration_type = page.illustration_type
+            else
+                selected.illustration_type = nil
+            end
+            selected.double_illustration = selected.illustration_type == "double_page"
+            selected.algorithm = algorithm
+            pages[#pages + 1] = selected
         end
     end
     return pages

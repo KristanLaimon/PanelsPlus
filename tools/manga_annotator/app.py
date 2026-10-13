@@ -12,6 +12,7 @@ Features:
 import json
 import os
 import re
+import secrets
 import sys
 from typing import Optional, List
 from PIL import Image
@@ -605,6 +606,7 @@ class AnnotatorMainWindow(QMainWindow):
 
         self.reader: Optional[DocumentReader] = None
         self.current_page_num = 1
+        self.panel_algorithm = "smart"
         self.book_title = ""
         self._pending_text_entry = None
         self._suspended_shortcuts = []
@@ -792,6 +794,12 @@ class AnnotatorMainWindow(QMainWindow):
             top_mode_layout.addWidget(btn)
 
         top_nav.addWidget(top_mode_widget)
+        self.btn_panel_algorithm = QPushButton("Panels: Smart(er)")
+        self.btn_panel_algorithm.clicked.connect(self.toggle_panel_algorithm)
+        top_nav.addWidget(self.btn_panel_algorithm)
+        self.btn_copy_panels = QPushButton("Copy Smart → Safe…")
+        self.btn_copy_panels.clicked.connect(self.copy_panels_to_other_algorithm)
+        top_nav.addWidget(self.btn_copy_panels)
 
         top_nav.addStretch(1)
 
@@ -1442,13 +1450,16 @@ class AnnotatorMainWindow(QMainWindow):
         pixmap = pil_to_qpixmap(pil_img)
 
         pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
-        panels = [p.copy() for p in pa.frames]
+        panel_pa = self.dataset_mgr.get_panel_annotation(
+            self.book_title, self.current_page_num, self.panel_algorithm
+        )
+        panels = [p.copy() for p in panel_pa.frames]
         phrases = [p.copy() for p in pa.phrases]
         words = [w.copy() for w in pa.words]
 
         self.canvas.set_page(
             pixmap, panels, phrases, words, fit_width=fit_width,
-            double_illustration=pa.double_illustration,
+            double_illustration=panel_pa.double_illustration,
             wordless=pa.wordless,
         )
         if fit_width:
@@ -1472,6 +1483,7 @@ class AnnotatorMainWindow(QMainWindow):
             self.dataset_mgr.set_page_frames(
                 self.book_title, self.current_page_num, self.canvas.get_panels(),
                 double_illustration=self.canvas.double_illustration,
+                algorithm=self.panel_algorithm,
             )
             self.dataset_mgr.set_page_text_annotations(
                 self.book_title,
@@ -1482,12 +1494,49 @@ class AnnotatorMainWindow(QMainWindow):
             )
             self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
 
+    def toggle_panel_algorithm(self):
+        self._commit_current_page_panels()
+        self.panel_algorithm = "safe" if self.panel_algorithm == "smart" else "smart"
+        label = "Smart(er)" if self.panel_algorithm == "smart" else "Safe"
+        destination = "Safe" if self.panel_algorithm == "smart" else "Smart"
+        self.btn_panel_algorithm.setText(f"Panels: {label}")
+        self.btn_copy_panels.setText(f"Copy {label} → {destination}…")
+        self._render_current_page()
+
+    def copy_panels_to_other_algorithm(self):
+        if not self.book_title or not self.reader:
+            return
+        destination = "safe" if self.panel_algorithm == "smart" else "smart"
+        for step in (1, 2):
+            word = secrets.choice(("mango", "river", "lantern", "forest", "cloud", "pebble"))
+            answer, ok = QInputDialog.getText(
+                self, f"Replace {destination.title()} panels — confirmation {step}/2",
+                f"Copy ALL pages of {self.book_title} from {self.panel_algorithm} to {destination}.\n"
+                f"This replaces every destination panel and illustration marker; OCR stays shared.\n"
+                f"A backup will be created if the destination exists.\nType {word} to continue:",
+            )
+            if not ok or answer != word:
+                return
+        self._commit_current_page_panels()
+        try:
+            backup = self.dataset_mgr.copy_panel_mapping(
+                self.book_title, self.panel_algorithm, destination
+            )
+        except (OSError, ValueError) as error:
+            QMessageBox.critical(self, "Copy failed", str(error))
+            return
+        message = f"Copied all {self.panel_algorithm} panels to {destination}."
+        if backup:
+            message += f"\nBackup: {backup}"
+        QMessageBox.information(self, "Panels copied", message)
+
     def set_single_page_illustration(self):
         """Replace annotations with one full-page, single-page illustration."""
         if not self.book_title or not self.reader:
             return
         self.dataset_mgr.set_page_illustration_type(
-            self.book_title, self.current_page_num, PageAnnotation.SINGLE_PAGE_ILLUSTRATION
+            self.book_title, self.current_page_num, PageAnnotation.SINGLE_PAGE_ILLUSTRATION,
+            algorithm=self.panel_algorithm
         )
         self.canvas.set_full_page_panel(double_illustration=False)
         self._refresh_illustration_type()
@@ -1498,7 +1547,8 @@ class AnnotatorMainWindow(QMainWindow):
         if not self.book_title or not self.reader:
             return
         self.dataset_mgr.set_page_illustration_type(
-            self.book_title, self.current_page_num, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION
+            self.book_title, self.current_page_num, PageAnnotation.DOUBLE_PAGE_ILLUSTRATION,
+            algorithm=self.panel_algorithm
         )
         self.canvas.set_full_page_panel(double_illustration=True)
         self._refresh_illustration_type()
@@ -1580,7 +1630,9 @@ class AnnotatorMainWindow(QMainWindow):
         """A double-page marker is only valid while its single frame covers the whole image."""
         if not self.book_title:
             return
-        pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
+        pa = self.dataset_mgr.get_panel_annotation(
+            self.book_title, self.current_page_num, self.panel_algorithm
+        )
         if pa.illustration_type != PageAnnotation.DOUBLE_PAGE_ILLUSTRATION:
             return
         panels = self.canvas.get_panels()
@@ -1599,7 +1651,9 @@ class AnnotatorMainWindow(QMainWindow):
         if not self.book_title:
             self.lbl_illustration_type.setText("")
             return
-        pa = self.dataset_mgr.get_page_annotation(self.book_title, self.current_page_num)
+        pa = self.dataset_mgr.get_panel_annotation(
+            self.book_title, self.current_page_num, self.panel_algorithm
+        )
         labels = {
             PageAnnotation.SINGLE_PAGE_ILLUSTRATION: "Page type: Single-page illustration",
             PageAnnotation.DOUBLE_PAGE_ILLUSTRATION: "Page type: Double-page illustration",
@@ -1728,6 +1782,8 @@ class AnnotatorMainWindow(QMainWindow):
             "word": "3 Words",
         }
         self.annotation_group.setTitle(f"Mode {mode_titles.get(mode, mode.title())} Rectangles")
+        self.btn_panel_algorithm.setVisible(mode == "panel")
+        self.btn_copy_panels.setVisible(mode == "panel")
         phrase_controls_enabled = mode == "phrase"
         self.btn_prev_phrase.setEnabled(phrase_controls_enabled)
         self.btn_next_phrase.setEnabled(phrase_controls_enabled)

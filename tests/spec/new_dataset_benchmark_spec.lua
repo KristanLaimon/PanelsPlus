@@ -39,9 +39,9 @@ local function findBook(title)
     end
 end
 
-local function countAvailableImages(book)
+local function countAvailableImages(book, algorithm)
     local count = 0
-    for _, page in ipairs(Manifest.getMappedPages(book)) do
+    for _, page in ipairs(Manifest.getMappedPages(book, algorithm)) do
         local image = io.open(page.image_path, "r")
         if image then
             image:close()
@@ -78,21 +78,29 @@ describe("Manga and comic full-volume production benchmarks", function()
         for _, algorithm in ipairs({ "safe", "smart" }) do
             it("preserves " .. expected.title .. " " .. algorithm .. " production accuracy", function()
                 local book = findBook(expected.title)
-                local available_images = countAvailableImages(book)
-                if available_images ~= expected.pages then
+                local mapped = Manifest.getMappedPages(book, algorithm)
+                if #mapped == 0 then
+                    framework.skip(algorithm .. " panel mapping pending for " .. expected.title)
+                end
+                local available_images = countAvailableImages(book, algorithm)
+                if available_images ~= #mapped then
                     local reason =
-                        string.format("%s: %d/%d images available", expected.title, available_images, expected.pages)
+                        string.format("%s: %d/%d images available", expected.title, available_images, #mapped)
                     assert.is_true(os.getenv("PANELSPLUS_REQUIRE_DATASETS") ~= "1", reason)
                     framework.skip(reason .. "; full-volume accuracy was not measured")
                 end
                 local current = AlgorithmBenchmark.evaluate(book, algorithm)
                 local baseline_data = BenchmarkTracker.load(book.directory)
-                assert.is_not_nil(
-                    baseline_data and baseline_data[algorithm .. "_full_volume"],
-                    "Missing algorithm baseline"
-                )
+                if algorithm == "smart" then
+                    assert.is_not_nil(baseline_data and baseline_data.smart_full_volume, "Missing Smart baseline")
+                end
                 local baseline_ok, baseline_reason = AlgorithmBenchmark.verify(baseline_data, algorithm, current)
                 assert.is_true(baseline_ok, baseline_reason)
+                if algorithm == "safe" then
+                    local ok, reason =
+                        BenchmarkTracker.checkAndUpdate(book.directory, "full_volume", current, true, algorithm)
+                    assert.is_true(ok, reason)
+                end
                 print(
                     string.format(
                         "%s [%s]: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%%, IoU %.4f",

@@ -10,9 +10,10 @@ Benchmark.detectors = {
 }
 
 function Benchmark.evaluate(book, algorithm)
+    assert(Benchmark.detectors[algorithm], "Unknown panel algorithm")
     local metrics = { pages_evaluated = 0, total_ground_truth = 0, total_detected = 0, true_positives = 0 }
     local iou_sum, matched_pages = 0, 0
-    for _, page in ipairs(Manifest.getMappedPages(book)) do
+    for _, page in ipairs(Manifest.getMappedPages(book, algorithm)) do
         local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
         local detected = Benchmark.detectors[algorithm].detectPage(map, { mode = page.reading_order })
         local result = Evaluator.evaluate(page.frames, detected, 0.50, 35)

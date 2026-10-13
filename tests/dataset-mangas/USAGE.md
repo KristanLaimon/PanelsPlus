@@ -342,3 +342,41 @@ measured ordering fields when the current run passes the existing baseline.
 # Run a specific spec file
 ./run-tests.sh tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua
 ```
+
+## Safe and Smart panel mappings
+
+Each book has dedicated `panels_smart.json` and `panels_safe.json` files:
+
+```json
+{
+  "book_title": "Example",
+  "algorithm": "safe",
+  "pages": [{"page_index": 1, "frame": [{"x": 0, "y": 0, "w": 100, "h": 100}]}]
+}
+```
+
+Page indices are 1-based. Panel order and illustration markers belong to each
+algorithm. `annotation.json` shares image paths, phrases, words and OCR metadata;
+its legacy frames remain a Smart compatibility mirror. Dedicated panel files
+are authoritative, even when empty. Without a Smart file, legacy frames are
+Smart ground truth. Without Safe frames, Safe accuracy tests report a pending
+mapping rather than evaluate against Smart or treat unmapped pages as negatives.
+All existing mappings have been copied into Smart files; Safe mapping is pending.
+
+In the annotator's Panels mode, use **Panels: Smart(er)/Safe** to switch mappings.
+Use **Copy … → …** to copy every page of the current book to the other algorithm.
+Both random-word confirmations must match exactly. Copying keeps OCR shared and
+backs up any existing file or unsaved destination panels to timestamped `.bak`
+files. The `.bak` contains the current mapping; `.bak.saved` preserves the prior
+saved file when one exists. To restore, copy the desired backup over the matching
+`panels_safe.json` or `panels_smart.json` and reopen the annotator.
+
+Production tests evaluate each algorithm only on its mapped pages and store
+independent `smart_full_volume` / `safe_full_volume` records in `bestbenchmark.json`.
+Component preview records use `smart_preview` / `safe_preview`. Legacy segmenter
+records use `smart_segmenter_preview` / `smart_segmenter_full_volume`; unprefixed
+records are read only as Smart segmenter baselines. Historical Safe measurements that used Smart
+annotations are preserved as `legacy_safe_against_smart_full_volume` and are no
+longer regression guards. The first mapped Safe run establishes its own baseline.
+Later coverage or evaluator changes require reviewing that baseline, as with Smart.
+OCR benchmark records remain shared.

@@ -182,9 +182,13 @@ end
 --- @param update_on_better boolean|nil Whether to write to bestbenchmark.json if better (default true)
 --- @return boolean ok
 --- @return string|nil message
-function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_better)
+function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_better, algorithm)
     local best_data = BenchmarkTracker.load(book_dir) or {}
-    local best_target = best_data[mode]
+    local legacy_segmenter = algorithm == nil
+    algorithm = algorithm or "smart"
+    assert(algorithm == "safe" or algorithm == "smart", "Unknown panel algorithm")
+    local record_key = algorithm .. "_" .. (legacy_segmenter and "segmenter_" or "") .. mode
+    local best_target = best_data[record_key] or (legacy_segmenter and best_data[mode] or nil)
 
     -- An improvement in one metric must never overwrite a regression in another.
     local ok, reason = BenchmarkTracker.verifyNoRegression(current, best_target)
@@ -196,7 +200,7 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
         if update_on_better ~= false then
             best_data.book_title = best_data.book_title or book_dir:match("([^/]+)$")
             best_data.updated_at = os.date("%Y-%m-%d")
-            best_data[mode] = {
+            best_data[record_key] = {
                 pages_evaluated = current.pages_evaluated,
                 total_ground_truth = current.total_ground_truth,
                 total_detected = current.total_detected,
@@ -213,11 +217,14 @@ function BenchmarkTracker.checkAndUpdate(book_dir, mode, current, update_on_bett
             }
             for _, key in ipairs(ORDER_RATES) do
                 if current[key] ~= nil then
-                    best_data[mode][key] = math.floor(current[key] * 10000 + 0.5) / 10000
+                    best_data[record_key][key] = math.floor(current[key] * 10000 + 0.5) / 10000
                 end
             end
             for _, key in ipairs(ORDER_COUNTS) do
-                best_data[mode][key] = current[key]
+                best_data[record_key][key] = current[key]
+            end
+            if algorithm == "safe" then
+                best_data.safe_mapping_status = "mapped"
             end
             BenchmarkTracker.save(book_dir, best_data)
             print(

@@ -11,6 +11,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 import warnings
 import zipfile
 from PIL import Image
@@ -69,6 +70,91 @@ class TestAnnotator(unittest.TestCase):
     def _create_dummy_image(self, width=400, height=600, color=(255, 255, 255)) -> Image.Image:
         img = Image.new("RGB", (width, height), color=color)
         return img
+
+    def test_algorithm_panel_files_preserve_legacy_smart_and_shared_ocr(self):
+        ds = os.path.join(self.test_dir, "algorithms")
+        book_dir = os.path.join(ds, "book")
+        os.makedirs(book_dir)
+        legacy = [{"book_title": "book", "pages": [{
+            "page_index": 1, "frame": [{"x": 0, "y": 0, "w": 100, "h": 100}],
+            "wordless": True, "illustration_type": "double_page",
+        }]}]
+        with open(os.path.join(book_dir, "annotation.json"), "w") as handle:
+            json.dump(legacy, handle)
+        mgr = DatasetManager(ds)
+        self.assertEqual(len(mgr.get_panel_annotation("book", 1, "smart").frames), 1)
+        self.assertEqual(mgr.get_panel_annotation("book", 1, "safe").frames, [])
+        self.assertIsNone(mgr.get_panel_annotation("book", 1, "safe").illustration_type)
+        mgr.set_page_frames("book", 1, [Panel(10, 10, 40, 40), Panel(60, 60, 40, 40)],
+                            algorithm="safe")
+        mgr.save_book_dataset("book")
+        reloaded = DatasetManager(ds)
+        self.assertEqual(len(reloaded.get_panel_annotation("book", 1, "smart").frames), 1)
+        self.assertEqual(len(reloaded.get_panel_annotation("book", 1, "safe").frames), 2)
+        self.assertTrue(reloaded.get_page_annotation("book", 1).wordless)
+        with open(mgr.get_panel_path("book", "safe")) as handle:
+            safe_data = json.load(handle)
+        self.assertNotIn("wordless", safe_data["pages"][0])
+        # An explicit empty Smart mapping supersedes legacy embedded frames.
+        mgr.set_page_frames("book", 1, [])
+        mgr.save_panel_dataset("book", "smart")
+        self.assertEqual(DatasetManager(ds).get_panel_annotation("book", 1).frames, [])
+
+    def test_copy_panels_backs_up_saved_and_unsaved_destination(self):
+        mgr = DatasetManager(os.path.join(self.test_dir, "copy"))
+        mgr.set_page_frames("book", 1, [Panel(1, 2, 30, 40)])
+        mgr.set_page_frames("book", 2, [Panel(5, 6, 30, 40)])
+        mgr.set_page_wordless("book", 1)
+        mgr.set_page_frames("book", 1, [Panel(99, 0, 10, 10)], algorithm="safe")
+        mgr.save_panel_dataset("book", "safe")
+        mgr.set_page_frames("book", 1, [Panel(77, 0, 10, 10)], algorithm="safe")
+        backup = mgr.copy_panel_mapping("book", "smart", "safe")
+        with open(backup) as handle:
+            self.assertEqual(json.load(handle)["pages"][0]["frame"][0]["x"], 77)
+        with open(backup + ".saved") as handle:
+            self.assertEqual(json.load(handle)["pages"][0]["frame"][0]["x"], 99)
+        self.assertEqual(mgr.get_panel_annotation("book", 2, "safe").frames[0].x, 5)
+        mgr.get_panel_annotation("book", 1, "safe").frames[0].x = 42
+        self.assertEqual(mgr.get_panel_annotation("book", 1, "smart").frames[0].x, 1)
+        self.assertTrue(mgr.get_page_annotation("book", 1).wordless)
+        # Reverse copy preserves shared OCR and backs up a legacy, unsaved Smart mapping.
+        reverse_backup = mgr.copy_panel_mapping("book", "safe", "smart")
+        self.assertTrue(os.path.isfile(reverse_backup))
+        self.assertEqual(mgr.get_page_annotation("book", 1).frames[0].x, 42)
+        self.assertTrue(mgr.get_page_annotation("book", 1).wordless)
+
+    def test_ui_algorithm_switch_and_double_typed_confirmation(self):
+        ds = os.path.join(self.test_dir, "ui_algorithms")
+        book_dir = os.path.join(ds, "book")
+        os.makedirs(book_dir)
+        self._create_dummy_image().save(os.path.join(book_dir, "00.png"))
+        win = AnnotatorMainWindow(dataset_dir=ds,
+                                  config_path=os.path.join(self.test_dir, "ui_config.json"))
+        win.open_book_by_title("book")
+        win.dataset_mgr.set_page_frames("book", 1, [Panel(1, 2, 30, 40)])
+        win.dataset_mgr.set_page_wordless("book", 1)
+        win._render_current_page()
+        win.toggle_panel_algorithm()
+        self.assertEqual(win.panel_algorithm, "safe")
+        self.assertEqual(win.canvas.get_panels(), [])
+        self.assertTrue(win.canvas.wordless)
+        win.canvas.panels = [Panel(55, 0, 10, 10)]
+        win.canvas._collections["panel"] = win.canvas.panels
+        win.toggle_panel_algorithm()
+        self.assertEqual(win.canvas.get_panels()[0].x, 1)
+        self.assertEqual(win.dataset_mgr.get_panel_annotation("book", 1, "safe").frames[0].x, 55)
+        with patch("tools.manga_annotator.app.secrets.choice", side_effect=["mango", "river"]), \
+             patch("tools.manga_annotator.app.QInputDialog.getText", side_effect=[("mango", True), ("wrong", True)]), \
+             patch("tools.manga_annotator.app.QMessageBox.information"):
+            win.copy_panels_to_other_algorithm()
+        self.assertEqual(win.dataset_mgr.get_panel_annotation("book", 1, "safe").frames[0].x, 55)
+        with patch("tools.manga_annotator.app.secrets.choice", side_effect=["mango", "river"]), \
+             patch("tools.manga_annotator.app.QInputDialog.getText", side_effect=[("mango", True), ("river", True)]) as prompt, \
+             patch("tools.manga_annotator.app.QMessageBox.information"):
+            win.copy_panels_to_other_algorithm()
+        self.assertEqual(prompt.call_count, 2)
+        self.assertEqual(win.dataset_mgr.get_panel_annotation("book", 1, "safe").frames[0].x, 1)
+        win.close()
 
     def test_natural_sort_key(self):
         items = ["page_10.jpg", "page_1.jpg", "page_2.jpg", "page_20.jpg"]

@@ -231,9 +231,11 @@ class DatasetManager:
         self.dataset_dir = os.path.abspath(dataset_dir)
         os.makedirs(self.dataset_dir, exist_ok=True)
         self.books: Dict[str, Dict[int, PageAnnotation]] = {}  # book_title -> {page_index: PageAnnotation}
+        self.safe_books: Dict[str, Dict[int, PageAnnotation]] = {}
         self.master_annotation_file = os.path.join(self.dataset_dir, "annotation.json")
 
         self.load_dataset()
+        self._load_panel_files()
 
     def load_dataset(self) -> None:
         """Load annotations from master annotation.json and individual book folders."""
@@ -272,6 +274,115 @@ class DatasetManager:
                                 self.books[book_title][pa.page_index] = pa
                     except Exception as e:
                         print(f"Warning loading {book_ann_file}: {e}")
+
+    @staticmethod
+    def validate_algorithm(algorithm: str) -> None:
+        if algorithm not in ("smart", "safe"):
+            raise ValueError("algorithm must be smart or safe")
+
+    def get_panel_path(self, book_title: str, algorithm: str) -> str:
+        self.validate_algorithm(algorithm)
+        return os.path.join(self.get_book_dir(book_title), f"panels_{algorithm}.json")
+
+    def _load_panel_files(self) -> None:
+        for entry in os.scandir(self.dataset_dir):
+            if not entry.is_dir() or entry.name.startswith("."):
+                continue
+            for algorithm in ("smart", "safe"):
+                path = self.get_panel_path(entry.name, algorithm)
+                if not os.path.isfile(path):
+                    continue
+                with open(path, encoding="utf-8") as handle:
+                    data = json.load(handle)
+                if data.get("algorithm") != algorithm:
+                    raise ValueError(f"Wrong algorithm in {path}")
+                target = self.books if algorithm == "smart" else self.safe_books
+                # A present file is authoritative, including explicitly empty pages.
+                for pa in target.get(entry.name, {}).values():
+                    pa.frames = []
+                    pa.illustration_type = None
+                for raw in data.get("pages", []):
+                    panel_page = PageAnnotation.from_dict(raw)
+                    pa = self.get_panel_annotation(entry.name, panel_page.page_index, algorithm)
+                    pa.frames = panel_page.frames
+                    pa.illustration_type = panel_page.illustration_type
+
+    def get_panel_annotation(self, book_title: str, page_index: int,
+                             algorithm: str = "smart") -> PageAnnotation:
+        self.validate_algorithm(algorithm)
+        if algorithm == "smart":
+            return self.get_page_annotation(book_title, page_index)
+        pages = self.safe_books.setdefault(book_title, {})
+        if page_index not in pages:
+            shared = self.get_page_annotation(book_title, page_index)
+            pages[page_index] = PageAnnotation(page_index, shared.image_rel_path)
+        return pages[page_index]
+
+    def _panel_data(self, book_title: str, algorithm: str) -> dict:
+        self.validate_algorithm(algorithm)
+        pages = (self.books if algorithm == "smart" else self.safe_books).get(book_title, {})
+        records = []
+        for index, pa in sorted(pages.items()):
+            record = {"page_index": index, "frame": [p.to_dict() for p in pa.frames]}
+            if pa.effective_illustration_type:
+                record["illustration_type"] = pa.effective_illustration_type
+            records.append(record)
+        return {"book_title": book_title, "algorithm": algorithm, "pages": records}
+
+    @staticmethod
+    def _write_json_atomic(path: str, data: dict) -> None:
+        import tempfile
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8",
+                                         dir=os.path.dirname(path), delete=False) as handle:
+            temporary = handle.name
+            try:
+                json.dump(data, handle, indent=2, ensure_ascii=False)
+                handle.write("\n")
+            except Exception:
+                os.unlink(temporary)
+                raise
+        try:
+            os.replace(temporary, path)
+        finally:
+            if os.path.exists(temporary):
+                os.unlink(temporary)
+
+    def save_panel_dataset(self, book_title: str, algorithm: str) -> str:
+        path = self.get_panel_path(book_title, algorithm)
+        self._write_json_atomic(path, self._panel_data(book_title, algorithm))
+        return path
+
+    def copy_panel_mapping(self, book_title: str, source: str, destination: str) -> Optional[str]:
+        """Copy the whole book after UI confirmation, backing up disk AND unsaved work."""
+        self.validate_algorithm(source)
+        self.validate_algorithm(destination)
+        if source == destination:
+            raise ValueError("Source and destination must differ")
+        target_path = self.get_panel_path(book_title, destination)
+        existing = self._panel_data(book_title, destination)
+        backup = None
+        if os.path.exists(target_path) or any(p["frame"] for p in existing["pages"]):
+            stamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
+            backup = f"{target_path}.{stamp}.bak"
+            # Preserve both the last saved file and current unsaved destination.
+            if os.path.exists(target_path):
+                shutil.copy2(target_path, backup + ".saved")
+            self._write_json_atomic(backup, existing)
+        data = self._panel_data(book_title, source)
+        data["algorithm"] = destination
+        # Publish before changing memory, so write failure leaves the destination intact.
+        self._write_json_atomic(target_path, data)
+        target = self.books if destination == "smart" else self.safe_books
+        for pa in target.get(book_title, {}).values():
+            pa.frames = []
+            pa.illustration_type = None
+        for raw in data["pages"]:
+            copied = PageAnnotation.from_dict(raw)
+            pa = self.get_panel_annotation(book_title, copied.page_index, destination)
+            pa.frames = copied.frames
+            pa.illustration_type = copied.illustration_type
+        return backup
 
     def get_book_dir(self, book_title: str) -> str:
         """Return the directory path for a book inside dataset/."""
@@ -398,8 +509,8 @@ class DatasetManager:
         return self.books[book_title][page_index]
 
     def set_page_frames(self, book_title: str, page_index: int, frames: List[Panel],
-                        double_illustration: Optional[bool] = None) -> None:
-        pa = self.get_page_annotation(book_title, page_index)
+                        double_illustration: Optional[bool] = None, algorithm: str = "smart") -> None:
+        pa = self.get_panel_annotation(book_title, page_index, algorithm)
         pa.frames = [p.copy() for p in frames]
         if double_illustration is not None:
             pa.double_illustration = bool(double_illustration)
@@ -480,12 +591,13 @@ class DatasetManager:
         return failures
 
     def set_page_illustration_type(
-        self, book_title: str, page_index: int, illustration_type: Optional[str]
+        self, book_title: str, page_index: int, illustration_type: Optional[str],
+        algorithm: str = "smart",
     ) -> None:
         """Set an explicit full-page illustration type, or clear it for normal panels."""
         if illustration_type is not None and illustration_type not in PageAnnotation.ILLUSTRATION_TYPES:
             raise ValueError(f"Unsupported illustration type: {illustration_type}")
-        self.get_page_annotation(book_title, page_index).illustration_type = illustration_type
+        self.get_panel_annotation(book_title, page_index, algorithm).illustration_type = illustration_type
 
     def export_page_image(self, book_title: str, page_index: int, pil_image: Image.Image, ext: str = "png") -> str:
         """Save page image to dataset/<book_title>/00.png, 01.png... and return relative path."""
@@ -517,6 +629,10 @@ class DatasetManager:
         metadata["annotation_layers"] = ["panel", "phrase", "word"]
         metadata["text_direction"] = "ltr"
         self.save_book_metadata(book_title, metadata)
+
+        self.save_panel_dataset(book_title, "smart")
+        if book_title in self.safe_books:
+            self.save_panel_dataset(book_title, "safe")
 
         # 1. Book-specific annotation.json
         pages_dict = self.books.get(book_title, {})
@@ -553,6 +669,9 @@ class DatasetManager:
                 raise ValueError(f"Incomplete text annotations for {book_title}: {failures}")
         dataset_array = []
         for book_title in sorted(self.books.keys()):
+            self.save_panel_dataset(book_title, "smart")
+            if book_title in self.safe_books:
+                self.save_panel_dataset(book_title, "safe")
             pages_dict = self.books[book_title]
             pages_list = []
             for p_idx in sorted(pages_dict.keys()):

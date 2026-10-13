@@ -20,7 +20,7 @@ for _, book in ipairs(Manifest.loadManga()) do
             panels = panels + #page.frames
         end
     end
-    if pages > 0 then
+    if pages > 0 or #Manifest.getMappedPages(book, "safe") > 0 then
         local tier = book.panel_benchmark_tier
         local experimental = tier == "experimental"
         local challenging = tier == "challenging"

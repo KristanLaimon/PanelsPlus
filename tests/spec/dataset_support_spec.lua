@@ -66,14 +66,14 @@ describe("Dataset regression safeguards", function()
             assert.is_true(Tracker.checkAndUpdate(root, "preview", metrics, false))
             assert.is_nil(Tracker.load(root).preview.reading_order_accuracy)
             assert.is_true(Tracker.checkAndUpdate(root, "preview", metrics, true))
-            local saved = Tracker.load(root).preview
+            local saved = Tracker.load(root).smart_segmenter_preview
             assert.equals(0.5, saved.reading_order_accuracy)
             assert.equals(0.6667, saved.reading_order_pair_accuracy)
             assert.equals(2, saved.reading_order_pairs_correct)
             metrics.reading_order_accuracy = 1 -- Improvement must not hide worse pair order.
             metrics.reading_order_pair_accuracy = 0.5
             assert.is_false(Tracker.checkAndUpdate(root, "preview", metrics, true))
-            assert.equals(0.5, Tracker.load(root).preview.reading_order_accuracy)
+            assert.equals(0.5, Tracker.load(root).smart_segmenter_preview.reading_order_accuracy)
             metrics.reading_order_pair_accuracy = nil
             assert.is_false(Tracker.verifyNoRegression(metrics, saved))
         end)
@@ -167,5 +167,88 @@ describe("Dataset regression safeguards", function()
             count = count + 1
         end
         assert.equals(1, count)
+    end)
+    it("uses independent panel files and never falls back to Smart for pending Safe pages", function()
+        local root = os.tmpname()
+        os.remove(root)
+        os.execute("mkdir -p " .. root .. "/book")
+        local function write(name, content)
+            local file = io.open(root .. "/book/" .. name, "w")
+            assert.is_not_nil(file)
+            file:write(content)
+            file:close()
+        end
+        local ok, err = pcall(function()
+            write(
+                "annotation.json",
+                '[{"book_title":"book","pages":[{"page_index":1,"frame":[{"x":99,"y":0,"w":100,"h":100}],"wordless":true,"word":[{"x":1,"y":1,"w":2,"h":2,"text":"shared"}]},{"page_index":2,"frame":[]}]}]'
+            )
+            local book = Manifest.loadManga(root)[1]
+            assert.equals(99, Manifest.getMappedPages(book, "smart")[1].frames[1].x)
+            assert.equals(0, #Manifest.getMappedPages(book, "safe"))
+            write(
+                "panels_smart.json",
+                '{"algorithm":"smart","pages":[{"page_index":1,"frame":[{"x":10,"y":0,"w":100,"h":100}],"illustration_type":"double_page"}]}'
+            )
+            write(
+                "panels_safe.json",
+                '{"algorithm":"safe","pages":[{"page_index":1,"frame":[{"x":20,"y":0,"w":50,"h":100},{"x":70,"y":0,"w":50,"h":100}]},{"page_index":2,"frame":[]}]}'
+            )
+            Manifest._manga_cache[root] = nil
+            book = Manifest.loadManga(root)[1]
+            local smart, safe = Manifest.getMappedPages(book, "smart"), Manifest.getMappedPages(book, "safe")
+            assert.equals(10, smart[1].frames[1].x)
+            assert.equals(20, safe[1].frames[1].x)
+            assert.equals(1, #safe)
+            assert.is_true(smart[1].double_illustration)
+            assert.is_false(safe[1].double_illustration)
+            assert.is_nil(safe[1].illustration_type)
+            assert.equals("shared", safe[1].words[1].text)
+            write("panels_smart.json", '{"algorithm":"smart","pages":[]}')
+            Manifest._manga_cache[root] = nil
+            book = Manifest.loadManga(root)[1]
+            assert.equals(0, #Manifest.getMappedPages(book, "smart"))
+            assert.equals(1, #Manifest.getMappedPages(book, "safe"))
+            -- A shared root file still resolves dedicated maps without metadata.json.
+            local shared = io.open(root .. "/annotation.json", "w")
+            assert.is_not_nil(shared)
+            shared:write('[{"book_title":"book","pages":[{"page_index":1,"frame":[]}]}]')
+            shared:close()
+            os.remove(root .. "/book/annotation.json")
+            Manifest._manga_cache[root] = nil
+            book = Manifest.loadManga(root)[1]
+            assert.equals(1, #Manifest.getMappedPages(book, "safe"))
+            assert.equals(root .. "/book", book.directory)
+        end)
+        for _, name in ipairs({ "annotation.json", "panels_smart.json", "panels_safe.json" }) do
+            os.remove(root .. "/book/" .. name)
+        end
+        os.remove(root .. "/book")
+        os.remove(root .. "/annotation.json")
+        os.remove(root)
+        Manifest._manga_cache[root] = nil
+        assert.is_true(ok, tostring(err))
+    end)
+
+    it("records Safe improvements without overwriting Smart or shared OCR benchmarks", function()
+        local root = os.tmpname()
+        os.remove(root)
+        os.execute("mkdir -p " .. root)
+        local ok, err = pcall(function()
+            local smart = { precision = 1, recall = 1, f1 = 1, mean_iou = 1 }
+            Tracker.save(root, { smart_preview = smart, ocr = { text = { correct = 9 } } })
+            local safe = { precision = 0.5, recall = 0.5, f1 = 0.5, mean_iou = 0.5 }
+            assert.is_true(Tracker.checkAndUpdate(root, "preview", safe, true, "safe"))
+            local data = Tracker.load(root)
+            assert.equals(1, data.smart_preview.f1)
+            assert.equals(0.5, data.safe_preview.f1)
+            assert.equals(9, data.ocr.text.correct)
+            safe.f1 = 0.4
+            assert.is_false(Tracker.checkAndUpdate(root, "preview", safe, true, "safe"))
+            assert.equals(0.5, Tracker.load(root).safe_preview.f1)
+        end)
+        os.remove(root .. "/bestbenchmark.json")
+        os.remove(root)
+        assert.is_true(ok, tostring(err))
     end)
 end)

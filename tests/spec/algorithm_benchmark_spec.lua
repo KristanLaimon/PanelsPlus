@@ -40,4 +40,53 @@ describe("Independent algorithm baselines", function()
         assert.is_false(ok)
         assert.is_true(reason:find("coverage changed", 1, true) ~= nil)
     end)
+    it("evaluates each detector against its own mapped panels and skips pending pages", function()
+        local Loader = require("tests.dataset-mangas.dataset_loader")
+        local load = Loader.loadPageMap
+        local safe_detector, smart_detector = Benchmark.detectors.safe, Benchmark.detectors.smart
+        local a = { x = 0, y = 0, w = 40, h = 100 }
+        local b = { x = 60, y = 0, w = 40, h = 100 }
+        local merged = { x = 0, y = 0, w = 100, h = 100 }
+        local book = {
+            pages = {
+                {
+                    image_path = "page1",
+                    reading_order = "manga",
+                    frames = { a, b },
+                    panel_mappings = { smart = { frames = { a, b } }, safe = { frames = { merged } } },
+                },
+                {
+                    image_path = "page2",
+                    reading_order = "manga",
+                    frames = { a, b },
+                    panel_mappings = { smart = { frames = { a, b } }, safe = { frames = {} } },
+                },
+            },
+        }
+        Loader.loadPageMap = function()
+            return {}
+        end
+        Benchmark.detectors.safe = {
+            detectPage = function()
+                return { merged }
+            end,
+        }
+        Benchmark.detectors.smart = {
+            detectPage = function()
+                return { a, b }
+            end,
+        }
+        local ok, err = pcall(function()
+            local safe, smart = Benchmark.evaluate(book, "safe"), Benchmark.evaluate(book, "smart")
+            assert.equals(1, safe.pages_evaluated)
+            assert.equals(1, safe.total_ground_truth)
+            assert.equals(1, safe.f1)
+            assert.equals(2, smart.pages_evaluated)
+            assert.equals(4, smart.total_ground_truth)
+            assert.equals(1, smart.f1)
+        end)
+        Loader.loadPageMap = load
+        Benchmark.detectors.safe, Benchmark.detectors.smart = safe_detector, smart_detector
+        assert.is_true(ok, tostring(err))
+    end)
 end)
