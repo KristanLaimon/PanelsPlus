@@ -1,0 +1,550 @@
+# Simplified Chinese translation by 瑾轩小狼 (@IMJXXL).
+# Contributed in https://github.com/KristanLaimon/PanelsPlus/issues/12
+msgid ""
+msgstr ""
+"Project-Id-Version: mangacomicsmoother\n"
+"PO-Revision-Date: 2026-10-13 03:34+0000\n"
+"Last-Translator: 瑾轩小狼 (@IMJXXL)\n"
+"Language-Team: Simplified Chinese\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+msgid "Shot"
+msgstr "镜头"
+
+msgid "Show"
+msgstr "显示"
+
+msgid "Hide"
+msgstr "隐藏"
+
+msgid "Fit"
+msgstr "适应"
+
+msgid "None"
+msgstr "无"
+
+msgid "The profile's OCR model is unavailable. The available fallback is in use; profile selection is None."
+msgstr "该配置的 OCR 模型不可用，已改用备用模型；当前配置选择为“无”。"
+
+msgid "Rename profile"
+msgstr "重命名配置"
+
+msgid "Create profile from current settings"
+msgstr "用当前设置创建配置"
+
+msgid "Cancel"
+msgstr "取消"
+
+msgid "In use"
+msgstr "使用中"
+
+msgid "Create from current settings..."
+msgstr "用当前设置创建..."
+
+msgid "Manage profiles..."
+msgstr "管理配置..."
+
+msgid "Settings Profiles"
+msgstr "设置配置"
+
+msgid "Back"
+msgstr "返回"
+
+msgid "Manage Profiles"
+msgstr "管理配置"
+
+msgid "Manga"
+msgstr "日漫"
+
+msgid "Comic"
+msgstr "美漫"
+
+msgid "Shown"
+msgstr "已显示"
+
+msgid "Hidden"
+msgstr "已隐藏"
+
+msgid "Classic"
+msgstr "经典"
+
+msgid "Smooth"
+msgstr "平滑"
+
+msgid "Animated"
+msgstr "动画"
+
+msgid "Portrait"
+msgstr "竖屏"
+
+msgid "Landscape right"
+msgstr "横屏右转"
+
+msgid "Inverted portrait"
+msgstr "倒竖屏"
+
+msgid "Landscape left"
+msgstr "横屏左转"
+
+msgid "Device"
+msgstr "设备"
+
+msgid "Image"
+msgstr "图像"
+
+msgid "English"
+msgstr "英语"
+
+msgid "Spanish"
+msgstr "西班牙语"
+
+msgid "Apply"
+msgstr "应用"
+
+msgid "Edit settings..."
+msgstr "编辑设置..."
+
+msgid "Rename..."
+msgstr "重命名..."
+
+msgid "Replace with current settings..."
+msgstr "用当前设置替换..."
+
+msgid "Replace this profile with the current reading settings?"
+msgstr "用当前阅读设置替换此配置？"
+
+msgid "Delete..."
+msgstr "删除..."
+
+msgid "Delete profile?"
+msgstr "删除配置？"
+
+msgid "Edit profile"
+msgstr "编辑配置"
+
+msgid "Profile setting"
+msgstr "配置项"
+
+msgid "Choose a non-empty name other than None."
+msgstr "请输入非空名称（不能为“无”）。"
+
+msgid "A profile with this name already exists."
+msgstr "已存在同名配置。"
+
+msgid "Reading order"
+msgstr "阅读方向"
+
+msgid "Progress"
+msgstr "进度"
+
+msgid "OCR"
+msgstr "OCR"
+
+msgid "Crop"
+msgstr "裁边"
+
+msgid "Settings Profile:"
+msgstr "设置配置："
+
+msgid "Panels Finding: Safe"
+msgstr "分镜检测：保守"
+
+msgid "Panels Finding: Smart"
+msgstr "分镜检测：智能"
+
+msgid "Recommended"
+msgstr "推荐"
+
+msgid " (fps)"
+msgstr " (帧率)"
+
+msgid "Requires special e-ink devices swipe hardware support (Kindles, Kobos, etc..) not compatible with Android and Desktop (Linux)"
+msgstr "需要墨水屏设备的滑动硬件支持（Kindle、Kobo 等），不兼容安卓和电脑端。"
+
+msgid "(Long Press)"
+msgstr "（长按）"
+
+msgid "(Long press config)"
+msgstr "（长按设置）"
+
+msgid "Adjust how long the camera pan between panels takes in milliseconds."
+msgstr "调整分镜间镜头平移的耗时，单位毫秒。"
+
+msgid "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+msgstr "在放大分镜中每次通过 OCR 查词后，询问识别是否正确。若有误，框选正确单词并输入实际内容。所有信息（含长按精确坐标）会追加到 OCR.debug.session.log，以便复查。默认关闭。"
+
+msgid "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+msgstr "允许长按放大分镜中的文字以选择文本并触发 OCR 查词。默认开启；若 OCR 文字检测频繁误判可关闭。"
+
+msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgstr "翻页时，从当前页最后分镜平移至下页第一分镜，而非瞬间切换。仅当相邻页已在后台完成检测时才执行动画，否则仍为瞬间切换。"
+
+msgid "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+msgstr "始终在缩小的页面上检测分镜。速度最快，且是唯一能处理深色背景页面的模式，但无法分割紧密相连的分镜布局。"
+
+msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+msgstr "始终使用 KOReader 原生分镜检测器。速度较慢，无法检测深色背景页面的分镜，但对分镜边缘的判定更精确。美漫模式（常含深色背景）下不可用。"
+
+msgid "Auto"
+msgstr "自动"
+
+msgid "Auto-rotate double-page spreads"
+msgstr "自动旋转跨页"
+
+msgid "Animate page-to-page transitions (Actual: "
+msgstr "翻页动画（实际："
+
+msgid "Animate between panels (Actual: "
+msgstr "分镜间动画（实际："
+
+msgid "Animate between pages (Actual: "
+msgstr "页间动画（实际："
+
+msgid "Close"
+msgstr "关闭"
+
+msgid "Comic mode"
+msgstr "美漫模式"
+
+msgid "Comic mode (left to right)"
+msgstr "美漫模式（从左到右）"
+
+msgid "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+msgstr "仅美漫模式。使用作者绘制的黑色分隔线，分割边缘紧贴、无间隙的分镜。默认关闭：该线条与地平线、说明线或分镜内黑色横带外观相同，可能将完整分镜切成两半。若分镜被合并可尝试开启。"
+
+msgid "Comic mode: left to right"
+msgstr "美漫模式：从左到右"
+
+msgid "Correct word/text"
+msgstr "修正文字"
+
+msgid "Deep mode"
+msgstr "深度模式"
+
+msgid "Device rotation"
+msgstr "设备旋转"
+
+msgid "Disable plugin panel focusing"
+msgstr "禁用插件分镜聚焦"
+
+msgid "Enable debugging logs"
+msgstr "启用调试日志"
+
+msgid "Hide progress"
+msgstr "隐藏进度"
+
+msgid "How long the camera pan between panels takes."
+msgstr "分镜间镜头平移的耗时。"
+
+msgid "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "平滑镜头平移分成多少步。帧数越多越平滑，但每次切换的运算量也越大。"
+
+msgid "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "镜头平移分成多少步。帧数越多越平滑，但每次切换的运算量也越大。"
+
+msgid "How much page area outside each panel's edges to reveal."
+msgstr "分镜边缘外露出多少页面区域。"
+
+msgid "Image rotation (this view only)"
+msgstr "图像旋转（仅此视图）"
+
+msgid "Invert panel swipe direction"
+msgstr "反转分镜滑动方向"
+
+msgid "Invert panel swipe direction (Actual: "
+msgstr "反转分镜滑动方向（实际："
+
+msgid "Invert tap screens direction"
+msgstr "反转点击屏幕方向"
+
+msgid "Invert tap screens direction (Actual: "
+msgstr "反转点击屏幕方向（实际："
+
+msgid "Kobo-like edge vertical gesture (Actual: "
+msgstr "类似 Kobo 边缘纵向手势（实际："
+
+msgid "Swipe vertically within the left 25% of the screen to zoom in (swipe up) or zoom out (swipe down), similar to Kobo's edge gesture. Only active at standard zoom."
+msgstr "在屏幕左侧 25% 区域内纵向滑动以放大（上滑）或缩小（下滑），类似 Kobo 的边缘手势。仅在标准缩放下生效。"
+
+msgid "Remember per-document settings"
+msgstr "记住每本书的设置"
+
+msgid "Remember per-document settings (Actual: "
+msgstr "记住每本书的设置（实际："
+
+msgid "Page turn animations (Actual: "
+msgstr "翻页动画（实际："
+
+msgid "Loose crop"
+msgstr "宽松裁边"
+
+msgid "Loose crop bleed"
+msgstr "宽松裁边留白"
+
+msgid "Manga mode"
+msgstr "日漫模式"
+
+msgid "Manga mode (right to left)"
+msgstr "日漫模式（从右到左）"
+
+msgid "Manga mode: right to left"
+msgstr "日漫模式：从右到左"
+
+msgid "More Panel Viewer Settings"
+msgstr "更多分镜查看器设置"
+
+msgid "More config..."
+msgstr "更多设置..."
+
+msgid "Native panel focusing enabled"
+msgstr "已启用原生分镜聚焦"
+
+msgid "Nav. Classic"
+msgstr "导航·经典"
+
+msgid "Nav. Animated"
+msgstr "导航·动画"
+
+msgid "Nav. Smooth"
+msgstr "导航·平滑"
+
+msgid "Navigation Transition Settings"
+msgstr "导航过渡设置"
+
+msgid "Navigation"
+msgstr "导航"
+
+msgid "No crop"
+msgstr "不裁边"
+
+msgid "No rotation"
+msgstr "不旋转"
+
+msgid "No, wrong"
+msgstr "有误"
+
+msgid "OCR debug review mode"
+msgstr "OCR 调试复核模式"
+
+msgid "Original size"
+msgstr "原始尺寸"
+
+msgid "Pan animation duration..."
+msgstr "平移动画时长..."
+
+msgid "Panel detection"
+msgstr "分镜检测"
+
+msgid "Panel margin"
+msgstr "分镜边距"
+
+msgid "Panels+ OCR debug"
+msgstr "Panels+ OCR 调试"
+
+msgid "Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."
+msgstr "Panels+ OCR 调试：此处未识别到文字。请框选正确区域并输入实际内容。"
+
+msgid "Panels+ OCR debug\n\nWas the OCR word correct?"
+msgstr "Panels+ OCR 调试\n\nOCR 识别结果是否正确？"
+
+msgid "Panels+ panel focusing enabled"
+msgstr "已启用 Panels+ 分镜聚焦"
+
+msgid "Panels+: comic mode"
+msgstr "Panels+：美漫模式"
+
+msgid "Panels+: manga mode"
+msgstr "Panels+：日漫模式"
+
+msgid "Panels+: manga/comic mode"
+msgstr "Panels+：日漫/美漫模式"
+
+msgid "Panels+: set comic mode"
+msgstr "Panels+：设为美漫模式"
+
+msgid "Panels+: set manga mode"
+msgstr "Panels+：设为日漫模式"
+
+msgid "Panels+: toggle panel focusing"
+msgstr "Panels+：切换分镜聚焦"
+
+msgid "Performance"
+msgstr "性能"
+
+msgid "Pre-render next panel"
+msgstr "预渲染下一分镜"
+
+msgid "Pre-render next panel (Actual: "
+msgstr "预渲染下一分镜（实际："
+
+msgid "Quick mode"
+msgstr "快速模式"
+
+msgid "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+msgstr "阅读当前分镜时预先渲染下一分镜，使滑动切换无延迟。设备内存不足时自动跳过。"
+
+msgid "Rotate"
+msgstr "旋转"
+
+msgid "Rotate a wide full-page image inside the panel viewer to fit a portrait screen. Manual image rotation takes priority; device orientation is unchanged."
+msgstr "在分镜查看器中将宽幅全页图像旋转以适应竖屏。手动图像旋转优先；设备方向不变。"
+
+msgid "Save"
+msgstr "保存"
+
+msgid "Scale"
+msgstr "缩放"
+
+msgid "Screenshot"
+msgstr "截图"
+
+msgid "Show progress"
+msgstr "显示进度"
+
+msgid "Skip"
+msgstr "跳过"
+
+msgid "Smart Mode"
+msgstr "智能模式"
+
+msgid "Smooth navigation duration"
+msgstr "平滑导航时长"
+
+msgid "Smooth navigation frames"
+msgstr "平滑导航帧数"
+
+msgid "Split on drawn panel borders (experimental)"
+msgstr "按绘制边框分割分镜（实验性）"
+
+msgid "Strict crop"
+msgstr "严格裁边"
+
+msgid "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+msgstr "左右滑动切换分镜。关闭后仅能通过点击、按钮或物理翻页键导航。"
+
+msgid "Swipe to navigate (Actual: "
+msgstr "滑动导航（实际："
+
+msgid "Tap screen sides to navigate (Actual: "
+msgstr "点击屏幕两侧导航（实际："
+
+msgid "Tap the correct word's top-left corner, then tap its bottom-right corner."
+msgstr "点击正确单词的左上角，再点击其右下角。"
+
+msgid "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+msgstr "点击屏幕左右边缘切换分镜，而非仅显示/隐藏控件。前进方向取决于阅读模式：美漫为右侧，日漫为左侧。仅在标准缩放下生效。"
+
+msgid "Top-left corner marked. Now tap the bottom-right corner."
+msgstr "已标记左上角。请点击右下角。"
+
+msgid "Text Selection"
+msgstr "文字选择"
+
+msgid "Touch & hold text selection in zoom [EXPERIMENTAL]"
+msgstr "放大时长按选词 [实验性]"
+
+msgid "Touch & hold (Actual: "
+msgstr "长按（实际："
+
+msgid "Transition frames (Actual: "
+msgstr "过渡帧数（实际："
+
+msgid "Animate page boundaries in PDF, CBZ, CBR, and embedded-image documents. Smooth navigation temporarily disables this animation because the two effects are incompatible; returning to Classic restores the saved preference."
+msgstr "为 PDF、CBZ、CBR 和嵌入式图像文档的翻页添加动画。平滑导航会暂时禁用此动画（两种效果不兼容）；切回经典导航后恢复原设置。"
+
+msgid "Sync page animations with KOReader (Actual: "
+msgstr "与 KOReader 同步翻页动画（实际："
+
+msgid "When enabled, Panels+ follows KOReader's global Page turn animations setting and changes made here update KOReader too. Disable sync to keep an independent Panels+ on/off preference."
+msgstr "启用后，Panels+ 跟随 KOReader 全局翻页动画设置，此处修改也会同步更新。关闭同步可保持 Panels+ 独立的开关偏好。"
+
+msgid "Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."
+msgstr "使用 KOReader 原生分镜缩放，替代 Panels+ 的分镜顺序查看器。"
+
+msgid "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+msgstr "使用快速检测，无法分割的布局改用精确检测。推荐。"
+
+msgid "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+msgstr "若设备上分镜导航方向相反可启用。仅改变滑动方向，不改变分镜顺序。"
+
+msgid "What is actually written in the box you drew?"
+msgstr "框选区域内实际写了什么？"
+
+msgid "With margin"
+msgstr "带边距"
+
+msgid "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+msgstr "将分镜检测、渲染耗时和内存占用写入 KOReader 日志。用于诊断卡顿或崩溃，平时建议关闭。"
+
+msgid "Yes, correct"
+msgstr "正确"
+
+msgid "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+msgstr "略微缩小分镜，四周留出一点空隙。对全页分镜无效。"
+
+msgid "false"
+msgstr "false"
+
+msgid "frames"
+msgstr "帧"
+
+msgid "true"
+msgstr "true"
+
+msgid "Rotation"
+msgstr "旋转"
+
+msgid "Remove the fold line from double-page spreads"
+msgstr "移除跨页折痕线"
+
+msgid "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
+msgstr "部分扫描件用黑色条带连接跨页的两页。移除条带并拼接两半，在阅读页和分镜查看器中均生效。当页面放大到分块渲染时，条带保留。"
+
+msgid "Remove spread fold line (Actual: "
+msgstr "移除跨页折痕线（实际："
+
+msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+msgstr "将跨页旋转 90 度以填满竖屏。分镜查看器中旋转整个跨页图像，设备方向不变。阅读时，翻到跨页自动旋转屏幕，翻到普通页时以相同方向恢复。"
+
+msgid "Off"
+msgstr "关闭"
+
+msgid "In the panel viewer"
+msgstr "仅分镜查看器"
+
+msgid "In the panel viewer and while reading"
+msgstr "分镜查看器及阅读时"
+
+msgid "Viewer"
+msgstr "查看器"
+
+msgid "Viewer + reading"
+msgstr "查看器 + 阅读"
+
+msgid "Rotate spreads (Actual: "
+msgstr "旋转跨页（实际："
+
+msgid "While reading"
+msgstr "阅读时"
+
+msgid "Reading"
+msgstr "阅读"
+
+msgid "Spread rotation direction"
+msgstr "跨页旋转方向"
+
+msgid "Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows \"Invert default rotation in portrait mode\" in KOReader's rotation settings."
+msgstr "分镜查看器和阅读时跨页的旋转方向。第一项跟随 KOReader 旋转设置中的“竖屏模式反转默认旋转”。"
+
+msgid "Same as KOReader's image viewer"
+msgstr "与 KOReader 图像查看器一致"
+
+msgid "KOReader"
+msgstr "KOReader"
+
+msgid "Spread direction (Actual: "
+msgstr "跨页方向（实际："

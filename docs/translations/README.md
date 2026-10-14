@@ -10,6 +10,7 @@ Panels+ uses simple translation text files called `.po` files, located in the [`
 
 - `locales/en.po` — English (The master template)
 - `locales/es.po` — Spanish
+- `locales/zh_CN.po` — Simplified Chinese (瑾轩小狼 / [@IMJXXL](https://github.com/IMJXXL), [#12](https://github.com/KristanLaimon/PanelsPlus/issues/12))
 - `locales/your_language.po` — Your language
 
 Inside a `.po` file, you will see pairs of text lines like this:
@@ -119,7 +120,7 @@ When naming your `.po` file in `locales/`, use the language code recognized by K
 | ⌛ Needed | **Bulgarian**                     | `bg`          | `bg.po`        |
 | ⌛ Needed | **Burmese / Myanmar**             | `my`          | `my.po`        |
 | ⌛ Needed | **Catalan / Valencian**           | `ca`          | `ca.po`        |
-| ⌛ Needed | **Chinese (Simplified)**          | `zh_CN`       | `zh_CN.po`     |
+| ✅        | **Chinese (Simplified)**          | `zh_CN`       | `zh_CN.po`     |
 | ⌛ Needed | **Chinese (Traditional, Taiwan)** | `zh_TW`       | `zh_TW.po`     |
 | ⌛ Needed | **Chinese (Hong Kong)**           | `zh_HK`       | `zh_HK.po`     |
 | ⌛ Needed | **Croatian**                      | `hr`          | `hr.po`        |
