@@ -11,7 +11,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 2,
@@ -22,7 +23,8 @@
           "w": 1261,
           "h": 458
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 3,
@@ -33,7 +35,8 @@
           "w": 1264,
           "h": 546
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 4,
@@ -44,7 +47,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 5,
@@ -217,7 +221,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 12,
@@ -1232,7 +1237,8 @@
           "w": 951,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 41,
@@ -1243,7 +1249,8 @@
           "w": 951,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 42,
@@ -2965,12 +2972,13 @@
       "page_index": 90,
       "frame": [
         {
-          "x": 0,
+          "x": 33,
           "y": 0,
-          "w": 1264,
+          "w": 1192,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 91,
@@ -3086,6 +3094,18 @@
           "y": 559,
           "w": 343,
           "h": 646
+        },
+        {
+          "x": 121,
+          "y": 1243,
+          "w": 640,
+          "h": 437
+        },
+        {
+          "x": 775,
+          "y": 1245,
+          "w": 431,
+          "h": 435
         }
       ]
     },
@@ -4617,7 +4637,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 142,
@@ -5338,7 +5359,8 @@
           "w": 1196,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 165,
@@ -5349,7 +5371,8 @@
           "w": 1081,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 166,
@@ -5614,7 +5637,8 @@
           "w": 1194,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 177,
@@ -5625,7 +5649,8 @@
           "w": 1061,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 178,
@@ -5636,7 +5661,8 @@
           "w": 1098,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 179,
@@ -5647,7 +5673,8 @@
           "w": 1215,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 180,
@@ -5658,7 +5685,8 @@
           "w": 1150,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 181,
@@ -5669,7 +5697,8 @@
           "w": 1214,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 182,
@@ -5680,7 +5709,8 @@
           "w": 1041,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 183,
@@ -5691,7 +5721,8 @@
           "w": 1053,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 184,
@@ -5702,7 +5733,8 @@
           "w": 1117,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 185,
@@ -5713,7 +5745,8 @@
           "w": 1105,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 186,
@@ -5724,7 +5757,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 187,
@@ -5758,7 +5792,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 189,
@@ -5769,7 +5804,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 190,
@@ -5780,7 +5816,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 191,
@@ -5791,7 +5828,8 @@
           "w": 1142,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 192,
@@ -5819,7 +5857,8 @@
           "w": 1121,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 194,
@@ -5830,7 +5869,8 @@
           "w": 1155,
           "h": 1675
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 195,
@@ -5841,7 +5881,8 @@
           "w": 959,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 196,
@@ -5852,7 +5893,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 197,
@@ -5863,7 +5905,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 198,
@@ -5874,7 +5917,8 @@
           "w": 1264,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 199,
@@ -5920,7 +5964,8 @@
           "w": 1105,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 201,
@@ -5931,7 +5976,8 @@
           "w": 1045,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 202,
@@ -5942,7 +5988,8 @@
           "w": 1137,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 203,
@@ -5953,7 +6000,8 @@
           "w": 1055,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 204,
@@ -5964,7 +6012,8 @@
           "w": 1102,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 205,
@@ -5975,7 +6024,8 @@
           "w": 1009,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 206,
@@ -5986,7 +6036,8 @@
           "w": 1163,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 207,
@@ -5997,7 +6048,8 @@
           "w": 1055,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 208,
@@ -6008,7 +6060,8 @@
           "w": 1055,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 209,
@@ -6019,7 +6072,8 @@
           "w": 1150,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 210,
@@ -6030,7 +6084,8 @@
           "w": 1135,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 211,
@@ -6041,7 +6096,8 @@
           "w": 1037,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 212,
@@ -6052,7 +6108,8 @@
           "w": 1111,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 213,
@@ -6063,7 +6120,8 @@
           "w": 1143,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 214,
@@ -6074,7 +6132,8 @@
           "w": 1065,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 215,
@@ -6085,7 +6144,8 @@
           "w": 1034,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 216,
@@ -6096,7 +6156,8 @@
           "w": 1155,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 217,
@@ -6107,7 +6168,8 @@
           "w": 1117,
           "h": 1676
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     },
     {
       "page_index": 218,
@@ -6118,7 +6180,8 @@
           "w": 1015,
           "h": 1680
         }
-      ]
+      ],
+      "illustration_type": "single_page"
     }
   ]
 }
