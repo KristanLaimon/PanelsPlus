@@ -41,27 +41,19 @@ deadpool.comic.cbr
 kobayashi.manga.cbz
 page_diagnosis.md
 
-# Dataset book images: share only the first eight pages (00 through 07)
+# Dataset book images: share only the first four pages (00 through 03)
 tests/dataset-mangas/dataset/*/*.png
 !tests/dataset-mangas/dataset/*/00.png
 !tests/dataset-mangas/dataset/*/01.png
 !tests/dataset-mangas/dataset/*/02.png
 !tests/dataset-mangas/dataset/*/03.png
-!tests/dataset-mangas/dataset/*/04.png
-!tests/dataset-mangas/dataset/*/05.png
-!tests/dataset-mangas/dataset/*/06.png
-!tests/dataset-mangas/dataset/*/07.png
 
-# Text-based format dataset book images: share only 00 through 07; keep full books local
+# Text-based format dataset book images: share only 00 through 03; keep full books local
 tests/dataset-mangas/dataset-textbasedformats/*/*.png
 !tests/dataset-mangas/dataset-textbasedformats/*/00.png
 !tests/dataset-mangas/dataset-textbasedformats/*/01.png
 !tests/dataset-mangas/dataset-textbasedformats/*/02.png
 !tests/dataset-mangas/dataset-textbasedformats/*/03.png
-!tests/dataset-mangas/dataset-textbasedformats/*/04.png
-!tests/dataset-mangas/dataset-textbasedformats/*/05.png
-!tests/dataset-mangas/dataset-textbasedformats/*/06.png
-!tests/dataset-mangas/dataset-textbasedformats/*/07.png
 tests/dataset-mangas/dataset-textbasedformats/*.epub
 tests/dataset-mangas/dataset-textbasedformats/*.mobi
 tests/dataset-mangas/dataset-textbasedformats/*/*.epub
@@ -89,4 +81,5 @@ panelsplus_OCR_stable_kindaold.koplugin
 
 INSTRUCTION*.md
 /PLAN.md
+/FEATURES_SINCE_v1.4.0.md
 panels_plus_v1_4_0_old/

@@ -1,5 +1,5 @@
 # Keep complete converted books and extracted pages local, except for
-# the first eight preview images (00.png through 07.png) when available.
+# the first four preview images (00.png through 03.png) when available.
 *.epub
 *.kepub.epub
 *.mobi
@@ -11,7 +11,3 @@
 !*/01.png
 !*/02.png
 !*/03.png
-!*/04.png
-!*/05.png
-!*/06.png
-!*/07.png

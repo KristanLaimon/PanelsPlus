@@ -1,4 +1,4 @@
-# Share only the first eight dataset images (00.png through 07.png)
+# Share only the first four dataset images (00.png through 03.png)
 */*
 !*/*.json
 !*/*.md
@@ -7,7 +7,3 @@
 !*/01.png
 !*/02.png
 !*/03.png
-!*/04.png
-!*/05.png
-!*/06.png
-!*/07.png
