@@ -1005,7 +1005,7 @@ describe("WordFinder extracted bitmap sources", function()
     it("releases an owned detector crop after finding a word", function()
         local pixels = buildLineGrid(800, 1200, { { 330, 440 } }, 580, 610)
         local document = newFakeDocument(800, 1200, pixels)
-        document.image = {}
+        document.is_bitmap_source = true
         local render, freed = document.renderPage, 0
         document.renderPage = function(...)
             local tile = render(...)
@@ -1029,7 +1029,7 @@ describe("WordFinder extracted bitmap sources", function()
             return box.x == 10 and "Hola" or "mundo"
         end
         local document = {
-            image = {},
+            is_bitmap_source = true,
             getTextBoxes = function()
                 return {
                     {

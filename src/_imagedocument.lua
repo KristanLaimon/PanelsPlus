@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: src/_imagedocument.lua
+Name: ImageDocument
+Description: Provides bounded bitmap crops and native OCR contexts for extracted images.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 -- Bitmap-backed OCR source. Borrows the viewer's image; only small crops are owned here.
 local Blitbuffer = require("ffi/blitbuffer")
 local Geom = require("ui/geometry")
@@ -49,7 +60,7 @@ local function fillContext(context, image)
 end
 
 function ImageDocument.new(image)
-    local source = { image = image, configurable = { doc_language = "eng" }, render_mode = 0 }
+    local source = { is_bitmap_source = true, configurable = { doc_language = "eng" }, render_mode = 0 }
     function source:getNativePageDimensions()
         return Geom:new({ w = image:getWidth(), h = image:getHeight() })
     end
@@ -61,14 +72,12 @@ function ImageDocument.new(image)
     function source:renderPage(_, rect, zoom)
         -- Match the integer origin used by WordFinder's page renderer.
         local scaled = rect.scaled_rect
-        local bb, x, y = raster(
-            image,
-            { x = scaled.x / zoom, y = scaled.y / zoom, w = scaled.w / zoom, h = scaled.h / zoom },
-            zoom
-        )
+        local bb, x, y =
+            raster(image, { x = scaled.x / zoom, y = scaled.y / zoom, w = scaled.w / zoom, h = scaled.h / zoom }, zoom)
         return { bb = bb, disposable = true, origin_x = x * zoom, origin_y = y * zoom }
     end
     source.koptinterface = {
+        tessocr_data = require("src._wordfinder").userModelDirectory(),
         createContext = function(_, _, _, bbox)
             local context = require("ffi/koptcontext").new()
             context:setBBox(bbox.x0, bbox.y0, bbox.x1, bbox.y1)

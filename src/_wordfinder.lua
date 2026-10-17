@@ -818,7 +818,7 @@ function WordFinder.readPhrase(document, pageno, seed, bundled_language)
     for _, run in ipairs(phrase_runs) do
         local box = { x = run.x0, y = run.y0, w = run.x1 - run.x0, h = run.y1 - run.y0 }
         local text = WordFinder.normalizeWord(table.concat(run.words, " "))
-        if document.image and run.needs_ocr then
+        if document.is_bitmap_source and run.needs_ocr then
             -- The native single-word API may return only the first word even in
             -- line mode. Read only the selected dialogue's word boxes individually.
             local words = {}
@@ -999,7 +999,7 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
         return nil
     end
 
-    local native = document.image and document:getNativePageDimensions(pageno)
+    local native = document.is_bitmap_source and document:getNativePageDimensions(pageno)
         or Document.getNativePageDimensions(document, pageno)
     if not native or not native.w or not native.h or native.w <= 0 or native.h <= 0 then
         return nil

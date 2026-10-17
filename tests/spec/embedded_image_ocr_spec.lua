@@ -1,3 +1,14 @@
+--[[
+Panels+
+File: tests/spec/embedded_image_ocr_spec.lua
+Name: Embedded image OCR specs
+Description: Verifies image OCR lookup, phrase translation, and selection isolation.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
 local PanelViewer = require("src._panelviewer")
