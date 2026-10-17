@@ -1,9 +1,9 @@
 <p align="center">
-  <img src=".github/panels+_logo.png" alt="Panels+ logo" width="250">
+  <img width="3606" height="877" alt="image" src="https://github.com/user-attachments/assets/16887793-0bd2-4712-9b1e-75d832152b55" />
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics panel by panel, without losing the page and other panel zooming utilities with no setup required!</span>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics <strong>panel by panel</strong>, without losing the page and other panel zooming utilities with no setup required</span>
   <br><br>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/BetterPanels?color=blue&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/BetterPanels/total?color=brightgreen&style=flat-square" alt="Downloads"></a>
@@ -76,6 +76,10 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 > Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, check our [Translation Quick Guide](docs/translations/README.md).
 
 ## 🧩 Compatibility
+
+<img width="2051" height="991" alt="image" src="https://github.com/user-attachments/assets/9a1643e5-1b29-40f8-8eea-2ce1950972b2" />
+
+
 
 ### KOReader versions
 
