@@ -266,31 +266,15 @@ describe("Fold join setting in the menus", function()
     local UIManager = require("ui/uimanager")
     local ViewerController = require("src.viewer_controller")
 
-    it("is a checkbox in the main menu, on by default", function()
-        local called_with
+    it("has no duplicate fold-removal control in advanced settings", function()
         local menu_items = {}
-        MainMenu.addToMainMenu({
-            settings = Settings.withDefaults({}),
-            getModeText = function()
-                return "Panels+"
-            end,
-            setJoinSpreadFold = function(_, enabled)
-                called_with = enabled
-            end,
-        }, menu_items)
-        local item
-        for _, candidate in ipairs(menu_items.panels_plus.sub_item_table) do
-            if candidate.text == "Remove the fold line from double-page spreads" then
-                item = candidate
-            end
+        MainMenu.addToMainMenu({ settings = Settings.withDefaults({}) }, menu_items)
+        for _, item in ipairs(menu_items.panels_plus.sub_item_table) do
+            assert.is_false(item.text == "Remove the fold line from double-page spreads")
         end
-
-        assert.is_true(item.checked_func())
-        item.callback()
-        assert.is_false(called_with)
     end)
 
-    it("is listed under [Rotation] in the viewer's settings and rebuilds the viewer on a spread", function()
+    it("is a common viewer setting and rebuilds the viewer on a spread", function()
         local rebuilt = false
         local controller = setmetatable({
             settings = Settings.withDefaults({}),
@@ -306,7 +290,7 @@ describe("Fold join setting in the menus", function()
 
         controller:showMoreConfigMenu(viewer)
         for _, item in ipairs(UIManager._last_shown.item_table) do
-            if item.text == "[Rotation]: Remove spread fold line (Actual: true)" then
+            if item.text == "Remove spread fold line" then
                 item.callback()
             end
         end

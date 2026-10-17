@@ -638,36 +638,13 @@ describe("Double-page spread settings in the menus", function()
         end
     end
 
-    it("offers one main-menu entry with four choices", function()
-        local chosen
+    it("keeps spread mode in the common settings only", function()
         local menu_items = {}
-        local plugin = {
-            settings = Settings.withDefaults({}),
-            getModeText = function()
-                return "Panels+"
-            end,
-            setSpreadRotationMode = function(_, mode)
-                chosen = mode
-            end,
-        }
-        plugin.getSpreadRotationMode = MainMenu.getSpreadRotationMode
-        MainMenu.addToMainMenu(plugin, menu_items)
-        local entry = findItem(menu_items.panels_plus.sub_item_table, "Auto-rotate double-page spreads")
-        local choices = entry.sub_item_table
-
-        assert.equals(4, #choices)
-        assert.equals("Off", choices[1].text)
-        assert.equals("In the panel viewer", choices[2].text)
-        assert.equals("While reading", choices[3].text)
-        assert.equals("In the panel viewer and while reading", choices[4].text)
-        assert.is_true(choices[2].checked_func())
-        assert.is_false(choices[1].checked_func())
-        choices[3].callback()
-
-        assert.equals("reading", chosen)
+        MainMenu.addToMainMenu({ settings = Settings.withDefaults({}) }, menu_items)
+        assert.is_nil(findItem(menu_items.panels_plus.sub_item_table, "Auto-rotate double-page spreads"))
     end)
 
-    it("offers the direction in the main menu and in the viewer's settings", function()
+    it("offers spread direction only in advanced settings", function()
         local chosen
         local menu_items = {}
         MainMenu.addToMainMenu({
@@ -689,16 +666,6 @@ describe("Double-page spread settings in the menus", function()
         assert.is_true(choices[1].checked_func())
         choices[2].callback()
         assert.equals("cw", chosen)
-
-        local reader = readerFor({})
-        reader.setSpreadRotationDirection = function(self, direction)
-            self.settings.spread_rotation_direction = direction
-        end
-        reader:showMoreConfigMenu({ page = 1 })
-        local item = findItem(UIManager._last_shown.item_table, "[Rotation]: Spread direction")
-        assert.equals("[Rotation]: Spread direction (Actual: KOReader)", item.text)
-        item.callback()
-        assert.equals("cw", reader.settings.spread_rotation_direction)
     end)
 
     it("reads the mode from the two settings", function()
@@ -724,15 +691,15 @@ describe("Double-page spread settings in the menus", function()
         local seen = {}
         for _ = 1, 4 do
             reader:showMoreConfigMenu({ page = 1 })
-            local item = findItem(UIManager._last_shown.item_table, "[Rotation]: Rotate spreads")
-            table.insert(seen, item.text)
+            local item = findItem(UIManager._last_shown.item_table, "Rotate spreads")
+            table.insert(seen, item.mandatory)
             item.callback()
         end
 
-        assert.equals("[Rotation]: Rotate spreads (Actual: Viewer)", seen[1])
-        assert.equals("[Rotation]: Rotate spreads (Actual: Reading)", seen[2])
-        assert.equals("[Rotation]: Rotate spreads (Actual: Viewer + reading)", seen[3])
-        assert.equals("[Rotation]: Rotate spreads (Actual: Off)", seen[4])
+        assert.equals("Viewer", seen[1])
+        assert.equals("Reading", seen[2])
+        assert.equals("Viewer + reading", seen[3])
+        assert.equals("Off", seen[4])
     end)
 
     it("rebuilds the viewer when the viewer setting changes on a spread", function()

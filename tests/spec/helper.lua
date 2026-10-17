@@ -96,6 +96,9 @@ end)
 preload("device", function()
     return {
         screen = {
+            scaleBySize = function(_, size)
+                return size
+            end,
             getWidth = function()
                 return 600
             end,

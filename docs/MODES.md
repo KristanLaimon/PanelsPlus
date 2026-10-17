@@ -93,9 +93,19 @@ KOReader.
 viewer and while reading: clockwise, counter-clockwise, or the same as KOReader's
 image viewer ("Invert default rotation in portrait mode"), which is the default.
 
-Spread rotation is one entry with four choices (off, in the panel viewer, while reading,
-in the panel viewer and while reading). It and the fold line option are in the Panels+ menu and under `[Rotation]` in
-`More Panel Viewer Settings`.
+In **More Config**, **Rotate spreads** cycles through four choices: off, in the
+panel viewer, while reading, and both. **Remove spread fold line** is in the same
+quick menu. **Spread rotation direction** lives in KOReader's Panels+ submenu;
+use **Open advanced options** at the bottom of More Config to jump there.
+
+More Config shows an SVG icon, a label, and the current value for each of its eight
+quick settings: tap navigation, swipe navigation, swipe inversion, tap inversion,
+opening gesture, spread rotation, fold removal, and touch-and-hold text selection.
+The opening gesture also remains accessible in KOReader's menu before entering
+the viewer. The edge zoom gesture,
+per-document persistence, pre-rendering, PDF native-text preference, and debugging
+live in the KOReader Panels+ submenu. Animation tuning is in its **Animation**
+section, also opened by holding the viewer's Smooth/Animated navigation button.
 
 The panel finding button cycles between Legacy and Normal on the current page.
 

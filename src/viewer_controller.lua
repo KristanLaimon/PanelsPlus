@@ -398,96 +398,7 @@ end
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:showNavTransitionOptionsMenu(viewer)
-    local Menu = require("ui/widget/menu")
-    local _ = require("gettext")
-    local controller = self
-    local menu
-
-    local menu_items
-    if viewer.nav_transition_mode == "animated" then
-        menu_items = {
-            {
-                text = _("Animate between panels (Actual: ")
-                    .. (controller.settings.nav_animated_panels ~= false and _("true") or _("false"))
-                    .. ")",
-                checked_func = function()
-                    return controller.settings.nav_animated_panels ~= false
-                end,
-                callback = function()
-                    controller:setNavAnimatedPanels(controller.settings.nav_animated_panels == false)
-                    viewer.nav_animated_panels = controller.settings.nav_animated_panels
-                    UIManager:close(menu)
-                    controller:showNavTransitionOptionsMenu(viewer)
-                end,
-            },
-            {
-                text = _("Animate between pages (Actual: ") .. (controller.settings.nav_animated_pages ~= false and _(
-                    "true"
-                ) or _("false")) .. ")",
-                checked_func = function()
-                    return controller.settings.nav_animated_pages ~= false
-                end,
-                callback = function()
-                    controller:setNavAnimatedPages(controller.settings.nav_animated_pages == false)
-                    viewer.nav_animated_pages = controller.settings.nav_animated_pages
-                    UIManager:close(menu)
-                    controller:showNavTransitionOptionsMenu(viewer)
-                end,
-            },
-        }
-    else
-        menu_items = {
-            {
-                text = _("Pan animation duration..."),
-                callback = function()
-                    viewer:onAdjustNavTransitionDuration()
-                end,
-                help_text = _("Adjust how long the camera pan between panels takes in milliseconds."),
-            },
-            {
-                text = _("Animate page-to-page transitions (Actual: ")
-                    .. (controller.settings.nav_transition_cross_page == true and _("true") or _("false"))
-                    .. ")",
-                checked_func = function()
-                    return controller.settings.nav_transition_cross_page == true
-                end,
-                callback = function()
-                    controller:setNavTransitionCrossPage(not controller.settings.nav_transition_cross_page)
-                    viewer.nav_transition_cross_page = controller.settings.nav_transition_cross_page
-                    -- Rebuild the menu so the "(Actual: ...)" label in the text
-                    -- reflects the new value immediately, not just the checkmark.
-                    UIManager:close(menu)
-                    controller:showNavTransitionOptionsMenu(viewer)
-                end,
-                help_text = _(
-                    "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-                ),
-            },
-            {
-                text = _("Transition frames (Actual: ")
-                    .. tostring(controller.settings.nav_transition_frames or Settings.defaults.nav_transition_frames)
-                    .. _(" fps)"),
-                callback = function()
-                    viewer:onAdjustNavTransitionFrames(function()
-                        -- Rebuild the menu so the "(Actual: ...)" label in the
-                        -- text reflects the new value immediately.
-                        UIManager:close(menu)
-                        controller:showNavTransitionOptionsMenu(viewer)
-                    end)
-                end,
-                help_text = _(
-                    "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
-                ),
-            },
-        }
-    end
-
-    menu = Menu:new({
-        title = _("Navigation Transition Settings"),
-        item_table = menu_items,
-    })
-    UIManager:show(menu)
-    return true
+    return self:showAdvancedOptions(viewer, "animation")
 end
 
 --- Toggle tapping the screen's left/right edges to navigate between panels,
@@ -789,238 +700,201 @@ function ViewerController:showOcrLanguageMenu(viewer)
     return true
 end
 
+--- Find a live viewer, including embedded-image viewers which are not tracked
+--- by active_panel_viewer. The explicit context also supports menus in tests.
+function ViewerController:getOpenPanelViewer()
+    for i = #(UIManager._window_stack or {}), 1, -1 do
+        local widget = UIManager._window_stack[i].widget
+        if
+            widget
+            and widget.reader_ui == self.ui
+            and widget.name == PanelViewer.name
+            and not widget._panels_plus_closed
+        then
+            return widget
+        end
+    end
+    local viewer = self._panels_plus_config_viewer or self.active_panel_viewer
+    return viewer and not viewer._panels_plus_closed and viewer or nil
+end
+
+local function submenuPath(items, predicate)
+    for index, item in ipairs(items or {}) do
+        item.idx = index
+        if predicate(item) then
+            return { item }
+        end
+        local children = item.sub_item_table or item
+        if children ~= items then
+            local path = submenuPath(children, predicate)
+            if path then
+                table.insert(path, 1, item)
+                return path
+            end
+        end
+    end
+end
+
+--- Enter the real reader menu before showing it; no translated labels or
+--- hardcoded tab positions. Both TouchMenu and keyboard Menu keep their own
+--- normal Back stack through onMenuSelect.
+function ViewerController:showAdvancedOptions(viewer, section)
+    local reader_menu = self.ui and self.ui.menu
+    if not reader_menu then
+        return false
+    end
+    self._panels_plus_config_viewer = viewer
+    reader_menu:onShowMenu(nil, true)
+    local container = reader_menu.menu_container
+    local menu = container[1]
+    local predicate = function(item)
+        return section and item.panels_plus_section == section or (not section and item.panels_plus_menu)
+    end
+    local path
+    if menu.switchMenuTab then
+        for tab, items in ipairs(menu.tab_item_table) do
+            path = submenuPath(items, predicate)
+            if path then
+                menu.bar:switchToTab(tab)
+                break
+            end
+        end
+    else
+        path = submenuPath(menu.item_table, predicate)
+    end
+    if not path then
+        reader_menu:onCloseReaderMenu()
+        self._panels_plus_config_viewer = nil
+        UIManager:show(require("ui/widget/infomessage"):new({
+            text = require("gettext")("Panels+ advanced options are unavailable."),
+        }))
+        return false
+    end
+    for _, item in ipairs(path) do
+        menu:onMenuSelect(item)
+    end
+    local original_close = menu.close_callback
+    menu.close_callback = function()
+        original_close()
+        local current = self:getOpenPanelViewer()
+        self._panels_plus_config_viewer = nil
+        local rebuild = self._panels_plus_spread_options_changed
+        self._panels_plus_spread_options_changed = nil
+        if rebuild and current then
+            self:rebuildViewerForSpreadOptions(current)
+        end
+    end
+    menu.not_shown = false
+    UIManager:show(container)
+    return true
+end
+
 --- Show a multi-options menu popup for miscellaneous panel viewer settings
 --- that don't need their own dedicated button.
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:showMoreConfigMenu(viewer)
-    local Menu = require("ui/widget/menu")
     local _ = require("gettext")
-    local controller = self
     local menu
-
-    local function categorizedText(category, label)
-        return "[" .. category .. "]: " .. label
+    local function reopen(current_viewer)
+        UIManager:close(menu)
+        self:showMoreConfigMenu(current_viewer or viewer)
     end
-
-    local menu_items = {
-        {
-            text = categorizedText(
-                _("Navigation"),
-                _("Tap screen sides to navigate (Actual: ")
-                    .. (controller.settings.tap_navigation == true and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.tap_navigation == true
-            end,
+    local function toggle(id, text, key, callback)
+        return {
+            id = id,
+            text = _(text),
+            mandatory = self.settings[key] ~= false and _("On") or _("Off"),
             callback = function()
-                controller:toggleViewerTapNavigation(viewer)
-                UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
+                callback()
+                reopen()
             end,
-            help_text = _(
-                "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
-            ),
+        }
+    end
+    local tap = toggle("tap", "Tap screen sides to navigate", "tap_navigation", function()
+        self:toggleViewerTapNavigation(viewer)
+    end)
+    tap.mandatory = self.settings.tap_navigation == true and _("On") or _("Off")
+    local invert_swipe = toggle("invert_swipe", "Invert panel swipe direction", "invert_swipe", function()
+        self:setInvertSwipe(self.settings.invert_swipe ~= true)
+        viewer.invert_swipe = self.settings.invert_swipe
+    end)
+    invert_swipe.mandatory = self.settings.invert_swipe == true and _("On") or _("Off")
+    local invert_taps = toggle("invert_taps", "Invert tap direction", "invert_taps", function()
+        self:setInvertTaps(self.settings.invert_taps ~= true)
+        viewer.invert_taps = self.settings.invert_taps
+    end)
+    invert_taps.mandatory = self.settings.invert_taps == true and _("On") or _("Off")
+    local labels = { off = _("Off"), viewer = _("Viewer"), reading = _("Reading"), both = _("Viewer + reading") }
+    local items = {
+        tap,
+        toggle("swipe", "Swipe to navigate", "swipe_navigation", function()
+            self:toggleViewerSwipeNavigation(viewer)
+        end),
+        invert_swipe,
+        invert_taps,
+        {
+            id = "panel_gesture",
+            text = _("Open panels with"),
+            mandatory = self.settings.panel_gesture == "two_finger_tap" and _("Two-finger tap") or _("Long press"),
+            callback = function()
+                UIManager:close(menu)
+                local picker
+                picker = require("ui/widget/menu"):new({
+                    title = _("Open panels with"),
+                    item_table = require("src.menu").panelGestureItems(self),
+                    close_callback = function()
+                        UIManager:close(picker)
+                        self:showMoreConfigMenu(viewer)
+                    end,
+                })
+                UIManager:show(picker)
+            end,
         },
         {
-            text = categorizedText(
-                _("Navigation"),
-                _("Swipe to navigate (Actual: ")
-                    .. (controller.settings.swipe_navigation ~= false and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.swipe_navigation ~= false
-            end,
+            id = "rotate",
+            text = _("Rotate spreads"),
+            mandatory = labels[DoubleSpread.rotationMode(self.settings)],
             callback = function()
-                controller:toggleViewerSwipeNavigation(viewer)
                 UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
+                self:showMoreConfigMenu(self:cycleViewerSpreadRotationMode(viewer))
             end,
-            help_text = _(
-                "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
-            ),
         },
         {
-            text = categorizedText(
-                _("Navigation"),
-                _("Invert panel swipe direction (Actual: ")
-                    .. (controller.settings.invert_swipe == true and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.invert_swipe == true
-            end,
+            id = "fold",
+            text = _("Remove spread fold line"),
+            mandatory = self.settings.join_spread_fold ~= false and _("On") or _("Off"),
             callback = function()
-                controller:setInvertSwipe(not controller.settings.invert_swipe)
-                viewer.invert_swipe = controller.settings.invert_swipe
                 UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
+                self:showMoreConfigMenu(self:toggleViewerJoinSpreadFold(viewer))
             end,
-            help_text = _(
-                "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
-            ),
         },
+        toggle("text_selection", "Touch & hold text selection", "hold_text_selection", function()
+            self:setHoldTextSelection(self.settings.hold_text_selection == false)
+            if not viewer.embedded_source_image then
+                viewer.hold_text_selection = self.settings.hold_text_selection
+            end
+        end),
         {
-            text = categorizedText(
-                _("Navigation"),
-                _("Invert tap screens direction (Actual: ")
-                    .. (controller.settings.invert_taps == true and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.invert_taps == true
-            end,
-            callback = function()
-                controller:setInvertTaps(not controller.settings.invert_taps)
-                viewer.invert_taps = controller.settings.invert_taps
-                UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
-            end,
-            help_text = _(
-                "Use this if side tap navigation feels reversed on your device. It changes tap direction only, not panel order."
-            ),
-        },
-        {
-            text = categorizedText(
-                _("Navigation"),
-                _("Kobo-like edge vertical gesture (Actual: ")
-                    .. (controller.settings.kobo_vertical_gesture ~= false and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.kobo_vertical_gesture ~= false
-            end,
-            callback = function()
-                controller:toggleViewerKoboVerticalGesture(viewer)
-                UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
-            end,
-            help_text = _(
-                "Swipe vertically within the left 25% of the screen to zoom in (swipe up) or zoom out (swipe down), similar to Kobo's edge gesture. Only active at standard zoom."
-            ),
-        },
-        {
-            text = categorizedText(
-                _("Navigation"),
-                _("Remember per-document settings (Actual: ")
-                    .. (controller.settings.remember_doc_settings ~= false and _("true") or _("false"))
-                    .. ")"
-            ),
-            checked_func = function()
-                return controller.settings.remember_doc_settings ~= false
-            end,
-            callback = function()
-                controller:setRememberDocSettings(controller.settings.remember_doc_settings == false)
-                UIManager:close(menu)
-                controller:showMoreConfigMenu(viewer)
-            end,
-            help_text = _(
-                "Save and restore reading mode, navigation mode, crop mode, and progress bar visibility automatically for each document."
-            ),
+            id = "advanced",
+            text = _("Open advanced options"),
+            bold = true,
+            mandatory = "›",
             separator = true,
+            callback = function()
+                UIManager:close(menu)
+                self:showAdvancedOptions(viewer)
+            end,
         },
     }
-
-    local spread_mode_labels =
-        { off = _("Off"), viewer = _("Viewer"), reading = _("Reading"), both = _("Viewer + reading") }
-    table.insert(menu_items, {
-        text = categorizedText(
-            _("Rotation"),
-            _("Rotate spreads (Actual: ") .. spread_mode_labels[DoubleSpread.rotationMode(controller.settings)] .. ")"
-        ),
-        callback = function()
-            UIManager:close(menu)
-            controller:showMoreConfigMenu(controller:cycleViewerSpreadRotationMode(viewer))
-        end,
-        help_text = _(
-            "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
-        ),
-    })
-    local direction_labels = { auto = _("KOReader"), cw = _("Clockwise"), ccw = _("Counter-clockwise") }
-    local direction_cycle = { auto = "cw", cw = "ccw", ccw = "auto" }
-    local direction = direction_labels[controller.settings.spread_rotation_direction]
-            and controller.settings.spread_rotation_direction
-        or "auto"
-    table.insert(menu_items, {
-        text = categorizedText(_("Rotation"), _("Spread direction (Actual: ") .. direction_labels[direction] .. ")"),
-        callback = function()
-            controller:setSpreadRotationDirection(direction_cycle[direction])
-            UIManager:close(menu)
-            controller:showMoreConfigMenu(controller:rebuildViewerForSpreadOptions(viewer))
-        end,
-        help_text = _(
-            'Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows "Invert default rotation in portrait mode" in KOReader\'s rotation settings.'
-        ),
-    })
-    table.insert(menu_items, {
-        text = categorizedText(
-            _("Rotation"),
-            _("Remove spread fold line (Actual: ")
-                .. (controller.settings.join_spread_fold ~= false and _("true") or _("false"))
-                .. ")"
-        ),
-        checked_func = function()
-            return controller.settings.join_spread_fold ~= false
-        end,
-        callback = function()
-            UIManager:close(menu)
-            controller:showMoreConfigMenu(controller:toggleViewerJoinSpreadFold(viewer))
-        end,
-        separator = true,
-        help_text = _(
-            "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
-        ),
-    })
-    table.insert(menu_items, {
-        text = categorizedText(
-            _("Performance"),
-            _("Pre-render next panel (Actual: ")
-                .. (controller.settings.panel_prerender ~= false and _("true") or _("false"))
-                .. ")"
-        ),
-        checked_func = function()
-            return controller.settings.panel_prerender ~= false
-        end,
-        callback = function()
-            controller:setPanelPrerender(controller.settings.panel_prerender == false)
-            UIManager:close(menu)
-            controller:showMoreConfigMenu(viewer)
-        end,
-        help_text = _(
-            "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
-        ),
-        separator = true,
-    })
-    table.insert(menu_items, {
-        text = categorizedText(
-            _("Text Selection"),
-            _("Touch & hold (Actual: ")
-                .. (controller.settings.hold_text_selection ~= false and _("true") or _("false"))
-                .. ")"
-        ),
-        checked_func = function()
-            return controller.settings.hold_text_selection ~= false
-        end,
-        callback = function()
-            controller:setHoldTextSelection(controller.settings.hold_text_selection == false)
-            if not viewer.embedded_source_image then
-                viewer.hold_text_selection = controller.settings.hold_text_selection
-            end
-            UIManager:close(menu)
-            controller:showMoreConfigMenu(viewer)
-        end,
-        help_text = _(
-            "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
-        ),
-        separator = false,
-    })
-
-    menu = Menu:new({
-        title = _("More Panel Viewer Settings"),
-        item_table = menu_items,
+    if viewer.embedded_source_image then
+        items[8].mandatory = _("Unavailable")
+        items[8].select_enabled = false
+    end
+    menu = require("src._configmenu").new({
+        title = _("More Config"),
+        item_table = items,
     })
     UIManager:show(menu)
     return true
