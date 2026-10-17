@@ -1,5 +1,8 @@
 **Strict panel detection evaluation — 2026-10-16**
 
+Historical snapshot of `6086013`. The user subsequently requested stable Safe
+from `6a82bc8` and a 90% gate; see the [restoration and resource report](panel-resources-2026-10-16.md).
+
 The requested result is **not achieved**. 10 of 14 mapped algorithm/volume evaluations exceed 95% in every strict accuracy metric. The remaining four evaluations still fail. Horimiya Safe is excluded as requested; its existing rectangles are retained with `"status": "draft"`. SHY has no Safe mapping.
 
 The order column measures relative ordering of matched panel pairs, as enforced by the existing evaluator. Exact page order also requires perfect detection and is a separate diagnostic. Values below are percentages; gates use unrounded values.

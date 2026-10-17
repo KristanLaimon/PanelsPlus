@@ -73,18 +73,18 @@ end
 
 -- Both algorithms share production targets, evaluated against their own annotations.
 function Benchmark.verifyProductionTargets(expected, metrics)
-    if expected.experimental and not expected.gate_95 then
+    if expected.experimental and not expected.strict_metrics then
         return true
     end
     if (metrics.f1 or 0) <= expected.minimum_f1 then
         return false, string.format("Mapped-page F1 must exceed %.0f%%", expected.minimum_f1 * 100)
     end
-    if not expected.gate_95 then
+    if not expected.strict_metrics then
         return true
     end
     for _, key in ipairs({ "precision", "recall", "f1", "mean_iou" }) do
-        if (metrics[key] or 0) <= 0.95 then
-            return false, key .. " must remain above 95%"
+        if (metrics[key] or 0) <= 0.90 then
+            return false, key .. " must remain above 90%"
         end
     end
     -- Pair accuracy isolates sequencing. With no comparable pairs (e.g. all
@@ -93,8 +93,8 @@ function Benchmark.verifyProductionTargets(expected, metrics)
     if (metrics.reading_order_pairs or 0) == 0 then
         ordering = metrics.reading_order_accuracy
     end
-    if ordering == nil or ordering <= 0.95 then
-        return false, "Correct panel reading order must remain above 95%"
+    if ordering == nil or ordering <= 0.90 then
+        return false, "Correct panel reading order must remain above 90%"
     end
     return true
 end
@@ -112,7 +112,7 @@ function Benchmark.establishBaseline(book, algorithm, metrics)
     if metrics.iou_threshold ~= 0.5 or metrics.gap_tolerance ~= 35 then
         return false, "Baseline establishment requires the standard evaluator settings"
     end
-    local ok, reason = Benchmark.verifyProductionTargets({ minimum_f1 = 0.95, gate_95 = true }, metrics)
+    local ok, reason = Benchmark.verifyProductionTargets({ minimum_f1 = 0.90, strict_metrics = true }, metrics)
     if not ok then
         return false, reason
     end

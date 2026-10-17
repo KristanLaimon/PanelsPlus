@@ -41,72 +41,27 @@ local function frame(map, x, y, w, h, slope)
 end
 
 describe("Experimental component detector", function()
-    it("keeps Safe vertical stacks together while retaining independently framed neighbours", function()
+    it("keeps Safe independent of Smart refinements and applies its own coverage guard", function()
         local Safe = require("src._safecomponentdetector")
-        local old_segment, old_detect = Safe.segment, Detector.detectPage
-        local parent = { x = 0, y = 0, w = 200, h = 600, frame_sides = 1 }
-        local candidates
+        local old_detect = Detector.detectPage
         local ok, err = pcall(function()
-            Safe.segment = function()
-                return { parent }
-            end
             Detector.detectPage = function()
-                return candidates, true
+                error("Safe must not invoke Smart")
             end
-            candidates = {
-                { x = 0, y = 0, w = 200, h = 290, frame_sides = 4 },
-                { x = 0, y = 310, w = 200, h = 290, frame_sides = 4 },
-            }
-            local panels = Safe.detectPage({}, { mode = "manga" })
-            assert.equals(1, #panels)
-            assert.equals(parent, panels[1])
-            parent.w = 400
-            candidates = {
-                { x = 0, y = 0, w = 190, h = 600, frame_sides = 4 },
-                { x = 210, y = 0, w = 190, h = 600, frame_sides = 3 },
-            }
-            assert.equals(2, #Safe.detectPage({}, { mode = "manga" }))
-            parent.frame_sides = 4
-            assert.equals(1, #Safe.detectPage({}, { mode = "manga" }))
-            candidates = {
-                { x = 0, y = 0, w = 400, h = 290, frame_sides = 4 },
-                { x = 0, y = 310, w = 400, h = 290, frame_sides = 4 },
-            }
-            assert.equals(2, #Safe.detectPage({}, { mode = "manga" }), "Complete wide frames establish separate tiers")
-            parent.frame_sides = 2
-            assert.equals(
-                1,
-                #Safe.detectPage({}, { mode = "manga" }),
-                "An uncertain enclosing stack retains its wider crop"
-            )
-            Safe.segment = function()
-                return {}
-            end
-            candidates[1].frame_sides, candidates[2].frame_sides = 2, 3
-            assert.equals(2, #Safe.detectPage({}, { mode = "manga" }), "Two independent frames provide enough evidence")
-            candidates[2].frame_sides = 0
-            local fallback, fallback_ok = Safe.detectPage({ native_w = 1000, native_h = 800 }, { mode = "manga" })
-            assert.is_false(fallback_ok)
-            assert.equals(1, #fallback)
-            assert.equals(1000, fallback[1].w)
-            candidates = {
-                { x = 0, y = 0, w = 400, h = 600, frame_sides = 0 },
-                { x = 500, y = 0, w = 50, h = 50, frame_sides = 4 },
-                { x = 560, y = 0, w = 50, h = 50, frame_sides = 4 },
-            }
-            local _, sketch_ok = Safe.detectPage({ native_w = 1000, native_h = 800 }, { mode = "manga" })
-            assert.is_false(sketch_ok, "Tiny outlined marks must not validate an otherwise unframed sketch")
-            Detector.detectPage = function()
-                return {}, false, "blank page"
-            end
-            Safe.segment = function()
-                error("Fallback must not be refined")
-            end
-            local _, accepted, reason = Safe.detectPage({}, {})
-            assert.is_false(accepted)
-            assert.equals("blank page", reason)
+            local map = page()
+            frame(map, 20, 20, 200, 600)
+            frame(map, 250, 20, 200, 600)
+            local panels, accepted = Safe.detectPage(map, { mode = "manga" })
+            assert.is_true(accepted)
+            assert.equals(2, #panels)
+            assert.equals(498, panels[1].x)
+            assert.equals(404, panels[1].w)
+            local blank, blank_ok = Safe.detectPage(page(), { mode = "manga" })
+            assert.is_false(blank_ok)
+            assert.equals(1, #blank)
+            assert.equals(960, blank[1].w)
         end)
-        Safe.segment, Detector.detectPage = old_segment, old_detect
+        Detector.detectPage = old_detect
         assert.is_true(ok, tostring(err))
     end)
 
@@ -397,5 +352,101 @@ describe("Experimental component detector", function()
         assert.equals(1, #panels3)
         assert.equals(panels1[1].x, panels3[1].x)
         Detector.clearScratch()
+    end)
+    it("matches eight-neighbor flood fill on fragmented runs and page boundaries", function()
+        local Scanner = require("src._componentscan")
+        local seed = 417
+        local function random(n)
+            seed = seed * 16807 % 2147483647
+            return seed % n
+        end
+        for trial = 1, 80 do
+            local w, h = 1 + random(32), 1 + random(33)
+            local map = { w = w, h = h, data = {} }
+            for k = 0, w * h - 1 do
+                map.data[k] = random(100) < trial % 101 and 1 or 0
+            end
+            local seen, expected = {}, {}
+            for k = 0, w * h - 1 do
+                if map.data[k] == 1 and not seen[k] then
+                    local pixels, head = { k }, 1
+                    seen[k] = true
+                    while head <= #pixels do
+                        local v = pixels[head]
+                        head = head + 1
+                        local y = math.floor(v / w)
+                        local x = v - y * w
+                        for dy = -1, 1 do
+                            for dx = -1, 1 do
+                                local nx, ny = x + dx, y + dy
+                                local neighbor = ny * w + nx
+                                if
+                                    nx >= 0
+                                    and nx < w
+                                    and ny >= 0
+                                    and ny < h
+                                    and map.data[neighbor] == 1
+                                    and not seen[neighbor]
+                                then
+                                    seen[neighbor] = true
+                                    pixels[#pixels + 1] = neighbor
+                                end
+                            end
+                        end
+                    end
+                    table.sort(pixels)
+                    expected[#expected + 1] = pixels
+                end
+            end
+            local count = 0
+            Scanner.collect(map, 0, 1, function(_, pixels, n)
+                count = count + 1
+                local actual = {}
+                for k = 0, n - 1 do
+                    actual[#actual + 1] = pixels[k]
+                end
+                table.sort(actual)
+                assert.equals(#expected[count], #actual)
+                for k, pixel in ipairs(actual) do
+                    assert.equals(expected[count][k], pixel)
+                end
+            end)
+            assert.equals(#expected, count)
+        end
+    end)
+
+    it("reuses one traversal workspace across Safe and Smart and reallocates after cleanup", function()
+        local ffi = require("ffi")
+        local Safe = require("src._safecomponentdetector")
+        local map = page()
+        frame(map, 20, 20, 200, 600)
+        frame(map, 250, 20, 200, 600)
+        Safe.clearScratch()
+        Detector.clearScratch()
+        local original_new, allocations = ffi.new, 0
+        local ok, err = pcall(function()
+            ffi.new = function(...)
+                allocations = allocations + 1
+                return original_new(...)
+            end
+            Safe.detectPage(map, { mode = "manga" })
+            local safe_allocations = allocations
+            assert.is_true(safe_allocations > 0)
+            Detector.detectPage(map, { mode = "manga" })
+            -- Smart only adds its white bitmap; the component buffers already fit.
+            assert.equals(safe_allocations + 1, allocations)
+            allocations = 0
+            Safe.detectPage(map, { mode = "manga" })
+            Detector.detectPage(map, { mode = "manga" })
+            assert.equals(0, allocations)
+            Safe.clearScratch()
+            Detector.clearScratch()
+            Safe.detectPage(map, { mode = "manga" })
+            assert.is_true(allocations > 0)
+        end)
+        ffi.new = original_new
+        Safe.clearScratch()
+        Detector.clearScratch()
+        assert.is_true(ok, tostring(err))
     end)
 end)

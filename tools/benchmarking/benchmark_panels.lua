@@ -336,8 +336,10 @@ for _, algorithm in ipairs(algorithms) do
                     local ok, reason = true, nil
                     if detector_name == "components" and mode == "full_volume" then
                         local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
-                        ok, reason =
-                            AlgorithmBenchmark.verifyProductionTargets({ minimum_f1 = 0.95, gate_95 = true }, metrics)
+                        ok, reason = AlgorithmBenchmark.verifyProductionTargets(
+                            { minimum_f1 = 0.90, strict_metrics = true },
+                            metrics
+                        )
                         if ok and establish_baseline then
                             ok, reason = AlgorithmBenchmark.establishBaseline(book, algorithm, metrics)
                             if ok then

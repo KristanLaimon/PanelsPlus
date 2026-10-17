@@ -39,7 +39,7 @@ describe("Independent algorithm baselines", function()
             current.reading_order_pairs_correct = 18
             current.reading_order_pages, current.reading_order_pages_correct = 3, 3
             current.reading_order_accuracy = 1
-            current.precision = 0.95
+            current.precision = 0.90
             assert.is_false(Benchmark.establishBaseline(book, "smart", current))
             assert.equals(8, Tracker.load(root).smart_full_volume.total_ground_truth)
             current.precision = 1
@@ -137,15 +137,15 @@ describe("Independent algorithm baselines", function()
         assert.is_true(ok, tostring(err))
     end)
     it("enforces identical production thresholds for Safe and Smart, including precision and ordering", function()
-        local expected = { minimum_f1 = 0.90, gate_95 = true }
+        local expected = { minimum_f1 = 0.90, strict_metrics = true }
         for _, algorithm in ipairs({ "safe", "smart" }) do
-            local current = metrics(0.96)
+            local current = metrics(0.900001)
             current.reading_order_pairs = 10
             current.reading_order_pair_accuracy = 1
             assert.is_true(Benchmark.verifyProductionTargets(expected, current), algorithm)
             for _, key in ipairs({ "precision", "recall", "f1", "mean_iou", "reading_order_pair_accuracy" }) do
                 local saved = current[key]
-                current[key] = 0.95
+                current[key] = 0.90
                 assert.is_false(Benchmark.verifyProductionTargets(expected, current), algorithm .. " " .. key)
                 current[key] = saved
             end
@@ -154,7 +154,7 @@ describe("Independent algorithm baselines", function()
             current.reading_order_pairs = 0
             current.reading_order_accuracy = 1
             assert.is_true(Benchmark.verifyProductionTargets(expected, current), "Single-panel ordering")
-            current.reading_order_accuracy = 0.95
+            current.reading_order_accuracy = 0.90
             assert.is_false(Benchmark.verifyProductionTargets(expected, current))
         end
     end)
@@ -163,7 +163,10 @@ describe("Independent algorithm baselines", function()
         assert.is_false(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.85)))
         assert.is_true(Benchmark.verifyProductionTargets({ experimental = true }, metrics(0.50)))
         assert.is_false(
-            Benchmark.verifyProductionTargets({ experimental = true, gate_95 = true, minimum_f1 = 0.95 }, metrics(0.50))
+            Benchmark.verifyProductionTargets(
+                { experimental = true, strict_metrics = true, minimum_f1 = 0.90 },
+                metrics(0.50)
+            )
         )
     end)
 end)

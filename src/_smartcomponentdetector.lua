@@ -5,34 +5,11 @@ local Settings = require("src._settings")
 
 local ComponentDetector = {}
 
-local scratch_capacity = 0
-local scratch_seen = nil
-local scratch_queue = nil
-
+local Scanner = require("src._componentscan")
+local collectComponents = Scanner.collect
 local scratch_white_capacity = 0
-local scratch_white = nil
-
-local scratch_dim_capacity = 0
-local scratch_left = nil
-local scratch_right = nil
-local scratch_top = nil
-local scratch_bottom = nil
-
-local function ensureScratch(size, max_dim)
-    if scratch_capacity < size then
-        scratch_capacity = size
-        scratch_seen = ffi.new("uint8_t[?]", size)
-        scratch_queue = ffi.new("int32_t[?]", size)
-    end
-    if scratch_dim_capacity < max_dim then
-        scratch_dim_capacity = max_dim
-        scratch_left = ffi.new("int32_t[?]", max_dim)
-        scratch_right = ffi.new("int32_t[?]", max_dim)
-        scratch_top = ffi.new("int32_t[?]", max_dim)
-        scratch_bottom = ffi.new("int32_t[?]", max_dim)
-    end
-end
-
+local scratch_white
+local split_rows, split_cols, split_brows, split_bcols = {}, {}, {}, {}
 local function ensureWhiteScratch(size)
     if scratch_white_capacity < size then
         scratch_white_capacity = size
@@ -41,171 +18,10 @@ local function ensureWhiteScratch(size)
 end
 
 function ComponentDetector.clearScratch()
-    scratch_capacity = 0
-    scratch_seen = nil
-    scratch_queue = nil
+    Scanner.clearScratch()
     scratch_white_capacity = 0
     scratch_white = nil
-    scratch_dim_capacity = 0
-    scratch_left = nil
-    scratch_right = nil
-    scratch_top = nil
-    scratch_bottom = nil
-end
-
-local function lineSupport(values, first, last, tolerance)
-    local span = last - first
-    if span <= 0 then
-        return 0
-    end
-    local best = 0
-    for a = 0, 4 do
-        for b = a + 3, 8 do
-            local i = first + math.floor(span * a / 8)
-            local j = first + math.floor(span * b / 8)
-            local slope = (values[j] - values[i]) / (j - i)
-            if math.abs(slope) <= 0.35 then
-                local count = 0
-                for k = first, last do
-                    if math.abs(values[k] - values[i] - (k - i) * slope) <= tolerance then
-                        count = count + 1
-                    end
-                end
-                local ratio = count / (span + 1)
-                if ratio > best then
-                    best = ratio
-                    if best >= 0.80 then
-                        return best
-                    end
-                end
-            end
-        end
-    end
-    return best
-end
-
-local function frameSides(pixels, count, width, box, tolerance)
-    local top, bottom = box.y, box.y + box.h - 1
-    local left, right = box.x, box.x + box.w - 1
-
-    for y = top, bottom do
-        scratch_left[y] = right + 1
-        scratch_right[y] = left - 1
-    end
-    for x = left, right do
-        scratch_top[x] = bottom + 1
-        scratch_bottom[x] = top - 1
-    end
-
-    for i = 0, count - 1 do
-        local index = pixels[i]
-        local y = math.floor(index / width)
-        local x = index - y * width
-        if x < scratch_left[y] then
-            scratch_left[y] = x
-        end
-        if x > scratch_right[y] then
-            scratch_right[y] = x
-        end
-        if y < scratch_top[x] then
-            scratch_top[x] = y
-        end
-        if y > scratch_bottom[x] then
-            scratch_bottom[x] = y
-        end
-    end
-
-    local sides = 0
-    if lineSupport(scratch_left, top, bottom, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_right, top, bottom, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_top, left, right, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_bottom, left, right, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    return sides
-end
-
-local function collectComponents(map, min_side, min_area, visit)
-    local width, height, data = map.w, map.h, map.data
-    ensureScratch(width * height, math.max(width, height))
-    ffi.fill(scratch_seen, width * height, 0)
-
-    local seen = scratch_seen
-    local queue = scratch_queue
-    local components = {}
-    local min_pixels = math.max(1, math.floor(min_area))
-    local min_w = math.max(1, math.floor(width * min_side))
-    local min_h = math.max(1, math.floor(height * min_side))
-
-    for start_index = 0, width * height - 1 do
-        if data[start_index] == 1 and seen[start_index] == 0 then
-            seen[start_index] = 1
-            queue[0] = start_index
-            local head, tail = 0, 1
-
-            local start_y = math.floor(start_index / width)
-            local start_x = start_index - start_y * width
-            local left, right = start_x, start_x
-            local top, bottom = start_y, start_y
-
-            while head < tail do
-                local index = queue[head]
-                head = head + 1
-
-                local y = math.floor(index / width)
-                local x = index - y * width
-
-                if x < left then
-                    left = x
-                end
-                if x > right then
-                    right = x
-                end
-                if y < top then
-                    top = y
-                end
-                if y > bottom then
-                    bottom = y
-                end
-
-                for dy = -1, 1 do
-                    local ny = y + dy
-                    if ny >= 0 and ny < height then
-                        local row_offset = ny * width
-                        for dx = -1, 1 do
-                            local nx = x + dx
-                            if nx >= 0 and nx < width and (dx ~= 0 or dy ~= 0) then
-                                local neighbor = row_offset + nx
-                                if data[neighbor] == 1 and seen[neighbor] == 0 then
-                                    seen[neighbor] = 1
-                                    queue[tail] = neighbor
-                                    tail = tail + 1
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-
-            local w = right - left + 1
-            local h = bottom - top + 1
-            if tail >= min_pixels and w >= min_w and h >= min_h then
-                local box = { x = left, y = top, w = w, h = h, ink_count = tail }
-                box.frame_sides = frameSides(queue, tail, width, box, math.max(1, math.min(width, height) * 0.003))
-                components[#components + 1] = box
-                if visit then
-                    visit(box, queue, tail)
-                end
-            end
-        end
-    end
-    return components
+    split_rows, split_cols, split_brows, split_bcols = {}, {}, {}, {}
 end
 
 local function countEdges(map, box, include_page_edges)
@@ -266,6 +82,14 @@ local function hasFrame(map, box)
     return countEdges(map, box) == 4
 end
 
+-- A split consumes its projections before descending into either child.
+-- Clear keys rather than allocating four Lua tables per recursive rectangle.
+local function clearProjection(projection)
+    for key in pairs(projection) do
+        projection[key] = nil
+    end
+end
+
 local function splitJoinedFrames(map, box, settings, depth, shared_borders)
     depth = depth or 0
     if depth == 0 then
@@ -277,7 +101,11 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
     if depth >= 4 then
         return { box }
     end
-    local rows, cols, brows, bcols = {}, {}, {}, {}
+    local rows, cols, brows, bcols = split_rows, split_cols, split_brows, split_bcols
+    clearProjection(rows)
+    clearProjection(cols)
+    clearProjection(brows)
+    clearProjection(bcols)
     for x = box.x, box.x + box.w - 1 do
         cols[x] = 0
         bcols[x] = 0
@@ -445,22 +273,28 @@ end
 
 -- At this scale a lone outlined mark can be typography. Adjacent closed
 -- frames on the same tier establish an intentional compact panel strip.
+local function compactEligible(map, b)
+    local area = b.w * b.h
+    return b.frame_sides == 4
+        and area >= map.w * map.h * 0.0015
+        and area < map.w * map.h * 0.008
+        and b.w >= map.w * 0.05
+        and b.h >= map.h * 0.03
+end
+
 local function hasCompactPeer(map, box, components)
-    local function eligible(b)
-        local area = b.w * b.h
-        return b.frame_sides == 4
-            and area >= map.w * map.h * 0.0015
-            and area < map.w * map.h * 0.008
-            and b.w >= map.w * 0.05
-            and b.h >= map.h * 0.03
-    end
-    if not eligible(box) then
+    if not compactEligible(map, box) then
         return false
     end
     for _, other in ipairs(components) do
         local overlap = math.min(box.y + box.h, other.y + other.h) - math.max(box.y, other.y)
         local gap = math.max(0, other.x - box.x - box.w, box.x - other.x - other.w)
-        if other ~= box and eligible(other) and overlap >= math.max(box.h, other.h) * 0.8 and gap <= map.w * 0.05 then
+        if
+            other ~= box
+            and compactEligible(map, other)
+            and overlap >= math.max(box.h, other.h) * 0.8
+            and gap <= map.w * 0.05
+        then
             return true
         end
     end
@@ -473,7 +307,7 @@ function ComponentDetector.segment(map, settings)
     -- Thin closed frames have little ink even when their crop is substantial.
     -- Collect them first; the geometry and edge checks below reject lettering.
     local min_area = map.w * map.h * 0.0002
-    local extracted = collectComponents(map, min_side, min_area)
+    local extracted = collectComponents(map, min_side, min_area, nil, "artwork")
     local components, compact = {}, {}
     local ordinary_ink_min = math.max(1, math.floor(map.w * map.h * 0.002))
     for _, box in ipairs(extracted) do
@@ -755,6 +589,7 @@ local function sharedBalloon(map, parts, merge)
         if hits >= 2 then
             shared = true
         end
+        return shared and not merge
     end)
     if merge then
         local groups, result = {}, {}

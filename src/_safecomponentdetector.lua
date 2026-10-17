@@ -1,40 +1,16 @@
 local ffi = require("ffi")
--- Safe: conservative connected-frame grouping over the shared panel pipeline.
+-- Safe: v1.4.0 panel grouping and reading order.
 local Geometry = require("src._safegeometry")
+local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
-local Smart = require("src._smartcomponentdetector")
 
---- Conservative grouping of connected frames over the shared small ink map.
+--- Stable Safe grouping from 6a82bc8, independent of Smart's refinements.
+--- The traversal workspace is shared; acceptance and grouping stay conservative.
 local ComponentDetector = {}
 
-local scratch_capacity = 0
-local scratch_seen = nil
-local scratch_queue = nil
-
+local Scanner = require("src._componentscan")
 local scratch_white_capacity = 0
-local scratch_white = nil
-
-local scratch_dim_capacity = 0
-local scratch_left = nil
-local scratch_right = nil
-local scratch_top = nil
-local scratch_bottom = nil
-
-local function ensureScratch(size, max_dim)
-    if scratch_capacity < size then
-        scratch_capacity = size
-        scratch_seen = ffi.new("uint8_t[?]", size)
-        scratch_queue = ffi.new("int32_t[?]", size)
-    end
-    if scratch_dim_capacity < max_dim then
-        scratch_dim_capacity = max_dim
-        scratch_left = ffi.new("int32_t[?]", max_dim)
-        scratch_right = ffi.new("int32_t[?]", max_dim)
-        scratch_top = ffi.new("int32_t[?]", max_dim)
-        scratch_bottom = ffi.new("int32_t[?]", max_dim)
-    end
-end
-
+local scratch_white
 local function ensureWhiteScratch(size)
     if scratch_white_capacity < size then
         scratch_white_capacity = size
@@ -42,155 +18,14 @@ local function ensureWhiteScratch(size)
     end
 end
 
---- Release scratch buffers to free memory when closing widgets or low memory.
 function ComponentDetector.clearScratch()
-    Smart.clearScratch()
-    scratch_capacity = 0
-    scratch_seen = nil
-    scratch_queue = nil
+    Scanner.clearScratch()
     scratch_white_capacity = 0
     scratch_white = nil
-    scratch_dim_capacity = 0
-    scratch_left = nil
-    scratch_right = nil
-    scratch_top = nil
-    scratch_bottom = nil
 end
 
---- Fraction of a component boundary supported by a straight (possibly tilted)
---- line. Several well-separated sample pairs make this insensitive to a
---- balloon protruding through one corner; curved face/balloon outlines do not
---- support a straight line over most of their extent.
-local function lineSupport(values, first, last, tolerance)
-    local span = last - first
-    if span <= 0 then
-        return 0
-    end
-    local best = 0
-    for a = 0, 4 do
-        for b = a + 3, 8 do
-            local i = first + math.floor(span * a / 8)
-            local j = first + math.floor(span * b / 8)
-            local slope = (values[j] - values[i]) / (j - i)
-            if math.abs(slope) <= 0.35 then
-                local count = 0
-                for k = first, last do
-                    if math.abs(values[k] - values[i] - (k - i) * slope) <= tolerance then
-                        count = count + 1
-                    end
-                end
-                local ratio = count / (span + 1)
-                if ratio > best then
-                    best = ratio
-                    if best >= 0.80 then
-                        return best
-                    end
-                end
-            end
-        end
-    end
-    return best
-end
-
-local INF = 100000000
-
-local function frameSides(queue, count, map_width, box, tolerance)
-    for y = box.y, box.y + box.h - 1 do
-        scratch_left[y], scratch_right[y] = INF, -1
-    end
-    for x = box.x, box.x + box.w - 1 do
-        scratch_top[x], scratch_bottom[x] = INF, -1
-    end
-    for index = 0, count - 1 do
-        local p = queue[index]
-        local y = math.floor(p / map_width)
-        local x = p - y * map_width
-        if x < scratch_left[y] then
-            scratch_left[y] = x
-        end
-        if x > scratch_right[y] then
-            scratch_right[y] = x
-        end
-        if y < scratch_top[x] then
-            scratch_top[x] = y
-        end
-        if y > scratch_bottom[x] then
-            scratch_bottom[x] = y
-        end
-    end
-    local sides = 0
-    if lineSupport(scratch_left, box.y, box.y + box.h - 1, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_right, box.y, box.y + box.h - 1, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_top, box.x, box.x + box.w - 1, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    if lineSupport(scratch_bottom, box.x, box.x + box.w - 1, tolerance) >= 0.80 then
-        sides = sides + 1
-    end
-    return sides
-end
-
---- Extract substantial 8-connected components without modifying the input.
---- Reuses persistent scratch arrays across page turns to eliminate GC churn
---- on low-memory e-ink devices. Tiny components are discarded before allocating boxes.
 local function collectComponents(map, min_side, min_area)
-    local width, height, data = map.w, map.h, map.data
-    ensureScratch(width * height, math.max(width, height))
-    ffi.fill(scratch_seen, width * height, 0)
-    local queue = scratch_queue
-    local seen = scratch_seen
-    local components = {}
-
-    for index = 0, width * height - 1 do
-        if data[index] == 1 and seen[index] == 0 then
-            local head, tail = 0, 1
-            queue[0], seen[index] = index, 1
-            local left, right, top, bottom = width, 0, height, 0
-            while head < tail do
-                local position = queue[head]
-                head = head + 1
-                local y = math.floor(position / width)
-                local x = position - y * width
-                if x < left then
-                    left = x
-                end
-                if x > right then
-                    right = x
-                end
-                if y < top then
-                    top = y
-                end
-                if y > bottom then
-                    bottom = y
-                end
-                -- Clip columns once per pixel, then walk contiguous offsets.
-                -- Keep the same 8-connected traversal order without repeating
-                -- column bounds and row-offset arithmetic for every neighbor.
-                local first_x, last_x = math.max(0, x - 1), math.min(width - 1, x + 1)
-                for ny = math.max(0, y - 1), math.min(height - 1, y + 1) do
-                    local row = ny * width
-                    for neighbor = row + first_x, row + last_x do
-                        if seen[neighbor] == 0 and data[neighbor] == 1 then
-                            seen[neighbor] = 1
-                            queue[tail] = neighbor
-                            tail = tail + 1
-                        end
-                    end
-                end
-            end
-            local w, h = right - left + 1, bottom - top + 1
-            if w >= width * min_side and h >= height * min_side and w * h >= min_area then
-                local box = { x = left, y = top, w = w, h = h }
-                box.frame_sides = frameSides(queue, tail, width, box, math.max(1, math.min(width, height) * 0.003))
-                components[#components + 1] = box
-            end
-        end
-    end
-    return components
+    return Scanner.collect(map, min_side, min_area, nil, "safe")
 end
 
 --- Small panels need evidence of a frame so large letters and isolated faces
@@ -343,13 +178,12 @@ function ComponentDetector.segment(map, settings)
         end
     end
     local panels = {}
-    local padding = map.embedded_image and 1 or 0
     for _, box in ipairs(framed) do
-        local x = math.max(0, (box.x - padding) * map.scale_x)
-        local y = math.max(0, (box.y - padding) * map.scale_y)
-        local right = math.min(map.native_w, (box.x + box.w + padding) * map.scale_x)
-        local bottom = math.min(map.native_h, (box.y + box.h + padding) * map.scale_y)
-        panels[#panels + 1] = { x = x, y = y, w = right - x, h = bottom - y, frame_sides = box.frame_sides }
+        local x = math.max(0, (box.x - 1) * map.scale_x)
+        local y = math.max(0, (box.y - 1) * map.scale_y)
+        local right = math.min(map.native_w, (box.x + box.w + 1) * map.scale_x)
+        local bottom = math.min(map.native_h, (box.y + box.h + 1) * map.scale_y)
+        panels[#panels + 1] = { x = x, y = y, w = right - x, h = bottom - y }
     end
     if #panels > (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
         return {} -- Let the caller fall back instead of returning a partial page.
@@ -360,63 +194,10 @@ end
 --- Apply the existing coverage guards and reading order to component boxes.
 function ComponentDetector.detectPage(map, settings)
     settings = settings or Settings.defaults
-    local panels, accepted, reason = Smart.detectPage(map, settings)
+    local panels = ComponentDetector.segment(map, settings)
+    local accepted, reason = Segmenter.accept(panels, map, settings)
     if not accepted then
-        return panels, accepted, reason
-    end
-    local connected = ComponentDetector.segment(map, settings)
-    local independent_frames, substantial = 0, 0
-    local small_area = (map.native_w or 0) * (map.native_h or 0) * 0.008
-    for _, panel in ipairs(panels) do
-        if panel.w * panel.h >= small_area then
-            substantial = substantial + 1
-            if (panel.frame_sides or 0) >= 2 then
-                independent_frames = independent_frames + 1
-            end
-        end
-    end
-    -- A sketch or a small credit beside one illustration is not sufficient
-    -- frame evidence for Safe. Keep the page intact in that uncertain case.
-    if #connected == 0 and substantial <= 2 and independent_frames < 2 then
-        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "no framed panels"
-    end
-    -- Safe retains a connected enclosing frame when its proposed children
-    -- have weaker borders, and keeps connected vertical stacks together.
-    -- Independently framed neighbours still benefit from Smart's extraction.
-    for _, parent in ipairs(connected) do
-        local parts, area, weakest = {}, 0, 4
-        local first_center, last_center = math.huge, -math.huge
-        for i, child in ipairs(panels) do
-            local intersection = math.max(
-                0,
-                math.min(parent.x + parent.w, child.x + child.w) - math.max(parent.x, child.x)
-            ) * math.max(0, math.min(parent.y + parent.h, child.y + child.h) - math.max(parent.y, child.y))
-            if intersection >= child.w * child.h * 0.95 and child.w * child.h < parent.w * parent.h * 0.85 then
-                parts[i] = true
-                area = area + child.w * child.h
-                weakest = math.min(weakest, child.frame_sides or 0)
-                local center = child.x + child.w / 2
-                first_center, last_center = math.min(first_center, center), math.max(last_center, center)
-            end
-        end
-        local count = 0
-        for _ in pairs(parts) do
-            count = count + 1
-        end
-        local enclosing_frame = (parent.frame_sides or 0) >= 4 and weakest < 4
-        local vertical_stack = (parent.frame_sides or 0) >= 1
-            and last_center - first_center <= parent.w * 0.20
-            and ((parent.frame_sides or 0) <= 2 or parent.w <= parent.h * 0.5 or weakest < 4)
-        if count >= 2 and area >= parent.w * parent.h * 0.90 and (enclosing_frame or vertical_stack) then
-            local merged = {}
-            for i, child in ipairs(panels) do
-                if not parts[i] then
-                    merged[#merged + 1] = child
-                end
-            end
-            merged[#merged + 1] = parent
-            panels = merged
-        end
+        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
     end
     return Geometry.sortReadingOrder(panels, settings.mode or "manga"), true
 end

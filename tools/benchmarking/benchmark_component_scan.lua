@@ -1,6 +1,6 @@
 --[[
 Panels+
-File: tools/benchmark_component_scan.lua
+File: tools/benchmarking/benchmark_component_scan.lua
 Name: Component scan benchmark
 Description: Compares component-detector CPU time and exact outputs with a reference revision.
 Author: KristanLaimon
@@ -11,7 +11,7 @@ SPDX-License-Identifier: MIT
 ]]
 -- Compare detector CPU time and exact outputs against a saved source revision.
 -- Run from the repository root:
---   MAGICK_THREAD_LIMIT=1 luajit tools/benchmark_component_scan.lua reference.lua [pages_per_book]
+--   MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua reference.lua [pages_per_book] [safe|smart] [book]
 -- Image decoding is excluded from timings. Only one page map is retained.
 -- Neither annotations nor bestbenchmark.json records are modified.
 assert(arg[1], "Usage: luajit tools/benchmarking/benchmark_component_scan.lua reference.lua [pages_per_book]")
@@ -21,7 +21,9 @@ package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;./?.lua;./?/ini
 require("ffi")
 require("tests.spec.helper")
 local before = dofile(arg[1])
-local after = require("src._smartcomponentdetector")
+local algorithm = arg[3] or "smart"
+assert(algorithm == "safe" or algorithm == "smart", "algorithm must be safe or smart")
+local after = require("src._" .. algorithm .. "componentdetector")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local totals = {}
@@ -29,8 +31,8 @@ local limit = tonumber(arg[2])
 assert(not arg[2] or (limit and limit >= 1 and limit == math.floor(limit)), "pages_per_book must be a positive integer")
 local count = 0
 for _, page in ipairs(Manifest.getAllPages()) do
-    if not limit or page.page_index <= limit then
-        local settings = { mode = page.reading_order }
+    if (not limit or page.page_index <= limit) and (not arg[4] or page.book_title == arg[4]) then
+        local settings = { mode = page.reading_order, embedded_image = page.embedded_image }
         local map = Loader.loadPageMap(page.image_path, settings)
         local results, times = {}, {}
         for run = 1, 4 do
@@ -49,7 +51,7 @@ for _, page in ipairs(Manifest.getAllPages()) do
             )
             assert(#results[1].panels == #results[2].panels, page.image_path)
             for i, panel in ipairs(results[1].panels) do
-                for _, key in ipairs({ "x", "y", "w", "h" }) do
+                for _, key in ipairs({ "x", "y", "w", "h", "frame_sides" }) do
                     assert(panel[key] == results[2].panels[i][key], page.image_path .. ":" .. key)
                 end
             end

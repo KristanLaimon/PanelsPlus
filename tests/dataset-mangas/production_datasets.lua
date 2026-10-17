@@ -31,9 +31,9 @@ for _, book in ipairs(Manifest.loadManga()) do
             panels = panels,
             experimental = experimental,
             challenging = challenging,
-            target_f1 = 0.95,
-            minimum_f1 = 0.95,
-            gate_95 = true,
+            target_f1 = 0.90,
+            minimum_f1 = 0.90,
+            strict_metrics = true,
         }
     end
 end

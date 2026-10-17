@@ -111,7 +111,7 @@ Component runs evaluate both **Safe** and **Smart** by default. Use
 Complete evaluations keep separate `safe_full_volume` and `smart_full_volume`
 records per book, including embedded-image datasets. Each algorithm is compared
 with its own annotations and saved baseline. Every mapped volume must exceed
-95% precision, recall, F1, matched IoU, and matched-panel reading order, including
+90% precision, recall, F1, matched IoU, and matched-panel reading order, including
 challenging and experimental books. Regression runs are read-only;
 `--update-best` explicitly records improvements only after the accuracy gates pass.
 After reviewing annotation changes, `--establish-baseline` archives records for
@@ -139,21 +139,42 @@ as skipped. The loader keeps one page map in memory; under LuaJIT it uses the
 same byte-array storage as the reader. Preload real FFI for a native-array run:
 `luajit -l ffi tests/run_tests.lua`.
 
-To compare component detection speed and exact output against the revision
-before the neighbor-scan optimization:
+To check that the optimized detectors preserve their reference outputs
+(Safe uses the stable version requested from three commits before `6086013`):
 
 ```bash
-git show c2a2e29:src/_componentdetector.lua > /tmp/component-reference.lua
-MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/component-reference.lua
+git show 6086013:src/_smartcomponentdetector.lua > /tmp/smart-reference.lua
+git show 6a82bc8:src/_safecomponentdetector.lua > /tmp/safe-reference.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/smart-reference.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/safe-reference.lua 10000 safe
 ```
 
-An optional final argument limits the run to the first N pages of each book.
+The second argument optionally limits the run to the first N pages of each book;
+the third selects `safe` or `smart` (default), and the fourth filters by book title.
 The tool alternates old/new execution order over four runs per page, reports
 mean detector CPU time per book, and fails if panel coordinates, ordering, or
 fallback decisions differ. Image decoding is outside the timed region. It
 retains one page map and separate scratch arrays for the two detectors; it
 does not modify benchmark records. These are host detection measurements,
 not end-to-end page-turn measurements on an e-reader.
+
+For CPU and allocation measurements with each implementation in a separate
+LuaJIT process, use the same saved references and also save the recent Safe:
+
+```bash
+git show 6086013:src/_safecomponentdetector.lua > /tmp/recent-safe.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_resources.lua safe /tmp/recent-safe.lua /tmp/smart-reference.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_resources.lua safe
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_resources.lua smart /tmp/smart-reference.lua
+MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_resources.lua smart
+```
+
+This samples five evenly spaced pages from every book, warms each detector,
+and measures four calls per page. Temporary allocation is measured separately
+with GC stopped for one call; the collector runs normally during CPU timing.
+Maximum FFI buffer allocation excludes input maps and decoded images. See
+[the restoration and optimization report](dataset-mangas/report/panel-resources-2026-10-16.md)
+for results and the remaining accuracy failures.
 
 Host LuaJIT comparison on 2026-09-12 against `c2a2e29` (four runs per
 implementation per page; all 764 pages matched exactly):
