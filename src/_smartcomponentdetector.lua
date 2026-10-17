@@ -554,12 +554,31 @@ local function sharedBalloon(map, parts, merge)
         then
             return
         end
+        -- Most white regions belong to one panel, including ordinary gutters
+        -- and blank artwork. A region confined to one panel cannot join two:
+        -- reject it by bounds before walking every white pixel against the
+        -- full panel list.
+        -- Keep all intersecting panels, including overlaps, so ambiguous pixels
+        -- are still excluded exactly as in the original ownership test.
+        local relevant = {}
+        local left, top = (h.x + 0.5) * map.scale_x, (h.y + 0.5) * map.scale_y
+        local right = (h.x + h.w - 0.5) * map.scale_x
+        local bottom = (h.y + h.h - 0.5) * map.scale_y
+        for j, q in ipairs(parts) do
+            if left < q.x + q.w and right >= q.x and top < q.y + q.h and bottom >= q.y then
+                relevant[#relevant + 1] = j
+            end
+        end
+        if #relevant < 2 then
+            return
+        end
         local counts = {}
         for i = 0, count - 1 do
             local row = math.floor(pixels[i] / map.w)
             local x, y = (pixels[i] - row * map.w + 0.5) * map.scale_x, (row + 0.5) * map.scale_y
             local owner
-            for j, q in ipairs(parts) do
+            for _, j in ipairs(relevant) do
+                local q = parts[j]
                 if x >= q.x and x < q.x + q.w and y >= q.y and y < q.y + q.h then
                     if owner then
                         owner = nil

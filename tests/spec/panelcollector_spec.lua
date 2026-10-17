@@ -166,8 +166,14 @@ end)
 describe("Viewer panel finding selection", function()
     it("redetects and reopens at the panel nearest the current position", function()
         local old_close = UIManager.close
+        local disposed = false
         local closed = spy()
-        UIManager.close = closed
+        UIManager.close = function(manager, viewer)
+            closed(manager, viewer)
+            disposed = true
+            viewer.panels = nil
+            viewer.page = nil
+        end
         local new_panels = {
             { x = 0, y = 0, w = 90, h = 100 },
             { x = 100, y = 0, w = 90, h = 100 },
@@ -179,6 +185,7 @@ describe("Viewer panel finding selection", function()
                 self.settings.panel_finding_mode = mode
             end,
             collectPanels = function()
+                assert.is_true(disposed, "Old viewer buffers must be released before detection")
                 return new_panels
             end,
             showPanelViewerForPage = reopened,

@@ -334,7 +334,9 @@ function PanelsPlus:setPanelFindingMode(mode)
         return
     end
     self.settings.panel_finding_mode = selected
-    self:clearPanelCache()
+    -- Cache keys already include the finding mode. Retain both bounded sets
+    -- so switching back does not render and detect the same pages again.
+    self:cancelPanelPrefetch()
     self:cancelPanelPrerender()
     self:saveSettings()
     self:saveDocSettings(true)
@@ -491,6 +493,12 @@ end
 function PanelsPlus:setNavTransitionMode(mode)
     local previous = self.settings.nav_transition_mode
     self.settings.nav_transition_mode = NavCapabilities.normalizeMode(mode)
+    if previous == "animated" and self.settings.nav_transition_mode ~= "animated" then
+        local screen = require("device").screen
+        if type(screen.setSwipeAnimations) == "function" then
+            screen:setSwipeAnimations(false)
+        end
+    end
     if self.settings.nav_transition_mode == "smooth" and previous ~= "smooth" and not self._applying_profile then
         NavCapabilities.warnSmooth()
     end

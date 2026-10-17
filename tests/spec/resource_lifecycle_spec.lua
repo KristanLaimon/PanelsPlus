@@ -8,6 +8,74 @@ local UIManager = require("ui/uimanager")
 local PanelsPlus = require("main")
 
 describe("Low-memory resource lifecycle", function()
+    it("reuses bounded Smart and Safe results across 300 finding-mode changes", function()
+        local Collector = require("src._panelcollector")
+        local original = Collector.collect
+        local detections = 0
+        Collector.collect = function(_, settings)
+            detections = detections + 1
+            return { { x = settings.panel_finding_mode == "smart" and 10 or 20, y = 0, w = 100, h = 100 } }
+        end
+        local instance = setmetatable({
+            ui = { document = {} },
+            settings = { panel_finding_mode = "smart" },
+            panel_cache = {},
+            panel_cache_order = {},
+            panel_prefetch_actions = {},
+            saveSettings = function() end,
+            saveDocSettings = function() end,
+        }, { __index = PanelsPlus })
+        local ok, err = pcall(function()
+            for i = 1, 300 do
+                instance:setPanelFindingMode(i % 2 == 0 and "smart" or "safe")
+                local panels = instance:collectPanels(7)
+                assert.equals(i % 2 == 0 and 10 or 20, panels[1].x)
+            end
+            assert.equals(2, detections)
+            assert.equals(2, #instance.panel_cache_order)
+            instance:clearPanelCache()
+            assert.is_nil(next(instance.panel_cache))
+        end)
+        Collector.collect = original
+        assert.is_true(ok, tostring(err))
+    end)
+
+    it("frees every detached button container during repeated settings changes", function()
+        local frees = 0
+        local viewer = PanelViewer:new({ width = 600 })
+        for _ = 1, 100 do
+            viewer.button_container = {
+                free = function()
+                    frees = frees + 1
+                end,
+            }
+            viewer:replaceButtonTable()
+        end
+        assert.equals(100, frees)
+    end)
+
+    it("disarms a pending hardware swipe when switching Animated navigation to Classic", function()
+        local Controller = require("src.viewer_controller")
+        local Screen = require("device").screen
+        local original = Screen.setSwipeAnimations
+        local animated = true
+        Screen.setSwipeAnimations = function(_, enabled)
+            animated = enabled
+        end
+        local controller = setmetatable({
+            settings = { nav_transition_mode = "animated" },
+            setNavTransitionMode = PanelsPlus.setNavTransitionMode,
+            saveSettings = function() end,
+            saveDocSettings = function() end,
+        }, { __index = Controller })
+        local viewer = { replaceButtonTable = function() end, update = function() end }
+        local ok, err = pcall(controller.toggleViewerNavTransitionMode, controller, viewer)
+        Screen.setSwipeAnimations = original
+        assert.is_true(ok, tostring(err))
+        assert.equals("classic", viewer.nav_transition_mode)
+        assert.is_false(animated)
+    end)
+
     it("skips optional fold copies before scanning when the full-page copy cannot fit", function()
         local FoldJoin = require("src._foldjoin")
         local original = Memory.freeBytes
@@ -228,7 +296,7 @@ describe("Low-memory resource lifecycle", function()
         assert.equals(1, fallbacks)
     end)
 
-    it("keeps queued next-page detection after a memory dip and rejects stale callbacks", function()
+    it("defers next-page detection after a memory dip and rejects stale callbacks", function()
         local original = Memory.hasHeadroom
         local enough, calls = true, 0
         Memory.hasHeadroom = function()
@@ -251,8 +319,12 @@ describe("Low-memory resource lifecycle", function()
             local pending = UIManager._last_scheduled
             enough = false
             pending()
-            assert.equals(1, calls)
+            assert.equals(0, calls)
+            assert.is_nil(instance.panel_prefetch_actions[instance:getPanelCacheKey(2)])
             enough = true
+            instance:preloadPanels(2)
+            UIManager._last_scheduled()
+            assert.equals(1, calls)
             instance:preloadPanels(3)
             pending = UIManager._last_scheduled
             instance:cancelPanelPrefetch()
@@ -302,18 +374,20 @@ describe("Low-memory resource lifecycle", function()
         assert.equals(3, calls[1])
     end)
 
-    it("warms the next panel with the stable 40MB memory floor", function()
+    it("reserves the next panel tile before warming it and rechecks memory at execution", function()
         local ViewerController = require("src.viewer_controller")
         local PageRender = require("src._pagerender")
         local original_headroom = Memory.hasHeadroom
         local original_allocation_headroom = Memory.hasAllocationHeadroom
         local original_draw = PageRender.drawPagePart
-        local rendered = 0
+        local rendered, enough = 0, false
+        local requested_floor, requested_bytes
         Memory.hasHeadroom = function()
             return true
         end
-        Memory.hasAllocationHeadroom = function()
-            return false
+        Memory.hasAllocationHeadroom = function(floor, bytes)
+            requested_floor, requested_bytes = floor, bytes
+            return enough
         end
         PageRender.drawPagePart = function()
             rendered = rendered + 1
@@ -324,6 +398,15 @@ describe("Low-memory resource lifecycle", function()
             ui = { document = document },
         }, { __index = ViewerController })
         local ok, err = pcall(function()
+            controller:prerenderNextPanel({
+                page = 1,
+                image_rects = { { x = 0, y = 0, w = 10, h = 10 }, { x = 10, y = 0, w = 10, h = 10 } },
+            }, 1)
+            UIManager._last_scheduled()
+            assert.equals(0, rendered)
+            assert.equals(40 * 1024 * 1024, requested_floor)
+            assert.equals(600 * 800 * 4, requested_bytes)
+            enough = true
             controller:prerenderNextPanel({
                 page = 1,
                 image_rects = { { x = 0, y = 0, w = 10, h = 10 }, { x = 10, y = 0, w = 10, h = 10 } },

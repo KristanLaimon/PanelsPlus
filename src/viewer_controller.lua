@@ -64,7 +64,10 @@ end
 --- @return boolean allowed Whether prerendering should proceed.
 function ViewerController:hasMemoryForPrerender()
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
-    local allowed = Memory.hasHeadroom(minimum)
+    -- A canvas-fit tile is at most one screen. Reserve its worst-case colour
+    -- storage as well as the safety floor before warming the document cache.
+    local tile_bytes = Screen:getWidth() * Screen:getHeight() * 4
+    local allowed = Memory.hasAllocationHeadroom(minimum, tile_bytes)
     if not allowed then
         local free_bytes = Memory.freeBytes()
         Timing.log(
@@ -181,16 +184,19 @@ end
 
 --- Change panel finding mode and reopen this page at the nearest new panel.
 function ViewerController:toggleViewerPanelFindingMode(viewer)
+    local page = viewer.page
     local current = viewer.panels and viewer.panels[viewer._images_list_cur or 1]
     local center = current and {
         x = current.x + current.w / 2,
         y = current.y + current.h / 2,
     }
     self:setPanelFindingMode(self.settings.panel_finding_mode == "smart" and "safe" or "smart")
-    local panels = self:collectPanels(viewer.page)
-    local start_idx = center and PanelCollector.startIndex(panels, center) or 1
+    -- Close first: the displayed crop, scaled ImageWidget copy, and pending
+    -- crops otherwise stay resident throughout the new page detection.
     UIManager:close(viewer)
-    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
+    local panels = self:collectPanels(page)
+    local start_idx = center and PanelCollector.startIndex(panels, center) or 1
+    return self:showPanelViewerForPage(page, panels, start_idx, { buttons_visible = true })
 end
 
 --- Persist a new "With margin" zoom-out ratio from an open viewer's slider dialog.

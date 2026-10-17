@@ -103,10 +103,17 @@ end
 function Cache:collectPanels(page, hold_pos)
     local cached_panels = self:getCachedPanels(page)
     if cached_panels and (not hold_pos or #cached_panels > 0) then
+        Timing.log("panel cache hit: page=%d", page)
         return cached_panels
     end
 
+    local stop = Timing.span(
+        "panel detection page " .. page .. " " .. Settings.normalizePanelFindingMode(self.settings.panel_finding_mode)
+    )
+    Timing.memory("before panel detection page=%d", page)
     local panels = PanelCollector.collect(self.ui, self.settings, page, hold_pos)
+    stop(#panels .. " panels")
+    Timing.memory("after panel detection page=%d", page)
     self:cachePanels(page, panels)
     return panels
 end
@@ -150,11 +157,14 @@ function Cache:preloadPanels(page)
             return
         end
         self.panel_prefetch_actions[key] = nil
-        -- Headroom was checked when this short-delay job was queued. A panel
-        -- prerender may lower free memory before it runs; checking again here
-        -- would silently drop next-page detection on small devices and make
-        -- every page boundary do the work in the swipe handler.
         if not self.ui or self.ui.document ~= document then
+            return
+        end
+        -- Rendering the current panel can consume the headroom that existed
+        -- when this job was queued. Optional work must yield before allocating
+        -- another decoded page on a memory-constrained reader.
+        if not Memory.hasHeadroom(minimum) then
+            Timing.memory("panel prefetch skipped at execution: low memory")
             return
         end
         if self:getCachedPanels(page) then

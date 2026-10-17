@@ -327,6 +327,7 @@ end
 function WidgetStub:getSize()
     return { w = 0, h = 0 }
 end
+function WidgetStub:free() end
 
 for _, name in ipairs({
     "ui/widget/buttontable",

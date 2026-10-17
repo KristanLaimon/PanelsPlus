@@ -3330,6 +3330,11 @@ end
 
 --- Rebuild the ImageViewer button table from current mode/crop state.
 function PanelViewer:replaceButtonTable()
+    -- The base constructor and every settings change create a new container.
+    -- Free the detached text/button widgets before losing their only owner.
+    if self.button_container then
+        self.button_container:free()
+    end
     local buttons = {
         {
             {
