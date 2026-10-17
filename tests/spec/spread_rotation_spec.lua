@@ -691,7 +691,7 @@ describe("Double-page spread settings in the menus", function()
         local seen = {}
         for _ = 1, 4 do
             reader:showMoreConfigMenu({ page = 1 })
-            local item = findItem(UIManager._last_shown.item_table, "Rotate spreads")
+            local item = findItem(UIManager._last_shown[1].item_table, "Rotate spreads")
             table.insert(seen, item.mandatory)
             item.callback()
         end

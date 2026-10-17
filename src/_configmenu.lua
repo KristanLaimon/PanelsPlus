@@ -9,11 +9,12 @@ function ConfigMenu.new(options)
     local icon_size = Screen:scaleBySize(28)
     options.is_enable_shortcut = true
     options.item_shortcuts = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O" }
+    options.width = math.floor(Screen:getWidth() * 0.9)
+    options.height = math.floor(Screen:getHeight() * 0.9)
     options.items_per_page = math.min(
         #options.item_table,
-        math.max(4, math.floor((Screen:getHeight() - Screen:scaleBySize(120)) / Screen:scaleBySize(52)))
+        math.max(4, math.floor((options.height - Screen:scaleBySize(120)) / Screen:scaleBySize(52)))
     )
-    options.width = math.min(math.floor(Screen:getWidth() * 0.94), Screen:scaleBySize(600))
     options.items_font_size = 18
     for _, item in ipairs(options.item_table) do
         item.shortcut_icon_width = icon_size

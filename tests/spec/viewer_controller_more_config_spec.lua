@@ -263,7 +263,7 @@ describe("ViewerController page-turn animation settings", function()
         assert.is_true(choices[2].text:find("/koreader/data/tessdata", 1, true) ~= nil)
         assert.equals("Close", choices[3].text)
         controller:showMoreConfigMenu({})
-        local items = UIManager._last_shown.item_table
+        local items = UIManager._last_shown[1].item_table
         WordFinder.availableBundledLanguages = original_available
         WordFinder.availableUserLanguages = original_installed
         assert.equals(9, #items)
@@ -340,7 +340,7 @@ describe("ViewerController page-turn animation settings", function()
     it("shows eight common settings with SVG icons and a final advanced shortcut", function()
         local controller = makeController(Settings.withDefaults({ tap_navigation = false }))
         controller:showMoreConfigMenu({})
-        local menu = UIManager._last_shown
+        local menu = UIManager._last_shown[1]
         local labels = {
             "Tap screen sides to navigate",
             "Swipe to navigate",
@@ -368,8 +368,50 @@ describe("ViewerController page-turn animation settings", function()
         end
         local viewer = {}
         controller:showMoreConfigMenu(viewer)
-        UIManager._last_shown.item_table[9].callback()
+        UIManager._last_shown[1].item_table[9].callback()
         assert.equals(viewer, opened)
+    end)
+
+    it("centers a 90-percent menu within the full screen in both orientations", function()
+        local old_width, old_height = Screen.getWidth, Screen.getHeight
+        for _, size in ipairs({ { 600, 800 }, { 1200, 800 }, { 800, 600 } }) do
+            Screen.getWidth = function()
+                return size[1]
+            end
+            Screen.getHeight = function()
+                return size[2]
+            end
+            local controller = makeController(Settings.withDefaults({}))
+            controller:showMoreConfigMenu({})
+            local container = UIManager._last_shown
+            local menu = container[1]
+            assert.equals(size[1], container.dimen.w)
+            assert.equals(size[2], container.dimen.h)
+            assert.equals(math.floor(size[1] * 0.9), menu.width)
+            assert.equals(math.floor(size[2] * 0.9), menu.height)
+            assert.equals(container, menu.show_parent)
+        end
+        Screen.getWidth, Screen.getHeight = old_width, old_height
+    end)
+
+    it("closes the centered container when toggling or dismissing the menu", function()
+        local old_close = UIManager.close
+        local closed
+        UIManager.close = function(_, widget)
+            closed = widget
+        end
+        local controller = makeController(Settings.withDefaults({ tap_navigation = false }))
+        controller.setTapNavigation = PanelsPlus.setTapNavigation
+        controller:showMoreConfigMenu({})
+        local first_container = UIManager._last_shown
+        first_container[1].item_table[1].callback()
+        assert.equals(first_container, closed)
+        assert.is_nil(first_container[1].close_callback)
+        local second_container = UIManager._last_shown
+        assert.is_true(first_container ~= second_container)
+        second_container[1].close_callback()
+        assert.equals(second_container, closed)
+        UIManager.close = old_close
     end)
 
     it("renders each SVG in the leading icon slot", function()
@@ -381,7 +423,7 @@ describe("ViewerController page-turn animation settings", function()
         }
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({})
-        local menu = UIManager._last_shown
+        local menu = UIManager._last_shown[1]
         -- Rendering initializes these fields in KOReader's Menu:init.
         menu.page, menu.perpage = 1, 9
         local dimension = { w = 28, h = 28 }
@@ -399,10 +441,10 @@ describe("ViewerController page-turn animation settings", function()
         controller.setTapNavigation = PanelsPlus.setTapNavigation
         local viewer = { tap_navigation = false }
         controller:showMoreConfigMenu(viewer)
-        UIManager._last_shown.item_table[1].callback()
+        UIManager._last_shown[1].item_table[1].callback()
         assert.is_true(controller.settings.tap_navigation)
         assert.is_true(viewer.tap_navigation)
-        assert.equals("On", UIManager._last_shown.item_table[1].mandatory)
+        assert.equals("On", UIManager._last_shown[1].item_table[1].mandatory)
     end)
 
     it("toggles swipe and tap inversion immediately in the open viewer", function()
@@ -411,17 +453,17 @@ describe("ViewerController page-turn animation settings", function()
         controller.setInvertTaps = PanelsPlus.setInvertTaps
         local viewer = { invert_swipe = false, invert_taps = false }
         controller:showMoreConfigMenu(viewer)
-        UIManager._last_shown.item_table[3].callback()
+        UIManager._last_shown[1].item_table[3].callback()
         assert.is_true(controller.settings.invert_swipe)
         assert.is_true(viewer.invert_swipe)
-        assert.equals("On", UIManager._last_shown.item_table[3].mandatory)
-        UIManager._last_shown.item_table[4].callback()
+        assert.equals("On", UIManager._last_shown[1].item_table[3].mandatory)
+        UIManager._last_shown[1].item_table[4].callback()
         assert.is_true(controller.settings.invert_taps)
         assert.is_true(viewer.invert_taps)
-        assert.equals("On", UIManager._last_shown.item_table[4].mandatory)
-        UIManager._last_shown.item_table[3].callback()
+        assert.equals("On", UIManager._last_shown[1].item_table[4].mandatory)
+        UIManager._last_shown[1].item_table[3].callback()
         assert.is_false(viewer.invert_swipe)
-        assert.equals("Off", UIManager._last_shown.item_table[3].mandatory)
+        assert.equals("Off", UIManager._last_shown[1].item_table[3].mandatory)
     end)
 
     it("changes the panel-opening gesture and returns to the quick settings", function()
@@ -430,8 +472,8 @@ describe("ViewerController page-turn animation settings", function()
         controller.applyNativePanelSetting = spy()
         controller.applyPanelGesture = spy()
         controller:showMoreConfigMenu({})
-        assert.equals("Long press", UIManager._last_shown.item_table[5].mandatory)
-        UIManager._last_shown.item_table[5].callback()
+        assert.equals("Long press", UIManager._last_shown[1].item_table[5].mandatory)
+        UIManager._last_shown[1].item_table[5].callback()
         local picker = UIManager._last_shown
         assert.equals("Long press", picker.item_table[1].text)
         assert.equals("Two-finger tap", picker.item_table[2].text)
@@ -439,7 +481,7 @@ describe("ViewerController page-turn animation settings", function()
         picker.close_callback()
         assert.equals("two_finger_tap", controller.settings.panel_gesture)
         assert.equals(1, controller.applyPanelGesture:callCount())
-        assert.equals("Two-finger tap", UIManager._last_shown.item_table[5].mandatory)
+        assert.equals("Two-finger tap", UIManager._last_shown[1].item_table[5].mandatory)
     end)
 
     it("keeps icons on later pages and adapts the row count for short screens", function()
@@ -449,7 +491,7 @@ describe("ViewerController page-turn animation settings", function()
         end
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({})
-        local menu = UIManager._last_shown
+        local menu = UIManager._last_shown[1]
         assert.equals(4, menu.items_per_page)
         local previous = package.loaded["ui/widget/iconwidget"]
         package.loaded["ui/widget/iconwidget"] = {
@@ -471,14 +513,14 @@ describe("ViewerController page-turn animation settings", function()
         end
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({})
-        assert.equals(9, #UIManager._last_shown.item_table)
+        assert.equals(9, #UIManager._last_shown[1].item_table)
         Device.canDoSwipeAnimation = previous
     end)
 
     it("disables text selection for embedded-image viewers", function()
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({ embedded_source_image = {} })
-        local item = UIManager._last_shown.item_table[8]
+        local item = UIManager._last_shown[1].item_table[8]
         assert.equals("Unavailable", item.mandatory)
         assert.is_false(item.select_enabled)
     end)

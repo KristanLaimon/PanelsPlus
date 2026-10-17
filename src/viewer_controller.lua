@@ -796,9 +796,18 @@ end
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:showMoreConfigMenu(viewer)
     local _ = require("gettext")
+    local container = CenterContainer:new({
+        dimen = Geom:new({ w = Screen:getWidth(), h = Screen:getHeight() }),
+    })
     local menu
+    local function close()
+        -- A selection callback may open a replacement menu. Prevent KOReader's
+        -- trailing close callback from closing or reopening that replacement.
+        menu.close_callback = nil
+        UIManager:close(container)
+    end
     local function reopen(current_viewer)
-        UIManager:close(menu)
+        close()
         self:showMoreConfigMenu(current_viewer or viewer)
     end
     local function toggle(id, text, key, callback)
@@ -839,7 +848,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             text = _("Open panels with"),
             mandatory = self.settings.panel_gesture == "two_finger_tap" and _("Two-finger tap") or _("Long press"),
             callback = function()
-                UIManager:close(menu)
+                close()
                 local picker
                 picker = require("ui/widget/menu"):new({
                     title = _("Open panels with"),
@@ -857,7 +866,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             text = _("Rotate spreads"),
             mandatory = labels[DoubleSpread.rotationMode(self.settings)],
             callback = function()
-                UIManager:close(menu)
+                close()
                 self:showMoreConfigMenu(self:cycleViewerSpreadRotationMode(viewer))
             end,
         },
@@ -866,7 +875,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             text = _("Remove spread fold line"),
             mandatory = self.settings.join_spread_fold ~= false and _("On") or _("Off"),
             callback = function()
-                UIManager:close(menu)
+                close()
                 self:showMoreConfigMenu(self:toggleViewerJoinSpreadFold(viewer))
             end,
         },
@@ -883,7 +892,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             mandatory = "›",
             separator = true,
             callback = function()
-                UIManager:close(menu)
+                close()
                 self:showAdvancedOptions(viewer)
             end,
         },
@@ -895,8 +904,13 @@ function ViewerController:showMoreConfigMenu(viewer)
     menu = require("src._configmenu").new({
         title = _("More Config"),
         item_table = items,
+        show_parent = container,
+        close_callback = function()
+            UIManager:close(container)
+        end,
     })
-    UIManager:show(menu)
+    container[1] = menu
+    UIManager:show(container)
     return true
 end
 

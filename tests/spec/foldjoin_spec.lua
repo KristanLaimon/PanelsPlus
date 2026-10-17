@@ -289,7 +289,7 @@ describe("Fold join setting in the menus", function()
         local viewer = { page = 2, panels = { { x = 0, y = 0, w = 1692, h = 1200 } }, panel_is_full_page = { true } }
 
         controller:showMoreConfigMenu(viewer)
-        for _, item in ipairs(UIManager._last_shown.item_table) do
+        for _, item in ipairs(UIManager._last_shown[1].item_table) do
             if item.text == "Remove spread fold line" then
                 item.callback()
             end
