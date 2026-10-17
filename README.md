@@ -35,7 +35,7 @@
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup required, install Panels+ and *it just works*.
 
 ### Features
-- Includes 3 reading modes:
+- Includes 3 panel transition modes:
 <table>
   <!-- Videos (mismo alto y centrados) -->
   <tr valign="middle">
@@ -67,10 +67,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - Open panels with a long press or, if you prefer, a two-finger tap.
 - Panels finding on dark-background pages.
 - Safe panel detection (default) preserves conservative v1.4.0 grouping; Smart separates more complex layouts.
-- Settings profiles bundle rotation, reading order, progress, OCR language, navigation, and crop. Create, edit, rename, replace, or delete them from the panel viewer's Settings Profile menu. Transition timing, animation toggles, and crop bleed/margin values are included. None is selected by default, automatically saves your current settings when you leave it, and restores them when selected again; manual changes clear the profile selection.
-- Zoom controls use borderless SVG icons with small captions: a right-side rail in landscape, or a centered row above the settings in portrait. Reading and detection settings sit below the panel in two rows, with a full-width Close button; tap the panel to hide the controls.
-- The deletable Recommended profile uses landscape left, manga order, hidden progress, English OCR, and no crop, with Animated navigation on e-readers or Smooth on Android/desktop. Apply it explicitly to use these settings.
-- Animated panel transitions (or even pages transition, optional)
+- Configurable reading order, progress, OCR language, navigation, and crop, transitions& more.
 - Comics & Mangas support
 - Customizable and performant in low-end e-ink devices.
 - Move between panels with swipes and/or taps on edges.
@@ -99,7 +96,7 @@ This could work with even older versions, but not personally tested. If any issu
         <li><em>.cbr (digital comic book archive):</em> Usual standard format for western comics</li>
         <li><em>.cbz (Comic Book Zip Archive):</em> The standard for mangas, usually found in this format when downloading from internet or in (.cbr). I strongly recommend using <a href="https://github.com/manga-download/hakuneko">Hakuneko (Downloader)</a> and <a href="https://github.com/ciromattia/kcc">KCC (Kindle Comic Converter)</a> to adapt hakuneko downloads to .cbz for mangas. This is the top priority format I give support/compatibility with this plugin</li>
         <li><em>.pdf (Portable Document Format):</em> Another common format when downloading mangas/comics.</li>
-        <li><em>.epub / .kepub / .mobi:</em> Panels+ automatically opens embedded raster images under a long press and detects panels inside them. This includes Kobo-synced <code>.kepub.epub</code> books and directly named <code>.kepub</code> files when KOReader opens them. Text remains handled by KOReader's normal reader.</li>
+        <li><em>.epub / .kepub / .mobi:</em> Panels+ has native support for embedded images in these formats. Text remains handled by KOReader's normal reader.</li>
       </ul>
     </td>
     <td width="50%" valign="top">
@@ -186,14 +183,14 @@ While playing and testing this pluging from months of usage I found this setup t
 <div align="center">
   <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
   <br>
-  <em> Here is a quick look at how it runs on an actual Kindle</em>
+  <em>Panels+ running on a Kindle</em>
 </div>
 <br>
 Of course if you prefer vertical, with margin, loose cropped or even animated, then use it that way!. I've made all this config fully customizable to make this plugin `adapt to you`, not you to the plugin. Your manga, your rules.
 
-### 🔍 OCR Word Lookup Setup (Experimental)
+### 🔍 OCR Word Lookup Setup
 
-Panels+ introduces experimental OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
+Panels+ introduces OCR support natively, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
 
 <strong>IMPORTANT:</strong> To use this feature, you'll need to set up a couple of things first:
 
@@ -202,7 +199,7 @@ Panels+ introduces experimental OCR support, allowing you to touch & hold text i
   <li><em>Install at least one dictionary. You can do this by <a href="https://www.youtube.com/watch?v=fthGMdpUfR0">following this tutorial for manual installation</a>, or by using KOReader's built-in online dictionary installer.</em></li>
 </ul>
 
-<em>(Note: Word detection is tricky on hand-lettered or stylized comic text and might not always get it exactly right. As a workaround, I recommend binding a comfortable multi-swipe gesture to "Open dictionary lookup" as a fallback!)</em>
+<em>(Note: Even though a lot of effort has been put into Panels+ internal OCR algorithm detection, word detection is tricky on hand-lettered or stylized comic text and might not always get it exactly right. As a workaround, I recommend binding a comfortable multi-swipe gesture to "Open dictionary lookup" as a fallback just in case.)</em>
 
 ## 🎯 Why This Exists
 
@@ -216,7 +213,7 @@ This supports screenshots while zoomed into panels, so you can capture the exact
 
 ---
 
-## 🌐 For Translators (We Need Your Help!)
+## 🌐 For Translators
 
 Starting from version **v1.4.0**, Panels+ includes localization support, and we'd love to translate the plugin into as many languages as possible!
 

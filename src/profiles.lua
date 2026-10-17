@@ -51,7 +51,7 @@ function Profiles.initialize(settings)
                 progress_bar_visible = false,
                 ocr_bundled_language = "eng",
                 nav_transition_mode = Device.hasEinkScreen and Device:hasEinkScreen() and "animated" or "smooth",
-                crop_mode = "none",
+                crop_mode = "strict",
             },
         }
         settings.profiles_initialized = true
