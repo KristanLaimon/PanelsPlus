@@ -74,7 +74,7 @@ describe("ViewerController page-turn animation settings", function()
         local viewer = { nav_animated_panels = true }
         controller.active_panel_viewer = viewer
         local items = MainMenu.animationItems(controller)
-        assert.equals(5, #items)
+        assert.equals(6, #items)
         assert.equals("Animate between panels", items[1].text)
         assert.is_true(items[1].checked_func())
         items[1].callback()
@@ -106,6 +106,26 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(0.65, controller.settings.nav_transition_duration)
         assert.equals(0.65, viewer.nav_transition_duration)
         UIManager.nextTick, package.loaded["ui/widget/spinwidget"] = old_tick, old_spin
+    end)
+
+    it("cycles Smooth styles in the advanced menu and updates the active viewer", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        controller.setNavSmoothStyle = PanelsPlus.setNavSmoothStyle
+        local viewer = { nav_smooth_style = "linear", nav_transition_mode = "smooth" }
+        controller.active_panel_viewer = viewer
+        local item = MainMenu.animationItems(controller)[6]
+        local refreshed = spy()
+        assert.equals("Smooth style: linear", item.text_func())
+        item.callback({ updateItems = refreshed })
+        assert.equals("ease", controller.settings.nav_smooth_style)
+        assert.equals("ease", viewer.nav_smooth_style)
+        assert.equals("Smooth style: ease", item.text_func())
+        assert.equals(1, refreshed:callCount())
+        item.callback()
+        assert.equals("ease-in", controller.settings.nav_smooth_style)
+        assert.equals("ease-in", viewer.nav_smooth_style)
+        assert.equals("smooth", viewer.nav_transition_mode)
+        assert.equals(2, saved:callCount())
     end)
 
     it("defaults both Animated mode options to true", function()

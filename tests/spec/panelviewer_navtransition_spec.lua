@@ -87,7 +87,7 @@ describe("PanelViewer nav transition hold options", function()
         local shown_menu = UIManager._last_shown
         assert.is_not_nil(shown_menu)
         assert.is_not_nil(shown_menu.item_table)
-        assert.equals(3, #shown_menu.item_table)
+        assert.equals(4, #shown_menu.item_table)
     end)
 
     it("arms Animated mode for panel switches only when its panel option is enabled", function()
@@ -107,6 +107,45 @@ describe("PanelViewer nav transition hold options", function()
         viewer.nav_animated_panels = false
         viewer:onShowNextImage()
         assert.equals(1, animation_spy:callCount())
+    end)
+
+    it("defaults Smooth to linear and cycles every CSS style plus Classic", function()
+        local viewer = PanelViewer:new({ nav_transition_mode = "smooth" })
+        assert.equals("linear", viewer.nav_smooth_style)
+        viewer:onShowNavTransitionOptionsMenu()
+        for _, choice in ipairs({
+            "ease",
+            "ease-in",
+            "ease-out",
+            "ease-in-out",
+            "step-start",
+            "step-end",
+            "classic",
+            "linear",
+        }) do
+            UIManager._last_shown.item_table[4].callback()
+            assert.equals(choice, viewer.nav_smooth_style)
+            assert.equals("smooth", viewer.nav_transition_mode)
+            assert.equals(
+                "Smooth style: " .. (choice == "classic" and "Classic" or choice),
+                UIManager._last_shown.item_table[4].text
+            )
+        end
+    end)
+
+    it("delegates the Smooth style choice to its persistence callback", function()
+        local selected
+        local viewer = PanelViewer:new({
+            nav_transition_mode = "smooth",
+            nav_smooth_style_callback = function(current, style)
+                selected = style
+                current.nav_smooth_style = style
+            end,
+        })
+        viewer:onShowNavTransitionOptionsMenu()
+        UIManager._last_shown.item_table[4].callback()
+        assert.equals("ease", selected)
+        assert.equals("Smooth style: ease", UIManager._last_shown.item_table[4].text)
     end)
 end)
 
@@ -136,7 +175,7 @@ describe("PanelViewer panel finding button", function()
 end)
 
 -- Exercise the real transition dispatch with bounded fake bitmap allocations.
-describe("PanelViewer large-to-small smooth navigation", function()
+describe("PanelViewer smooth pan and zoom navigation", function()
     local Blitbuffer = require("ffi/blitbuffer")
     local RenderImage = require("ui/renderimage")
     local Memory = require("src._memory")
@@ -170,11 +209,13 @@ describe("PanelViewer large-to-small smooth navigation", function()
             buffers[#buffers + 1] = bb
             return bb
         end
-        RenderImage.scaleBlitBuffer = function(_, _, w, h)
+        RenderImage.scaleBlitBuffer = function(_, crop, w, h)
             if options.fail_scale then
                 error("scale failed")
             end
-            return Blitbuffer.new(w, h, 0)
+            local frame = Blitbuffer.new(w, h, 0)
+            frame.crop_w = crop.w
+            return frame
         end
         Memory.hasHeadroom = function()
             return not options.low_memory
@@ -188,11 +229,13 @@ describe("PanelViewer large-to-small smooth navigation", function()
                 { x = 0, y = 0, w = 600, h = 800 },
                 { x = 650, y = 300, w = 60, h = 80 },
             },
-            nav_transition_frames = 4,
+            nav_transition_frames = options.steps or 4,
+            nav_smooth_style = options.style,
             nav_transition_duration = 0.4,
             image_disposable = true,
             crop_mode = options.margin and "margin" or "tight",
             margin_ratio = 0.2,
+            panel_is_full_page = options.full_page,
             image_union_renderer = function(union, zoom)
                 source = Blitbuffer.new(math.ceil(union.w * zoom), math.ceil(union.h * zoom), 0)
                 return source
@@ -223,8 +266,8 @@ describe("PanelViewer large-to-small smooth navigation", function()
             self.switched_to = target
             self._images_list_cur = target
         end
-        viewer.runNavPanAnimation = function(self)
-            self.used_canvas_pan = true
+        viewer.runNavPanAnimation = function(self, x, y, done)
+            self.canvas_pan = { x = x, y = y, done = done }
         end
         local ok, err = pcall(function()
             check(viewer, buffers, frames, blits, function()
@@ -290,14 +333,129 @@ describe("PanelViewer large-to-small smooth navigation", function()
         end)
     end)
 
-    it("keeps the shared-canvas pan for similar-sized and small-to-large moves", function()
-        for _, rects in ipairs({
-            { { x = 0, y = 0, w = 300, h = 400 }, { x = 320, y = 0, w = 300, h = 400 } },
-            { { x = 650, y = 300, w = 60, h = 80 }, { x = 0, y = 0, w = 600, h = 800 } },
-        }) do
-            withTransition({ rects = rects }, function(viewer)
+    it("gradually zooms out from small to large panels", function()
+        withTransition({
+            rects = { { x = 650, y = 300, w = 60, h = 80 }, { x = 0, y = 0, w = 600, h = 800 } },
+        }, function(viewer, buffers, frames, _, source)
+            viewer:animateSwitchToImageNum(2)
+            assert.is_nil(viewer.switched_to)
+            for _ = 1, 4 do
+                UIManager._last_scheduled()
+            end
+            assert.equals(2, viewer.switched_to)
+            assert.equals(5, #frames)
+            for i = 2, #frames do
+                assert.is_true(frames[i].image.crop_w > frames[i - 1].image.crop_w)
+            end
+            for _, bb in ipairs(buffers) do
+                assert.is_true(bb.w <= 600 and bb.h <= 800)
+                assert.is_true((bb.frees or 0) <= 1)
+            end
+            assert.equals(1, source().frees)
+        end)
+    end)
+
+    it("interpolates similar-sized panels in either direction at the configured frame count", function()
+        local a = { x = 0, y = 0, w = 300, h = 400 }
+        local b = { x = 320, y = 40, w = 270, h = 360 }
+        for _, rects in ipairs({ { a, b }, { b, a } }) do
+            withTransition({ rects = rects, steps = 7 }, function(viewer, _, frames)
                 viewer:animateSwitchToImageNum(2)
-                assert.is_true(viewer.used_canvas_pan)
+                assert.is_nil(viewer.switched_to)
+                for _ = 1, 7 do
+                    UIManager._last_scheduled()
+                end
+                assert.equals(2, viewer.switched_to)
+                assert.equals(8, #frames)
+                for i = 2, #frames do
+                    local previous, current = frames[i - 1].image.crop_w, frames[i].image.crop_w
+                    assert.is_true(rects[1] == a and current < previous or rects[1] == b and current > previous)
+                end
+            end)
+        end
+    end)
+
+    it("pans equal-sized panels with stable zoom", function()
+        withTransition({
+            rects = { { x = 0, y = 0, w = 300, h = 400 }, { x = 320, y = 0, w = 300, h = 400 } },
+        }, function(viewer, _, frames, blits)
+            viewer:animateSwitchToImageNum(2)
+            assert.is_nil(viewer.switched_to)
+            for _ = 1, 4 do
+                UIManager._last_scheduled()
+            end
+            assert.equals(2, viewer.switched_to)
+            assert.equals(5, #frames)
+            for _, frame in ipairs(frames) do
+                assert.equals(frames[1].image.crop_w, frame.image.crop_w)
+            end
+            assert.is_true(blits[1].sx ~= blits[#blits].sx)
+        end)
+    end)
+
+    it("gradually changes margin framing when entering or leaving a full-page panel", function()
+        for _, flags in ipairs({ { true, false }, { false, true } }) do
+            withTransition({ margin = true, full_page = flags }, function(viewer, _, frames)
+                viewer:animateSwitchToImageNum(2)
+                for _ = 1, 4 do
+                    UIManager._last_scheduled()
+                end
+                assert.equals(flags[1] and 600 or 480, frames[1].image.w)
+                assert.equals(flags[2] and 600 or 480, frames[#frames].image.w)
+                assert.equals(540, frames[3].image.w)
+                assert.is_nil(viewer._panels_plus_transition_margin_factor)
+            end)
+        end
+    end)
+
+    it("eases both zoom directions while keeping duration, frame count, and landing framing", function()
+        local a = { x = 0, y = 0, w = 300, h = 400 }
+        local b = { x = 320, y = 40, w = 150, h = 200 }
+        for _, rects in ipairs({ { a, b }, { b, a } }) do
+            local widths = {}
+            for _, style in ipairs({ "linear", "ease-in-out" }) do
+                withTransition({ style = style, rects = rects }, function(viewer, _, frames)
+                    viewer:animateSwitchToImageNum(2)
+                    for _ = 1, 4 do
+                        UIManager._last_scheduled()
+                    end
+                    assert.equals(2, viewer.switched_to)
+                    assert.equals(5, #frames)
+                    widths[style] = {}
+                    for _, frame in ipairs(frames) do
+                        table.insert(widths[style], frame.image.crop_w)
+                    end
+                end)
+            end
+            assert.equals(widths.linear[1], widths["ease-in-out"][1])
+            assert.equals(widths.linear[5], widths["ease-in-out"][5])
+            if rects[1] == a then
+                assert.is_true(widths["ease-in-out"][2] > widths.linear[2])
+                assert.is_true(widths["ease-in-out"][4] < widths.linear[4])
+            else
+                assert.is_true(widths["ease-in-out"][2] < widths.linear[2])
+                assert.is_true(widths["ease-in-out"][4] > widths.linear[4])
+            end
+        end
+    end)
+
+    it("implements step-start and step-end jump timing on viewport frames", function()
+        for _, style in ipairs({ "step-start", "step-end" }) do
+            withTransition({ style = style }, function(viewer, _, frames)
+                viewer:animateSwitchToImageNum(2)
+                for _ = 1, 4 do
+                    UIManager._last_scheduled()
+                end
+                assert.equals(2, viewer.switched_to)
+                for i = 1, 4 do
+                    assert.equals(
+                        style == "step-start" and frames[5].image.crop_w or frames[1].image.crop_w,
+                        frames[i].image.crop_w
+                    )
+                end
+                if style == "step-end" then
+                    assert.is_true(frames[1].image.crop_w > frames[5].image.crop_w)
+                end
             end)
         end
     end)
@@ -308,6 +466,51 @@ describe("PanelViewer large-to-small smooth navigation", function()
             assert.equals(2, viewer.switched_to)
             assert.equals(0, #buffers)
         end)
+    end)
+
+    it("restores the earlier shared-canvas pan in Classic for both size directions", function()
+        local a = { x = 0, y = 0, w = 300, h = 400 }
+        local b = { x = 320, y = 40, w = 270, h = 360 }
+        for _, rects in ipairs({ { a, b }, { b, a } }) do
+            withTransition({ style = "classic", rects = rects }, function(viewer, _, frames, _, source)
+                viewer:animateSwitchToImageNum(2)
+                assert.is_true(viewer._panels_plus_transition_active)
+                assert.is_nil(viewer.switched_to)
+                assert.is_not_nil(viewer.canvas_pan)
+                assert.equals(0.5, viewer.canvas_pan.x)
+                assert.equals(0.5, viewer.canvas_pan.y)
+                assert.equals(1, #frames)
+                assert.equals(1, source().frees)
+                viewer.canvas_pan.done()
+                assert.equals(2, viewer.switched_to)
+                assert.is_nil(viewer._panels_plus_transition_margin_factor)
+            end)
+        end
+    end)
+
+    it("pans oversized Classic transitions at a fixed zoom with bounded allocations", function()
+        for _, margin in ipairs({ false, true }) do
+            withTransition({ style = "classic", margin = margin }, function(viewer, buffers, frames, blits, source)
+                viewer:animateSwitchToImageNum(2)
+                assert.is_nil(viewer.canvas_pan)
+                assert.is_nil(viewer.switched_to)
+                for _ = 1, 4 do
+                    UIManager._last_scheduled()
+                end
+                assert.equals(5, #frames)
+                assert.equals(2, viewer.switched_to)
+                for _, frame in ipairs(frames) do
+                    assert.equals(frames[1].image.crop_w, frame.image.crop_w)
+                    assert.equals(frames[1].margin, frame.margin)
+                end
+                assert.is_true(blits[1].sx ~= blits[#blits].sx, "Classic still pans to the destination")
+                for _, buffer in ipairs(buffers) do
+                    assert.is_true(buffer.w <= 600 and buffer.h <= 800)
+                    assert.is_true((buffer.frees or 0) <= 1)
+                end
+                assert.equals(1, source().frees)
+            end)
+        end
     end)
 
     it("releases temporary crops and the source if scaling fails", function()

@@ -344,6 +344,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         -- Smooth movement is rendered only from the extracted bitmap. This
         -- leaves the normal document-page renderer untouched.
         nav_transition_mode = self.settings.embedded_nav_transition_mode or "classic",
+        nav_smooth_style = self.settings.nav_smooth_style or Settings.defaults.nav_smooth_style,
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
@@ -414,6 +415,10 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             self:setNavTransitionDuration(seconds)
             current_viewer.nav_transition_duration = self.settings.nav_transition_duration
             return true
+        end,
+        nav_smooth_style_callback = function(current_viewer, style)
+            self:setNavSmoothStyle(style)
+            current_viewer.nav_smooth_style = self.settings.nav_smooth_style
         end,
         nav_transition_frames_callback = function(current_viewer, frames)
             self:setNavTransitionFrames(frames)

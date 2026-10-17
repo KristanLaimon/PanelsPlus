@@ -996,6 +996,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
         spread_rotation_direction = self.settings.spread_rotation_direction,
         nav_transition_mode = self.settings.nav_transition_mode or "classic",
+        nav_smooth_style = self.settings.nav_smooth_style or Settings.defaults.nav_smooth_style,
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
@@ -1025,6 +1026,10 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         end,
         nav_transition_toggle_callback = function(current_viewer)
             return self:toggleViewerNavTransitionMode(current_viewer)
+        end,
+        nav_smooth_style_callback = function(current_viewer, style)
+            self:setNavSmoothStyle(style)
+            current_viewer.nav_smooth_style = self.settings.nav_smooth_style
         end,
         nav_transition_duration_callback = function(current_viewer, seconds)
             return self:setViewerNavTransitionDuration(current_viewer, seconds)

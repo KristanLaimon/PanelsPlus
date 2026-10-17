@@ -11,6 +11,7 @@ SPDX-License-Identifier: MIT
 ]]
 local DoubleSpread = require("src._doublespread")
 local Settings = require("src._settings")
+local NavEasing = require("src._naveasing")
 local _ = require("gettext")
 local NATIVE_TEXT_LABEL = _("Prefer native-text layer in PDF files over Panels+ text recognition")
 
@@ -142,6 +143,20 @@ function Menu.animationItems(self)
         "ms"
     )
     adjustment("Transition frames", "nav_transition_frames", "setNavTransitionFrames", 1, 24, 1, 1, _("frames"))
+    items[#items + 1] = {
+        text_func = function()
+            return _("Smooth style") .. ": " .. NavEasing.label(self.settings.nav_smooth_style)
+        end,
+        keep_menu_open = true,
+        callback = function(menu)
+            local style = NavEasing.next(self.settings.nav_smooth_style)
+            Menu.applyAdvancedSetting(self, "setNavSmoothStyle", style, "nav_smooth_style")
+            if menu then
+                menu:updateItems()
+            end
+        end,
+        help_text = _("Cycle CSS timing functions for pan and zoom, or select Classic for the earlier camera pan."),
+    }
     return items
 end
 

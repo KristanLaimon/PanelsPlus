@@ -239,6 +239,7 @@ function PanelsPlus:loadDocSettings()
                 self.settings[key] = doc_data[key]
             end
         end
+        self.settings.nav_smooth_style = require("src._naveasing").normalize(self.settings.nav_smooth_style)
         self.settings.none_profile_values = Profiles.copy(doc_data.none_profile_values)
         self.settings.selected_profile_id = doc_data.selected_profile_id
     else
@@ -475,6 +476,13 @@ end
 function PanelsPlus:setNavTransitionMode(mode)
     self.settings.nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
     Timing.log("nav_transition_mode -> " .. self.settings.nav_transition_mode)
+    self:saveSettings()
+    self:saveDocSettings(true)
+end
+
+--- Select a CSS timing function or the earlier camera pan (Classic).
+function PanelsPlus:setNavSmoothStyle(style)
+    self.settings.nav_smooth_style = require("src._naveasing").normalize(style)
     self:saveSettings()
     self:saveDocSettings(true)
 end

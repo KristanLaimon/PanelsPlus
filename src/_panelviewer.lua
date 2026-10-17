@@ -19,6 +19,7 @@ local Geom = require("ui/geometry")
 local Geometry = require("src._smartgeometry")
 local ImageViewer = require("ui/widget/imageviewer")
 local Memory = require("src._memory")
+local NavEasing = require("src._naveasing")
 local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
@@ -122,6 +123,7 @@ end
 --- @field bleed_ratio_callback fun(viewer:PanelViewer, ratio:number, activate_loose_mode:boolean|nil):boolean|nil
 --- @field progress_bar_toggle_callback fun(viewer:PanelViewer):boolean|nil
 --- @field nav_transition_toggle_callback fun(viewer:PanelViewer):boolean|nil
+--- @field nav_smooth_style_callback fun(viewer:PanelViewer, style:string)|nil
 --- @field nav_transition_duration_callback fun(viewer:PanelViewer, seconds:number):boolean|nil
 --- @field nav_transition_frames_callback fun(viewer:PanelViewer, frames:integer):boolean|nil
 --- @field nav_transition_options_callback fun(viewer:PanelViewer):boolean|nil
@@ -156,6 +158,7 @@ local PanelViewer = ImageViewer:extend({
     prefer_native_text_layer = true,
     ocr_bundled_language = false,
     nav_transition_mode = "classic",
+    nav_smooth_style = "linear",
     nav_animated_panels = true,
     nav_animated_pages = true,
     nav_transition_duration = 0.4,
@@ -179,6 +182,7 @@ local PanelViewer = ImageViewer:extend({
     bleed_ratio_callback = nil,
     progress_bar_toggle_callback = nil,
     nav_transition_toggle_callback = nil,
+    nav_smooth_style_callback = nil,
     nav_transition_duration_callback = nil,
     nav_transition_frames_callback = nil,
     nav_transition_cross_page_callback = nil,
@@ -2012,6 +2016,7 @@ function PanelViewer:onCloseWidget()
     self.panel_finding_toggle_callback = nil
     self.margin_ratio_callback = nil
     self.bleed_ratio_callback = nil
+    self.nav_smooth_style_callback = nil
     self.panel_prerender_callback = nil
     self.embedded_cleanup_callback = nil
     self.screen_resize_callback = nil
@@ -2132,20 +2137,10 @@ end
 --- Animate a camera pan from the panel currently shown to `target`, then hand off
 --- to its crisp render.
 ---
---- Builds a synthetic canvas centered exactly on `target`'s own center, at the
---- zoom `target` itself would use if rendered alone -- so `target`'s final,
---- centered position on this canvas is pixel-identical to what the trailing
---- `switchToImageNum()` handoff will show, and the swap goes unnoticed. The
---- canvas is symmetric around that center by construction (equal half-extents
---- on every side), sized to whichever is larger: the half-screen (so `target`'s
---- own letterboxing, if any, matches its normal render) or the actual distance to
---- `rect_a`'s farthest edge (so the pan has real ground to cross). Real page
---- pixels (the union of both panels) are pasted into this canvas at their true
---- position; anything else -- including space beyond the actual page edges, when
---- centering `target` requires it -- is left blank, exactly like the blank
---- letterbox margins a normal single-panel view already shows. Falls back to an
---- instant swap on render failure, missing rectangles, or low memory. Oversized
---- canvases use viewport frames instead of upscaling the entire union.
+--- CSS styles interpolate the center and zoom with viewport-sized frames. Classic
+--- pans a shared canvas at the destination's zoom, using viewport frames when
+--- that canvas would be oversized. Both hand off to the destination's crisp render
+--- and fall back to an instant swap on render failure, missing rectangles, or low memory.
 ---
 --- @param target integer 1-based image index to end the transition on.
 function PanelViewer:animateSwitchToImageNum(target)
@@ -2200,8 +2195,11 @@ function PanelViewer:animateSwitchToImageNum(target)
         math.max(Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by), by - union.y, union.y + union.h - by)
 
     local screen_area = Screen:getWidth() * Screen:getHeight()
-    local use_viewport_frames = (2 * half_w) * (2 * half_h) * target_zoom * target_zoom
-        > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
+    -- CSS styles interpolate zoom. Classic keeps the earlier fixed-zoom
+    -- canvas pan, with the bounded-frame fallback for oversized canvases.
+    local use_viewport_frames = self.nav_smooth_style ~= "classic"
+        or (2 * half_w) * (2 * half_h) * target_zoom * target_zoom
+            > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         Timing.log("animateSwitchToImageNum: low memory, falling back to instant swap for panel %d -> %d", cur, target)
         return self:switchToImageNum(target)
@@ -2301,9 +2299,8 @@ function PanelViewer:animateSwitchToImageNum(target)
     end)
 end
 
---- Animate oversized pans by scaling only the visible crop of a screen-fit
---- union render. The whole page must never be upscaled to a tiny panel's zoom.
---- Interpolate zoom too, so the first frame retains the large source's framing.
+--- Animate pan and zoom by scaling only the visible crop of a screen-fit union.
+--- Interpolate both endpoints' framing, including their margin mode factors.
 function PanelViewer:runNavViewportAnimation(
     target,
     union,
@@ -2326,9 +2323,15 @@ function PanelViewer:runNavViewportAnimation(
         end
         source, owned = copy, true
     end
-    local viewport_w = math.max(1, math.floor(Screen:getWidth() * margin_factor))
-    local viewport_h = math.max(1, math.floor(Screen:getHeight() * margin_factor))
-    local start_zoom = canvasFitZoom(self.image_rects[self._images_list_cur]) * margin_factor
+    local style = NavEasing.normalize(self.nav_smooth_style)
+    local start_margin_factor = self:getMarginShrinkFactorForPanel(self._images_list_cur) or 1
+    local start_zoom = canvasFitZoom(self.image_rects[self._images_list_cur]) * start_margin_factor
+    if style == "classic" then
+        -- Match Classic's shared canvas even when only viewport crops fit in
+        -- memory: pan at the destination's zoom and framing throughout.
+        start_margin_factor = margin_factor
+        start_zoom = target_zoom
+    end
     local steps = math.max(1, self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT)
     local delay = (self.nav_transition_duration or 0.4) / steps
     local step = 0
@@ -2346,6 +2349,10 @@ function PanelViewer:runNavViewportAnimation(
         self:switchToImageNum(target)
     end
     local function showFrame(progress)
+        progress = NavEasing.progress(style, progress)
+        local frame_margin = start_margin_factor + (margin_factor - start_margin_factor) * progress
+        local viewport_w = math.max(1, math.floor(Screen:getWidth() * frame_margin))
+        local viewport_h = math.max(1, math.floor(Screen:getHeight() * frame_margin))
         local zoom = start_zoom + (target_zoom - start_zoom) * progress
         local x = ax + (bx - ax) * progress
         local y = ay + (by - ay) * progress
@@ -2376,6 +2383,7 @@ function PanelViewer:runNavViewportAnimation(
         self.image = frame
         self._center_x_ratio, self._center_y_ratio = 0.5, 0.5
         self.scale_factor = 1
+        self._panels_plus_transition_margin_factor = frame_margin
         self:update()
         if self.image_disposable then
             self:releasePreviousPanelImage(old_image)
@@ -2440,6 +2448,11 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
         steps = NAV_TRANSITION_STEPS_DEFAULT
     end
     local step_delay = (self.nav_transition_duration or 0.4) / steps
+    local style = NavEasing.normalize(self.nav_smooth_style)
+
+    if NavEasing.progress(style, 0) == 1 then
+        self:panBy(target_offset_x - start_offset_x, target_offset_y - start_offset_y)
+    end
 
     local step_n = 0
     local walkStep
@@ -2450,7 +2463,7 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
             return
         end
         step_n = step_n + 1
-        local progress = step_n / steps
+        local progress = NavEasing.progress(style, step_n / steps)
         local desired_x, desired_y = target_offset_x, target_offset_y
         if step_n < steps then
             desired_x = start_offset_x + (target_offset_x - start_offset_x) * progress
@@ -3085,6 +3098,22 @@ function PanelViewer:onShowNavTransitionOptionsMenu()
                     "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
                 ),
             },
+        }
+    end
+
+    if viewer.nav_transition_mode == "smooth" then
+        menu_items[#menu_items + 1] = {
+            text = _("Smooth style") .. ": " .. NavEasing.label(viewer.nav_smooth_style),
+            callback = function()
+                local style = NavEasing.next(viewer.nav_smooth_style)
+                if viewer.nav_smooth_style_callback then
+                    viewer.nav_smooth_style_callback(viewer, style)
+                else
+                    viewer.nav_smooth_style = style
+                end
+                UIManager:close(menu)
+                viewer:onShowNavTransitionOptionsMenu()
+            end,
         }
     end
 

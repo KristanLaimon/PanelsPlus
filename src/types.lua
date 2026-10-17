@@ -57,6 +57,7 @@ SPDX-License-Identifier: MIT
 --- @field embedded_nav_transition_mode PPNavTransitionMode|nil Navigation for extracted images.
 --- @field nav_animated_panels boolean|nil
 --- @field nav_animated_pages boolean|nil
+--- @field nav_smooth_style string CSS timing function name or "classic" for the earlier pan.
 --- @field nav_transition_duration number|nil
 --- @field nav_transition_cross_page boolean|nil
 --- @field nav_transition_frames integer|nil
@@ -130,6 +131,7 @@ SPDX-License-Identifier: MIT
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
+--- @field nav_smooth_style string CSS timing function name or "classic" for the earlier pan.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
 --- @field nav_transition_cross_page boolean Whether smooth navigation also animates across page boundaries.
 --- @field nav_transition_frames integer Number of discrete steps a smooth camera pan is split into.
@@ -216,6 +218,7 @@ SPDX-License-Identifier: MIT
 --- @field nav_transition_mode PPNavTransitionMode Classic, Smooth camera-pan, or framebuffer Animated navigation.
 --- @field nav_animated_panels boolean Whether Animated mode animates panel-to-panel switches.
 --- @field nav_animated_pages boolean Whether Animated mode animates page-boundary switches.
+--- @field nav_smooth_style string CSS timing function name or "classic" for the earlier pan.
 --- @field nav_transition_duration number Seconds the smooth camera pan takes.
 --- @field panel_animation_callback fun(direction:PPBoundaryDirection, viewer:PanelViewer):boolean|nil
 

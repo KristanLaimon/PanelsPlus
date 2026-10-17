@@ -47,6 +47,21 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
 end
 
 describe("PanelsPlus per-document settings persistence", function()
+    it("defaults Smooth style to linear and restores Classic independently for each book", function()
+        assert.equals("linear", Settings.withDefaults({}).nav_smooth_style)
+        local p = newPluginInstance("/books/a.cbz", nil)
+        p:setNavSmoothStyle("classic")
+        assert.equals("classic", p.settings.doc_settings["/books/a.cbz"].nav_smooth_style)
+        p.ui.document.file = "/books/b.cbz"
+        p:setNavSmoothStyle("ease-in-out")
+        p.ui.document.file = "/books/a.cbz"
+        p:loadDocSettings()
+        assert.equals("classic", p.settings.nav_smooth_style)
+        p.ui.document.file = "/books/b.cbz"
+        p:loadDocSettings()
+        assert.equals("ease-in-out", p.settings.nav_smooth_style)
+    end)
+
     it("saves per-document settings when changing reading options or OCR language", function()
         local doc_store = {}
         local doc_settings_mock = {

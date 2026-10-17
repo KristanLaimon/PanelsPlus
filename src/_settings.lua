@@ -44,6 +44,7 @@ local Settings = {
         hold_text_selection = true,
         prefer_native_text_layer = true,
         nav_transition_mode = "classic",
+        nav_smooth_style = "linear",
         nav_animated_panels = true,
         nav_animated_pages = true,
         nav_transition_duration = 0.4,
@@ -110,6 +111,7 @@ end
 --- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
+    settings.nav_smooth_style = require("src._naveasing").normalize(settings.nav_smooth_style)
     local performance_profile_version = settings.performance_profile_version or 0
     -- Activate the component pipeline for existing installations as well.
     if settings.detector ~= "components" then

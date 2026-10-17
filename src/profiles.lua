@@ -2,6 +2,7 @@
 local Profiles = {}
 local FIELDS = { "mode", "progress_bar_visible", "ocr_bundled_language", "nav_transition_mode", "crop_mode" }
 local OPTION_FIELDS = {
+    "nav_smooth_style",
     "nav_animated_panels",
     "nav_animated_pages",
     "nav_transition_duration",
@@ -24,6 +25,7 @@ function Profiles.options(values)
             options[key] = defaults[key]
         end
     end
+    options.nav_smooth_style = require("src._naveasing").normalize(options.nav_smooth_style)
     return options
 end
 

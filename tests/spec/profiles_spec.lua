@@ -186,6 +186,7 @@ describe("Settings profiles", function()
         local p = plugin()
         p.settings.image_rotation = false
         local expected = {
+            nav_smooth_style = "classic",
             nav_animated_panels = false,
             nav_animated_pages = false,
             nav_transition_duration = 0.8,
