@@ -1141,8 +1141,10 @@ function PanelViewer:paintHighlights(bb, x, y)
         return
     end
 
-    local temp_highlights = reader_ui.view.highlight and reader_ui.view.highlight.temp
-    local selected_text = reader_ui.highlight and reader_ui.highlight.selected_text
+    local temp_highlights = not self.embedded_source_image
+        and reader_ui.view.highlight
+        and reader_ui.view.highlight.temp
+    local selected_text = self._embedded_selection or (reader_ui.highlight and reader_ui.highlight.selected_text)
 
     local boxes_to_draw = {}
 
@@ -1399,7 +1401,7 @@ function PanelViewer:_startPhraseHold(highlight, page_pos)
         end
         local selection = highlight.selected_text
         local seed = selection and selection.sboxes and selection.sboxes[1]
-        local document = self.reader_ui.document
+        local document = self._embedded_ocr_document or self.reader_ui.document
         if not seed or PageBitmap.getBlockReason(document) then
             return
         end
@@ -1410,7 +1412,7 @@ function PanelViewer:_startPhraseHold(highlight, page_pos)
         selection.text, selection.sboxes, selection.pboxes = text, boxes, boxes
         highlight.is_word_selection = false
         self._phrase_selected = true
-        local painted = self.reader_ui.view.highlight
+        local painted = not self.embedded_source_image and self.reader_ui.view.highlight
         if painted and painted.temp then
             painted.temp[page_pos.page] = boxes
         end
@@ -1424,11 +1426,37 @@ end
 
 --- Explain why OCR selection and its model picker are unavailable.
 function PanelViewer:showTextSelectionDisabledWarning()
-    local text = self.embedded_source_image and _("OCR text selection is unavailable for embedded images.")
-        or _(
-            "OCR text selection is disabled. Enable ‘Touch & hold text selection’ in ‘More Config…’ to use OCR and select an OCR model."
-        )
+    local text = _(
+        "OCR text selection is disabled. Enable ‘Touch & hold text selection’ in ‘More Config…’ to use OCR and select an OCR model."
+    )
     UIManager:show(require("ui/widget/infomessage"):new({ text = text, timeout = FLOW_WARNING_TIMEOUT }))
+    return true
+end
+
+--- OCR extracted images without passing image positions to ReaderRolling's XPointer API.
+function PanelViewer:_holdEmbeddedImage(ges)
+    local pos = self:screenToPageTransform(ges and ges.pos)
+    if not pos then
+        return true
+    end
+    self._embedded_selection = nil
+    self._panels_plus_text_holding = nil
+    self._embedded_ocr_document = self._embedded_ocr_document
+        or require("src._imagedocument").new(self.embedded_source_image)
+    local document = self._embedded_ocr_document
+    local ok, box, native = pcall(WordFinder.findWordBox, document, 1, pos.x, pos.y)
+    if not ok or not box then
+        return true
+    end
+    local read_ok, word = pcall(WordFinder.readWord, document, 1, box, native, self.ocr_bundled_language)
+    if not read_ok or not word then
+        return true
+    end
+    local selection = { text = word, sboxes = { box }, pboxes = { box } }
+    self._embedded_selection = selection
+    self._panels_plus_text_holding = true
+    self:_startPhraseHold({ selected_text = selection }, pos)
+    UIManager:setDirty(self, "ui")
     return true
 end
 
@@ -1449,6 +1477,10 @@ function PanelViewer:onHold(arg, ges)
     -- that fact so its paired release cannot reach ImageViewer's deliberate
     -- full-refresh-on-hold behavior.
     self._panels_plus_hold_consumed = true
+
+    if self.embedded_source_image then
+        return self:_holdEmbeddedImage(ges)
+    end
 
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
@@ -1604,6 +1636,9 @@ function PanelViewer:onHoldPan(arg, ges)
         return ImageViewer.onHoldPan and ImageViewer.onHoldPan(self, arg, ges)
     end
 
+    if self.embedded_source_image then
+        return true
+    end
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
     if not highlight or not reader_ui.view or type(highlight.onHoldPan) ~= "function" then
@@ -1644,6 +1679,26 @@ function PanelViewer:onHoldRelease(arg, ges)
 
     self._panels_plus_text_holding = nil
     self._panels_plus_hold_consumed = nil
+    if self.embedded_source_image then
+        local selection = self._embedded_selection
+        self._embedded_selection = nil
+        local ui = self.reader_ui
+        if selection and self._phrase_selected and ui.highlight then
+            pcall(ui.highlight.onTranslateText, ui.highlight, selection.text)
+        elseif selection and ui.dictionary then
+            local boxes = {}
+            for _, box in ipairs(selection.sboxes) do
+                local screen_box = self:pageToScreenTransform(box)
+                if screen_box then
+                    boxes[#boxes + 1] = screen_box
+                end
+            end
+            pcall(ui.dictionary.onLookupWord, ui.dictionary, selection.text, false, boxes)
+        end
+        self._phrase_selected = nil
+        UIManager:setDirty(self, "ui")
+        return true
+    end
     local reader_ui = self.reader_ui
     local highlight = reader_ui and reader_ui.highlight
     if self._phrase_selected and highlight and type(highlight.onTranslateText) == "function" then
@@ -1981,8 +2036,15 @@ end
 --- it. The current displayed crop remains owned by `self.image`, so this is
 --- safe while a boundary search keeps the viewer visible.
 function PanelViewer:releaseEmbeddedSource(discard_navigation)
+    if self.embedded_source_image then
+        self:_cancelPhraseHold()
+        self._panels_plus_text_holding = nil
+        self._phrase_selected = nil
+    end
     local source = self.embedded_source_image
     self.embedded_source_image = nil
+    self._embedded_ocr_document = nil
+    self._embedded_selection = nil
     self.image_union_renderer = nil
     if discard_navigation then
         self._images_list = nil

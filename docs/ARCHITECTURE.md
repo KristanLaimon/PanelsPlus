@@ -29,7 +29,11 @@ event at the beginning.
 When **Touch & hold text selection** is off, holding inside the viewer or tapping
 the faded OCR model icon shows a seven-second explanation pointing to
 **More Config…**. Toggling the setting refreshes the icon immediately. Embedded
-image viewers keep text selection unavailable and explain that limitation.
+image viewers use the same OCR model picker and selection preference. Their
+bitmap-backed OCR source borrows the extracted image, renders bounded crops,
+and keeps image coordinates separate from ReaderRolling text positions.
+Word release opens the dictionary; a longer hold recognizes nearby dialogue
+for translation.
 
 It does this by patching two highlight entry points rather than forking the
 reader. The `onHold` hook gets first chance to recognize an embedded reflow
@@ -140,6 +144,7 @@ flowchart TD
 | --- | --- |
 | `main.lua` | Plugin class, settings setters, teardown |
 | `src/cache.lua` | Per-page panel cache, prefetch scheduling and cancellation |
+| `src/_imagedocument.lua` | Bitmap-backed rendering and OCR contexts for extracted images |
 | `src/embedded_image.lua` | Extraction, detection, viewing, and boundary search for reflow-document images |
 | `src/viewer_controller.lua` | Opening viewers, page-boundary crossing, panel prerender |
 | `src/actions.lua` | Dispatcher-registered gesture actions |

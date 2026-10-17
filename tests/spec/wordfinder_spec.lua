@@ -1000,3 +1000,54 @@ describe("WordFinder grayscale ownership", function()
         assert.is_false(cast)
     end)
 end)
+
+describe("WordFinder extracted bitmap sources", function()
+    it("releases an owned detector crop after finding a word", function()
+        local pixels = buildLineGrid(800, 1200, { { 330, 440 } }, 580, 610)
+        local document = newFakeDocument(800, 1200, pixels)
+        document.image = {}
+        local render, freed = document.renderPage, 0
+        document.renderPage = function(...)
+            local tile = render(...)
+            tile.disposable = true
+            tile.bb.free = function()
+                freed = freed + 1
+            end
+            return tile
+        end
+        local box = WordFinder.findWordBox(document, 1, 380, 595)
+        assert.is_not_nil(box)
+        assert.equals(1, freed)
+    end)
+
+    it("OCRs every word of the selected dialogue while skipping neighbouring bubbles", function()
+        local previous = WordFinder.ocrWord
+        local read = {}
+        WordFinder.ocrWord = function(_, _, box, model)
+            assert.equals("spa", model)
+            read[#read + 1] = box.x
+            return box.x == 10 and "Hola" or "mundo"
+        end
+        local document = {
+            image = {},
+            getTextBoxes = function()
+                return {
+                    {
+                        y0 = 10,
+                        y1 = 30,
+                        { x0 = 10, x1 = 50, y0 = 10, y1 = 30 },
+                        { x0 = 60, x1 = 110, y0 = 10, y1 = 30 },
+                        { x0 = 250, x1 = 300, y0 = 10, y1 = 30 },
+                    },
+                }
+            end,
+        }
+        local ok, text, boxes = pcall(WordFinder.readPhrase, document, 1, { x = 10, y = 10, w = 40, h = 20 }, "spa")
+        WordFinder.ocrWord = previous
+        assert.is_true(ok)
+        assert.equals("Hola mundo", text)
+        assert.equals(2, #read)
+        assert.equals(1, #boxes)
+        assert.equals(100, boxes[1].w)
+    end)
+end)

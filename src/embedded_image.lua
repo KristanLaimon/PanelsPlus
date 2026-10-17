@@ -335,7 +335,9 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         swipe_navigation = self.settings.swipe_navigation ~= false,
         kobo_vertical_gesture = self.settings.kobo_vertical_gesture ~= false,
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
-        hold_text_selection = false,
+        page = 1, -- OCR coordinates refer to the extracted image, not a reflow page.
+        hold_text_selection = self.settings.hold_text_selection ~= false,
+        ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
         spread_rotation_direction = self.settings.spread_rotation_direction,
@@ -453,6 +455,9 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return self:reopenEmbeddedImagePanels(current_viewer, {
                 buttons_visible = current_viewer.buttons_visible,
             })
+        end,
+        ocr_language_callback = function(current_viewer)
+            return self:showOcrLanguageMenu(current_viewer)
         end,
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)

@@ -881,11 +881,9 @@ function ViewerController:showMoreConfigMenu(viewer)
         },
         toggle("text_selection", "Touch & hold text selection", "hold_text_selection", function()
             self:setHoldTextSelection(self.settings.hold_text_selection == false)
-            if not viewer.embedded_source_image then
-                viewer.hold_text_selection = self.settings.hold_text_selection
-                viewer:replaceButtonTable()
-                viewer:update()
-            end
+            viewer.hold_text_selection = self.settings.hold_text_selection
+            viewer:replaceButtonTable()
+            viewer:update()
         end),
         {
             id = "advanced",
@@ -899,10 +897,6 @@ function ViewerController:showMoreConfigMenu(viewer)
             end,
         },
     }
-    if viewer.embedded_source_image then
-        items[8].mandatory = _("Unavailable")
-        items[8].select_enabled = false
-    end
     menu = require("src._configmenu").new({
         title = _("More Config"),
         item_table = items,

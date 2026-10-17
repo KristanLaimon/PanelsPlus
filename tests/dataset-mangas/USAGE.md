@@ -38,15 +38,17 @@ tests/dataset-mangas/dataset/<bookfriendlyname>/
 ├── 00.png             # Cover / Page 1 (git included)
 ├── 01.png             # Page 2         (git included)
 ├── 02.png             # Page 3         (git included)
-├── 03.png             # Page 4+        (GIT-IGNORED)
+├── ...
+├── 07.png             # Page 8         (git included)
+├── 08.png             # Page 9+        (GIT-IGNORED)
 ├── ...
 ├── metadata.json      # Book type, progress & finished status
 └── annotation.json    # Book panel annotations
 ```
 
 > [!IMPORTANT]
-> **DMCA Protection Rule**:
-> To allow sharing annotations publicly while respecting copyright, the repository's `.gitignore` automatically **includes only the first 3 preview pages** (`00.png`, `01.png`, and `02.png`) so people know which volume/edition the dataset belongs to. All subsequent pages from `03.png` forward are **strictly gitignored**.
+> **Public preview rule**:
+> The repository's `.gitignore` allows **only the first 8 preview pages** (`00.png` through `07.png`) of each dataset. All subsequent pages from `08.png` forward are **strictly gitignored**. The same limit applies to text-based format datasets; complete source books remain ignored.
 
 ---
 
@@ -182,7 +184,9 @@ dataset/
 │   ├── 00.png             # Cover / Page 1 (git-tracked)
 │   ├── 01.png             # Page 2         (git-tracked)
 │   ├── 02.png             # Page 3         (git-tracked)
-│   ├── 03.png             # Page 4+        (git-ignored for DMCA protection)
+│   ├── ...
+│   ├── 07.png             # Page 8         (git-tracked)
+│   ├── 08.png             # Page 9+        (git-ignored)
 │   ├── ...
 │   ├── metadata.json      # Book type, progress % & finished status
 │   └── annotation.json    # Book panel annotations (automatically scanned by PanelsPlus)

@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 ---
 --- Validates 100% of panel annotations across all 213 pages from json, ensures 'en' language paths,
 --- verifies metadata, and gracefully warns + skips full page checks if running from a public clone
---- with only preview pages (00.png, 01.png, 02.png) due to DMCA protection.
+--- with only preview pages (00.png through 07.png) due to DMCA protection.
 
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
@@ -189,7 +189,7 @@ describe("Bloom Into You human-annotated dataset validation", function()
             end
         else
             -- Public clone / preview mode: verify the preview pages exist (00.png, 01.png, 02.png)
-            for p_idx = 1, math.min(3, available_images) do
+            for p_idx = 1, math.min(8, available_images) do
                 local img_path = string.format("%s/%02d.png", BOOK_DIR, p_idx - 1)
                 local f = io.open(img_path, "r")
                 assert.is_not_nil(f, "Preview page image must exist: " .. img_path)
@@ -201,7 +201,7 @@ describe("Bloom Into You human-annotated dataset validation", function()
     end)
 
     it("evaluates panel recognition on available Bloom Into You pages", function()
-        local max_test_pages = is_full_volume and 213 or math.min(3, available_images)
+        local max_test_pages = is_full_volume and 213 or math.min(8, available_images)
         local total_gt, total_det, total_tp = 0, 0, 0
         local total_iou, evaluated_count = 0, 0
 

@@ -533,12 +533,12 @@ describe("ViewerController page-turn animation settings", function()
         Device.canDoSwipeAnimation = previous
     end)
 
-    it("disables text selection for embedded-image viewers", function()
+    it("allows text selection for embedded-image viewers", function()
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({ embedded_source_image = {} })
         local item = UIManager._last_shown[1].item_table[8]
-        assert.equals("Unavailable", item.mandatory)
-        assert.is_false(item.select_enabled)
+        assert.equals("On", item.mandatory)
+        assert.is_nil(item.select_enabled)
     end)
 
     it("keeps common spread and reading-order settings out of advanced options", function()

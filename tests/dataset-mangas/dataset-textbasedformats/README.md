@@ -7,8 +7,10 @@ their 2, 3, and 6 panels into one full-page panel.
 
 Each format directory may contain its complete source book and additional
 extracted images on a developer machine. `.gitignore` keeps those copyrighted
-files local. Git retains only `00.png`, `01.png`, and `02.png`, plus metadata,
-annotations, and benchmark records, following the existing manga dataset rule.
+files local. Git allows only the first eight preview images (`00.png` through `07.png`), plus
+metadata, annotations, and benchmark records, following the manga dataset rule.
+These regression datasets currently contain three selected fixtures each;
+`08.png` onward and complete source books remain ignored.
 
 The stored rectangles are regression annotations for the converted assets.
 They record the accepted component-detector output after it was checked against

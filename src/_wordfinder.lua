@@ -753,7 +753,7 @@ end
 --- Expand a word to its nearby dialogue block. Split wide line gaps before
 --- joining adjacent lines so side-by-side bubbles remain separate.
 function WordFinder.readPhrase(document, pageno, seed, bundled_language)
-    local boxes = document:getTextBoxes(pageno)
+    local boxes = document:getTextBoxes(pageno, seed)
     local runs = {}
     for _, line in ipairs(boxes or {}) do
         local run
@@ -768,6 +768,8 @@ function WordFinder.readPhrase(document, pageno, seed, bundled_language)
                 run.needs_ocr = true
             end
             run.words[#run.words + 1] = word.word or ""
+            run.word_boxes = run.word_boxes or {}
+            run.word_boxes[#run.word_boxes + 1] = word
         end
     end
     local cx, cy = seed.x + seed.w / 2, seed.y + seed.h / 2
@@ -816,7 +818,20 @@ function WordFinder.readPhrase(document, pageno, seed, bundled_language)
     for _, run in ipairs(phrase_runs) do
         local box = { x = run.x0, y = run.y0, w = run.x1 - run.x0, h = run.y1 - run.y0 }
         local text = WordFinder.normalizeWord(table.concat(run.words, " "))
-        if run.needs_ocr or not text then
+        if document.image and run.needs_ocr then
+            -- The native single-word API may return only the first word even in
+            -- line mode. Read only the selected dialogue's word boxes individually.
+            local words = {}
+            for _, word in ipairs(run.word_boxes) do
+                local word_box = { x = word.x0, y = word.y0, w = word.x1 - word.x0, h = word.y1 - word.y0 }
+                local recognized = WordFinder.ocrWord(document, pageno, word_box, bundled_language)
+                if not recognized then
+                    return nil
+                end
+                words[#words + 1] = recognized
+            end
+            text = table.concat(words, " ")
+        elseif run.needs_ocr or not text then
             text = WordFinder.ocrWord(document, pageno, box, bundled_language, nil, { mode = 7, height = 40 })
         end
         if not text then
@@ -984,7 +999,8 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
         return nil
     end
 
-    local native = Document.getNativePageDimensions(document, pageno)
+    local native = document.image and document:getNativePageDimensions(pageno)
+        or Document.getNativePageDimensions(document, pageno)
     if not native or not native.w or not native.h or native.w <= 0 or native.h <= 0 then
         return nil
     end
@@ -1033,6 +1049,8 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
         return nil
     end
 
+    origin_x = tile.origin_x or origin_x
+    origin_y = tile.origin_y or origin_y
     local work, owned = toGreyscale(tile.bb)
 
     -- The search below is wrapped in its own function and run through pcall
@@ -1452,6 +1470,9 @@ function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
     end -- search()
 
     local ok2, result_box, result_native = pcall(search)
+    if tile.disposable then
+        pcall(tile.bb.free, tile.bb)
+    end
     if not ok2 then
         if owned then
             pcall(owned.free, owned)

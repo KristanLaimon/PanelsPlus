@@ -41,17 +41,27 @@ deadpool.comic.cbr
 kobayashi.manga.cbz
 page_diagnosis.md
 
-# Dataset book images: ignore all except 00, 01, and 02
+# Dataset book images: share only the first eight pages (00 through 07)
 tests/dataset-mangas/dataset/*/*.png
 !tests/dataset-mangas/dataset/*/00.png
 !tests/dataset-mangas/dataset/*/01.png
 !tests/dataset-mangas/dataset/*/02.png
+!tests/dataset-mangas/dataset/*/03.png
+!tests/dataset-mangas/dataset/*/04.png
+!tests/dataset-mangas/dataset/*/05.png
+!tests/dataset-mangas/dataset/*/06.png
+!tests/dataset-mangas/dataset/*/07.png
 
-# Text-based format dataset book images and full books: ignore except 00, 01, 02
+# Text-based format dataset book images: share only 00 through 07; keep full books local
 tests/dataset-mangas/dataset-textbasedformats/*/*.png
 !tests/dataset-mangas/dataset-textbasedformats/*/00.png
 !tests/dataset-mangas/dataset-textbasedformats/*/01.png
 !tests/dataset-mangas/dataset-textbasedformats/*/02.png
+!tests/dataset-mangas/dataset-textbasedformats/*/03.png
+!tests/dataset-mangas/dataset-textbasedformats/*/04.png
+!tests/dataset-mangas/dataset-textbasedformats/*/05.png
+!tests/dataset-mangas/dataset-textbasedformats/*/06.png
+!tests/dataset-mangas/dataset-textbasedformats/*/07.png
 tests/dataset-mangas/dataset-textbasedformats/*.epub
 tests/dataset-mangas/dataset-textbasedformats/*.mobi
 tests/dataset-mangas/dataset-textbasedformats/*/*.epub

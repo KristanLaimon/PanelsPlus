@@ -61,12 +61,14 @@ class TextBasedFormatDatasetTest(unittest.TestCase):
             ["git", "check-ignore", "-q", str(directory / "source.epub")],
             check=False,
         )
-        preview = subprocess.run(
-            ["git", "check-ignore", "-q", str(directory / "00.png")],
-            check=False,
-        )
         self.assertEqual(0, ignored.returncode)
-        self.assertNotEqual(0, preview.returncode)
+        for index in range(10):
+            with self.subTest(page=index):
+                preview = subprocess.run(
+                    ["git", "check-ignore", "--no-index", "-q", str(directory / f"{index:02d}.png")],
+                    check=False,
+                )
+                self.assertEqual(1 if index < 8 else 0, preview.returncode)
 
     def test_local_source_containers_reproduce_the_preview_pixels(self):
         sources = {

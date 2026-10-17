@@ -36,6 +36,7 @@ local spec_modules = {
     "tests.spec.memory_spec",
     "tests.spec.resource_lifecycle_spec",
     "tests.spec.embedded_image_spec",
+    "tests.spec.embedded_image_ocr_spec",
     "tests.spec.nativedetector_spec",
     "tests.spec.panelviewer_reader_gesture_spec",
     "tests.spec.viewer_controller_rotation_spec",

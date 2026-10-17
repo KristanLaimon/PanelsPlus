@@ -193,6 +193,9 @@ describe("EmbeddedImage native page animation", function()
 
         local arm_animation = spy()
         local plugin = {
+            getSelectedOcrModel = function()
+                return "eng"
+            end,
             settings = {
                 mode = "manga",
                 crop_mode = "strict",
@@ -368,6 +371,9 @@ describe("EmbeddedImage device rotation", function()
         end
 
         local plugin = setmetatable({
+            getSelectedOcrModel = function()
+                return "eng"
+            end,
             settings = {
                 mode = "manga",
                 crop_mode = "strict",

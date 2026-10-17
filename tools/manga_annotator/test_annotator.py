@@ -851,26 +851,19 @@ class TestAnnotator(unittest.TestCase):
 
     def test_gitignore_dmca_rule(self):
         import subprocess
-        # Check that 00.png, 01.png, 02.png are kept, and 03.png+ are ignored by git
+        # Share exactly the first eight pages; later pages remain local.
         ds_dir = "tests/dataset-mangas/dataset"
         test_book = os.path.join(ds_dir, "test_dmca_book")
         os.makedirs(test_book, exist_ok=True)
         try:
-            for i in range(6):
+            for i in range(10):
                 with open(os.path.join(test_book, f"{i:02d}.png"), "w") as f:
                     f.write("x")
 
-            res0 = subprocess.run(["git", "check-ignore", os.path.join(test_book, "00.png")], capture_output=True)
-            self.assertNotEqual(res0.returncode, 0, "00.png should NOT be ignored")
-
-            res2 = subprocess.run(["git", "check-ignore", os.path.join(test_book, "02.png")], capture_output=True)
-            self.assertNotEqual(res2.returncode, 0, "02.png should NOT be ignored")
-
-            res3 = subprocess.run(["git", "check-ignore", os.path.join(test_book, "03.png")], capture_output=True)
-            self.assertEqual(res3.returncode, 0, "03.png SHOULD be ignored by git")
-
-            res4 = subprocess.run(["git", "check-ignore", os.path.join(test_book, "04.png")], capture_output=True)
-            self.assertEqual(res4.returncode, 0, "04.png SHOULD be ignored by git")
+            for i in range(10):
+                page = os.path.join(test_book, f"{i:02d}.png")
+                result = subprocess.run(["git", "check-ignore", "--no-index", page], capture_output=True)
+                self.assertEqual(1 if i < 8 else 0, result.returncode, page)
         finally:
             shutil.rmtree(test_book, ignore_errors=True)
 
