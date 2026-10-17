@@ -111,7 +111,7 @@ describe("EPUB, KEPUB, and MOBI embedded manga compatibility", function()
 
             for page_index, page in ipairs(book.pages) do
                 assert.equals(EXPECTED_COUNTS[page_index], #page.frames)
-                local map = Loader.loadPageMap(page.image_path, { mode = "manga" })
+                local map = Loader.loadPageMap(page.image_path, { mode = "manga", embedded_image = true })
                 local detected, accepted = ComponentDetector.detectPage(map, { mode = "manga" })
                 assert.is_true(accepted, format.name .. " page " .. page_index .. " must pass detection guards")
                 assert.equals(

@@ -24,6 +24,7 @@ SPDX-License-Identifier: MIT
 local script_dir = arg[0]:match("(.*/)") or "./"
 local repo_root = script_dir .. "../../"
 package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;" .. package.path
+io.stdout:setvbuf("line")
 
 require("tests.spec.helper")
 
@@ -40,6 +41,7 @@ local run_all = false
 local failures_only = false
 local summary_only = false
 local update_best = false
+local establish_baseline = false
 local detector_name = "segmenter"
 local algorithm_name = "both"
 local iou_threshold = 0.5
@@ -56,6 +58,8 @@ while idx <= #arg do
         summary_only = true
     elseif a == "--update-best" or a == "--update" then
         update_best = true
+    elseif a == "--establish-baseline" then
+        establish_baseline = true
     elseif a == "--book" and arg[idx + 1] then
         idx = idx + 1
         target_book = arg[idx]
@@ -87,6 +91,12 @@ if detector_name == "components" then
 elseif detector_name ~= "segmenter" then
     io.stderr:write("Unknown detector: " .. detector_name .. " (choose segmenter or components)\n")
     os.exit(1)
+end
+if
+    establish_baseline
+    and (detector_name ~= "components" or target_page or iou_threshold ~= 0.5 or not (target_book or run_all))
+then
+    error("--establish-baseline requires a complete component benchmark at the standard IoU threshold")
 end
 
 -- Select pages to evaluate
@@ -161,7 +171,10 @@ for _, algorithm in ipairs(algorithms) do
 
         for _, page in ipairs(selected_pages) do
             if page.frames and #page.frames > 0 then
-                local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
+                local map = Loader.loadPageMap(
+                    page.image_path,
+                    { mode = page.reading_order, embedded_image = page.embedded_image }
+                )
                 local detected = detector.detectPage(map, { mode = page.reading_order })
                 local result = Evaluator.evaluate(page.frames, detected, iou_threshold, 35)
 
@@ -322,11 +335,17 @@ for _, algorithm in ipairs(algorithms) do
                     )
                     local ok, reason = true, nil
                     if detector_name == "components" and mode == "full_volume" then
-                        ok, reason = require("tests.dataset-mangas.algorithm_benchmark").verify(
-                            BenchmarkTracker.load(book_dir),
-                            algorithm,
-                            metrics
-                        )
+                        local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
+                        ok, reason =
+                            AlgorithmBenchmark.verifyProductionTargets({ minimum_f1 = 0.95, gate_95 = true }, metrics)
+                        if ok and establish_baseline then
+                            ok, reason = AlgorithmBenchmark.establishBaseline(book, algorithm, metrics)
+                            if ok then
+                                print("  [BASELINE VERIFIED] " .. book.book_title .. " [" .. algorithm .. "]")
+                            end
+                        elseif ok then
+                            ok, reason = AlgorithmBenchmark.verify(BenchmarkTracker.load(book_dir), algorithm, metrics)
+                        end
                     end
                     if ok then
                         ok, reason = BenchmarkTracker.checkAndUpdate(

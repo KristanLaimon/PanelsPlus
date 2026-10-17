@@ -162,6 +162,10 @@ describe("Dataset regression safeguards", function()
         assert.equals(manga, Loader.loadPageMap(page.image_path, { mode = "manga" }))
         local comic = Loader.loadPageMap(page.image_path, { mode = "comic" })
         assert.is_true(comic ~= manga)
+        local embedded = Loader.loadPageMap(page.image_path, { mode = "comic", embedded_image = true })
+        assert.is_true(embedded ~= comic)
+        assert.is_true(embedded.embedded_image)
+        assert.is_false(comic.embedded_image)
         local count = 0
         for _ in pairs(Loader._cache) do
             count = count + 1
@@ -219,6 +223,16 @@ describe("Dataset regression safeguards", function()
             book = Manifest.loadManga(root)[1]
             assert.equals(1, #Manifest.getMappedPages(book, "safe"))
             assert.equals(root .. "/book", book.directory)
+            -- Draft annotations remain editable but do not count as reviewed
+            -- ground truth, even when they contain valid panel rectangles.
+            write(
+                "panels_safe.json",
+                '{"algorithm":"safe","status":"draft","pages":[{"page_index":1,"frame":[{"x":20,"y":0,"w":50,"h":100}]}]}'
+            )
+            Manifest._manga_cache[root] = nil
+            book = Manifest.loadManga(root)[1]
+            assert.equals(0, #Manifest.getMappedPages(book, "safe"))
+            assert.equals(0, #Manifest.getMappedPages(book, "smart"))
         end)
         for _, name in ipairs({ "annotation.json", "panels_smart.json", "panels_safe.json" }) do
             os.remove(root .. "/book/" .. name)

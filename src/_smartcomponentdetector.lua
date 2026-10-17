@@ -196,7 +196,7 @@ local function collectComponents(map, min_side, min_area, visit)
             local w = right - left + 1
             local h = bottom - top + 1
             if tail >= min_pixels and w >= min_w and h >= min_h then
-                local box = { x = left, y = top, w = w, h = h }
+                local box = { x = left, y = top, w = w, h = h, ink_count = tail }
                 box.frame_sides = frameSides(queue, tail, width, box, math.max(1, math.min(width, height) * 0.003))
                 components[#components + 1] = box
                 if visit then
@@ -443,11 +443,45 @@ local function splitJoinedFrames(map, box, settings, depth, shared_borders)
     return parts
 end
 
+-- At this scale a lone outlined mark can be typography. Adjacent closed
+-- frames on the same tier establish an intentional compact panel strip.
+local function hasCompactPeer(map, box, components)
+    local function eligible(b)
+        local area = b.w * b.h
+        return b.frame_sides == 4
+            and area >= map.w * map.h * 0.0015
+            and area < map.w * map.h * 0.008
+            and b.w >= map.w * 0.05
+            and b.h >= map.h * 0.03
+    end
+    if not eligible(box) then
+        return false
+    end
+    for _, other in ipairs(components) do
+        local overlap = math.min(box.y + box.h, other.y + other.h) - math.max(box.y, other.y)
+        local gap = math.max(0, other.x - box.x - box.w, box.x - other.x - other.w)
+        if other ~= box and eligible(other) and overlap >= math.max(box.h, other.h) * 0.8 and gap <= map.w * 0.05 then
+            return true
+        end
+    end
+    return false
+end
+
 function ComponentDetector.segment(map, settings)
     settings = settings or Settings.defaults
     local min_side = 0.02
-    local min_area = map.w * map.h * 0.002
-    local components = collectComponents(map, min_side, min_area)
+    -- Thin closed frames have little ink even when their crop is substantial.
+    -- Collect them first; the geometry and edge checks below reject lettering.
+    local min_area = map.w * map.h * 0.0002
+    local extracted = collectComponents(map, min_side, min_area)
+    local components, compact = {}, {}
+    local ordinary_ink_min = math.max(1, math.floor(map.w * map.h * 0.002))
+    for _, box in ipairs(extracted) do
+        compact[box] = hasCompactPeer(map, box, extracted)
+        if (box.ink_count or 0) >= ordinary_ink_min or compact[box] then
+            components[#components + 1] = box
+        end
+    end
     local cells = {}
     for _, box in ipairs(components) do
         local keep = true
@@ -464,8 +498,10 @@ function ComponentDetector.segment(map, settings)
                 break
             end
         end
+        local compact_frame = compact[box]
         if
             keep
+            and not compact_frame
             and (
                 (box.w < map.w * 0.07 and box.h < map.h * 0.07)
                 or (box.w * box.h < map.w * map.h * 0.008)
@@ -500,7 +536,18 @@ function ComponentDetector.segment(map, settings)
             end
         end
         if #framed == 0 then
-            return {}
+            -- An isolated illustration need not have straight frame edges.
+            -- Keep its crop when one substantial component accounts for most
+            -- of the page's ink; sparse lettering still uses the full page.
+            for _, box in ipairs(cells) do
+                if box.w * box.h >= map.w * map.h * 0.15 and (box.ink_count or 0) >= (map.ink or math.huge) * 0.70 then
+                    framed[#framed + 1] = box
+                    break
+                end
+            end
+            if #framed == 0 then
+                return {}
+            end
         end
     end
     local groups = {}
@@ -617,6 +664,7 @@ function ComponentDetector.segment(map, settings)
         end
     end
     local panels = {}
+    local padding = map.embedded_image and 1 or 0
     for _, box in ipairs(refined) do
         local sides = box.frame_sides
         if sides == nil then
@@ -625,10 +673,12 @@ function ComponentDetector.segment(map, settings)
         local is_sliver = (box.h < map.h * 0.08 or box.w < map.w * 0.08 or box.w * box.h < map.w * map.h * 0.015)
             and sides < 2
         if not is_sliver and not emptySplitMargin(map, box) then
-            local x = math.max(0, (box.x - 1) * map.scale_x)
-            local y = math.max(0, (box.y - 1) * map.scale_y)
-            local right = math.min(map.native_w, (box.x + box.w + 1) * map.scale_x)
-            local bottom = math.min(map.native_h, (box.y + box.h + 1) * map.scale_y)
+            -- Fixed-page bounds describe the ink; viewer margins are separate.
+            -- Embedded rasters retain their original one-cell crop padding.
+            local x = math.max(0, (box.x - padding) * map.scale_x)
+            local y = math.max(0, (box.y - padding) * map.scale_y)
+            local right = math.min(map.native_w, (box.x + box.w + padding) * map.scale_x)
+            local bottom = math.min(map.native_h, (box.y + box.h + padding) * map.scale_y)
             panels[#panels + 1] = { x = x, y = y, w = right - x, h = bottom - y, frame_sides = sides }
         end
     end
@@ -638,7 +688,7 @@ function ComponentDetector.segment(map, settings)
     return panels
 end
 
-local function sharedBalloon(map, parts)
+local function sharedBalloon(map, parts, merge)
     local size = map.w * map.h
     ensureWhiteScratch(size)
     local white = scratch_white
@@ -646,12 +696,25 @@ local function sharedBalloon(map, parts)
         white[k] = 1 - map.data[k]
     end
     local shared = false
+    local owners = {}
+    for i = 1, #parts do
+        owners[i] = i
+    end
+    local function root(i)
+        while owners[i] ~= i do
+            i = owners[i]
+        end
+        return i
+    end
     collectComponents({ w = map.w, h = map.h, data = white }, 0.015, size * 0.001, function(h, pixels, count)
         if
-            shared
-            or count < h.w * h.h * 0.4
-            or h.frame_sides >= 3
-            or h.w * h.h >= size * 0.15
+            (shared and not merge)
+            or count < h.w * h.h * 0.25
+            or h.x == 0
+            or h.y == 0
+            or h.x + h.w == map.w
+            or h.y + h.h == map.h
+            or h.w * h.h >= size * 0.30
             or h.w / h.h >= 4
             or h.h / h.w >= 4
         then
@@ -676,16 +739,141 @@ local function sharedBalloon(map, parts)
             end
         end
         local hits = 0
-        for _, n in pairs(counts) do
-            if n > count * 0.15 then
+        local first
+        for i, n in pairs(counts) do
+            if n > count * 0.05 then
                 hits = hits + 1
+                if merge then
+                    if first then
+                        owners[root(i)] = root(first)
+                    else
+                        first = i
+                    end
+                end
             end
         end
         if hits >= 2 then
             shared = true
         end
     end)
+    if merge then
+        local groups, result = {}, {}
+        for i, p in ipairs(parts) do
+            local owner = root(i)
+            if groups[owner] then
+                local union = Geometry.rectUnion(groups[owner], p)
+                union.frame_sides = math.max(groups[owner].frame_sides or 0, p.frame_sides or 0)
+                groups[owner] = union
+            else
+                groups[owner] = p
+            end
+        end
+        for i = 1, #parts do
+            if groups[i] then
+                result[#result + 1] = groups[i]
+            end
+        end
+        return result
+    end
     return shared
+end
+
+-- Detached notes below the artwork are readable content too. Individual
+-- letters are below the component size floor; combine their horizontal band.
+local function addFootnotes(map, panels, settings)
+    if settings.mode == "comic" or not map.data or #panels == 0 then
+        return
+    end
+    local bands, band = {}, nil
+    for y = math.floor(map.h * 0.85), map.h - 1 do
+        local left, right, count = map.w, -1, 0
+        for x = 0, map.w - 1 do
+            if map.data[y * map.w + x] == 1 then
+                local covered = false
+                local nx, ny = (x + 0.5) * map.scale_x, (y + 0.5) * map.scale_y
+                for _, p in ipairs(panels) do
+                    if nx >= p.x and nx <= p.x + p.w and ny >= p.y and ny <= p.y + p.h then
+                        covered = true
+                        break
+                    end
+                end
+                if not covered then
+                    left, right, count = math.min(left, x), math.max(right, x), count + 1
+                end
+            end
+        end
+        if count > 0 then
+            if not band or y - band.bottom > 3 then
+                band = { x = left, right = right, y = y, bottom = y, count = 0 }
+                bands[#bands + 1] = band
+            end
+            band.x, band.right = math.min(band.x, left), math.max(band.right, right)
+            band.bottom, band.count = y, band.count + count
+        end
+    end
+    for _, b in ipairs(bands) do
+        local width, height = b.right - b.x + 1, b.bottom - b.y + 1
+        if width >= map.w * 0.18 and height >= 3 and height <= map.h * 0.04 and b.count >= width * height * 0.10 then
+            local note = {
+                x = b.x * map.scale_x,
+                y = b.y * map.scale_y,
+                w = width * map.scale_x,
+                h = height * map.scale_y,
+                frame_sides = 0,
+            }
+            local overlaps = false
+            for _, p in ipairs(panels) do
+                if note.x < p.x + p.w and note.x + note.w > p.x and note.y < p.y + p.h and note.y + note.h > p.y then
+                    overlaps = true
+                    break
+                end
+            end
+            if not overlaps then
+                panels[#panels + 1] = note
+            end
+        end
+    end
+end
+
+-- Resolve overlaps in ranked order so two candidates cannot discard each
+-- other. Stronger frame evidence wins; ties retain the wider artwork.
+local function removeOverlaps(panels)
+    local ranked, kept = {}, {}
+    for _, panel in ipairs(panels) do
+        ranked[#ranked + 1] = panel
+    end
+    table.sort(ranked, function(a, b)
+        if (a.frame_sides or 0) ~= (b.frame_sides or 0) then
+            return (a.frame_sides or 0) > (b.frame_sides or 0)
+        end
+        local aa, ba = a.w * a.h, b.w * b.h
+        if aa ~= ba then
+            return aa > ba
+        end
+        if a.y ~= b.y then
+            return a.y < b.y
+        end
+        if a.x ~= b.x then
+            return a.x < b.x
+        end
+        return a.w > b.w
+    end)
+    for _, a in ipairs(ranked) do
+        local drop = false
+        for _, b in ipairs(kept) do
+            local inter = math.max(0, math.min(a.x + a.w, b.x + b.w) - math.max(a.x, b.x))
+                * math.max(0, math.min(a.y + a.h, b.y + b.h) - math.max(a.y, b.y))
+            local union = a.w * a.h + b.w * b.h - inter
+            if inter >= math.min(a.w * a.h, b.w * b.h) * 0.30 or inter >= union * 0.50 then
+                drop = true
+                break
+            end
+        end
+        if not drop then
+            kept[#kept + 1] = a
+        end
+    end
+    return kept
 end
 
 function ComponentDetector.detectPage(map, settings)
@@ -698,7 +886,7 @@ function ComponentDetector.detectPage(map, settings)
             alternate[k] = v
         end
         alternate.data = map.structural
-        local candidates = ComponentDetector.segment(alternate, settings)
+        local candidates = removeOverlaps(ComponentDetector.segment(alternate, settings))
 
         local refined = {}
         if #panels == 0 then
@@ -760,59 +948,12 @@ function ComponentDetector.detectPage(map, settings)
         end
     end
 
-    if #panels > 1 then
-        local filtered = {}
-        for i = 1, #panels do
-            local a = panels[i]
-            local drop = false
-            for j = 1, #panels do
-                if i ~= j then
-                    local b = panels[j]
-                    local iw = math.max(0, math.min(a.x + a.w, b.x + b.w) - math.max(a.x, b.x))
-                    local ih = math.max(0, math.min(a.y + a.h, b.y + b.h) - math.max(a.y, b.y))
-                    local inter = iw * ih
-                    local union = a.w * a.h + b.w * b.h - inter
-                    local min_area = math.min(a.w * a.h, b.w * b.h)
-                    if union > 0 and inter / union >= 0.50 then
-                        local a_area, b_area = a.w * a.h, b.w * b.h
-                        -- Equally framed overlapping candidates can originate
-                        -- from unordered component groups. Prefer the wider
-                        -- evidence, then a stable geometric tie-break, so Lua
-                        -- and LuaJIT retain the same crop.
-                        local prefer_b = b_area > a_area
-                            or (b_area == a_area and (b.y < a.y or (b.y == a.y and b.x < a.x)))
-                        if
-                            (b.frame_sides or 0) > (a.frame_sides or 0)
-                            or (
-                                (b.frame_sides or 0) == (a.frame_sides or 0)
-                                and (prefer_b or (b_area == a_area and b.y == a.y and b.x == a.x and j < i))
-                            )
-                        then
-                            drop = true
-                            break
-                        end
-                    elseif inter >= a.w * a.h * 0.60 and b.w * b.h >= a.w * a.h * 1.20 then
-                        drop = true
-                        break
-                    elseif inter >= min_area * 0.30 then
-                        local a_sides = a.frame_sides or 0
-                        local b_sides = b.frame_sides or 0
-                        if b_sides > a_sides then
-                            drop = true
-                            break
-                        elseif a_sides == b_sides and (b.w * b.h > a.w * a.h or (b.w * b.h == a.w * a.h and j < i)) then
-                            drop = true
-                            break
-                        end
-                    end
-                end
-            end
-            if not drop then
-                filtered[#filtered + 1] = a
-            end
-        end
-        panels = filtered
+    panels = removeOverlaps(panels)
+
+    if #panels > 1 and map.data then
+        panels = sharedBalloon(map, panels, true)
     end
+    addFootnotes(map, panels, settings)
 
     local acceptance = {}
     for key, value in pairs(settings) do

@@ -148,7 +148,7 @@ describe("Bloom Into You human-annotated dataset validation", function()
         end
 
         -- Verify total panels count (725 hand-annotated panels)
-        assert.equals(725, total_panels)
+        assert.equals(730, total_panels)
     end)
 
     it("verifies raw annotation.json uses 'en' key instead of 'ja'", function()

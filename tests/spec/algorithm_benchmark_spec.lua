@@ -16,6 +16,53 @@ describe("Independent algorithm baselines", function()
             false_positives = 0,
         }
     end
+    it("archives reviewed annotation changes only after complete strict evaluations", function()
+        local Tracker = require("tests.dataset-mangas.benchmark_tracker")
+        local root = os.tmpname()
+        os.remove(root)
+        os.execute("mkdir -p " .. root)
+        local ok, err = pcall(function()
+            local book = { book_title = "reviewed", directory = root, pages = {} }
+            for p = 1, 3 do
+                local frames = {}
+                for i = 1, 4 do
+                    frames[i] = { x = i * 10, y = 0, w = 10, h = 10 }
+                end
+                book.pages[p] = { frames = frames }
+            end
+            local old = metrics(1)
+            old.pages_evaluated, old.total_ground_truth = 2, 8
+            Tracker.save(root, { smart_full_volume = old, ocr = { words = 668 } })
+            local current = metrics(1)
+            current.total_detected, current.true_positives = 12, 12
+            current.reading_order_pairs, current.reading_order_pair_accuracy = 18, 1
+            current.reading_order_pairs_correct = 18
+            current.reading_order_pages, current.reading_order_pages_correct = 3, 3
+            current.reading_order_accuracy = 1
+            current.precision = 0.95
+            assert.is_false(Benchmark.establishBaseline(book, "smart", current))
+            assert.equals(8, Tracker.load(root).smart_full_volume.total_ground_truth)
+            current.precision = 1
+            current.pages_evaluated = 2
+            assert.is_false(Benchmark.establishBaseline(book, "smart", current))
+            current.pages_evaluated = 3
+            current.iou_threshold = 0.75
+            assert.is_false(Benchmark.establishBaseline(book, "smart", current))
+            current.iou_threshold = 0.5
+            assert.is_true(Benchmark.establishBaseline(book, "smart", current))
+            local saved = Tracker.load(root)
+            assert.equals(12, saved.smart_full_volume.total_ground_truth)
+            assert.equals(8, saved.annotation_baseline_history[1].metrics.total_ground_truth)
+            assert.equals(668, saved.ocr.words)
+            current.precision = 0.96
+            assert.is_false(Benchmark.establishBaseline(book, "smart", current))
+            assert.equals(1, Tracker.load(root).smart_full_volume.precision)
+        end)
+        os.remove(root .. "/bestbenchmark.json")
+        os.remove(root)
+        assert.is_true(ok, tostring(err))
+    end)
+
     it("compares Safe only against its own record", function()
         local data = { safe_full_volume = metrics(0.5), smart_full_volume = metrics(0.95) }
         assert.is_true(Benchmark.verify(data, "safe", metrics(0.5)))
@@ -115,5 +162,8 @@ describe("Independent algorithm baselines", function()
         assert.is_true(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.90)))
         assert.is_false(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.85)))
         assert.is_true(Benchmark.verifyProductionTargets({ experimental = true }, metrics(0.50)))
+        assert.is_false(
+            Benchmark.verifyProductionTargets({ experimental = true, gate_95 = true, minimum_f1 = 0.95 }, metrics(0.50))
+        )
     end)
 end)

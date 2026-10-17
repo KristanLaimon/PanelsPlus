@@ -1,13 +1,10 @@
 local ffi = require("ffi")
--- Safe: v1.4.0 panel grouping and reading order.
+-- Safe: conservative connected-frame grouping over the shared panel pipeline.
 local Geometry = require("src._safegeometry")
-local Segmenter = require("src._segmenter")
 local Settings = require("src._settings")
+local Smart = require("src._smartcomponentdetector")
 
---- Experimental panel detector over the same small ink map as the X-Y cut.
---- Connected frames survive tilted gutters and white space inside artwork.
---- This is benchmark-selectable; the reader still uses NativeDetector until
---- the grouping policy and reader integration have been reviewed.
+--- Conservative grouping of connected frames over the shared small ink map.
 local ComponentDetector = {}
 
 local scratch_capacity = 0
@@ -47,6 +44,7 @@ end
 
 --- Release scratch buffers to free memory when closing widgets or low memory.
 function ComponentDetector.clearScratch()
+    Smart.clearScratch()
     scratch_capacity = 0
     scratch_seen = nil
     scratch_queue = nil
@@ -345,12 +343,13 @@ function ComponentDetector.segment(map, settings)
         end
     end
     local panels = {}
+    local padding = map.embedded_image and 1 or 0
     for _, box in ipairs(framed) do
-        local x = math.max(0, (box.x - 1) * map.scale_x)
-        local y = math.max(0, (box.y - 1) * map.scale_y)
-        local right = math.min(map.native_w, (box.x + box.w + 1) * map.scale_x)
-        local bottom = math.min(map.native_h, (box.y + box.h + 1) * map.scale_y)
-        panels[#panels + 1] = { x = x, y = y, w = right - x, h = bottom - y }
+        local x = math.max(0, (box.x - padding) * map.scale_x)
+        local y = math.max(0, (box.y - padding) * map.scale_y)
+        local right = math.min(map.native_w, (box.x + box.w + padding) * map.scale_x)
+        local bottom = math.min(map.native_h, (box.y + box.h + padding) * map.scale_y)
+        panels[#panels + 1] = { x = x, y = y, w = right - x, h = bottom - y, frame_sides = box.frame_sides }
     end
     if #panels > (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
         return {} -- Let the caller fall back instead of returning a partial page.
@@ -361,10 +360,63 @@ end
 --- Apply the existing coverage guards and reading order to component boxes.
 function ComponentDetector.detectPage(map, settings)
     settings = settings or Settings.defaults
-    local panels = ComponentDetector.segment(map, settings)
-    local accepted, reason = Segmenter.accept(panels, map, settings)
+    local panels, accepted, reason = Smart.detectPage(map, settings)
     if not accepted then
-        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
+        return panels, accepted, reason
+    end
+    local connected = ComponentDetector.segment(map, settings)
+    local independent_frames, substantial = 0, 0
+    local small_area = (map.native_w or 0) * (map.native_h or 0) * 0.008
+    for _, panel in ipairs(panels) do
+        if panel.w * panel.h >= small_area then
+            substantial = substantial + 1
+            if (panel.frame_sides or 0) >= 2 then
+                independent_frames = independent_frames + 1
+            end
+        end
+    end
+    -- A sketch or a small credit beside one illustration is not sufficient
+    -- frame evidence for Safe. Keep the page intact in that uncertain case.
+    if #connected == 0 and substantial <= 2 and independent_frames < 2 then
+        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "no framed panels"
+    end
+    -- Safe retains a connected enclosing frame when its proposed children
+    -- have weaker borders, and keeps connected vertical stacks together.
+    -- Independently framed neighbours still benefit from Smart's extraction.
+    for _, parent in ipairs(connected) do
+        local parts, area, weakest = {}, 0, 4
+        local first_center, last_center = math.huge, -math.huge
+        for i, child in ipairs(panels) do
+            local intersection = math.max(
+                0,
+                math.min(parent.x + parent.w, child.x + child.w) - math.max(parent.x, child.x)
+            ) * math.max(0, math.min(parent.y + parent.h, child.y + child.h) - math.max(parent.y, child.y))
+            if intersection >= child.w * child.h * 0.95 and child.w * child.h < parent.w * parent.h * 0.85 then
+                parts[i] = true
+                area = area + child.w * child.h
+                weakest = math.min(weakest, child.frame_sides or 0)
+                local center = child.x + child.w / 2
+                first_center, last_center = math.min(first_center, center), math.max(last_center, center)
+            end
+        end
+        local count = 0
+        for _ in pairs(parts) do
+            count = count + 1
+        end
+        local enclosing_frame = (parent.frame_sides or 0) >= 4 and weakest < 4
+        local vertical_stack = (parent.frame_sides or 0) >= 1
+            and last_center - first_center <= parent.w * 0.20
+            and ((parent.frame_sides or 0) <= 2 or parent.w <= parent.h * 0.5 or weakest < 4)
+        if count >= 2 and area >= parent.w * parent.h * 0.90 and (enclosing_frame or vertical_stack) then
+            local merged = {}
+            for i, child in ipairs(panels) do
+                if not parts[i] then
+                    merged[#merged + 1] = child
+                end
+            end
+            merged[#merged + 1] = parent
+            panels = merged
+        end
     end
     return Geometry.sortReadingOrder(panels, settings.mode or "manga"), true
 end

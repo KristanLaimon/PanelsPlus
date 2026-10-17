@@ -95,7 +95,6 @@ describe("Manga and comic full-volume production benchmarks", function()
                     assert.is_not_nil(baseline_data and baseline_data.smart_full_volume, "Missing Smart baseline")
                 end
                 local baseline_ok, baseline_reason = AlgorithmBenchmark.verify(baseline_data, algorithm, current)
-                assert.is_true(baseline_ok, baseline_reason)
                 print(
                     string.format(
                         "%s [%s]: %d mapped pages, precision %.2f%%, recall %.2f%%, F1 %.2f%%, IoU %.4f",
@@ -128,12 +127,7 @@ describe("Manga and comic full-volume production benchmarks", function()
                 )
                 local target_ok, target_reason = AlgorithmBenchmark.verifyProductionTargets(expected, current)
                 assert.is_true(target_ok, algorithm .. ": " .. tostring(target_reason))
-                -- Never establish a Safe record from a run that fails production targets.
-                if algorithm == "safe" then
-                    local ok, reason =
-                        BenchmarkTracker.checkAndUpdate(book.directory, "full_volume", current, true, algorithm)
-                    assert.is_true(ok, reason)
-                end
+                assert.is_true(baseline_ok, baseline_reason)
             end)
         end
     end

@@ -3,6 +3,7 @@ frontend/
 .agents/
 .codex/
 .foxnvim/
+nvim.log
 crash.log
 
 crash.old.donotread.log

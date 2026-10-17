@@ -148,7 +148,7 @@ describe("Miss Kobayashi's Dragon Maid human-annotated dataset validation", func
         end
 
         -- Verify total panels count (586 hand-annotated panels)
-        assert.equals(586, total_panels)
+        assert.equals(594, total_panels)
     end)
 
     it("verifies raw annotation.json uses 'en' key instead of 'ja'", function()

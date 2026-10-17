@@ -89,6 +89,11 @@ local function loadPanelPages(book_dir, algorithm)
     local data = JSON.decode(file:read("*a"))
     file:close()
     assert(data.algorithm == algorithm, "Wrong algorithm in " .. path)
+    -- Keep unfinished annotations available to the annotator without treating
+    -- them as reviewed ground truth in production benchmarks.
+    if data.status == "draft" then
+        return {}
+    end
     local pages = {}
     for _, page in ipairs(data.pages or {}) do
         pages[page.page_index] = page
@@ -208,6 +213,9 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
                 book_title = raw_book.book_title,
                 page_index = raw_page.page_index,
                 image_path = img_path,
+                embedded_image = metadata.source_format == "epub"
+                    or metadata.source_format == "kepub.epub"
+                    or metadata.source_format == "mobi",
                 reading_order = dataset_type,
                 frames = frames,
                 panel_mappings = {

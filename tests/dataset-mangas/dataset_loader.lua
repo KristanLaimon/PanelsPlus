@@ -167,11 +167,12 @@ function DatasetLoader.loadPageMap(image_path, settings)
     local defaults = Settings.defaults
     local target_w = settings.segment_target_width or defaults.segment_target_width or 480
     local cache_key = string.format(
-        "%s:%d:%s:%s",
+        "%s:%d:%s:%s:%s",
         image_path,
         target_w,
         tostring(settings.segment_ink_delta),
-        tostring(settings.mode)
+        tostring(settings.mode),
+        tostring(settings.embedded_image == true)
     )
     if DatasetLoader._cache[cache_key] then
         return DatasetLoader._cache[cache_key]
@@ -305,6 +306,7 @@ function DatasetLoader.loadPageMap(image_path, settings)
         background = bg,
         inverted = inverted,
         border = nil,
+        embedded_image = settings.embedded_image == true,
     }
     -- Full-volume runs visit hundreds of pages once. Keep only the latest
     -- map for repeated detector calls; the disk cache retains reusable rasters.

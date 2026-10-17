@@ -109,14 +109,20 @@ comparable.
 Component runs evaluate both **Safe** and **Smart** by default. Use
 `--algorithm safe`, `--algorithm smart`, or `--algorithm both` to select them.
 Complete evaluations keep separate `safe_full_volume` and `smart_full_volume`
-records per book, including embedded-image datasets. Safe is guarded against
-its own measured baseline; Smart retains production accuracy targets. Nagatoro
-includes all 161 mapped pages and must exceed 95% F1, recall, and matched IoU.
-Regression runs are read-only; `--update-best` explicitly records improvements.
+records per book, including embedded-image datasets. Each algorithm is compared
+with its own annotations and saved baseline. Every mapped volume must exceed
+95% precision, recall, F1, matched IoU, and matched-panel reading order, including
+challenging and experimental books. Regression runs are read-only;
+`--update-best` explicitly records improvements only after the accuracy gates pass.
+After reviewing annotation changes, `--establish-baseline` archives records for
+changed coverage and establishes new complete-volume records only after every
+strict gate passes. It cannot reset a regression with unchanged coverage.
+Panel files with `"status": "draft"` are excluded from evaluation. Horimiya's Safe
+mapping is currently draft; removing that field enables it after review.
 
 Every discovered annotated volume is evaluated on its mapped pages. Unmapped
-pages in unfinished books are excluded. SHY is experimental; its accuracy is
-reported without a production target gate.
+pages in unfinished books are excluded. SHY retains its experimental label, but
+is subject to the same requested accuracy gates.
 
 The production detector now retains a wider crop when a proposed split lacks
 sufficient evidence. Reader and dataset maps include the same dark-stroke and
@@ -124,9 +130,8 @@ structural-ink layers. See [the stability report](dataset-mangas/report/panel-st
 for all eight volumes, false-positive counts, and the recall tradeoff.
 Current regression checks use `safe_full_volume` and `smart_full_volume`; historical
 `components_conservative_full_volume`, `components_full_volume`, and OCR records remain intact. Tests guard precision, recall,
-F1, mean IoU and false positives without rewriting records. A regression pass
-means the recorded behavior was preserved; it does not mean every book reached
-95% F1.
+F1, mean IoU and false positives without rewriting records. Preserving a
+historical record alone does not satisfy the separate strict accuracy gates.
 
 Run `PANELSPLUS_REQUIRE_DATASETS=1 lua tests/run_tests.lua` to require all private
 page images. Otherwise unavailable full-volume production checks are reported

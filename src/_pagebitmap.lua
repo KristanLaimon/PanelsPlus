@@ -863,6 +863,7 @@ function PageBitmap.buildFromBlitbuffer(bb, settings)
         local border_cells, bg_r, bg_g, bg_b
         map, border_cells, bg_r, bg_g, bg_b =
             buildMapFromBuffer(work, sample, kind, raw_data, stride, is_rgb, native_w, native_h, settings, step, w, h)
+        map.embedded_image = true
         stop(
             string.format(
                 "%dx%d %s bg=%d,%d,%d%s ink=%d%%%s",

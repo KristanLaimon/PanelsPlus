@@ -32,6 +32,8 @@ Options:
   -t, --threshold <n>  IoU threshold for true positive match (default: 0.50)
   --detector <name>    segmenter (default) or components
   --algorithm <name>   safe, smart, or both (default for components: both)
+  --establish-baseline Archive records for changed annotation coverage and establish
+                       complete component baselines only after all strict gates pass
 
 Examples:
   ./run-benchmark.sh

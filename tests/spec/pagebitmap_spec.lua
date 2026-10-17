@@ -58,6 +58,8 @@ describe("PageBitmap colour-aware background sampling", function()
 
         local padded = PageBitmap.buildFromBlitbuffer(image(10), settings)
         local trimmed = PageBitmap.buildFromBlitbuffer(image(0), settings)
+        assert.is_true(padded.embedded_image)
+        assert.is_true(trimmed.embedded_image)
         assert.equals(255, padded.background)
         assert.equals(255, trimmed.background)
         local original_panels = ComponentDetector.detectPage(padded, settings)

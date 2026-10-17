@@ -14,7 +14,8 @@ function Benchmark.evaluate(book, algorithm)
     local metrics = { pages_evaluated = 0, total_ground_truth = 0, total_detected = 0, true_positives = 0 }
     local iou_sum, matched_pages = 0, 0
     for _, page in ipairs(Manifest.getMappedPages(book, algorithm)) do
-        local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
+        local map =
+            Loader.loadPageMap(page.image_path, { mode = page.reading_order, embedded_image = page.embedded_image })
         local detected = Benchmark.detectors[algorithm].detectPage(map, { mode = page.reading_order })
         local result = Evaluator.evaluate(page.frames, detected, 0.50, 35)
         Evaluator.addReadingOrder(metrics, result)
@@ -72,7 +73,7 @@ end
 
 -- Both algorithms share production targets, evaluated against their own annotations.
 function Benchmark.verifyProductionTargets(expected, metrics)
-    if expected.experimental then
+    if expected.experimental and not expected.gate_95 then
         return true
     end
     if (metrics.f1 or 0) <= expected.minimum_f1 then
@@ -95,6 +96,69 @@ function Benchmark.verifyProductionTargets(expected, metrics)
     if ordering == nil or ordering <= 0.95 then
         return false, "Correct panel reading order must remain above 95%"
     end
+    return true
+end
+
+-- Explicitly establish records for reviewed annotation changes. Old records
+-- remain available, and unchanged coverage still enforces every regression gate.
+function Benchmark.establishBaseline(book, algorithm, metrics)
+    local pages, panels = Manifest.getMappedPages(book, algorithm), 0
+    for _, page in ipairs(pages) do
+        panels = panels + #page.frames
+    end
+    if #pages == 0 or #pages ~= metrics.pages_evaluated or panels ~= metrics.total_ground_truth then
+        return false, "Baseline establishment requires every mapped page and panel"
+    end
+    if metrics.iou_threshold ~= 0.5 or metrics.gap_tolerance ~= 35 then
+        return false, "Baseline establishment requires the standard evaluator settings"
+    end
+    local ok, reason = Benchmark.verifyProductionTargets({ minimum_f1 = 0.95, gate_95 = true }, metrics)
+    if not ok then
+        return false, reason
+    end
+    local data = Tracker.load(book.directory) or {}
+    local key = algorithm .. "_full_volume"
+    local previous = data[key]
+    if previous and Benchmark.baseline(data, algorithm, metrics) then
+        return Tracker.checkAndUpdate(book.directory, "full_volume", metrics, true, algorithm)
+    end
+    if previous then
+        data.annotation_baseline_history = data.annotation_baseline_history or {}
+        data.annotation_baseline_history[#data.annotation_baseline_history + 1] = {
+            key = key,
+            metrics = previous,
+            archived_at = os.date("%Y-%m-%d"),
+            reason = "Reviewed panel annotation coverage changed",
+        }
+    end
+    local record = {}
+    for _, field in ipairs({
+        "pages_evaluated",
+        "total_ground_truth",
+        "total_detected",
+        "true_positives",
+        "false_positives",
+        "precision",
+        "recall",
+        "f1",
+        "mean_iou",
+        "iou_threshold",
+        "gap_tolerance",
+        "reading_order_accuracy",
+        "reading_order_pages",
+        "reading_order_pages_correct",
+        "reading_order_pair_accuracy",
+        "reading_order_pairs",
+        "reading_order_pairs_correct",
+    }) do
+        record[field] = metrics[field]
+    end
+    data[key] = record
+    data.book_title, data.updated_at = book.book_title, os.date("%Y-%m-%d")
+    if algorithm == "safe" then
+        data.safe_mapping_status = "mapped"
+    end
+    Tracker.save(book.directory, data)
     return true
 end
 

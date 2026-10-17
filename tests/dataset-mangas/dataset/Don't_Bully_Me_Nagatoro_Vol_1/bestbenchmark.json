@@ -1,10 +1,36 @@
 {
+  "annotation_baseline_history": [
+    {
+      "archived_at": "2026-10-16",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9699,
+        "false_positives": 18,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9612,
+        "pages_evaluated": 161,
+        "precision": 0.9721,
+        "reading_order_accuracy": 0.8696,
+        "reading_order_pages": 161,
+        "reading_order_pages_correct": 140,
+        "reading_order_pair_accuracy": 1,
+        "reading_order_pairs": 1119,
+        "reading_order_pairs_correct": 1119,
+        "recall": 0.9676,
+        "total_detected": 646,
+        "total_ground_truth": 649,
+        "true_positives": 628
+      },
+      "reason": "Reviewed panel annotation coverage changed"
+    }
+  ],
   "book_title": "Don't_Bully_Me_Nagatoro_Vol_1",
   "components_conservative_full_volume": {
     "f1": 0.9886,
     "false_positives": 8,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9686,
     "pages_evaluated": 108,
     "precision": 0.9818,
@@ -20,10 +46,10 @@
     "true_positives": 432
   },
   "components_full_volume": {
-    "f1": 0.985,
+    "f1": 0.9850,
     "false_positives": 6,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9744,
     "pages_evaluated": 108,
     "precision": 0.9861,
@@ -32,31 +58,11 @@
     "total_ground_truth": 434,
     "true_positives": 427
   },
-  "smart_full_volume": {
-    "f1": 0.9699,
-    "false_positives": 18,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "mean_iou": 0.9612,
-    "pages_evaluated": 161,
-    "precision": 0.9721,
-    "reading_order_accuracy": 0.8696,
-    "reading_order_pages": 161,
-    "reading_order_pages_correct": 140,
-    "reading_order_pair_accuracy": 1,
-    "reading_order_pairs": 1119,
-    "reading_order_pairs_correct": 1119,
-    "recall": 0.9676,
-    "total_detected": 646,
-    "total_ground_truth": 649,
-    "true_positives": 628
-  },
-  "updated_at": "2026-10-12",
   "legacy_safe_against_smart_full_volume": {
     "f1": 0.9422,
     "false_positives": 10,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9583,
     "pages_evaluated": 161,
     "precision": 0.9832,
@@ -71,5 +77,44 @@
     "total_ground_truth": 649,
     "true_positives": 587
   },
-  "safe_mapping_status": "pending"
+  "safe_full_volume": {
+    "f1": 0.9599,
+    "false_positives": 32,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9788,
+    "pages_evaluated": 161,
+    "precision": 0.9502,
+    "reading_order_accuracy": 0.8509,
+    "reading_order_pages": 161,
+    "reading_order_pages_correct": 137,
+    "reading_order_pair_accuracy": 0.9926,
+    "reading_order_pairs": 1077,
+    "reading_order_pairs_correct": 1069,
+    "recall": 0.9698,
+    "total_detected": 642,
+    "total_ground_truth": 629,
+    "true_positives": 610
+  },
+  "safe_mapping_status": "mapped",
+  "smart_full_volume": {
+    "f1": 0.9588,
+    "false_positives": 22,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9610,
+    "pages_evaluated": 161,
+    "precision": 0.9662,
+    "reading_order_accuracy": 0.8075,
+    "reading_order_pages": 161,
+    "reading_order_pages_correct": 130,
+    "reading_order_pair_accuracy": 0.9991,
+    "reading_order_pairs": 1130,
+    "reading_order_pairs_correct": 1129,
+    "recall": 0.9516,
+    "total_detected": 651,
+    "total_ground_truth": 661,
+    "true_positives": 629
+  },
+  "updated_at": "2026-10-16"
 }
