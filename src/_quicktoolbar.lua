@@ -31,6 +31,7 @@ function Toolbar.controls(actions)
             id = id,
             callback = action.callback,
             hold_callback = action.hold_callback,
+            dim = action.dim,
             icon_file = icon_dir .. icons[id] .. ".svg",
             width = 0,
         }
@@ -105,7 +106,13 @@ function Toolbar.build(controls, width, height, horizontal)
         )
         local content = VerticalGroup:new({
             align = "center",
-            IconWidget:new({ file = control.icon_file, width = icon_size, height = icon_size, alpha = true }),
+            IconWidget:new({
+                file = control.icon_file,
+                width = icon_size,
+                height = icon_size,
+                alpha = true,
+                dim = control.dim,
+            }),
             caption,
         })
         local tile = Tile:new({

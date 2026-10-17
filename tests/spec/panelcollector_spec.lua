@@ -152,10 +152,12 @@ describe("Viewer page boundaries with no detected panels", function()
         assert.equals(1280, opened:lastCall()[3][1].h)
     end)
 
-    it("stays on the final page when there is no adjacent document page", function()
-        local closed = spy()
-        local viewer = { page = 2, onClose = closed }
+    it("offers confirmation and stays on the final page until the user continues", function()
+        local closed, confirm = spy(), spy()
+        local viewer = { page = 2, onClose = closed, confirmDocumentBoundary = confirm }
         Controller.onPanelViewerBoundary({ ui = { document = document() } }, "next", viewer)
+        assert.equals(1, confirm:callCount())
+        assert.equals("next", confirm:lastCall()[2])
         assert.is_false(closed:called())
         assert.is_nil(viewer._panels_plus_boundary_pending)
     end)

@@ -7,7 +7,7 @@ local Screen = require("device").screen
 
 -- Model KOReader's child-first event propagation, including the second dispatch
 -- of named events after GestureRange matching (generic Tap skips that matching).
-local function withRail(width, height, callback, horizontal)
+local function withRail(width, height, callback, horizontal, dim_ocr)
     local saved = {}
     local Widget = {}
     function Widget:extend(value)
@@ -73,6 +73,7 @@ local function withRail(width, height, callback, horizontal)
         for _, id in ipairs(Toolbar.order) do
             actions[id] = {
                 text = id,
+                dim = id == "ocr_language" and dim_ocr or false,
                 callback = function()
                     calls[id] = (calls[id] or 0) + 1
                 end,
@@ -95,6 +96,19 @@ local function withRail(width, height, callback, horizontal)
 end
 
 describe("Panel viewer compact controls", function()
+    it("renders the disabled OCR icon faded while keeping its explanation tappable", function()
+        withRail(72, 420, function(rail, calls)
+            local tile = rail[2]
+            assert.is_true(tile[1][1][1].dim)
+            assert.is_false(rail[1][1][1][1].dim)
+            rail:handleEvent("Gesture", {
+                ges = "tap",
+                pos = { x = tile.dimen.x + 10, y = tile.dimen.y + 10 },
+            })
+            assert.equals(1, calls.ocr_language)
+        end, false, true)
+    end)
+
     it("lets center taps hide controls without closing the viewer or opening rotation", function()
         withRail(72, 420, function(rail, calls)
             local viewer = PanelViewer:new({

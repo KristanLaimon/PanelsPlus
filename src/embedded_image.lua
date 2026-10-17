@@ -621,7 +621,7 @@ function EmbeddedImage:onEmbeddedImageBoundary(direction, viewer)
     local next_page = page and (direction == "next" and document:getNextPage(page) or document:getPrevPage(page))
     if not next_page or next_page == 0 then
         viewer._panels_plus_boundary_pending = nil
-        return true
+        return viewer:confirmDocumentBoundary(direction, self.ui)
     end
 
     if self.cancelEmbeddedImageSearch then

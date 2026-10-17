@@ -883,6 +883,8 @@ function ViewerController:showMoreConfigMenu(viewer)
             self:setHoldTextSelection(self.settings.hold_text_selection == false)
             if not viewer.embedded_source_image then
                 viewer.hold_text_selection = self.settings.hold_text_selection
+                viewer:replaceButtonTable()
+                viewer:update()
             end
         end),
         {
@@ -1192,7 +1194,7 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
     )
     if not next_page or next_page == 0 then
         current_viewer._panels_plus_boundary_pending = nil
-        return true
+        return current_viewer:confirmDocumentBoundary(direction, self.ui)
     end
 
     local resolved = self:resolveBoundaryTarget(direction, current_viewer)

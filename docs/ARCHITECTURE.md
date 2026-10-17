@@ -19,6 +19,18 @@ Panels+ keeps the detection idea and replaces the flow. It finds *every* panel o
 the page, orders them for manga or comic reading, and opens a viewer you can
 swipe through — including across page boundaries.
 
+User-facing flow warnings use a seven-second timeout (`FLOW_WARNING_TIMEOUT` in
+`src/_panelviewer.lua`). At the first panel of the first page or the last panel
+of the last page, a confirmation offers **Continue** or **Stay here**. Timeout
+and dismissal keep the current panel open. Continue closes Panels+ and sends
+KOReader its normal `EndOfBook` event at the end, or a backward `GotoViewRel`
+event at the beginning.
+
+When **Touch & hold text selection** is off, holding inside the viewer or tapping
+the faded OCR model icon shows a seven-second explanation pointing to
+**More Config…**. Toggling the setting refreshes the icon immediately. Embedded
+image viewers keep text selection unavailable and explain that limitation.
+
 It does this by patching two highlight entry points rather than forking the
 reader. The `onHold` hook gets first chance to recognize an embedded reflow
 image; otherwise KOReader continues its normal hold flow, which may reach the

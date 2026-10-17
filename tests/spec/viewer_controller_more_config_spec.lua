@@ -447,6 +447,22 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals("On", UIManager._last_shown[1].item_table[1].mandatory)
     end)
 
+    it("updates the OCR icon immediately when text selection is toggled", function()
+        local controller = makeController(Settings.withDefaults({}))
+        controller.setHoldTextSelection = PanelsPlus.setHoldTextSelection
+        local updated = spy()
+        local viewer = PanelViewer:new({ width = 600, update = updated })
+        controller:showMoreConfigMenu(viewer)
+        UIManager._last_shown[1].item_table[8].callback()
+        assert.is_false(viewer.hold_text_selection)
+        assert.is_true(viewer.quick_controls.ocr_language.dim)
+        assert.equals("Off", UIManager._last_shown[1].item_table[8].mandatory)
+        UIManager._last_shown[1].item_table[8].callback()
+        assert.is_true(viewer.hold_text_selection)
+        assert.is_false(viewer.quick_controls.ocr_language.dim)
+        assert.equals(2, updated:callCount())
+    end)
+
     it("toggles swipe and tap inversion immediately in the open viewer", function()
         local controller = makeController(Settings.withDefaults({}))
         controller.setInvertSwipe = PanelsPlus.setInvertSwipe

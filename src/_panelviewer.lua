@@ -43,6 +43,8 @@ local NAV_TRANSITION_MAX_AREA_MULTIPLIER = 16
 --- threshold `ViewerController:hasMemoryForPrerender()` uses for comparably
 --- sized panel-tile allocations.
 local NAV_TRANSITION_MIN_FREE_BYTES = 40 * 1024 * 1024
+--- Standard lifetime for user-facing flow warnings and confirmations.
+local FLOW_WARNING_TIMEOUT = 7
 
 --- Return the KOReader canvas-fit zoom for a native-page rectangle.
 ---
@@ -591,6 +593,48 @@ function PanelViewer:onSwipe(arg, ges)
         end
     end
     return ImageViewer.onSwipe(self, arg, ges)
+end
+
+--- Offer a timed, explicit handoff to KOReader at either end of the document.
+function PanelViewer:confirmDocumentBoundary(direction, reader_ui)
+    if self._document_boundary_dialog or self._panels_plus_closed then
+        return true
+    end
+    local forward = direction == "next"
+    local dialog = require("ui/widget/confirmbox"):new({
+        text = forward and _("This is the last panel of the last page. Continue to KOReader’s end-of-book action?")
+            or _("This is the first panel of the first page. Continue to KOReader’s beginning of the book?"),
+        ok_text = _("Continue"),
+        cancel_text = _("Stay here"),
+    })
+    self._document_boundary_dialog = dialog
+    local expire = function()
+        UIManager:close(dialog)
+    end
+    local original_close = dialog.onCloseWidget
+    dialog.onCloseWidget = function(widget)
+        UIManager:unschedule(expire)
+        if self._document_boundary_dialog == dialog then
+            self._document_boundary_dialog = nil
+        end
+        if original_close then
+            return original_close(widget)
+        end
+    end
+    dialog.ok_callback = function()
+        if self._panels_plus_closed or self._document_boundary_dialog ~= dialog then
+            return
+        end
+        UIManager:unschedule(expire)
+        self._document_boundary_dialog = nil
+        self:onClose()
+        -- The document has no next page: dispatch its normal end-of-book
+        -- event directly, including when the reader is zoomed into a page.
+        reader_ui:handleEvent(forward and Event:new("EndOfBook") or Event:new("GotoViewRel", -1))
+    end
+    UIManager:show(dialog)
+    UIManager:scheduleIn(FLOW_WARNING_TIMEOUT, expire)
+    return true
 end
 
 --- Advance to the next panel, animating a camera pan or crossing page boundary at the end.
@@ -1378,6 +1422,16 @@ function PanelViewer:_startPhraseHold(highlight, page_pos)
     UIManager:scheduleIn(math.max(0, 4 - initial_ms / 1000), self._phrase_hold_action)
 end
 
+--- Explain why OCR selection and its model picker are unavailable.
+function PanelViewer:showTextSelectionDisabledWarning()
+    local text = self.embedded_source_image and _("OCR text selection is unavailable for embedded images.")
+        or _(
+            "OCR text selection is disabled. Enable ‘Touch & hold text selection’ in ‘More Config…’ to use OCR and select an OCR model."
+        )
+    UIManager:show(require("ui/widget/infomessage"):new({ text = text, timeout = FLOW_WARNING_TIMEOUT }))
+    return true
+end
+
 --- Delegate touch and hold gestures to KOReader's native text selection / dictionary.
 ---
 --- @param arg any Gesture argument.
@@ -1387,7 +1441,8 @@ function PanelViewer:onHold(arg, ges)
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     if self.hold_text_selection == false then
-        return ImageViewer.onHold and ImageViewer.onHold(self, arg, ges)
+        self._panels_plus_hold_consumed = true
+        return self:showTextSelectionDisabledWarning()
     end
     -- Once text selection is enabled, a stationary hold belongs to the OCR
     -- path even if neither KOReader nor WordFinder can find a word. Remember
@@ -1852,6 +1907,9 @@ function PanelViewer:onCloseWidget()
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true
+    if self._document_boundary_dialog then
+        UIManager:close(self._document_boundary_dialog)
+    end
     self._panels_plus_closing = true
     self._panels_plus_transition_active = nil
     if self._panels_plus_transition_action then
@@ -3160,7 +3218,11 @@ function PanelViewer:replaceButtonTable()
             {
                 id = "ocr_language",
                 text = _("OCR Language"),
+                dim = self.hold_text_selection == false,
                 callback = function()
+                    if self.hold_text_selection == false then
+                        return self:showTextSelectionDisabledWarning()
+                    end
                     if self.ocr_language_callback then
                         self.ocr_language_callback(self)
                     end
