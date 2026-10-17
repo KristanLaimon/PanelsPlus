@@ -1858,6 +1858,10 @@ function PanelViewer:onCloseWidget()
         UIManager:unschedule(self._panels_plus_transition_action)
         self._panels_plus_transition_action = nil
     end
+    if self._panels_plus_transition_cleanup then
+        self._panels_plus_transition_cleanup()
+        self._panels_plus_transition_cleanup = nil
+    end
     if self.embedded_cleanup_callback then
         pcall(self.embedded_cleanup_callback, self)
     end
@@ -2020,8 +2024,8 @@ end
 --- position; anything else -- including space beyond the actual page edges, when
 --- centering `target` requires it -- is left blank, exactly like the blank
 --- letterbox margins a normal single-panel view already shows. Falls back to an
---- instant swap on any failure, a missing rect pair, or when the canvas would be
---- an unreasonably large one-shot render.
+--- instant swap on render failure, missing rectangles, or low memory. Oversized
+--- canvases use viewport frames instead of upscaling the entire union.
 ---
 --- @param target integer 1-based image index to end the transition on.
 function PanelViewer:animateSwitchToImageNum(target)
@@ -2076,14 +2080,8 @@ function PanelViewer:animateSwitchToImageNum(target)
         math.max(Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by), by - union.y, union.y + union.h - by)
 
     local screen_area = Screen:getWidth() * Screen:getHeight()
-    if (2 * half_w) * (2 * half_h) * target_zoom * target_zoom > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER then
-        Timing.log(
-            "animateSwitchToImageNum: canvas area cap exceeded for panel %d -> %d, falling back to instant swap",
-            cur,
-            target
-        )
-        return self:switchToImageNum(target)
-    end
+    local use_viewport_frames = (2 * half_w) * (2 * half_h) * target_zoom * target_zoom
+        > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         Timing.log("animateSwitchToImageNum: low memory, falling back to instant swap for panel %d -> %d", cur, target)
         return self:switchToImageNum(target)
@@ -2097,7 +2095,8 @@ function PanelViewer:animateSwitchToImageNum(target)
     -- colour EPUB images and makes smooth navigation yield before it can evict
     -- the reader's current tile on a 300MB device.
     local source_pixels = math.max(1, math.ceil(union.w * zoom_union)) * math.max(1, math.ceil(union.h * zoom_union))
-    local transition_bytes = (source_pixels + canvas_w * canvas_h) * 4 + 2 * 1024 * 1024
+    local transition_pixels = use_viewport_frames and screen_area * 4 or canvas_w * canvas_h
+    local transition_bytes = (source_pixels + transition_pixels) * 4 + 2 * 1024 * 1024
     if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, transition_bytes) then
         Timing.log("animateSwitchToImageNum: transition working set is too large, falling back to instant swap")
         return self:switchToImageNum(target)
@@ -2114,6 +2113,22 @@ function PanelViewer:animateSwitchToImageNum(target)
             tostring(content_image)
         )
         return self:switchToImageNum(target)
+    end
+
+    if use_viewport_frames then
+        return self:runNavViewportAnimation(
+            target,
+            union,
+            content_image,
+            content_image_owned,
+            zoom_union,
+            ax,
+            ay,
+            bx,
+            by,
+            target_zoom,
+            target_margin_factor
+        )
     end
 
     local scale = target_zoom / zoom_union -- applied once, below, via self.scale_factor
@@ -2164,6 +2179,115 @@ function PanelViewer:animateSwitchToImageNum(target)
         self._panels_plus_transition_margin_factor = nil
         self:switchToImageNum(target)
     end)
+end
+
+--- Animate oversized pans by scaling only the visible crop of a screen-fit
+--- union render. The whole page must never be upscaled to a tiny panel's zoom.
+--- Interpolate zoom too, so the first frame retains the large source's framing.
+function PanelViewer:runNavViewportAnimation(
+    target,
+    union,
+    source,
+    owned,
+    source_zoom,
+    ax,
+    ay,
+    bx,
+    by,
+    target_zoom,
+    margin_factor
+)
+    -- Document tiles belong to DocCache and can be evicted by an idle render
+    -- between animation ticks. Retain our own pixels until the pan completes.
+    if not owned then
+        local ok, copy = pcall(source.copy, source)
+        if not ok or not copy then
+            return self:switchToImageNum(target)
+        end
+        source, owned = copy, true
+    end
+    local viewport_w = math.max(1, math.floor(Screen:getWidth() * margin_factor))
+    local viewport_h = math.max(1, math.floor(Screen:getHeight() * margin_factor))
+    local start_zoom = canvasFitZoom(self.image_rects[self._images_list_cur]) * margin_factor
+    local steps = math.max(1, self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT)
+    local delay = (self.nav_transition_duration or 0.4) / steps
+    local step = 0
+    local function cleanup()
+        if owned then
+            source:free()
+            owned = false
+        end
+    end
+    local function finish()
+        cleanup()
+        self._panels_plus_transition_cleanup = nil
+        self._panels_plus_transition_active = nil
+        self._panels_plus_transition_margin_factor = nil
+        self:switchToImageNum(target)
+    end
+    local function showFrame(progress)
+        local zoom = start_zoom + (target_zoom - start_zoom) * progress
+        local x = ax + (bx - ax) * progress
+        local y = ay + (by - ay) * progress
+        local crop_w = math.max(1, math.ceil(viewport_w * source_zoom / zoom))
+        local crop_h = math.max(1, math.ceil(viewport_h * source_zoom / zoom))
+        local left = math.floor((x - union.x) * source_zoom - crop_w / 2)
+        local top = math.floor((y - union.y) * source_zoom - crop_h / 2)
+        local crop, frame
+        local ok = pcall(function()
+            crop = Blitbuffer.new(crop_w, crop_h, source:getType())
+            crop:fill(Blitbuffer.COLOR_WHITE)
+            local sx, sy = math.max(0, left), math.max(0, top)
+            local dx, dy = math.max(0, -left), math.max(0, -top)
+            local w = math.min(source:getWidth() - sx, crop_w - dx)
+            local h = math.min(source:getHeight() - sy, crop_h - dy)
+            if w > 0 and h > 0 then
+                crop:blitFrom(source, dx, dy, sx, sy, w, h)
+            end
+            frame = RenderImage:scaleBlitBuffer(crop, viewport_w, viewport_h, false)
+        end)
+        if crop and crop ~= frame then
+            crop:free()
+        end
+        if not ok or not frame then
+            return false
+        end
+        local old_image = self.image
+        self.image = frame
+        self._center_x_ratio, self._center_y_ratio = 0.5, 0.5
+        self.scale_factor = 1
+        self:update()
+        if self.image_disposable then
+            self:releasePreviousPanelImage(old_image)
+        end
+        return true
+    end
+    self._panels_plus_transition_active = true
+    self._panels_plus_transition_margin_factor = margin_factor
+    self._panels_plus_transition_cleanup = cleanup
+    if not showFrame(0) then
+        return finish()
+    end
+    local walkStep
+    walkStep = function()
+        self._panels_plus_transition_action = nil
+        if not self._panels_plus_transition_active or self._panels_plus_closed or not self:isOpen() then
+            cleanup()
+            self._panels_plus_transition_cleanup = nil
+            self._panels_plus_transition_active = nil
+            self._panels_plus_transition_margin_factor = nil
+            return
+        end
+        step = step + 1
+        if not showFrame(step / steps) or step >= steps then
+            finish()
+        else
+            self._panels_plus_transition_action = walkStep
+            UIManager:scheduleIn(delay, walkStep)
+        end
+    end
+    self._panels_plus_transition_action = walkStep
+    UIManager:scheduleIn(delay, walkStep)
 end
 
 --- Run the smooth-navigation pan from the widget's current offset to a target
