@@ -8,7 +8,7 @@
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics <strong>panel by panel</strong>, without losing the page and other panel zooming utilities with no setup required</span>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics <strong>panel by panel</strong>, without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
   <br><br>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/BetterPanels?color=blue&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/KristanLaimon/BetterPanels/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/BetterPanels/total?color=brightgreen&style=flat-square" alt="Downloads"></a>
