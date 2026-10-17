@@ -12,15 +12,15 @@ function Toolbar.caption(id, text)
         return gettext("Rotate")
     end
     if id == "ocr_language" then
-        return gettext("OCR")
+        return gettext("OCR Model")
     end
     if id == "screenshot" then
-        return gettext("Shot")
+        return gettext("SShot")
     end
     if id == "progress_bar" then
-        return text == gettext("Show progress") and gettext("Show") or gettext("Hide")
+        return text == gettext("Show progress") and gettext("Show Bar") or gettext("Hide Bar")
     end
-    return text == gettext("Original size") and "1:1" or gettext("Fit")
+    return text == gettext("Original size") and gettext("Actual Size") or gettext("Fit")
 end
 
 function Toolbar.controls(actions)
