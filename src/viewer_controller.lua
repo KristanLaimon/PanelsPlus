@@ -794,7 +794,7 @@ end
 ---
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
-function ViewerController:showMoreConfigMenu(viewer)
+function ViewerController:showMoreConfigMenu(viewer, page)
     local _ = require("gettext")
     local container = CenterContainer:new({
         dimen = Geom:new({ w = Screen:getWidth(), h = Screen:getHeight() }),
@@ -808,7 +808,7 @@ function ViewerController:showMoreConfigMenu(viewer)
     end
     local function reopen(current_viewer)
         close()
-        self:showMoreConfigMenu(current_viewer or viewer)
+        self:showMoreConfigMenu(current_viewer or viewer, menu.page)
     end
     local function toggle(id, text, key, callback)
         return {
@@ -855,7 +855,7 @@ function ViewerController:showMoreConfigMenu(viewer)
                     item_table = require("src.menu").panelGestureItems(self),
                     close_callback = function()
                         UIManager:close(picker)
-                        self:showMoreConfigMenu(viewer)
+                        self:showMoreConfigMenu(viewer, menu.page)
                     end,
                 })
                 UIManager:show(picker)
@@ -867,7 +867,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             mandatory = labels[DoubleSpread.rotationMode(self.settings)],
             callback = function()
                 close()
-                self:showMoreConfigMenu(self:cycleViewerSpreadRotationMode(viewer))
+                self:showMoreConfigMenu(self:cycleViewerSpreadRotationMode(viewer), menu.page)
             end,
         },
         {
@@ -876,7 +876,7 @@ function ViewerController:showMoreConfigMenu(viewer)
             mandatory = self.settings.join_spread_fold ~= false and _("On") or _("Off"),
             callback = function()
                 close()
-                self:showMoreConfigMenu(self:toggleViewerJoinSpreadFold(viewer))
+                self:showMoreConfigMenu(self:toggleViewerJoinSpreadFold(viewer), menu.page)
             end,
         },
         toggle("text_selection", "Touch & hold text selection", "hold_text_selection", function()
@@ -906,6 +906,12 @@ function ViewerController:showMoreConfigMenu(viewer)
         end,
     })
     container[1] = menu
+    if page and page > 1 then
+        -- Menu:init() always starts at page one. Restore after construction;
+        -- updateItems also clamps the page if a rotation changed pagination.
+        menu.page = page
+        menu:updateItems()
+    end
     UIManager:show(container)
     return true
 end

@@ -467,6 +467,69 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals("On", UIManager._last_shown[1].item_table[1].mandatory)
     end)
 
+    it("preserves the More Config page after toggles, viewer rebuilds, and gesture selection", function()
+        local Menu = require("ui/widget/menu")
+        local old_new, old_height = Menu.new, Screen.getHeight
+        Screen.getHeight = function()
+            return 320
+        end
+        Menu.new = function(_, options)
+            local menu = old_new(Menu, options)
+            menu.page = 1 -- KOReader's Menu:init always resets pagination.
+            menu.updateItems = function(self)
+                self.page = math.min(self.page, math.ceil(#self.item_table / (self.items_per_page or 4)))
+                self.rendered_page = self.page
+            end
+            return menu
+        end
+        local ok, err = pcall(function()
+            local controller = makeController(Settings.withDefaults({}))
+            controller.setHoldTextSelection = PanelsPlus.setHoldTextSelection
+            controller.setPanelGesture = PanelsPlus.setPanelGesture
+            controller.applyNativePanelSetting = spy()
+            controller.applyPanelGesture = spy()
+            local viewer = { replaceButtonTable = function() end, update = function() end }
+            local rebuilt = { replaceButtonTable = function() end, update = function() end }
+            controller.cycleViewerSpreadRotationMode = function()
+                return rebuilt
+            end
+            controller.toggleViewerJoinSpreadFold = function(_, current)
+                assert.equals(rebuilt, current)
+                return rebuilt
+            end
+            controller:showMoreConfigMenu(viewer)
+            local menu = UIManager._last_shown[1]
+            menu.page = 2
+            menu.item_table[8].callback()
+            menu = UIManager._last_shown[1]
+            assert.equals(2, menu.page)
+            assert.equals(2, menu.rendered_page)
+            assert.equals("Off", menu.item_table[8].mandatory)
+            menu.item_table[6].callback()
+            menu = UIManager._last_shown[1]
+            assert.equals(2, menu.page)
+            menu.item_table[7].callback()
+            menu = UIManager._last_shown[1]
+            assert.equals(2, menu.page)
+            menu.item_table[5].callback()
+            local picker = UIManager._last_shown
+            picker.item_table[2].callback()
+            picker.close_callback()
+            menu = UIManager._last_shown[1]
+            assert.equals(2, menu.page)
+            assert.equals("Two-finger tap", menu.item_table[5].mandatory)
+
+            -- A fresh visit starts normally; pagination is only carried over
+            -- while changing settings in the existing menu session.
+            controller:showMoreConfigMenu(rebuilt)
+            assert.equals(1, UIManager._last_shown[1].page)
+        end)
+        Menu.new, Screen.getHeight = old_new, old_height
+        if not ok then
+            error(err)
+        end
+    end)
+
     it("updates the OCR icon immediately when text selection is toggled", function()
         local controller = makeController(Settings.withDefaults({}))
         controller.setHoldTextSelection = PanelsPlus.setHoldTextSelection
