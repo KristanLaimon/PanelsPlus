@@ -54,18 +54,29 @@ function ProfileMenu:getSettingsProfileName()
 end
 
 function ProfileMenu:applySettingsProfile(viewer, id)
-    if not id then
+    Profiles.invalidate(self.settings)
+    local profile = id and Profiles.find(self.settings, id)
+    if id and not profile then
+        return false
+    end
+    if not id and not self.settings.selected_profile_id then
+        return true
+    end
+    if not viewer or viewer._panels_plus_closed or viewer._panels_plus_boundary_pending then
+        return false
+    end
+    local values = profile and profile.values or self.settings.none_profile_values
+    if not values then
+        -- Installations already using a profile have no earlier None snapshot.
         self.settings.selected_profile_id = nil
+        self:saveDocSettings(true, true)
         self:saveSettings()
-        self:saveDocSettings(true)
         refresh(viewer)
         return true
     end
-    local profile = Profiles.find(self.settings, id)
-    if not profile or not viewer or viewer._panels_plus_closed or viewer._panels_plus_boundary_pending then
-        return false
+    if not self.settings.selected_profile_id then
+        self.settings.none_profile_values = Profiles.capture(self.settings, viewer)
     end
-    local values = profile.values
     local current = viewer.panels and viewer.panels[viewer._images_list_cur or 1]
     local center = current and { x = current.x + current.w / 2, y = current.y + current.h / 2 }
     self._applying_profile = true
@@ -73,7 +84,10 @@ function ProfileMenu:applySettingsProfile(viewer, id)
     self:setCropMode(values.crop_mode)
     self:setProgressBarVisible(values.progress_bar_visible)
     self:setNavTransitionMode(values.nav_transition_mode)
-    self:setEmbeddedNavTransitionMode(values.nav_transition_mode)
+    self:setEmbeddedNavTransitionMode(values.embedded_nav_transition_mode or values.nav_transition_mode)
+    for key, value in pairs(Profiles.options(values)) do
+        self.settings[key] = value
+    end
     -- Use the existing resolver when the stored model is no longer installed.
     self.settings.ocr_bundled_language = values.ocr_bundled_language
     local resolved = self:getSelectedOcrModel()

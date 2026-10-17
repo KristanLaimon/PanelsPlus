@@ -53,7 +53,16 @@ SPDX-License-Identifier: MIT
 --- @field mode PPReadingMode
 --- @field progress_bar_visible boolean
 --- @field ocr_bundled_language string
---- @field nav_transition_mode PPNavTransitionMode Applied to fixed pages and embedded images.
+--- @field nav_transition_mode PPNavTransitionMode Navigation for fixed pages.
+--- @field embedded_nav_transition_mode PPNavTransitionMode|nil Navigation for extracted images.
+--- @field nav_animated_panels boolean|nil
+--- @field nav_animated_pages boolean|nil
+--- @field nav_transition_duration number|nil
+--- @field nav_transition_cross_page boolean|nil
+--- @field nav_transition_frames integer|nil
+--- @field panel_margin_ratio number|nil
+--- @field panel_bleed_ratio number|nil
+--- @field panel_bleed_min number|nil
 --- @field crop_mode PPCropMode
 
 --- @class PPProfileRotation
@@ -96,6 +105,7 @@ SPDX-License-Identifier: MIT
 --- @field profiles_initialized boolean Whether the bundled profile has been seeded.
 --- @field profile_next_id integer|nil Next user profile identifier.
 --- @field selected_profile_id string|nil Applied profile; nil means None.
+--- @field none_profile_values PPProfileValues|nil Automatically saved settings when leaving None.
 --- @field profile_rotation PPProfileRotation|nil Rotation snapshot for document persistence.
 --- @field enabled boolean
 --- @field mode PPReadingMode

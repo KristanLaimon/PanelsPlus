@@ -159,6 +159,78 @@ describe("Settings profiles", function()
         assert.is_false(p.settings.progress_bar_visible)
     end)
 
+    it("restores None across profile switches and saves its latest manual changes", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        p.settings.profiles[1].values.rotation = { kind = "image", value = false }
+        p.settings.mode = "comic"
+        p.settings.nav_transition_mode = "smooth"
+        p.settings.embedded_nav_transition_mode = "classic"
+        p.settings.nav_transition_duration = 0.75
+        p.settings.panel_margin_ratio = 0.23
+        local initial = Profiles.capture(p.settings)
+        local other = Profiles.create(p.settings, "Other", initial)
+        p:applySettingsProfile(viewer(), "recommended")
+        p:applySettingsProfile(viewer(), other.id)
+        p:applySettingsProfile(viewer(), nil)
+        assert.is_nil(p.settings.selected_profile_id)
+        assert.is_true(Profiles.matches(p.settings, initial))
+        p:setMarginRatio(0.31)
+        p:applySettingsProfile(viewer(), "recommended")
+        p:applySettingsProfile(viewer(), nil)
+        assert.equals(0.31, p.settings.panel_margin_ratio)
+        assert.equals("classic", p.settings.embedded_nav_transition_mode)
+    end)
+
+    it("captures and restores every transition and crop suboption including false values", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        local expected = {
+            nav_animated_panels = false,
+            nav_animated_pages = false,
+            nav_transition_duration = 0.8,
+            nav_transition_cross_page = false,
+            nav_transition_frames = 17,
+            panel_margin_ratio = 0.27,
+            panel_bleed_ratio = 0.35,
+            panel_bleed_min = 3,
+        }
+        for key, value in pairs(expected) do
+            p.settings[key] = value
+        end
+        local profile = Profiles.create(p.settings, "Options", Profiles.capture(p.settings))
+        p:applySettingsProfile(viewer(), "recommended")
+        for key in pairs(expected) do
+            assert.equals(Settings.defaults[key], p.settings[key])
+        end
+        p:applySettingsProfile(viewer(), profile.id)
+        for key, value in pairs(expected) do
+            assert.equals(value, p.settings[key])
+        end
+        assert.equals(profile.id, p.settings.selected_profile_id)
+        p:setNavTransitionFrames(9)
+        assert.is_nil(p.settings.selected_profile_id)
+        assert.equals(9, p.settings.doc_settings["profiles.cbz"].nav_transition_frames)
+    end)
+
+    it("persists None and suboptions when reopening a document", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        p.settings.profiles[1].values.rotation = { kind = "image", value = false }
+        p:setNavTransitionDuration(0.7)
+        p:applySettingsProfile(viewer(), "recommended")
+        local saved = Profiles.copy(p.settings.doc_settings["profiles.cbz"])
+        p.settings.none_profile_values = nil
+        p.settings.nav_transition_duration = 0.9
+        p.settings.doc_settings["profiles.cbz"] = saved
+        p:loadDocSettings()
+        assert.equals("recommended", p.settings.selected_profile_id)
+        assert.equals(0.4, p.settings.nav_transition_duration)
+        p:applySettingsProfile(viewer(), nil)
+        assert.equals(0.7, p.settings.nav_transition_duration)
+        assert.is_nil(p.settings.selected_profile_id)
+    end)
+
     it("editing or deleting an active profile does not change live settings", function()
         local p = plugin()
         p.settings.selected_profile_id = "recommended"

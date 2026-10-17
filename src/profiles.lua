@@ -1,6 +1,31 @@
--- Settings profiles contain only the six user-facing reading choices.
+-- Settings profiles include reading choices and their dependent options.
 local Profiles = {}
 local FIELDS = { "mode", "progress_bar_visible", "ocr_bundled_language", "nav_transition_mode", "crop_mode" }
+local OPTION_FIELDS = {
+    "nav_animated_panels",
+    "nav_animated_pages",
+    "nav_transition_duration",
+    "nav_transition_cross_page",
+    "nav_transition_frames",
+    "panel_margin_ratio",
+    "panel_bleed_ratio",
+    "panel_bleed_min",
+}
+Profiles.option_fields = OPTION_FIELDS
+
+-- Older profiles did not store suboptions. Use stable defaults rather than
+-- inheriting whichever profile happened to be active before them.
+function Profiles.options(values)
+    local defaults = require("src._settings").defaults
+    local options = {}
+    for _, key in ipairs(OPTION_FIELDS) do
+        options[key] = values[key]
+        if options[key] == nil then
+            options[key] = defaults[key]
+        end
+    end
+    return options
+end
 
 function Profiles.copy(value)
     if type(value) ~= "table" then
@@ -42,14 +67,15 @@ function Profiles.find(settings, id)
     end
 end
 
-function Profiles.capture(settings, viewer)
+function Profiles.capture(settings)
     local values = {}
     for _, key in ipairs(FIELDS) do
         values[key] = settings[key]
     end
-    if viewer and viewer.embedded_source_image then
-        values.nav_transition_mode = settings.embedded_nav_transition_mode or "classic"
+    for _, key in ipairs(OPTION_FIELDS) do
+        values[key] = settings[key]
     end
+    values.embedded_nav_transition_mode = settings.embedded_nav_transition_mode or "classic"
     if settings.image_rotation ~= nil then
         values.rotation = { kind = "image", value = settings.image_rotation }
     else
@@ -67,7 +93,15 @@ function Profiles.matches(settings, values)
             return false
         end
     end
-    if (settings.embedded_nav_transition_mode or "classic") ~= values.nav_transition_mode then
+    for key, value in pairs(Profiles.options(values)) do
+        if settings[key] ~= value then
+            return false
+        end
+    end
+    if
+        (settings.embedded_nav_transition_mode or "classic")
+        ~= (values.embedded_nav_transition_mode or values.nav_transition_mode)
+    then
         return false
     end
     local rotation = values.rotation

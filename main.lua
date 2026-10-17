@@ -165,6 +165,10 @@ function PanelsPlus:saveDocSettings(force, skip_global_save)
         embedded_nav_transition_mode = self.settings.embedded_nav_transition_mode,
         profile_settings_version = 1,
     }
+    for _, key in ipairs(Profiles.option_fields) do
+        doc_data[key] = self.settings[key]
+    end
+    doc_data.none_profile_values = Profiles.copy(self.settings.none_profile_values)
     if self.ui and self.ui.doc_settings and type(self.ui.doc_settings.saveSetting) == "function" then
         self.ui.doc_settings:saveSetting("panelsplus", doc_data)
         self.ui.doc_settings:saveSetting("panels_plus", doc_data)
@@ -230,6 +234,12 @@ function PanelsPlus:loadDocSettings()
             local mode = doc_data.embedded_nav_transition_mode
             self.settings.embedded_nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
         end
+        for _, key in ipairs(Profiles.option_fields) do
+            if doc_data[key] ~= nil then
+                self.settings[key] = doc_data[key]
+            end
+        end
+        self.settings.none_profile_values = Profiles.copy(doc_data.none_profile_values)
         self.settings.selected_profile_id = doc_data.selected_profile_id
     else
         self.settings.selected_profile_id = nil
@@ -321,6 +331,7 @@ function PanelsPlus:setMarginRatio(ratio)
     ratio = tonumber(ratio) or Settings.defaults.panel_margin_ratio
     self.settings.panel_margin_ratio = math.max(0, math.min(0.4, ratio))
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Set how much page area outside each panel "Loose crop" reveals.
@@ -330,6 +341,7 @@ function PanelsPlus:setBleedRatio(ratio)
     ratio = tonumber(ratio) or Settings.defaults.panel_bleed_ratio
     self.settings.panel_bleed_ratio = math.max(0, math.min(1.0, ratio))
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Persist the plugin's own zoomed-view image rotation, independent of
@@ -472,6 +484,7 @@ end
 function PanelsPlus:setNavAnimatedPanels(enabled)
     self.settings.nav_animated_panels = enabled and true or false
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Enable or disable framebuffer animation between pages in Animated mode.
@@ -479,6 +492,7 @@ end
 function PanelsPlus:setNavAnimatedPages(enabled)
     self.settings.nav_animated_pages = enabled and true or false
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Set how long the smooth-navigation camera pan takes.
@@ -488,6 +502,7 @@ function PanelsPlus:setNavTransitionDuration(seconds)
     seconds = tonumber(seconds) or Settings.defaults.nav_transition_duration
     self.settings.nav_transition_duration = math.max(0.15, math.min(0.9, seconds))
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Enable or disable animating panel transitions across page boundaries.
@@ -500,6 +515,7 @@ end
 function PanelsPlus:setNavTransitionCrossPage(enabled)
     self.settings.nav_transition_cross_page = enabled and true or false
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Set how many steps the smooth-navigation camera pan is split into.
@@ -509,6 +525,7 @@ function PanelsPlus:setNavTransitionFrames(frames)
     frames = tonumber(frames) or Settings.defaults.nav_transition_frames
     self.settings.nav_transition_frames = math.max(1, math.min(24, math.floor(frames + 0.5)))
     self:saveSettings()
+    self:saveDocSettings(true)
 end
 
 --- Normalize a legacy detector request to Deep mode's component pipeline.
