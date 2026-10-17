@@ -318,6 +318,40 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         end)
     end)
 
+    it("fits eased frames to the open controls in portrait and landscape", function()
+        local Screen = require("device").screen
+        for _, layout in ipairs({
+            { w = 600, h = 800, container_h = 500, panel_w = 600, panel_h = 500 - Screen:scaleBySize(64) },
+            { w = 800, h = 600, container_h = 400, panel_w = 800 - Screen:scaleBySize(72), panel_h = 400 },
+        }) do
+            for _, margin in ipairs({ false, true }) do
+                withTransition({ style = "ease", margin = margin }, function(viewer, _, frames)
+                    viewer.width, viewer.height = layout.w, layout.h
+                    viewer.img_container_h = layout.container_h
+                    viewer.buttons_visible = true
+                    viewer.quick_controls = {}
+                    viewer:animateSwitchToImageNum(2)
+                    for _ = 1, 4 do
+                        UIManager._last_scheduled()
+                    end
+                    local factor = margin and 0.8 or 1
+                    for _, frame in ipairs(frames) do
+                        assert.equals(math.floor(layout.panel_w * factor), frame.image.w)
+                        assert.equals(math.floor(layout.panel_h * factor), frame.image.h)
+                    end
+                    -- Both rectangles have the same aspect ratio. Matching their
+                    -- fit zoom keeps the whole endpoint panel in the smaller box.
+                    local source_zoom = math.min(600 / 710, 800 / 800)
+                    local start_zoom = math.min(layout.panel_w / 600, layout.panel_h / 800) * factor
+                    local end_zoom = math.min(layout.panel_w / 60, layout.panel_h / 80) * factor
+                    assert.equals(math.ceil(frames[1].image.w * source_zoom / start_zoom), frames[1].image.crop_w)
+                    assert.equals(math.ceil(frames[5].image.w * source_zoom / end_zoom), frames[5].image.crop_w)
+                    assert.equals(2, viewer.switched_to)
+                end)
+            end
+        end
+    end)
+
     it("preserves margin framing on every bounded frame", function()
         withTransition({ margin = true }, function(viewer, _, frames)
             viewer:animateSwitchToImageNum(2)

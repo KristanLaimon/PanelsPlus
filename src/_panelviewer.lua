@@ -2202,7 +2202,8 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     -- ImageWidget clamps the camera to the full-size canvas and the animation
     -- appears stationary before snapping to the margin-sized panel.
     local target_margin_factor = self:getMarginShrinkFactorForPanel(target) or 1
-    local target_zoom = canvasFitZoom(rect_b) * target_margin_factor
+    local viewport_w, viewport_h = self:getPanelViewportSize()
+    local target_zoom = math.min(viewport_w / rect_b.w, viewport_h / rect_b.h) * target_margin_factor
 
     local bx, by
     if self.crop_mode == "none" and self.panels and self.panels[target] then
@@ -2218,12 +2219,10 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
         ax, ay = Geometry.rectCenter(rect_a)
     end
 
-    local half_w =
-        math.max(Screen:getWidth() / (2 * target_zoom) + math.abs(ax - bx), bx - union.x, union.x + union.w - bx)
-    local half_h =
-        math.max(Screen:getHeight() / (2 * target_zoom) + math.abs(ay - by), by - union.y, union.y + union.h - by)
+    local half_w = math.max(viewport_w / (2 * target_zoom) + math.abs(ax - bx), bx - union.x, union.x + union.w - bx)
+    local half_h = math.max(viewport_h / (2 * target_zoom) + math.abs(ay - by), by - union.y, union.y + union.h - by)
 
-    local screen_area = Screen:getWidth() * Screen:getHeight()
+    local screen_area = viewport_w * viewport_h
     -- CSS styles interpolate zoom. Classic keeps the earlier fixed-zoom
     -- canvas pan, with the bounded-frame fallback for oversized canvases.
     local use_viewport_frames = self.nav_smooth_style ~= "classic"
@@ -2356,7 +2355,9 @@ function PanelViewer:runNavViewportAnimation(
     end
     local style = NavEasing.normalize(self.nav_smooth_style)
     local start_margin_factor = self:getMarginShrinkFactorForPanel(self._images_list_cur) or 1
-    local start_zoom = canvasFitZoom(self.image_rects[self._images_list_cur]) * start_margin_factor
+    local container_w, container_h = self:getPanelViewportSize()
+    local start_rect = self.image_rects[self._images_list_cur]
+    local start_zoom = math.min(container_w / start_rect.w, container_h / start_rect.h) * start_margin_factor
     if style == "classic" then
         -- Match Classic's shared canvas even when only viewport crops fit in
         -- memory: pan at the destination's zoom and framing throughout.
@@ -2382,8 +2383,8 @@ function PanelViewer:runNavViewportAnimation(
     local function showFrame(progress)
         progress = NavEasing.progress(style, progress)
         local frame_margin = start_margin_factor + (margin_factor - start_margin_factor) * progress
-        local viewport_w = math.max(1, math.floor(Screen:getWidth() * frame_margin))
-        local viewport_h = math.max(1, math.floor(Screen:getHeight() * frame_margin))
+        local viewport_w = math.max(1, math.floor(container_w * frame_margin))
+        local viewport_h = math.max(1, math.floor(container_h * frame_margin))
         local zoom = start_zoom + (target_zoom - start_zoom) * progress
         local x = ax + (bx - ax) * progress
         local y = ay + (by - ay) * progress
@@ -2879,18 +2880,11 @@ function PanelViewer:getMarginShrinkFactor()
     return self:getMarginShrinkFactorForPanel(self._images_list_cur)
 end
 
---- Shrink the box ImageViewer renders the panel into, for "margin" crop mode.
----
---- The base implementation sizes both the ImageWidget and the CenterContainer
---- that centers it from `self.width`/`self.img_container_h`. Temporarily
---- shrinking those before delegating, then restoring the container's `dimen`
---- to the full area afterward, keeps the centering but renders a smaller
---- image inside it -- a cheap zoom-out that reads as breathing room around
---- the panel without touching the actual crop rectangle.
-function PanelViewer:_new_image_wg()
-    QuickToolbar.free(self.quick_controls)
-    local viewer_width = self.width
-    local viewer_container_h = self.img_container_h
+--- Return the panel area before margins, excluding the visible controls.
+--- Keep animation framing and ImageViewer widget layout on the same geometry.
+function PanelViewer:getPanelViewportSize()
+    local viewer_width = self.width or Screen:getWidth()
+    local viewer_container_h = self.img_container_h or Screen:getHeight()
     local portrait = viewer_width <= (self.height or Screen:getHeight())
     local row_height = self.buttons_visible
             and self.quick_controls
@@ -2904,8 +2898,24 @@ function PanelViewer:_new_image_wg()
                 return Screen:scaleBySize(value)
             end)
         or 0
-    self.width = viewer_width - rail_width
-    self.img_container_h = viewer_container_h - row_height
+    return viewer_width - rail_width, viewer_container_h - row_height, row_height, rail_width
+end
+
+--- Shrink the box ImageViewer renders the panel into, for "margin" crop mode.
+---
+--- The base implementation sizes both the ImageWidget and the CenterContainer
+--- that centers it from `self.width`/`self.img_container_h`. Temporarily
+--- shrinking those before delegating, then restoring the container's `dimen`
+--- to the full area afterward, keeps the centering but renders a smaller
+--- image inside it -- a cheap zoom-out that reads as breathing room around
+--- the panel without touching the actual crop rectangle.
+function PanelViewer:_new_image_wg()
+    QuickToolbar.free(self.quick_controls)
+    local viewer_width = self.width
+    local viewer_container_h = self.img_container_h
+    local panel_w, panel_h, row_height, rail_width = self:getPanelViewportSize()
+    self.width = panel_w
+    self.img_container_h = panel_h
     local factor = self:getMarginShrinkFactor()
     if not factor then
         ImageViewer._new_image_wg(self)
