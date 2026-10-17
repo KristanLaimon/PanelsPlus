@@ -58,6 +58,7 @@ SPDX-License-Identifier: MIT
 --- @field nav_animated_panels boolean|nil
 --- @field nav_animated_pages boolean|nil
 --- @field nav_smooth_style string CSS timing function name or "classic" for the earlier pan.
+--- @field nav_smooth_preview boolean Preview Smooth settings changes and reopen their menu.
 --- @field nav_transition_duration number|nil
 --- @field nav_transition_cross_page boolean|nil
 --- @field nav_transition_frames integer|nil

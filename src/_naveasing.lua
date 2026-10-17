@@ -1,7 +1,7 @@
 -- CSS timing functions for smooth navigation. Classic retains the earlier pan.
 -- Curves follow https://www.w3.org/TR/css-easing-1/#cubic-bezier-easing-functions
 local Easing = {}
-Easing.styles = { "linear", "ease", "ease-in", "ease-out", "ease-in-out", "step-start", "step-end", "classic" }
+Easing.styles = { "linear", "ease", "ease-in", "ease-out", "ease-in-out", "classic" }
 local curves = {
     ease = { 0.25, 0.1, 0.25, 1 },
     ["ease-in"] = { 0.42, 0, 1, 1 },
@@ -10,12 +10,15 @@ local curves = {
 }
 
 function Easing.normalize(style)
+    if style == nil then
+        return "ease"
+    end
     for _, value in ipairs(Easing.styles) do
         if style == value then
             return value
         end
     end
-    -- Includes the previous Modern name, preserving its interpolation.
+    -- Modern and removed step styles fall back to continuous linear timing.
     return "linear"
 end
 
@@ -40,11 +43,6 @@ end
 
 function Easing.progress(style, progress)
     progress = math.max(0, math.min(1, progress))
-    if style == "step-start" then
-        return 1
-    elseif style == "step-end" then
-        return progress == 1 and 1 or 0
-    end
     local curve = curves[style]
     if not curve or progress == 0 or progress == 1 then
         return progress

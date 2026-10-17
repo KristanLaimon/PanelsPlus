@@ -401,6 +401,118 @@ function ViewerController:showNavTransitionOptionsMenu(viewer)
     return self:showAdvancedOptions(viewer, "animation")
 end
 
+--- Preview the edited Smooth settings, returning to the same panel and menu.
+function ViewerController:previewSmoothSettings(viewer, menu_page, skip_preview)
+    if
+        not viewer
+        or viewer.nav_transition_mode ~= "smooth"
+        or not viewer.animateSwitchToImageNum
+        or viewer._panels_plus_smooth_preview
+        or viewer._panels_plus_transition_active
+        or viewer._panels_plus_boundary_pending
+        or viewer._panels_plus_closed
+    then
+        return false
+    end
+    viewer._panels_plus_smooth_preview = true
+    local origin = viewer._images_list_cur
+    local controls
+    local function live()
+        return not viewer._panels_plus_closed and viewer:isOpen()
+    end
+    local function hideControls()
+        controls = {
+            buttons_visible = viewer.buttons_visible,
+            with_title_bar = viewer.with_title_bar,
+            fullscreen = viewer.fullscreen,
+            progress_bar_visible = viewer.progress_bar_visible,
+        }
+        viewer.buttons_visible = false
+        viewer.with_title_bar = false
+        viewer.fullscreen = true
+        viewer.progress_bar_visible = false
+        viewer:update()
+    end
+    local function reopen()
+        viewer._panels_plus_smooth_preview = nil
+        if live() then
+            if controls then
+                viewer.buttons_visible = controls.buttons_visible
+                viewer.with_title_bar = controls.with_title_bar
+                viewer.fullscreen = controls.fullscreen
+                viewer.progress_bar_visible = controls.progress_bar_visible
+                viewer:update()
+            end
+            self:showAdvancedOptions(viewer, "animation", menu_page)
+        end
+    end
+    -- Setting callbacks run before KOReader dismisses their menu/spinner.
+    -- Start on the next tick so trailing close handlers cannot dismiss the
+    -- preview or the settings menu that will replace it.
+    UIManager:nextTick(function()
+        if not live() then
+            viewer._panels_plus_smooth_preview = nil
+            return
+        end
+        local reader_menu = self.ui and self.ui.menu
+        local container = reader_menu and reader_menu.menu_container
+        if container then
+            container[1].close_callback()
+        end
+        local count = viewer._images_list_nb or #(viewer.image_rects or {})
+        if skip_preview or self.settings.nav_smooth_preview == false or not origin then
+            return reopen()
+        end
+        if count < 2 then
+            local document = self.ui and self.ui.document
+            local single_panel_book = false
+            if not viewer.embedded_source_image and document and document.getNextPage and document.getPrevPage then
+                local next_page = document:getNextPage(viewer.page)
+                local previous_page = document:getPrevPage(viewer.page)
+                next_page = next_page ~= 0 and next_page or nil
+                previous_page = previous_page ~= 0 and previous_page or nil
+                single_panel_book = not next_page and not previous_page
+                local adjacent_page = next_page or previous_page
+                if adjacent_page and viewer.nav_boundary_peek_callback then
+                    -- A one-panel page is not a one-panel book. Warm the
+                    -- adjacent layout and preview its canvas without turning
+                    -- the document page or replacing the original viewer.
+                    self:collectPanels(adjacent_page)
+                    hideControls()
+                    viewer:animateBoundaryTransition(next_page and "next" or "previous", function(played)
+                        UIManager:nextTick(function()
+                            reopen()
+                            if not played and live() then
+                                viewer:showSmoothPreviewUnavailableWarning()
+                            end
+                        end)
+                    end)
+                    return
+                end
+            end
+            reopen()
+            return viewer:showSmoothPreviewUnavailableWarning(single_panel_book)
+        end
+        -- At the end, preview backward first; always return to the original
+        -- panel without leaving the document or opening boundary prompts.
+        local target = origin < count and origin + 1 or origin - 1
+        hideControls()
+        viewer:animateSwitchToImageNum(target, function()
+            -- Let the landing panel remain visible before reversing.
+            UIManager:scheduleIn(0.15, function()
+                if not live() then
+                    viewer._panels_plus_smooth_preview = nil
+                    return
+                end
+                viewer:animateSwitchToImageNum(origin, function()
+                    UIManager:nextTick(reopen)
+                end)
+            end)
+        end)
+    end)
+    return true
+end
+
 --- Toggle tapping the screen's left/right edges to navigate between panels,
 --- from an open viewer, in place.
 ---
@@ -738,7 +850,7 @@ end
 --- Enter the real reader menu before showing it; no translated labels or
 --- hardcoded tab positions. Both TouchMenu and keyboard Menu keep their own
 --- normal Back stack through onMenuSelect.
-function ViewerController:showAdvancedOptions(viewer, section)
+function ViewerController:showAdvancedOptions(viewer, section, page)
     local reader_menu = self.ui and self.ui.menu
     if not reader_menu then
         return false
@@ -772,6 +884,10 @@ function ViewerController:showAdvancedOptions(viewer, section)
     end
     for _, item in ipairs(path) do
         menu:onMenuSelect(item)
+    end
+    if page and page > 1 then
+        menu.page = page
+        menu:updateItems()
     end
     local original_close = menu.close_callback
     menu.close_callback = function()

@@ -74,7 +74,7 @@ describe("ViewerController page-turn animation settings", function()
         local viewer = { nav_animated_panels = true }
         controller.active_panel_viewer = viewer
         local items = MainMenu.animationItems(controller)
-        assert.equals(6, #items)
+        assert.equals(7, #items)
         assert.equals("Animate between panels", items[1].text)
         assert.is_true(items[1].checked_func())
         items[1].callback()
@@ -109,7 +109,7 @@ describe("ViewerController page-turn animation settings", function()
     end)
 
     it("cycles Smooth styles in the advanced menu and updates the active viewer", function()
-        local controller, saved = makeController(Settings.withDefaults({}))
+        local controller, saved = makeController(Settings.withDefaults({ nav_smooth_style = "linear" }))
         controller.setNavSmoothStyle = PanelsPlus.setNavSmoothStyle
         local viewer = { nav_smooth_style = "linear", nav_transition_mode = "smooth" }
         controller.active_panel_viewer = viewer
@@ -721,6 +721,20 @@ describe("Advanced options reader-menu navigation", function()
         controller:showNavTransitionOptionsMenu({ nav_transition_mode = "smooth" })
         assert.equals(3, #selected)
         assert.equals(plugin.sub_item_table[1].sub_item_table, menu.item_table)
+    end)
+
+    it("restores the settings page after a preview in touch and keyboard menus", function()
+        for _, touch in ipairs({ true, false }) do
+            local controller, menu = fixture(touch)
+            local refreshed = 0
+            menu.updateItems = function(self)
+                refreshed = refreshed + 1
+                assert.equals(2, self.page)
+            end
+            controller:showAdvancedOptions({}, "animation", 2)
+            assert.equals(2, menu.page)
+            assert.equals(1, refreshed)
+        end
     end)
 
     it("rebuilds changed spread geometry only after closing the reader menu", function()

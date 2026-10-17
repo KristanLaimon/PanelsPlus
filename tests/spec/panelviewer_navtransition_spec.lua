@@ -109,19 +109,19 @@ describe("PanelViewer nav transition hold options", function()
         assert.equals(1, animation_spy:callCount())
     end)
 
-    it("defaults Smooth to linear and cycles every CSS style plus Classic", function()
+    it("defaults Smooth to ease and cycles every CSS style plus Classic", function()
         local viewer = PanelViewer:new({ nav_transition_mode = "smooth" })
-        assert.equals("linear", viewer.nav_smooth_style)
+        assert.equals("ease", viewer.nav_smooth_style)
+        assert.equals(16, viewer.nav_transition_frames)
+        assert.equals(0.4, viewer.nav_transition_duration)
         viewer:onShowNavTransitionOptionsMenu()
         for _, choice in ipairs({
-            "ease",
             "ease-in",
             "ease-out",
             "ease-in-out",
-            "step-start",
-            "step-end",
             "classic",
             "linear",
+            "ease",
         }) do
             UIManager._last_shown.item_table[4].callback()
             assert.equals(choice, viewer.nav_smooth_style)
@@ -144,8 +144,8 @@ describe("PanelViewer nav transition hold options", function()
         })
         viewer:onShowNavTransitionOptionsMenu()
         UIManager._last_shown.item_table[4].callback()
-        assert.equals("ease", selected)
-        assert.equals("Smooth style: ease", UIManager._last_shown.item_table[4].text)
+        assert.equals("ease-in", selected)
+        assert.equals("Smooth style: ease-in", UIManager._last_shown.item_table[4].text)
     end)
 end)
 
@@ -230,7 +230,7 @@ describe("PanelViewer smooth pan and zoom navigation", function()
                 { x = 650, y = 300, w = 60, h = 80 },
             },
             nav_transition_frames = options.steps or 4,
-            nav_smooth_style = options.style,
+            nav_smooth_style = options.style or "linear",
             nav_transition_duration = 0.4,
             image_disposable = true,
             crop_mode = options.margin and "margin" or "tight",
@@ -439,33 +439,39 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         end
     end)
 
-    it("implements step-start and step-end jump timing on viewport frames", function()
-        for _, style in ipairs({ "step-start", "step-end" }) do
-            withTransition({ style = style }, function(viewer, _, frames)
-                viewer:animateSwitchToImageNum(2)
-                for _ = 1, 4 do
-                    UIManager._last_scheduled()
-                end
-                assert.equals(2, viewer.switched_to)
-                for i = 1, 4 do
-                    assert.equals(
-                        style == "step-start" and frames[5].image.crop_w or frames[1].image.crop_w,
-                        frames[i].image.crop_w
-                    )
-                end
-                if style == "step-end" then
-                    assert.is_true(frames[1].image.crop_w > frames[5].image.crop_w)
-                end
-            end)
-        end
-    end)
-
     it("still switches instantly when memory is low", function()
         withTransition({ low_memory = true }, function(viewer, buffers)
             viewer:animateSwitchToImageNum(2)
             assert.equals(2, viewer.switched_to)
             assert.equals(0, #buffers)
         end)
+    end)
+
+    it("notifies preview completion once after each render path lands on its panel", function()
+        for _, options in ipairs({
+            {},
+            { style = "classic" },
+            { style = "classic", rects = { { x = 0, y = 0, w = 300, h = 400 }, { x = 320, y = 0, w = 300, h = 400 } } },
+            { low_memory = true },
+            { fail_scale = true },
+        }) do
+            withTransition(options, function(viewer)
+                local completed = 0
+                viewer:animateSwitchToImageNum(2, function()
+                    assert.equals(2, viewer._images_list_cur)
+                    completed = completed + 1
+                end)
+                if viewer.canvas_pan then
+                    viewer._panels_plus_transition_active = nil
+                    viewer.canvas_pan.done()
+                elseif viewer._panels_plus_transition_active then
+                    for _ = 1, 4 do
+                        UIManager._last_scheduled()
+                    end
+                end
+                assert.equals(1, completed)
+            end)
+        end
     end)
 
     it("restores the earlier shared-canvas pan in Classic for both size directions", function()
@@ -523,6 +529,54 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             end
         end)
     end)
+
+    it(
+        "previews an adjacent page and restores the original image and framing without committing a page turn",
+        function()
+            for _, direction in ipairs({ "next", "previous" }) do
+                withTransition({ cached_source = true }, function(viewer)
+                    local original = Blitbuffer.new(600, 800, 0)
+                    viewer.image = original
+                    viewer.page = 5
+                    viewer._center_x_ratio, viewer._center_y_ratio, viewer.scale_factor = 0.4, 0.6, 0.7
+                    viewer.auto_rotate_double_pages = false
+                    viewer.nav_boundary_peek_callback = function()
+                        return {
+                            next_page = direction == "next" and 6 or 4,
+                            target_rect = { x = 0, y = 0, w = 600, h = 800 },
+                        }
+                    end
+                    local committed, completed = 0, 0
+                    viewer.nav_boundary_commit_callback = function()
+                        committed = committed + 1
+                    end
+                    viewer:animateBoundaryTransition(direction, function(played)
+                        assert.is_true(played)
+                        completed = completed + 1
+                    end)
+                    local outbound = viewer.canvas_pan
+                    assert.is_not_nil(outbound)
+                    assert.is_nil(original.frees)
+                    viewer._panels_plus_transition_active = nil
+                    outbound.done()
+                    UIManager._last_scheduled()
+                    local inbound = viewer.canvas_pan
+                    assert.is_true(outbound.x ~= inbound.x)
+                    viewer._panels_plus_transition_active = nil
+                    inbound.done()
+                    assert.equals(original, viewer.image)
+                    assert.equals(0.4, viewer._center_x_ratio)
+                    assert.equals(0.6, viewer._center_y_ratio)
+                    assert.equals(0.7, viewer.scale_factor)
+                    assert.equals(5, viewer.page)
+                    assert.is_nil(original.frees)
+                    assert.is_nil(viewer._panels_plus_transition_cleanup)
+                    assert.equals(0, committed)
+                    assert.equals(1, completed)
+                end)
+            end
+        end
+    )
 
     it("releases the retained source when the viewer closes during a pan", function()
         withTransition({ closed = true }, function(viewer, _, _, _, source)

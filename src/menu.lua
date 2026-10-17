@@ -90,14 +90,26 @@ end
 
 function Menu.animationItems(self)
     local items = {}
+    local function currentPage(menu)
+        -- TouchMenu passes itself to callbacks; keyboard Menu does not.
+        local reader_menu = self.ui and self.ui.menu
+        local container = reader_menu and reader_menu.menu_container
+        menu = menu or (container and container[1])
+        return menu and menu.page
+    end
+    local function preview(page, skip_preview)
+        local viewer = self.getOpenPanelViewer and self:getOpenPanelViewer()
+        return self.previewSmoothSettings and self:previewSmoothSettings(viewer, page, skip_preview)
+    end
     local function toggle(label, key, setter)
         items[#items + 1] = {
             text = _(label),
             checked_func = function()
                 return self.settings[key] ~= false
             end,
-            callback = function()
+            callback = function(menu)
                 Menu.applyAdvancedSetting(self, setter, self.settings[key] == false, key)
+                preview(currentPage(menu))
             end,
         }
     end
@@ -112,8 +124,9 @@ function Menu.animationItems(self)
                     .. " "
                     .. unit
             end,
-            callback = function()
+            callback = function(menu)
                 local UIManager = require("ui/uimanager")
+                local page = currentPage(menu)
                 UIManager:nextTick(function()
                     local SpinWidget = require("ui/widget/spinwidget")
                     UIManager:show(SpinWidget:new({
@@ -126,6 +139,10 @@ function Menu.animationItems(self)
                         unit = unit,
                         callback = function(spin)
                             Menu.applyAdvancedSetting(self, setter, spin.value / multiplier, key)
+                            preview(page)
+                        end,
+                        cancel_callback = function()
+                            preview(page, true)
                         end,
                     }))
                 end)
@@ -151,11 +168,27 @@ function Menu.animationItems(self)
         callback = function(menu)
             local style = NavEasing.next(self.settings.nav_smooth_style)
             Menu.applyAdvancedSetting(self, "setNavSmoothStyle", style, "nav_smooth_style")
-            if menu then
+            local previewing = preview(currentPage(menu))
+            if menu and not previewing then
                 menu:updateItems()
             end
         end,
         help_text = _("Cycle CSS timing functions for pan and zoom, or select Classic for the earlier camera pan."),
+    }
+    items[#items + 1] = {
+        text = _("Preview smooth transitions"),
+        checked_func = function()
+            return self.settings.nav_smooth_preview ~= false
+        end,
+        callback = function(menu)
+            self:setNavSmoothPreview(self.settings.nav_smooth_preview == false)
+            if not menu then
+                preview(currentPage(), true)
+            end
+        end,
+        help_text = _(
+            "After changing Smooth settings, preview the next panel and return here. At the last panel, preview the previous panel instead. A preview needs at least two panels."
+        ),
     }
     return items
 end

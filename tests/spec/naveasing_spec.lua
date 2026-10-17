@@ -36,11 +36,13 @@ describe("CSS navigation timing", function()
         assert.equals(0.25, Easing.progress("classic", 0.25))
     end)
 
-    it("implements CSS step endpoints", function()
-        for _, progress in ipairs({ 0, 0.25, 0.5, 0.75, 1 }) do
-            assert.equals(1, Easing.progress("step-start", progress))
-            assert.equals(progress == 1 and 1 or 0, Easing.progress("step-end", progress))
+    it("migrates removed step preferences to linear for settings and profiles", function()
+        for _, style in ipairs({ "step-start", "step-end" }) do
+            assert.equals("linear", Settings.withDefaults({ nav_smooth_style = style }).nav_smooth_style)
+            assert.equals("linear", Profiles.options({ nav_smooth_style = style }).nav_smooth_style)
         end
+        assert.equals("classic", Easing.next("ease-in-out"))
+        assert.equals("linear", Easing.next("classic"))
     end)
 
     it("preserves old Modern preferences and profile snapshots as linear", function()

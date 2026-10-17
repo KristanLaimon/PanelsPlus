@@ -487,6 +487,12 @@ function PanelsPlus:setNavSmoothStyle(style)
     self:saveDocSettings(true)
 end
 
+--- Preview preference is global, independent of reading profiles and books.
+function PanelsPlus:setNavSmoothPreview(enabled)
+    self.settings.nav_smooth_preview = enabled and true or false
+    self:saveSettings()
+end
+
 --- Enable or disable framebuffer animation between panels in Animated mode.
 --- @param enabled any Truthy value animates panel-to-panel switches.
 function PanelsPlus:setNavAnimatedPanels(enabled)

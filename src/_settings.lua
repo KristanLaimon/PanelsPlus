@@ -44,12 +44,13 @@ local Settings = {
         hold_text_selection = true,
         prefer_native_text_layer = true,
         nav_transition_mode = "classic",
-        nav_smooth_style = "linear",
+        nav_smooth_style = "ease",
+        nav_smooth_preview = true,
         nav_animated_panels = true,
         nav_animated_pages = true,
         nav_transition_duration = 0.4,
         nav_transition_cross_page = true,
-        nav_transition_frames = 8,
+        nav_transition_frames = 16,
         detector = "components",
         -- Reflow-image detection has an independent preference, but its
         -- detector uses the same component pipeline as fixed pages.

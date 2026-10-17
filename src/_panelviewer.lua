@@ -34,7 +34,7 @@ local logger = require("logger")
 
 --- Default number of steps the smooth-navigation pan animation is split into,
 --- used when a viewer has no `nav_transition_frames` of its own.
-local NAV_TRANSITION_STEPS_DEFAULT = 1
+local NAV_TRANSITION_STEPS_DEFAULT = 16
 --- Hard cap on the shared transition bitmap's area, as a multiple of the screen's
 --- area, to bound the one-shot render/upscale cost when the destination panel
 --- needs a much higher zoom than the two panels' combined bounding box.
@@ -158,7 +158,7 @@ local PanelViewer = ImageViewer:extend({
     prefer_native_text_layer = true,
     ocr_bundled_language = false,
     nav_transition_mode = "classic",
-    nav_smooth_style = "linear",
+    nav_smooth_style = "ease",
     nav_animated_panels = true,
     nav_animated_pages = true,
     nav_transition_duration = 0.4,
@@ -645,7 +645,7 @@ end
 ---
 --- @return boolean|nil handled Whether the image switch was handled.
 function PanelViewer:onShowNextImage()
-    if self._panels_plus_boundary_pending then
+    if self._panels_plus_boundary_pending or self._panels_plus_smooth_preview then
         return true
     end
     if self._images_list_cur < self._images_list_nb then
@@ -670,7 +670,7 @@ end
 ---
 --- @return boolean|nil handled Whether the image switch was handled.
 function PanelViewer:onShowPrevImage()
-    if self._panels_plus_boundary_pending then
+    if self._panels_plus_boundary_pending or self._panels_plus_smooth_preview then
         return true
     end
     if self._images_list_cur > 1 then
@@ -1428,6 +1428,21 @@ function PanelViewer:_startPhraseHold(highlight, page_pos)
     UIManager:scheduleIn(math.max(0, 4 - initial_ms / 1000), self._phrase_hold_action)
 end
 
+--- Explain why a transition preview has no second panel to visit.
+function PanelViewer:showSmoothPreviewUnavailableWarning(single_panel_book)
+    UIManager:show(require("ui/widget/infomessage"):new({
+        text = single_panel_book
+                and _(
+                    "Preview can't be shown in this book because it contains only one panel. Select another document/book."
+                )
+            or _(
+                "Preview can't be shown because only one panel is available in the current panel view. Select another document/book."
+            ),
+        timeout = FLOW_WARNING_TIMEOUT,
+    }))
+    return true
+end
+
 --- Explain why OCR selection and its model picker are unavailable.
 function PanelViewer:showTextSelectionDisabledWarning()
     local text = _(
@@ -1739,6 +1754,9 @@ end
 --- @param ges table Gesture event with a `pos` geometry object.
 --- @return boolean handled Always true after processing a tap.
 function PanelViewer:onTap(_, ges)
+    if self._panels_plus_smooth_preview then
+        return true
+    end
     local frame_dimen = self.main_frame and self.main_frame.dimen
     if frame_dimen and ges.pos:notIntersectWith(frame_dimen) then
         self:onClose()
@@ -1966,6 +1984,7 @@ function PanelViewer:onCloseWidget()
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true
+    self._panels_plus_smooth_preview = nil
     if self._document_boundary_dialog then
         UIManager:close(self._document_boundary_dialog)
     end
@@ -2134,6 +2153,14 @@ function PanelViewer:switchToImageNum(image_num)
     self:requestPanelPrerender()
 end
 
+--- Complete a navigation handoff before notifying a settings preview.
+function PanelViewer:completeNavTransition(target, on_complete)
+    self:switchToImageNum(target)
+    if on_complete then
+        on_complete()
+    end
+end
+
 --- Animate a camera pan from the panel currently shown to `target`, then hand off
 --- to its crisp render.
 ---
@@ -2143,19 +2170,20 @@ end
 --- and fall back to an instant swap on render failure, missing rectangles, or low memory.
 ---
 --- @param target integer 1-based image index to end the transition on.
-function PanelViewer:animateSwitchToImageNum(target)
+--- @param on_complete function|nil Called after the final panel render.
+function PanelViewer:animateSwitchToImageNum(target, on_complete)
     local cur = self._images_list_cur
     if target == cur or self._panels_plus_transition_active then
         return
     end
     -- The synthetic pan canvas is built in unrotated page coordinates.
     if self:shouldAutoRotateDoublePage(cur) or self:shouldAutoRotateDoublePage(target) then
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
     local rect_a = self.image_rects and self.image_rects[cur]
     local rect_b = self.image_rects and self.image_rects[target]
     if not rect_a or not rect_b then
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
 
     Timing.log(
@@ -2202,7 +2230,7 @@ function PanelViewer:animateSwitchToImageNum(target)
             > screen_area * NAV_TRANSITION_MAX_AREA_MULTIPLIER
     if not Memory.hasHeadroom(NAV_TRANSITION_MIN_FREE_BYTES) then
         Timing.log("animateSwitchToImageNum: low memory, falling back to instant swap for panel %d -> %d", cur, target)
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
 
     local zoom_union = canvasFitZoom(union)
@@ -2217,7 +2245,7 @@ function PanelViewer:animateSwitchToImageNum(target)
     local transition_bytes = (source_pixels + transition_pixels) * 4 + 2 * 1024 * 1024
     if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, transition_bytes) then
         Timing.log("animateSwitchToImageNum: transition working set is too large, falling back to instant swap")
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
     local ok, content_image, content_image_owned = pcall(function()
         if self.image_union_renderer then
@@ -2230,7 +2258,7 @@ function PanelViewer:animateSwitchToImageNum(target)
             "[Panels+] smooth transition page draw failed, falling back to instant swap:",
             tostring(content_image)
         )
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
 
     if use_viewport_frames then
@@ -2245,7 +2273,8 @@ function PanelViewer:animateSwitchToImageNum(target)
             bx,
             by,
             target_zoom,
-            target_margin_factor
+            target_margin_factor,
+            on_complete
         )
     end
 
@@ -2274,7 +2303,7 @@ function PanelViewer:animateSwitchToImageNum(target)
         if canvas then
             canvas:free()
         end
-        return self:switchToImageNum(target)
+        return self:completeNavTransition(target, on_complete)
     end
     -- Document renders are DocCache-owned; image-union renderers return an
     -- owned temporary buffer, released after its pixels have been copied.
@@ -2295,7 +2324,7 @@ function PanelViewer:animateSwitchToImageNum(target)
 
     self:runNavPanAnimation(ratio_bx, ratio_by, function()
         self._panels_plus_transition_margin_factor = nil
-        self:switchToImageNum(target)
+        self:completeNavTransition(target, on_complete)
     end)
 end
 
@@ -2312,14 +2341,15 @@ function PanelViewer:runNavViewportAnimation(
     bx,
     by,
     target_zoom,
-    margin_factor
+    margin_factor,
+    on_complete
 )
     -- Document tiles belong to DocCache and can be evicted by an idle render
     -- between animation ticks. Retain our own pixels until the pan completes.
     if not owned then
         local ok, copy = pcall(source.copy, source)
         if not ok or not copy then
-            return self:switchToImageNum(target)
+            return self:completeNavTransition(target, on_complete)
         end
         source, owned = copy, true
     end
@@ -2346,7 +2376,7 @@ function PanelViewer:runNavViewportAnimation(
         self._panels_plus_transition_cleanup = nil
         self._panels_plus_transition_active = nil
         self._panels_plus_transition_margin_factor = nil
-        self:switchToImageNum(target)
+        self:completeNavTransition(target, on_complete)
     end
     local function showFrame(progress)
         progress = NavEasing.progress(style, progress)
@@ -2450,10 +2480,6 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
     local step_delay = (self.nav_transition_duration or 0.4) / steps
     local style = NavEasing.normalize(self.nav_smooth_style)
 
-    if NavEasing.progress(style, 0) == 1 then
-        self:panBy(target_offset_x - start_offset_x, target_offset_y - start_offset_y)
-    end
-
     local step_n = 0
     local walkStep
     walkStep = function()
@@ -2513,17 +2539,26 @@ end
 --- @return boolean|nil handled Whether the crossing was handled (always true
 ---   once a resolution exists, since failure paths fall back to the classic
 ---   callback which itself always handles the crossing).
-function PanelViewer:animateBoundaryTransition(direction)
+-- With preview_complete, pan out and back on the temporary canvas while
+-- retaining the original image, viewer, page, and framing.
+function PanelViewer:animateBoundaryTransition(direction, preview_complete)
+    local function fallback()
+        if preview_complete then
+            preview_complete(false)
+            return true
+        end
+        return self.boundary_callback and self.boundary_callback(direction, self)
+    end
     if self._panels_plus_transition_active then
         return true -- swallow a re-entrant swipe while a pan is already in flight
     end
     if not self.nav_boundary_peek_callback then
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     local resolved = self.nav_boundary_peek_callback(direction, self)
     if not resolved then
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
     if
         self:shouldAutoRotateDoublePage(self._images_list_cur)
@@ -2534,13 +2569,13 @@ function PanelViewer:animateBoundaryTransition(direction)
                 resolved.panels and #resolved.panels == 1
             )
     then
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     local rect_a = self.image_rects and self.image_rects[self._images_list_cur]
     local rect_b = resolved.target_rect
     if not rect_a or not rect_b then
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     Timing.log(
@@ -2578,7 +2613,7 @@ function PanelViewer:animateBoundaryTransition(direction)
     end)
     if not ok_a or not tile_a then
         logger.warn("[Panels+] boundary transition tile A render failed, falling back:", tostring(tile_a))
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
     local ok_b, tile_b, rotated_b = pcall(function()
         if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
@@ -2594,14 +2629,14 @@ function PanelViewer:animateBoundaryTransition(direction)
     if not ok_b or not tile_b then
         releaseTiles()
         logger.warn("[Panels+] boundary transition tile B render failed, falling back:", tostring(tile_b))
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
     if (rotated_a and true or false) ~= (rotated_b and true or false) then
         releaseTiles()
         -- Mismatched auto-rotation between the two pages' slices can't be
         -- composited safely -- rare (differing panel aspect ratios right at
         -- the boundary); not worth reconciling for this iteration.
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     -- Bring page A's slice to the SAME zoom page B's slice already has
@@ -2613,7 +2648,7 @@ function PanelViewer:animateBoundaryTransition(direction)
         * math.max(1, math.ceil(tile_a:getHeight() * scale_a))
     if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, scaled_pixels * 4) then
         releaseTiles()
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
     local ok_scale, tile_a_scaled = pcall(function()
         if scale_a == 1 then
@@ -2625,7 +2660,7 @@ function PanelViewer:animateBoundaryTransition(direction)
     end)
     if not ok_scale or not tile_a_scaled then
         releaseTiles()
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     -- Deliberately independent of `getNextSwipeDirection()`/`invert_swipe`: this
@@ -2653,7 +2688,7 @@ function PanelViewer:animateBoundaryTransition(direction)
             tile_a_scaled:free()
         end
         releaseTiles()
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     local a_left = travel_west and (2 * half_w_b) or 0
@@ -2687,7 +2722,7 @@ function PanelViewer:animateBoundaryTransition(direction)
         if canvas then
             canvas:free()
         end
-        return self.boundary_callback and self.boundary_callback(direction, self)
+        return fallback()
     end
 
     local ratio_ax = (a_left + half_w_a) / canvas_w
@@ -2696,6 +2731,17 @@ function PanelViewer:animateBoundaryTransition(direction)
 
     self._panels_plus_transition_active = true
     local old_image = self.image
+    local old_x, old_y, old_scale = self._center_x_ratio, self._center_y_ratio, self.scale_factor
+    local old_margin = self._panels_plus_transition_margin_factor
+    if preview_complete then
+        -- Retain the original image for the return leg; release it if the
+        -- viewer closes while the temporary cross-page canvas is displayed.
+        self._panels_plus_transition_cleanup = function()
+            if self.image_disposable and old_image and old_image.free then
+                old_image:free()
+            end
+        end
+    end
     self.image = canvas_image
     self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
     -- Both slices already share target_zoom. Scale the whole canvas once to
@@ -2704,11 +2750,35 @@ function PanelViewer:animateBoundaryTransition(direction)
     self.scale_factor = target_margin_factor
     self._panels_plus_transition_margin_factor = target_margin_factor
     self:update()
-    if self.image_disposable then
+    if self.image_disposable and not preview_complete then
         self:releasePreviousPanelImage(old_image)
     end
 
     self:runNavPanAnimation(ratio_bx, ratio_by, function()
+        if preview_complete then
+            self._panels_plus_transition_active = true
+            local returnStep = function()
+                self._panels_plus_transition_action = nil
+                if self._panels_plus_closed or not self:isOpen() then
+                    return
+                end
+                self:runNavPanAnimation(ratio_ax, ratio_ay, function()
+                    self._panels_plus_transition_cleanup = nil
+                    self.image = old_image
+                    self._center_x_ratio, self._center_y_ratio = old_x, old_y
+                    self.scale_factor = old_scale
+                    self._panels_plus_transition_margin_factor = old_margin
+                    self:update()
+                    if self.image_disposable then
+                        self:releasePreviousPanelImage(canvas_image)
+                    end
+                    preview_complete(true)
+                end)
+            end
+            self._panels_plus_transition_action = returnStep
+            UIManager:scheduleIn(0.15, returnStep)
+            return
+        end
         self._panels_plus_transition_margin_factor = nil
         if self.nav_boundary_commit_callback then
             self.nav_boundary_commit_callback(self, direction, resolved)

@@ -47,8 +47,8 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
 end
 
 describe("PanelsPlus per-document settings persistence", function()
-    it("defaults Smooth style to linear and restores Classic independently for each book", function()
-        assert.equals("linear", Settings.withDefaults({}).nav_smooth_style)
+    it("defaults Smooth style to ease and restores Classic independently for each book", function()
+        assert.equals("ease", Settings.withDefaults({}).nav_smooth_style)
         local p = newPluginInstance("/books/a.cbz", nil)
         p:setNavSmoothStyle("classic")
         assert.equals("classic", p.settings.doc_settings["/books/a.cbz"].nav_smooth_style)
