@@ -33,6 +33,7 @@ local NativePanelZoom = require("src.native_panel_zoom")
 local PanelViewer = require("src._panelviewer")
 local ReadingPageFold = require("src.reading_page_fold")
 local Settings = require("src._settings")
+local NavCapabilities = require("src._navcapabilities")
 local Profiles = require("src.profiles")
 local ProfileMenu = require("src.profile_menu")
 local SpreadRotation = require("src.spread_rotation")
@@ -149,6 +150,7 @@ function PanelsPlus:saveDocSettings(force, skip_global_save)
     if not force and not self.doc_has_custom_settings then
         return
     end
+    Profiles.invalidate(self.settings)
     local doc_key = self:getDocKey()
     local doc_data = {
         mode = self.settings.mode,
@@ -191,13 +193,14 @@ function PanelsPlus:loadDocSettings()
     end
     local doc_data = self:getDocSettings()
     if doc_data then
+        doc_data = Profiles.documentSettings(self.settings, doc_data)
         self.doc_has_custom_settings = true
         if doc_data.mode ~= nil then
             self.settings.mode = doc_data.mode == "comic" and "comic" or "manga"
         end
         if doc_data.nav_transition_mode ~= nil then
             local m = doc_data.nav_transition_mode
-            self.settings.nav_transition_mode = (m == "smooth" or m == "animated") and m or "classic"
+            self.settings.nav_transition_mode = NavCapabilities.normalizeMode(m)
         end
         if doc_data.progress_bar_visible ~= nil then
             self.settings.progress_bar_visible = doc_data.progress_bar_visible ~= false
@@ -232,7 +235,7 @@ function PanelsPlus:loadDocSettings()
         end
         if doc_data.embedded_nav_transition_mode ~= nil then
             local mode = doc_data.embedded_nav_transition_mode
-            self.settings.embedded_nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
+            self.settings.embedded_nav_transition_mode = NavCapabilities.normalizeMode(mode)
         end
         for _, key in ipairs(Profiles.option_fields) do
             if doc_data[key] ~= nil then
@@ -242,6 +245,18 @@ function PanelsPlus:loadDocSettings()
         self.settings.nav_smooth_style = require("src._naveasing").normalize(self.settings.nav_smooth_style)
         self.settings.none_profile_values = Profiles.copy(doc_data.none_profile_values)
         self.settings.selected_profile_id = doc_data.selected_profile_id
+        local rotation = doc_data.profile_rotation
+        if
+            Profiles.find(self.settings, self.settings.selected_profile_id)
+            and rotation
+            and rotation.kind == "device"
+        then
+            local screen = require("device").screen
+            if screen:getRotationMode() ~= rotation.value then
+                UIManager:broadcastEvent(require("ui/event"):new("SetRotationMode", rotation.value))
+                UIManager:onRotation()
+            end
+        end
     else
         self.settings.selected_profile_id = nil
     end
@@ -255,7 +270,7 @@ function PanelsPlus:setRememberDocSettings(enabled)
     self.settings.remember_doc_settings = enabled and true or false
     self:saveSettings()
     if self.settings.remember_doc_settings then
-        self:saveDocSettings(false)
+        self:saveDocSettings(true)
     end
 end
 
@@ -474,7 +489,11 @@ end
 ---
 --- @param mode PPNavTransitionMode Requested mode; anything unknown maps to "classic".
 function PanelsPlus:setNavTransitionMode(mode)
-    self.settings.nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
+    local previous = self.settings.nav_transition_mode
+    self.settings.nav_transition_mode = NavCapabilities.normalizeMode(mode)
+    if self.settings.nav_transition_mode == "smooth" and previous ~= "smooth" and not self._applying_profile then
+        NavCapabilities.warnSmooth()
+    end
     Timing.log("nav_transition_mode -> " .. self.settings.nav_transition_mode)
     self:saveSettings()
     self:saveDocSettings(true)
@@ -534,10 +553,10 @@ end
 
 --- Set how many steps the smooth-navigation camera pan is split into.
 ---
---- @param frames number Requested step count; clamped to [1, 24].
+--- @param frames number Requested step count; clamped to [1, 60].
 function PanelsPlus:setNavTransitionFrames(frames)
     frames = tonumber(frames) or Settings.defaults.nav_transition_frames
-    self.settings.nav_transition_frames = math.max(1, math.min(24, math.floor(frames + 0.5)))
+    self.settings.nav_transition_frames = math.max(1, math.min(60, math.floor(frames + 0.5)))
     self:saveSettings()
     self:saveDocSettings(true)
 end
@@ -564,7 +583,15 @@ end
 --- Choose the transition mode used only while viewing an extracted EPUB/KEPUB/MOBI image.
 --- @param mode PPNavTransitionMode Requested mode; anything unknown maps to `"classic"`.
 function PanelsPlus:setEmbeddedNavTransitionMode(mode)
-    self.settings.embedded_nav_transition_mode = (mode == "smooth" or mode == "animated") and mode or "classic"
+    local previous = self.settings.embedded_nav_transition_mode
+    self.settings.embedded_nav_transition_mode = NavCapabilities.normalizeMode(mode)
+    if
+        self.settings.embedded_nav_transition_mode == "smooth"
+        and previous ~= "smooth"
+        and not self._applying_profile
+    then
+        NavCapabilities.warnSmooth()
+    end
     Timing.log("embedded navigation transition -> " .. self.settings.embedded_nav_transition_mode)
     self:saveSettings()
     self:saveDocSettings(true)

@@ -8,7 +8,7 @@ local UIManager = require("ui/uimanager")
 
 local function plugin()
     local instance = setmetatable({
-        settings = Settings.withDefaults({}),
+        settings = Settings.withDefaults({ doc_settings = {} }),
         ui = { document = { file = "profiles.cbz" } },
         saveSettings = function(self)
             if not self._applying_profile then
@@ -84,7 +84,7 @@ describe("Settings profiles", function()
         assert.is_false(values.progress_bar_visible)
         assert.equals("eng", values.ocr_bundled_language)
         assert.equals("strict", values.crop_mode)
-        assert.equals("animated", values.nav_transition_mode)
+        assert.equals("smooth", values.nav_transition_mode)
         assert.equals(3, values.rotation.value)
         assert.is_nil(settings.selected_profile_id)
         Profiles.delete(settings, "recommended")
@@ -245,6 +245,84 @@ describe("Settings profiles", function()
         Profiles.delete(p.settings, "recommended")
         assert.is_nil(p.settings.selected_profile_id)
         assert.equals(before, p.settings.crop_mode)
+    end)
+
+    it("reopens a document with its profile's current options as a complete package", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        local profile = Profiles.create(p.settings, "Book", Profiles.capture(p.settings))
+        p:applySettingsProfile(viewer(), profile.id)
+        local saved = Profiles.copy(p.settings.doc_settings["profiles.cbz"])
+        profile.values.mode = "comic"
+        profile.values.crop_mode = "margin"
+        profile.values.nav_transition_mode = "smooth"
+        profile.values.embedded_nav_transition_mode = "smooth"
+        profile.values.nav_transition_duration = 0.85
+        profile.values.nav_animated_pages = false
+        profile.values.panel_margin_ratio = 0.32
+        profile.values.rotation = { kind = "image", value = 90 }
+        p.settings.selected_profile_id = nil
+        p.settings.nav_transition_duration = 0.1
+        p:loadDocSettings()
+        assert.equals(profile.id, p.settings.selected_profile_id)
+        assert.is_true(Profiles.matches(p.settings, profile.values))
+        assert.equals("comic", p.settings.mode)
+        assert.equals(0.85, p.settings.nav_transition_duration)
+        assert.equals(90, p.settings.image_rotation)
+        assert.equals(saved.mode, p.settings.doc_settings["profiles.cbz"].mode)
+        assert.equals(saved.nav_transition_duration, p.settings.doc_settings["profiles.cbz"].nav_transition_duration)
+    end)
+
+    it("keeps None settings independent from another document's selected profile", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        p:setMode("comic")
+        p:setMarginRatio(0.29)
+        p:saveDocSettings(true)
+        p.ui.document.file = "other.cbz"
+        p.settings.profiles[1].values.rotation = { kind = "image", value = false }
+        p:applySettingsProfile(viewer(), "recommended")
+        assert.equals("recommended", p.settings.doc_settings["other.cbz"].selected_profile_id)
+        p.ui.document.file = "profiles.cbz"
+        p:loadDocSettings()
+        assert.is_nil(p.settings.selected_profile_id)
+        assert.equals("comic", p.settings.mode)
+        assert.equals(0.29, p.settings.panel_margin_ratio)
+        p.ui.document.file = "other.cbz"
+        p:loadDocSettings()
+        assert.equals("recommended", p.settings.selected_profile_id)
+        assert.equals("manga", p.settings.mode)
+    end)
+
+    it("restores device rotation with the document profile", function()
+        local p = plugin()
+        local rotation = Device.screen:getRotationMode()
+        local broadcast = UIManager.broadcastEvent
+        UIManager.broadcastEvent = function(_, event)
+            if event.name == "SetRotationMode" then
+                Device.screen:setRotationMode(event.args[1])
+            end
+        end
+        local profile = Profiles.create(p.settings, "Device", Profiles.capture(p.settings))
+        p.settings.selected_profile_id = profile.id
+        p:saveDocSettings(true)
+        Device.screen:setRotationMode((rotation + 1) % 4)
+        p:loadDocSettings()
+        assert.equals(rotation, Device.screen:getRotationMode())
+        assert.equals(profile.id, p.settings.selected_profile_id)
+        UIManager.broadcastEvent = broadcast
+        Device.screen:setRotationMode(rotation)
+    end)
+
+    it("stores the current profile immediately when document memory is enabled", function()
+        local p = plugin()
+        p.settings.image_rotation = false
+        p.settings.remember_doc_settings = false
+        local profile = Profiles.create(p.settings, "Remember", Profiles.capture(p.settings))
+        p:applySettingsProfile(viewer(), profile.id)
+        assert.is_nil(p.settings.doc_settings["profiles.cbz"])
+        p:setRememberDocSettings(true)
+        assert.equals(profile.id, p.settings.doc_settings["profiles.cbz"].selected_profile_id)
     end)
 
     it("transfers extracted-image ownership before the single rebuild", function()

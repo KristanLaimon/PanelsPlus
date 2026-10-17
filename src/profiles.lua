@@ -43,7 +43,6 @@ end
 function Profiles.initialize(settings)
     settings.profiles = settings.profiles or {}
     if not settings.profiles_initialized then
-        local Device = require("device")
         settings.profiles[#settings.profiles + 1] = {
             id = "recommended",
             name = require("gettext")("Recommended"),
@@ -52,7 +51,7 @@ function Profiles.initialize(settings)
                 mode = "manga",
                 progress_bar_visible = false,
                 ocr_bundled_language = "eng",
-                nav_transition_mode = Device.hasEinkScreen and Device:hasEinkScreen() and "animated" or "smooth",
+                nav_transition_mode = require("src._navcapabilities").supportsAnimated() and "animated" or "smooth",
                 crop_mode = "strict",
             },
         }
@@ -84,6 +83,32 @@ function Profiles.capture(settings)
         values.rotation = { kind = "device", value = require("device").screen:getRotationMode() }
     end
     return values
+end
+
+-- Keep document-only choices and the None snapshot, but restore a selected
+-- profile as a complete package, including changes made since the last visit.
+-- The saved settings remain the fallback if the profile has been deleted.
+function Profiles.documentSettings(settings, saved)
+    local profile = saved.selected_profile_id and Profiles.find(settings, saved.selected_profile_id)
+    if not profile then
+        return saved
+    end
+    local result = Profiles.copy(saved)
+    local values = profile.values
+    for _, key in ipairs(FIELDS) do
+        result[key] = values[key]
+    end
+    for key, value in pairs(Profiles.options(values)) do
+        result[key] = value
+    end
+    result.embedded_nav_transition_mode = values.embedded_nav_transition_mode or values.nav_transition_mode
+    result.profile_rotation = Profiles.copy(values.rotation)
+    result.image_rotation = nil
+    if values.rotation.kind == "image" then
+        result.image_rotation = values.rotation.value
+    end
+    result.profile_settings_version = 1
+    return result
 end
 
 function Profiles.matches(settings, values)

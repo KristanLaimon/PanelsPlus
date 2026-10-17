@@ -119,7 +119,7 @@ describe("PanelsPlus per-document settings persistence", function()
         assert.equals("margin", plugin.settings.crop_mode)
         assert.equals("safe", plugin.settings.panel_finding_mode)
         assert.is_false(plugin.settings.progress_bar_visible)
-        assert.equals("animated", plugin.settings.nav_transition_mode)
+        assert.equals("classic", plugin.settings.nav_transition_mode)
         assert.equals("koreader", plugin.settings.ocr_bundled_language)
     end)
 

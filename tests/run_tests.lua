@@ -25,6 +25,7 @@ require("tests.spec.helper")
 local spec_modules = {
     "tests.spec.doc_settings_spec",
     "tests.spec.naveasing_spec",
+    "tests.spec.navcapabilities_spec",
     "tests.spec.smooth_preview_spec",
     "tests.spec.profiles_spec",
     "tests.spec.doublespread_spec",

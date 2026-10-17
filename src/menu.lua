@@ -159,7 +159,7 @@ function Menu.animationItems(self)
         1000,
         "ms"
     )
-    adjustment("Transition frames", "nav_transition_frames", "setNavTransitionFrames", 1, 24, 1, 1, _("frames"))
+    adjustment("Transition frames", "nav_transition_frames", "setNavTransitionFrames", 1, 60, 1, 1, _("frames"))
     items[#items + 1] = {
         text_func = function()
             return _("Smooth style") .. ": " .. NavEasing.label(self.settings.nav_smooth_style)

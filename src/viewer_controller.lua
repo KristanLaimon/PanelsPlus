@@ -21,6 +21,7 @@ local PanelCollector = require("src._panelcollector")
 local PageRender = require("src._pagerender")
 local PanelViewer = require("src._panelviewer")
 local Settings = require("src._settings")
+local NavCapabilities = require("src._navcapabilities")
 local Timing = require("src._timing")
 local WordFinder = require("src._wordfinder")
 local UIManager = require("ui/uimanager")
@@ -333,26 +334,6 @@ function ViewerController:toggleViewerProgressBar(viewer)
     return true
 end
 
---- Cycle nav transition mode from an open viewer, in place.
---- Show a centered info message if Animated mode is selected on a device that doesn't support hardware swipe animations.
-function ViewerController:notifyAnimatedModeUnsupported()
-    if Device:canDoSwipeAnimation() then
-        return
-    end
-    local _ = require("gettext")
-    local ok_info, InfoMessage = pcall(require, "ui/widget/infomessage")
-    if ok_info and InfoMessage and InfoMessage.new then
-        pcall(function()
-            UIManager:show(InfoMessage:new({
-                text = _(
-                    "Requires special e-ink devices swipe hardware support (Kindles, Kobos, etc..) not compatible with Android and Desktop (Linux)"
-                ),
-                timeout = 3,
-            }))
-        end)
-    end
-end
-
 ---
 --- Unlike crop mode or detector, this doesn't change the panel list or any
 --- rendered rectangle, so the viewer is updated in place instead of rebuilt.
@@ -360,14 +341,10 @@ end
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:toggleViewerNavTransitionMode(viewer)
-    local next_mode = { classic = "smooth", smooth = "animated", animated = "classic" }
-    self:setNavTransitionMode(next_mode[self.settings.nav_transition_mode] or "classic")
+    self:setNavTransitionMode(NavCapabilities.nextMode(self.settings.nav_transition_mode))
     viewer.nav_transition_mode = self.settings.nav_transition_mode
     viewer:replaceButtonTable()
     viewer:update()
-    if self.settings.nav_transition_mode == "animated" then
-        self:notifyAnimatedModeUnsupported()
-    end
     return true
 end
 

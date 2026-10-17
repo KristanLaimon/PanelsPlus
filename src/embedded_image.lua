@@ -22,6 +22,7 @@ local SafeComponentDetector = require("src._safecomponentdetector")
 local SafeGeometry = require("src._safegeometry")
 local PageBitmap = require("src._pagebitmap")
 local Settings = require("src._settings")
+local NavCapabilities = require("src._navcapabilities")
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local Screen = require("device").screen
@@ -400,15 +401,11 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return true
         end,
         nav_transition_toggle_callback = function(current_viewer)
-            local next_mode = { classic = "smooth", smooth = "animated", animated = "classic" }
-            next_mode = next_mode[self.settings.embedded_nav_transition_mode] or "classic"
+            local next_mode = NavCapabilities.nextMode(self.settings.embedded_nav_transition_mode)
             self:setEmbeddedNavTransitionMode(next_mode)
             current_viewer.nav_transition_mode = self.settings.embedded_nav_transition_mode
             current_viewer:replaceButtonTable()
             current_viewer:update()
-            if self.settings.embedded_nav_transition_mode == "animated" then
-                self:notifyAnimatedModeUnsupported()
-            end
             return true
         end,
         nav_transition_duration_callback = function(current_viewer, seconds)
@@ -679,26 +676,6 @@ function EmbeddedImage:showEmbeddedImagePanels(reader_highlight, ges)
         reader_highlight:clear()
     end
     return shown
-end
-
---- Show a centered info message if Animated mode is selected on a device that doesn't support hardware swipe animations.
-function EmbeddedImage:notifyAnimatedModeUnsupported()
-    local ok_dev, Device = pcall(require, "device")
-    if ok_dev and Device and Device.canDoSwipeAnimation and Device:canDoSwipeAnimation() then
-        return
-    end
-    local _ = require("gettext")
-    local ok_info, InfoMessage = pcall(require, "ui/widget/infomessage")
-    if ok_info and InfoMessage and InfoMessage.new then
-        pcall(function()
-            UIManager:show(InfoMessage:new({
-                text = _(
-                    "Requires special e-ink devices swipe hardware support (Kindles, Kobos, etc..) not compatible with Android and Desktop (Linux)"
-                ),
-                timeout = 3,
-            }))
-        end)
-    end
 end
 
 return EmbeddedImage

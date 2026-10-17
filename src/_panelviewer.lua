@@ -20,6 +20,7 @@ local Geometry = require("src._smartgeometry")
 local ImageViewer = require("ui/widget/imageviewer")
 local Memory = require("src._memory")
 local NavEasing = require("src._naveasing")
+local NavCapabilities = require("src._navcapabilities")
 local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Screenshoter = require("ui/widget/screenshoter")
@@ -34,7 +35,7 @@ local logger = require("logger")
 
 --- Default number of steps the smooth-navigation pan animation is split into,
 --- used when a viewer has no `nav_transition_frames` of its own.
-local NAV_TRANSITION_STEPS_DEFAULT = 16
+local NAV_TRANSITION_STEPS_DEFAULT = NavCapabilities.defaultFrames()
 --- Hard cap on the shared transition bitmap's area, as a multiple of the screen's
 --- area, to bound the one-shot render/upscale cost when the destination panel
 --- needs a much higher zoom than the two panels' combined bounding box.
@@ -3067,7 +3068,7 @@ function PanelViewer:onAdjustNavTransitionFrames(on_committed)
         ),
         value = self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT,
         value_min = 1,
-        value_max = 24,
+        value_max = 60,
         value_step = 1,
         value_hold_step = 4,
         unit = _("frames"),
@@ -3396,31 +3397,12 @@ function PanelViewer:replaceButtonTable()
                     if self.nav_transition_toggle_callback then
                         self.nav_transition_toggle_callback(self)
                     else
-                        local next_mode = { classic = "smooth", smooth = "animated", animated = "classic" }
-                        local mode = next_mode[self.nav_transition_mode] or "classic"
+                        local mode = NavCapabilities.nextMode(self.nav_transition_mode)
                         self.nav_transition_mode = mode
                         self:replaceButtonTable()
                         self:update()
-                        if mode == "animated" then
-                            local ok_dev, Device = pcall(require, "device")
-                            if
-                                ok_dev
-                                and Device
-                                and Device.canDoSwipeAnimation
-                                and not Device:canDoSwipeAnimation()
-                            then
-                                local ok_info, InfoMessage = pcall(require, "ui/widget/infomessage")
-                                if ok_info and InfoMessage and InfoMessage.new then
-                                    pcall(function()
-                                        UIManager:show(InfoMessage:new({
-                                            text = _(
-                                                "Requires special e-ink devices swipe hardware support (Kindles, Kobos, etc..) not compatible with Android and Desktop (Linux)"
-                                            ),
-                                            timeout = 3,
-                                        }))
-                                    end)
-                                end
-                            end
+                        if mode == "smooth" then
+                            NavCapabilities.warnSmooth()
                         end
                     end
                 end,

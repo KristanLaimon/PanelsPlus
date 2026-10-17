@@ -15,6 +15,7 @@ SPDX-License-Identifier: MIT
 --- @field key string Current KOReader settings key.
 --- @field legacy_keys string[] Previous settings keys used for migration.
 --- @field defaults PPSettings Default setting values.
+local NavCapabilities = require("src._navcapabilities")
 local Settings = {
     key = "panels_plus",
     legacy_keys = {
@@ -50,7 +51,7 @@ local Settings = {
         nav_animated_pages = true,
         nav_transition_duration = 0.4,
         nav_transition_cross_page = true,
-        nav_transition_frames = 16,
+        nav_transition_frames = NavCapabilities.defaultFrames(),
         detector = "components",
         -- Reflow-image detection has an independent preference, but its
         -- detector uses the same component pipeline as fixed pages.
@@ -112,6 +113,11 @@ end
 --- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
+    if settings.nav_transition_frames == nil then
+        settings.nav_transition_frames = NavCapabilities.defaultFrames()
+    end
+    settings.nav_transition_mode = NavCapabilities.normalizeMode(settings.nav_transition_mode)
+    settings.embedded_nav_transition_mode = NavCapabilities.normalizeMode(settings.embedded_nav_transition_mode)
     settings.nav_smooth_style = require("src._naveasing").normalize(settings.nav_smooth_style)
     local performance_profile_version = settings.performance_profile_version or 0
     -- Activate the component pipeline for existing installations as well.

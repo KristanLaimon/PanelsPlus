@@ -1,5 +1,6 @@
 -- Profile management and viewer integration. Draft edits never touch live settings.
 local Profiles = require("src.profiles")
+local NavCapabilities = require("src._navcapabilities")
 local Device = require("device")
 local UIManager = require("ui/uimanager")
 local Event = require("ui/event")
@@ -131,8 +132,8 @@ function ProfileMenu:applySettingsProfile(viewer, id)
             )
         )
     end
-    if values.nav_transition_mode == "animated" and self.notifyAnimatedModeUnsupported then
-        self:notifyAnimatedModeUnsupported()
+    if self.settings.nav_transition_mode == "smooth" then
+        NavCapabilities.warnSmooth()
     end
     return true
 end
@@ -436,7 +437,7 @@ function ProfileMenu:showProfileFieldPicker(key, draft, back)
     local choices = {
         mode = { "manga", "comic" },
         progress_bar_visible = { true, false },
-        nav_transition_mode = { "classic", "smooth", "animated" },
+        nav_transition_mode = NavCapabilities.modes(),
         crop_mode = { "strict", "loose", "margin", "none" },
     }
     if key == "ocr_bundled_language" then
