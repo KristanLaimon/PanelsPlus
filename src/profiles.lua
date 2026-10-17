@@ -40,24 +40,67 @@ function Profiles.copy(value)
     return result
 end
 
-function Profiles.initialize(settings)
-    settings.profiles = settings.profiles or {}
-    if not settings.profiles_initialized then
-        settings.profiles[#settings.profiles + 1] = {
+-- Build fresh values so restoring defaults never shares mutable profile tables.
+local function defaultProfiles()
+    local gettext = require("gettext")
+    local capabilities = require("src._navcapabilities")
+    local function deviceProfile(ereader)
+        local transition = ereader and "animated" or "smooth"
+        local values = Profiles.options({})
+        values.rotation = { kind = "device", value = 3 }
+        values.mode = "manga"
+        values.progress_bar_visible = false
+        values.ocr_bundled_language = "eng"
+        values.nav_transition_mode = transition
+        values.embedded_nav_transition_mode = transition
+        values.nav_transition_frames = ereader and 2 or 24
+        values.crop_mode = "none"
+        values.panel_finding_mode = ereader and "safe" or "smart"
+        return {
+            id = ereader and "ereader" or "android-desktop",
+            name = ereader and gettext("EReader") or gettext("Android-Desktop"),
+            values = values,
+        }
+    end
+    return {
+        {
             id = "recommended",
-            name = require("gettext")("Recommended"),
+            name = gettext("Recommended"),
             values = {
                 rotation = { kind = "device", value = 3 },
                 mode = "manga",
                 progress_bar_visible = false,
                 ocr_bundled_language = "eng",
-                nav_transition_mode = require("src._navcapabilities").supportsAnimated() and "animated" or "smooth",
+                nav_transition_mode = capabilities.supportsAnimated() and "animated" or "smooth",
                 crop_mode = "strict",
             },
-        }
+        },
+        deviceProfile(true),
+        deviceProfile(false),
+    }
+end
+
+function Profiles.initialize(settings)
+    settings.profiles = settings.profiles or {}
+    if not settings.profiles_initialized then
+        local defaults = defaultProfiles()
+        settings.profiles[#settings.profiles + 1] = defaults[1]
+        settings.profiles[#settings.profiles + 1] = defaults[require("src._navcapabilities").isEreader() and 2 or 3]
         settings.profiles_initialized = true
         settings.selected_profile_id = nil
     end
+end
+
+-- Name validation skips defaults already present, even if their settings or
+-- identities differ. New identities also avoid collisions with renamed defaults.
+function Profiles.addDefaults(settings)
+    local added = 0
+    for _, profile in ipairs(defaultProfiles()) do
+        if Profiles.create(settings, profile.name, profile.values) then
+            added = added + 1
+        end
+    end
+    return added
 end
 
 function Profiles.find(settings, id)
@@ -70,6 +113,7 @@ end
 
 function Profiles.capture(settings)
     local values = {}
+    values.panel_finding_mode = settings.panel_finding_mode
     for _, key in ipairs(FIELDS) do
         values[key] = settings[key]
     end
@@ -95,6 +139,9 @@ function Profiles.documentSettings(settings, saved)
     end
     local result = Profiles.copy(saved)
     local values = profile.values
+    if values.panel_finding_mode ~= nil then
+        result.panel_finding_mode = values.panel_finding_mode
+    end
     for _, key in ipairs(FIELDS) do
         result[key] = values[key]
     end
@@ -113,6 +160,9 @@ end
 
 function Profiles.matches(settings, values)
     if type(values) ~= "table" or type(values.rotation) ~= "table" then
+        return false
+    end
+    if values.panel_finding_mode ~= nil and settings.panel_finding_mode ~= values.panel_finding_mode then
         return false
     end
     for _, key in ipairs(FIELDS) do

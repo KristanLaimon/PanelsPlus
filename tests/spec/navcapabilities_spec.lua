@@ -7,6 +7,7 @@ local Settings = require("src._settings")
 local PanelsPlus = require("main")
 local PanelViewer = require("src._panelviewer")
 local ProfileMenu = require("src.profile_menu")
+local Profiles = require("src.profiles")
 local Menu = require("src.menu")
 
 local function withDevice(eink, animated, check)
@@ -33,6 +34,80 @@ local function plugin()
 end
 
 describe("Device-aware navigation", function()
+    it("seeds only the matching device profile once with complete defaults", function()
+        for _, eink in ipairs({ false, true }) do
+            withDevice(eink, eink, function()
+                local settings = Settings.withDefaults({})
+                assert.equals(2, #settings.profiles)
+                local id = eink and "ereader" or "android-desktop"
+                local profile = Profiles.find(settings, id)
+                assert.equals(eink and "EReader" or "Android-Desktop", profile.name)
+                assert.is_nil(Profiles.find(settings, eink and "android-desktop" or "ereader"))
+                local values = profile.values
+                assert.equals("device", values.rotation.kind)
+                assert.equals(3, values.rotation.value)
+                assert.equals("none", values.crop_mode)
+                assert.equals(eink and "safe" or "smart", values.panel_finding_mode)
+                assert.equals(eink and "animated" or "smooth", values.nav_transition_mode)
+                assert.equals(values.nav_transition_mode, values.embedded_nav_transition_mode)
+                assert.equals(eink and 2 or 24, values.nav_transition_frames)
+                assert.equals("ease", values.nav_smooth_style)
+                assert.equals(0.4, values.nav_transition_duration)
+                assert.is_true(values.nav_transition_cross_page)
+                assert.is_nil(settings.selected_profile_id)
+                Settings.withDefaults(settings)
+                assert.equals(2, #settings.profiles)
+                Profiles.delete(settings, id)
+                Settings.withDefaults(settings)
+                assert.equals(1, #settings.profiles)
+                assert.is_nil(Profiles.find(settings, id))
+            end)
+        end
+    end)
+
+    it("leaves existing installations' profile lists unchanged", function()
+        local profiles = { { id = "existing", name = "My profile", values = {} } }
+        local settings = Settings.withDefaults({ profiles_initialized = true, profiles = profiles })
+        assert.equals(1, #settings.profiles)
+        assert.equals("existing", settings.profiles[1].id)
+        settings.profiles = {}
+        Settings.withDefaults(settings)
+        assert.equals(0, #settings.profiles)
+    end)
+
+    it("blocks Animated in Android and desktop profile editors even if swipe animation is reported", function()
+        for _, platform in ipairs({ "isAndroid", "isSDL" }) do
+            local previous = Device[platform]
+            Device[platform] = function()
+                return true
+            end
+            local ok, err = pcall(function()
+                withDevice(false, true, function()
+                    assert.is_false(Capabilities.supportsAnimated())
+                    assert.equals("classic", Capabilities.normalizeMode("animated"))
+                    local p = plugin()
+                    assert.is_true(Profiles.find(p.settings, "android-desktop") ~= nil)
+                    p:showProfileEditor(nil, "android-desktop")
+                    UIManager._last_shown[1].item_table[5].callback()
+                    local items = UIManager._last_shown[1].item_table
+                    assert.equals(3, #items)
+                    for _, item in ipairs(items) do
+                        assert.is_nil(item.text:find("Animated", 1, true))
+                    end
+                    items[2].callback() -- Smooth
+                    UIManager._last_shown[1].item_table[8].callback() -- Save
+                    assert.equals("smooth", Profiles.find(p.settings, "android-desktop").values.nav_transition_mode)
+                    p:setNavTransitionMode("animated")
+                    assert.equals("classic", p.settings.nav_transition_mode)
+                end)
+            end)
+            Device[platform] = previous
+            if not ok then
+                error(err)
+            end
+        end
+    end)
+
     it("defaults to 24 frames on non-eink devices and 2 on e-readers without resetting saved preferences", function()
         for _, eink in ipairs({ false, true }) do
             withDevice(eink, eink, function()

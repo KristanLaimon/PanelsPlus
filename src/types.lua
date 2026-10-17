@@ -49,6 +49,7 @@ SPDX-License-Identifier: MIT
 --- @field values PPProfileValues
 
 --- @class PPProfileValues
+--- @field panel_finding_mode PPPanelFindingMode|nil Missing in older profiles; leaves the detector unchanged.
 --- @field rotation PPProfileRotation
 --- @field mode PPReadingMode
 --- @field progress_bar_visible boolean
@@ -104,7 +105,7 @@ SPDX-License-Identifier: MIT
 --- Persisted plugin settings.
 --- @class PPSettings
 --- @field profiles PPSettingsProfile[] Global user-editable profiles.
---- @field profiles_initialized boolean Whether the bundled profile has been seeded.
+--- @field profiles_initialized boolean Whether the bundled profiles have been seeded.
 --- @field profile_next_id integer|nil Next user profile identifier.
 --- @field selected_profile_id string|nil Applied profile; nil means None.
 --- @field none_profile_values PPProfileValues|nil Automatically saved settings when leaving None.

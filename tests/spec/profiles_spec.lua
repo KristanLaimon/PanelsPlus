@@ -46,6 +46,74 @@ local function lastDialog()
 end
 
 describe("Settings profiles", function()
+    it("adds all three defaults and skips existing names regardless of settings or identity", function()
+        local p = plugin()
+        p.settings.profiles = {}
+        local existing = Profiles.create(p.settings, "eReAdEr", { mode = "comic" })
+        assert.equals(2, Profiles.addDefaults(p.settings))
+        assert.equals(3, #p.settings.profiles)
+        assert.equals(existing, p.settings.profiles[1])
+        assert.equals("comic", existing.values.mode)
+        assert.equals("Recommended", p.settings.profiles[2].name)
+        assert.equals("Android-Desktop", p.settings.profiles[3].name)
+        assert.equals("smart", p.settings.profiles[3].values.panel_finding_mode)
+        assert.equals(0, Profiles.addDefaults(p.settings))
+        assert.equals(3, #p.settings.profiles)
+        Profiles.delete(p.settings, p.settings.profiles[2].id)
+        assert.equals(1, Profiles.addDefaults(p.settings))
+        assert.equals(3, #p.settings.profiles)
+    end)
+
+    it("adds missing defaults beside renamed originals without reusing their identities", function()
+        local p = plugin()
+        p.settings.profiles[1].name = "My recommendation"
+        p.settings.profiles[2].name = "My device settings"
+        assert.equals(3, Profiles.addDefaults(p.settings))
+        assert.equals(5, #p.settings.profiles)
+        local ids = {}
+        for _, profile in ipairs(p.settings.profiles) do
+            assert.is_nil(ids[profile.id])
+            ids[profile.id] = true
+        end
+        local ereader = p.settings.profiles[4]
+        assert.equals("EReader", ereader.name)
+        assert.equals("animated", ereader.values.nav_transition_mode)
+        assert.equals("safe", ereader.values.panel_finding_mode)
+        assert.equals("none", ereader.values.crop_mode)
+        assert.equals(2, ereader.values.nav_transition_frames)
+        local desktop = p.settings.profiles[5]
+        assert.equals("Android-Desktop", desktop.name)
+        assert.equals("smooth", desktop.values.nav_transition_mode)
+        assert.equals(24, desktop.values.nav_transition_frames)
+    end)
+
+    it("adds and saves defaults from the selector without changing the active profile", function()
+        local p = plugin()
+        p.settings.profiles = {}
+        local values = Profiles.capture(p.settings)
+        local current = Profiles.create(p.settings, "Current", values)
+        p.settings.selected_profile_id = current.id
+        p:showSettingsProfileMenu(viewer())
+        local function addDefaults()
+            for _, item in ipairs(lastDialog()[1].item_table) do
+                if item.text == "Add defaults" then
+                    item.callback()
+                    return
+                end
+            end
+            error("Add defaults missing from profile selector")
+        end
+        addDefaults()
+        assert.equals(4, #p.settings.profiles)
+        assert.equals(1, p.saves)
+        assert.equals(current.id, p.settings.selected_profile_id)
+        assert.is_true(Profiles.matches(p.settings, values))
+        assert.equals(0, p.rebuilds or 0)
+        addDefaults()
+        assert.equals(4, #p.settings.profiles)
+        assert.equals(current.id, p.settings.selected_profile_id)
+    end)
+
     it("migrates all algorithm aliases globally and in document overrides", function()
         for _, mode in ipairs({ "legacy", "classic", "safe", "unknown" }) do
             assert.equals("safe", Settings.normalizePanelFindingMode(mode))
@@ -88,6 +156,7 @@ describe("Settings profiles", function()
         assert.equals(3, values.rotation.value)
         assert.is_nil(settings.selected_profile_id)
         Profiles.delete(settings, "recommended")
+        Profiles.delete(settings, "ereader")
         Settings.withDefaults(settings)
         assert.equals(0, #settings.profiles)
     end)
@@ -106,6 +175,33 @@ describe("Settings profiles", function()
         values.rotation.value = 90
         assert.equals("Custom", profile.name)
         assert.is_false(profile.values.rotation.value)
+    end)
+
+    it("applies, remembers, edits and restores the profile's detector choice", function()
+        local p = plugin()
+        local profile = p.settings.profiles[2]
+        local initial = p.settings.panel_finding_mode
+        profile.values.panel_finding_mode = "smart"
+        profile.values.rotation = { kind = "image", value = false }
+        p:applySettingsProfile(viewer(), profile.id)
+        assert.equals("smart", p.settings.panel_finding_mode)
+        assert.equals("none", p.settings.crop_mode)
+        assert.equals(profile.id, p.settings.selected_profile_id)
+        p.settings.panel_finding_mode = "safe"
+        p:loadDocSettings()
+        assert.equals("smart", p.settings.panel_finding_mode)
+        assert.equals(profile.id, p.settings.selected_profile_id)
+        p:applySettingsProfile(viewer(), nil)
+        assert.equals(initial, p.settings.panel_finding_mode)
+        p:applySettingsProfile(viewer(), profile.id)
+        p:setPanelFindingMode("safe")
+        assert.is_nil(p.settings.selected_profile_id)
+        assert.is_nil(p.settings.doc_settings["profiles.cbz"].selected_profile_id)
+        p:showProfileEditor(viewer(), profile.id)
+        lastDialog()[1].item_table[7].callback() -- Panel finding
+        lastDialog()[1].item_table[1].callback() -- Safe
+        lastDialog()[1].item_table[8].callback() -- Save
+        assert.equals("safe", profile.values.panel_finding_mode)
     end)
 
     it("rejects blank, reserved and duplicate names and keeps stable identities", function()
@@ -370,7 +466,7 @@ describe("Settings profiles", function()
         local picker = lastDialog()[1]
         picker.item_table[2].callback() -- Comic in draft only
         assert.equals("manga", p.settings.profiles[1].values.mode)
-        lastDialog()[1].item_table[8].callback() -- Cancel
+        lastDialog()[1].item_table[9].callback() -- Cancel
         assert.equals("manga", p.settings.profiles[1].values.mode)
     end)
 
@@ -397,7 +493,7 @@ describe("Settings profiles", function()
         end)
         lastDialog()._test_input = "  Reader profile  "
         lastDialog().buttons[1][2].callback()
-        local created = p.settings.profiles[2]
+        local created = p.settings.profiles[#p.settings.profiles]
         assert.equals("Reader profile", created.name)
         assert.is_nil(p.settings.selected_profile_id)
         assert.equals(0, p.rebuilds or 0)
@@ -415,21 +511,21 @@ describe("Settings profiles", function()
         p:showProfileEditor(v, "recommended")
         lastDialog()[1].item_table[2].callback()
         lastDialog()[1].item_table[2].callback() -- Comic
-        lastDialog()[1].item_table[7].callback() -- Save
+        lastDialog()[1].item_table[8].callback() -- Save
         assert.equals("comic", p.settings.profiles[1].values.mode)
         assert.equals("manga", p.settings.mode)
         local details = lastDialog()[1]
-        details.item_table[10].callback() -- Replace with current
+        details.item_table[11].callback() -- Replace with current
         assert.equals("comic", p.settings.profiles[1].values.mode)
         lastDialog().ok_callback()
         assert.equals("manga", p.settings.profiles[1].values.mode)
         assert.is_nil(p.settings.doc_settings["profiles.cbz"].selected_profile_id)
-        lastDialog()[1].item_table[11].callback() -- Delete
-        assert.equals(1, #p.settings.profiles)
+        lastDialog()[1].item_table[12].callback() -- Delete
+        assert.equals(2, #p.settings.profiles)
         lastDialog().ok_callback()
-        assert.equals(0, #p.settings.profiles)
+        assert.equals(1, #p.settings.profiles)
         Profiles.initialize(p.settings)
-        assert.equals(0, #p.settings.profiles)
+        assert.equals(1, #p.settings.profiles)
     end)
 
     it("keeps image rotation when loading document settings from before profiles", function()

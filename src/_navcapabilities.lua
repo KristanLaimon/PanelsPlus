@@ -1,12 +1,17 @@
 local Device = require("device")
 local Capabilities = {}
 
+local function isAndroidOrDesktop()
+    return (Device.isAndroid and Device:isAndroid()) or (Device.isSDL and Device:isSDL())
+end
+
 function Capabilities.supportsAnimated()
-    return Device.canDoSwipeAnimation and Device:canDoSwipeAnimation() and true or false
+    return not isAndroidOrDesktop() and Device.canDoSwipeAnimation and Device:canDoSwipeAnimation() and true or false
 end
 
 function Capabilities.isEreader()
-    return (Device.hasEinkScreen and Device:hasEinkScreen()) or Capabilities.supportsAnimated()
+    return not isAndroidOrDesktop()
+        and ((Device.hasEinkScreen and Device:hasEinkScreen()) or Capabilities.supportsAnimated())
 end
 
 function Capabilities.defaultFrames()

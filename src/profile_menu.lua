@@ -83,6 +83,9 @@ function ProfileMenu:applySettingsProfile(viewer, id)
     self._applying_profile = true
     self:setMode(values.mode)
     self:setCropMode(values.crop_mode)
+    if values.panel_finding_mode ~= nil then
+        self:setPanelFindingMode(values.panel_finding_mode)
+    end
     self:setProgressBarVisible(values.progress_bar_visible)
     self:setNavTransitionMode(values.nav_transition_mode)
     self:setEmbeddedNavTransitionMode(values.embedded_nav_transition_mode or values.nav_transition_mode)
@@ -202,6 +205,15 @@ function ProfileMenu:showSettingsProfileMenu(viewer)
         choice(profile.id, profile.name)
     end
     items[#items + 1] = {
+        text = gettext("Add defaults"),
+        callback = function()
+            close()
+            Profiles.addDefaults(self.settings)
+            self:saveSettings()
+            self:showSettingsProfileMenu(viewer)
+        end,
+    }
+    items[#items + 1] = {
         text = gettext("Create from current settings..."),
         separator = true,
         callback = function()
@@ -253,6 +265,7 @@ end
 local function valueLabel(key, values)
     local labels = {
         mode = { manga = gettext("Manga"), comic = gettext("Comic") },
+        panel_finding_mode = { safe = gettext("Safe"), smart = gettext("Smart") },
         progress_bar_visible = { [true] = gettext("Shown"), [false] = gettext("Hidden") },
         nav_transition_mode = {
             classic = gettext("Classic"),
@@ -284,6 +297,8 @@ local function valueLabel(key, values)
                     or tostring(rotation.value)
                 )
             )
+    elseif key == "panel_finding_mode" and values[key] == nil then
+        return gettext("Unchanged")
     elseif key == "ocr_bundled_language" then
         return values[key] == "eng" and gettext("English") or values[key] == "spa" and gettext("Spanish") or values[key]
     end
@@ -297,6 +312,7 @@ local EDIT_FIELDS = {
     { "ocr_bundled_language", "OCR" },
     { "nav_transition_mode", "Navigation" },
     { "crop_mode", "Crop" },
+    { "panel_finding_mode", "Panel finding" },
 }
 
 function ProfileMenu:showProfileDetails(viewer, id)
@@ -439,6 +455,7 @@ function ProfileMenu:showProfileFieldPicker(key, draft, back)
         progress_bar_visible = { true, false },
         nav_transition_mode = NavCapabilities.modes(),
         crop_mode = { "strict", "loose", "margin", "none" },
+        panel_finding_mode = { "safe", "smart" },
     }
     if key == "ocr_bundled_language" then
         local WordFinder = require("src._wordfinder")
