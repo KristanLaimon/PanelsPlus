@@ -2241,7 +2241,12 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     -- colour EPUB images and makes smooth navigation yield before it can evict
     -- the reader's current tile on a 300MB device.
     local source_pixels = math.max(1, math.ceil(union.w * zoom_union)) * math.max(1, math.ceil(union.h * zoom_union))
-    local transition_pixels = use_viewport_frames and screen_area * 4 or canvas_w * canvas_h
+    -- Classic's ImageWidget also allocates a zoomed copy of the shared canvas.
+    -- The union-fit bitmap can be small while that copy approaches sixteen
+    -- screens, so reserve both before rendering on low-memory devices.
+    local transition_pixels = use_viewport_frames and screen_area * 4
+        or canvas_w * canvas_h
+            + math.ceil(canvas_w * target_zoom / zoom_union) * math.ceil(canvas_h * target_zoom / zoom_union)
     local transition_bytes = (source_pixels + transition_pixels) * 4 + 2 * 1024 * 1024
     if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, transition_bytes) then
         Timing.log("animateSwitchToImageNum: transition working set is too large, falling back to instant swap")

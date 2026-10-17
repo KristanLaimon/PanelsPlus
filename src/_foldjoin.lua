@@ -10,6 +10,7 @@ License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
 local Blitbuffer = require("ffi/blitbuffer")
+local Memory = require("src._memory")
 
 --- Removal of the fold strip from a rendered double-page spread.
 ---
@@ -123,6 +124,11 @@ end
 ---   white margin at each end of the joined image.
 function FoldJoin.joinBitmap(bb, opts)
     local width, height = bb:getWidth(), bb:getHeight()
+    -- Fold removal is optional and retains a second whole-page bitmap.
+    -- Leave the original visible when that copy would consume the reserve.
+    if not Memory.hasAllocationHeadroom(40 * 1024 * 1024, width * height * 4) then
+        return nil
+    end
     local function sample(x, y)
         return bb:getPixel(x, y):getColor8().a
     end

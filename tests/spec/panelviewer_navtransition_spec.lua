@@ -220,8 +220,8 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         Memory.hasHeadroom = function()
             return not options.low_memory
         end
-        Memory.hasAllocationHeadroom = function()
-            return not options.low_memory
+        Memory.hasAllocationHeadroom = function(minimum, allocation)
+            return not options.low_memory and (not options.free_bytes or options.free_bytes >= minimum + allocation)
         end
         local viewer = PanelViewer:new({
             _images_list_cur = 1,
@@ -478,6 +478,19 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             viewer:animateSwitchToImageNum(2)
             assert.equals(2, viewer.switched_to)
             assert.equals(0, #buffers)
+        end)
+    end)
+
+    it("reserves Classic's zoomed widget canvas before allocating the union", function()
+        withTransition({
+            style = "classic",
+            free_bytes = 48 * 1024 * 1024,
+            rects = { { x = 0, y = 0, w = 300, h = 400 }, { x = 320, y = 0, w = 150, h = 200 } },
+        }, function(viewer, buffers)
+            viewer:animateSwitchToImageNum(2)
+            assert.equals(2, viewer.switched_to)
+            assert.equals(0, #buffers, "skip optional animation before consuming the safety reserve")
+            assert.is_nil(viewer.canvas_pan)
         end)
     end)
 

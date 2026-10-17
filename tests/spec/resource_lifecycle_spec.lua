@@ -8,6 +8,28 @@ local UIManager = require("ui/uimanager")
 local PanelsPlus = require("main")
 
 describe("Low-memory resource lifecycle", function()
+    it("skips optional fold copies before scanning when the full-page copy cannot fit", function()
+        local FoldJoin = require("src._foldjoin")
+        local original = Memory.freeBytes
+        Memory.freeBytes = function()
+            return 48 * 1024 * 1024
+        end
+        local ok, joined = pcall(FoldJoin.joinBitmap, {
+            getWidth = function()
+                return 3000
+            end,
+            getHeight = function()
+                return 2000
+            end,
+            getPixel = function()
+                error("must not scan or allocate the optional copy")
+            end,
+        })
+        Memory.freeBytes = original
+        assert.is_true(ok, tostring(joined))
+        assert.is_nil(joined)
+    end)
+
     it("bounds tall fixed-page renders before allocating their raster", function()
         local PageBitmap = require("src._pagebitmap")
         local rendered_w, rendered_h

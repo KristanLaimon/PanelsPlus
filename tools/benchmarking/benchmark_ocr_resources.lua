@@ -22,6 +22,34 @@ local dir = root .. "/tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8"
 local file = assert(io.open(dir .. "/annotation.json"))
 local pages = JSON.decode(file:read("*a"))[1].pages
 file:close()
+-- Public checkouts contain only a few sample pages. Report partial coverage
+-- explicitly instead of aborting mid-run and bypassing final engine cleanup.
+local available_pages, missing_pages, available_words, total_words = {}, 0, 0, 0
+for _, annotation in ipairs(pages) do
+    local words = annotation.word and #annotation.word or 0
+    if words > 0 then
+        total_words = total_words + words
+        local page_file = io.open(string.format("%s/%02d.png", dir, annotation.page_index - 1), "rb")
+        if page_file then
+            page_file:close()
+            available_pages[#available_pages + 1] = annotation
+            available_words = available_words + words
+        else
+            missing_pages = missing_pages + 1
+        end
+    end
+end
+assert(available_words > 0, "no annotated OCR page images available")
+print(
+    string.format(
+        "coverage=%d/%d words missing_pages=%d%s",
+        available_words,
+        total_words,
+        missing_pages,
+        missing_pages > 0 and " PARTIAL resource benchmark; not a full-dataset accuracy check" or ""
+    )
+)
+pages = available_pages
 local counters = { renders = 0, contexts = 0, live = 0, peak_live = 0, reads = 0 }
 local function rss()
     local f = assert(io.open("/proc/self/status"))
