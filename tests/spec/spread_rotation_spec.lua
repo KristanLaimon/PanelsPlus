@@ -696,14 +696,14 @@ describe("Double-page spread settings in the menus", function()
             item.callback()
         end
 
-        assert.equals("Viewer", seen[1])
-        assert.equals("Reading", seen[2])
-        assert.equals("Viewer + reading", seen[3])
-        assert.equals("Off", seen[4])
+        assert.equals("Off", seen[1])
+        assert.equals("Viewer", seen[2])
+        assert.equals("Reading", seen[3])
+        assert.equals("Viewer + reading", seen[4])
     end)
 
     it("rebuilds the viewer when the viewer setting changes on a spread", function()
-        local reader = readerFor({})
+        local reader = readerFor({ auto_rotate_double_pages = true })
         local rebuilt
         reader.setAutoRotateDoublePages = function(self, enabled)
             self.settings.auto_rotate_double_pages = enabled
@@ -777,7 +777,7 @@ describe("Spread rotation switched off from an open viewer", function()
                 widget.closed_callback(widget)
             end
         end
-        local reader = readerFor({ rotate_screen_for_double_pages = true })
+        local reader = readerFor({ auto_rotate_double_pages = true, rotate_screen_for_double_pages = true })
         reader.preloadNextPanels = function() end
         reader.setSpreadRotationMode = function(self, mode)
             self.settings.auto_rotate_double_pages = mode == "viewer" or mode == "both"
