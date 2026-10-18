@@ -22,5 +22,5 @@ return {
         [[Panel-focused reading for manga and comics with directional panel navigation, zoom controls, and screenshots.]]
     ),
     author = "KristanLaimon",
-    version = "1.4.0",
+    version = "1.5.0",
 }

@@ -85,7 +85,7 @@ jobs:
           from zipfile import ZIP_DEFLATED, ZipFile
 
           packages = {
-              "panelsplus.koplugin.zip": Path("dist/panelsplus.koplugin"),
+              "panels_plus.koplugin.zip": Path("dist/panelsplus.koplugin"),
               "panelsplus_with_ocrmodels.koplugin.zip": Path(
                   "dist/with_ocrmodels/panelsplus.koplugin"
               ),
@@ -103,8 +103,8 @@ jobs:
                           archive.write(path, Path("panelsplus.koplugin") / path.relative_to(source_dir))
           PY
 
-          echo "vanilla_name=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
-          echo "vanilla_path=panelsplus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "vanilla_name=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
+          echo "vanilla_path=panels_plus.koplugin.zip" >> "${GITHUB_OUTPUT}"
           echo "ocr_name=panelsplus_with_ocrmodels.koplugin.zip" >> "${GITHUB_OUTPUT}"
           echo "ocr_path=panelsplus_with_ocrmodels.koplugin.zip" >> "${GITHUB_OUTPUT}"
 
