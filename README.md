@@ -6,7 +6,7 @@
   <span style="display:block;font-size:1.25rem;">Read manga and comics <strong>panel by panel</strong>, without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
   <br><br>
   <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?color=blue&style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/PanelsPlus/total.svg?color=brightgreen&style=flat-square&cacheSeconds=300" alt="Downloads"></a>
+  <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://flat.badgen.net/github/assets-dl/KristanLaimon/PanelsPlus/total?color=green&label=downloads" alt="Downloads"></a>
   <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational?style=flat-square" alt="MIT License"></a>
   <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus.svg?style=flat-square&cacheSeconds=300" alt="GitHub Stars"></a>
@@ -211,7 +211,7 @@ Of course if you prefer vertical, with margin, loose cropped or even animated, t
 
 ### 🔍 OCR Word Lookup Setup
 
-Panels+ introduces OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
+Panels+ introduces OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, `.PDF`, `.MOBI`, `.EPUB`,  `.KEPUB`.
 
 ***Phrase grouping is experimental*** and may miss unusual bubble layouts.
 
