@@ -1,5 +1,3 @@
-
-
 <p align="center">
   <img width="99%" height="auto" alt="PanelsPlus_Cover" src="https://github.com/user-attachments/assets/16887793-0bd2-4712-9b1e-75d832152b55" />
   <br>
@@ -9,7 +7,7 @@
   <br><br>
   <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?color=blue&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/PanelsPlus/total?color=brightgreen&style=flat-square" alt="Downloads"></a>
-  <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.03%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
+  <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational?style=flat-square" alt="MIT License"></a>
   <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus?style=flat-square" alt="GitHub Stars"></a>
   <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=flat-square" alt="Sponsor on GitHub"></a>
@@ -89,7 +87,7 @@ This plugin is compatible with KOReader across the following version range:
 | Environment               | Supported Version                         |
 | ------------------------- | ----------------------------------------- |
 | **Oldest Tested Version** | KOReader `v2025.04` *"Full Moon"*         |
-| **Newest Tested Version** | KOReader `v2026.03` *"SnowFlake"* & Newer |
+| **Newest Tested Version** | KOReader `v2026.07.1` *"Sailing Walrus"* & Newer |
 
 This could work with even older versions, but not personally tested. If any issues with versions outside the previous range, open a github issue in this repo.
 
@@ -215,8 +213,6 @@ Of course if you prefer vertical, with margin, loose cropped or even animated, t
 
 Panels+ introduces OCR support, allowing you to touch & hold text inside a zoomed-in panel to look up words in the dictionary—even in comics/manga! Works across `.CBZ`, `.CBR`, and `.PDF`.
 
-Keep holding for about four seconds to expand the selection to the nearby dialogue phrase, then release to open KOReader's translation. Release earlier for the usual word lookup. Dragging keeps manual text selection.
-
 ***Phrase grouping is experimental*** and may miss unusual bubble layouts.
 
 <strong>IMPORTANT:</strong> To use dictionary lookup, install a dictionary first:
@@ -229,10 +225,6 @@ Keep holding for about four seconds to expand the selection to the nearby dialog
 - **Panels+ with bundled OCR models** (`panelsplus_with_ocrmodels.koplugin.zip`) includes a fine-tuned English model and an unmodified Spanish model. English is selected by default for zoomed-panel word lookup.
 
 Open **KOReader menu → Panels+ → OCR language** to select a bundled language or **Use KOReader's**, which uses KOReader's current OCR language. The active choice is marked **(Selected)** and applies only inside Panels+.
-
-When **Remember per-document settings** is enabled, Panels+ also saves and restores the OCR choice for each book.
-
-**Prefer native-text layer in PDF files over Panels+ text recognition** is enabled by default in the main Panels+ menu. A word under the pressed position uses the document's text layer; when there is no word there, selection continues through KOReader and Panels+ recognition. Turn it off to use recognition for text-layer pages too.
 
 <em>(Note: Word detection is tricky on hand-lettered or stylized comic text and might not always get it exactly right, there are many variations of text and fonts across all mangas/comics... it's not 100% perfect, and never will be)</em>
 
@@ -250,7 +242,7 @@ This supports screenshots while zoomed into panels, so you can capture the exact
 
 ## 🌐 For Translators
 
-Starting from version **v1.4.0**, Panels+ includes localization support, and we'd love to translate the plugin into as many languages as possible!
+Panels+ includes localization support, and we'd love to translate the plugin into as many languages as possible!
 
 Rather than relying on machine or AI translation slop, we are looking for community collaborators to help craft authentic, high-quality human translations.
 
@@ -270,7 +262,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructio
 
 ### 🏗️ Building From Source
 
-Clone or download this repository, then run:
+You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), just clone or download this repository, then run:
 
 ```bash
 ./build.sh
