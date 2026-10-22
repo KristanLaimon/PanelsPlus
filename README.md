@@ -14,6 +14,12 @@
   <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20Package%20Manager-Available-purple?style=flat-square" alt="ZEN Package Manager"></a>
 </p>
 
+<div align="center">
+<a href="https://trendshift.io/repositories/98340?utm_source=trendshift-badge&amp;utm_medium=badge&amp;utm_campaign=badge-trendshift-98340" target="_blank" rel="noopener noreferrer"><img src="https://trendshift.io/api/badge/trendshift/repositories/98340/daily?language=Lua" alt="KristanLaimon%2FPanelsPlus | Trendshift" width="250" height="55"/></a>
+</div>
+
+<br></br>
+
 <table>
   <tr>
     <td align="center" width="49%">
