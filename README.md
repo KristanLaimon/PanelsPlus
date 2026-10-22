@@ -60,7 +60,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 
   <tr>
     <td align="center"><em>Swipe through your manga with fade-in/fade-out transitions. (Only available in e-ink devices).  You can swipe or tap on edges, configurable in "More Config" button, and rotate only the panel view or whole device from the same place. So you can read your panels even in landscape mode.</em></td>
-    <td align="center"><em>Make the current zoom view to move smoothly between panels (Duration and FPS between panels customizable). (Works better in non-eink devices, like Android and Desktop)</em></td>
+    <td align="center"><em>Make the current zoom view to move smoothly between panels (Duration and FPS between panels customizable). (Works better in non-eink devices, like Android and Desktop)</em> <br></br> In the video i was using <- and -> arrow keys to move between panels ("A" and "D" keys also compatible!), In case you use a keyboard along your koreader.</td>
     <td align="center"><em>Move between panels with no transitions at all, simple...classic.</em></td>
   </tr>
 </table>
