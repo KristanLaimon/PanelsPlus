@@ -41,12 +41,16 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
       <video height="180" src="https://github.com/user-attachments/assets/7200f3e1-74d8-4b24-bd64-c775600d35ed"></video>
     </td>
     <td width="33%" align="center">
-      <video height="180" src="https://github.com/user-attachments/assets/c247ed18-57db-4748-9205-7a50035096a3"></video>
+      <video height="180" src="https://github.com/user-attachments/assets/895f3fec-1168-40ba-b477-84d9cecad3f8"></video>
     </td>
     <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/54ce079c-176b-420e-acb6-d6f9738b6f70"></video>
     </td>
   </tr>
+
+
+
+
 
   <tr>
     <td align="center"><b>1. Animated mode</b></td>
