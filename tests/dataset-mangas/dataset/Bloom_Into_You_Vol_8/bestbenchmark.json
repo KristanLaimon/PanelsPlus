@@ -120,11 +120,11 @@
       "updated_at": "2026-09-26"
     },
     "word_boxes": {
-      "accuracy_percent": 95.3593,
-      "correct": 637,
-      "evaluated": 668,
-      "total": 668,
-      "updated_at": "2026-09-26"
+      "accuracy_percent": 95.4610,
+      "correct": 673,
+      "evaluated": 705,
+      "total": 705,
+      "updated_at": "2026-10-24"
     }
   },
   "preview": {
