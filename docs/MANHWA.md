@@ -26,7 +26,7 @@ as Smooth in the manhwa viewer without changing the fixed-layout preference.
   Smart implementation, reserved for later manhwa development.
 - `src/_manhwabitmap.lua` forks the bitmap builder. Its additional paper channel
   distinguishes black and white separators within the same source image.
-- `src/manhwa.lua` handles continuity, reading sections, source-page layout,
+- `src/manhwa.lua` handles continuity, complete panels, source-page layout,
   navigation between groups, and multi-page crop compositing.
 
 `ENABLE_MANHWA_SMART = false` is near the top of `src/manhwa.lua`. Enabling the
@@ -37,7 +37,7 @@ The original Manga/Comic detector, geometry, and bitmap files are unchanged.
 Low-level component traversal remains shared; manhwa grouping and tuning are
 independent. Manhwa results have separate panel-cache keys and benchmarks.
 
-## Illustrations and reading sections
+## Complete illustrations
 
 Safe retains floating narration and borderless artwork alongside ordinary
 framed panels. Content reaching a source image's edge can join compatible
@@ -45,23 +45,23 @@ content on the adjacent image. Neither white nor black pacing gaps count as
 illustrations. Source-page coordinates are converted to a continuous native
 coordinate system, preserving actual begins/ends across file seams.
 
-Detection produces illustration regions first. The viewer then divides tall
-regions into balanced sections, preserving their beginning and ending without
-gaps. The initial height limit is 1.6 screen-heights at the illustration's
-width-fit scale. This is a reading-layout decision rather than extra artistic
-panels in the ground truth.
+Each detected illustration reaches the viewer as one complete panel, regardless
+of its height or how many source images it spans. There is no screen-height
+subdivision or source-page-count cutoff. Legacy section-height and join-limit
+settings do not shorten panels.
 
 The implementation stores native dimensions and detected rectangles, not an
 entire chapter bitmap. Detection maps are processed one source page at a time.
-A continuously unbroken region is bounded to stable groups of at most 12 source
-images, so opening deep in a long chapter does not decode the whole preceding
-chapter. Only source crops intersecting the requested section are composited
-at screen-fit size. Transition allocations are guarded by memory checks.
-Source crops share rounded pixel boundaries to avoid visible rendering seams.
+Finding the true extent of uninterrupted artwork can require scanning many
+source images; summaries are cached for subsequent navigation. Only source
+crops intersecting the requested panel are composited at screen-fit size.
+Render allocations remain bounded independently of the panel's native height,
+and transition allocations are guarded by memory checks. Source crops share
+rounded pixel boundaries to avoid visible rendering seams.
 
-For EPUB/KEPUB/MOBI, an extracted image also uses the manhwa Safe fork and can
-be subdivided vertically. This initial path operates within one extracted image;
-it does not yet stitch separate embedded images into a continuous illustration.
+For EPUB/KEPUB/MOBI, an extracted image also uses the manhwa Safe fork and keeps
+each tall illustration intact. This initial path operates within one extracted
+image; it does not yet stitch separate embedded images into a continuous illustration.
 Fixed-layout image pages (including the current CBZ dataset) use cross-page
 joining.
 
@@ -72,8 +72,8 @@ selection transforms positions back to their actual source page.
 ## Initial evaluation
 
 The evaluation reads **only `panels_safe.json`**, converts its overflow rectangles
-to continuous coordinates, and matches complete detector regions before viewer
-subdivision. It does not rewrite annotations or Manga/Comic benchmark records.
+to continuous coordinates, and matches complete panels from the actual viewer
+collection path. It does not rewrite annotations or Manga/Comic benchmark records.
 
 On the complete 62-image `Overgeared_Vol_1` chapter, at IoU ≥ 0.5:
 
@@ -97,7 +97,7 @@ not establish general accuracy across all manhwa.
 
 The Safe mapping mixes illustration boundaries with some source-page-sized
 reading chunks, as discussed in `feelings.md`. The one-to-one score above should
-therefore be read alongside the separate synthetic checks for viewer subdivision,
+therefore be read alongside the separate synthetic checks for preserving tall panels,
 continuity, navigation, ownership/cleanup, and bounds. There is no manhwa Smart
 accuracy claim.
 

@@ -101,15 +101,15 @@ describe("Manhwa isolated Safe pipeline", function()
         assert.equals(230, Manhwa.detect(doc, {}, 3, builder(maps))[1].y)
     end)
 
-    it("subdivides tall illustrations into balanced, gapless reading sections", function()
-        local panels = Manhwa.sections({ { x = 0, y = 80, w = 100, h = 501, manhwa = true } }, {})
-        assert.is_true(#panels > 1)
+    it("preserves a tall illustration as one complete viewer panel", function()
+        local panels = Manhwa.sections(
+            { { x = 0, y = 80, w = 100, h = 50001, manhwa = true } },
+            { manhwa_section_height_ratio = 0.25 }
+        )
+        assert.equals(1, #panels)
         assert.equals(80, panels[1].y)
-        for i = 2, #panels do
-            assert.equals(panels[i - 1].y + panels[i - 1].h, panels[i].y)
-            assert.is_true(math.abs(panels[i].h - panels[i - 1].h) <= 1)
-        end
-        assert.equals(581, panels[#panels].y + panels[#panels].h)
+        assert.equals(50001, panels[1].h)
+        assert.equals(50001, panels[1].illustration_h)
     end)
 
     it("moves forward and back across a seam without replaying already displayed content", function()
@@ -324,34 +324,40 @@ describe("Manhwa isolated Safe pipeline", function()
         assert.equals(1, tiles[2].frees)
     end)
 
-    it("bounds unbroken chapters and keeps continuation chunks stable", function()
-        local doc = document(20)
+    it("preserves an illustration across twenty source pages and navigates its true end", function()
+        local doc = document(22)
         local old_build, calls = Bitmap.build, 0
         local full = map({ { x = 0, y = 0, w = 100, h = 100 } })
-        Bitmap.build = function()
+        local blank = map({})
+        local final = map({ { x = 0, y = 20, w = 100, h = 40 } })
+        Bitmap.build = function(_, page)
             calls = calls + 1
-            return full
+            return page <= 20 and full or (page == 21 and blank or final)
         end
         local settings = { mode = "manhwa", manhwa_max_join_pages = 3 }
-        local panels = Manhwa.collect({ document = doc }, settings, 10)
-        local page, following, index = Manhwa.adjacent(
-            { document = doc },
-            settings,
-            { panels = panels, _images_list_cur = #panels },
-            "next"
-        )
-        local _, previous, back = Manhwa.adjacent(
-            { document = doc },
-            settings,
-            { panels = following, _images_list_cur = index },
-            "previous"
-        )
+        local ui = { document = doc }
+        local panels = Manhwa.collect(ui, settings, 10)
+        local from_start = Manhwa.collect(ui, settings, 1)
+        local from_end = Manhwa.collect(ui, settings, 20)
+        local page, following, index = Manhwa.adjacent(ui, settings, { panels = panels, _images_list_cur = 1 }, "next")
+        local _, previous, back =
+            Manhwa.adjacent(ui, settings, { panels = following, _images_list_cur = index }, "previous")
+        local after_last = Manhwa.adjacent(ui, settings, { panels = following, _images_list_cur = index }, "next")
         Bitmap.build = old_build
-        assert.equals(11, page)
-        assert.is_true(calls <= 6)
-        assert.equals(1000, following[index].y)
-        assert.equals(1000, previous[back].y + previous[back].h)
-        assert.equals(panels[1].y, previous[1].y)
+        assert.equals(1, #panels)
+        assert.equals(0, panels[1].y)
+        assert.equals(2000, panels[1].h)
+        for _, other in ipairs({ from_start, from_end }) do
+            assert.equals(1, #other)
+            assert.equals(panels[1].y, other[1].y)
+            assert.equals(panels[1].h, other[1].h)
+        end
+        assert.equals(22, page)
+        assert.equals(22, calls)
+        assert.equals(2120, following[index].y)
+        assert.equals(2000, previous[back].h)
+        assert.equals(0, previous[back].y)
+        assert.is_nil(after_last)
     end)
 
     it("recognizes both black and white spacing in the isolated bitmap fork", function()
@@ -547,7 +553,8 @@ describe("Manhwa isolated Safe pipeline", function()
         assert.is_true(ok)
         assert.equals(1, fork_calls)
         assert.equals(0, original_calls)
-        assert.equals(2, #viewer.panels)
+        assert.equals(1, #viewer.panels)
+        assert.equals(240, viewer.panels[1].h)
         viewer.mode_toggle_callback(viewer)
         assert.equals("manga", plugin.settings.mode)
         assert.is_true(reopened:lastCall()[3].redetect)

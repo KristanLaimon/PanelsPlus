@@ -21,6 +21,20 @@ describe("Separate manhwa Safe dataset regression", function()
         assert.is_true(metrics.recall >= 0.80)
         assert.is_true(metrics.f1 >= 0.80)
         assert.is_true(metrics.mean_iou >= 0.90)
+        -- A tall manually mapped illustration must reach the viewer as one panel.
+        local tall, best = nil, 0
+        for _, panel in ipairs(truth) do
+            if panel.h == 4277 then
+                tall = panel
+                break
+            end
+        end
+        assert.is_not_nil(tall, "Expected the long illustration anchored on source page 37")
+        local evaluator = require("tests.dataset-mangas.panel_evaluator")
+        for _, panel in ipairs(predictions) do
+            best = math.max(best, evaluator.boxIoU(tall, panel))
+        end
+        assert.is_true(best > 0.90, "The viewer must preserve the entire tall illustration")
         for i = 2, #predictions do
             assert.is_true(predictions[i].y >= predictions[i - 1].y)
         end
