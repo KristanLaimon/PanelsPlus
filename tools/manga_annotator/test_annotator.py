@@ -224,6 +224,7 @@ class TestAnnotator(unittest.TestCase):
         win.activateWindow()
         win.canvas.setFocus()
         self.app.processEvents()
+        QTest.qWait(80)  # settle the deferred initial layout before testing view preservation
         win.canvas.fit_to_width()
         win.canvas.set_zoom(1.0)
         view = (win.canvas.zoom_factor, win.canvas.offset_x, win.canvas.offset_y)
@@ -320,6 +321,12 @@ class TestAnnotator(unittest.TestCase):
             win.copy_panels_to_other_algorithm()
         self.assertEqual(prompt.call_count, 2)
         self.assertEqual(win.dataset_mgr.get_panel_annotation("book", 1, "safe").frames[0].x, 1)
+        self.assertEqual(win.canvas.other_panels[0].x, 1)
+        win.toggle_panel_algorithm()
+        self.assertEqual(win.canvas.get_panels()[0].x, 1)
+        win.save_dataset(show_dialog=False)
+        reloaded = DatasetManager(ds)
+        self.assertEqual(reloaded.get_panel_annotation("book", 1, "safe").frames[0].x, 1)
         win.close()
 
     def test_natural_sort_key(self):
@@ -823,12 +830,14 @@ class TestAnnotator(unittest.TestCase):
         self.assertTrue(recent_after[0]["finished"])
         self.assertEqual(recent_after[0]["progress_percent"], 100)
 
-    def test_metadata_type_is_limited_to_manga_or_comic(self):
+    def test_metadata_type_supports_manga_comic_and_manhwa(self):
         ds_dir = os.path.join(self.test_dir, "dataset")
         mgr = DatasetManager(ds_dir)
 
         mgr.save_book_metadata("manga_book", {"book_title": "manga_book", "type": "manga"})
         mgr.save_book_metadata("comic_book", {"book_title": "comic_book", "type": "comic"})
+        mgr.save_book_metadata("manhwa_book", {"book_title": "manhwa_book", "type": "manhwa"})
+        self.assertEqual(mgr.load_book_metadata("manhwa_book")["type"], "manhwa")
         self.assertEqual(mgr.load_book_metadata("manga_book")["type"], "manga")
         self.assertEqual(mgr.load_book_metadata("comic_book")["type"], "comic")
 
@@ -851,7 +860,7 @@ class TestAnnotator(unittest.TestCase):
 
     def test_gitignore_dmca_rule(self):
         import subprocess
-        # Share exactly the first eight pages; later pages remain local.
+        # Share exactly the first four pages; later pages remain local.
         ds_dir = "tests/dataset-mangas/dataset"
         test_book = os.path.join(ds_dir, "test_dmca_book")
         os.makedirs(test_book, exist_ok=True)
@@ -863,7 +872,7 @@ class TestAnnotator(unittest.TestCase):
             for i in range(10):
                 page = os.path.join(test_book, f"{i:02d}.png")
                 result = subprocess.run(["git", "check-ignore", "--no-index", page], capture_output=True)
-                self.assertEqual(1 if i < 8 else 0, result.returncode, page)
+                self.assertEqual(1 if i < 4 else 0, result.returncode, page)
         finally:
             shutil.rmtree(test_book, ignore_errors=True)
 
@@ -1483,7 +1492,7 @@ class TestAnnotator(unittest.TestCase):
                 self.assertLessEqual(f.x + f.w, 1264)
                 self.assertLessEqual(f.y + f.h, 1680)
 
-        self.assertEqual(total_panels, 725, "Expected exactly 725 human-mapped panels")
+        self.assertEqual(total_panels, 730, "Expected exactly 730 current Smart panel annotations")
 
     def test_mosaic_mode_default_and_toggle_persistence(self):
         ds_dir = os.path.join(self.test_dir, "mosaic_test_ds")

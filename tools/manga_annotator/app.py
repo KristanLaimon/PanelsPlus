@@ -19,7 +19,7 @@ from PIL import Image
 
 from PyQt6.QtCore import Qt, QSize, QTimer, pyqtSignal, QRect, QPoint, QEvent
 from PyQt6.QtGui import (
-    QAction, QIcon, QImage, QPixmap, QKeySequence, QFont, QColor
+    QAction, QIcon, QImage, QPixmap, QKeySequence, QFont, QColor, QCursor
 )
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -31,10 +31,12 @@ from PyQt6.QtWidgets import (
 )
 
 try:
+    from .strip import StripLayout
     from .document_reader import DocumentReader
     from .dataset_manager import DatasetManager, Panel, PageAnnotation
     from .canvas import MangaCanvas
 except (ImportError, ValueError):
+    from strip import StripLayout
     from document_reader import DocumentReader
     from dataset_manager import DatasetManager, Panel, PageAnnotation
     from canvas import MangaCanvas
@@ -755,6 +757,9 @@ class AnnotatorMainWindow(QMainWindow):
         """)
         self.btn_import.clicked.connect(self._search_system_dialog)
         top_bar.addWidget(self.btn_import)
+        self.btn_import_folder = QPushButton("+ Import Folder…")
+        self.btn_import_folder.clicked.connect(self._search_folder_dialog)
+        top_bar.addWidget(self.btn_import_folder)
 
         top_bar.addSpacing(16)
         self.txt_search = QLineEdit()
@@ -1001,6 +1006,15 @@ class AnnotatorMainWindow(QMainWindow):
         self.btn_full_page.setStyleSheet("font-weight: bold; background-color: #2e7d32; color: white;")
         self.btn_full_page.clicked.connect(self.set_single_page_illustration)
         p_layout.addWidget(self.btn_full_page)
+        self.btn_strip_page = QPushButton("Full Source Page (F / Shift+F)")
+        self.btn_strip_page.setToolTip(
+            "Manhwa only: F or Shift+F targets the source page at the cursor height, including gutters. "
+            "Click this button to use the page number in the navigation controls. "
+            "Replaces that page's panels in the active Smart/Safe mapping."
+        )
+        self.btn_strip_page.clicked.connect(lambda: self.set_manhwa_source_page_panel(use_cursor=False))
+        self.btn_strip_page.hide()
+        p_layout.addWidget(self.btn_strip_page)
 
         self.btn_double_page = QPushButton("Set Double-Page Illustration (S)")
         self.btn_double_page.setStyleSheet("font-weight: bold; background-color: #6a3d9a; color: white;")
@@ -1046,6 +1060,12 @@ class AnnotatorMainWindow(QMainWindow):
         p_layout.addWidget(self.chk_precision)
 
         self.panel_list = PanelListWidget()
+        self._loaded_preview_rows = set()
+        self._preview_timer = QTimer(self)
+        self._preview_timer.setSingleShot(True)
+        self._preview_timer.timeout.connect(self._update_visible_panel_previews)
+        self.panel_list.verticalScrollBar().valueChanged.connect(self._schedule_panel_previews)
+        self.panel_list.viewport().installEventFilter(self)
         self.panel_list.setIconSize(QSize(96, 72))
         self.panel_list.setSelectionMode(QAbstractItemView.SelectionMode.SingleSelection)
         self.panel_list.setDefaultDropAction(Qt.DropAction.MoveAction)
@@ -1123,6 +1143,12 @@ class AnnotatorMainWindow(QMainWindow):
         act_open.setShortcut(QKeySequence.StandardKey.Open)
         act_open.triggered.connect(self._search_system_dialog)
         file_menu.addAction(act_open)
+        act_folder = QAction("Import Image Folder…", self)
+        act_folder.triggered.connect(self._search_folder_dialog)
+        file_menu.addAction(act_folder)
+        act_type = QAction("Change Book Type…", self)
+        act_type.triggered.connect(self.change_book_type)
+        file_menu.addAction(act_type)
 
         act_save = QAction("&Save Dataset", self)
         act_save.setShortcut(QKeySequence.StandardKey.Save)
@@ -1152,6 +1178,12 @@ class AnnotatorMainWindow(QMainWindow):
         act_full.setShortcut(QKeySequence(Qt.Key.Key_F))
         act_full.triggered.connect(self.set_single_page_illustration)
         edit_menu.addAction(act_full)
+
+        self.act_strip_page = QAction("Set Manhwa Source Page as Full-Page Panel", self)
+        self.act_strip_page.setShortcut(QKeySequence("Shift+F"))
+        self.act_strip_page.triggered.connect(lambda: self.set_manhwa_source_page_panel())
+        self.act_strip_page.setEnabled(False)
+        edit_menu.addAction(self.act_strip_page)
 
         act_double = QAction("Set Double-Page &Illustration", self)
         act_double.setShortcut(QKeySequence(Qt.Key.Key_S))
@@ -1330,6 +1362,9 @@ class AnnotatorMainWindow(QMainWindow):
     def eventFilter(self, watched, event):
         if watched is getattr(self, "canvas", None) and event.type() == QEvent.Type.Resize:
             self._position_text_entry_bar()
+        elif (hasattr(self, "panel_list") and watched is self.panel_list.viewport()
+              and event.type() in (QEvent.Type.Resize, QEvent.Type.Show)):
+            self._schedule_panel_previews()
         elif watched is getattr(self, "text_entry_input", None):
             if event.type() == QEvent.Type.KeyPress and event.key() == Qt.Key.Key_Escape:
                 self._cancel_text_entry()
@@ -1382,6 +1417,7 @@ class AnnotatorMainWindow(QMainWindow):
         self.lbl_current_book.setText(f"📖 {self.book_title}")
 
         meta = self.dataset_mgr.load_book_metadata(book_title)
+        self.strip_layout = StripLayout(self.reader) if meta.get("type") == "manhwa" else None
         cur_p = meta.get("current_page", 1)
         cur_p = max(1, min(cur_p, max(1, self.reader.total_pages)))
         self.current_page_num = cur_p
@@ -1400,45 +1436,79 @@ class AnnotatorMainWindow(QMainWindow):
         # Switch to Annotator tab
         self.tabs.setCurrentIndex(1)
         from PyQt6.QtCore import QTimer
-        QTimer.singleShot(50, lambda: self.canvas.fit_to_width(self.canvas.rect()))
+        QTimer.singleShot(50, self._fit_opened_book)
         self.status_bar.showMessage(f"Opened book '{self.book_title}'.", 3000)
+
+    def _fit_opened_book(self):
+        page = self.current_page_num
+        self.canvas.fit_to_width(self.canvas.rect())
+        if getattr(self, "strip_layout", None):
+            self.canvas.offset_y = -self.strip_layout.offsets[page - 1] * self.canvas.zoom_factor
+            self.canvas.update()
 
     def _search_system_dialog(self):
         """File search dialog allowing user to choose comic or document from disk."""
-        filt = "Comic & Document Archives (*.cbz *.cbr *.pdf *.epub *.kepub.epub *.mobi *.jpg *.png);;All Files (*)"
+        filt = "Comic & Document Archives (*.cbz *.cbr *.zip *.7z *.pdf *.epub *.kepub.epub *.mobi *.jpg *.png);;All Files (*)"
         fpath, _ = QFileDialog.getOpenFileName(self, "Select Comic / Document to Import", "", filt)
         if fpath:
-            label, ok = QInputDialog.getItem(
-                self,
-                "Reading Direction",
-                "Dataset type:",
-                ["Manga (right to left)", "Comic (left to right)"],
-                0,
-                False,
+            self._prompt_import_type(fpath)
+
+    def _search_folder_dialog(self):
+        path = QFileDialog.getExistingDirectory(self, "Select Image Folder to Import")
+        if path:
+            self._prompt_import_type(path)
+
+    def _prompt_import_type(self, path):
+        label, ok = QInputDialog.getItem(
+            self, "Reading Style", "Dataset type:",
+            ["Manga (right to left)", "Comic (left to right)", "Manhwa (vertical cascade)"],
+            0, False,
+        )
+        if not ok:
+            return
+        dataset_type = label.split()[0].lower()
+        color_mode = None
+        if dataset_type == "comic":
+            color_mode, ok = QInputDialog.getItem(
+                self, "Comic Color", "Artwork color mode:",
+                ["true_b/w", "colorless_b/w", "color"], 0, False,
             )
-            if ok:
-                dataset_type = "comic" if label.startswith("Comic") else "manga"
-                color_mode = None
-                if dataset_type == "comic":
-                    color_mode, ok = QInputDialog.getItem(
-                        self, "Comic Color", "Artwork color mode:",
-                        ["true_b/w", "colorless_b/w", "color"], 0, False,
-                    )
-                    if not ok:
-                        return
-                self.import_or_open_file(fpath, dataset_type=dataset_type, color_mode=color_mode)
+            if not ok:
+                return
+        self.import_or_open_file(path, dataset_type=dataset_type, color_mode=color_mode)
+
+    def change_book_type(self):
+        if not self.book_title:
+            return
+        meta = self.dataset_mgr.load_book_metadata(self.book_title)
+        types = ["manga", "comic", "manhwa"]
+        kind, ok = QInputDialog.getItem(self, "Book Type", "Reading style:", types,
+                                       types.index(meta.get("type", "manga")), False)
+        if ok and kind != meta.get("type"):
+            self._cancel_text_entry()
+            self._commit_current_page_panels()
+            # Reload metadata after committing the current position.
+            meta = self.dataset_mgr.load_book_metadata(self.book_title)
+            meta["type"] = kind
+            if kind != "comic":
+                meta.pop("color_mode", None)
+            self.dataset_mgr.save_book_metadata(self.book_title, meta)
+            self.open_book_by_title(self.book_title)
 
     def import_or_open_file(self, file_path: str, friendly_name: Optional[str] = None, dataset_type: str = "manga", color_mode: Optional[str] = None):
         """Extract file into dataset/<bookfriendlyname>/00.png, 01.png... and open it."""
+        temp_reader = None
+        prog = None
         try:
-            if dataset_type not in ("manga", "comic"):
-                raise ValueError('dataset_type must be "manga" or "comic"')
+            if dataset_type not in ("manga", "comic", "manhwa"):
+                raise ValueError('dataset_type must be "manga", "comic", or "manhwa"')
             if color_mode is not None and (
                 dataset_type != "comic" or color_mode not in ("true_b/w", "colorless_b/w", "color")
             ):
                 raise ValueError('Invalid comic color_mode')
             # 1. Ask or derive friendly book name if not provided
-            stem = os.path.splitext(os.path.basename(file_path))[0]
+            basename = os.path.basename(os.path.normpath(file_path))
+            stem = basename if os.path.isdir(file_path) else os.path.splitext(basename)[0]
             clean_name = re.sub(r'[\s_]+', '_', stem.strip())
 
             if not friendly_name:
@@ -1454,6 +1524,12 @@ class AnnotatorMainWindow(QMainWindow):
 
             friendly_name = re.sub(r'[\s_]+', '_', friendly_name.strip())
             target_dir = self.dataset_mgr.get_book_dir(friendly_name)
+
+            # Imports own a fresh destination; cancellation must never delete an existing book.
+            if os.path.exists(target_dir):
+                raise ValueError("That dataset folder already exists. Choose a new book name.")
+            if friendly_name in (".", "..") or os.path.basename(friendly_name) != friendly_name:
+                raise ValueError("Book name must be a single folder name.")
 
             # 2. Extract pages into target directory
             temp_reader = DocumentReader(file_path)
@@ -1515,6 +1591,17 @@ class AnnotatorMainWindow(QMainWindow):
 
         except Exception as e:
             QMessageBox.critical(self, "Error Importing File", f"Could not import file:\n{str(e)}")
+        finally:
+            if temp_reader:
+                temp_reader.close()
+            if prog:
+                prog.close()
+
+    def _restore_navigation_shortcuts(self):
+        # QPushButton.setText resets its shortcut, even without a mnemonic.
+        if not self._pending_text_entry:
+            self.btn_prev.setShortcut(QKeySequence(Qt.Key.Key_A))
+            self.btn_next.setShortcut(QKeySequence(Qt.Key.Key_D))
 
     def _render_current_page(self, fit_width: bool = False):
         if not self.reader or self.reader.total_pages == 0:
@@ -1524,6 +1611,13 @@ class AnnotatorMainWindow(QMainWindow):
         if not page:
             return
 
+        if getattr(self, "strip_layout", None):
+            self._render_strip(fit_width)
+            return
+
+        self.btn_prev.setText("← Previous (A)")
+        self.btn_next.setText("Next (D) →")
+        self._restore_navigation_shortcuts()
         pil_img = page.get_pil_image()
         pixmap = pil_to_qpixmap(pil_img)
 
@@ -1561,7 +1655,76 @@ class AnnotatorMainWindow(QMainWindow):
         self._refresh_wordless_ui()
         self.lbl_status_zoom.setText(f"Zoom: {int(self.canvas.zoom_factor * 100)}%")
 
+    def _render_strip(self, fit_width):
+        layout = self.strip_layout
+        other = "safe" if self.panel_algorithm == "smart" else "smart"
+        self.canvas.set_page(
+            None, layout.join(self.dataset_mgr, self.book_title, "frames", self.panel_algorithm),
+            layout.join(self.dataset_mgr, self.book_title, "phrases"),
+            layout.join(self.dataset_mgr, self.book_title, "words"),
+            other_panels=layout.join(self.dataset_mgr, self.book_title, "frames", other),
+        )
+        self.canvas.set_strip(self.reader, layout)
+        try:
+            self.canvas.strip_position_changed.disconnect(self._strip_position_changed)
+        except TypeError:
+            pass
+        self.canvas.strip_position_changed.connect(self._strip_position_changed)
+        if fit_width:
+            self.canvas.fit_to_width()
+            self.canvas.offset_y = -layout.offsets[self.current_page_num - 1] * self.canvas.zoom_factor
+        for widget in (self.spin_page, self.slider_page):
+            widget.blockSignals(True)
+            widget.setValue(self.current_page_num)
+            widget.blockSignals(False)
+        self.btn_prev.setText("↑ Half screen (A)")
+        self.btn_next.setText("↓ Half screen (D)")
+        self._restore_navigation_shortcuts()
+        self._refresh_panel_list()
+        self._refresh_illustration_type()
+        self._refresh_wordless_ui()
+        self.lbl_status_zoom.setText(f"Zoom: {int(self.canvas.zoom_factor * 100)}%")
+
+    def _strip_position_changed(self, page):
+        self.current_page_num = page
+        for widget in (self.spin_page, self.slider_page):
+            widget.blockSignals(True)
+            widget.setValue(page)
+            widget.blockSignals(False)
+
+    def _commit_strip(self):
+        layout = self.strip_layout
+        self.canvas.refresh_word_assignments()
+        other = "safe" if self.panel_algorithm == "smart" else "smart"
+        for algorithm, rectangles in ((self.panel_algorithm, self.canvas.get_panels()),
+                                       (other, self.canvas.other_panels)):
+            for index, frames in enumerate(layout.split(rectangles), 1):
+                annotation = self.dataset_mgr.get_panel_annotation(self.book_title, index, algorithm)
+                page = self.reader.pages[index - 1]
+                is_full_page = (len(frames) == 1 and
+                                (frames[0].x, frames[0].y, frames[0].w, frames[0].h) ==
+                                (0, 0, page.native_w, page.native_h))
+                self.dataset_mgr.set_page_frames(self.book_title, index, frames,
+                                                double_illustration=annotation.double_illustration and is_full_page,
+                                                algorithm=algorithm)
+                if is_full_page and not annotation.double_illustration:
+                    annotation.illustration_type = PageAnnotation.SINGLE_PAGE_ILLUSTRATION
+                elif not is_full_page and annotation.illustration_type == PageAnnotation.SINGLE_PAGE_ILLUSTRATION:
+                    annotation.illustration_type = None
+        phrases = layout.split(self.canvas.get_phrases())
+        words = layout.split(self.canvas.get_words())
+        for index, (page_phrases, page_words) in enumerate(zip(phrases, words), 1):
+            self.dataset_mgr.set_page_text_annotations(
+                self.book_title, index, page_phrases, page_words,
+                wordless=False if page_phrases or page_words else None,
+            )
+        self.current_page_num = layout.owner(-self.canvas.offset_y / self.canvas.zoom_factor) + 1
+        self.dataset_mgr.update_last_opened(self.book_title, self.current_page_num)
+
     def _commit_current_page_panels(self):
+        if self.book_title and self.reader and getattr(self, "strip_layout", None):
+            self._commit_strip()
+            return
         if self.book_title and self.reader:
             self.canvas.refresh_word_assignments()
             self.dataset_mgr.set_page_frames(
@@ -1623,13 +1786,38 @@ class AnnotatorMainWindow(QMainWindow):
         except (OSError, ValueError) as error:
             QMessageBox.critical(self, "Copy failed", str(error))
             return
+        # Both mappings live in the canvas. Reload them before any later commit
+        # can write the stale inactive mapping over the newly copied destination.
+        # This also discards undo snapshots containing the pre-copy destination.
+        self._render_current_page()
         message = f"Copied all {self.panel_algorithm} panels to {destination}."
         if backup:
             message += f"\nBackup: {backup}"
         QMessageBox.information(self, "Panels copied", message)
 
+    def set_manhwa_source_page_panel(self, use_cursor=True):
+        if not getattr(self, "strip_layout", None) or self._pending_text_entry:
+            return
+        if self.canvas._mode != "idle":
+            self.status_bar.showMessage("Release the mouse drag before marking a full source page.", 4000)
+            return
+        page_index = self.spin_page.value()
+        # Hovering makes it possible to target either page at a visible seam.
+        cursor = self.canvas.mapFromGlobal(QCursor.pos())
+        if use_cursor and self.canvas.underMouse() and self.canvas.rect().contains(cursor):
+            y = (cursor.y() - self.canvas.offset_y) / self.canvas.zoom_factor
+            if 0 <= y < self.strip_layout.height:
+                page_index = self.strip_layout.owner(y) + 1
+        if self.canvas.set_strip_page_panel(page_index):
+            self.status_bar.showMessage(
+                f"Source page {page_index} marked as a full-page illustration ({self.panel_algorithm}).", 4000,
+            )
+
     def set_single_page_illustration(self):
         """Replace annotations with one full-page, single-page illustration."""
+        if getattr(self, "strip_layout", None):
+            self.set_manhwa_source_page_panel()
+            return
         if not self.book_title or not self.reader:
             return
         self.dataset_mgr.set_page_illustration_type(
@@ -1642,6 +1830,9 @@ class AnnotatorMainWindow(QMainWindow):
 
     def set_double_page_illustration(self):
         """Replace annotations with one full-page frame marked as an already-combined spread."""
+        if getattr(self, "strip_layout", None):
+            self.status_bar.showMessage("Draw an illustration rectangle in the continuous manhwa canvas.", 3000)
+            return
         if not self.book_title or not self.reader:
             return
         self.dataset_mgr.set_page_illustration_type(
@@ -1653,6 +1844,9 @@ class AnnotatorMainWindow(QMainWindow):
         self.status_bar.showMessage("Marked as an already-combined double-page illustration.", 3000)
 
     def prev_page(self):
+        if getattr(self, "strip_layout", None):
+            self.canvas.pan_half_screen(-1)
+            return
         if self.current_page_num > 1:
             self._cancel_text_entry()
             self._commit_current_page_panels()
@@ -1660,6 +1854,9 @@ class AnnotatorMainWindow(QMainWindow):
             self._render_current_page()
 
     def next_page(self):
+        if getattr(self, "strip_layout", None):
+            self.canvas.pan_half_screen(1)
+            return
         if self.reader and self.current_page_num < self.reader.total_pages:
             self._cancel_text_entry()
             self._commit_current_page_panels()
@@ -1667,6 +1864,10 @@ class AnnotatorMainWindow(QMainWindow):
             self._render_current_page()
 
     def go_to_page(self, page_num: int):
+        if getattr(self, "strip_layout", None) and 1 <= page_num <= self.reader.total_pages:
+            self.current_page_num = page_num
+            self.canvas.pan_to(-self.strip_layout.offsets[page_num - 1] * self.canvas.zoom_factor)
+            return
         if self.reader and 1 <= page_num <= self.reader.total_pages and page_num != self.current_page_num:
             self._cancel_text_entry()
             self._commit_current_page_panels()
@@ -1706,7 +1907,9 @@ class AnnotatorMainWindow(QMainWindow):
         self.status_bar.showMessage(msg, 5000)
         if show_dialog:
             QMessageBox.information(self, "Dataset Saved", msg)
-        self.refresh_library()
+        # The Library tab refreshes on entry. Avoid rebuilding its hidden covers.
+        if self.tabs.currentIndex() == 0:
+            self.refresh_library()
 
     def _on_tab_changed(self, idx: int):
         if idx == 0:
@@ -1714,6 +1917,8 @@ class AnnotatorMainWindow(QMainWindow):
             self._commit_current_page_panels()
             self.refresh_library()
         elif idx == 1:
+            if getattr(self, "strip_layout", None):
+                return
             if getattr(self.canvas, "_pending_fit_width", False) or self.canvas.zoom_factor == 1.0:
                 self.canvas.fit_to_width(self.canvas.rect())
 
@@ -1725,6 +1930,8 @@ class AnnotatorMainWindow(QMainWindow):
         self._refresh_illustration_type()
 
     def _clear_invalid_double_page_marker(self):
+        if getattr(self, "strip_layout", None):
+            return
         """A double-page marker is only valid while its single frame covers the whole image."""
         if not self.book_title:
             return
@@ -1744,6 +1951,15 @@ class AnnotatorMainWindow(QMainWindow):
             self.canvas.double_illustration = False
 
     def _refresh_illustration_type(self):
+        continuous = bool(getattr(self, "strip_layout", None))
+        self.btn_strip_page.setVisible(continuous)
+        if hasattr(self, "act_strip_page"):
+            self.act_strip_page.setEnabled(continuous)
+        for button in (self.btn_full_page, self.btn_double_page, self.btn_double_illustration):
+            button.setEnabled(not continuous)
+        if continuous:
+            self.lbl_illustration_type.setText("Manhwa: continuous panel sequence")
+            return
         if not hasattr(self, "lbl_illustration_type"):
             return
         if not self.book_title:
@@ -1765,6 +1981,7 @@ class AnnotatorMainWindow(QMainWindow):
         )
         self.panel_list.blockSignals(True)
         self.panel_list.clear()
+        self._loaded_preview_rows.clear()
         is_panel = self.canvas.annotation_mode == "panel"
         self.panel_list.setDragDropMode(
             QAbstractItemView.DragDropMode.InternalMove if is_panel
@@ -1794,14 +2011,15 @@ class AnnotatorMainWindow(QMainWindow):
             )
             item = QListWidgetItem(text)
             item.setData(Qt.ItemDataRole.UserRole, idx)
-            if is_panel and self.canvas._pixmap and not self.canvas._pixmap.isNull():
-                crop = QRect(p.x, p.y, p.w, p.h).intersected(self.canvas._pixmap.rect())
-                if not crop.isEmpty():
-                    preview = self.canvas._pixmap.copy(crop).scaled(
+            if is_panel:
+                preview = (self.canvas.cached_panel_preview(p) if self.canvas._strip_reader
+                           else self.canvas.panel_preview(p))
+                if preview is not None and not preview.isNull():
+                    self._loaded_preview_rows.add(idx)
+                    item.setIcon(QIcon(preview.scaled(
                         96, 72, Qt.AspectRatioMode.KeepAspectRatio,
                         Qt.TransformationMode.SmoothTransformation,
-                    )
-                    item.setIcon(QIcon(preview))
+                    )))
                 item.setSizeHint(QSize(0, 80))
                 item.setToolTip(f"Panel {idx + 1} · Drag to change reading order")
             self.panel_list.addItem(item)
@@ -1809,6 +2027,36 @@ class AnnotatorMainWindow(QMainWindow):
             self.panel_list.setCurrentRow(self.canvas.selected_panel_index)
         self.panel_list.blockSignals(False)
         self._update_phrase_to_word_button()
+        self._schedule_panel_previews()
+
+    def _schedule_panel_previews(self, *args):
+        if self.canvas._strip_reader and self.canvas.annotation_mode == "panel":
+            self._preview_timer.start(0)
+
+    def _update_visible_panel_previews(self):
+        if not self.canvas._strip_reader or self.canvas.annotation_mode != "panel" or not self.panel_list.isVisible():
+            return
+        viewport = self.panel_list.viewport()
+        first = max(0, self.panel_list.indexAt(QPoint(2, 2)).row())
+        # Rows are 80 px tall; keep work independent of chapter length.
+        last = min(self.panel_list.count(), first + viewport.height() // 80 + 3)
+        visible = {row for row in range(first, last)
+                   if self.panel_list.visualItemRect(self.panel_list.item(row)).intersects(viewport.rect())}
+        for row in self._loaded_preview_rows - visible:
+            item = self.panel_list.item(row)
+            if item is not None:
+                item.setIcon(QIcon())
+        self._loaded_preview_rows.intersection_update(visible)
+        for row in sorted(visible):
+            item = self.panel_list.item(row)
+            if item.icon().isNull():
+                index = item.data(Qt.ItemDataRole.UserRole)
+                if 0 <= index < len(self.canvas.panels):
+                    item.setIcon(QIcon(self.canvas.panel_preview(self.canvas.panels[index])))
+                    self._loaded_preview_rows.add(row)
+                    # Decode at most one uncached row per event-loop turn.
+                    self._preview_timer.start(0)
+                    return
 
     def _on_canvas_panel_selected(self, idx: int):
         self.panel_list.blockSignals(True)
@@ -1961,7 +2209,8 @@ class AnnotatorMainWindow(QMainWindow):
         is_wordless = getattr(self.canvas, "wordless", False)
         mode = getattr(self.canvas, "annotation_mode", "panel")
         is_ocr_mode = mode in ("phrase", "word")
-        self.btn_wordless.setEnabled(is_ocr_mode and bool(self.book_title and self.reader))
+        self.btn_wordless.setEnabled(is_ocr_mode and bool(self.book_title and self.reader)
+                                     and not getattr(self, "strip_layout", None))
         if is_wordless:
             self.btn_wordless.setText("✓ Wordless Page (N)")
             self.btn_wordless.setToolTip("This page is marked as containing no dialogue/words (Wordless). Shortcut: N")
