@@ -696,27 +696,8 @@ function ViewerController:showOcrLanguageMenu(viewer)
     local bundled = WordFinder.availableBundledLanguages()
     local installed = WordFinder.availableUserLanguages()
 
-    local function chosenInGroup(candidates, prefix, preferred)
-        for _, code in ipairs(candidates) do
-            local id = prefix .. code
-            if id == active then
-                return id
-            end
-        end
-        for _, code in ipairs(candidates) do
-            local id = prefix .. code
-            if id == preferred then
-                return id
-            end
-        end
-        return candidates[1] and (prefix .. candidates[1]) or nil
-    end
-
-    local chosen_bundled = chosenInGroup(bundled, "", self.settings.ocr_preferred_bundled_language)
-    local chosen_user = chosenInGroup(installed, "user:", self.settings.ocr_preferred_user_language)
-
-    local function addChoice(id, label, group_choice)
-        local is_selected = group_choice == id
+    local function addChoice(id, label)
+        local is_selected = active == id
         items[#items + 1] = {
             text = (is_selected and "◉ " or "○ ") .. label,
             bold = is_selected,
@@ -740,7 +721,7 @@ function ViewerController:showOcrLanguageMenu(viewer)
             select_enabled = false,
         }
         for _, language in ipairs(bundled) do
-            addChoice(language, labels[language] or language, chosen_bundled)
+            addChoice(language, labels[language] or language)
         end
     end
 
@@ -754,7 +735,7 @@ function ViewerController:showOcrLanguageMenu(viewer)
         local ok, iso_language = pcall(require, "ui/data/isolanguage")
         for _, language in ipairs(installed) do
             local name = ok and iso_language:getLocalizedLanguage(language) or nil
-            addChoice("user:" .. language, name and (name .. " (" .. language .. ")") or language, chosen_user)
+            addChoice("user:" .. language, name and (name .. " (" .. language .. ")") or language)
         end
     end
 
