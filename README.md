@@ -77,7 +77,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - Animated panel transitions (or even page transitions, optional).
 - Configurable reading order, progress, OCR language, navigation, and crop, transitions & more.
 - Comics & Mangas support.
-- Initial **Manhwa mode**: separate Safe detection, cross-page illustrations, balanced reading sections, and vertical Smooth navigation. Manhwa Smart remains disabled. See [Manhwa implementation and evaluation](docs/MANHWA.md).
+- Initial **Manhwa mode**: separate Safe detection, complete cross-page illustrations of any height, and vertical Smooth navigation. Manhwa Smart remains disabled. See [Manhwa implementation and evaluation](docs/MANHWA.md).
 - Customizable and performant in low-end e-ink devices.
 - Move between panels with swipes and/or taps on edges.
 - And much more.

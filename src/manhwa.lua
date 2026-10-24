@@ -17,7 +17,6 @@ function Manhwa.layout(document)
     local layout = {
         pages = {},
         summaries = {},
-        breaks = {},
         width = 0,
         height = 0,
         document_ref = setmetatable({ document }, { __mode = "v" }),
@@ -113,7 +112,7 @@ local function continuous(a, b)
     return overlap >= math.min(a.w, b.w) * 0.5
 end
 
---- Detect complete illustrations across seams, independently of viewer subdivision.
+--- Detect complete illustrations across seams without a height or source-count cutoff.
 function Manhwa.detect(document, settings, page, build)
     if not document then
         return {}
@@ -126,12 +125,11 @@ function Manhwa.detect(document, settings, page, build)
     build = build or require("src._manhwabitmap").build
     local here = summary(layout, index, settings, build)
     local result, seen = {}, {}
-    local limit = math.max(1, math.floor(tonumber(settings.manhwa_max_join_pages) or 12))
     for _, panel in ipairs(here.panels) do
         local rect = globalRect(layout.pages[index], panel)
         local first, last = index, index
         if not here.unavailable and panel.y <= here.tolerance then
-            while first > 1 and index - first < limit - 1 and not layout.breaks[first] do
+            while first > 1 do
                 local previous = summary(layout, first - 1, settings, build)
                 if previous.unavailable then
                     break
@@ -151,11 +149,8 @@ function Manhwa.detect(document, settings, page, build)
                 end
             end
         end
-        if index - first >= limit - 1 then
-            layout.breaks[first] = true
-        end
         if not here.unavailable and layout.pages[index].h - panel.y - panel.h <= here.tolerance then
-            while last < #layout.pages and last - first < limit - 1 and not layout.breaks[last + 1] do
+            while last < #layout.pages do
                 local following = summary(layout, last + 1, settings, build)
                 if following.unavailable then
                     break
@@ -175,9 +170,6 @@ function Manhwa.detect(document, settings, page, build)
                 end
             end
         end
-        if last - first >= limit - 1 then
-            layout.breaks[last + 1] = true
-        end
         local key = string.format("%.3f:%.3f:%.3f:%.3f", rect.x, rect.y, rect.w, rect.h)
         if not seen[key] then
             seen[key] = true
@@ -190,36 +182,28 @@ function Manhwa.detect(document, settings, page, build)
     return result
 end
 
---- Balanced reading sections retain an illustration's true beginning and ending.
-function Manhwa.sections(panels, settings)
-    local Screen = require("device").screen
+--- Keep each complete illustration as one viewer panel, regardless of height.
+function Manhwa.sections(panels)
     local result = {}
     for _, panel in ipairs(panels) do
-        local ratio = math.max(0.25, tonumber(settings.manhwa_section_height_ratio) or 1.6)
-        local max_height = math.max(1, panel.w * Screen:getHeight() / Screen:getWidth() * ratio)
-        local count = math.max(1, math.ceil(panel.h / max_height))
-        for i = 1, count do
-            local y = panel.y + math.floor(panel.h * (i - 1) / count)
-            local bottom = panel.y + math.floor(panel.h * i / count)
-            result[#result + 1] = {
-                x = panel.x,
-                y = y,
-                w = panel.w,
-                h = bottom - y,
-                manhwa = true,
-                illustration_y = panel.y,
-                illustration_h = panel.h,
-            }
-        end
+        result[#result + 1] = {
+            x = panel.x,
+            y = panel.y,
+            w = panel.w,
+            h = panel.h,
+            manhwa = true,
+            illustration_y = panel.y,
+            illustration_h = panel.h,
+        }
     end
     return result
 end
 
-function Manhwa.collect(ui, settings, page)
-    return Manhwa.sections(Manhwa.detect(ui.document, settings, page), settings)
+function Manhwa.collect(ui, settings, page, build)
+    return Manhwa.sections(Manhwa.detect(ui.document, settings, page, build))
 end
 
---- Return an adjacent, nonduplicate section, even when it starts in the same file.
+--- Return an adjacent, nonduplicate panel, even when it starts in the same file.
 function Manhwa.adjacent(ui, settings, viewer, direction)
     if not ui or not ui.document then
         return

@@ -1,5 +1,5 @@
 -- Manhwa ground truth is evaluated in continuous native coordinates, separately
--- from Manga/Comic production records and separately from viewer subdivisions.
+-- from Manga/Comic production records, using the actual viewer collection path.
 local JSON = require("tests.helpers.json")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Evaluator = require("tests.dataset-mangas.panel_evaluator")
@@ -45,7 +45,7 @@ function Benchmark.run(root)
     end
     local predicted, seen = {}, {}
     for page = 1, #sizes do
-        for _, panel in ipairs(Manhwa.detect(document, settings, page, build)) do
+        for _, panel in ipairs(Manhwa.collect({ document = document }, settings, page, build)) do
             local key = string.format("%.3f:%.3f:%.3f:%.3f", panel.x, panel.y, panel.w, panel.h)
             if not seen[key] then
                 seen[key] = true

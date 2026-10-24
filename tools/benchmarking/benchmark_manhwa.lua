@@ -15,5 +15,5 @@ print(
     )
 )
 print(
-    "Illustrations are evaluated before viewer subdivision. Manhwa Smart is disabled; Manga/Comic records are unchanged."
+    "Complete viewer panels are evaluated without height subdivision. Manhwa Smart is disabled; Manga/Comic records are unchanged."
 )
