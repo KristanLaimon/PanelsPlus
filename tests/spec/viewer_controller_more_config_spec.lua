@@ -160,15 +160,16 @@ describe("ViewerController page-turn animation settings", function()
     end)
 
     it("finds installed tessdata models and rejects path-like choices", function()
-        local old_storage, old_lfs = package.loaded.datastorage, package.loaded.lfs
+        local old_storage, old_lfs = package.loaded.datastorage, package.loaded["libs/libkoreader-lfs"]
         package.loaded.datastorage = {
             getDataDir = function()
-                return "/reader/data"
+                return "/reader"
             end,
         }
-        package.loaded.lfs = {
-            dir = function()
-                local names = { ".", "spa.traineddata", "notes.txt", "eng.traineddata", "../bad.traineddata" }
+        package.loaded["libs/libkoreader-lfs"] = {
+            dir = function(directory)
+                assert.equals("/reader/data/tessdata", directory)
+                local names = { ".", "spa.traineddata", "notes.txt", "ara.traineddata", "../bad.traineddata" }
                 local index = 0
                 return function()
                     index = index + 1
@@ -181,13 +182,13 @@ describe("ViewerController page-turn animation settings", function()
         }
         local languages = WordFinder.availableUserLanguages()
         assert.equals(2, #languages)
-        assert.equals("eng", languages[1])
+        assert.equals("ara", languages[1])
         assert.equals("spa", languages[2])
         local dir, code = WordFinder.selectedModel("user:spa")
         assert.equals("/reader/data/tessdata", dir)
         assert.equals("spa", code)
         assert.is_nil(WordFinder.selectedModel("user:../bad"))
-        package.loaded.datastorage, package.loaded.lfs = old_storage, old_lfs
+        package.loaded.datastorage, package.loaded["libs/libkoreader-lfs"] = old_storage, old_lfs
     end)
 
     it("offers bundled and installed models in the in-zoom picker with one selection", function()

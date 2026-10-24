@@ -80,14 +80,14 @@ end
 function WordFinder.userModelDirectory()
     local ok, storage = pcall(require, "datastorage")
     if ok and storage and storage.getDataDir then
-        return storage:getDataDir() .. "/tessdata"
+        return storage:getDataDir() .. "/data/tessdata"
     end
     return nil
 end
 
 function WordFinder.availableUserLanguages()
     local directory = WordFinder.userModelDirectory()
-    local ok, lfs = pcall(require, "lfs")
+    local ok, lfs = pcall(require, "libs/libkoreader-lfs")
     if not directory or not ok then
         return {}
     end
