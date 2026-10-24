@@ -30,7 +30,7 @@ function Actions:onDispatcherRegisterActions()
     Dispatcher:registerAction("panels_plus_toggle_mode", {
         category = "none",
         event = "PanelsPlusToggleMode",
-        title = _("Panels+: manga/comic mode"),
+        title = _("Panels+: manga/comic/manhwa mode"),
         reader = true,
     })
     Dispatcher:registerAction("panels_plus_set_manga", {
@@ -63,9 +63,10 @@ end
 ---
 --- @return boolean handled Always true for KOReader event dispatch.
 function Actions:onPanelsPlusToggleMode()
-    self:setMode(self.settings.mode == "manga" and "comic" or "manga")
+    self:setMode(require("src._settings").nextReadingMode(self.settings.mode))
     UIManager:show(InfoMessage:new({
-        text = self.settings.mode == "manga" and _("Manga mode: right to left") or _("Comic mode: left to right"),
+        text = self.settings.mode == "manhwa" and _("Manhwa mode: top to bottom")
+            or (self.settings.mode == "manga" and _("Manga mode: right to left") or _("Comic mode: left to right")),
         timeout = 2,
     }))
     return true

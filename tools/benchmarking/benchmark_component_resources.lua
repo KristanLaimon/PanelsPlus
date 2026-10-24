@@ -32,7 +32,7 @@ local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local cpu, count, garbage, retained = 0, 0, 0, 0
 local maximum_buffers = 0
 local ffi = require("ffi")
-for _, book in ipairs(Manifest.loadManga()) do
+for _, book in ipairs(Manifest.loadMangaComic()) do
     for sample = 1, 5 do
         local page = book.pages[1 + math.floor((sample - 1) * (#book.pages - 1) / 4)]
         local settings = { mode = page.reading_order, embedded_image = page.embedded_image }

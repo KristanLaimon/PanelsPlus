@@ -40,6 +40,8 @@ end
 function Menu:getModeText()
     if self.settings.mode == "comic" then
         return _("Panels+: comic mode")
+    elseif self.settings.mode == "manhwa" then
+        return _("Panels+: manhwa mode")
     end
     return _("Panels+: manga mode")
 end

@@ -97,7 +97,7 @@ function ViewerController:prerenderNextPanel(viewer, index)
     end
 
     local next_rect = viewer.image_rects and viewer.image_rects[index + 1]
-    if not next_rect then
+    if not next_rect or self.settings.mode == "manhwa" then
         return
     end
 
@@ -134,8 +134,29 @@ end
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:toggleViewerMode(viewer)
     local current_rect = viewer.panels and viewer.panels[viewer._images_list_cur]
-    local next_mode = (viewer.reading_mode or self.settings.mode) == "manga" and "comic" or "manga"
+    local next_mode = Settings.nextReadingMode(viewer.reading_mode or self.settings.mode)
+    local focus_page = viewer.page
+    local focus_x = current_rect and (current_rect.x + current_rect.w / 2)
+    local focus_y = current_rect and (current_rect.y + current_rect.h / 2)
+    if current_rect and viewer.reading_mode == "manhwa" then
+        local layout = require("src.manhwa").layout(self.ui.document)
+        local item = layout.pages[layout:owner(focus_y)]
+        focus_page, focus_y = item.page, focus_y - item.y
+    end
     self:setMode(next_mode)
+    if current_rect and next_mode == "manhwa" then
+        local layout = require("src.manhwa").layout(self.ui.document)
+        local index = layout:indexForPage(focus_page)
+        if not index then
+            self:setMode(viewer.reading_mode)
+            UIManager:show(require("ui/widget/infomessage"):new({
+                text = require("gettext")("Manhwa mode could not obtain this document's source-page dimensions."),
+                timeout = 3,
+            }))
+            return true
+        end
+        focus_y = focus_y + layout.pages[index].y
+    end
     if not current_rect then
         viewer.reading_mode = self.settings.mode
         viewer:replaceButtonTable()
@@ -143,7 +164,7 @@ function ViewerController:toggleViewerMode(viewer)
         return true
     end
 
-    local panels = self:collectPanels(viewer.page)
+    local panels = self:collectPanels(focus_page)
     if #panels == 0 then
         viewer.reading_mode = self.settings.mode
         viewer:replaceButtonTable()
@@ -152,12 +173,17 @@ function ViewerController:toggleViewerMode(viewer)
     end
 
     local start_idx = PanelCollector.startIndex(panels, {
-        x = (current_rect.x or 0) + (current_rect.w or 0) / 2,
-        y = (current_rect.y or 0) + (current_rect.h or 0) / 2,
+        x = focus_x,
+        y = focus_y,
     })
 
     UIManager:close(viewer)
-    return self:showPanelViewerForPage(viewer.page, panels, start_idx, { buttons_visible = true })
+    if focus_page ~= viewer.page and self.ui.handleEvent then
+        local rotation = Screen:getRotationMode()
+        self.ui:handleEvent(Event:new("GotoPage", focus_page))
+        self:restoreDeviceRotation(rotation)
+    end
+    return self:showPanelViewerForPage(focus_page, panels, start_idx, { buttons_visible = true })
 end
 
 --- Order the crop-mode button cycles through on tap.
@@ -184,6 +210,13 @@ end
 
 --- Change panel finding mode and reopen this page at the nearest new panel.
 function ViewerController:toggleViewerPanelFindingMode(viewer)
+    if self.settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+        UIManager:show(require("ui/widget/infomessage"):new({
+            text = require("gettext")("Manhwa Smart is not enabled yet. Safe is active."),
+            timeout = 3,
+        }))
+        return true
+    end
     local page = viewer.page
     local current = viewer.panels and viewer.panels[viewer._images_list_cur or 1]
     local center = current and {
@@ -347,7 +380,9 @@ end
 --- @param viewer PanelViewer Active panel viewer instance.
 --- @return boolean handled Always true for viewer callback dispatch.
 function ViewerController:toggleViewerNavTransitionMode(viewer)
-    self:setNavTransitionMode(NavCapabilities.nextMode(self.settings.nav_transition_mode))
+    local mode = self.settings.mode == "manhwa" and (viewer.nav_transition_mode == "classic" and "smooth" or "classic")
+        or NavCapabilities.nextMode(self.settings.nav_transition_mode)
+    self:setNavTransitionMode(mode)
     viewer.nav_transition_mode = self.settings.nav_transition_mode
     viewer:replaceButtonTable()
     viewer:update()
@@ -541,7 +576,8 @@ end
 
 --- Return whether Animated mode should play a framebuffer page transition.
 function ViewerController:isPageTurnAnimationActive(viewer)
-    return Device:canDoSwipeAnimation()
+    return self.settings.mode ~= "manhwa"
+        and Device:canDoSwipeAnimation()
         and viewer
         and viewer.nav_transition_mode == "animated"
         and viewer.nav_animated_pages ~= false
@@ -575,7 +611,8 @@ end
 --- @return boolean armed Whether an animation was armed.
 function ViewerController:armPanelTransitionAnimation(direction, viewer)
     if
-        not Device:canDoSwipeAnimation()
+        self.settings.mode == "manhwa"
+        or not Device:canDoSwipeAnimation()
         or not viewer
         or viewer.nav_transition_mode ~= "animated"
         or viewer.nav_animated_panels == false
@@ -1014,6 +1051,10 @@ function ViewerController:showPanelSequence(reader_highlight, ges)
         return false
     end
 
+    if self.settings and self.settings.mode == "manhwa" then
+        local layout = require("src.manhwa").layout(self.ui.document)
+        hold_pos.y = hold_pos.y + layout.pages[layout:indexForPage(hold_pos.page)].y
+    end
     local start_idx = PanelCollector.startIndex(panels, hold_pos)
     Timing.log("showPanelSequence: page %d panels=%d start_idx=%d", hold_pos.page, #panels, start_idx)
     Timing.memory("show_panel_sequence")
@@ -1041,7 +1082,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
     Timing.memory("show_panel_viewer")
     -- Restore the reader's rotation first if the screen was rotated for a
     -- spread, so the viewer is laid out for it.
-    SpreadRotation.prepareSpreadRotationForViewer(self, page, panels)
+    if self.settings.mode ~= "manhwa" then
+        SpreadRotation.prepareSpreadRotationForViewer(self, page, panels)
+    end
     local images, image_rects, full_page_flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
     local viewer
     viewer = PanelViewer:new({
@@ -1054,6 +1097,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         image_rects = image_rects,
         panel_is_full_page = full_page_flags,
         reader_ui = self.ui,
+        image_union_renderer = self.settings.mode == "manhwa" and function(rect, zoom)
+            return require("src.manhwa").render(self.ui, rect, zoom)
+        end or nil,
         panel_prerender_callback = function(current_viewer, index)
             return self:prerenderNextPanel(current_viewer, index)
         end,
@@ -1078,10 +1124,13 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         hold_text_selection = self.settings.hold_text_selection ~= false,
         prefer_native_text_layer = self.settings.prefer_native_text_layer ~= false,
         ocr_bundled_language = self:getSelectedOcrModel(),
-        image_rotation = self.settings.image_rotation,
-        auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
+        image_rotation = self.settings.mode == "manhwa" and 0 or self.settings.image_rotation,
+        auto_rotate_double_pages = self.settings.mode ~= "manhwa" and self.settings.auto_rotate_double_pages ~= false,
         spread_rotation_direction = self.settings.spread_rotation_direction,
-        nav_transition_mode = self.settings.nav_transition_mode or "classic",
+        nav_transition_mode = self.settings.mode == "manhwa"
+                and self.settings.nav_transition_mode == "animated"
+                and "smooth"
+            or (self.settings.nav_transition_mode or "classic"),
         nav_smooth_style = self.settings.nav_smooth_style or Settings.defaults.nav_smooth_style,
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,
@@ -1192,6 +1241,21 @@ end
 --- @return PPBoundaryResolution|nil resolved `nil` when there is no next/prev
 ---   page, or its panels are not (yet) cached.
 function ViewerController:resolveBoundaryTarget(direction, current_viewer)
+    if self.settings and self.settings.mode == "manhwa" then
+        local page, panels, index = require("src.manhwa").adjacent(self.ui, self.settings, current_viewer, direction)
+        if not page then
+            return nil
+        end
+        local images, rects, flags = PanelCollector.buildImages(self.ui, page, panels, self.settings)
+        return {
+            next_page = page,
+            panels = panels,
+            start_idx = index,
+            target_rect = rects[index],
+            target_is_full_page = flags[index],
+            next_images = images,
+        }
+    end
     local next_page
     if direction == "next" then
         next_page = self.ui.document:getNextPage(current_viewer.page)
@@ -1264,6 +1328,14 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
         return true
     end
     current_viewer._panels_plus_boundary_pending = true
+    if self.settings and self.settings.mode == "manhwa" then
+        local resolved = self:resolveBoundaryTarget(direction, current_viewer)
+        if resolved then
+            return self:commitBoundaryTransition(direction, current_viewer, resolved)
+        end
+        current_viewer._panels_plus_boundary_pending = nil
+        return current_viewer:confirmDocumentBoundary(direction, self.ui)
+    end
 
     local next_page
     if direction == "next" then

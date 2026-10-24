@@ -23,7 +23,7 @@ local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local count, cpu, first, last, peak = 0, 0, 0, 0, 0
 collectgarbage("collect")
 local initial = collectgarbage("count")
-for _, book in ipairs(Manifest.loadManga()) do
+for _, book in ipairs(Manifest.loadMangaComic()) do
     local book_cpu, pages = 0, 0
     for sample = 1, 5 do
         local page = book.pages[1 + math.floor((sample - 1) * (#book.pages - 1) / 4)]

@@ -103,13 +103,16 @@ end
 local pages = {}
 if target_book and target_page then
     local p = Manifest.getPage(target_book, target_page, dataset_dir)
+    if p and p.type == "manhwa" then
+        error("Use tools/benchmarking/benchmark_manhwa.lua for continuous manhwa ground truth")
+    end
     if not p then
         io.stderr:write(string.format("Page not found: book=%s, page=%d\n", target_book, target_page))
         os.exit(1)
     end
     table.insert(pages, p)
 elseif target_book then
-    local books = Manifest.loadManga(dataset_dir)
+    local books = Manifest.loadMangaComic(dataset_dir)
     for _, b in ipairs(books) do
         if b.book_title == target_book then
             for _, p in ipairs(b.pages) do
@@ -122,7 +125,7 @@ elseif target_book then
         os.exit(1)
     end
 elseif run_all then
-    pages = Manifest.getAllPages(dataset_dir)
+    pages = Manifest.getMangaComicPages(dataset_dir)
 else
     pages = Manifest.getGoldenPages(dataset_dir)
 end
@@ -299,7 +302,7 @@ for _, algorithm in ipairs(algorithms) do
         )
 
         if not target_page and (target_book or run_all) and iou_threshold == 0.5 then
-            for _, book in ipairs(Manifest.loadManga(dataset_dir)) do
+            for _, book in ipairs(Manifest.loadMangaComic(dataset_dir)) do
                 local metrics = book_metrics[book.book_title]
                 if metrics then
                     local book_dir = book.directory

@@ -275,12 +275,16 @@ function DatasetLoader.loadPageMap(image_path, settings)
     local ink_data = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
     local structural = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
     local dark = has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}
+    local paper = settings.mode == "manhwa" and (has_ffi and ffi.new("uint8_t[?]", target_w * target_h) or {}) or nil
     local total_ink = 0
     for y = 0, target_h - 1 do
         local row_base = y * target_w
         for x = 0, target_w - 1 do
             local idx = row_base + x + 1
             local val = raw:byte(idx)
+            if paper then
+                paper[row_base + x] = val <= 4 and 1 or (val >= 251 and 2 or 0)
+            end
             dark[row_base + x] = val <= 100 and 1 or 0
             structural[row_base + x] = math.abs(val - bg) > 100 and 1 or 0
             local diff = math.abs(val - bg)
@@ -298,6 +302,7 @@ function DatasetLoader.loadPageMap(image_path, settings)
         data = ink_data,
         dark = dark,
         structural = structural,
+        paper = paper,
         ink = total_ink,
         native_w = native_w,
         native_h = native_h,

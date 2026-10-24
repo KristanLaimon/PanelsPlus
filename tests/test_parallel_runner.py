@@ -30,6 +30,7 @@ class ParallelRunnerTests(unittest.TestCase):
             "tests.dataset-mangas.dataset.Book.book_spec",
             "tests.spec.dataset_benchmark_spec",
             "tests.spec.dataset_support_spec",
+            "tests.spec.manhwa_dataset_spec",
             "tests.spec.textbasedformats_dataset_spec",
         ]
 
