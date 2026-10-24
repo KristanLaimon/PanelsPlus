@@ -159,7 +159,7 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(viewer, opened)
     end)
 
-    it("finds installed tessdata models and rejects path-like choices", function()
+    it("discovers fixture models in data/tessdata and rejects path-like choices", function()
         local old_storage, old_lfs = package.loaded.datastorage, package.loaded["libs/libkoreader-lfs"]
         package.loaded.datastorage = {
             getDataDir = function()
@@ -169,7 +169,8 @@ describe("ViewerController page-turn animation settings", function()
         package.loaded["libs/libkoreader-lfs"] = {
             dir = function(directory)
                 assert.equals("/reader/data/tessdata", directory)
-                local names = { ".", "spa.traineddata", "notes.txt", "ara.traineddata", "../bad.traineddata" }
+                local names =
+                    { ".", "fixture_z.traineddata", "notes.txt", "fixture_a.traineddata", "../bad.traineddata" }
                 local index = 0
                 return function()
                     index = index + 1
@@ -182,11 +183,11 @@ describe("ViewerController page-turn animation settings", function()
         }
         local languages = WordFinder.availableUserLanguages()
         assert.equals(2, #languages)
-        assert.equals("ara", languages[1])
-        assert.equals("spa", languages[2])
-        local dir, code = WordFinder.selectedModel("user:spa")
+        assert.equals("fixture_a", languages[1])
+        assert.equals("fixture_z", languages[2])
+        local dir, code = WordFinder.selectedModel("user:fixture_z")
         assert.equals("/reader/data/tessdata", dir)
-        assert.equals("spa", code)
+        assert.equals("fixture_z", code)
         assert.is_nil(WordFinder.selectedModel("user:../bad"))
         package.loaded.datastorage, package.loaded["libs/libkoreader-lfs"] = old_storage, old_lfs
     end)
