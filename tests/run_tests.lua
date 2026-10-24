@@ -59,6 +59,8 @@ local spec_modules = {
     "tests.spec.segmenter_spec",
     "tests.spec.componentdetector_spec",
     "tests.spec.panelcollector_spec",
+    "tests.spec.manhwa_spec",
+    "tests.spec.manhwa_dataset_spec",
     "tests.spec.panelviewer_navtransition_spec",
     "tests.spec.panelviewer_controls_spec",
     "tests.spec.dataset_benchmark_spec",

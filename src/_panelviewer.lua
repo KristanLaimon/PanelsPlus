@@ -83,7 +83,7 @@ end
 --- ImageViewer subclass for navigating one page's ordered panel sequence.
 ---
 --- @class PanelViewer : ImageViewer
---- @field reading_mode PPReadingMode Current left/right panel order.
+--- @field reading_mode PPReadingMode Current horizontal or vertical reading flow.
 --- @field crop_mode PPCropMode Current crop rendering mode.
 --- @field panel_finding_mode PPPanelFindingMode Current panel detector choice.
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
@@ -499,7 +499,13 @@ end
 --- @return '"west"'|'"east"' direction Swipe direction treated as next.
 function PanelViewer:getNextSwipeDirection()
     local direction
-    direction = self.reading_mode == "comic" and "west" or "east"
+    direction = self.reading_mode == "manhwa" and "north" or (self.reading_mode == "comic" and "west" or "east")
+    if self.invert_swipe and self.reading_mode == "manhwa" then
+        return "south"
+    end
+    if self.reading_mode == "manhwa" then
+        return direction
+    end
     if self.invert_swipe then
         return direction == "west" and "east" or "west"
     end
@@ -582,8 +588,24 @@ function PanelViewer:onSwipe(arg, ges)
         end
     end
 
+    if
+        self.reading_mode == "manhwa"
+        and self.swipe_navigation ~= false
+        and self._images_list
+        and (ges.direction == "north" or ges.direction == "south")
+        and not self:isImagePannable()
+    then
+        if ges.direction == self:getNextSwipeDirection() then
+            return self:onShowNextImage()
+        end
+        return self:onShowPrevImage()
+    end
     if self:isImagePannable() then
         return self:panBySwipe(ges)
+    end
+
+    if self.reading_mode == "manhwa" and self._images_list and (ges.direction == "west" or ges.direction == "east") then
+        return true
     end
 
     if
@@ -799,6 +821,14 @@ end
 --- @param direction string Panning direction ("left", "right", "up", "down").
 --- @return boolean handled Whether the event was handled.
 function PanelViewer:onCursorPan(direction)
+    if self.reading_mode == "manhwa" then
+        if direction == "down" then
+            return self:onShowNextImage()
+        end
+        if direction == "up" then
+            return self:onShowPrevImage()
+        end
+    end
     if direction == "left" then
         return self:onPanelNavLeft()
     elseif direction == "right" then
@@ -987,11 +1017,14 @@ function PanelViewer:screenToPageTransform(pos)
     local page_x = (rect.x or 0) + FoldJoin.toSourceU(u, self:currentFold()) * (rect.w or 0)
     local page_y = (rect.y or 0) + v * (rect.h or 0)
 
-    return {
-        x = page_x,
-        y = page_y,
-        page = self.page,
-    }
+    local page = self.page
+    if self.reading_mode == "manhwa" and not self.embedded_source_image and self.reader_ui then
+        local layout = require("src.manhwa").layout(self.reader_ui.document)
+        local item = layout.pages[layout:owner(page_y)]
+        page, page_y = item.page, page_y - item.y
+        self._manhwa_text_page = page
+    end
+    return { x = page_x, y = page_y, page = page }
 end
 
 --- Convert a page-space rectangle on the current page to screen coordinates inside this zoomed viewer.
@@ -1013,6 +1046,13 @@ function PanelViewer:pageToScreenTransform(box)
     local by = box.y or box.y0 or 0
     local bw = box.w or ((box.x1 or bx) - bx)
     local bh = box.h or ((box.y1 or by) - by)
+    if self.reading_mode == "manhwa" and not self.embedded_source_image and self.reader_ui then
+        local layout = require("src.manhwa").layout(self.reader_ui.document)
+        local index = layout:indexForPage(box.page or self._manhwa_text_page or self.page)
+        if index then
+            by = by + layout.pages[index].y
+        end
+    end
     if bw <= 0 or bh <= 0 then
         return nil
     end
@@ -1153,8 +1193,9 @@ function PanelViewer:paintHighlights(bb, x, y)
 
     local boxes_to_draw = {}
 
-    if temp_highlights and self.page and temp_highlights[self.page] then
-        for _, box in ipairs(temp_highlights[self.page]) do
+    local highlight_page = self._manhwa_text_page or self.page
+    if temp_highlights and highlight_page and temp_highlights[highlight_page] then
+        for _, box in ipairs(temp_highlights[highlight_page]) do
             table.insert(boxes_to_draw, box)
         end
     end
@@ -1766,7 +1807,19 @@ function PanelViewer:onTap(_, ges)
 
     if self.tap_navigation and not self:isImagePannable() then
         local next_side = self:getNextTapSide()
-        if isLeftTapZone(ges.pos) then
+        if self.reading_mode == "manhwa" then
+            local y = ges.pos and ges.pos.y
+            if y and (y < Screen:getHeight() / 3 or y > Screen:getHeight() * 2 / 3) then
+                local forward = y > Screen:getHeight() * 2 / 3
+                if self.invert_taps then
+                    forward = not forward
+                end
+                if forward then
+                    return self:onShowNextImage()
+                end
+                return self:onShowPrevImage()
+            end
+        elseif isLeftTapZone(ges.pos) then
             if next_side == "left" then
                 return self:onShowNextImage()
             end
@@ -2197,6 +2250,9 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     Timing.memory("smooth_transition")
 
     local union = Geometry.rectUnion(rect_a, rect_b)
+    if self.reading_mode == "manhwa" then
+        union.manhwa = true
+    end
     -- Margin mode does not alter `rect_b`; it renders the same pixels inside a
     -- smaller viewport. Match that smaller destination scale here as well, or
     -- ImageWidget clamps the camera to the full-size canvas and the animation
@@ -2521,7 +2577,11 @@ end
 --- @param direction PPBoundaryDirection `"next"` or `"previous"`.
 --- @return boolean|nil handled Whether the crossing was handled.
 function PanelViewer:onPanelBoundary(direction)
-    if self.nav_transition_mode == "smooth" and self.nav_transition_cross_page and not self.image_union_renderer then
+    if
+        self.nav_transition_mode == "smooth"
+        and self.nav_transition_cross_page
+        and (not self.image_union_renderer or self.reading_mode == "manhwa")
+    then
         return self:animateBoundaryTransition(direction)
     end
     return self.boundary_callback and self.boundary_callback(direction, self)
@@ -2608,7 +2668,11 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
     end
 
     local ok_a, tile_a, rotated_a = pcall(function()
-        if self.crop_mode == "none" and self._images_list and self._images_list[self._images_list_cur] then
+        if
+            (self.crop_mode == "none" or self.reading_mode == "manhwa")
+            and self._images_list
+            and self._images_list[self._images_list_cur]
+        then
             local img = self._images_list[self._images_list_cur]
             if type(img) == "function" then
                 owned_a = img()
@@ -2623,7 +2687,11 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
         return fallback()
     end
     local ok_b, tile_b, rotated_b = pcall(function()
-        if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
+        if
+            (self.crop_mode == "none" or self.reading_mode == "manhwa")
+            and resolved.next_images
+            and resolved.next_images[resolved.start_idx]
+        then
             local img = resolved.next_images[resolved.start_idx]
             if type(img) == "function" then
                 owned_b = img()
@@ -2683,8 +2751,11 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
     local half_w_b = math.max(viewport_w / 2, tile_b:getWidth() / 2)
     local half_h_b = math.max(viewport_h / 2, tile_b:getHeight() / 2)
 
-    local canvas_w = math.max(1, math.ceil(2 * half_w_a + 2 * half_w_b))
-    local canvas_h = math.max(1, math.ceil(math.max(2 * half_h_a, 2 * half_h_b)))
+    local vertical = self.reading_mode == "manhwa"
+    local canvas_w =
+        math.max(1, math.ceil(vertical and math.max(2 * half_w_a, 2 * half_w_b) or (2 * half_w_a + 2 * half_w_b)))
+    local canvas_h =
+        math.max(1, math.ceil(vertical and (2 * half_h_a + 2 * half_h_b) or math.max(2 * half_h_a, 2 * half_h_b)))
 
     local screen_area = viewport_w * viewport_h
     if
@@ -2698,22 +2769,25 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
         return fallback()
     end
 
-    local a_left = travel_west and (2 * half_w_b) or 0
-    local b_left = travel_west and 0 or (2 * half_w_a)
+    local a_left = vertical and (canvas_w / 2 - half_w_a) or (travel_west and (2 * half_w_b) or 0)
+    local b_left = vertical and (canvas_w / 2 - half_w_b) or (travel_west and 0 or (2 * half_w_a))
+    local a_top = vertical and (direction == "next" and 0 or (2 * half_h_b)) or 0
+    local b_top = vertical and (direction == "next" and (2 * half_h_a) or 0) or 0
 
     local canvas
     local ok_canvas, canvas_image = pcall(function()
         canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
         canvas:fill(Blitbuffer.COLOR_WHITE)
         local a_x = math.max(0, math.floor(a_left + half_w_a - tile_a_scaled:getWidth() / 2))
-        local a_y = math.max(0, math.floor(canvas_h / 2 - tile_a_scaled:getHeight() / 2))
+        local a_y =
+            math.max(0, math.floor((vertical and (a_top + half_h_a) or canvas_h / 2) - tile_a_scaled:getHeight() / 2))
         local a_w = math.min(tile_a_scaled:getWidth(), canvas_w - a_x)
         local a_h = math.min(tile_a_scaled:getHeight(), canvas_h - a_y)
         if a_w > 0 and a_h > 0 then
             canvas:blitFrom(tile_a_scaled, a_x, a_y, 0, 0, a_w, a_h)
         end
         local b_x = math.max(0, math.floor(b_left + half_w_b - tile_b:getWidth() / 2))
-        local b_y = math.max(0, math.floor(canvas_h / 2 - tile_b:getHeight() / 2))
+        local b_y = math.max(0, math.floor((vertical and (b_top + half_h_b) or canvas_h / 2) - tile_b:getHeight() / 2))
         local b_w = math.min(tile_b:getWidth(), canvas_w - b_x)
         local b_h = math.min(tile_b:getHeight(), canvas_h - b_y)
         if b_w > 0 and b_h > 0 then
@@ -2734,7 +2808,8 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
 
     local ratio_ax = (a_left + half_w_a) / canvas_w
     local ratio_bx = (b_left + half_w_b) / canvas_w
-    local ratio_ay, ratio_by = 0.5, 0.5 -- each slice is centered vertically in the shared canvas_h
+    local ratio_ay = vertical and (a_top + half_h_a) / canvas_h or 0.5
+    local ratio_by = vertical and (b_top + half_h_b) / canvas_h or 0.5
 
     self._panels_plus_transition_active = true
     local old_image = self.image
@@ -3357,12 +3432,13 @@ function PanelViewer:replaceButtonTable()
             },
             {
                 id = "mode",
-                text = self.reading_mode == "comic" and _("Comic mode") or _("Manga mode"),
+                text = self.reading_mode == "manhwa" and _("Manhwa mode")
+                    or (self.reading_mode == "comic" and _("Comic mode") or _("Manga mode")),
                 callback = function()
                     if self.mode_toggle_callback then
                         self.mode_toggle_callback(self)
                     else
-                        self.reading_mode = self.reading_mode == "comic" and "manga" or "comic"
+                        self.reading_mode = require("src._settings").nextReadingMode(self.reading_mode)
                         self:replaceButtonTable()
                         self:update()
                     end
@@ -3417,7 +3493,9 @@ function PanelViewer:replaceButtonTable()
                     if self.nav_transition_toggle_callback then
                         self.nav_transition_toggle_callback(self)
                     else
-                        local mode = NavCapabilities.nextMode(self.nav_transition_mode)
+                        local mode = self.reading_mode == "manhwa"
+                                and (self.nav_transition_mode == "classic" and "smooth" or "classic")
+                            or NavCapabilities.nextMode(self.nav_transition_mode)
                         self.nav_transition_mode = mode
                         self:replaceButtonTable()
                         self:update()

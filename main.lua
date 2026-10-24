@@ -196,7 +196,7 @@ function PanelsPlus:loadDocSettings()
         doc_data = Profiles.documentSettings(self.settings, doc_data)
         self.doc_has_custom_settings = true
         if doc_data.mode ~= nil then
-            self.settings.mode = doc_data.mode == "comic" and "comic" or "manga"
+            self.settings.mode = Settings.normalizeReadingMode(doc_data.mode)
         end
         if doc_data.nav_transition_mode ~= nil then
             local m = doc_data.nav_transition_mode
@@ -260,6 +260,9 @@ function PanelsPlus:loadDocSettings()
     else
         self.settings.selected_profile_id = nil
     end
+    if self.settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+        self.settings.panel_finding_mode = "safe"
+    end
     Profiles.invalidate(self.settings)
 end
 
@@ -306,9 +309,27 @@ end
 --- switching modes does not need to invalidate anything: pages already
 --- detected under the other mode simply stay cached under their own key.
 ---
---- @param mode PPReadingMode Requested mode; anything except `"comic"` maps to `"manga"`.
+--- @param mode PPReadingMode Requested mode: manga, comic, or manhwa; invalid values use manga.
 function PanelsPlus:setMode(mode)
-    self.settings.mode = mode == "comic" and "comic" or "manga"
+    local previous = self.settings.mode
+    mode = Settings.normalizeReadingMode(mode)
+    if mode ~= previous then
+        if self.cancelPanelPrefetch then
+            self:cancelPanelPrefetch()
+        end
+        if self.cancelPanelPrerender then
+            self:cancelPanelPrerender()
+        end
+    end
+    if mode == "manhwa" and previous ~= "manhwa" then
+        self.settings.fixed_panel_finding_mode = self.settings.panel_finding_mode
+    elseif previous == "manhwa" and mode ~= "manhwa" then
+        self.settings.panel_finding_mode = Settings.normalizePanelFindingMode(self.settings.fixed_panel_finding_mode)
+    end
+    self.settings.mode = mode
+    if self.settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+        self.settings.panel_finding_mode = "safe"
+    end
     Timing.log("mode -> " .. self.settings.mode)
     self:saveSettings()
     self:saveDocSettings(true)
@@ -330,6 +351,9 @@ end
 --- Choose between the Safe v1.4.0 detector and the Smart detector.
 function PanelsPlus:setPanelFindingMode(mode)
     local selected = Settings.normalizePanelFindingMode(mode)
+    if self.settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+        selected = "safe"
+    end
     if self.settings.panel_finding_mode == selected then
         return
     end
@@ -689,6 +713,12 @@ function PanelsPlus:teardownDocumentResources()
         SafeComponentDetector.clearScratch()
     end
 
+    for _, name in ipairs({ "src._manhwasafe", "src._manhwasmart" }) do
+        local detector = package.loaded[name]
+        if detector and detector.clearScratch then
+            detector.clearScratch()
+        end
+    end
     local minimum = self.settings.prerender_min_free_bytes or Settings.defaults.prerender_min_free_bytes
     if not Memory.hasHeadroom(minimum) then
         collectgarbage("collect")

@@ -15,6 +15,7 @@ PRODUCTION_SPEC = "tests.spec.new_dataset_benchmark_spec"
 DATASET_SPECS = {
     "tests.spec.dataset_benchmark_spec",
     "tests.spec.dataset_support_spec",
+    "tests.spec.manhwa_dataset_spec",
     "tests.spec.textbasedformats_dataset_spec",
     PRODUCTION_SPEC,
 }

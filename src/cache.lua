@@ -38,6 +38,9 @@ function Cache:clearPanelCache()
     self:cancelPanelPrefetch()
     self.panel_cache = {}
     self.panel_cache_order = {}
+    if self.ui and self.ui.document then
+        require("src.manhwa").clear(self.ui.document)
+    end
 end
 
 --- Build the cache key for a document page, reading mode, and finding mode.

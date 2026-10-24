@@ -235,6 +235,23 @@ end
 
 --- Match fixed-layout detection and retain sparse images in the sequence.
 local function detectPanels(image, settings)
+    if settings.mode == "manhwa" then
+        local Manhwa = require("src.manhwa")
+        local map = require("src._manhwabitmap").buildFromBlitbuffer(image, settings)
+        if map then
+            local detector = Manhwa.smart_enabled
+                    and settings.panel_finding_mode == "smart"
+                    and require("src._manhwasmart")
+                or require("src._manhwasafe")
+            local regions = detector.detectPage(map, settings)
+            if #regions == 0 then
+                return nil, "empty manhwa image"
+            end
+            return Manhwa.sections(regions, settings), "manhwa"
+        end
+        local width, height = dimensions(image)
+        return Manhwa.sections({ { x = 0, y = 0, w = width, h = height } }, settings), "manhwa fallback"
+    end
     local map = PageBitmap.buildFromBlitbuffer(image, settings)
     if map then
         local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "safe"
@@ -276,7 +293,13 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
     end
     local ordering = Settings.normalizePanelFindingMode(self.settings.panel_finding_mode) == "safe" and SafeGeometry
         or Geometry
-    panels = ordering.sortReadingOrder(panels, self.settings.mode)
+    if self.settings.mode == "manhwa" then
+        table.sort(panels, function(a, b)
+            return a.y == b.y and a.x < b.x or a.y < b.y
+        end)
+    else
+        panels = ordering.sortReadingOrder(panels, self.settings.mode)
+    end
 
     -- A forward boundary lands at the first panel of the next image, while a
     -- backward boundary must land at the last panel of the previous image.
@@ -290,7 +313,8 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         table.insert(image_rects, image_rect)
         local is_full_page = panel.w * panel.h >= (self.settings.full_page_panel_ratio or 0.92) * width * height
         table.insert(full_page_flags, is_full_page)
-        local direct_spread = self.settings.auto_rotate_double_pages ~= false
+        local direct_spread = self.settings.mode ~= "manhwa"
+            and self.settings.auto_rotate_double_pages ~= false
             and self.settings.image_rotation == nil
             and DoubleSpread.shouldRotate(panel, is_full_page, #panels == 1)
         if self.settings.crop_mode == "none" and not direct_spread then
@@ -340,7 +364,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         hold_text_selection = self.settings.hold_text_selection ~= false,
         ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
-        auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
+        auto_rotate_double_pages = self.settings.mode ~= "manhwa" and self.settings.auto_rotate_double_pages ~= false,
         spread_rotation_direction = self.settings.spread_rotation_direction,
         -- Smooth movement is rendered only from the extracted bitmap. This
         -- leaves the normal document-page renderer untouched.
@@ -362,9 +386,12 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             self:cancelEmbeddedImageSearch(current_viewer)
         end,
         mode_toggle_callback = function(current_viewer)
-            local next_mode = (current_viewer.reading_mode or self.settings.mode) == "manga" and "comic" or "manga"
+            local previous = current_viewer.reading_mode or self.settings.mode
+            local next_mode = Settings.nextReadingMode(previous)
             self:setMode(next_mode)
-            return self:reopenEmbeddedImagePanels(current_viewer)
+            return self:reopenEmbeddedImagePanels(current_viewer, {
+                redetect = previous == "manhwa" or next_mode == "manhwa",
+            })
         end,
         crop_toggle_callback = function(current_viewer)
             local next_mode = { strict = "loose", loose = "margin", margin = "none", none = "strict" }
@@ -372,6 +399,13 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             return self:reopenEmbeddedImagePanels(current_viewer)
         end,
         panel_finding_toggle_callback = function(current_viewer)
+            if self.settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+                UIManager:show(require("ui/widget/infomessage"):new({
+                    text = require("gettext")("Manhwa Smart is not enabled yet. Safe is active."),
+                    timeout = 3,
+                }))
+                return true
+            end
             self:setPanelFindingMode(self.settings.panel_finding_mode == "smart" and "safe" or "smart")
             return self:reopenEmbeddedImagePanels(current_viewer, { redetect = true })
         end,

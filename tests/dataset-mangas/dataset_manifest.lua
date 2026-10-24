@@ -64,8 +64,8 @@ local function loadDatasetMetadata(book_dir)
     f:close()
     local metadata = JSON.decode(raw)
     local dataset_type = metadata and metadata.type or nil
-    if dataset_type ~= "manga" and dataset_type ~= "comic" then
-        error(string.format('%s must contain type "manga" or "comic"', metadata_path))
+    if dataset_type ~= "manga" and dataset_type ~= "comic" and dataset_type ~= "manhwa" then
+        error(string.format('%s must contain type "manga", "comic", or "manhwa"', metadata_path))
     end
     local color_mode = metadata.color_mode
     if color_mode ~= nil then
@@ -364,6 +364,27 @@ function Manifest.getMappedPages(book, algorithm)
             selected.double_illustration = selected.illustration_type == "double_page"
             selected.algorithm = algorithm
             pages[#pages + 1] = selected
+        end
+    end
+    return pages
+end
+
+--- Legacy detector tools must never evaluate strip ground truth page by page.
+function Manifest.loadMangaComic(dataset_dir)
+    local books = {}
+    for _, book in ipairs(Manifest.loadManga(dataset_dir)) do
+        if book.type ~= "manhwa" then
+            books[#books + 1] = book
+        end
+    end
+    return books
+end
+
+function Manifest.getMangaComicPages(dataset_dir)
+    local pages = {}
+    for _, book in ipairs(Manifest.loadMangaComic(dataset_dir)) do
+        for _, page in ipairs(book.pages) do
+            pages[#pages + 1] = page
         end
     end
     return pages

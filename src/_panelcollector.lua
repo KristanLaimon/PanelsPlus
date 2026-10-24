@@ -193,6 +193,9 @@ end
 --- @param hold_pos PPPagePosition|nil Optional page-space position from the user's hold.
 --- @return PPPanel[] panels Ordered panel rectangles.
 function PanelCollector.collect(ui, settings, page, hold_pos)
+    if settings.mode == "manhwa" then
+        return require("src.manhwa").collect(ui, settings, page)
+    end
     local map = PageBitmap.build(ui.document, page, settings)
     if map then
         local detector = Settings.normalizePanelFindingMode(settings.panel_finding_mode) == "safe"
@@ -287,8 +290,38 @@ end
 --- @return boolean[] full_page_flags Per-panel flag matching `images`, for margin-mode gating.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
-    local page_size = document:getPageDimensions(page, 1, 0)
     settings = settings or Settings.defaults
+    if settings.mode == "manhwa" then
+        local Manhwa = require("src.manhwa")
+        local layout = Manhwa.layout(document)
+        local images, rects, flags = { image_disposable = true }, {}, {}
+        for _, rect in ipairs(panels) do
+            local item = layout.pages[layout:owner(rect.y)]
+            flags[#flags + 1] = item and rect.x == 0 and rect.y == item.y and rect.w == item.w and rect.h == item.h
+                or false
+            local crop = rect
+            if settings.crop_mode == "loose" then
+                crop = expandRect(rect, { w = layout.width, h = layout.height }, settings)
+            elseif settings.crop_mode == "none" then
+                local viewport = PanelViewport.noCrop(rect, { w = layout.width, h = layout.height })
+                if viewport then
+                    crop = {
+                        x = viewport.box_x,
+                        y = viewport.box_y,
+                        w = Screen:getWidth() / viewport.scale,
+                        h = Screen:getHeight() / viewport.scale,
+                    }
+                end
+            end
+            crop.manhwa = true
+            rects[#rects + 1] = crop
+            images[#images + 1] = function()
+                return Manhwa.render(ui, crop)
+            end
+        end
+        return images, rects, flags
+    end
+    local page_size = document:getPageDimensions(page, 1, 0)
     local images = {
         image_disposable = true,
     }

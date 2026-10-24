@@ -10,6 +10,7 @@ Benchmark.detectors = {
 }
 
 function Benchmark.evaluate(book, algorithm)
+    assert(book.type ~= "manhwa", "Manhwa requires the separate continuous-coordinate evaluator")
     assert(Benchmark.detectors[algorithm], "Unknown panel algorithm")
     local metrics = { pages_evaluated = 0, total_ground_truth = 0, total_detected = 0, true_positives = 0 }
     local iou_sum, matched_pages = 0, 0

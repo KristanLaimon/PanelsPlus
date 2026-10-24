@@ -128,7 +128,9 @@ describe("Dataset regression safeguards", function()
         end
         for _, book in ipairs(Manifest.loadManga()) do
             local mapped = Manifest.getMappedPages(book)
-            if #mapped > 0 then
+            if book.type == "manhwa" then
+                assert.is_nil(registered[book.book_title], "Manhwa uses a separate Safe benchmark")
+            elseif #mapped > 0 then
                 assert.is_not_nil(registered[book.book_title], "Unscheduled dataset: " .. book.book_title)
                 assert.equals(#mapped, registered[book.book_title].pages)
             end
@@ -143,6 +145,21 @@ describe("Dataset regression safeguards", function()
         local mapped = Manifest.getMappedPages(unfinished)
         assert.equals(1, #mapped)
         assert.equals(3, mapped[1].page_index)
+    end)
+
+    it("keeps manhwa out of legacy detector tuning and resource workloads", function()
+        for _, book in ipairs(Manifest.loadMangaComic()) do
+            assert.is_true(book.type ~= "manhwa")
+        end
+        for _, page in ipairs(Manifest.getMangaComicPages()) do
+            assert.is_true(page.type ~= "manhwa")
+        end
+        local ok = pcall(
+            require("tests.dataset-mangas.algorithm_benchmark").evaluate,
+            { type = "manhwa", pages = {} },
+            "smart"
+        )
+        assert.is_false(ok)
     end)
 
     it("rejects drops in every recorded metric, including precision and IoU", function()

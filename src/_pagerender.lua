@@ -68,6 +68,9 @@ end
 --- @return table|nil bb Rendered blitbuffer.
 --- @return boolean rotate Whether ImageViewer should rotate the bitmap.
 function PageRender.drawPagePart(ui, pageno, native_rect, rotation, zoom)
+    if native_rect.manhwa then
+        return require("src.manhwa").render(ui, native_rect, zoom)
+    end
     local document = ui and ui.document
     rotation = rotation or 0
     if not document or type(document.transformRect) ~= "function" or type(document.renderPage) ~= "function" then

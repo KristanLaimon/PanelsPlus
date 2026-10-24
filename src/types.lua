@@ -35,8 +35,8 @@ SPDX-License-Identifier: MIT
 --- @field panel_prefetch_actions table<string, function> Scheduled prefetch jobs, by cache key.
 --- @field panel_prerender_action function|nil Scheduled next-panel warm-up, if any.
 
---- Reading order used to sort panels and interpret horizontal swipes.
---- @alias PPReadingMode '"manga"'|'"comic"'
+--- Reading flow used to sort panels and interpret navigation gestures.
+--- @alias PPReadingMode '"manga"'|'"comic"'|'"manhwa"'
 
 --- Crop behavior for drawing panel image parts.
 --- @alias PPCropMode '"strict"'|'"loose"'|'"margin"'|'"none"'
@@ -201,7 +201,7 @@ SPDX-License-Identifier: MIT
 --- ImageViewer subclass for navigating one page's ordered panel sequence.
 ---
 --- @class PanelViewer : ImageViewer
---- @field reading_mode PPReadingMode Current left/right panel order.
+--- @field reading_mode PPReadingMode Current horizontal or vertical reading flow.
 --- @field crop_mode PPCropMode Current crop rendering mode.
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
 --- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.

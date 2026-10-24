@@ -264,7 +264,7 @@ end
 
 local function valueLabel(key, values)
     local labels = {
-        mode = { manga = gettext("Manga"), comic = gettext("Comic") },
+        mode = { manga = gettext("Manga"), comic = gettext("Comic"), manhwa = gettext("Manhwa") },
         panel_finding_mode = { safe = gettext("Safe"), smart = gettext("Smart") },
         progress_bar_visible = { [true] = gettext("Shown"), [false] = gettext("Hidden") },
         nav_transition_mode = {
@@ -451,7 +451,7 @@ function ProfileMenu:showProfileFieldPicker(key, draft, back)
         return
     end
     local choices = {
-        mode = { "manga", "comic" },
+        mode = { "manga", "comic", "manhwa" },
         progress_bar_visible = { true, false },
         nav_transition_mode = NavCapabilities.modes(),
         crop_mode = { "strict", "loose", "margin", "none" },

@@ -30,7 +30,7 @@ local totals = {}
 local limit = tonumber(arg[2])
 assert(not arg[2] or (limit and limit >= 1 and limit == math.floor(limit)), "pages_per_book must be a positive integer")
 local count = 0
-for _, page in ipairs(Manifest.getAllPages()) do
+for _, page in ipairs(Manifest.getMangaComicPages()) do
     if (not limit or page.page_index <= limit) and (not arg[4] or page.book_title == arg[4]) then
         local settings = { mode = page.reading_order, embedded_image = page.embedded_image }
         local map = Loader.loadPageMap(page.image_path, settings)

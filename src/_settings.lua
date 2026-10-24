@@ -98,6 +98,14 @@ local Settings = {
     },
 }
 
+function Settings.normalizeReadingMode(mode)
+    return (mode == "comic" or mode == "manhwa") and mode or "manga"
+end
+
+function Settings.nextReadingMode(mode)
+    return ({ manga = "comic", comic = "manhwa", manhwa = "manga" })[mode] or "manga"
+end
+
 --- Map stored names from earlier selector versions to the current choices.
 function Settings.normalizePanelFindingMode(mode)
     return (mode == "smart" or mode == "normal" or mode == "detailed" or mode == "aggressive") and "smart" or "safe"
@@ -134,6 +142,9 @@ function Settings.withDefaults(settings)
     end
     settings.debug_timing = nil
     settings.panel_finding_mode = Settings.normalizePanelFindingMode(settings.panel_finding_mode)
+    if settings.mode == "manhwa" and not require("src.manhwa").smart_enabled then
+        settings.panel_finding_mode = "safe"
+    end
     for key, value in pairs(Settings.defaults) do
         if settings[key] == nil then
             settings[key] = value
