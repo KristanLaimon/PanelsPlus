@@ -412,8 +412,8 @@ class DatasetManager:
 
     def save_book_metadata(self, book_title: str, metadata: dict) -> None:
         dataset_type = metadata.get("type", "manga")
-        if dataset_type not in ("manga", "comic"):
-            raise ValueError('metadata type must be "manga" or "comic"')
+        if dataset_type not in ("manga", "comic", "manhwa"):
+            raise ValueError('metadata type must be "manga", "comic", or "manhwa"')
         if "color_mode" in metadata:
             if dataset_type != "comic":
                 raise ValueError('color_mode is only valid for comic datasets')

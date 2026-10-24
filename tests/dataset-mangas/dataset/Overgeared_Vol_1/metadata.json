@@ -1,9 +1,16 @@
 {
   "book_title": "Overgeared_Vol_1",
-  "type": "manga",
+  "type": "manhwa",
   "total_pages": 62,
   "finished": false,
-  "current_page": 2,
-  "last_opened": "2026-10-23T17:42:38.017889",
-  "source_file": "/home/kristanlaimon/Downloads/Archive/0_Chapter_0.cbz"
+  "current_page": 59,
+  "last_opened": "2026-10-24T10:52:14.804402",
+  "source_file": "/home/kristanlaimon/Downloads/Archive/0_Chapter_0.cbz",
+  "annotation_schema_version": 2,
+  "annotation_layers": [
+    "panel",
+    "phrase",
+    "word"
+  ],
+  "text_direction": "ltr"
 }
