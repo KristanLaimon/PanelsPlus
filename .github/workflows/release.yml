@@ -5,7 +5,6 @@ on:
     tags:
       - "v*.*.*"
       - "v*.*.*-*"
-  workflow_dispatch:
 
 permissions:
   contents: write
@@ -29,27 +28,10 @@ jobs:
           set -euo pipefail
 
           git fetch --force origin \
-            +refs/heads/main:refs/remotes/origin/main \
+            +refs/heads/main-stable:refs/remotes/origin/main-stable \
             +refs/tags/*:refs/tags/*
 
-          if [[ "${GITHUB_REF_TYPE:-}" == "tag" ]]; then
-            tag="${GITHUB_REF_NAME}"
-          elif [[ "${GITHUB_EVENT_NAME}" == "workflow_dispatch" ]]; then
-            tag="$(
-              gh api --paginate "repos/${GITHUB_REPOSITORY}/git/matching-refs/tags/v" \
-                --jq '.[] | .ref | sub("^refs/tags/"; "")' |
-                grep -E '^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$' |
-                sort -V |
-                tail -n 1 || true
-            )"
-
-            if [[ -z "${tag}" ]]; then
-              echo "::error::No GitHub release tag matching v#.#.# or v#.#.#-Whatever exists."
-              exit 1
-            fi
-          else
-            tag="${GITHUB_REF_NAME}"
-          fi
+          tag="${GITHUB_REF_NAME}"
 
           if [[ ! "${tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-.+)?$ ]]; then
             echo "::error::Release tags must look like v#.#.# or v#.#.#-Whatever, for example v1.4.0 or v1.2.3-Beta."
@@ -59,8 +41,8 @@ jobs:
           git fetch --force origin "+refs/tags/${tag}:refs/tags/${tag}"
           commit="$(git rev-list -n 1 "${tag}^{commit}")"
 
-          if ! git merge-base --is-ancestor "${commit}" origin/main; then
-            echo "::error::Tag ${tag} does not point to a commit reachable from origin/main."
+          if ! git merge-base --is-ancestor "${commit}" origin/main-stable; then
+            echo "::error::Tag ${tag} does not point to a commit reachable from origin/main-stable."
             exit 1
           fi
 
