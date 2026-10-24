@@ -11,10 +11,7 @@ crash.old.donotread.log
 panels_plus.stable.koplugin/
 zen_ui.koplugin
 
-PLAN-CLAUDE.md
-PLAN-HUMAN.md
-PLAN-FULL.md
-
+PLAN*.md
 # Reference repositories for local development & documentation
 koreader/
 koreader
