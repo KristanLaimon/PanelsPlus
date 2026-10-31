@@ -107,3 +107,76 @@ A 250 MiB device also needs memory for its OS and reader caches: a small isolate
 benchmark cannot certify that complete device configuration. Verify long-press
 latency, repeated panel navigation and memory pressure on the target reader
 before claiming identical pre-OCR speed or guaranteed 250 MiB compatibility.
+
+## Go dataset worker: persistent engines and decoded pages
+
+The host-side dataset worker now supports native ImageMagick/Tesseract APIs
+through an optional `ocr_native` Go build tag. This changes the testing tool,
+not KOReader's rendering or OCR implementation.
+
+Each worker owns its current decoded page and up to two Tesseract engine
+handles. Requests are grouped by image; result order remains the input order.
+Pages run in parallel with at most four workers by default. The worker releases
+its previous page on replacement, evicts its least recently used model when a
+third is requested, and explicitly closes native resources on completion or
+stream cancellation. It clears recognition/adaptation state between crops while
+retaining model data. ImageMagick's crop, resize, border, extent, PNG encoding,
+and Leptonica decoding steps match the original CLI path.
+
+On the development host (Tesseract 5.5.3, ImageMagick 7.1.2-32 Q16 HDRI), the same
+2,076 initial requests, four workers, and one OCR/ImageMagick thread per worker
+measured:
+
+| Metric | Original subprocess worker | Native worker |
+| --- | ---: | ---: |
+| Wall time | 141.874 s | 6.495 s |
+| Full-page decodes | 2,076 | 37 |
+| Tesseract initializations | 2,076 | 8 |
+| ImageMagick/Tesseract process launches | 4,152 | 0 |
+| Different raw OCR results | — | 0 |
+
+This is about 22× faster for that initial request batch. It excludes Lua word-box
+finding and later retry stages. A separate complete dataset evaluation matched
+all **2,123** previous raw outputs, including 47 retries: geometry 673/705,
+configured recognition 574/705, and bundled recognition 673/705. Saved accuracy
+gates and records were unchanged.
+The final cold OCR test job, including Lua word finding, three worker stages,
+cache checkpoints, and assertions, completed in 42.1 s versus the earlier
+193.3 s subprocess run. That observed end-to-end improvement is about 4.6×;
+the larger 22× figure applies specifically to the initial Go request batch.
+
+The native profile for the initial batch summed worker elapsed phase times as
+2.168 s decoding pages, 2.211 s initializing engines, 3.797 s transforming crops,
+and 16.122 s recognizing text. These overlapping worker totals are not process
+CPU time and should not be added to wall time. The subprocess profile reports
+its combined pipeline time because decoding and recognition overlap through a
+pipe; it does not claim to isolate CLI model-loading time.
+
+The dataset runner builds the native backend automatically when cgo and the
+Tesseract, Leptonica, and ImageMagick 7 development packages are usable. Otherwise
+it retains the CLI backend. `PANELSPLUS_OCR_BACKEND=native` requires native
+support; `cli` forces the reference subprocess implementation. Raw-result cache
+keys include backend/library identity and helper executable content, keeping
+results from different implementations separate.
+
+Results stream as JSON lines and the Lua collector atomically checkpoints every
+64 successful crops plus the final partial group. A later job error or truncated
+stream retains completed results, and malformed, duplicate, unknown, or missing
+responses fail explicitly. Interrupting a run preserves the last completed
+checkpoint; pending results, including those still in the worker's output pipe,
+can be recomputed on resume. Backend errors are never cached as empty OCR.
+
+Reproduce from the repository root:
+
+```sh
+GOCACHE=/tmp/panelsplus-go-build-cache go test -race -tags ocr_native ./tools/ocr_worker
+PANELSPLUS_OCR_BACKEND=native PANELSPLUS_OCR_PROFILE=1 ./run-tests.sh --strict --ocr
+python3 tools/benchmarking/benchmark_ocr_worker.py --limit 40 --output /tmp/ocr-worker-comparison.json
+```
+
+The comparison tool uses recorded crop requests with current page fingerprints,
+bypasses recognition-result caches, and fails if either backend returns different
+raw text. Omit `--limit` for all recorded requests, or supply `--input` with a
+JSON request array for an exact previously captured batch. Engine initialization,
+page decoding, crop transformation, and recognition remain separately measured
+in the native profile. These host results make no e-reader latency claim.

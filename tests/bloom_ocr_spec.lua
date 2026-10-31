@@ -10,6 +10,7 @@ SPDX-License-Identifier: MIT
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert = framework.describe, framework.it, framework.assert
 local JSON = require("tests.helpers.json")
+local OCRCache = require("tests.helpers.ocr_cache")
 local WordFinder = require("src._wordfinder")
 local OCRBenchmark = require("tests.dataset-mangas.ocr_benchmark")
 
@@ -18,6 +19,8 @@ local PAGE_W, PAGE_H = 1264, 1680
 local NATIVE_OCR = os.getenv("PANELSPLUS_OCR_NATIVE") == "1"
 local MODEL_DIR = os.getenv("PANELSPLUS_OCR_TESSDATA")
 local CANDIDATE_DIR = os.getenv("PANELSPLUS_OCR_CANDIDATE")
+local GO_BACKEND = os.getenv("PANELSPLUS_OCR_BACKEND") or "auto"
+assert.is_true(GO_BACKEND == "auto" or GO_BACKEND == "native" or GO_BACKEND == "cli", "Unknown OCR backend")
 local ocr_seconds, ocr_calls = 0, 0
 local page_cache, box_cache = {}, {}
 local selected_pages = os.getenv("PANELSPLUS_OCR_PAGES")
@@ -289,9 +292,11 @@ end
 
 local function toolFingerprint()
     if not fingerprint_cache.tools then
+        assert.is_not_nil(fingerprint_cache.backend, "Go OCR backend must be selected before fingerprinting requests")
         fingerprint_cache.tools = table.concat({
             commandFirstLine("magick -version 2>/dev/null"),
             commandFirstLine("tesseract --version 2>/dev/null"),
+            fingerprint_cache.backend,
         }, "|")
     end
     return fingerprint_cache.tools
@@ -311,7 +316,7 @@ local function requestKeyAndJob(path, rect, zoom, datadir, language, mode)
     local model_dir = datadir or systemTessdataDirectory()
     local model_path = model_dir ~= "" and (model_dir .. "/" .. language .. ".traineddata") or language
     local key = table.concat({
-        "v1",
+        "v2",
         toolFingerprint(),
         path,
         fileFingerprint(path),
@@ -349,15 +354,39 @@ local function buildGoHelper()
     local cache_dir = "tests/dataset-mangas/.cache"
     local helper = cache_dir .. "/ocr_worker"
     os.execute("mkdir -p " .. quote(cache_dir))
-    local result =
-        os.execute("GOCACHE=/tmp/panelsplus-go-build-cache go build -o " .. quote(helper) .. " ./tools/ocr_worker")
-    if not commandSucceeded(result) then
-        return nil, "Go OCR helper build failed"
+    local native = false
+    local dependencies = os.execute("pkg-config --exists 'MagickWand >= 7' tesseract lept >/dev/null 2>&1")
+    if GO_BACKEND ~= "cli" and commandSucceeded(dependencies) then
+        native = commandSucceeded(
+            os.execute(
+                "GOCACHE=/tmp/panelsplus-go-build-cache go build -tags ocr_native -o "
+                    .. quote(helper)
+                    .. " ./tools/ocr_worker"
+            )
+        )
+        if native then
+            native = commandFirstLine(quote(helper) .. " --version"):match("^native%-") ~= nil
+        end
     end
+    if not native then
+        assert.is_true(
+            GO_BACKEND ~= "native",
+            "Native OCR requires cgo, Tesseract, Leptonica, and ImageMagick 7 development libraries"
+        )
+        local result =
+            os.execute("GOCACHE=/tmp/panelsplus-go-build-cache go build -o " .. quote(helper) .. " ./tools/ocr_worker")
+        if not commandSucceeded(result) then
+            return nil, "Go OCR helper build failed"
+        end
+    end
+    fingerprint_cache.backend = commandFirstLine(quote(helper) .. " --backend " .. quote(GO_BACKEND) .. " --version")
+        .. "|"
+        .. fileFingerprint(helper)
+
     return helper
 end
 
-local function runGoBatch(helper, jobs, key_by_id)
+local function runGoBatch(helper, jobs, key_by_id, results)
     if #jobs == 0 then
         return {}
     end
@@ -370,25 +399,24 @@ local function runGoBatch(helper, jobs, key_by_id)
 
     local worker_count = math.max(1, math.floor(tonumber(os.getenv("PANELSPLUS_OCR_WORKERS")) or 4))
     local command = string.format(
-        "MAGICK_THREAD_LIMIT=1 %s --input %s --workers %d",
+        "%s --input %s --workers %d --backend %s --stream%s",
         quote(helper),
         quote(request_path),
-        worker_count
+        worker_count,
+        quote(GO_BACKEND),
+        os.getenv("PANELSPLUS_OCR_PROFILE") == "1" and " --profile" or ""
     )
     local pipe = io.popen(command, "r")
     assert.is_not_nil(pipe, "could not start the Go OCR helper")
-    local output = pipe:read("*a")
+    local ok, by_key, stream_error = pcall(OCRCache.readStream, pipe:lines(), key_by_id, results, function(known)
+        OCRCache.save(OCR_RESULT_CACHE, known)
+    end)
     local succeeded = pipe:close()
     os.remove(request_path)
+    assert.is_true(ok, tostring(by_key))
+    assert.is_nil(stream_error, stream_error)
     assert.is_true(succeeded, "Go OCR helper failed")
 
-    local by_key = {}
-    for _, item in ipairs(JSON.decode(output)) do
-        assert.equals("", item.error, "Go OCR request failed")
-        local key = key_by_id[item.id]
-        assert.is_not_nil(key, "Go OCR helper returned an unknown request")
-        by_key[key] = item.text ~= "" and item.text or false
-    end
     return by_key
 end
 
@@ -406,29 +434,6 @@ local function newJobBatch(known_results, requested_keys)
         return key
     end
     return batch
-end
-
-local function loadOCRResultCache()
-    local file = io.open(OCR_RESULT_CACHE, "rb")
-    if not file then
-        return {}
-    end
-    local content = file:read("*a")
-    file:close()
-    if not content or not content:find("%S") then
-        return {}
-    end
-    local ok, decoded = pcall(JSON.decode, content)
-    return ok and type(decoded) == "table" and decoded or {}
-end
-
-local function saveOCRResultCache(results)
-    local temporary = OCR_RESULT_CACHE .. ".tmp"
-    local file = io.open(temporary, "wb")
-    assert.is_not_nil(file, "could not write the OCR result cache")
-    file:write(JSON.encode(results), "\n")
-    file:close()
-    assert.is_true(os.rename(temporary, OCR_RESULT_CACHE), "could not publish the OCR result cache")
 end
 
 local function mergeResults(destination, source)
@@ -480,7 +485,7 @@ local function prepareGoBatch(annotations)
         end
     end
 
-    local results, total_jobs = loadOCRResultCache(), 0
+    local results, total_jobs = OCRCache.load(OCR_RESULT_CACHE), 0
     local requested_keys = {}
     local function record(entry, batch, crop, bundled_language, options)
         local captured_key
@@ -501,7 +506,7 @@ local function prepareGoBatch(annotations)
         entry.bundled = record(entry, stage, entry.ocr_box, "eng")
         entry.bundled_small = record(entry, stage, entry.ocr_box, "eng", { height = 20 })
     end
-    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id))
+    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id, results))
     total_jobs = total_jobs + #stage.jobs
 
     -- Stage 2 mirrors readWord's conditional work: configured OCR retries only
@@ -521,7 +526,7 @@ local function prepareGoBatch(annotations)
             entry.bundled_character = record(entry, stage, entry.ocr_box, "eng", { height = 20, mode = 10 })
         end
     end
-    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id))
+    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id, results))
     total_jobs = total_jobs + #stage.jobs
 
     -- Only the bundled candidates still rejected after their agreement check
@@ -545,10 +550,9 @@ local function prepareGoBatch(annotations)
             entry.bundled_retry = record(entry, stage, WordFinder.retryBox(entry.ocr_box, entry.native), "eng")
         end
     end
-    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id))
+    mergeResults(results, runGoBatch(helper, stage.jobs, stage.key_by_id, results))
     total_jobs = total_jobs + #stage.jobs
 
-    saveOCRResultCache(results)
     local requested_count = 0
     for _ in pairs(requested_keys) do
         requested_count = requested_count + 1
