@@ -7,3 +7,6 @@
 [submodule "references-repos/meguru"]
 	path = references-repos/meguru.koplugin
 	url = https://github.com/Craftwork2720/meguru.git
+[submodule "references-repos/ink-away.koplugin"]
+	path = references-repos/ink-away.koplugin
+	url = https://github.com/EmirErtorer/ink-away.koplugin.git
