@@ -2,9 +2,10 @@
 
 Panels+ offers **Panels Finding: Safe** (the default) and **Panels Finding:
 Smart**. Both use the map built by `_pagebitmap.lua`. Smart uses
-`_smartcomponentdetector.lua` and the current reading-order sorter; Safe uses the
-v1.4.0 detector in `_safecomponentdetector.lua` and its sorter in
-`_safegeometry.lua`. The panel viewer's bottom-row button cycles between them
+`_smartcomponentdetector.lua` and the current reading-order sorter. Safe uses
+`_safecomponentdetector.lua` and its sorter in `_safegeometry.lua`. Each creates
+an independent frame-extraction instance from `_componentpipeline.lua`; Safe
+then conservatively retains enclosing frames and connected vertical stacks. The panel viewer's bottom-row button cycles between them
 and redetects the open page.
 
 This document describes the image-processing problem, the data flowing through
@@ -13,7 +14,7 @@ failure behavior. Start with [INTRO.md](INTRO.md) if terms such as binary image,
 connected component, or bounding box are unfamiliar.
 
 The component policy below describes Smart; Safe retains the
-v1.4.0 grouping and reading-order policy.
+conservative grouping and its separate reading-order policy.
 
 ## Detection is geometry recovery, not semantic recognition
 

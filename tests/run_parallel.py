@@ -5,25 +5,35 @@ import argparse
 import os
 from pathlib import Path
 import signal
+import shlex
 import subprocess
 import tempfile
 import time
 
 ROOT = Path(__file__).resolve().parent.parent
-RUNNER = ["lua", "tests/run_tests.lua"]
-PRODUCTION_SPEC = "tests.spec.new_dataset_benchmark_spec"
+RUNNER = shlex.split(os.environ.get("PANELSPLUS_LUA", "lua")) + ["tests/run_tests.lua"]
+PRODUCTION_SPEC = "tests.new_dataset_benchmark_spec"
+BOOK_SPECS = {
+    "tests.bloom_into_you_spec",
+    "tests.bloom_ocr_spec",
+    "tests.miss_kobayashi_spec",
+}
 DATASET_SPECS = {
-    "tests.spec.dataset_benchmark_spec",
-    "tests.spec.dataset_support_spec",
-    "tests.spec.manhwa_dataset_spec",
-    "tests.spec.textbasedformats_dataset_spec",
+    "tests.dataset_benchmark_spec",
+    "tests.dataset_support_spec",
+    "tests.manhwa_dataset_spec",
+    "tests.textbasedformats_dataset_spec",
+    "tests.algorithm_benchmark_spec",
+    *BOOK_SPECS,
     PRODUCTION_SPEC,
 }
 OCR_SPECS = {
-    "tests.spec.wordfinder_spec",
-    "tests.spec.ocr_benchmark_spec",
-    "tests.spec.panelviewer_refineword_spec",
-    "tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_ocr_spec",
+    "tests.wordfinder_spec",
+    "tests.ocr_benchmark_spec",
+    "tests.panelviewer_refineword_spec",
+    "tests.panelviewer_phrase_spec",
+    "tests.embedded_image_ocr_spec",
+    "tests.bloom_ocr_spec",
 }
 
 
@@ -36,7 +46,7 @@ def make_jobs(specs, datasets):
     for spec in dict.fromkeys(specs):
         if spec == PRODUCTION_SPEC:
             jobs.extend((title, [spec], title) for title in datasets)
-        elif spec.startswith("tests.dataset-mangas.dataset.") or spec == "tests.spec.dataset_benchmark_spec":
+        elif spec in BOOK_SPECS or spec == "tests.dataset_benchmark_spec":
             jobs.append((spec, [spec], None))
         else:
             units.append(spec)
@@ -46,7 +56,7 @@ def make_jobs(specs, datasets):
 
 
 def is_dataset_spec(spec):
-    return spec in DATASET_SPECS or spec.startswith("tests.dataset-mangas.dataset.")
+    return spec in DATASET_SPECS
 
 
 def without_dataset_specs(specs):
@@ -68,6 +78,8 @@ def run_jobs(jobs, workers, command=None):
     environment = os.environ.copy()
     # Avoid multiplying ImageMagick's internal thread count by worker count.
     environment.setdefault("MAGICK_THREAD_LIMIT", "1")
+    # Tesseract uses OpenMP; each OCR subprocess is already a parallel job.
+    environment.setdefault("OMP_THREAD_LIMIT", "1")
     environment.pop("PANELSPLUS_TEST_DATASET", None)
     print(f"Running {len(jobs)} jobs with up to {workers} workers", flush=True)
     try:

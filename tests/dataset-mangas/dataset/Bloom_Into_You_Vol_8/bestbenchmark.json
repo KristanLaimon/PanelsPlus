@@ -92,18 +92,18 @@
   },
   "ocr": {
     "text_cli_bundled_eng": {
-      "accuracy_percent": 95.3593,
-      "correct": 637,
-      "evaluated": 668,
-      "total": 668,
-      "updated_at": "2026-09-26"
+      "accuracy_percent": 95.4610,
+      "correct": 673,
+      "evaluated": 705,
+      "total": 705,
+      "updated_at": "2026-10-31"
     },
     "text_cli_configured": {
-      "accuracy_percent": 81.1377,
-      "correct": 542,
-      "evaluated": 668,
-      "total": 668,
-      "updated_at": "2026-09-26"
+      "accuracy_percent": 81.4184,
+      "correct": 574,
+      "evaluated": 705,
+      "total": 705,
+      "updated_at": "2026-10-31"
     },
     "text_native_bundled_eng": {
       "accuracy_percent": 95.6587,

@@ -105,7 +105,7 @@ Run from the plugin directory:
 
 ```sh
 luajit tools/benchmarking/benchmark_manhwa.lua
-luajit tests/run_tests.lua tests/spec/manhwa_spec.lua tests/spec/manhwa_dataset_spec.lua
+luajit tests/run_tests.lua tests/manhwa_spec.lua tests/manhwa_dataset_spec.lua
 python3 tests/run_parallel.py --panels -j 2
 ```
 

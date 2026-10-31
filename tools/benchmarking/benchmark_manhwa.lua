@@ -1,5 +1,5 @@
 package.path = "./?.lua;./?/init.lua;" .. package.path
-require("tests.spec.helper")
+require("tests.helper")
 local root = arg[1] or "tests/dataset-mangas/dataset/Overgeared_Vol_1"
 local metrics = require("tests.dataset-mangas.manhwa_benchmark").run(root)
 print(

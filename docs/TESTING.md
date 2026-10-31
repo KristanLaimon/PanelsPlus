@@ -16,7 +16,7 @@ commands, baseline policy, and current corpus measurements. See
 ./run-tests.sh --quick                 # parallel Lua suite without lint/style
 ./run-tests.sh --quicker               # Lua suite without lint/style, datasets, or benchmarks
 ./run-tests.sh --quick -j 1            # serial worker execution
-./run-tests.sh --quick tests/spec/componentdetector_spec.lua
+./run-tests.sh --quick tests/componentdetector_spec.lua
 ./run-tests.sh --check-only            # StyLua and Luacheck only
 ./run-tests.sh --python                # Python tests only
 ```
@@ -26,7 +26,7 @@ suite can also run sequentially without that scheduler:
 
 ```sh
 lua tests/run_tests.lua
-lua tests/run_tests.lua tests/spec/componentdetector_spec.lua
+lua tests/run_tests.lua tests/componentdetector_spec.lua
 ```
 
 Full private datasets may be absent in a clone. Set
@@ -41,10 +41,11 @@ PANELSPLUS_REQUIRE_DATASETS=1 luajit -l ffi tests/run_tests.lua
 ## Test architecture
 
 `tests/PanelsPlusTestFramework.lua` provides `describe`, `it`, assertions, and
-spies. `tests/spec/helper.lua` installs `package.preload` stubs for KOReader
+spies. `tests/helper.lua` installs `package.preload` stubs for KOReader
 modules such as widgets, geometry, device services, and the UI manager. Tests
-then `require` the real plugin module; detector or viewer logic is not copied
-into a separate test implementation.
+live directly in `tests/` and are discovered by filename, then `require` the real
+plugin module; detector or viewer logic is not copied into a separate test
+implementation.
 
 Plain Lua has no LuaJIT FFI runtime, so the helper supplies the minimal array
 behavior needed by modules that use `ffi.new`, `ffi.cast`, and zero-based
@@ -65,7 +66,7 @@ The current specs fall into these groups:
 | Transitions and controller behavior | `panelviewer_navtransition_spec.lua`, `viewer_controller_rotation_spec.lua`, `viewer_controller_more_config_spec.lua`, `spread_rotation_spec.lua`, `foldjoin_spec.lua`, `reading_page_fold_spec.lua` |
 | Embedded images | `embedded_image_spec.lua`, `textbasedformats_dataset_spec.lua` |
 | KOReader integration/settings | `native_panel_zoom_spec.lua`, `doc_settings_spec.lua` |
-| Word lookup and review | `wordfinder_spec.lua`, `panelviewer_refineword_spec.lua`, `panelviewer_highlight_spec.lua`, `ocrdebug_spec.lua`, `ocrdebug_report_spec.lua` |
+| Word lookup and review | `wordfinder_spec.lua`, `panelviewer_refineword_spec.lua`, `panelviewer_highlight_spec.lua`, `panelviewer_phrase_spec.lua`, `embedded_image_ocr_spec.lua` |
 | Dataset evaluation | `dataset_support_spec.lua`, `dataset_benchmark_spec.lua`, `new_dataset_benchmark_spec.lua` |
 | Legacy algorithm regression | `segmenter_spec.lua` |
 
