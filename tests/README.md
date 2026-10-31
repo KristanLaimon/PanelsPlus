@@ -58,16 +58,31 @@ update full-dataset records or pass `PANELSPLUS_REQUIRE_DATASETS=1`.
 `PANELSPLUS_OCR_CANDIDATE=/path/to/tessdata` tests an alternative
 `eng_fast.traineddata` through the bundled English path without updating records.
 The dataset runner caches decoded pages and found boxes across its three checks.
-CLI OCR dataset checks also build the small Go worker in `tools/ocr_worker` and
-run independent ImageMagick/Tesseract crops concurrently. Go only returns raw
+OCR dataset checks also build the Go worker in `tools/ocr_worker`. With cgo and
+the Tesseract, Leptonica, and ImageMagick 7 development libraries available, it
+uses their native APIs: each worker decodes one page at a time and retains at
+most two OCR engine handles. Pages run concurrently, and crops from the same
+page reuse that decode. ImageMagick's crop/resize/border operations are retained.
+Hosts without those libraries use the existing subprocess backend. Go returns raw
 recognized text; Lua still runs `WordFinder`, reports failures, and enforces or
 updates every benchmark gate. Raw OCR results are content-addressed by the page,
-model, tool versions, crop, and render size in
+model, tool versions, backend/library identity, helper executable, crop, and render size in
 `tests/dataset-mangas/.cache/ocr-results-v1.json`, making unchanged follow-up
 runs nearly instant without accepting stale results after an input changes.
+Results stream back as they finish and are atomically checkpointed every 64
+successful crops and at each stage boundary. Failed jobs are not cached;
+completed work survives a later failed or truncated stream. A hard interruption
+retains the last completed checkpoint; results still in flight or awaiting that
+checkpoint can be recomputed on resume.
 `PANELSPLUS_OCR_WORKERS` changes the default of four workers. Set
 `PANELSPLUS_DISABLE_GO_OCR=1` to exercise the legacy sequential subprocess path.
-Native-library OCR checks remain sequential and unchanged.
+`PANELSPLUS_OCR_BACKEND=cli` forces subprocesses, and `native` requires native
+libraries instead of falling back. `PANELSPLUS_OCR_PROFILE=1` reports per-stage
+wall time, summed worker phase times, decode/init counts, and subprocess counts
+to stderr. KOReader native-library OCR checks remain sequential and unchanged.
+For repeatable backend comparisons, run
+`python3 tools/benchmarking/benchmark_ocr_worker.py --limit 40` after populating
+the raw cache. Omit `--limit` to compare every recorded current-image request.
 The bundled model was trained on part of this dataset; see
 [training and held-out validation details](../tools/ocr_training/README.md).
 Set `PANELSPLUS_OCR_TESSDATA=/path/to/tessdata` to compare a particular installed

@@ -30,6 +30,7 @@ DATASET_SPECS = {
 OCR_SPECS = {
     "tests.wordfinder_spec",
     "tests.ocr_benchmark_spec",
+    "tests.ocr_worker_spec",
     "tests.panelviewer_refineword_spec",
     "tests.panelviewer_phrase_spec",
     "tests.embedded_image_ocr_spec",
