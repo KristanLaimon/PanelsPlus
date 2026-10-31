@@ -75,7 +75,7 @@ Commands:
 ```sh
 python3 tests/run_parallel.py --skip-datasets
 PANELSPLUS_REQUIRE_DATASETS=1 python3 tests/run_parallel.py --panels
-luajit -l ffi tests/run_tests.lua tests/spec/componentdetector_spec.lua tests/spec/pagebitmap_spec.lua
+luajit -l ffi tests/run_tests.lua tests/componentdetector_spec.lua tests/pagebitmap_spec.lua
 ```
 
 Validation completed:

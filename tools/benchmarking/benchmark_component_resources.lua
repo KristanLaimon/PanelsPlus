@@ -17,7 +17,7 @@ SPDX-License-Identifier: MIT
 -- stopped, not resident memory. Retained heap also includes LuaJIT bookkeeping.
 -- Only one page map is retained; annotations and benchmark records are read-only.
 require("ffi")
-require("tests.spec.helper")
+require("tests.helper")
 io.stdout:setvbuf("line")
 local algorithm = arg[1] or "safe"
 assert(algorithm == "safe" or algorithm == "smart", "algorithm must be safe or smart")

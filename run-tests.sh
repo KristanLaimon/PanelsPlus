@@ -42,7 +42,7 @@ Examples:
   ./run-tests.sh --strict
   ./run-tests.sh --quick
   ./run-tests.sh --quicker
-  ./run-tests.sh tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua
+  ./run-tests.sh tests/bloom_into_you_spec.lua
 EOF
 }
 
@@ -161,9 +161,6 @@ if [ "$PYTHON_ONLY" = true ]; then
     fi
     echo "==> Running Python Unit Tests..."
     uv run python -m unittest discover -s tests -p "test_*.py"
-    if [ -f "tools/manga_annotator/test_annotator.py" ]; then
-        uv run python -m unittest tools/manga_annotator/test_annotator.py
-    fi
     exit 0
 fi
 
@@ -182,9 +179,6 @@ fi
 if [ "$HAS_PYTHON" = true ] && [ "$PYTHON_UV_SYNC" = true ]; then
     echo "==> [2/4] Running Python Unit and Annotator Tests..."
     uv run python -m unittest discover -s tests -p "test_*.py"
-    if [ -f "tools/manga_annotator/test_annotator.py" ]; then
-        uv run python -m unittest tools/manga_annotator/test_annotator.py
-    fi
 elif [ "$HAS_PYTHON" = true ]; then
     if [ "$GRACEFUL" = true ]; then
         echo "==> [2/4] Skipping Python annotator tests (Python environment not synced with uv; omitted in graceful mode)"

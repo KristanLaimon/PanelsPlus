@@ -12,7 +12,7 @@ local root = assert(
         or arg[0]:match("^(/.*)/tools/benchmark_ocr_resources%.lua$")
 )
 package.path = root .. "/?.lua;" .. package.path
-require("tests.spec.helper")
+require("tests.helper")
 local Finder = arg[1] and assert(loadfile(arg[1]))() or require("src._wordfinder")
 local JSON = require("tests.helpers.json")
 local model_dir = os.getenv("PANELSPLUS_OCR_TESSDATA") or root .. "/data/ocr"

@@ -68,7 +68,7 @@ class TextBasedFormatDatasetTest(unittest.TestCase):
                     ["git", "check-ignore", "--no-index", "-q", str(directory / f"{index:02d}.png")],
                     check=False,
                 )
-                self.assertEqual(1 if index < 8 else 0, preview.returncode)
+                self.assertEqual(1 if index < 4 else 0, preview.returncode)
 
     def test_local_source_containers_reproduce_the_preview_pixels(self):
         sources = {

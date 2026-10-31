@@ -32,7 +32,7 @@ is preserved in the backup named by the confirmation message.
 Run the headless annotator tests from the repository root:
 
 ```sh
-uv run python -m unittest tools.manga_annotator.test_annotator
+uv run python -m unittest tests.test_annotator
 ```
 
 ## Import and manhwa
@@ -94,5 +94,5 @@ pixel-based ink snapping requires the individual-page view.
 Run both annotator suites:
 
 ```sh
-uv run python -m unittest tools.manga_annotator.test_annotator tools.manga_annotator.test_manhwa
+uv run python -m unittest tests.test_annotator tests.test_manhwa
 ```

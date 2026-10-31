@@ -260,7 +260,7 @@ When tested against the raw volume in KOReader, the segmenter produced severe ov
 | **Splash / Title Pages** | 0% matched (diced) | **100% matched** | Clean full-page fallback |
 
 #### 6.3.4 Dynamic Dataset Specification & DMCA Preview Mode
-- **Per-Manga Spec Placement**: The specification file is located directly inside the dataset folder at `tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua` and dynamically discovered by `tests/run_tests.lua`.
+- **Per-Manga Spec Placement**: The specification file is located at `tests/bloom_into_you_spec.lua` and dynamically discovered by `tests/run_tests.lua`.
 - **DMCA Protection & Warning**: In public repositories where only preview pages (`00.png`–`02.png`) are distributed, the test outputs a `[WARNING]` and evaluates the available preview pages, safely skipping full-volume image checks while ensuring 100% of the JSON annotations and metadata remain fully validated.
 
 ---

@@ -19,7 +19,7 @@ local script_dir = arg[0]:match("(.*/)") or "./"
 local repo_root = script_dir .. "../../"
 package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;./?.lua;./?/init.lua;" .. package.path
 require("ffi")
-require("tests.spec.helper")
+require("tests.helper")
 local before = dofile(arg[1])
 local algorithm = arg[3] or "smart"
 assert(algorithm == "safe" or algorithm == "smart", "algorithm must be safe or smart")

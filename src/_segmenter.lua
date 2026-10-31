@@ -13,6 +13,7 @@ local Geometry = require("src._smartgeometry")
 local Settings = require("src._settings")
 local Timing = require("src._timing")
 local ffi = require("ffi")
+local frame_pipeline
 
 --- Panel segmentation by recursive X-Y cut over a page ink map.
 ---
@@ -1075,6 +1076,17 @@ end
 function Segmenter.detectPage(map, settings)
     settings = settings or Settings.defaults
     local raw_panels = Segmenter.segment(map, settings)
+    -- A page without a continuous gutter can still contain independently
+    -- framed panels. Try frame extraction before accepting a single crop or
+    -- falling back to the whole page. The pipeline uses accept(), not this
+    -- entry point, so it cannot recurse into the gutter detector.
+    if #raw_panels <= 1 then
+        frame_pipeline = frame_pipeline or require("src._componentpipeline")()
+        local framed, framed_ok = frame_pipeline.detectPage(map, settings)
+        if framed_ok and #framed > 1 then
+            return framed, true, nil
+        end
+    end
     local accepted, reason = Segmenter.accept(raw_panels, map, settings)
     if not accepted then
         return {
