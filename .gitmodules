@@ -1,0 +1,9 @@
+[submodule "references-repos/kobo.koplugin"]
+	path = references-repos/kobo.koplugin
+	url = https://github.com/OGKevin/kobo.koplugin.git
+[submodule "references-repos/koreader"]
+	path = references-repos/koreader
+	url = https://github.com/koreader/koreader.git
+[submodule "references-repos/meguru"]
+	path = references-repos/meguru.koplugin
+	url = https://github.com/Craftwork2720/meguru.git

@@ -1,0 +1,167 @@
+--[[
+Panels+
+File: src/_settings.lua
+Name: Settings
+Description: Defines persistent defaults and migrates legacy plugin settings to the current schema.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
+--- Settings persistence and default normalization.
+---
+--- @class PPSettingsModule
+--- @field key string Current KOReader settings key.
+--- @field legacy_keys string[] Previous settings keys used for migration.
+--- @field defaults PPSettings Default setting values.
+local Settings = {
+    key = "panels_plus",
+    legacy_keys = {
+        "panelsplus",
+        "mangacomicsmoother",
+        "manga_smooth_reading",
+    },
+    defaults = {
+        enabled = true,
+        mode = "manga",
+        crop_mode = "strict",
+        panel_margin_ratio = 0.12,
+        invert_swipe = false,
+        invert_taps = false,
+        tap_navigation = false,
+        swipe_navigation = true,
+        kobo_vertical_gesture = true,
+        panel_gesture = "hold",
+        remember_doc_settings = true,
+        doc_settings = {},
+        progress_bar_visible = true,
+        auto_rotate_double_pages = true,
+        rotate_screen_for_double_pages = false,
+        spread_rotation_direction = "auto",
+        join_spread_fold = true,
+        hold_text_selection = true,
+        nav_transition_mode = "classic",
+        nav_animated_panels = true,
+        nav_animated_pages = true,
+        nav_transition_duration = 0.4,
+        nav_transition_cross_page = true,
+        nav_transition_frames = 8,
+        detector = "components",
+        -- Reflow-image detection has an independent preference, but its
+        -- detector uses the same component pipeline as fixed pages.
+        embedded_detector = "components",
+        -- Separate from fixed-layout navigation: embedded-image transitions
+        -- use an extracted-bitmap renderer and never document page rendering.
+        embedded_nav_transition_mode = "classic",
+        panel_grid_cols = 4,
+        panel_grid_rows = 7,
+        panel_bleed_ratio = 0.08,
+        panel_bleed_min = 8,
+        panel_prefetch_delay = 0.75,
+        panel_cache_pages = 12,
+        panel_prerender = true,
+        panel_prerender_delay = 0.25,
+        prefetch_min_free_bytes = 15 * 1024 * 1024,
+        prerender_min_free_bytes = 40 * 1024 * 1024,
+        native_detect_min_free_bytes = 100 * 1024 * 1024,
+        full_page_panel_ratio = 0.92,
+        segment_target_width = 480,
+        segment_ink_delta = 40,
+        segment_border_split = false,
+        segment_border_luminance_max = 60,
+        segment_border_line_ratio = 0.97,
+        segment_border_width_ratio = 0.01,
+        segment_gutter_ratio = 0.005,
+        segment_gutter_ink_ratio = 0.05,
+        segment_min_panel_area = 0.01,
+        segment_min_panel_side = 0.03,
+        segment_sliver_aspect = 4,
+        segment_sliver_ink = 0.02,
+        segment_max_depth = 6,
+        segment_max_panels = 40,
+        segment_coverage_min = 0.5,
+        segment_page_coverage_min = 0.4,
+        segment_single_panel_ratio = 0.6,
+        segment_shear = false,
+        segment_shear_max_depth = 4,
+        segment_shear_trigger = 0.35,
+        segment_shear_step = 2,
+        debug_mode = false,
+        ocr_debug_mode = false,
+        performance_profile_version = 7,
+    },
+}
+
+--- Fill missing settings and migrate older performance-sensitive defaults.
+---
+--- Existing values are preserved unless the stored performance profile predates
+--- the current profile, in which case detector-grid and cache tuning values are
+--- reset to the current low-cost defaults.
+---
+--- @param settings PPSettings|nil Stored settings table.
+--- @return PPSettings settings Normalized settings table.
+function Settings.withDefaults(settings)
+    settings = settings or {}
+    local performance_profile_version = settings.performance_profile_version or 0
+    -- Activate the component pipeline for existing installations as well.
+    if settings.detector ~= "components" then
+        settings.detector = "components"
+    end
+    if settings.embedded_detector ~= "components" then
+        settings.embedded_detector = "components"
+    end
+    -- "debug_timing" was renamed "debug_mode" once it started covering memory
+    -- logging too, not just pipeline timings.
+    if settings.debug_mode == nil and settings.debug_timing ~= nil then
+        settings.debug_mode = settings.debug_timing
+    end
+    settings.debug_timing = nil
+    for key, value in pairs(Settings.defaults) do
+        if settings[key] == nil then
+            settings[key] = value
+        end
+    end
+    if performance_profile_version < Settings.defaults.performance_profile_version then
+        settings.panel_grid_rows = Settings.defaults.panel_grid_rows
+        settings.panel_grid_cols = Settings.defaults.panel_grid_cols
+        settings.panel_bleed_ratio = math.min(settings.panel_bleed_ratio or Settings.defaults.panel_bleed_ratio, 1.0)
+        settings.panel_bleed_min =
+            math.min(settings.panel_bleed_min or Settings.defaults.panel_bleed_min, Settings.defaults.panel_bleed_min)
+        settings.panel_prefetch_delay = math.max(
+            settings.panel_prefetch_delay or Settings.defaults.panel_prefetch_delay,
+            Settings.defaults.panel_prefetch_delay
+        )
+        settings.panel_cache_pages = Settings.defaults.panel_cache_pages
+        settings.full_page_panel_ratio = Settings.defaults.full_page_panel_ratio
+        -- Gutter sensitivity is tied to the map resolution it was measured at,
+        -- so these two only make sense reset together.
+        settings.segment_target_width = Settings.defaults.segment_target_width
+        settings.segment_gutter_ratio = Settings.defaults.segment_gutter_ratio
+        settings.performance_profile_version = Settings.defaults.performance_profile_version
+    end
+    return settings
+end
+
+--- Load settings from KOReader storage, falling back to the legacy key.
+---
+--- @return PPSettings settings Normalized plugin settings.
+function Settings.load()
+    local settings = G_reader_settings:readSetting(Settings.key)
+    for _, legacy_key in ipairs(Settings.legacy_keys) do
+        if settings then
+            break
+        end
+        settings = G_reader_settings:readSetting(legacy_key)
+    end
+    return Settings.withDefaults(settings)
+end
+
+--- Save plugin settings to KOReader storage.
+---
+--- @param settings PPSettings Runtime settings table.
+function Settings.save(settings)
+    G_reader_settings:saveSetting(Settings.key, settings)
+end
+
+return Settings

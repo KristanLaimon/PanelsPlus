@@ -1,0 +1,4549 @@
+# Ink Away: Greek translation.
+msgid ""
+msgstr ""
+"Project-Id-Version: Ink Away\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Language-Team: Greek\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ink/view/menus.lua
+#: ink/view/settings.lua
+msgid " px"
+msgstr " px"
+
+#: ink/view/search.lua
+msgid " · names and text inside pages"
+msgstr " · ονόματα και κείμενο μέσα στις σελίδες"
+
+#: ink/view/search.lua
+msgid " · names only"
+msgstr " · μόνο ονόματα"
+
+#: ink/view/links.lua
+msgid " · this page"
+msgstr " · αυτή η σελίδα"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 and %2"
+msgstr "%1 και %2"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "%1 and everything on it are deleted. Undo brings them back."
+msgstr "Το %1 και ό,τι υπάρχει πάνω του θα διαγραφούν. Η Αναίρεση τα επαναφέρει."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: %2 already do something else."
+msgstr "Το %1 δεν έχει χειρονομία: %2 κάνουν ήδη κάτι άλλο."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: its gestures are taken."
+msgstr "Το %1 δεν έχει χειρονομία: οι χειρονομίες του είναι πιασμένες."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "%1 is installed. Restart KOReader to use it."
+msgstr "Το %1 εγκαταστάθηκε. Επανεκκινήστε το KOReader για να το χρησιμοποιήσετε."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files received"
+msgstr "Λήφθηκαν %d αρχεία"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files sent"
+msgstr "Στάλθηκαν %d αρχεία"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "%d item(s) can't be kept editable. You'll choose what to do when you export."
+msgstr "%d στοιχεία δεν μπορούν να μείνουν επεξεργάσιμα. Θα επιλέξετε τι θα γίνει κατά την εξαγωγή."
+
+#: ink/view/lasso.lua
+#, lua-format
+msgid "%d item(s) on the clipboard"
+msgstr "%d στοιχεία στο πρόχειρο"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d more after it"
+msgstr "%d ακόμη μετά από αυτό"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks and drawings"
+msgstr "%d σημειωματάρια και σχέδια"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks arrived in %s. Open one now?"
+msgstr "%d σημειωματάρια έφτασαν στο %s. Να ανοίξει ένα τώρα;"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks from PDFs"
+msgstr "%d σημειωματάρια από PDF"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d of %d pages"
+msgstr "%d από %d σελίδες"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d pictures"
+msgstr "%d εικόνες"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%d results"
+msgstr "%d αποτελέσματα"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "%d strokes"
+msgstr "%d γραμμές"
+
+#: ink/view/gestures.lua
+#, lua-format
+msgid "%s already does \"%s\". Use it only for %s, or for both?"
+msgstr "Το %s κάνει ήδη «%s». Να χρησιμοποιηθεί μόνο για %s ή και για τα δύο;"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s arrived in %s. Open it now?"
+msgstr "Το %s έφτασε στο %s. Να ανοίξει τώρα;"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s in %s"
+msgstr "%s στο %s"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s isn't there any more"
+msgstr "Το %s δεν υπάρχει πια"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s opens once the rest have arrived"
+msgstr "Το %s ανοίγει όταν φτάσουν τα υπόλοιπα"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%s · page %d"
+msgstr "%s · σελίδα %d"
+
+#: ink/guide.lua
+msgid "+ in the pen menu asks for its kind (Fineliner, Ballpoint, Fountain, Pencil, Marker, Highlighter, Watercolor...), then its size and colour."
+msgstr "Το + στο μενού των στυλό ρωτά το είδος (λεπτός μαρκαδόρος, στυλό διαρκείας, πένα, μολύβι, μαρκαδόρος, υπογραμμιστής, νερομπογιά…) και μετά το μέγεθος και το χρώμα."
+
+#: ink/view/share.lua
+msgid "1 file received"
+msgstr "Λήφθηκε 1 αρχείο"
+
+#: ink/view/share.lua
+msgid "1 file sent"
+msgstr "Στάλθηκε 1 αρχείο"
+
+#: ink/view/share.lua
+msgid "1 more after it"
+msgstr "1 ακόμη μετά από αυτό"
+
+#: ink/view/receive.lua
+msgid "1 notebook from a PDF"
+msgstr "1 σημειωματάριο από PDF"
+
+#: ink/view/receive.lua
+msgid "1 notebook or drawing"
+msgstr "1 σημειωματάριο ή σχέδιο"
+
+#: ink/view/receive.lua
+msgid "1 picture"
+msgstr "1 εικόνα"
+
+#: ink/view/search.lua
+msgid "1 result"
+msgstr "1 αποτέλεσμα"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "2 columns"
+msgstr "2 στήλες"
+
+#: ink/view/selection.lua
+msgid "90°"
+msgstr "90°"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A PNG holds the page shown, page %d."
+msgstr "Ένα PNG περιέχει τη σελίδα που εμφανίζεται, τη σελίδα %d."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "A blank page. Hold to start from a picture."
+msgstr "Μια κενή σελίδα. Κρατήστε πατημένο για να ξεκινήσετε από μια εικόνα."
+
+#: ink/guide.lua
+msgid "A contents page"
+msgstr "Μια σελίδα περιεχομένων"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "A drawing can have up to %1 layers."
+msgstr "Ένα σχέδιο μπορεί να έχει έως %1 επίπεδα."
+
+#: ink/view/layers.lua
+msgid "A drawing with layers keeps at least one. To stop using layers, turn them off in File."
+msgstr "Ένα σχέδιο με επίπεδα κρατά τουλάχιστον ένα. Για να σταματήσετε να χρησιμοποιείτε επίπεδα, απενεργοποιήστε τα στο Αρχείο."
+
+#: ink/guide.lua
+msgid "A folder's notebooks are tabs beside their pages. Hold a tab to rename, colour or reorder it; hold a page to star, move or copy it."
+msgstr "Τα σημειωματάρια ενός φακέλου είναι καρτέλες δίπλα στις σελίδες τους. Κρατήστε πατημένη μια καρτέλα για να τη μετονομάσετε, να τη χρωματίσετε ή να την αναδιατάξετε· κρατήστε πατημένη μια σελίδα για να της βάλετε αστέρι, να τη μετακινήσετε ή να την αντιγράψετε."
+
+#: ink/reader/inkview.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight of it, in the pen's colour: in your highlights list, and with the text at any font size. Over empty space it stays ink."
+msgstr "Μια γραμμή υπογραμμιστή πάνω σε κείμενο γίνεται η δική σας επισήμανση στο βιβλίο, στο χρώμα του στυλό: στη λίστα επισημάνσεών σας και με το κείμενο σε κάθε μέγεθος γραμματοσειράς. Πάνω σε κενό χώρο μένει μελάνι."
+
+#: ink/guide.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight, from the first word it touches to the last. Over empty space it stays ink."
+msgstr "Μια γραμμή υπογραμμιστή πάνω σε κείμενο γίνεται η δική σας επισήμανση στο βιβλίο, από την πρώτη λέξη που αγγίζει ως την τελευταία. Πάνω σε κενό χώρο μένει μελάνι."
+
+#: ink/guide.lua
+msgid "A new pen"
+msgstr "Ένα νέο στυλό"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A newer release, %1 to download."
+msgstr "Νεότερη έκδοση, %1 για λήψη."
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "A notebook keeps at least one page."
+msgstr "Ένα σημειωματάριο κρατά τουλάχιστον μία σελίδα."
+
+#: ink/guide.lua
+msgid "A notebook or some of its pages, with bookmarks for titled pages and links that work."
+msgstr "Ένα σημειωματάριο ή μερικές από τις σελίδες του, με σελιδοδείκτες για σελίδες με τίτλο και συνδέσμους που λειτουργούν."
+
+#: ink/view/images.lua
+msgid "A picture file on this reader."
+msgstr "Ένα αρχείο εικόνας σε αυτή τη συσκευή."
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A picture of each page takes about 0.3 MB, so this PDF will be around %d MB."
+msgstr "Η εικόνα κάθε σελίδας πιάνει περίπου 0,3 MB, άρα αυτό το PDF θα έχει περίπου %d MB."
+
+#: ink/view/updates.lua
+msgid "A prerelease is a test build. You can go back to the latest release from Settings, Updates."
+msgstr "Μια προ-έκδοση είναι δοκιμαστική δημιουργία. Μπορείτε να γυρίσετε στην τελευταία έκδοση από τις Ρυθμίσεις, Ενημερώσεις."
+
+#: ink/guide.lua
+msgid "A strip of your first four pens, one tap away: Pen and input, Your pens on the page."
+msgstr "Μια λωρίδα με τα πρώτα τέσσερα στυλό σας, με ένα άγγιγμα: Στυλό και είσοδος, Τα στυλό σας στη σελίδα."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A test build before the next release: newer things, maybe rough edges. You can go back to the release here any time. %1."
+msgstr "Μια δοκιμαστική δημιουργία πριν από την επόμενη έκδοση: νεότερα πράγματα, ίσως με ατέλειες. Μπορείτε να γυρίσετε στην έκδοση από εδώ οποτεδήποτε. %1."
+
+#: ink/guide.lua
+msgid "A whole folder"
+msgstr "Ολόκληρος φάκελος"
+
+#: ink/view/textformat.lua
+msgid "Across"
+msgstr "Κατά πλάτος"
+
+#: ink/penset.lua
+msgid "Acrylic"
+msgstr "Ακρυλικό"
+
+#: ink/view/imagebrowser.lua
+msgid "Add"
+msgstr "Προσθήκη"
+
+#: ink/view/library.lua
+msgid "Add an icon…"
+msgstr "Προσθήκη εικονιδίου…"
+
+#: ink/view/images.lua
+msgid "Add image"
+msgstr "Προσθήκη εικόνας"
+
+#: ink/view/imagebrowser.lua
+msgid "Add this image?"
+msgstr "Να προστεθεί αυτή η εικόνα;"
+
+#: ink/view/exportbook.lua
+msgid "Adding your annotations to the PDF"
+msgstr "Προσθήκη των σχολιασμών σας στο PDF"
+
+#: ink/view/ocrapi.lua
+msgid "Address"
+msgstr "Διεύθυνση"
+
+#: ink/view/export.lua
+msgid "Adds your ink and highlights to a copy of the original PDF. The text stays real, the file stays small, and any PDF viewer can edit or remove them."
+msgstr "Προσθέτει το μελάνι και τις επισημάνσεις σας σε ένα αντίγραφο του αρχικού PDF. Το κείμενο παραμένει πραγματικό κείμενο, το αρχείο παραμένει μικρό και κάθε πρόγραμμα προβολής PDF μπορεί να τα επεξεργαστεί ή να τα αφαιρέσει."
+
+#: ink/view/textformat.lua
+msgid "Alignment"
+msgstr "Στοίχιση"
+
+#: ink/view/export.lua
+msgid "All"
+msgstr "Όλα"
+
+#: ink/reader/inkview.lua
+msgid "All of this book's annotations will be deleted now. They wait in Ink Away's trash for 30 days in case you want them back."
+msgstr "Όλες οι σημειώσεις αυτού του βιβλίου θα διαγραφούν τώρα. Μένουν στον κάδο του Ink Away για 30 ημέρες, σε περίπτωση που τις θέλετε πίσω."
+
+#: ink/view/layers.lua
+msgid "All the layers are merged into one drawing, hidden ones too. Undo brings the layers back."
+msgstr "Όλα τα επίπεδα συγχωνεύονται σε ένα σχέδιο, και τα κρυφά. Η Αναίρεση επαναφέρει τα επίπεδα."
+
+#: ink/view/share.lua
+msgid "Allow adding files"
+msgstr "Να επιτρέπεται η προσθήκη αρχείων"
+
+#: ink/view/gestures.lua
+msgid "Already in use"
+msgstr "Ήδη σε χρήση"
+
+#: ink/view/search.lua
+msgid "Also look inside pages (slower)"
+msgstr "Αναζήτηση και μέσα στις σελίδες (πιο αργά)"
+
+#: ink/view/exportbook.lua
+msgid "An editable PDF can't hold these as annotations:"
+msgstr "Ένα επεξεργάσιμο PDF δεν μπορεί να κρατήσει αυτά ως σχολιασμούς:"
+
+#: ink/guide.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Annotate the book"
+msgstr "Σχολιασμός του βιβλίου"
+
+#: ink/guide.lua
+msgid "Annotations and book notes"
+msgstr "Σημειώσεις και σημειώσεις βιβλίου"
+
+#: ink/view/trash.lua
+msgid "Annotations of a deleted book"
+msgstr "Σημειώσεις ενός διαγραμμένου βιβλίου"
+
+#: ink/view/trash.lua
+msgid "Annotations on this book"
+msgstr "Σημειώσεις σε αυτό το βιβλίο"
+
+#: ink/view/links.lua
+msgid "Another notebook…"
+msgstr "Άλλο σημειωματάριο…"
+
+#: ink/framecover.lua
+msgid "Antique gold"
+msgstr "Παλαιό χρυσό"
+
+#: ink/view/settings.lua
+msgid "Appearance"
+msgstr "Εμφάνιση"
+
+#: ink/view/textformat.lua
+msgid "Applies to the selected word or text"
+msgstr "Ισχύει για την επιλεγμένη λέξη ή το κείμενο"
+
+#: ink/view/textformat.lua
+msgid "Applies to what you type next"
+msgstr "Ισχύει για ό,τι πληκτρολογήσετε στη συνέχεια"
+
+#: ink/reader/inkview.lua
+msgid "Are you sure?"
+msgstr "Είστε σίγουροι;"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Area: %d×%d (tap for the whole page)"
+msgstr "Περιοχή: %d×%d (πατήστε για όλη τη σελίδα)"
+
+#: ink/view/export.lua
+msgid "Area: the whole page (tap to choose)"
+msgstr "Περιοχή: όλη η σελίδα (πατήστε για να επιλέξετε)"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Arrived: %s"
+msgstr "Έφτασε: %s"
+
+#: ink/view/menus.lua
+msgid "Arrowhead size"
+msgstr "Μέγεθος κεφαλής βέλους"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Arrowhead size: %d px"
+msgstr "Μέγεθος κεφαλής βέλους: %d px"
+
+#: ink/framecover.lua
+msgid "Art Deco"
+msgstr "Άρ ντεκό"
+
+#: ink/framecover.lua
+msgid "Arts and Crafts"
+msgstr "Arts and Crafts"
+
+#: ink/view/share.lua
+msgid "Ask to open notebooks that arrive"
+msgstr "Ερώτηση για άνοιγμα των σημειωματαρίων που φτάνουν"
+
+#: ink/view/updates.lua
+msgid "Asking GitHub what there is…"
+msgstr "Ρωτάμε το GitHub τι υπάρχει…"
+
+#: ink/view/images.lua
+msgid "At save time you can include the picture or export just your drawing. The grid is always left out."
+msgstr "Κατά την αποθήκευση μπορείτε να συμπεριλάβετε την εικόνα ή να εξαγάγετε μόνο το σχέδιό σας. Το πλέγμα μένει πάντα έξω."
+
+#: ink/coverpicker.lua
+msgid "Automatic"
+msgstr "Αυτόματα"
+
+#: ink/view/gestures.lua
+#: ink/view/guide.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/toolbar.lua
+#: ink/view/updates.lua
+msgid "Back"
+msgstr "Επιστροφή"
+
+#: ink/view/gestures.lua
+msgid "Back to the usual"
+msgstr "Επιστροφή στα συνήθη"
+
+#: ink/view/images.lua
+msgid "Background image"
+msgstr "Εικόνα φόντου"
+
+#: ink/view/images.lua
+msgid "Background…"
+msgstr "Φόντο…"
+
+#: ink/penset.lua
+msgid "Ballpoint"
+msgstr "Στυλό διαρκείας"
+
+#: ink/guide.lua
+msgid "Ballpoint, Fountain, Calligraphy and Pencil can follow how hard you press: Pen and input, Pen pressure (Beta), with Palm rejection on."
+msgstr "Το στυλό διαρκείας, η πένα, η καλλιγραφία και το μολύβι μπορούν να ακολουθούν πόσο πατάτε: Στυλό και είσοδος, Πίεση στυλό (Beta), με ενεργή την απόρριψη παλάμης."
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Black"
+msgstr "Μαύρο"
+
+#: ink/framecover.lua
+msgid "Black and gold"
+msgstr "Μαύρο και χρυσό"
+
+#: ink/framecover.lua
+msgid "Black sides"
+msgstr "Μαύρες πλευρές"
+
+#: ink/view/notebook.lua
+msgid "Blank"
+msgstr "Κενή"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Blue"
+msgstr "Μπλε"
+
+#: ink/palette.lua
+msgid "Blueprint"
+msgstr "Κυανοτυπία"
+
+#: ink/palette.lua
+msgid "Blush"
+msgstr "Ροζ"
+
+#: ink/view/textformat.lua
+msgid "Bold"
+msgstr "Έντονα"
+
+#: ink/reader/inkview.lua
+msgid "Book ink"
+msgstr "Μελάνι βιβλίου"
+
+#: ink/guide.lua
+msgid "Book ink, Delete all annotations on this book. They wait in the trash for 30 days."
+msgstr "Μελάνι βιβλίου, διαγραφή όλων των σημειώσεων αυτού του βιβλίου. Μένουν στον κάδο για 30 ημέρες."
+
+#: ink/guide.lua
+msgid "Book ink, Show ink while reading: off shows the plain book. Your ink stays."
+msgstr "Μελάνι βιβλίου, εμφάνιση μελανιού στην ανάγνωση: απενεργοποιημένο δείχνει το απλό βιβλίο. Το μελάνι σας μένει."
+
+#: ink/guide.lua
+msgid "Book ink, Toolbar: on the left, right, top or bottom."
+msgstr "Μελάνι βιβλίου, γραμμή εργαλείων: αριστερά, δεξιά, πάνω ή κάτω."
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Book notes"
+msgstr "Σημειώσεις βιβλίου"
+
+#: ink/guide.lua
+msgid "Books"
+msgstr "Βιβλία"
+
+#: ink/guide.lua
+msgid "Bookshelf"
+msgstr "Bookshelf"
+
+#: ink/view/gestures.lua
+msgid "Both"
+msgstr "Και τα δύο"
+
+#: ink/view/welcome.lua
+msgid "Both are also in the reader menu: Tools, Ink Away."
+msgstr "Και τα δύο υπάρχουν και στο μενού του αναγνώστη: Εργαλεία, Ink Away."
+
+#: ink/reader/inkview.lua
+msgid "Bottom"
+msgstr "Κάτω"
+
+#: ink/framecover.lua
+msgid "Brass"
+msgstr "Ορείχαλκος"
+
+#: ink/folderlook.lua
+msgid "Brown"
+msgstr "Καφέ"
+
+#: ink/guide.lua
+msgid "Browse"
+msgstr "Περιήγηση"
+
+#: ink/view/imagebrowser.lua
+msgid "Browse images"
+msgstr "Περιήγηση εικόνων"
+
+#: ink/actions.lua
+msgid "Browse notebooks"
+msgstr "Περιήγηση σημειωματαρίων"
+
+#: ink/view/library.lua
+msgid "By name"
+msgstr "Κατά όνομα"
+
+#: ink/guide.lua
+msgid "By name, or tick look inside pages to search typed and converted text too."
+msgstr "Κατά όνομα, ή επιλέξτε Αναζήτηση και μέσα στις σελίδες για να αναζητηθεί και το πληκτρολογημένο και μετατραπέν κείμενο."
+
+#: ink/penset.lua
+msgid "Calligraphy"
+msgstr "Καλλιγραφία"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/dialogs.lua
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+#: ink/view/images.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Cancel"
+msgstr "Άκυρο"
+
+#: ink/framecover.lua
+msgid "Canvas Wrap"
+msgstr "Καμβάς"
+
+#: ink/framecover.lua
+msgid "Carved Victorian"
+msgstr "Σκαλιστό βικτωριανό"
+
+#: ink/view/textformat.lua
+msgid "Centre"
+msgstr "Κέντρο"
+
+#: ink/palette.lua
+msgid "Chalkboard"
+msgstr "Πίνακας κιμωλίας"
+
+#: ink/view/selection.lua
+msgid "Change link…"
+msgstr "Αλλαγή συνδέσμου…"
+
+#: ink/coverpicker.lua
+msgid "Charcoal"
+msgstr "Κάρβουνο"
+
+#: ink/view/updates.lua
+msgid "Check now"
+msgstr "Έλεγχος τώρα"
+
+#: ink/view/updates.lua
+msgid "Check once a day"
+msgstr "Έλεγχος μία φορά την ημέρα"
+
+#: ink/view/ocrapi.lua
+msgid "Check the address in the Text sheet: it has to be a full address starting with https://."
+msgstr "Ελέγξτε τη διεύθυνση στο φύλλο Κείμενο: πρέπει να είναι πλήρης διεύθυνση που αρχίζει με https://."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Checklist"
+msgstr "Λίστα ελέγχου"
+
+#: ink/guide.lua
+msgid "Checklists"
+msgstr "Λίστες ελέγχου"
+
+#: ink/framecover.lua
+msgid "Cherry"
+msgstr "Κερασιά"
+
+#: ink/view/links.lua
+msgid "Choose a notebook"
+msgstr "Επιλέξτε σημειωματάριο"
+
+#: ink/view/pencase.lua
+msgid "Choose its kind. You can then set its size and colour."
+msgstr "Επιλέξτε το είδος. Μετά μπορείτε να ορίσετε μέγεθος και χρώμα."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Choose its paper, a PDF or a template"
+msgstr "Επιλέξτε το χαρτί του, ένα PDF ή ένα πρότυπο"
+
+#: ink/ui/pentestscreen.lua
+#: ink/ui/thumbgrid.lua
+#: ink/view/dialogs.lua
+#: ink/view/guide.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/search.lua
+#: ink/view/sheetkit.lua
+#: ink/view/trash.lua
+msgid "Close"
+msgstr "Κλείσιμο"
+
+#: ink/coverpicker.lua
+#: ink/guide.lua
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Colour"
+msgstr "Χρώμα"
+
+#: ink/view/library.lua
+msgid "Colour and icon…"
+msgstr "Χρώμα και εικονίδιο…"
+
+#: ink/coverpicker.lua
+msgid "Colour wheel"
+msgstr "Τροχός χρωμάτων"
+
+#: ink/view/settings.lua
+msgid "Colour while drawing"
+msgstr "Χρώμα κατά το σχέδιο"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Colour: %s"
+msgstr "Χρώμα: %s"
+
+#: ink/view/overview.lua
+msgid "Colour…"
+msgstr "Χρώμα…"
+
+#: ink/notebookcover.lua
+msgid "Composition book"
+msgstr "Σχολικό τετράδιο"
+
+#: ink/view/links.lua
+msgid "Contents"
+msgstr "Περιεχόμενα"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Contents: %d page(s) listed"
+msgstr "Περιεχόμενα: καταχωρίστηκαν %d σελίδες"
+
+#: ink/reader/inkview.lua
+msgid "Continue"
+msgstr "Συνέχεια"
+
+#: ink/view/handwriting.lua
+msgid "Convert"
+msgstr "Μετατροπή"
+
+#: ink/guide.lua
+#: ink/view/handwriting.lua
+#: ink/view/selection.lua
+msgid "Convert to text"
+msgstr "Μετατροπή σε κείμενο"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online"
+msgstr "Μετατροπή σε κείμενο online"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online needs your service's address, key and model. Set them in the Text sheet, or switch it off there to read on the reader."
+msgstr "Η μετατροπή σε κείμενο online χρειάζεται τη διεύθυνση, το κλειδί και το μοντέλο της υπηρεσίας σας. Ορίστε τα στο φύλλο Κείμενο ή απενεργοποιήστε την εκεί για ανάγνωση στη συσκευή."
+
+#: ink/view/textformat.lua
+msgid "Copied"
+msgstr "Αντιγράφηκε"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Copied %d item(s). Tap with the lasso to paste."
+msgstr "Αντιγράφηκαν %d στοιχεία. Πατήστε με το λάσο για επικόλληση."
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Copied to “%s”"
+msgstr "Αντιγράφηκε στο «%s»"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Copy"
+msgstr "Αντιγραφή"
+
+#: ink/view/overview.lua
+msgid "Copy the page to"
+msgstr "Αντιγραφή της σελίδας σε"
+
+#: ink/view/overview.lua
+msgid "Copy to…"
+msgstr "Αντιγραφή σε…"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Cornell"
+msgstr "Cornell"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Could not check: %1."
+msgstr "Δεν ήταν δυνατός ο έλεγχος: %1."
+
+#: ink/view/export.lua
+msgid "Could not create the bookshelf ornaments folder."
+msgstr "Δεν ήταν δυνατή η δημιουργία του φακέλου στολιδιών του Bookshelf."
+
+#: ink/view/library.lua
+msgid "Could not create the folder."
+msgstr "Δεν ήταν δυνατή η δημιουργία του φακέλου."
+
+#: ink/view/trash.lua
+msgid "Could not delete it.\n"
+msgstr "Δεν ήταν δυνατή η διαγραφή.\n"
+
+#: ink/reader/inkview.lua
+msgid "Could not delete the annotations.\n"
+msgstr "Δεν ήταν δυνατή η διαγραφή των σημειώσεων.\n"
+
+#: ink/view/trash.lua
+msgid "Could not delete the page.\n"
+msgstr "Δεν ήταν δυνατή η διαγραφή της σελίδας.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Could not duplicate.\n"
+msgstr "Δεν ήταν δυνατή η αναπαραγωγή.\n"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Could not export PDF.\n"
+msgstr "Δεν ήταν δυνατή η εξαγωγή του PDF.\n"
+
+#: ink/view/export.lua
+msgid "Could not export.\n"
+msgstr "Δεν ήταν δυνατή η εξαγωγή.\n"
+
+#: ink/view/exportbook.lua
+msgid "Could not make the folder.\n"
+msgstr "Δεν ήταν δυνατή η δημιουργία του φακέλου.\n"
+
+#: ink/view/library.lua
+msgid "Could not move it.\n"
+msgstr "Δεν ήταν δυνατή η μετακίνηση.\n"
+
+#: ink/view/notebook.lua
+msgid "Could not open that PDF."
+msgstr "Δεν ήταν δυνατό το άνοιγμα αυτού του PDF."
+
+#: ink/view/document.lua
+msgid "Could not open that file.\n"
+msgstr "Δεν ήταν δυνατό το άνοιγμα αυτού του αρχείου.\n"
+
+#: ink/view/images.lua
+msgid "Could not open that image."
+msgstr "Δεν ήταν δυνατό το άνοιγμα αυτής της εικόνας."
+
+#: ink/view/notebook.lua
+msgid "Could not open that template."
+msgstr "Δεν ήταν δυνατό το άνοιγμα αυτού του προτύπου."
+
+#: ink/view/trash.lua
+msgid "Could not put it back.\n"
+msgstr "Δεν ήταν δυνατή η επαναφορά.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Could not rename.\n"
+msgstr "Δεν ήταν δυνατή η μετονομασία.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the image.\n"
+"%s"
+msgstr ""
+"Δεν ήταν δυνατή η αποθήκευση της εικόνας.\n"
+"%s"
+
+#: ink/view/exportbook.lua
+msgid "Could not save the images.\n"
+msgstr "Δεν ήταν δυνατή η αποθήκευση των εικόνων.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the ornament.\n"
+"%s"
+msgstr ""
+"Δεν ήταν δυνατή η αποθήκευση του στολιδιού.\n"
+"%s"
+
+#: ink/view/notebook.lua
+msgid "Could not save the template.\n"
+msgstr "Δεν ήταν δυνατή η αποθήκευση του προτύπου.\n"
+
+#: ink/view/overview.lua
+msgid "Could not save.\n"
+msgstr "Δεν ήταν δυνατή η αποθήκευση.\n"
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"Could not save:\n"
+"%s\n"
+"\n"
+"%s"
+msgstr ""
+"Δεν ήταν δυνατή η αποθήκευση:\n"
+"%s\n"
+"\n"
+"%s"
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't download that image."
+msgstr "Δεν ήταν δυνατή η λήψη αυτής της εικόνας."
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Couldn't open %s as a notebook"
+msgstr "Δεν ήταν δυνατό το άνοιγμα του %s ως σημειωματάριο"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't prepare a folder for the image."
+msgstr "Δεν ήταν δυνατή η προετοιμασία φακέλου για την εικόνα."
+
+#: ink/view/images.lua
+msgid "Couldn't process that image."
+msgstr "Δεν ήταν δυνατή η επεξεργασία αυτής της εικόνας."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"Couldn't reach the image service.\n"
+"Check your Wi-Fi, or try the other source above."
+msgstr ""
+"Δεν ήταν δυνατή η πρόσβαση στην υπηρεσία εικόνων.\n"
+"Ελέγξτε το Wi-Fi ή δοκιμάστε την άλλη πηγή παραπάνω."
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't read that image."
+msgstr "Δεν ήταν δυνατή η ανάγνωση αυτής της εικόνας."
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't save the image."
+msgstr "Δεν ήταν δυνατή η αποθήκευση της εικόνας."
+
+#: ink/view/images.lua
+msgid "Couldn't save the processed image."
+msgstr "Δεν ήταν δυνατή η αποθήκευση της επεξεργασμένης εικόνας."
+
+#: ink/view/share.lua
+msgid "Couldn't start sharing: no free port on this reader."
+msgstr "Δεν ήταν δυνατή η έναρξη κοινής χρήσης: δεν υπάρχει ελεύθερη θύρα σε αυτή τη συσκευή."
+
+#: ink/coverpicker.lua
+msgid "Cover colour"
+msgstr "Χρώμα εξωφύλλου"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Cover on the shelf…"
+msgstr "Εξώφυλλο στο ράφι…"
+
+#: ink/coverpicker.lua
+msgid "Covers on Bookshelf"
+msgstr "Εξώφυλλα στο Bookshelf"
+
+#: ink/palette.lua
+msgid "Cream"
+msgstr "Κρεμ"
+
+#: ink/view/library.lua
+msgid "Create"
+msgstr "Δημιουργία"
+
+#: ink/ui/brushmaker.lua
+msgid "Create brush"
+msgstr "Δημιουργία πινέλου"
+
+#: ink/palette.lua
+msgid "Custom"
+msgstr "Προσαρμοσμένο"
+
+#: ink/ui/colorpicker.lua
+msgid "Custom colour"
+msgstr "Προσαρμοσμένο χρώμα"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Cut"
+msgstr "Αποκοπή"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Cut %d item(s). Tap with the lasso to paste."
+msgstr "Αποκόπηκαν %d στοιχεία. Πατήστε με το λάσο για επικόλληση."
+
+#: ink/guide.lua
+msgid "Cut or copy, then on any page of any notebook: the page menu, Paste."
+msgstr "Αποκόψτε ή αντιγράψτε και μετά, σε οποιαδήποτε σελίδα οποιουδήποτε σημειωματαρίου: μενού σελίδας, Επικόλληση."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Daily"
+msgstr "Ημερήσιο"
+
+#: ink/view/settings.lua
+msgid "Dark"
+msgstr "Σκούρο"
+
+#: ink/palette.lua
+msgid "Dark grey"
+msgstr "Σκούρο γκρι"
+
+#: ink/guide.lua
+msgid "Dark mode"
+msgstr "Σκούρα λειτουργία"
+
+#: ink/view/settings.lua
+msgid "Dark turns Ink Away's toolbars and menus dark; the page stays as it is. System follows KOReader's night mode."
+msgstr "Το Σκούρο κάνει σκούρες τις γραμμές εργαλείων και τα μενού του Ink Away· η σελίδα μένει όπως είναι. Το Σύστημα ακολουθεί τη νυχτερινή λειτουργία του KOReader."
+
+#: ink/view/textformat.lua
+msgid "Date"
+msgstr "Ημερομηνία"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Default"
+msgstr "Προεπιλογή"
+
+#: ink/view/textformat.lua
+msgid "Default (content font)"
+msgstr "Προεπιλογή (γραμματοσειρά περιεχομένου)"
+
+#: ink/reader/inkview.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+#: ink/view/trash.lua
+msgid "Delete"
+msgstr "Διαγραφή"
+
+#: ink/view/notebook.lua
+msgid "Delete a template…"
+msgstr "Διαγραφή προτύπου…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations on this book…"
+msgstr "Διαγραφή όλων των σημειώσεων αυτού του βιβλίου…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations?"
+msgstr "Διαγραφή όλων των σημειώσεων;"
+
+#: ink/view/trash.lua
+msgid "Delete for good"
+msgstr "Διαγραφή οριστικά"
+
+#: ink/view/notebook.lua
+msgid "Delete page"
+msgstr "Διαγραφή σελίδας"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Delete the brush “%s”?"
+msgstr "Διαγραφή του πινέλου «%s»;"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Delete the template “%s”?"
+msgstr "Διαγραφή του προτύπου «%s»;"
+
+#: ink/view/layers.lua
+msgid "Delete this layer?"
+msgstr "Διαγραφή αυτού του επιπέδου;"
+
+#: ink/view/library.lua
+msgid "Delete this page?"
+msgstr "Διαγραφή αυτής της σελίδας;"
+
+#: ink/view/notebook.lua
+msgid "Delete which template?"
+msgstr "Ποιο πρότυπο να διαγραφεί;"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Delete “%s” for good?"
+msgstr "Οριστική διαγραφή του «%s»;"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Delete “%s”?"
+msgstr "Διαγραφή του «%s»;"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted %s · gone for good in %d days"
+msgstr "Διαγράφηκε το %s · χάνεται οριστικά σε %d ημέρες"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Deleted notebooks, drawings, pictures and folders wait here for %d days."
+msgstr "Τα διαγραμμένα σημειωματάρια, σχέδια, εικόνες και φάκελοι περιμένουν εδώ %d ημέρες."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted things stay here for %d days."
+msgstr "Τα διαγραμμένα μένουν εδώ %d ημέρες."
+
+#: ink/guide.lua
+msgid "Deleted things, a book's annotations too, wait 30 days and go back where they were."
+msgstr "Τα διαγραμμένα, και οι σημειώσεις ενός βιβλίου, περιμένουν 30 ημέρες και επιστρέφουν εκεί που ήταν."
+
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Delete…"
+msgstr "Διαγραφή…"
+
+#: ink/view/textformat.lua
+msgid "Direction"
+msgstr "Κατεύθυνση"
+
+#: ink/view/receive.lua
+msgid "Don't ask again"
+msgstr "Να μην ξαναρωτήσει"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/reader/inkview.lua
+#: ink/view/dialogs.lua
+#: ink/view/document.lua
+#: ink/view/gestures.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/overview.lua
+#: ink/view/paper.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+#: ink/view/sheetkit.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+#: ink/view/updates.lua
+msgid "Done"
+msgstr "Ολοκληρώθηκε"
+
+#: ink/view/settings.lua
+msgid "Dots"
+msgstr "Τελείες"
+
+#: ink/ui/pentestscreen.lua
+msgid "Dots show where each contact lands: black for the pen, grey for fingers, light grey for the eraser end and resting hands."
+msgstr "Οι τελείες δείχνουν πού πέφτει κάθε επαφή: μαύρες για το στυλό, γκρι για τα δάχτυλα, ανοιχτό γκρι για το άκρο της γόμας και τα ακουμπισμένα χέρια."
+
+#: ink/view/notebook.lua
+msgid "Dotted"
+msgstr "Στικτό"
+
+#: ink/view/share.lua
+msgid "Download"
+msgstr "Λήψη"
+
+#: ink/view/updates.lua
+msgid "Downloading and checking the update…"
+msgstr "Λήψη και έλεγχος της ενημέρωσης…"
+
+#: ink/view/imagebrowser.lua
+msgid "Downloading image…"
+msgstr "Λήψη εικόνας…"
+
+#: ink/view/export.lua
+msgid "Drag a box around the part to export. A single tap keeps the whole page."
+msgstr "Σύρετε ένα πλαίσιο γύρω από το τμήμα που θα εξαχθεί. Ένα απλό πάτημα κρατά ολόκληρη τη σελίδα."
+
+#: ink/guide.lua
+msgid "Drag the ring above an open text box to turn it to any angle, or pick Reads down or Reads up in Format, Paragraph, for a book's margins."
+msgstr "Σύρετε τον δακτύλιο πάνω από ένα ανοιχτό πλαίσιο κειμένου για να το περιστρέψετε σε οποιαδήποτε γωνία, ή επιλέξτε Διαβάζεται προς τα κάτω ή Διαβάζεται προς τα πάνω στο Μορφή, Παράγραφος, για τα περιθώρια ενός βιβλίου."
+
+#: ink/view/images.lua
+msgid "Draw over a photo or screenshot; your drawing sits on top. To write on a PDF, start a notebook from it: File, New, From PDF."
+msgstr "Σχεδιάστε πάνω σε μια φωτογραφία ή στιγμιότυπο· το σχέδιό σας μένει από πάνω. Για να γράψετε σε ένα PDF, ξεκινήστε από αυτό ένα σημειωματάριο: Αρχείο, Νέο, Από PDF."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/share.lua
+msgid "Drawing"
+msgstr "Σχέδιο"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Drawing in %s"
+msgstr "Σχέδιο στο %s"
+
+#: ink/pentest.lua
+msgid ""
+"Drawing on a Boox\n"
+"\n"
+"Ink Away asks your Boox for its fast refresh while you write, and ink settles into grey and colour when the pen rests.\n"
+"\n"
+"KOReader leaves every other refresh to the Boox's own mode for KOReader. If the page flashes or ink lags behind the pen: E-Ink Center, App optimisation, KOReader, Refresh mode: Balanced (Regal on older Boox), or Fast.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Σχέδιο σε Boox\n"
+"\n"
+"Το Ink Away ζητά από το Boox σας γρήγορη ανανέωση ενώ γράφετε και το μελάνι σταθεροποιείται σε γκρι και χρώμα όταν το στυλό ησυχάζει.\n"
+"\n"
+"Το KOReader αφήνει κάθε άλλη ανανέωση στη δική του λειτουργία του Boox για το KOReader. Αν η σελίδα αναβοσβήνει ή το μελάνι μένει πίσω από το στυλό: E-Ink Center, Βελτιστοποίηση εφαρμογών, KOReader, Λειτουργία ανανέωσης: Ισορροπημένη (Regal σε παλαιότερα Boox) ή Γρήγορη.\n"
+"\n"
+"Ρυθμίσεις, Οδηγός, Η συσκευή σας το δείχνει ξανά."
+
+#: ink/drawingshelf.lua
+msgid "Drawings"
+msgstr "Σχέδια"
+
+#: ink/view/document.lua
+msgid "Drawings and notebooks from the old “drawing projects” and “notebook projects” folders are now in the library."
+msgstr "Τα σχέδια και τα σημειωματάρια από τους παλιούς φακέλους «έργα σχεδίων» και «έργα σημειωματαρίων» είναι τώρα στη βιβλιοθήκη."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+msgid "Duplicate"
+msgstr "Διπλασιασμός"
+
+#: ink/framecover.lua
+msgid "Dutch Ripple"
+msgstr "Ολλανδικό κυματιστό"
+
+#: ink/view/paper.lua
+msgid "Each document keeps its paper; a new one starts on the last you picked. On a dark paper black ink and text show white. Dark mode never changes the paper."
+msgstr "Κάθε έγγραφο κρατά το χαρτί του· ένα νέο ξεκινά με το τελευταίο που διαλέξατε. Σε σκούρο χαρτί το μαύρο μελάνι και το κείμενο φαίνονται λευκά. Η σκούρα λειτουργία δεν αλλάζει ποτέ το χαρτί."
+
+#: ink/framecover.lua
+msgid "Ebonised"
+msgstr "Μαυρισμένο"
+
+#: ink/framecover.lua
+msgid "Ebony"
+msgstr "Έβενος"
+
+#: ink/view/textformat.lua
+msgid "Edit"
+msgstr "Επεξεργασία"
+
+#: ink/view/export.lua
+msgid "Editable"
+msgstr "Επεξεργάσιμο"
+
+#: ink/view/receive.lua
+msgid "Either way they stay in Library › Imported. To be asked again, turn on \"Ask to open notebooks that arrive\" in Phone or computer (Wi-Fi)."
+msgstr "Και στις δύο περιπτώσεις μένουν στη Βιβλιοθήκη › Εισαγμένα. Για να ρωτηθείτε ξανά, ενεργοποιήστε το «Ερώτηση για άνοιγμα των σημειωματαρίων που φτάνουν» στο Τηλέφωνο ή υπολογιστής (Wi-Fi)."
+
+#: ink/framecover.lua
+msgid "Emerald and gold"
+msgstr "Σμαράγδι και χρυσό"
+
+#: ink/view/trash.lua
+msgid "Empty"
+msgstr "Άδειο"
+
+#: ink/view/trash.lua
+msgid "Empty the trash"
+msgstr "Άδειασμα κάδου"
+
+#: ink/view/trash.lua
+msgid "Empty the trash?"
+msgstr "Να αδειάσει ο κάδος;"
+
+#: ink/view/toolbar.lua
+msgid "Erase"
+msgstr "Σβήσιμο"
+
+#: ink/view/menus.lua
+msgid "Erase pictures"
+msgstr "Σβήσιμο εικόνων"
+
+#: ink/view/menus.lua
+msgid "Erase whole strokes"
+msgstr "Σβήσιμο ολόκληρων γραμμών"
+
+#: main.lua
+msgid "Erase with the pen's eraser end"
+msgstr "Σβήσιμο με το άκρο γόμας του στυλό"
+
+#: ink/actions.lua
+#: ink/view/menus.lua
+msgid "Eraser"
+msgstr "Γόμα"
+
+#: ink/actions.lua
+msgid "Eraser end"
+msgstr "Άκρο γόμας"
+
+#: ink/guide.lua
+msgid "Erasing"
+msgstr "Σβήσιμο"
+
+#: ink/guide.lua
+msgid "Every drawing and notebook is a file that saves as you go. File has Rename, Duplicate, Export and New."
+msgstr "Κάθε σχέδιο και σημειωματάριο είναι ένα αρχείο που αποθηκεύεται καθώς δουλεύετε. Το Αρχείο έχει Μετονομασία, Διπλασιασμό, Εξαγωγή και Νέο."
+
+#: ink/guide.lua
+msgid "Everything besides ink"
+msgstr "Τα πάντα εκτός από το μελάνι"
+
+#: ink/view/trash.lua
+msgid "Everything in it is deleted for good."
+msgstr "Ό,τι υπάρχει μέσα του διαγράφεται οριστικά."
+
+#: ink/reader/inkview.lua
+msgid "Everything you drew, wrote and placed on this book goes, on every page. Highlights the highlighter turned into the reader's own stay, and so do the book's notes."
+msgstr "Ό,τι σχεδιάσατε, γράψατε και τοποθετήσατε σε αυτό το βιβλίο φεύγει, σε κάθε σελίδα. Οι επισημάνσεις που ο υπογραμμιστής έκανε δικές του επισημάνσεις του αναγνώστη μένουν, όπως και οι σημειώσεις του βιβλίου."
+
+#: ink/view/toolbar.lua
+msgid "Exit"
+msgstr "Έξοδος"
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to the service below and puts back the text it reads. Wi-Fi has to be on."
+msgstr "Πειραματικό. Η Μετατροπή σε κείμενο στέλνει μια εικόνα του χειρόγραφου που κυκλώσατε με το λάσο στην υπηρεσία παρακάτω και επαναφέρει το κείμενο που διαβάζει. Το Wi-Fi πρέπει να είναι ενεργό."
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to your AI service and puts back the text it reads. Set the three below from your service's account and documentation, then lasso some writing and choose Convert to text, with Wi-Fi on."
+msgstr "Πειραματικό. Η Μετατροπή σε κείμενο στέλνει μια εικόνα του χειρόγραφου που κυκλώσατε με το λάσο στην υπηρεσία AI σας και επαναφέρει το κείμενο που διαβάζει. Ορίστε τα τρία παρακάτω από τον λογαριασμό και την τεκμηρίωση της υπηρεσίας σας, μετά κυκλώστε χειρόγραφο με το λάσο και επιλέξτε Μετατροπή σε κείμενο, με ενεργό Wi-Fi."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Export"
+msgstr "Εξαγωγή"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) as PNGs"
+msgstr "Εξαγωγή %d σελίδων ως PNG"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) to PDF"
+msgstr "Εξαγωγή %d σελίδων σε PDF"
+
+#: ink/view/export.lua
+msgid "Export PDF"
+msgstr "Εξαγωγή PDF"
+
+#: ink/view/export.lua
+msgid "Export PNG"
+msgstr "Εξαγωγή PNG"
+
+#: ink/view/export.lua
+msgid "Export as PDF"
+msgstr "Εξαγωγή ως PDF"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export as PDF…"
+msgstr "Εξαγωγή ως PDF…"
+
+#: ink/view/export.lua
+msgid "Export as PNG"
+msgstr "Εξαγωγή ως PNG"
+
+#: ink/view/export.lua
+msgid "Export as images"
+msgstr "Εξαγωγή ως εικόνες"
+
+#: ink/view/export.lua
+msgid "Export editable PDF"
+msgstr "Εξαγωγή επεξεργάσιμου PDF"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Export folder: %s"
+msgstr "Φάκελος εξαγωγής: %s"
+
+#: ink/view/export.lua
+msgid "Export stopped."
+msgstr "Η εξαγωγή σταμάτησε."
+
+#: main.lua
+msgid "Export the book with its annotations…"
+msgstr "Εξαγωγή του βιβλίου με τους σχολιασμούς του…"
+
+#: ink/view/export.lua
+msgid "Export the folder as PDF"
+msgstr "Εξαγωγή του φακέλου ως PDF"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Exporting %d page(s) to PDF"
+msgstr "Εξαγωγή %d σελίδων σε PDF"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Exports: %s"
+msgstr "Εξαγωγές: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export…"
+msgstr "Εξαγωγή…"
+
+#: ink/view/ocrapi.lua
+msgid "External OCR. Stop discards the result; the request may still finish at the provider."
+msgstr "Εξωτερικό OCR. Η Διακοπή απορρίπτει το αποτέλεσμα· το αίτημα μπορεί να ολοκληρωθεί στον πάροχο."
+
+#: ink/guide.lua
+msgid "Fast refresh on a Boox"
+msgstr "Γρήγορη ανανέωση σε Boox"
+
+#: ink/view/pencase.lua
+msgid "Fast refresh while drawing"
+msgstr "Γρήγορη ανανέωση κατά το σχέδιο"
+
+#: ink/view/settings.lua
+msgid "Fast strokes leave faint marks; a full refresh clears them this often."
+msgstr "Οι γρήγορες γραμμές αφήνουν αχνά σημάδια· μια πλήρης ανανέωση τα καθαρίζει με αυτή τη συχνότητα."
+
+#: ink/guide.lua
+msgid "Faster drawing"
+msgstr "Ταχύτερο σχέδιο"
+
+#: ink/pentest.lua
+msgid ""
+"Faster drawing on this reader\n"
+"\n"
+"KOReader can't choose the fast e-ink refresh on this device, so its own refresh mode for KOReader decides how quickly ink appears.\n"
+"\n"
+"Look for a per-app refresh or speed mode for KOReader in the device's settings, and choose the fastest.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Ταχύτερο σχέδιο σε αυτή τη συσκευή\n"
+"\n"
+"Το KOReader δεν μπορεί να επιλέξει τη γρήγορη ανανέωση e-ink σε αυτή τη συσκευή, οπότε η δική της λειτουργία ανανέωσης για το KOReader αποφασίζει πόσο γρήγορα εμφανίζεται το μελάνι.\n"
+"\n"
+"Ψάξτε στις ρυθμίσεις της συσκευής για λειτουργία ανανέωσης ή ταχύτητας ανά εφαρμογή για το KOReader και επιλέξτε την ταχύτερη.\n"
+"\n"
+"Ρυθμίσεις, Οδηγός, Η συσκευή σας το δείχνει ξανά."
+
+#: ink/view/toolbar.lua
+msgid "File"
+msgstr "Αρχείο"
+
+#: ink/guide.lua
+msgid "File, Export: transparent or white, the whole page or an area you pick, with or without the grid."
+msgstr "Αρχείο, Εξαγωγή: διαφανές ή λευκό, ολόκληρη η σελίδα ή μια περιοχή της επιλογής σας, με ή χωρίς πλέγμα."
+
+#: ink/guide.lua
+msgid "File, Layers splits a drawing into layers. The strip at the right adds one or picks where you draw; tap that one for its menu."
+msgstr "Αρχείο, Επίπεδα χωρίζει ένα σχέδιο σε επίπεδα. Η λωρίδα δεξιά προσθέτει ένα ή επιλέγει πού σχεδιάζετε· πατήστε ένα για το μενού του."
+
+#: ink/view/settings.lua
+msgid "Files"
+msgstr "Αρχεία"
+
+#: ink/view/share.lua
+msgid "Files arrive in Library › Imported. Reload the page if it was open."
+msgstr "Τα αρχεία φτάνουν στη Βιβλιοθήκη › Εισαγμένα. Φορτώστε ξανά τη σελίδα αν ήταν ανοιχτή."
+
+#: ink/view/menus.lua
+msgid "Fill"
+msgstr "Γέμισμα"
+
+#: ink/view/menus.lua
+msgid "Fill colour"
+msgstr "Χρώμα γεμίσματος"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Filled shapes and fills: %d"
+msgstr "Γεμισμένα σχήματα και γεμίσματα: %d"
+
+#: ink/penset.lua
+msgid "Fineliner"
+msgstr "Λεπτός μαρκαδόρος"
+
+#: ink/view/pencase.lua
+msgid "Finger on the page"
+msgstr "Δάχτυλο στη σελίδα"
+
+#: ink/framepicker.lua
+msgid "Finish"
+msgstr "Τελείωμα"
+
+#: ink/view/pencase.lua
+msgid "Firm"
+msgstr "Σκληρό"
+
+#: ink/guide.lua
+msgid "First or last page"
+msgstr "Πρώτη ή τελευταία σελίδα"
+
+#: ink/view/notebook.lua
+msgid "First page"
+msgstr "Πρώτη σελίδα"
+
+#: ink/actions.lua
+msgid "Fit the page"
+msgstr "Προσαρμογή στη σελίδα"
+
+#: ink/reader/inkview.lua
+msgid "Fit the toolbar in the margin"
+msgstr "Προσαρμογή της γραμμής εργαλείων στο περιθώριο"
+
+#: ink/view/handwriting.lua
+msgid "Fix anything misread, then convert."
+msgstr "Διορθώστε ό,τι διαβάστηκε λάθος και μετά μετατρέψτε."
+
+#: ink/view/selection.lua
+msgid "Flip"
+msgstr "Αναστροφή"
+
+#: ink/framecover.lua
+msgid "Floating Frame"
+msgstr "Πλωτό πλαίσιο"
+
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+msgid "Folder"
+msgstr "Φάκελος"
+
+#: ink/view/library.lua
+msgid "Folder icon"
+msgstr "Εικονίδιο φακέλου"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Folder in %s"
+msgstr "Φάκελος στο %s"
+
+#: ink/view/library.lua
+msgid "Folder name"
+msgstr "Όνομα φακέλου"
+
+#: ink/view/search.lua
+msgid "Folder, notebook or page name"
+msgstr "Όνομα φακέλου, σημειωματαρίου ή σελίδας"
+
+#: ink/guide.lua
+msgid "Folders, search and the trash"
+msgstr "Φάκελοι, αναζήτηση και κάδος"
+
+#: ink/view/export.lua
+msgid "Folder…"
+msgstr "Φάκελος…"
+
+#: ink/view/menus.lua
+msgid "Font size"
+msgstr "Μέγεθος γραμματοσειράς"
+
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Font: %s"
+msgstr "Γραμματοσειρά: %s"
+
+#: ink/guide.lua
+msgid "For pen readers: rest your hand while you write. Finger on the page sets what a finger does then."
+msgstr "Για συσκευές με στυλό: ακουμπήστε το χέρι σας ενώ γράφετε. Το Δάχτυλο στη σελίδα ορίζει τι κάνει τότε ένα δάχτυλο."
+
+#: ink/coverpicker.lua
+msgid "Forest"
+msgstr "Δάσος"
+
+#: ink/view/export.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+msgid "Format"
+msgstr "Μορφή"
+
+#: ink/guide.lua
+msgid "Format, Paragraph, Checklist puts a box before each line. Tap a box to tick it, with the text open or closed."
+msgstr "Μορφή, Παράγραφος, Λίστα ελέγχου βάζει ένα τετραγωνίδιο πριν από κάθε γραμμή. Πατήστε ένα τετραγωνίδιο για να το επιλέξετε, με το κείμενο ανοιχτό ή κλειστό."
+
+#: ink/penset.lua
+msgid "Fountain"
+msgstr "Πένα"
+
+#: ink/view/settings.lua
+msgid "Four-way"
+msgstr "Τετραπλής κατεύθυνσης"
+
+#: ink/view/library.lua
+msgid "Frame on the shelf…"
+msgstr "Πλαίσιο στο ράφι…"
+
+#: ink/view/images.lua
+msgid "Free pictures from Wikimedia and Openverse. Needs Wi-Fi."
+msgstr "Ελεύθερες εικόνες από το Wikimedia και το Openverse. Χρειάζεται Wi-Fi."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "From %s"
+msgstr "Από %s"
+
+#: ink/view/images.lua
+msgid "From Library › Imported › Pictures."
+msgstr "Από Βιβλιοθήκη › Εισαγμένα › Εικόνες."
+
+#: ink/view/notebook.lua
+msgid "From a PDF…"
+msgstr "Από PDF…"
+
+#: ink/view/notebook.lua
+msgid "From a template…"
+msgstr "Από πρότυπο…"
+
+#: ink/view/notebook.lua
+msgid "From template…"
+msgstr "Από πρότυπο…"
+
+#: ink/view/images.lua
+msgid "From this reader"
+msgstr "Από αυτή τη συσκευή"
+
+#: ink/view/receive.lua
+msgid "From your phone or computer"
+msgstr "Από το τηλέφωνο ή τον υπολογιστή σας"
+
+#: ink/notebookcover.lua
+msgid "Front page"
+msgstr "Πρώτη σελίδα"
+
+#: ink/view/imagebrowser.lua
+msgid "Full resolution"
+msgstr "Πλήρης ανάλυση"
+
+#: ink/framecover.lua
+msgid "Fumed oak"
+msgstr "Καπνισμένη δρυς"
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/view/gestures.lua
+#: ink/view/settings.lua
+msgid "Gestures and pen buttons"
+msgstr "Χειρονομίες και κουμπιά στυλό"
+
+#: ink/guide.lua
+msgid "Gestures and pen buttons gives each one an action, and the page turn buttons too: undo, lasso, a saved pen, hiding the toolbar and more."
+msgstr "Οι Χειρονομίες και κουμπιά στυλό δίνουν σε καθεμία μια ενέργεια, και στα κουμπιά αλλαγής σελίδας: αναίρεση, λάσο, αποθηκευμένο στυλό, απόκρυψη της γραμμής εργαλείων και άλλα."
+
+#: ink/view/images.lua
+msgid "Get from your phone or computer"
+msgstr "Λήψη από το τηλέφωνο ή τον υπολογιστή σας"
+
+#: ink/guide.lua
+msgid "Getting around"
+msgstr "Προσανατολισμός"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Ghosting"
+msgstr "Είδωλα"
+
+#: ink/framecover.lua
+msgid "Gilded Baroque"
+msgstr "Επιχρυσωμένο μπαρόκ"
+
+#: ink/view/notebook.lua
+msgid "Go"
+msgstr "Μετάβαση"
+
+#: ink/view/updates.lua
+msgid "Go back"
+msgstr "Επιστροφή"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back from this version to the latest release (%1)."
+msgstr "Επιστροφή από αυτή την έκδοση στην τελευταία έκδοση (%1)."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back to %1?"
+msgstr "Επιστροφή στο %1;"
+
+#: ink/view/updates.lua
+msgid "Go back to it"
+msgstr "Επιστροφή σε αυτό"
+
+#: ink/view/selection.lua
+msgid "Go to link"
+msgstr "Μετάβαση στον σύνδεσμο"
+
+#: ink/view/notebook.lua
+msgid "Go to page"
+msgstr "Μετάβαση στη σελίδα"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Go to page (1–%d)"
+msgstr "Μετάβαση στη σελίδα (1–%d)"
+
+#: ink/view/notebook.lua
+msgid "Go to page…"
+msgstr "Μετάβαση στη σελίδα…"
+
+#: ink/actions.lua
+#: ink/view/notebook.lua
+msgid "Go to the contents page"
+msgstr "Μετάβαση στη σελίδα περιεχομένων"
+
+#: ink/framecover.lua
+msgid "Gold"
+msgstr "Χρυσό"
+
+#: ink/view/welcome.lua
+msgid "Got it"
+msgstr "Κατάλαβα"
+
+#: ink/brushes.lua
+msgid "Grain"
+msgstr "Νερά"
+
+#: ink/folderlook.lua
+msgid "Graphite"
+msgstr "Γραφίτης"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Green"
+msgstr "Πράσινο"
+
+#: ink/palette.lua
+msgid "Grey"
+msgstr "Γκρι"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Grid"
+msgstr "Πλέγμα"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Grid: %s"
+msgstr "Πλέγμα: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/guide.lua
+#: ink/view/settings.lua
+msgid "Guide"
+msgstr "Οδηγός"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Habit tracker"
+msgstr "Παρακολούθηση συνηθειών"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Handwriting"
+msgstr "Χειρόγραφο"
+
+#: ink/notebookcover.lua
+msgid "Hardcover"
+msgstr "Hardcover"
+
+#: ink/penset.lua
+msgid "Hatch"
+msgstr "Σκίαση"
+
+#: ink/view/settings.lua
+msgid "Hidden"
+msgstr "Κρυφό"
+
+#: ink/view/layers.lua
+msgid "Hide"
+msgstr "Απόκρυψη"
+
+#: ink/actions.lua
+msgid "Hide or show the toolbar"
+msgstr "Απόκρυψη ή εμφάνιση της γραμμής εργαλείων"
+
+#: ink/view/textformat.lua
+msgid "Highlight"
+msgstr "Επισήμανση"
+
+#: ink/guide.lua
+msgid "Highlight while reading"
+msgstr "Επισήμανση κατά την ανάγνωση"
+
+#: main.lua
+msgid "Highlight with the pen's button"
+msgstr "Επισήμανση με το κουμπί του στυλό"
+
+#: ink/actions.lua
+#: ink/penset.lua
+msgid "Highlighter"
+msgstr "Υπογραμμιστής"
+
+#: ink/reader/inkview.lua
+msgid "Highlighter snaps to the text"
+msgstr "Ο υπογραμμιστής προσαρμόζεται στο κείμενο"
+
+#: ink/view/textformat.lua
+msgid "Hold a colour you added to remove it."
+msgstr "Κρατήστε πατημένο ένα χρώμα που προσθέσατε για να το αφαιρέσετε."
+
+#: ink/guide.lua
+msgid "Hold a folder in the Library, Export as PDF."
+msgstr "Κρατήστε πατημένο έναν φάκελο στη Βιβλιοθήκη, Εξαγωγή ως PDF."
+
+#: ink/guide.lua
+msgid "Hold a saved pen."
+msgstr "Κρατήστε πατημένο ένα αποθηκευμένο στυλό."
+
+#: ink/guide.lua
+msgid "Hold inside the text box you are writing in."
+msgstr "Κρατήστε πατημένο μέσα στο πλαίσιο κειμένου όπου γράφετε."
+
+#: ink/view/pencase.lua
+msgid "Hold still to straighten"
+msgstr "Κρατήστε ακίνητο για να ισιώσει"
+
+#: ink/guide.lua
+msgid "Hold the pen still at the end of a stroke: a rough line, box, ellipse or triangle snaps clean. Writing is left alone."
+msgstr "Κρατήστε το στυλό ακίνητο στο τέλος μιας γραμμής: μια ακανόνιστη γραμμή, ορθογώνιο, έλλειψη ή τρίγωνο γίνεται καθαρό. Το γράψιμο μένει ανέγγιχτο."
+
+#: main.lua
+msgid "Hold the pen's side button and run the pen over a line of text: it becomes a highlight, without opening the annotation mode. The button is the one set to Highlighter in Gestures and pen buttons."
+msgstr "Κρατήστε πατημένο το πλαϊνό κουμπί του στυλό και περάστε το στυλό πάνω από μια γραμμή κειμένου: γίνεται επισήμανση, χωρίς να ανοίξει η λειτουργία σχολιασμού. Το κουμπί είναι αυτό που έχει οριστεί σε Υπογραμμιστή στις Χειρονομίες και κουμπιά στυλό."
+
+#: ink/guide.lua
+msgid "Hold the pen's side button while drawing."
+msgstr "Κρατήστε πατημένο το πλαϊνό κουμπί του στυλό ενώ σχεδιάζετε."
+
+#: ink/guide.lua
+msgid "Hold the previous or next arrow."
+msgstr "Κρατήστε πατημένο το προηγούμενο ή το επόμενο βέλος."
+
+#: ink/view/settings.lua
+msgid "Horizontal"
+msgstr "Οριζόντια"
+
+#: ink/view/menus.lua
+msgid "How big the arrowheads are, in canvas pixels."
+msgstr "Πόσο μεγάλες είναι οι κεφαλές των βελών, σε pixel του καμβά."
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Icon: %s"
+msgstr "Εικονίδιο: %s"
+
+#: ink/view/toolbar.lua
+msgid "Image"
+msgstr "Εικόνα"
+
+#: ink/guide.lua
+msgid "Image adds one from a file or from the web. Move, resize or turn it; Remove background cuts it out."
+msgstr "Η Εικόνα προσθέτει μία από αρχείο ή από το διαδίκτυο. Μετακινήστε, αλλάξτε μέγεθος ή περιστρέψτε την· η Αφαίρεση φόντου την αποκόπτει."
+
+#: ink/guide.lua
+msgid "Image, Background puts a picture behind the page. Hold New drawing to start a drawing from one."
+msgstr "Εικόνα, Φόντο βάζει μια εικόνα πίσω από τη σελίδα. Κρατήστε πατημένο το Νέο σχέδιο για να ξεκινήσετε ένα σχέδιο από εικόνα."
+
+#: ink/guide.lua
+msgid "Import a PDF to write on its pages, then export it back to PDF."
+msgstr "Εισαγάγετε ένα PDF για να γράψετε στις σελίδες του και μετά εξαγάγετέ το πάλι σε PDF."
+
+#: ink/view/settings.lua
+msgid "In KOReader's night mode, ink keeps its colour: blue stays blue, and dark ink turns light so it reads on the dark page."
+msgstr "Στη νυχτερινή λειτουργία του KOReader το μελάνι κρατά το χρώμα του: το μπλε μένει μπλε και το σκούρο μελάνι ανοίγει ώστε να διαβάζεται στη σκούρα σελίδα."
+
+#: ink/view/export.lua
+msgid "Include the PDF page"
+msgstr "Συμπερίληψη της σελίδας PDF"
+
+#: ink/view/export.lua
+msgid "Include the background"
+msgstr "Συμπερίληψη του φόντου"
+
+#: ink/view/export.lua
+msgid "Include the book's pages"
+msgstr "Συμπερίληψη των σελίδων του βιβλίου"
+
+#: ink/view/export.lua
+msgid "Include the grid"
+msgstr "Συμπερίληψη του πλέγματος"
+
+#: ink/view/export.lua
+msgid "Include the paper"
+msgstr "Συμπερίληψη του χαρτιού"
+
+#: ink/brushes.lua
+msgid "Ink"
+msgstr "Μελάνι"
+
+#: main.lua
+msgid "Ink Away"
+msgstr "Ink Away"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1"
+msgstr "Ink Away %1"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is available: Settings, Updates."
+msgstr "Το Ink Away %1 είναι διαθέσιμο: Ρυθμίσεις, Ενημερώσεις."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is installed. Restart KOReader to use it."
+msgstr "Το Ink Away %1 εγκαταστάθηκε. Επανεκκινήστε το KOReader για να το χρησιμοποιήσετε."
+
+#: main.lua
+msgid "Ink Away (drawing canvas)"
+msgstr "Ink Away (καμβάς σχεδίασης)"
+
+#: ink/reader/book.lua
+msgid "Ink Away could not save this book's ink: its folder can't be written to."
+msgstr "Το Ink Away δεν μπόρεσε να αποθηκεύσει το μελάνι αυτού του βιβλίου: δεν γίνεται εγγραφή στον φάκελό του."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away downloads it from GitHub (%1) and checks it before it replaces this version; then KOReader restarts to use it. Your drawings, notebooks and settings stay as they are."
+msgstr "Το Ink Away την κατεβάζει από το GitHub (%1) και την ελέγχει πριν αντικαταστήσει αυτή την έκδοση· μετά το KOReader επανεκκινεί για να τη χρησιμοποιήσει. Τα σχέδια, τα σημειωματάρια και οι ρυθμίσεις σας μένουν όπως είναι."
+
+#: ink/drawingshelf.lua
+msgid "Ink Away drawings"
+msgstr "Σχέδια Ink Away"
+
+#: ink/view/share.lua
+msgid "Ink Away file"
+msgstr "Αρχείο Ink Away"
+
+#: ink/view/welcome.lua
+msgid "Ink Away in your books"
+msgstr "Το Ink Away στα βιβλία σας"
+
+#: ink/view/settings.lua
+msgid "Ink Away is free and made by one person. If it makes your writing better, a coffee helps keep it going."
+msgstr "Το Ink Away είναι δωρεάν και φτιαγμένο από ένα άτομο. Αν κάνει το γράψιμό σας καλύτερο, ένας καφές βοηθά να συνεχίσει."
+
+#: main.lua
+msgid "Ink Away library"
+msgstr "Βιβλιοθήκη Ink Away"
+
+#: ink/bookshelf.lua
+msgid "Ink Away notebooks"
+msgstr "Σημειωματάρια Ink Away"
+
+#: main.lua
+msgid "Ink Away: annotate the book"
+msgstr "Ink Away: σχολιασμός του βιβλίου"
+
+#: main.lua
+msgid "Ink Away: book notes (Ink Away outside a book)"
+msgstr "Ink Away: σημειώσεις βιβλίου (Ink Away εκτός βιβλίου)"
+
+#: ink/view/pencase.lua
+msgid "Ink shows with the Boox's fast black-and-white refresh as you write, and settles into grey and colour when the pen rests."
+msgstr "Το μελάνι εμφανίζεται με τη γρήγορη ασπρόμαυρη ανανέωση του Boox καθώς γράφετε και σταθεροποιείται σε γκρι και χρώμα όταν το στυλό ησυχάζει."
+
+#: ink/guide.lua
+msgid "Ink stays with the words when the font changes. Also in the reader menu: Tools, Ink Away."
+msgstr "Το μελάνι μένει με τις λέξεις όταν αλλάζει η γραμματοσειρά. Και στο μενού του αναγνώστη: Εργαλεία, Ink Away."
+
+#: ink/view/notebook.lua
+msgid "Insert before"
+msgstr "Εισαγωγή πριν"
+
+#: ink/view/updates.lua
+msgid "Install"
+msgstr "Εγκατάσταση"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Install %1?"
+msgstr "Εγκατάσταση του %1;"
+
+#: ink/framecover.lua
+msgid "Instant Photo"
+msgstr "Στιγμιαία φωτογραφία"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Into %s"
+msgstr "Στο %s"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Isometric"
+msgstr "Ισομετρικό"
+
+#: ink/view/trash.lua
+msgid "It can't be brought back."
+msgstr "Δεν μπορεί να επανέλθει."
+
+#: ink/guide.lua
+msgid "It saves itself"
+msgstr "Αποθηκεύεται μόνο του"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "It stays in the trash for %d days."
+msgstr "Μένει στον κάδο για %d ημέρες."
+
+#: ink/view/textformat.lua
+msgid "Italic"
+msgstr "Πλάγια"
+
+#: ink/framecover.lua
+msgid "Ivory and silver"
+msgstr "Ελεφαντόδοντο και ασήμι"
+
+#: ink/welcome.lua
+msgid "KOReader's gesture manager is off, so Ink Away couldn't give these a gesture."
+msgstr "Ο διαχειριστής χειρονομιών του KOReader είναι ανενεργός, οπότε το Ink Away δεν μπόρεσε να τους δώσει χειρονομία."
+
+#: ink/view/exportbook.lua
+msgid "Keep as pictures"
+msgstr "Διατήρηση ως εικόνες"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Keep as pictures puts a picture of your ink over the %d page(s) that have them, so they look as you drew them. Their ink there can't be edited stroke by stroke; every other page stays editable. Leave them out writes the PDF without them."
+msgstr "Η «Διατήρηση ως εικόνες» βάζει μια εικόνα του μελανιού σας πάνω από τις %d σελίδες που τα έχουν, ώστε να μοιάζουν όπως τις σχεδιάσατε. Το μελάνι εκεί δεν μπορεί πλέον να επεξεργαστεί γραμμή προς γραμμή· όλες οι άλλες σελίδες μένουν επεξεργάσιμες. Το «Να παραλειφθούν» γράφει το PDF χωρίς αυτά."
+
+#: ink/view/settings.lua
+msgid "Keep colours in night mode"
+msgstr "Διατήρηση χρωμάτων στη νυχτερινή λειτουργία"
+
+#: ink/view/dialogs.lua
+msgid "Keep going"
+msgstr "Συνέχεια"
+
+#: ink/view/ocrapi.lua
+msgid "Key"
+msgstr "Κλειδί"
+
+#: ink/view/pencase.lua
+msgid "Kind of pen"
+msgstr "Είδος στυλό"
+
+#: ink/palette.lua
+msgid "Kraft"
+msgstr "Κραφτ"
+
+#: ink/notebookcover.lua
+msgid "Kraft with window"
+msgstr "Κραφτ με παράθυρο"
+
+#: ink/view/settings.lua
+msgid "Landscape"
+msgstr "Οριζόντια"
+
+#: ink/actions.lua
+#: ink/guide.lua
+#: ink/view/toolbar.lua
+msgid "Lasso"
+msgstr "Λάσο"
+
+#: ink/guide.lua
+msgid "Lasso printed handwriting and Convert to text makes it a text box. One undo brings the writing back."
+msgstr "Κυκλώστε με το λάσο τυπωμένο χειρόγραφο και η Μετατροπή σε κείμενο το κάνει πλαίσιο κειμένου. Μία Αναίρεση επαναφέρει το γράψιμο."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Last checked %1."
+msgstr "Τελευταίος έλεγχος %1."
+
+#: ink/view/settings.lua
+msgid "Last document"
+msgstr "Τελευταίο έγγραφο"
+
+#: ink/view/notebook.lua
+msgid "Last page"
+msgstr "Τελευταία σελίδα"
+
+#: ink/view/receive.lua
+msgid "Later"
+msgstr "Αργότερα"
+
+#: ink/palette.lua
+msgid "Lavender"
+msgstr "Λεβάντα"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "Layer %1 of %2. New drawing goes on this layer."
+msgstr "Επίπεδο %1 από %2. Το νέο σχέδιο μπαίνει σε αυτό το επίπεδο."
+
+#: ink/guide.lua
+#: ink/view/document.lua
+msgid "Layers"
+msgstr "Επίπεδα"
+
+#: ink/view/exportbook.lua
+msgid "Leave them out"
+msgstr "Να παραλειφθούν"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Left"
+msgstr "Αριστερά"
+
+#: ink/notebookcover.lua
+#: ink/palette.lua
+msgid "Legal pad"
+msgstr "Μπλοκ νομικού"
+
+#: ink/actions.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+#: ink/view/search.lua
+#: ink/view/settings.lua
+#: ink/view/share.lua
+#: ink/view/toolbar.lua
+msgid "Library"
+msgstr "Βιβλιοθήκη"
+
+#: ink/guide.lua
+msgid "Library and Browse"
+msgstr "Βιβλιοθήκη και Περιήγηση"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library folder: %s"
+msgstr "Φάκελος βιβλιοθήκης: %s"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library: %s"
+msgstr "Βιβλιοθήκη: %s"
+
+#: ink/view/settings.lua
+msgid "Light"
+msgstr "Ανοιχτό"
+
+#: ink/palette.lua
+msgid "Light grey"
+msgstr "Ανοιχτό γκρι"
+
+#: ink/framecover.lua
+msgid "Light oak"
+msgstr "Ανοιχτή δρυς"
+
+#: ink/view/pencase.lua
+msgid "Light touch"
+msgstr "Ελαφρύ άγγιγμα"
+
+#: ink/folderlook.lua
+msgid "Lime"
+msgstr "Λάιμ"
+
+#: ink/view/menus.lua
+msgid "Line / arrow / curve"
+msgstr "Γραμμή / βέλος / καμπύλη"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Line spacing"
+msgstr "Διάστιχο"
+
+#: ink/view/settings.lua
+msgid "Line strength"
+msgstr "Πάχος γραμμής"
+
+#: ink/view/notebook.lua
+msgid "Lined"
+msgstr "Με γραμμές"
+
+#: ink/guide.lua
+msgid "Lined, grid, dotted, Cornell, daily, weekly, monthly, a habit tracker and more, for each page."
+msgstr "Με γραμμές, καρό, στικτό, Cornell, ημερήσιο, εβδομαδιαίο, μηνιαίο, παρακολούθηση συνηθειών και άλλα, για κάθε σελίδα."
+
+#: ink/view/settings.lua
+msgid "Lines"
+msgstr "Γραμμές"
+
+#: ink/guide.lua
+msgid "Lines, curves, arrows, boxes, ellipses and triangles, filled or outlined."
+msgstr "Γραμμές, καμπύλες, βέλη, ορθογώνια, έλλειψεις και τρίγωνα, γεμάτα ή περιγράμματα."
+
+#: ink/view/links.lua
+msgid "Link to a page"
+msgstr "Σύνδεσμος σε σελίδα"
+
+#: ink/guide.lua
+msgid "Link to page in the lasso's menu makes it a link: tap it with Pan, or a finger with palm rejection on, to jump there; Back returns."
+msgstr "Ο Σύνδεσμος σε σελίδα στο μενού του λάσο το κάνει σύνδεσμο: πατήστε τον με τη Μετακίνηση, ή με ένα δάχτυλο όταν είναι ενεργή η απόρριψη παλάμης, για να πάτε εκεί· η Επιστροφή γυρίζει πίσω."
+
+#: ink/view/selection.lua
+msgid "Link to page…"
+msgstr "Σύνδεσμος σε σελίδα…"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Linked to %s"
+msgstr "Συνδέθηκε με το %s"
+
+#: ink/guide.lua
+msgid "Links"
+msgstr "Σύνδεσμοι"
+
+#: ink/view/textformat.lua
+msgid "List"
+msgstr "Λίστα"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Loading images… %d/%d"
+msgstr "Φόρτωση εικόνων… %d/%d"
+
+#: ink/actions.lua
+msgid "Long two-finger swipe down"
+msgstr "Μακρύ σύρσιμο προς τα κάτω με δύο δάχτυλα"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe down."
+msgstr "Μακρύ σύρσιμο προς τα κάτω με δύο δάχτυλα."
+
+#: ink/actions.lua
+msgid "Long two-finger swipe up"
+msgstr "Μακρύ σύρσιμο προς τα πάνω με δύο δάχτυλα"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe up."
+msgstr "Μακρύ σύρσιμο προς τα πάνω με δύο δάχτυλα."
+
+#: ink/view/imagebrowser.lua
+msgid "Long-press an image to add it."
+msgstr "Κρατήστε πατημένη μια εικόνα για να την προσθέσετε."
+
+#: ink/view/search.lua
+msgid "Look inside pages too"
+msgstr "Αναζήτηση και μέσα στις σελίδες"
+
+#: ink/guide.lua
+msgid "Loop writing, shapes, pictures or text for its menu: cut, copy, duplicate, turn, flip, colour, size, opacity, to front, delete."
+msgstr "Κυκλώστε με το λάσο γράψιμο, σχήματα, εικόνες ή κείμενο για το μενού του: αποκοπή, αντιγραφή, διπλασιασμός, περιστροφή, αναστροφή, χρώμα, μέγεθος, αδιαφάνεια, μπροστά, διαγραφή."
+
+#: ink/view/textformat.lua
+msgid "Loose"
+msgstr "Χαλαρό"
+
+#: ink/framecover.lua
+msgid "Louis XVI"
+msgstr "Λουδοβίκος ΙΣΤ΄"
+
+#: ink/framecover.lua
+msgid "Mahogany"
+msgstr "Μαόνι"
+
+#: ink/view/pencase.lua
+msgid "Make a brush"
+msgstr "Δημιουργία πινέλου"
+
+#: ink/guide.lua
+msgid "Make a brush in the list of kinds; hold it there to delete it."
+msgstr "Δημιουργήστε ένα πινέλο στη λίστα των ειδών· κρατήστε το πατημένο εκεί για να το διαγράψετε."
+
+#: ink/view/notebook.lua
+msgid "Make a contents page"
+msgstr "Δημιουργία σελίδας περιεχομένων"
+
+#: ink/view/pencase.lua
+msgid "Make a copy"
+msgstr "Δημιουργία αντιγράφου"
+
+#: ink/guide.lua
+msgid "Make them yours"
+msgstr "Κάντε τα δικά σας"
+
+#: ink/view/share.lua
+msgid "Making a notebook in Library › Imported › PDFs…"
+msgstr "Δημιουργία σημειωματαρίου στη Βιβλιοθήκη › Εισαγμένα › PDF…"
+
+#: ink/view/notebook.lua
+msgid "Margin ruled"
+msgstr "Με περιθώριο"
+
+#: ink/penset.lua
+msgid "Mark"
+msgstr "Σήμανση"
+
+#: ink/penset.lua
+msgid "Marker"
+msgstr "Μαρκαδόρος"
+
+#: ink/view/pencase.lua
+msgid "Medium"
+msgstr "Μεσαίο"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Meeting notes"
+msgstr "Σημειώσεις σύσκεψης"
+
+#: ink/view/layers.lua
+msgid "Merge"
+msgstr "Συγχώνευση"
+
+#: ink/view/layers.lua
+msgid "Merge down"
+msgstr "Συγχώνευση προς τα κάτω"
+
+#: ink/framecover.lua
+msgid "Minimal Metal"
+msgstr "Μινιμαλιστικό μέταλλο"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Mint"
+msgstr "Μέντα"
+
+#: ink/view/ocrapi.lua
+msgid "Model"
+msgstr "Μοντέλο"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Monthly"
+msgstr "Μηνιαίο"
+
+#: ink/ui/thumbgrid.lua
+msgid "More"
+msgstr "Περισσότερα"
+
+#: ink/view/receive.lua
+msgid "More are still coming."
+msgstr "Έρχονται κι άλλα."
+
+#: ink/guide.lua
+msgid "More room"
+msgstr "Περισσότερος χώρος"
+
+#: ink/view/notebook.lua
+msgid "Move"
+msgstr "Μετακίνηση"
+
+#: ink/guide.lua
+msgid "Move around"
+msgstr "Μετακίνηση στην εφαρμογή"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move down"
+msgstr "Μετακίνηση κάτω"
+
+#: ink/view/library.lua
+msgid "Move here"
+msgstr "Μετακίνηση εδώ"
+
+#: ink/view/pencase.lua
+msgid "Move left"
+msgstr "Μετακίνηση αριστερά"
+
+#: ink/view/pencase.lua
+msgid "Move right"
+msgstr "Μετακίνηση δεξιά"
+
+#: ink/actions.lua
+msgid "Move the page (Pan)"
+msgstr "Μετακίνηση της σελίδας (Μετακίνηση)"
+
+#: ink/view/overview.lua
+msgid "Move the page to"
+msgstr "Μετακίνηση της σελίδας σε"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Move this page to (1–%d)"
+msgstr "Μετακίνηση αυτής της σελίδας σε (1–%d)"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Move to %s"
+msgstr "Μετακίνηση στο %s"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Move to…"
+msgstr "Μετακίνηση σε…"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move up"
+msgstr "Μετακίνηση πάνω"
+
+#: ink/guide.lua
+msgid "Move, copy or remove"
+msgstr "Μετακίνηση, αντιγραφή ή αφαίρεση"
+
+#: ink/reader/inkview.lua
+#: ink/view/trash.lua
+msgid "Moved to the trash"
+msgstr "Μετακινήθηκε στον κάδο"
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Moved to “%s”"
+msgstr "Μετακινήθηκε στο «%s»"
+
+#: ink/view/notebook.lua
+msgid "Move…"
+msgstr "Μετακίνηση…"
+
+#: ink/framecover.lua
+msgid "Museum Mat"
+msgstr "Πασπαρτού μουσείου"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Music"
+msgstr "Μουσική"
+
+#: ink/framecover.lua
+msgid "Mustard"
+msgstr "Μουστάρδα"
+
+#: ink/ui/brushmaker.lua
+msgid "Name this brush"
+msgstr "Ονομάστε αυτό το πινέλο"
+
+#: ink/view/pencase.lua
+msgid "Navigate"
+msgstr "Πλοήγηση"
+
+#: ink/coverpicker.lua
+msgid "Navy"
+msgstr "Ναυτικό μπλε"
+
+#: ink/view/library.lua
+msgid "New"
+msgstr "Νέα"
+
+#: ink/view/document.lua
+msgid "New drawing"
+msgstr "Νέο σχέδιο"
+
+#: ink/view/library.lua
+msgid "New folder"
+msgstr "Νέος φάκελος"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "New in %s"
+msgstr "Νέο στο %s"
+
+#: ink/view/document.lua
+#: ink/view/notebook.lua
+msgid "New notebook"
+msgstr "Νέο σημειωματάριο"
+
+#: ink/view/notebook.lua
+msgid "New notebook from template"
+msgstr "Νέο σημειωματάριο από πρότυπο"
+
+#: ink/view/notebook.lua
+msgid "New page from template"
+msgstr "Νέα σελίδα από πρότυπο"
+
+#: ink/view/pencase.lua
+msgid "New pen"
+msgstr "Νέο στυλό"
+
+#: ink/view/search.lua
+msgid "New search"
+msgstr "Νέα αναζήτηση"
+
+#: ink/bookshelf.lua
+#: ink/drawingshelf.lua
+msgid "New shelf"
+msgstr "Νέο ράφι"
+
+#: ink/view/library.lua
+msgid "Newest first"
+msgstr "Πρώτα τα νεότερα"
+
+#: ink/view/imagebrowser.lua
+msgid "Next"
+msgstr "Επόμενο"
+
+#: ink/actions.lua
+msgid "Next page"
+msgstr "Επόμενη σελίδα"
+
+#: ink/view/pencase.lua
+msgid "Nib angle"
+msgstr "Γωνία πένας"
+
+#: ink/view/notebook.lua
+msgid "No PDFs or folders here."
+msgstr "Δεν υπάρχουν PDF ή φάκελοι εδώ."
+
+#: ink/view/overview.lua
+msgid "No colour"
+msgstr "Χωρίς χρώμα"
+
+#: ink/view/dialogs.lua
+msgid "No files or folders here."
+msgstr "Δεν υπάρχουν αρχεία ή φάκελοι εδώ."
+
+#: ink/view/library.lua
+msgid "No folders here."
+msgstr "Δεν υπάρχουν φάκελοι εδώ."
+
+#: ink/view/dialogs.lua
+msgid "No folders in here."
+msgstr "Δεν υπάρχουν φάκελοι εδώ μέσα."
+
+#: ink/view/library.lua
+msgid "No icon"
+msgstr "Χωρίς εικονίδιο"
+
+#: ink/view/library.lua
+msgid "No icons found."
+msgstr "Δεν βρέθηκαν εικονίδια."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"No images found here.\n"
+"Try another search, or the other source above."
+msgstr ""
+"Δεν βρέθηκαν εικόνες εδώ.\n"
+"Δοκιμάστε άλλη αναζήτηση ή την άλλη πηγή παραπάνω."
+
+#: ink/guide.lua
+msgid "No need to annotate: hold the pen's side button (the one set to Highlighter) and run the pen over a line while reading."
+msgstr "Δεν χρειάζεται σχολιασμός: κρατήστε πατημένο το πλαϊνό κουμπί του στυλό (αυτό που έχει οριστεί σε Υπογραμμιστή) και περάστε το στυλό πάνω από μια γραμμή ενώ διαβάζετε."
+
+#: ink/view/overview.lua
+msgid "No notebooks here yet."
+msgstr "Δεν υπάρχουν ακόμη σημειωματάρια εδώ."
+
+#: ink/view/links.lua
+msgid "No notebooks here."
+msgstr "Δεν υπάρχουν σημειωματάρια εδώ."
+
+#: ink/view/updates.lua
+msgid "No notes for this version."
+msgstr "Δεν υπάρχουν σημειώσεις για αυτή την έκδοση."
+
+#: ink/view/overview.lua
+msgid "No other notebook here"
+msgstr "Δεν υπάρχει άλλο σημειωματάριο εδώ"
+
+#: ink/view/export.lua
+msgid "No pages match the chosen range."
+msgstr "Καμία σελίδα δεν ταιριάζει με το επιλεγμένο εύρος."
+
+#: ink/pentest.lua
+msgid ""
+"No pen has been seen since Ink Away opened, so with palm rejection on your finger moves the page.\n"
+"\n"
+"If you are drawing with a pen, this reader reports it as a finger: turn off Palm rejection in the pen menu to draw. Settings, Help, Test pen and touch shows how your pen arrives."
+msgstr ""
+"Δεν έχει εντοπιστεί στυλό από τότε που άνοιξε το Ink Away, οπότε με ενεργή την απόρριψη παλάμης το δάχτυλο μετακινεί τη σελίδα.\n"
+"\n"
+"Αν σχεδιάζετε με στυλό, αυτή η συσκευή το αναφέρει ως δάχτυλο: απενεργοποιήστε την απόρριψη παλάμης στο μενού του στυλό για να σχεδιάσετε. Ρυθμίσεις, Βοήθεια, Δοκιμή στυλό και αφής δείχνει πώς φτάνει το στυλό σας."
+
+#: ink/view/images.lua
+msgid "No pictures or folders here."
+msgstr "Δεν υπάρχουν εικόνες ή φάκελοι εδώ."
+
+#: ink/view/updates.lua
+msgid "No release found on GitHub."
+msgstr "Δεν βρέθηκε έκδοση στο GitHub."
+
+#: ink/view/overview.lua
+msgid "No starred pages here."
+msgstr "Δεν υπάρχουν σελίδες με αστέρι εδώ."
+
+#: ink/view/notebook.lua
+msgid "No templates yet. Save a page as one from this menu: Save as template."
+msgstr "Δεν υπάρχουν ακόμη πρότυπα. Αποθηκεύστε μια σελίδα ως πρότυπο από αυτό το μενού: Αποθήκευση ως πρότυπο."
+
+#: ink/view/handwriting.lua
+msgid "No writing could be read there."
+msgstr "Δεν διαβάστηκε γράψιμο εκεί."
+
+#: ink/view/export.lua
+msgid "None of the pages has ink."
+msgstr "Καμία σελίδα δεν έχει μελάνι."
+
+#: ink/view/textformat.lua
+msgid "Normal"
+msgstr "Κανονικό"
+
+#: ink/view/updates.lua
+msgid "Not checked yet."
+msgstr "Δεν έχει ελεγχθεί ακόμη."
+
+#: ink/view/updates.lua
+msgid "Not installed"
+msgstr "Δεν είναι εγκατεστημένο"
+
+#: ink/view/welcome.lua
+msgid "Not set up"
+msgstr "Δεν έχει ρυθμιστεί"
+
+#: ink/view/textformat.lua
+msgid "Note font"
+msgstr "Γραμματοσειρά σημειώσεων"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Notebook"
+msgstr "Σημειωματάριο"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Notebook in %s"
+msgstr "Σημειωματάριο στο %s"
+
+#: ink/view/settings.lua
+msgid "Notebook paper"
+msgstr "Χαρτί σημειωματαρίου"
+
+#: ink/bookshelf.lua
+#: ink/guide.lua
+#: ink/view/overview.lua
+#: ink/view/settings.lua
+msgid "Notebooks"
+msgstr "Σημειωματάρια"
+
+#: ink/actions.lua
+#: ink/view/pencase.lua
+msgid "Nothing"
+msgstr "Τίποτα"
+
+#: ink/view/search.lua
+msgid "Nothing found."
+msgstr "Δεν βρέθηκε τίποτα."
+
+#: ink/view/library.lua
+msgid "Nothing here yet. Make a drawing, a notebook or a folder with + New."
+msgstr "Τίποτα εδώ ακόμη. Φτιάξτε ένα σχέδιο, σημειωματάριο ή φάκελο με το + Νέο."
+
+#: ink/view/lasso.lua
+msgid "Nothing inside the loop."
+msgstr "Τίποτα μέσα στον βρόχο."
+
+#: ink/view/images.lua
+msgid "Nothing sent yet."
+msgstr "Δεν έχει σταλεί τίποτα ακόμη."
+
+#: ink/view.lua
+msgid "Nothing to redo."
+msgstr "Τίποτα για επανάληψη."
+
+#: ink/view.lua
+msgid "Nothing to undo."
+msgstr "Τίποτα για αναίρεση."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Now in the copy, “%s”"
+msgstr "Τώρα στο αντίγραφο «%s»"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Now page %d"
+msgstr "Τώρα σελίδα %d"
+
+#: ink/view/dialogs.lua
+msgid "OK"
+msgstr "Εντάξει"
+
+#: ink/framecover.lua
+msgid "Oak"
+msgstr "Δρυς"
+
+#: ink/view/settings.lua
+msgid "Off"
+msgstr "Απενεργοποίηση"
+
+#: ink/view/settings.lua
+msgid "Off: colour ink shows black until the pen rests, which reads more clearly on some colour e-ink screens."
+msgstr "Ανενεργό: το έγχρωμο μελάνι φαίνεται μαύρο μέχρι να ησυχάσει το στυλό, κάτι που διαβάζεται πιο καθαρά σε ορισμένες έγχρωμες οθόνες e-ink."
+
+#: ink/view/pencase.lua
+msgid "On Android, palm rejection needs a KOReader newer than 2026.07.1 (a nightly build from August 2026 or later). Earlier versions report the pen as a finger, so Ink Away can't tell it from your hand. Your pen draws as it is."
+msgstr "Στο Android, η απόρριψη παλάμης χρειάζεται KOReader νεότερο από το 2026.07.1 (νυχτερινή έκδοση Αυγούστου 2026 ή μεταγενέστερη). Οι παλαιότερες εκδόσεις αναφέρουν το στυλό ως δάχτυλο, οπότε το Ink Away δεν μπορεί να το ξεχωρίσει από το χέρι σας. Το στυλό σας σχεδιάζει όπως είναι."
+
+#: ink/view/updates.lua
+msgid "On its own Ink Away looks once a day, when it opens on Wi-Fi; it never turns Wi-Fi on."
+msgstr "Από μόνο του, το Ink Away ελέγχει μία φορά την ημέρα, όταν ανοίγει με Wi-Fi· δεν ανοίγει ποτέ το Wi-Fi."
+
+#: ink/view/export.lua
+msgid "One PNG per page, in a folder of its own."
+msgstr "Ένα PNG ανά σελίδα, σε δικό του φάκελο."
+
+#: ink/guide.lua
+msgid "One shape or picture"
+msgstr "Ένα σχήμα ή μια εικόνα"
+
+#: ink/view/ocrapi.lua
+msgid "Only the lassoed writing is sent. The key is kept unencrypted in KOReader's settings."
+msgstr "Στέλνεται μόνο το γράψιμο που κυκλώσατε με το λάσο. Το κλειδί αποθηκεύεται χωρίς κρυπτογράφηση στις ρυθμίσεις του KOReader."
+
+#: ink/view/gestures.lua
+msgid "Only this one"
+msgstr "Μόνο αυτό"
+
+#: ink/view/export.lua
+msgid "Only your ink, on white pages."
+msgstr "Μόνο το μελάνι σας, σε λευκές σελίδες."
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Opacity"
+msgstr "Αδιαφάνεια"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/view/export.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+msgid "Open"
+msgstr "Άνοιγμα"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Open %s"
+msgstr "Άνοιγμα του %s"
+
+#: main.lua
+msgid "Open Ink Away"
+msgstr "Άνοιγμα του Ink Away"
+
+#: main.lua
+msgid "Open as Ink Away notebook"
+msgstr "Άνοιγμα ως σημειωματάριο Ink Away"
+
+#: ink/view/images.lua
+msgid "Open image as background"
+msgstr "Άνοιγμα εικόνας ως φόντου"
+
+#: ink/view/export.lua
+msgid "Open the PDF now?"
+msgstr "Να ανοίξει τώρα το PDF;"
+
+#: ink/welcome.lua
+msgid "Open them from the reader menu: Tools, Ink Away. Or give them a gesture in Settings, Taps and gestures, Gesture manager: the actions are “Ink Away: annotate the book” and “Ink Away: book notes”."
+msgstr "Ανοίξτε τα από το μενού του αναγνώστη: Εργαλεία, Ink Away. Ή δώστε τους χειρονομία στις Ρυθμίσεις, Πατήματα και χειρονομίες, Διαχειριστής χειρονομιών: οι ενέργειες είναι «Ink Away: σχολιασμός του βιβλίου» και «Ink Away: σημειώσεις βιβλίου»."
+
+#: ink/view/imagebrowser.lua
+msgid "Openverse"
+msgstr "Openverse"
+
+#: ink/view/textformat.lua
+msgid "Or turn the box to any angle with the ring above it."
+msgstr "Ή περιστρέψτε το πλαίσιο σε οποιαδήποτε γωνία με τον δακτύλιο από πάνω του."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Orange"
+msgstr "Πορτοκαλί"
+
+#: ink/view/library.lua
+msgid "Order"
+msgstr "Σειρά"
+
+#: ink/view/settings.lua
+msgid "Orientation"
+msgstr "Προσανατολισμός"
+
+#: ink/view/export.lua
+msgid "Ornament name"
+msgstr "Όνομα στολιδιού"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "Outside a book, %1 opens Ink Away."
+msgstr "Εκτός βιβλίου, το %1 ανοίγει το Ink Away."
+
+#: ink/welcome.lua
+msgid "Outside a book, it opens Ink Away."
+msgstr "Εκτός βιβλίου, ανοίγει το Ink Away."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "PDF"
+msgstr "PDF"
+
+#: ink/view/export.lua
+msgid "PDF saved"
+msgstr "Το PDF αποθηκεύτηκε"
+
+#: ink/view/export.lua
+msgid "PDF type"
+msgstr "Τύπος PDF"
+
+#: ink/guide.lua
+msgid "PDFs"
+msgstr "PDF"
+
+#: ink/guide.lua
+msgid "PNG"
+msgstr "PNG"
+
+#: ink/view/export.lua
+msgid "PNG images"
+msgstr "Εικόνες PNG"
+
+#: ink/guide.lua
+msgid "PNG, PDF and more"
+msgstr "PNG, PDF και άλλα"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d"
+msgstr "Σελίδα %d"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Page %d of %d"
+msgstr "Σελίδα %d από %d"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d of %s"
+msgstr "Σελίδα %d από %s"
+
+#: ink/view/export.lua
+msgid "Page numbers"
+msgstr "Αριθμοί σελίδων"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Page range (1–%d), e.g. 3-8"
+msgstr "Εύρος σελίδων (1–%d), π.χ. 3-8"
+
+#: ink/view/notebook.lua
+msgid "Page starred"
+msgstr "Η σελίδα σημειώθηκε με αστέρι"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Page title"
+msgstr "Τίτλος σελίδας"
+
+#: ink/actions.lua
+msgid "Page turn button back"
+msgstr "Κουμπί αλλαγής σελίδας πίσω"
+
+#: ink/actions.lua
+msgid "Page turn button forward"
+msgstr "Κουμπί αλλαγής σελίδας μπροστά"
+
+#: ink/view/gestures.lua
+msgid "Page turn buttons"
+msgstr "Κουμπιά αλλαγής σελίδας"
+
+#: ink/view/export.lua
+msgid "Pages"
+msgstr "Σελίδες"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Pages %d–%d (tap to change)"
+msgstr "Σελίδες %d–%d (πατήστε για αλλαγή)"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pages you added to the notebook aren't in the original PDF, so their ink is left out either way: %d"
+msgstr "Οι σελίδες που προσθέσατε στο σημειωματάριο δεν υπάρχουν στο αρχικό PDF, γι’ αυτό το μελάνι τους παραλείπεται σε κάθε περίπτωση: %d"
+
+#: ink/guide.lua
+msgid "Pages, papers and PDFs"
+msgstr "Σελίδες, χαρτιά και PDF"
+
+#: ink/penset.lua
+msgid "Paint"
+msgstr "Βαφή"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+msgid "Paint bucket"
+msgstr "Κουβάς βαφής"
+
+#: ink/framecover.lua
+msgid "Painted Box"
+msgstr "Ζωγραφισμένο κουτί"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Palm rejection"
+msgstr "Απόρριψη παλάμης"
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger does nothing on the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"Η απόρριψη παλάμης είναι ενεργή, οπότε το στυλό σχεδιάζει και ένα δάχτυλο δεν κάνει τίποτα στη σελίδα.\n"
+"\n"
+"Για να σχεδιάσετε με το δάχτυλο, απενεργοποιήστε την απόρριψη παλάμης στο μενού του στυλό, Στυλό και είσοδος."
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger moves the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"Η απόρριψη παλάμης είναι ενεργή, οπότε το στυλό σχεδιάζει και ένα δάχτυλο μετακινεί τη σελίδα.\n"
+"\n"
+"Για να σχεδιάσετε με το δάχτυλο, απενεργοποιήστε την απόρριψη παλάμης στο μενού του στυλό, Στυλό και είσοδος."
+
+#: ink/view/pencase.lua
+msgid "Palm rejection needs KOReader 2026.07 or newer (that release added the pen input support). Please update KOReader and it will start working. On a reader without a pen it does nothing."
+msgstr "Η απόρριψη παλάμης χρειάζεται KOReader 2026.07 ή νεότερο (αυτή η έκδοση πρόσθεσε υποστήριξη εισόδου στυλό). Ενημερώστε το KOReader και θα αρχίσει να λειτουργεί. Σε συσκευή χωρίς στυλό δεν κάνει τίποτα."
+
+#: ink/guide.lua
+msgid "Pan, above the zoom, moves the page; tap it again to go back to your tool. Two fingers move the page with any tool."
+msgstr "Η Μετακίνηση, πάνω από το ζουμ, μετακινεί τη σελίδα· πατήστε την ξανά για να γυρίσετε στο εργαλείο σας. Δύο δάχτυλα μετακινούν τη σελίδα με οποιοδήποτε εργαλείο."
+
+#: ink/view/export.lua
+msgid "Paper"
+msgstr "Χαρτί"
+
+#: ink/guide.lua
+#: ink/view/paper.lua
+msgid "Paper colour"
+msgstr "Χρώμα χαρτιού"
+
+#: ink/view/notebook.lua
+msgid "Paper for this page"
+msgstr "Χαρτί για αυτή τη σελίδα"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Paper: %s"
+msgstr "Χαρτί: %s"
+
+#: ink/guide.lua
+msgid "Papers and planners"
+msgstr "Χαρτιά και ατζέντες"
+
+#: ink/view/notebook.lua
+msgid "Paper…"
+msgstr "Χαρτί…"
+
+#: ink/view/textformat.lua
+msgid "Paragraph"
+msgstr "Παράγραφος"
+
+#: ink/guide.lua
+msgid "Part of a stroke, or all of it"
+msgstr "Μέρος μιας γραμμής ή ολόκληρη"
+
+#: ink/guide.lua
+msgid "Part or whole"
+msgstr "Μέρος ή όλο"
+
+#: ink/view/lasso.lua
+#: ink/view/notebook.lua
+#: ink/view/textformat.lua
+msgid "Paste"
+msgstr "Επικόλληση"
+
+#: ink/guide.lua
+msgid "Paste anywhere"
+msgstr "Επικόλληση οπουδήποτε"
+
+#: ink/view/lasso.lua
+msgid "Paste here"
+msgstr "Επικόλληση εδώ"
+
+#: ink/guide.lua
+msgid "Paste into text"
+msgstr "Επικόλληση στο κείμενο"
+
+#: ink/view/lasso.lua
+msgid "Paste where it was"
+msgstr "Επικόλληση εκεί που ήταν"
+
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Pasted the first %d characters."
+msgstr "Επικολλήθηκαν οι πρώτοι %d χαρακτήρες."
+
+#: ink/view/pencase.lua
+#: ink/view/toolbar.lua
+msgid "Pen"
+msgstr "Στυλό"
+
+#: ink/view/pencase.lua
+msgid "Pen and input"
+msgstr "Στυλό και είσοδος"
+
+#: ink/view/pencase.lua
+msgid "Pen and input settings"
+msgstr "Ρυθμίσεις στυλό και εισόδου"
+
+#: ink/guide.lua
+msgid "Pen and input, Fast refresh while drawing: ink shows with the Boox's fast refresh as you write."
+msgstr "Στυλό και είσοδος, Γρήγορη ανανέωση κατά το σχέδιο: το μελάνι εμφανίζεται με τη γρήγορη ανανέωση του Boox καθώς γράφετε."
+
+#: ink/guide.lua
+msgid "Pen and input, Pen taps menus and buttons: work the toolbar and menus with the pen too."
+msgstr "Στυλό και είσοδος, Το στυλό πατά μενού και κουμπιά: χειριστείτε τη γραμμή εργαλείων και τα μενού και με το στυλό."
+
+#: ink/view/gestures.lua
+msgid "Pen buttons, while held"
+msgstr "Κουμπιά στυλό, όσο κρατούνται"
+
+#: ink/guide.lua
+msgid "Pen pressure"
+msgstr "Πίεση στυλό"
+
+#: ink/view/pencase.lua
+msgid "Pen pressure (Beta)"
+msgstr "Πίεση στυλό (Beta)"
+
+#: ink/view/pencase.lua
+msgid "Pen taps menus and buttons"
+msgstr "Το στυλό πατά μενού και κουμπιά"
+
+#: ink/guide.lua
+msgid "Pen, screen and refresh"
+msgstr "Στυλό, οθόνη και ανανέωση"
+
+#: ink/penset.lua
+msgid "Pencil"
+msgstr "Μολύβι"
+
+#: ink/guide.lua
+msgid "Pens"
+msgstr "Στυλό"
+
+#: ink/view/share.lua
+msgid "Phone or computer (Wi-Fi)"
+msgstr "Τηλέφωνο ή υπολογιστής (Wi-Fi)"
+
+#: ink/view/library.lua
+msgid "Phone or computer (Wi-Fi)…"
+msgstr "Τηλέφωνο ή υπολογιστής (Wi-Fi)…"
+
+#: ink/view/share.lua
+msgid "Phone or computer sharing stopped: Wi-Fi is off"
+msgstr "Η κοινή χρήση με τηλέφωνο ή υπολογιστή σταμάτησε: το Wi-Fi είναι κλειστό"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Phone or computer sharing stopped: nothing happened for %d minutes"
+msgstr "Η κοινή χρήση με τηλέφωνο ή υπολογιστή σταμάτησε: δεν έγινε τίποτα για %d λεπτά"
+
+#: ink/view/library.lua
+msgid "Pick a PDF that is already on this reader. It becomes a notebook in this folder."
+msgstr "Επιλέξτε ένα PDF που υπάρχει ήδη σε αυτή τη συσκευή. Γίνεται σημειωματάριο σε αυτόν τον φάκελο."
+
+#: ink/view/share.lua
+msgid "Picture"
+msgstr "Εικόνα"
+
+#: ink/framecover.lua
+msgid "Picture on the sides"
+msgstr "Εικόνα στα πλάγια"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Pictures"
+msgstr "Εικόνες"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pictures: %d"
+msgstr "Εικόνες: %d"
+
+#: ink/view/settings.lua
+msgid "Pinch to zoom, and drag with two fingers to move around the page."
+msgstr "Τσιμπήστε για ζουμ και σύρετε με δύο δάχτυλα για να κινηθείτε στη σελίδα."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Pink"
+msgstr "Ροζ"
+
+#: ink/view/textformat.lua
+msgid "Plain"
+msgstr "Απλό"
+
+#: ink/view/library.lua
+msgid "Plain folder"
+msgstr "Απλός φάκελος"
+
+#: ink/view/notebook.lua
+msgid "Planner"
+msgstr "Ατζέντα"
+
+#: ink/coverpicker.lua
+msgid "Plum"
+msgstr "Δαμάσκηνο"
+
+#: ink/view/settings.lua
+msgid "Portrait"
+msgstr "Κάθετη"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Preparing %s"
+msgstr "Προετοιμασία του %s"
+
+#: ink/view/updates.lua
+msgid "Prerelease"
+msgstr "Προ-έκδοση"
+
+#: ink/ui/thumbgrid.lua
+#: ink/view/imagebrowser.lua
+msgid "Prev"
+msgstr "Προηγ."
+
+#: ink/actions.lua
+msgid "Previous page"
+msgstr "Προηγούμενη σελίδα"
+
+#: ink/actions.lua
+msgid "Previous pen"
+msgstr "Προηγούμενο στυλό"
+
+#: ink/view/menus.lua
+msgid "Protect text from eraser"
+msgstr "Προστασία κειμένου από τη γόμα"
+
+#: ink/guide.lua
+msgid "Protect text from eraser and Erase pictures, in the eraser's menu, decide what it may take."
+msgstr "Η Προστασία κειμένου από τη γόμα και το Σβήσιμο εικόνων, στο μενού της γόμας, αποφασίζουν τι μπορεί να πάρει."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Purple"
+msgstr "Μωβ"
+
+#: ink/view/trash.lua
+msgid "Put back"
+msgstr "Επαναφορά"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back in %s"
+msgstr "Επαναφορά στο %s"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back on %s"
+msgstr "Επαναφορά στο %s"
+
+#: ink/welcome.lua
+msgid "Quick notes for the book you're reading, in a window over the page, with a page for each chapter."
+msgstr "Γρήγορες σημειώσεις για το βιβλίο που διαβάζετε, σε παράθυρο πάνω από τη σελίδα, με μία σελίδα για κάθε κεφάλαιο."
+
+#: ink/guide.lua
+msgid "Quick notes for the book, in a window over the page, a page for each chapter. Fullscreen gives more room."
+msgstr "Γρήγορες σημειώσεις για το βιβλίο, σε παράθυρο πάνω από τη σελίδα, μία σελίδα για κάθε κεφάλαιο. Η πλήρης οθόνη δίνει περισσότερο χώρο."
+
+#: ink/view/export.lua
+msgid "Range"
+msgstr "Εύρος"
+
+#: ink/view/ocrapi.lua
+msgid "Read handwriting with an AI service you have an account with, instead of on the reader."
+msgstr "Διαβάστε το χειρόγραφο με μια υπηρεσία AI όπου έχετε λογαριασμό, αντί στη συσκευή."
+
+#: ink/view/ocrapi.lua
+msgid "Reading the writing"
+msgstr "Ανάγνωση του γραψίματος"
+
+#: ink/view/handwriting.lua
+msgid "Reading the writing…"
+msgstr "Ανάγνωση του γραψίματος…"
+
+#: ink/guide.lua
+msgid "Reading without ink"
+msgstr "Ανάγνωση χωρίς μελάνι"
+
+#: ink/view/textformat.lua
+msgid "Reads down"
+msgstr "Διαβάζεται προς τα κάτω"
+
+#: ink/view/textformat.lua
+msgid "Reads up"
+msgstr "Διαβάζεται προς τα πάνω"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %d files: %s of %s"
+msgstr "Λήψη %d αρχείων: %s από %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %s: %s of %s"
+msgstr "Λήψη του %s: %s από %s"
+
+#: ink/view/document.lua
+msgid "Recovered"
+msgstr "Ανακτήθηκε"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Red"
+msgstr "Κόκκινο"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Redo"
+msgstr "Επανάληψη"
+
+#: ink/actions.lua
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Refresh the screen"
+msgstr "Ανανέωση οθόνης"
+
+#: ink/view/updates.lua
+msgid "Release"
+msgstr "Έκδοση"
+
+#: ink/reader/inkview.lua
+#: ink/view/pencase.lua
+msgid "Remove"
+msgstr "Διαγραφή"
+
+#: ink/view/selection.lua
+msgid "Remove background"
+msgstr "Αφαίρεση φόντου"
+
+#: ink/view/selection.lua
+msgid "Remove link"
+msgstr "Αφαίρεση συνδέσμου"
+
+#: ink/view/images.lua
+msgid "Remove the background picture"
+msgstr "Αφαίρεση της εικόνας φόντου"
+
+#: ink/reader/inkview.lua
+msgid "Remove these highlights?"
+msgstr "Να αφαιρεθούν αυτές οι επισημάνσεις;"
+
+#: ink/reader/inkview.lua
+msgid "Remove this highlight?"
+msgstr "Να αφαιρεθεί αυτή η επισήμανση;"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename"
+msgstr "Μετονομασία"
+
+#: ink/view/layers.lua
+msgid "Rename layer"
+msgstr "Μετονομασία επιπέδου"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename…"
+msgstr "Μετονομασία…"
+
+#: ink/view/dialogs.lua
+msgid "Replace"
+msgstr "Αντικατάσταση"
+
+#: ink/view/dialogs.lua
+msgid "Replace it?"
+msgstr "Να αντικατασταθεί;"
+
+#: ink/notebookcover.lua
+msgid "Reporter pad"
+msgstr "Μπλοκ ρεπόρτερ"
+
+#: ink/view/updates.lua
+msgid "Restart KOReader"
+msgstr "Επανεκκίνηση του KOReader"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Restart KOReader to use %1"
+msgstr "Επανεκκινήστε το KOReader για να χρησιμοποιήσετε το %1"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Right"
+msgstr "Δεξιά"
+
+#: main.lua
+msgid "Run the pen's eraser end over a highlight or over Ink Away's ink on the page: it goes, without opening the annotation mode. The eraser settings of the annotation mode apply. The part of the pen is the one set to Eraser in Gestures and pen buttons."
+msgstr "Περάστε το άκρο γόμας του στυλό πάνω από μια επισήμανση ή πάνω από το μελάνι του Ink Away στη σελίδα: φεύγει, χωρίς να ανοίξει η λειτουργία σχολιασμού. Ισχύουν οι ρυθμίσεις γόμας της λειτουργίας σχολιασμού. Αυτό το μέρος του στυλό είναι αυτό που έχει οριστεί σε Γόμα στις Χειρονομίες και κουμπιά στυλό."
+
+#: ink/framecover.lua
+msgid "Sage"
+msgstr "Φασκόμηλο"
+
+#: ink/view/notebook.lua
+msgid "Same as the notebook"
+msgstr "Όπως το σημειωματάριο"
+
+#: ink/palette.lua
+msgid "Sandpaper"
+msgstr "Γυαλόχαρτο"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/export.lua
+#: ink/view/notebook.lua
+#: ink/view/ocrapi.lua
+msgid "Save"
+msgstr "Αποθήκευση"
+
+#: ink/view/export.lua
+msgid "Save as bookshelf ornament"
+msgstr "Αποθήκευση ως στολίδι του Bookshelf"
+
+#: ink/view/notebook.lua
+msgid "Save as template…"
+msgstr "Αποθήκευση ως πρότυπο…"
+
+#: ink/ui/brushmaker.lua
+msgid "Save brush"
+msgstr "Αποθήκευση πινέλου"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d page(s) as images:\n"
+"%s"
+msgstr ""
+"Αποθηκεύτηκαν %d σελίδες ως εικόνες:\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d × %d image:\n"
+"%s"
+msgstr ""
+"Αποθηκεύτηκε εικόνα %d × %d:\n"
+"%s"
+
+#: ink/view/export.lua
+msgid ""
+"Saved as a transparent PNG in the bookshelf ornaments folder.\n"
+"End the name with .invert for a dark-mode version."
+msgstr ""
+"Αποθηκεύτηκε ως διαφανές PNG στον φάκελο στολιδιών του Bookshelf.\n"
+"Τελειώστε το όνομα με .invert για έκδοση σκούρας λειτουργίας."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved automatically in %s"
+msgstr "Αποθηκεύεται αυτόματα στο %s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved bookshelf ornament:\n"
+"%s"
+msgstr ""
+"Αποθηκεύτηκε στολίδι του Bookshelf:\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved image:\n"
+"%s"
+msgstr ""
+"Η εικόνα αποθηκεύτηκε:\n"
+"%s"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved in %s once there is something in it"
+msgstr "Αποθηκεύεται στο %s μόλις υπάρξει κάτι μέσα του"
+
+#: ink/view/pencase.lua
+msgid "Saved pen"
+msgstr "Αποθηκευμένο στυλό"
+
+#: ink/actions.lua
+msgid "Saved pen 1"
+msgstr "Αποθηκευμένο στυλό 1"
+
+#: ink/actions.lua
+msgid "Saved pen 2"
+msgstr "Αποθηκευμένο στυλό 2"
+
+#: ink/actions.lua
+msgid "Saved pen 3"
+msgstr "Αποθηκευμένο στυλό 3"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Saved the template “%s”"
+msgstr "Αποθηκεύτηκε το πρότυπο «%s»"
+
+#: ink/view/export.lua
+msgid "Saved. Open it from your library."
+msgstr "Αποθηκεύτηκε. Ανοίξτε το από τη βιβλιοθήκη σας."
+
+#: ink/view/export.lua
+msgid "Saves each page as a picture with your ink on it. It looks the same everywhere, but the file is bigger and its text can't be selected."
+msgstr "Αποθηκεύει κάθε σελίδα ως εικόνα με το μελάνι σας πάνω της. Φαίνεται ίδια παντού, αλλά το αρχείο είναι μεγαλύτερο και το κείμενό του δεν μπορεί να επιλεγεί."
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Saving %d page(s) as images"
+msgstr "Αποθήκευση %d σελίδων ως εικόνες"
+
+#: ink/view/images.lua
+msgid "Scan a QR code to send pictures over Wi-Fi."
+msgstr "Σαρώστε έναν κωδικό QR για να στείλετε εικόνες μέσω Wi-Fi."
+
+#: ink/view/share.lua
+msgid "Scan with a phone or computer on the same Wi-Fi, or open:"
+msgstr "Σαρώστε με τηλέφωνο ή υπολογιστή στο ίδιο Wi-Fi ή ανοίξτε:"
+
+#: ink/view/settings.lua
+msgid "Scan with your phone"
+msgstr "Σαρώστε με το τηλέφωνό σας"
+
+#: ink/guide.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/search.lua
+msgid "Search"
+msgstr "Αναζήτηση"
+
+#: ink/view/imagebrowser.lua
+msgid "Search images"
+msgstr "Αναζήτηση εικόνων"
+
+#: ink/view/images.lua
+msgid "Search online"
+msgstr "Αναζήτηση online"
+
+#: ink/view/search.lua
+msgid "Search stopped."
+msgstr "Η αναζήτηση σταμάτησε."
+
+#: ink/view/search.lua
+msgid "Searching"
+msgstr "Αναζήτηση"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching images…"
+msgstr "Αναζήτηση εικόνων…"
+
+#: ink/view/search.lua
+msgid "Searching inside pages"
+msgstr "Αναζήτηση μέσα στις σελίδες"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching…"
+msgstr "Αναζήτηση…"
+
+#: ink/view/imagebrowser.lua
+msgid "Search…"
+msgstr "Αναζήτηση…"
+
+#: ink/actions.lua
+msgid "Second side button"
+msgstr "Δεύτερο πλαϊνό κουμπί"
+
+#: ink/guide.lua
+msgid "Select a word"
+msgstr "Επιλογή λέξης"
+
+#: ink/view/textformat.lua
+msgid "Select all"
+msgstr "Επιλογή όλων"
+
+#: ink/guide.lua
+msgid "Select and edit"
+msgstr "Επιλογή και επεξεργασία"
+
+#: ink/view/export.lua
+msgid "Send to phone or computer (Wi-Fi)…"
+msgstr "Αποστολή σε τηλέφωνο ή υπολογιστή (Wi-Fi)…"
+
+#: ink/view/library.lua
+msgid "Send your notebooks and drawings to a phone or computer, or add PDFs and pictures from one, with a QR code."
+msgstr "Στείλτε τα σημειωματάρια και τα σχέδιά σας σε τηλέφωνο ή υπολογιστή ή προσθέστε PDF και εικόνες από ένα από αυτά, με κωδικό QR."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %d files: %s of %s"
+msgstr "Αποστολή %d αρχείων: %s από %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %s: %s of %s"
+msgstr "Αποστολή του %s: %s από %s"
+
+#: ink/view/images.lua
+msgid "Sent from your phone"
+msgstr "Στάλθηκε από το τηλέφωνό σας"
+
+#: ink/view/images.lua
+#, lua-format
+msgid "Sent from your phone (%d)"
+msgstr "Στάλθηκε από το τηλέφωνό σας (%d)"
+
+#: ink/view/share.lua
+msgid "Served by your reader over your Wi-Fi. When you're done, close Phone or computer (Wi-Fi) on the reader."
+msgstr "Σερβίρεται από τη συσκευή σας μέσω του Wi-Fi σας. Όταν τελειώσετε, κλείστε το Τηλέφωνο ή υπολογιστής (Wi-Fi) στη συσκευή."
+
+#: ink/view/export.lua
+msgid "Set"
+msgstr "Ορισμός"
+
+#: ink/view/ocrapi.lua
+msgid "Set the address"
+msgstr "Ορισμός διεύθυνσης"
+
+#: ink/view/ocrapi.lua
+msgid "Set the key"
+msgstr "Ορισμός κλειδιού"
+
+#: ink/view/ocrapi.lua
+msgid "Set the model"
+msgstr "Ορισμός μοντέλου"
+
+#: ink/view/settings.lua
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+#: ink/guide.lua
+msgid "Settings, Ghosting: a full refresh every few strokes clears the faint marks fast drawing leaves. The Refresh the screen button below it does one now."
+msgstr "Ρυθμίσεις, Είδωλα: μια πλήρης ανανέωση ανά λίγες γραμμές καθαρίζει τα αχνά σημάδια που αφήνει το γρήγορο σχέδιο. Το κουμπί Ανανέωση οθόνης από κάτω κάνει μία τώρα."
+
+#: ink/guide.lua
+msgid "Settings, Updates: the latest release, and prereleases apart. Once a day, opening on Wi-Fi, Ink Away looks; a dot on Settings means news."
+msgstr "Ρυθμίσεις, Ενημερώσεις: η τελευταία έκδοση και ξεχωριστά οι προ-εκδόσεις. Μία φορά την ημέρα, όταν ανοίγει με Wi-Fi, το Ink Away ελέγχει· μια τελεία στις Ρυθμίσεις σημαίνει νέα."
+
+#: ink/guide.lua
+msgid "Settings, When Ink Away opens: the last document, the Library or your Notebooks."
+msgstr "Ρυθμίσεις, Όταν ανοίγει το Ink Away: το τελευταίο έγγραφο, η Βιβλιοθήκη ή τα Σημειωματάριά σας."
+
+#: ink/guide.lua
+msgid "Settings, beside the paper or the grid: cream, sandpaper, kraft, chalkboard and more (white or black on grey). On a dark one black ink shows white."
+msgstr "Ρυθμίσεις, δίπλα στο χαρτί ή το πλέγμα: κρεμ, γυαλόχαρτο, κραφτ, πίνακας κιμωλίας και άλλα (λευκό ή μαύρο σε γκρι). Σε σκούρο, το μαύρο μελάνι φαίνεται λευκό."
+
+#: ink/guide.lua
+msgid "Settings, the round button by Guide: light, dark, or as KOReader's night mode. The page keeps its colours."
+msgstr "Ρυθμίσεις, το στρογγυλό κουμπί δίπλα στον Οδηγό: ανοιχτό, σκούρο ή όπως η νυχτερινή λειτουργία του KOReader. Η σελίδα κρατά τα χρώματά της."
+
+#: ink/guide.lua
+msgid "Settings: the theme colour, and Colour while drawing."
+msgstr "Ρυθμίσεις: το χρώμα θέματος και Χρώμα κατά το σχέδιο."
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/toolbar.lua
+msgid "Shapes"
+msgstr "Σχήματα"
+
+#: ink/guide.lua
+msgid "Shapes, text and pictures"
+msgstr "Σχήματα, κείμενο και εικόνες"
+
+#: ink/view/layers.lua
+msgid "Show"
+msgstr "Εμφάνιση"
+
+#: ink/reader/inkview.lua
+msgid "Show ink while reading"
+msgstr "Εμφάνιση μελανιού κατά την ανάγνωση"
+
+#: ink/view/guide.lua
+msgid "Show me"
+msgstr "Δείξε μου"
+
+#: ink/view/menus.lua
+msgid "Show the eraser while erasing"
+msgstr "Εμφάνιση της γόμας κατά το σβήσιμο"
+
+#: ink/view/receive.lua
+msgid "Show them in the library"
+msgstr "Εμφάνιση στη βιβλιοθήκη"
+
+#: ink/guide.lua
+msgid "Shows how your pen, its buttons and your hand arrive. Handy in a bug report."
+msgstr "Δείχνει πώς φτάνουν το στυλό σας, τα κουμπιά του και το χέρι σας. Χρήσιμο σε αναφορά σφάλματος."
+
+#: ink/actions.lua
+msgid "Side button"
+msgstr "Πλαϊνό κουμπί"
+
+#: ink/framecover.lua
+msgid "Silver"
+msgstr "Ασήμι"
+
+#: ink/framecover.lua
+msgid "Silver gilt"
+msgstr "Επιχρυσωμένο ασήμι"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Size"
+msgstr "Μέγεθος"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Sky"
+msgstr "Ουρανός"
+
+#: ink/view/pencase.lua
+msgid "Smooths shaky lines. Higher values steady the stroke but trail your finger slightly."
+msgstr "Εξομαλύνει τις τρεμάμενες γραμμές. Οι υψηλότερες τιμές σταθεροποιούν τη γραμμή αλλά ακολουθούν λίγο πίσω από το δάχτυλό σας."
+
+#: ink/penset.lua
+msgid "Smudge"
+msgstr "Μουτζούρωμα"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Smudges: %d"
+msgstr "Μουτζουρώματα: %d"
+
+#: ink/view/menus.lua
+msgid "Snap lines to ruling"
+msgstr "Προσκόλληση γραμμών στις γραμμές χαρτιού"
+
+#: ink/view/menus.lua
+msgid "Snap to 45°"
+msgstr "Προσκόλληση στις 45°"
+
+#: ink/view/menus.lua
+msgid "Snap to grid"
+msgstr "Προσκόλληση στο πλέγμα"
+
+#: ink/brushes.lua
+msgid "Soft edge"
+msgstr "Απαλή άκρη"
+
+#: ink/view/exportbook.lua
+msgid "Some items can't stay editable"
+msgstr "Ορισμένα στοιχεία δεν μπορούν να παραμείνουν επεξεργάσιμα"
+
+#: ink/view/exportbook.lua
+msgid "Some pages could not be kept as pictures in this PDF, so the items on them were left out."
+msgstr "Ορισμένες σελίδες δεν μπόρεσαν να διατηρηθούν ως εικόνες σε αυτό το PDF, γι’ αυτό τα στοιχεία τους παραλείφθηκαν."
+
+#: ink/view/imagebrowser.lua
+msgid "Something went wrong adding that image. Please try another."
+msgstr "Κάτι πήγε στραβά κατά την προσθήκη αυτής της εικόνας. Δοκιμάστε άλλη."
+
+#: ink/view/toolbar.lua
+msgid "Something went wrong opening that tool. Please report this."
+msgstr "Κάτι πήγε στραβά κατά το άνοιγμα αυτού του εργαλείου. Παρακαλούμε αναφέρετέ το."
+
+#: ink/view/handwriting.lua
+msgid "Something went wrong reading the writing."
+msgstr "Κάτι πήγε στραβά κατά την ανάγνωση του γραψίματος."
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Source: %s"
+msgstr "Πηγή: %s"
+
+#: ink/brushes.lua
+msgid "Spread"
+msgstr "Εξάπλωση"
+
+#: ink/view/settings.lua
+msgid "Square"
+msgstr "Τετράγωνο"
+
+#: ink/view/pencase.lua
+msgid "Stabilizer"
+msgstr "Σταθεροποιητής"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Star"
+msgstr "Αστέρι"
+
+#: ink/view/notebook.lua
+msgid "Star removed"
+msgstr "Το αστέρι αφαιρέθηκε"
+
+#: ink/view/overview.lua
+msgid "Starred pages"
+msgstr "Σελίδες με αστέρι"
+
+#: ink/guide.lua
+msgid "Start again"
+msgstr "Ξεκίνημα από την αρχή"
+
+#: ink/view/pencase.lua
+msgid "Still being tested. With Palm rejection on, Ballpoint, Fountain, Calligraphy and Pencil get wider the harder you press. If it misbehaves on your reader, I'd love to hear about it on GitHub."
+msgstr "Βρίσκεται ακόμη σε δοκιμή. Με ενεργή την απόρριψη παλάμης, το στυλό διαρκείας, η πένα, η καλλιγραφία και το μολύβι γίνονται πιο φαρδιά όσο πιο δυνατά πατάτε. Αν δεν συμπεριφέρεται σωστά στη συσκευή σας, θα χαρώ να το μάθω στο GitHub."
+
+#: ink/penset.lua
+msgid "Stipple"
+msgstr "Στίξη"
+
+#: ink/view/dialogs.lua
+#: ink/view/share.lua
+msgid "Stop"
+msgstr "Τερματισμός"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The PDF will not be saved."
+msgstr "Να διακοπεί η εξαγωγή; Το PDF δεν θα αποθηκευτεί."
+
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The images saved so far will be deleted."
+msgstr "Να διακοπεί η εξαγωγή; Οι εικόνες που έχουν αποθηκευτεί μέχρι τώρα θα διαγραφούν."
+
+#: ink/view/dialogs.lua
+msgid "Stop now?"
+msgstr "Να σταματήσει τώρα;"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Stops when closed or after %d idle minutes. Use a Wi-Fi you trust."
+msgstr "Σταματά όταν κλείσει ή μετά από %d λεπτά αδράνειας. Χρησιμοποιήστε Wi-Fi που εμπιστεύεστε."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Storyboard"
+msgstr "Storyboard"
+
+#: ink/guide.lua
+msgid "Straight lines"
+msgstr "Ευθείες γραμμές"
+
+#: ink/view/pencase.lua
+msgid "Strength"
+msgstr "Ένταση"
+
+#: ink/view/textformat.lua
+msgid "Strike"
+msgstr "Διαγράμμιση"
+
+#: ink/view/settings.lua
+msgid "Support"
+msgstr "Υποστήριξη"
+
+#: ink/welcome.lua
+msgid "Swipe down along the right edge"
+msgstr "Σύρσιμο προς τα κάτω κατά μήκος της δεξιάς άκρης"
+
+#: ink/welcome.lua
+msgid "Swipe up along the right edge"
+msgstr "Σύρσιμο προς τα πάνω κατά μήκος της δεξιάς άκρης"
+
+#: ink/view/settings.lua
+msgid "Symmetry"
+msgstr "Συμμετρία"
+
+#: ink/view/settings.lua
+msgid "System"
+msgstr "Σύστημα"
+
+#: ink/coverpicker.lua
+#: ink/view/overview.lua
+msgid "Tab colour"
+msgstr "Χρώμα καρτέλας"
+
+#: ink/guide.lua
+msgid "Take up a pen"
+msgstr "Πάρτε ένα στυλό"
+
+#: ink/guide.lua
+msgid "Tap a tool to use it, and tap it again for its settings."
+msgstr "Πατήστε ένα εργαλείο για να το χρησιμοποιήσετε και πατήστε το ξανά για τις ρυθμίσεις του."
+
+#: ink/guide.lua
+msgid "Tap a word twice in the text you are writing in; drag across text to select more."
+msgstr "Πατήστε μια λέξη δύο φορές στο κείμενο όπου γράφετε· σύρετε πάνω στο κείμενο για να επιλέξετε περισσότερα."
+
+#: ink/guide.lua
+msgid "Tap an area to fill it; hold the bucket in the shapes menu to pick its colour."
+msgstr "Πατήστε μια περιοχή για να τη γεμίσετε· κρατήστε πατημένο τον κουβά στο μενού σχημάτων για να επιλέξετε το χρώμα."
+
+#: ink/guide.lua
+msgid "Tap one of your saved pens in the pen menu. Changing its size or colour changes that pen."
+msgstr "Πατήστε ένα από τα αποθηκευμένα στυλό σας στο μενού των στυλό. Η αλλαγή μεγέθους ή χρώματος αλλάζει αυτό το στυλό."
+
+#: ink/guide.lua
+msgid "Tap the page number: go to a page, rename, star, insert, duplicate, move, paper, templates, paste or delete."
+msgstr "Πατήστε τον αριθμό σελίδας: μετάβαση σε σελίδα, μετονομασία, αστέρι, εισαγωγή, διπλασιασμός, μετακίνηση, χαρτί, πρότυπα, επικόλληση ή διαγραφή."
+
+#: ink/guide.lua
+msgid "Tap to open, hold for rename, move, duplicate, export or delete. + makes a drawing, a notebook or a folder."
+msgstr "Πατήστε για άνοιγμα, κρατήστε πατημένο για μετονομασία, μετακίνηση, διπλασιασμό, εξαγωγή ή διαγραφή. Το + φτιάχνει ένα σχέδιο, σημειωματάριο ή φάκελο."
+
+#: ink/guide.lua
+msgid "Tap where it should go. Format stays open while you pick styles, colours, highlights, lists, spacing and the font; on lined paper text sits on the lines."
+msgstr "Πατήστε εκεί που πρέπει να μπει. Η Μορφή μένει ανοιχτή όσο επιλέγετε στυλ, χρώματα, επισημάνσεις, λίστες, διαστήματα και γραμματοσειρά· σε χαρτί με γραμμές το κείμενο κάθεται στις γραμμές."
+
+#: ink/coverpicker.lua
+#: ink/folderlook.lua
+msgid "Teal"
+msgstr "Πετρόλ"
+
+#: ink/view/updates.lua
+msgid "Tell me about prereleases"
+msgstr "Πείτε μου για τις προ-εκδόσεις"
+
+#: ink/view/notebook.lua
+msgid "Template name"
+msgstr "Όνομα προτύπου"
+
+#: ink/guide.lua
+#: ink/ui/pentestscreen.lua
+#: ink/view/pencase.lua
+msgid "Test pen and touch"
+msgstr "Δοκιμή στυλό και αφής"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#: ink/view/toolbar.lua
+msgid "Text"
+msgstr "Κείμενο"
+
+#: ink/guide.lua
+msgid "Text and pictures"
+msgstr "Κείμενο και εικόνες"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Text boxes: %d"
+msgstr "Πλαίσια κειμένου: %d"
+
+#: ink/view/search.lua
+msgid "That document is no longer there."
+msgstr "Αυτό το έγγραφο δεν υπάρχει πια."
+
+#: ink/guide.lua
+msgid "The + and − in the corner zoom in and out, and so does a pinch."
+msgstr "Το + και το − στη γωνία μεγεθύνουν και μικραίνουν, όπως και το τσίμπημα."
+
+#: ink/view/ocrapi.lua
+msgid "The API key from your account on the service, usually under API keys. It is only sent to the address above."
+msgstr "Το κλειδί API από τον λογαριασμό σας στην υπηρεσία, συνήθως στα Κλειδιά API. Στέλνεται μόνο στη διεύθυνση παραπάνω."
+
+#: ink/guide.lua
+msgid "The Library"
+msgstr "Η Βιβλιοθήκη"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "The annotations of %s are back where the book was. They show again when the book is back in that place."
+msgstr "Οι σημειώσεις του %s επέστρεψαν εκεί που ήταν το βιβλίο. Θα εμφανιστούν ξανά όταν το βιβλίο επιστρέψει σε εκείνο το σημείο."
+
+#: ink/guide.lua
+msgid "The arrows in the bar at the bottom, or swipe two fingers sideways."
+msgstr "Τα βέλη στη γραμμή κάτω ή σύρετε δύο δάχτυλα στο πλάι."
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"The background picture could not be found:\n"
+"%s"
+msgstr ""
+"Δεν βρέθηκε η εικόνα φόντου:\n"
+"%s"
+
+#: ink/view/textformat.lua
+msgid "The clipboard is empty."
+msgstr "Το πρόχειρο είναι κενό."
+
+#: ink/view/links.lua
+msgid "The contents lists the pages that have a title. Give pages a title first: tap the page number, then Rename."
+msgstr "Τα περιεχόμενα καταχωρίζουν τις σελίδες που έχουν τίτλο. Δώστε πρώτα τίτλους στις σελίδες: πατήστε τον αριθμό σελίδας και μετά Μετονομασία."
+
+#: ink/view/document.lua
+msgid "The copy is in Library: Imported only holds what you sent"
+msgstr "Το αντίγραφο είναι στη Βιβλιοθήκη: τα Εισαγμένα κρατούν μόνο ό,τι στείλατε"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "The copy, “%s”, is in Library: Imported only holds what you sent"
+msgstr "Το αντίγραφο «%s» είναι στη Βιβλιοθήκη: τα Εισαγμένα κρατούν μόνο ό,τι στείλατε"
+
+#: ink/guide.lua
+msgid "The eraser rubs out what it touches; Erase whole strokes takes each stroke it crosses."
+msgstr "Η γόμα σβήνει ό,τι αγγίζει· το Σβήσιμο ολόκληρων γραμμών παίρνει κάθε γραμμή που διασχίζει."
+
+#: ink/view/layers.lua
+msgid "The first layer has erasing from before layers were on, so it stays at the bottom."
+msgstr "Το πρώτο επίπεδο έχει σβησίματα από πριν υπάρξουν επίπεδα, γι' αυτό μένει στον πάτο."
+
+#: ink/view/library.lua
+msgid "The folder and everything in it go."
+msgstr "Ο φάκελος και ό,τι υπάρχει μέσα του διαγράφονται."
+
+#: ink/view/handwriting.lua
+msgid "The handwriting model could not be loaded."
+msgstr "Δεν φορτώθηκε το μοντέλο χειρογράφου."
+
+#: ink/guide.lua
+msgid "The highlighter"
+msgstr "Ο υπογραμμιστής"
+
+#: ink/guide.lua
+msgid "The lasso, links and text"
+msgstr "Το λάσο, οι σύνδεσμοι και το κείμενο"
+
+#: ink/view/ocrapi.lua
+msgid "The name of one of the service's models that can read pictures, as its model list writes it, for example gpt-4o-mini or paddleocr-vl."
+msgstr "Το όνομα ενός από τα μοντέλα της υπηρεσίας που διαβάζουν εικόνες, όπως το γράφει η λίστα μοντέλων της, για παράδειγμα gpt-4o-mini ή paddleocr-vl."
+
+#: ink/view/document.lua
+msgid "The new document is in Library: Imported only holds what you sent"
+msgstr "Το νέο έγγραφο είναι στη Βιβλιοθήκη: τα Εισαγμένα κρατούν μόνο ό,τι στείλατε"
+
+#: ink/view/links.lua
+msgid "The notebook this leads to is no longer there."
+msgstr "Το σημειωματάριο στο οποίο οδηγεί δεν υπάρχει πια."
+
+#: ink/view/handwriting.lua
+msgid "The page changed. Please read the writing again."
+msgstr "Η σελίδα άλλαξε. Διαβάστε ξανά το γράψιμο."
+
+#: ink/guide.lua
+msgid "The page menu"
+msgstr "Το μενού της σελίδας"
+
+#: ink/guide.lua
+msgid "The page menu, Make a contents page: every titled page becomes a link to it. Go to the contents page is there too, and can be a gesture."
+msgstr "Το μενού της σελίδας, Δημιουργία σελίδας περιεχομένων: κάθε σελίδα με τίτλο γίνεται σύνδεσμος προς αυτήν. Η Μετάβαση στη σελίδα περιεχομένων είναι κι εκεί και μπορεί να γίνει χειρονομία."
+
+#: ink/view/links.lua
+msgid "The page this leads to is no longer there."
+msgstr "Η σελίδα στην οποία οδηγεί δεν υπάρχει πια."
+
+#: ink/view/export.lua
+msgid "The pages are saved as pictures with their text under them, so it can be searched and selected. They are laid out as you read them now: your font, margins and page size."
+msgstr "Οι σελίδες αποθηκεύονται ως εικόνες με το κείμενό τους από κάτω, ώστε να μπορεί να αναζητηθεί και να επιλεγεί. Έχουν τη διάταξη που τις διαβάζετε τώρα: με τη γραμματοσειρά, τα περιθώρια και το μέγεθος σελίδας σας."
+
+#: ink/view/pencase.lua
+msgid "The pen in hand is not one of your pens: + keeps it as a new one."
+msgstr "Το στυλό στο χέρι δεν είναι ένα από τα στυλό σας: το + το κρατά ως νέο."
+
+#: ink/guide.lua
+msgid "The pen on menus"
+msgstr "Το στυλό στα μενού"
+
+#: ink/guide.lua
+msgid "The pen's eraser end, for as long as it touches."
+msgstr "Το άκρο γόμας του στυλό, όσο αγγίζει."
+
+#: ink/guide.lua
+msgid "The pen's eraser end."
+msgstr "Το άκρο γόμας του στυλό."
+
+#: ink/view/ocrapi.lua
+msgid "The recognition preview could not be opened. Your handwriting was kept."
+msgstr "Δεν άνοιξε η προεπισκόπηση αναγνώρισης. Το χειρόγραφό σας διατηρήθηκε."
+
+#: ink/view/search.lua
+msgid "The search could not finish."
+msgstr "Η αναζήτηση δεν μπόρεσε να ολοκληρωθεί."
+
+#: ink/view/handwriting.lua
+msgid "The selection changed. Please read the writing again."
+msgstr "Η επιλογή άλλαξε. Διαβάστε ξανά το γράψιμο."
+
+#: ink/guide.lua
+msgid "The small tab at the end of the toolbar folds it away, and brings it back."
+msgstr "Η μικρή καρτέλα στο τέλος της γραμμής εργαλείων τη διπλώνει και την επαναφέρει."
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid ""
+"The source PDF could not be opened:\n"
+"%s\n"
+"\n"
+"Your notes are intact, but the page images will be blank until the PDF is back in that location."
+msgstr ""
+"Δεν άνοιξε το PDF προέλευσης:\n"
+"%s\n"
+"\n"
+"Οι σημειώσεις σας είναι ακέραιες, αλλά οι εικόνες των σελίδων θα μένουν κενές μέχρι το PDF να επιστρέψει σε εκείνη τη θέση."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "The swipes along the right edge already do something on your reader (%1), so Ink Away uses two-finger swipes."
+msgstr "Τα σύρσιμο κατά μήκος της δεξιάς άκρης κάνουν ήδη κάτι στη συσκευή σας (%1), οπότε το Ink Away χρησιμοποιεί σύρσιμο με δύο δάχτυλα."
+
+#: ink/welcome.lua
+msgid "The swipes along the right edge already do something on your reader, so Ink Away uses two-finger swipes."
+msgstr "Το σύρσιμο κατά μήκος της δεξιάς άκρης κάνει ήδη κάτι στη συσκευή σας, οπότε το Ink Away χρησιμοποιεί σύρσιμο με δύο δάχτυλα."
+
+#: ink/reader/inkview.lua
+msgid "The toolbar takes the width of the book's margin on its side, with its icons sized to it, so it stays clear of the text. Widen the margins in the reader's settings to give it more room. PDFs and comics keep the usual size."
+msgstr "Η γραμμή εργαλείων παίρνει το πλάτος του περιθωρίου του βιβλίου στη δική της πλευρά, με τα εικονίδια ανάλογου μεγέθους, ώστε να μένει μακριά από το κείμενο. Μεγαλώστε τα περιθώρια στις ρυθμίσεις του αναγνώστη για να της δώσετε περισσότερο χώρο. Τα PDF και τα κόμικς κρατούν το συνηθισμένο μέγεθος."
+
+#: ink/view/trash.lua
+msgid "The trash is empty."
+msgstr "Ο κάδος είναι άδειος."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid ""
+"The update was not installed: %1.\n"
+"\n"
+"Nothing was changed."
+msgstr ""
+"Η ενημέρωση δεν εγκαταστάθηκε: %1.\n"
+"\n"
+"Δεν άλλαξε τίποτα."
+
+#: ink/view/handwriting.lua
+msgid "The word list could not be loaded."
+msgstr "Δεν φορτώθηκε η λίστα λέξεων."
+
+#: ink/view/settings.lua
+msgid "Theme Color"
+msgstr "Χρώμα θέματος"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "There is already a file called “%s” here."
+msgstr "Υπάρχει ήδη ένα αρχείο με όνομα «%s» εδώ."
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#, lua-format
+msgid "There is already something called “%s” here."
+msgstr "Υπάρχει ήδη κάτι με όνομα «%s» εδώ."
+
+#: ink/view/handwriting.lua
+msgid "There is no handwriting in the selection."
+msgstr "Δεν υπάρχει χειρόγραφο στην επιλογή."
+
+#: ink/view/layers.lua
+msgid "There is no layer under this one."
+msgstr "Δεν υπάρχει επίπεδο κάτω από αυτό."
+
+#: ink/view/document.lua
+msgid "There is nothing to copy yet."
+msgstr "Δεν υπάρχει ακόμη τίποτα για αντιγραφή."
+
+#: ink/view/export.lua
+msgid "There is nothing to export in this folder."
+msgstr "Δεν υπάρχει τίποτα για εξαγωγή σε αυτόν τον φάκελο."
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "There is nothing to export yet."
+msgstr "Δεν υπάρχει ακόμη τίποτα για εξαγωγή."
+
+#: ink/view/settings.lua
+msgid "Thirds"
+msgstr "Τρίτα"
+
+#: ink/reader/inkview.lua
+msgid "This book's annotations wait in Ink Away's trash for 30 days. To put them back: Ink Away's library, its menu, Trash."
+msgstr "Οι σημειώσεις αυτού του βιβλίου περιμένουν 30 ημέρες στον κάδο του Ink Away. Για να τις επαναφέρετε: βιβλιοθήκη του Ink Away, το μενού της, Κάδος."
+
+#: ink/reader/book.lua
+msgid "This book's ink was saved by a newer Ink Away. Update Ink Away to change it."
+msgstr "Το μελάνι αυτού του βιβλίου αποθηκεύτηκε από νεότερο Ink Away. Ενημερώστε το Ink Away για να το αλλάξετε."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the bottom."
+msgstr "Αυτό το επίπεδο είναι ήδη στον πάτο."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the top."
+msgstr "Αυτό το επίπεδο είναι ήδη στην κορυφή."
+
+#: ink/view/links.lua
+msgid "This notebook has no contents page yet: the page menu makes one."
+msgstr "Αυτό το σημειωματάριο δεν έχει ακόμη σελίδα περιεχομένων: το μενού της σελίδας φτιάχνει μία."
+
+#: ink/view/export.lua
+msgid "This page"
+msgstr "Αυτή η σελίδα"
+
+#: ink/view/share.lua
+msgid "This reader can't share over Wi-Fi."
+msgstr "Αυτή η συσκευή δεν μπορεί να μοιραστεί μέσω Wi-Fi."
+
+#: ink/view/share.lua
+msgid "This reader has no address on a network yet. Connect it to Wi-Fi and try again."
+msgstr "Αυτή η συσκευή δεν έχει ακόμη διεύθυνση σε δίκτυο. Συνδέστε την στο Wi-Fi και δοκιμάστε ξανά."
+
+#: ink/view/settings.lua
+msgid "This reader needs no special settings for Ink Away."
+msgstr "Αυτή η συσκευή δεν χρειάζεται ειδικές ρυθμίσεις για το Ink Away."
+
+#: ink/view/textformat.lua
+msgid "Tight"
+msgstr "Σφιχτό"
+
+#: ink/view/imagebrowser.lua
+msgid "Tip"
+msgstr "Άκρο"
+
+#: ink/view/selection.lua
+msgid "To front"
+msgstr "Μπροστά"
+
+#: ink/view/library.lua
+msgid "To keep notebooks and drawings together"
+msgstr "Για να μένουν μαζί σημειωματάρια και σχέδια"
+
+#: ink/reader/inkview.lua
+msgid "Toolbar"
+msgstr "Γραμμή εργαλείων"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Toolbar side"
+msgstr "Πλευρά γραμμής εργαλείων"
+
+#: ink/guide.lua
+msgid "Tools and their settings"
+msgstr "Εργαλεία και ρυθμίσεις τους"
+
+#: ink/guide.lua
+msgid "Tools, zoom and saving"
+msgstr "Εργαλεία, ζουμ και αποθήκευση"
+
+#: ink/brushes.lua
+msgid "Tooth"
+msgstr "Υφή χαρτιού"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Top"
+msgstr "Επάνω"
+
+#: ink/framecover.lua
+msgid "Tortoiseshell"
+msgstr "Χελώνα"
+
+#: ink/guide.lua
+msgid "Trace over a picture"
+msgstr "Ακολούθηση περιγράμματος εικόνας"
+
+#: ink/view/export.lua
+msgid "Transparent"
+msgstr "Διαφανές"
+
+#: ink/view/imagebrowser.lua
+msgid "Transparent PNG only"
+msgstr "Μόνο διαφανές PNG"
+
+#: ink/guide.lua
+#: ink/view/trash.lua
+msgid "Trash"
+msgstr "Κάδος"
+
+#: ink/view/library.lua
+msgid "Trash…"
+msgstr "Κάδος…"
+
+#: ink/view/imagebrowser.lua
+msgid "Truly transparent pictures are scarce here. Add any image, then switch on Erase pictures in the Eraser settings to wipe its background away."
+msgstr "Οι πραγματικά διαφανείς εικόνες είναι σπάνιες εδώ. Προσθέστε οποιαδήποτε εικόνα και μετά ενεργοποιήστε το Σβήσιμο εικόνων στις ρυθμίσεις της γόμας για να σβήσετε το φόντο της."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Try %1?"
+msgstr "Να δοκιμαστεί το %1;"
+
+#: ink/view/updates.lua
+msgid "Try it"
+msgstr "Δοκιμή"
+
+#: ink/view/layers.lua
+msgid "Turn layers off?"
+msgstr "Να απενεργοποιηθούν τα επίπεδα;"
+
+#: ink/view/ocrapi.lua
+msgid "Turn on Wi-Fi to convert online."
+msgstr "Ανοίξτε το Wi-Fi για μετατροπή online."
+
+#: ink/view/share.lua
+msgid "Turn on to send PDFs and pictures here."
+msgstr "Ενεργοποιήστε για να στέλνετε εδώ PDF και εικόνες."
+
+#: ink/guide.lua
+msgid "Turn pages"
+msgstr "Αλλαγή σελίδων"
+
+#: ink/guide.lua
+msgid "Turn text"
+msgstr "Περιστροφή κειμένου"
+
+#: ink/actions.lua
+msgid "Two-finger double tap"
+msgstr "Διπλό πάτημα με δύο δάχτυλα"
+
+#: ink/guide.lua
+msgid "Two-finger double tap."
+msgstr "Διπλό πάτημα με δύο δάχτυλα."
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the bottom right to the top left"
+msgstr "Σύρσιμο με δύο δάχτυλα από κάτω δεξιά προς πάνω αριστερά"
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the top right to the bottom left"
+msgstr "Σύρσιμο με δύο δάχτυλα από πάνω δεξιά προς κάτω αριστερά"
+
+#: ink/actions.lua
+msgid "Two-finger swipe left"
+msgstr "Σύρσιμο με δύο δάχτυλα προς τα αριστερά"
+
+#: ink/guide.lua
+msgid "Two-finger swipe left."
+msgstr "Σύρσιμο με δύο δάχτυλα προς τα αριστερά."
+
+#: ink/actions.lua
+msgid "Two-finger swipe right"
+msgstr "Σύρσιμο με δύο δάχτυλα προς τα δεξιά"
+
+#: ink/guide.lua
+msgid "Two-finger swipe right."
+msgstr "Σύρσιμο με δύο δάχτυλα προς τα δεξιά."
+
+#: ink/actions.lua
+msgid "Two-finger tap"
+msgstr "Πάτημα με δύο δάχτυλα"
+
+#: ink/guide.lua
+msgid "Two-finger tap."
+msgstr "Πάτημα με δύο δάχτυλα."
+
+#: ink/view/notebook.lua
+msgid "Type a page number…"
+msgstr "Πληκτρολογήστε έναν αριθμό σελίδας…"
+
+#: ink/view/textformat.lua
+msgid "Underline"
+msgstr "Υπογράμμιση"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Undo"
+msgstr "Αναίρεση"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Unstar"
+msgstr "Αφαίρεση αστεριού"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Untitled"
+msgstr "Χωρίς τίτλο"
+
+#: ink/view/links.lua
+msgid "Up"
+msgstr "Επάνω"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Update available: %1"
+msgstr "Διαθέσιμη ενημέρωση: %1"
+
+#: ink/view/notebook.lua
+msgid "Update the contents page"
+msgstr "Ενημέρωση της σελίδας περιεχομένων"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+#: ink/view/updates.lua
+msgid "Updates"
+msgstr "Ενημερώσεις"
+
+#: ink/ui/colorpicker.lua
+msgid "Use"
+msgstr "Χρήση"
+
+#: ink/coverpicker.lua
+msgid "Use for new notebooks"
+msgstr "Χρήση για νέα σημειωματάρια"
+
+#: ink/view/dialogs.lua
+msgid "Use this folder"
+msgstr "Χρήση αυτού του φακέλου"
+
+#: ink/view/settings.lua
+msgid "Vertical"
+msgstr "Κάθετα"
+
+#: ink/view/library.lua
+msgid "View"
+msgstr "Προβολή"
+
+#: ink/view/share.lua
+msgid "Waiting for your phone or computer…"
+msgstr "Αναμονή για το τηλέφωνο ή τον υπολογιστή σας…"
+
+#: ink/framecover.lua
+msgid "Walnut"
+msgstr "Καρυδιά"
+
+#: ink/penset.lua
+msgid "Watercolor"
+msgstr "Νερομπογιά"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Week columns"
+msgstr "Στήλες εβδομάδας"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Weekly"
+msgstr "Εβδομαδιαίο"
+
+#: ink/view/guide.lua
+msgid "What Ink Away can do that a glance doesn't show."
+msgstr "Τι μπορεί να κάνει το Ink Away και δεν φαίνεται με μια ματιά."
+
+#: ink/guide.lua
+msgid "What to set on this reader for quicker ink."
+msgstr "Τι να ρυθμίσετε σε αυτή τη συσκευή για πιο γρήγορο μελάνι."
+
+#: ink/view/updates.lua
+msgid "What's new"
+msgstr "Τι νέο υπάρχει"
+
+#: ink/view/settings.lua
+msgid "When Ink Away opens"
+msgstr "Όταν ανοίγει το Ink Away"
+
+#: ink/actions.lua
+msgid "When the page is zoomed in wider than the screen, sideways swipes move the page instead."
+msgstr "Όταν η σελίδα είναι μεγεθυμένη πιο πλατιά από την οθόνη, το σύρσιμο προς τα πλάγια μετακινεί τη σελίδα."
+
+#: ink/guide.lua
+msgid "Where to start"
+msgstr "Από πού να ξεκινήσετε"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+#: ink/view/export.lua
+msgid "White"
+msgstr "Άσπρο"
+
+#: ink/framecover.lua
+msgid "White and gold"
+msgstr "Λευκό και χρυσό"
+
+#: ink/framecover.lua
+msgid "White sides"
+msgstr "Λευκές πλευρές"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia"
+msgstr "Wikimedia"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia is faster. Openverse has a wider variety."
+msgstr "Το Wikimedia είναι πιο γρήγορο. Το Openverse έχει μεγαλύτερη ποικιλία."
+
+#: ink/coverpicker.lua
+msgid "Wine"
+msgstr "Κρασί"
+
+#: ink/actions.lua
+msgid "With a double tap also set, a single two-finger tap waits a moment for a second one."
+msgstr "Αν έχει οριστεί και διπλό πάτημα, ένα μονό πάτημα με δύο δάχτυλα περιμένει λίγο για ένα δεύτερο."
+
+#: ink/view/export.lua
+msgid "With ink"
+msgstr "Με μελάνι"
+
+#: ink/guide.lua
+msgid "With the Bookshelf plugin installed, save a drawing as one of its ornaments."
+msgstr "Με το πρόσθετο Bookshelf εγκατεστημένο, αποθηκεύστε ένα σχέδιο ως ένα από τα στολίδια του."
+
+#: ink/guide.lua
+msgid "With the lasso, tap a shape or picture to pick it out: move, resize, turn or delete it. On a drawing, a hold with Pan does it too."
+msgstr "Με το λάσο, πατήστε ένα σχήμα ή εικόνα για να το επιλέξετε: μετακίνηση, αλλαγή μεγέθους, περιστροφή ή διαγραφή. Σε ένα σχέδιο το ίδιο κάνει και το παρατεταμένο πάτημα με τη Μετακίνηση."
+
+#: ink/penset.lua
+msgid "Write"
+msgstr "Γράψτε"
+
+#: ink/welcome.lua
+msgid "Write and draw on the book's pages. Your ink stays with the words when the font changes."
+msgstr "Γράψτε και σχεδιάστε στις σελίδες του βιβλίου. Το μελάνι σας μένει με τις λέξεις όταν αλλάζει η γραμματοσειρά."
+
+#: ink/view/library.lua
+msgid "Write on a PDF from this reader…"
+msgstr "Γράψτε σε ένα PDF από αυτή τη συσκευή…"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+#: ink/view/textformat.lua
+msgid "Yellow"
+msgstr "Κίτρινο"
+
+#: ink/view/pencase.lua
+#, lua-format
+msgid "You have %d pens, as many as the menu holds. Hold one and Remove it to make room."
+msgstr "Έχετε %d στυλό, όσα χωράει το μενού. Κρατήστε πατημένο ένα και επιλέξτε Αφαίρεση για να κάνετε χώρο."
+
+#: ink/view/updates.lua
+msgid "You have this version."
+msgstr "Έχετε αυτή την έκδοση."
+
+#: ink/view/pencase.lua
+msgid "Your brushes"
+msgstr "Τα πινέλα σας"
+
+#: ink/view/pencase.lua
+msgid "Your first four saved pens in a small strip at the bottom of the page, one tap away."
+msgstr "Τα πρώτα τέσσερα αποθηκευμένα στυλό σας σε μια μικρή λωρίδα στο κάτω μέρος της σελίδας, με ένα άγγιγμα."
+
+#: ink/guide.lua
+msgid "Your own brushes"
+msgstr "Τα δικά σας πινέλα"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Your pens on the page"
+msgstr "Τα στυλό σας στη σελίδα"
+
+#: ink/guide.lua
+msgid "Your pens, kinds and pressure"
+msgstr "Τα στυλό σας, είδη και πίεση"
+
+#: ink/guide.lua
+msgid "Your reader"
+msgstr "Η συσκευή σας"
+
+#: ink/view/ocrapi.lua
+msgid "Your service's API address, from its documentation. It has to start with https://, for example https://api.openai.com/v1 or https://openrouter.ai/api/v1."
+msgstr "Η διεύθυνση API της υπηρεσίας σας, από την τεκμηρίωσή της. Πρέπει να αρχίζει με https://, για παράδειγμα https://api.openai.com/v1 ή https://openrouter.ai/api/v1."
+
+#: ink/guide.lua
+msgid "Your shortcuts"
+msgstr "Οι συντομεύσεις σας"
+
+#: ink/guide.lua
+msgid "Zoom"
+msgstr "Μεγέθυνση"
+
+#: ink/view/settings.lua
+msgid "Zoom and Pan buttons"
+msgstr "Κουμπιά ζουμ και Μετακίνησης"
+
+#: ink/view/updates.lua
+msgid "a check could not start"
+msgstr "ένας έλεγχος δεν μπόρεσε να ξεκινήσει"
+
+#: ink/view/updates.lua
+msgid "a prerelease"
+msgstr "μια προ-έκδοση"
+
+#: ink/view/updates.lua
+msgid "a release"
+msgstr "μια έκδοση"
+
+#: ink/view/updates.lua
+msgid "a test build"
+msgstr "μια δοκιμαστική δημιουργία"
+
+#: ink/view/settings.lua
+msgid "blank"
+msgstr "κενό"
+
+#: ink/view/settings.lua
+msgid "checklist"
+msgstr "λίστα ελέγχου"
+
+#: ink/view/settings.lua
+msgid "daily"
+msgstr "ημερήσιο"
+
+#: ink/view/settings.lua
+msgid "dotted"
+msgstr "στικτό"
+
+#: ink/view/imagebrowser.lua
+msgid "e.g. cat, tree, arrow"
+msgstr "π.χ. γάτα, δέντρο, βέλος"
+
+#: ink/view/settings.lua
+msgid "grid"
+msgstr "καρό"
+
+#: ink/view/settings.lua
+msgid "habit tracker"
+msgstr "παρακολούθηση συνηθειών"
+
+#: ink/view/settings.lua
+msgid "handwriting"
+msgstr "χειρόγραφο"
+
+#: ink/view/menus.lua
+msgid "hold to pick colour"
+msgstr "κρατήστε πατημένο για επιλογή χρώματος"
+
+#: ink/view/settings.lua
+msgid "isometric"
+msgstr "ισομετρικό"
+
+#: ink/view/settings.lua
+msgid "lined"
+msgstr "με γραμμές"
+
+#: ink/view/settings.lua
+msgid "margin"
+msgstr "με περιθώριο"
+
+#: ink/view/settings.lua
+msgid "meeting notes"
+msgstr "σημειώσεις σύσκεψης"
+
+#: ink/view/settings.lua
+msgid "monthly"
+msgstr "μηνιαίο"
+
+#: ink/view/settings.lua
+msgid "music"
+msgstr "μουσική"
+
+#: ink/view/settings.lua
+msgid "off"
+msgstr "ανενεργό"
+
+#: ink/view/menus.lua
+msgid "px"
+msgstr "px"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#, lua-format
+msgid "shown at %d%%"
+msgstr "εμφανίζεται στο %d%%"
+
+#: ink/view/settings.lua
+msgid "storyboard"
+msgstr "storyboard"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "via %s"
+msgstr "μέσω %s"
+
+#: ink/view/settings.lua
+msgid "week columns"
+msgstr "στήλες εβδομάδας"
+
+#: ink/view/settings.lua
+msgid "weekly"
+msgstr "εβδομαδιαίο"
+
+#: ink/view/dialogs.lua
+#, lua-format
+msgid "“%s” already exists. Replace it?"
+msgstr "Το «%s» υπάρχει ήδη. Να αντικατασταθεί;"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "“%s” is in Library: Imported only holds what you sent"
+msgstr "Το «%s» είναι στη Βιβλιοθήκη: τα Εισαγμένα κρατούν μόνο ό,τι στείλατε"
