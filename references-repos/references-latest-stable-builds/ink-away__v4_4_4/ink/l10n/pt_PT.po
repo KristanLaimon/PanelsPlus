@@ -1,0 +1,4549 @@
+# Ink Away: Portuguese translation.
+msgid ""
+msgstr ""
+"Project-Id-Version: Ink Away\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: pt_PT\n"
+"Language-Team: Portuguese\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: ink/view/menus.lua
+#: ink/view/settings.lua
+msgid " px"
+msgstr " px"
+
+#: ink/view/search.lua
+msgid " · names and text inside pages"
+msgstr " · nomes e texto dentro das páginas"
+
+#: ink/view/search.lua
+msgid " · names only"
+msgstr " · só nomes"
+
+#: ink/view/links.lua
+msgid " · this page"
+msgstr " · esta página"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 and %2"
+msgstr "%1 e %2"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "%1 and everything on it are deleted. Undo brings them back."
+msgstr "%1 e tudo o que tem serão eliminados. Anular traz tudo de volta."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: %2 already do something else."
+msgstr "%1 não tem gesto: %2 já fazem outra coisa."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: its gestures are taken."
+msgstr "%1 não tem gesto: os gestos dele estão ocupados."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "%1 is installed. Restart KOReader to use it."
+msgstr "%1 foi instalado. Reinicie o KOReader para o usar."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files received"
+msgstr "%d ficheiros recebidos"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files sent"
+msgstr "%d ficheiros enviados"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "%d item(s) can't be kept editable. You'll choose what to do when you export."
+msgstr "%d item(ns) não podem continuar editáveis. Escolherá o que fazer ao exportar."
+
+#: ink/view/lasso.lua
+#, lua-format
+msgid "%d item(s) on the clipboard"
+msgstr "%d item(ns) na área de transferência"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d more after it"
+msgstr "Mais %d depois dele"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks and drawings"
+msgstr "%d cadernos e desenhos"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks arrived in %s. Open one now?"
+msgstr "%d cadernos chegaram a %s. Abrir um agora?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks from PDFs"
+msgstr "%d cadernos de PDF"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d of %d pages"
+msgstr "%d de %d páginas"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d pictures"
+msgstr "%d imagens"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%d results"
+msgstr "%d resultados"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "%d strokes"
+msgstr "%d traços"
+
+#: ink/view/gestures.lua
+#, lua-format
+msgid "%s already does \"%s\". Use it only for %s, or for both?"
+msgstr "%s já faz “%s”. Usar só para %s ou para os dois?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s arrived in %s. Open it now?"
+msgstr "%s chegou a %s. Abrir agora?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s in %s"
+msgstr "%s em %s"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s isn't there any more"
+msgstr "%s já não existe"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s opens once the rest have arrived"
+msgstr "%s abre quando os outros chegarem"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%s · page %d"
+msgstr "%s · página %d"
+
+#: ink/guide.lua
+msgid "+ in the pen menu asks for its kind (Fineliner, Ballpoint, Fountain, Pencil, Marker, Highlighter, Watercolor...), then its size and colour."
+msgstr "O + no menu de canetas pergunta o tipo (caneta fina, esferográfica, caneta de tinta permanente, lápis, marcador, marcador fluorescente, aguarela…), depois o tamanho e a cor."
+
+#: ink/view/share.lua
+msgid "1 file received"
+msgstr "1 ficheiro recebido"
+
+#: ink/view/share.lua
+msgid "1 file sent"
+msgstr "1 ficheiro enviado"
+
+#: ink/view/share.lua
+msgid "1 more after it"
+msgstr "Mais 1 depois dele"
+
+#: ink/view/receive.lua
+msgid "1 notebook from a PDF"
+msgstr "1 caderno de um PDF"
+
+#: ink/view/receive.lua
+msgid "1 notebook or drawing"
+msgstr "1 caderno ou desenho"
+
+#: ink/view/receive.lua
+msgid "1 picture"
+msgstr "1 imagem"
+
+#: ink/view/search.lua
+msgid "1 result"
+msgstr "1 resultado"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "2 columns"
+msgstr "2 colunas"
+
+#: ink/view/selection.lua
+msgid "90°"
+msgstr "90°"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A PNG holds the page shown, page %d."
+msgstr "Um PNG guarda a página mostrada, a página %d."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "A blank page. Hold to start from a picture."
+msgstr "Uma página em branco. Mantenha premido para começar a partir de uma imagem."
+
+#: ink/guide.lua
+msgid "A contents page"
+msgstr "Uma página de índice"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "A drawing can have up to %1 layers."
+msgstr "Um desenho pode ter até %1 camadas."
+
+#: ink/view/layers.lua
+msgid "A drawing with layers keeps at least one. To stop using layers, turn them off in File."
+msgstr "Um desenho com camadas mantém pelo menos uma. Para deixar de usar camadas, desative-as em Ficheiro."
+
+#: ink/guide.lua
+msgid "A folder's notebooks are tabs beside their pages. Hold a tab to rename, colour or reorder it; hold a page to star, move or copy it."
+msgstr "Os cadernos de uma pasta são separadores ao lado das páginas. Mantenha premido um separador para o mudar de nome, colorir ou reordenar; mantenha premida uma página para a marcar com estrela, mover ou copiar."
+
+#: ink/reader/inkview.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight of it, in the pen's colour: in your highlights list, and with the text at any font size. Over empty space it stays ink."
+msgstr "Um traço de marcador fluorescente sobre o texto torna-se o destaque do próprio leitor, na cor da caneta: na sua lista de destaques e com o texto em qualquer tamanho de letra. Sobre o espaço vazio, continua a ser tinta."
+
+#: ink/guide.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight, from the first word it touches to the last. Over empty space it stays ink."
+msgstr "Um traço de marcador fluorescente sobre o texto torna-se o destaque do próprio leitor, da primeira palavra tocada até à última. Sobre o espaço vazio, continua a ser tinta."
+
+#: ink/guide.lua
+msgid "A new pen"
+msgstr "Uma caneta nova"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A newer release, %1 to download."
+msgstr "Uma versão mais recente, %1 para transferir."
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "A notebook keeps at least one page."
+msgstr "Um caderno mantém pelo menos uma página."
+
+#: ink/guide.lua
+msgid "A notebook or some of its pages, with bookmarks for titled pages and links that work."
+msgstr "Um caderno ou algumas das suas páginas, com marcadores para páginas com título e ligações que funcionam."
+
+#: ink/view/images.lua
+msgid "A picture file on this reader."
+msgstr "Um ficheiro de imagem neste leitor."
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A picture of each page takes about 0.3 MB, so this PDF will be around %d MB."
+msgstr "A imagem de cada página ocupa cerca de 0,3 MB, por isso este PDF terá cerca de %d MB."
+
+#: ink/view/updates.lua
+msgid "A prerelease is a test build. You can go back to the latest release from Settings, Updates."
+msgstr "Uma pré-versão é uma versão de teste. Pode voltar à última versão em Configurações, Atualizações."
+
+#: ink/guide.lua
+msgid "A strip of your first four pens, one tap away: Pen and input, Your pens on the page."
+msgstr "Uma faixa com as suas quatro primeiras canetas, a um toque: Caneta e entrada, As suas canetas na página."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A test build before the next release: newer things, maybe rough edges. You can go back to the release here any time. %1."
+msgstr "Uma versão de teste antes da próxima: novidades, talvez com arestas. Pode voltar à versão final aqui a qualquer momento. %1."
+
+#: ink/guide.lua
+msgid "A whole folder"
+msgstr "Uma pasta inteira"
+
+#: ink/view/textformat.lua
+msgid "Across"
+msgstr "Na horizontal"
+
+#: ink/penset.lua
+msgid "Acrylic"
+msgstr "Acrílico"
+
+#: ink/view/imagebrowser.lua
+msgid "Add"
+msgstr "Adicionar"
+
+#: ink/view/library.lua
+msgid "Add an icon…"
+msgstr "Adicionar um ícone…"
+
+#: ink/view/images.lua
+msgid "Add image"
+msgstr "Adicionar imagem"
+
+#: ink/view/imagebrowser.lua
+msgid "Add this image?"
+msgstr "Adicionar esta imagem?"
+
+#: ink/view/exportbook.lua
+msgid "Adding your annotations to the PDF"
+msgstr "A adicionar as suas anotações ao PDF"
+
+#: ink/view/ocrapi.lua
+msgid "Address"
+msgstr "Endereço"
+
+#: ink/view/export.lua
+msgid "Adds your ink and highlights to a copy of the original PDF. The text stays real, the file stays small, and any PDF viewer can edit or remove them."
+msgstr "Adiciona a sua tinta e os seus destaques a uma cópia do PDF original. O texto continua a ser texto real, o ficheiro continua pequeno e qualquer leitor de PDF pode editá-los ou removê-los."
+
+#: ink/view/textformat.lua
+msgid "Alignment"
+msgstr "Alinhamento"
+
+#: ink/view/export.lua
+msgid "All"
+msgstr "Tudo"
+
+#: ink/reader/inkview.lua
+msgid "All of this book's annotations will be deleted now. They wait in Ink Away's trash for 30 days in case you want them back."
+msgstr "Todas as anotações deste livro vão ser eliminadas agora. Ficam 30 dias no lixo do Ink Away, caso as queira de volta."
+
+#: ink/view/layers.lua
+msgid "All the layers are merged into one drawing, hidden ones too. Undo brings the layers back."
+msgstr "Todas as camadas são unidas num só desenho, incluindo as ocultas. Anular traz as camadas de volta."
+
+#: ink/view/share.lua
+msgid "Allow adding files"
+msgstr "Permitir adicionar ficheiros"
+
+#: ink/view/gestures.lua
+msgid "Already in use"
+msgstr "Já em utilização"
+
+#: ink/view/search.lua
+msgid "Also look inside pages (slower)"
+msgstr "Procurar também dentro das páginas (mais lento)"
+
+#: ink/view/exportbook.lua
+msgid "An editable PDF can't hold these as annotations:"
+msgstr "Um PDF editável não pode conter isto como anotações:"
+
+#: ink/guide.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Annotate the book"
+msgstr "Anotar o livro"
+
+#: ink/guide.lua
+msgid "Annotations and book notes"
+msgstr "Anotações e notas do livro"
+
+#: ink/view/trash.lua
+msgid "Annotations of a deleted book"
+msgstr "Anotações de um livro eliminado"
+
+#: ink/view/trash.lua
+msgid "Annotations on this book"
+msgstr "Anotações deste livro"
+
+#: ink/view/links.lua
+msgid "Another notebook…"
+msgstr "Outro caderno…"
+
+#: ink/framecover.lua
+msgid "Antique gold"
+msgstr "Ouro antigo"
+
+#: ink/view/settings.lua
+msgid "Appearance"
+msgstr "Aparência"
+
+#: ink/view/textformat.lua
+msgid "Applies to the selected word or text"
+msgstr "Aplica-se à palavra ou ao texto selecionado"
+
+#: ink/view/textformat.lua
+msgid "Applies to what you type next"
+msgstr "Aplica-se ao que escrever a seguir"
+
+#: ink/reader/inkview.lua
+msgid "Are you sure?"
+msgstr "Tem a certeza?"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Area: %d×%d (tap for the whole page)"
+msgstr "Área: %d×%d (toque para a página inteira)"
+
+#: ink/view/export.lua
+msgid "Area: the whole page (tap to choose)"
+msgstr "Área: a página inteira (toque para escolher)"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Arrived: %s"
+msgstr "Chegou: %s"
+
+#: ink/view/menus.lua
+msgid "Arrowhead size"
+msgstr "Tamanho da ponta da seta"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Arrowhead size: %d px"
+msgstr "Tamanho da ponta da seta: %d px"
+
+#: ink/framecover.lua
+msgid "Art Deco"
+msgstr "Art déco"
+
+#: ink/framecover.lua
+msgid "Arts and Crafts"
+msgstr "Arts and Crafts"
+
+#: ink/view/share.lua
+msgid "Ask to open notebooks that arrive"
+msgstr "Perguntar se quer abrir os cadernos que chegam"
+
+#: ink/view/updates.lua
+msgid "Asking GitHub what there is…"
+msgstr "A perguntar ao GitHub o que há de novo…"
+
+#: ink/view/images.lua
+msgid "At save time you can include the picture or export just your drawing. The grid is always left out."
+msgstr "Ao guardar, pode incluir a imagem ou exportar só o seu desenho. A grelha fica sempre de fora."
+
+#: ink/coverpicker.lua
+msgid "Automatic"
+msgstr "Automático"
+
+#: ink/view/gestures.lua
+#: ink/view/guide.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/toolbar.lua
+#: ink/view/updates.lua
+msgid "Back"
+msgstr "Voltar"
+
+#: ink/view/gestures.lua
+msgid "Back to the usual"
+msgstr "Voltar ao normal"
+
+#: ink/view/images.lua
+msgid "Background image"
+msgstr "Imagem de fundo"
+
+#: ink/view/images.lua
+msgid "Background…"
+msgstr "Fundo…"
+
+#: ink/penset.lua
+msgid "Ballpoint"
+msgstr "Esferográfica"
+
+#: ink/guide.lua
+msgid "Ballpoint, Fountain, Calligraphy and Pencil can follow how hard you press: Pen and input, Pen pressure (Beta), with Palm rejection on."
+msgstr "A esferográfica, a caneta de tinta permanente, a caligrafia e o lápis podem acompanhar a força com que pressiona: Caneta e entrada, Pressão da caneta (Beta), com a rejeição da palma ativada."
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Black"
+msgstr "Preto"
+
+#: ink/framecover.lua
+msgid "Black and gold"
+msgstr "Preto e dourado"
+
+#: ink/framecover.lua
+msgid "Black sides"
+msgstr "Laterais pretas"
+
+#: ink/view/notebook.lua
+msgid "Blank"
+msgstr "Em branco"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Blue"
+msgstr "Azul"
+
+#: ink/palette.lua
+msgid "Blueprint"
+msgstr "Cianótipo"
+
+#: ink/palette.lua
+msgid "Blush"
+msgstr "Rosa-claro"
+
+#: ink/view/textformat.lua
+msgid "Bold"
+msgstr "Negrito"
+
+#: ink/reader/inkview.lua
+msgid "Book ink"
+msgstr "Tinta do livro"
+
+#: ink/guide.lua
+msgid "Book ink, Delete all annotations on this book. They wait in the trash for 30 days."
+msgstr "Tinta do livro, eliminar todas as anotações deste livro. Ficam 30 dias no lixo."
+
+#: ink/guide.lua
+msgid "Book ink, Show ink while reading: off shows the plain book. Your ink stays."
+msgstr "Tinta do livro, mostrar a tinta ao ler: desativado mostra só o livro. A sua tinta continua lá."
+
+#: ink/guide.lua
+msgid "Book ink, Toolbar: on the left, right, top or bottom."
+msgstr "Tinta do livro, barra de ferramentas: à esquerda, à direita, no topo ou em baixo."
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Book notes"
+msgstr "Notas do livro"
+
+#: ink/guide.lua
+msgid "Books"
+msgstr "Livros"
+
+#: ink/guide.lua
+msgid "Bookshelf"
+msgstr "Bookshelf"
+
+#: ink/view/gestures.lua
+msgid "Both"
+msgstr "Ambos"
+
+#: ink/view/welcome.lua
+msgid "Both are also in the reader menu: Tools, Ink Away."
+msgstr "Ambos também estão no menu do leitor: Ferramentas, Ink Away."
+
+#: ink/reader/inkview.lua
+msgid "Bottom"
+msgstr "Inferior"
+
+#: ink/framecover.lua
+msgid "Brass"
+msgstr "Latão"
+
+#: ink/folderlook.lua
+msgid "Brown"
+msgstr "Castanho"
+
+#: ink/guide.lua
+msgid "Browse"
+msgstr "Explorar"
+
+#: ink/view/imagebrowser.lua
+msgid "Browse images"
+msgstr "Explorar imagens"
+
+#: ink/actions.lua
+msgid "Browse notebooks"
+msgstr "Explorar cadernos"
+
+#: ink/view/library.lua
+msgid "By name"
+msgstr "Por nome"
+
+#: ink/guide.lua
+msgid "By name, or tick look inside pages to search typed and converted text too."
+msgstr "Por nome, ou assinale Procurar também dentro das páginas para pesquisar também no texto escrito e convertido."
+
+#: ink/penset.lua
+msgid "Calligraphy"
+msgstr "Caligrafia"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/dialogs.lua
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+#: ink/view/images.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: ink/framecover.lua
+msgid "Canvas Wrap"
+msgstr "Tela"
+
+#: ink/framecover.lua
+msgid "Carved Victorian"
+msgstr "Vitoriano entalhado"
+
+#: ink/view/textformat.lua
+msgid "Centre"
+msgstr "Centro"
+
+#: ink/palette.lua
+msgid "Chalkboard"
+msgstr "Quadro de giz"
+
+#: ink/view/selection.lua
+msgid "Change link…"
+msgstr "Alterar ligação…"
+
+#: ink/coverpicker.lua
+msgid "Charcoal"
+msgstr "Carvão"
+
+#: ink/view/updates.lua
+msgid "Check now"
+msgstr "Verificar agora"
+
+#: ink/view/updates.lua
+msgid "Check once a day"
+msgstr "Verificar uma vez por dia"
+
+#: ink/view/ocrapi.lua
+msgid "Check the address in the Text sheet: it has to be a full address starting with https://."
+msgstr "Verifique o endereço na folha Texto: tem de ser um endereço completo que comece por https://."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Checklist"
+msgstr "Lista de tarefas"
+
+#: ink/guide.lua
+msgid "Checklists"
+msgstr "Listas de tarefas"
+
+#: ink/framecover.lua
+msgid "Cherry"
+msgstr "Cerejeira"
+
+#: ink/view/links.lua
+msgid "Choose a notebook"
+msgstr "Escolher um caderno"
+
+#: ink/view/pencase.lua
+msgid "Choose its kind. You can then set its size and colour."
+msgstr "Escolha o tipo. Depois pode definir o tamanho e a cor."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Choose its paper, a PDF or a template"
+msgstr "Escolher o papel, um PDF ou um modelo"
+
+#: ink/ui/pentestscreen.lua
+#: ink/ui/thumbgrid.lua
+#: ink/view/dialogs.lua
+#: ink/view/guide.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/search.lua
+#: ink/view/sheetkit.lua
+#: ink/view/trash.lua
+msgid "Close"
+msgstr "Fechar"
+
+#: ink/coverpicker.lua
+#: ink/guide.lua
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Colour"
+msgstr "Cor"
+
+#: ink/view/library.lua
+msgid "Colour and icon…"
+msgstr "Cor e ícone…"
+
+#: ink/coverpicker.lua
+msgid "Colour wheel"
+msgstr "Roda de cores"
+
+#: ink/view/settings.lua
+msgid "Colour while drawing"
+msgstr "Cor ao desenhar"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Colour: %s"
+msgstr "Cor: %s"
+
+#: ink/view/overview.lua
+msgid "Colour…"
+msgstr "Cor…"
+
+#: ink/notebookcover.lua
+msgid "Composition book"
+msgstr "Caderno escolar"
+
+#: ink/view/links.lua
+msgid "Contents"
+msgstr "Índice"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Contents: %d page(s) listed"
+msgstr "Índice: %d página(s) listada(s)"
+
+#: ink/reader/inkview.lua
+msgid "Continue"
+msgstr "Continuar"
+
+#: ink/view/handwriting.lua
+msgid "Convert"
+msgstr "Converter"
+
+#: ink/guide.lua
+#: ink/view/handwriting.lua
+#: ink/view/selection.lua
+msgid "Convert to text"
+msgstr "Converter em texto"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online"
+msgstr "Converter em texto online"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online needs your service's address, key and model. Set them in the Text sheet, or switch it off there to read on the reader."
+msgstr "Converter em texto online precisa do endereço, da chave e do modelo do seu serviço. Defina-os na folha Texto, ou desative-o aí para ler no leitor."
+
+#: ink/view/textformat.lua
+msgid "Copied"
+msgstr "Copiado"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Copied %d item(s). Tap with the lasso to paste."
+msgstr "%d item(ns) copiado(s). Toque com o laço para colar."
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Copied to “%s”"
+msgstr "Copiado para “%s”"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Copy"
+msgstr "Copiar"
+
+#: ink/view/overview.lua
+msgid "Copy the page to"
+msgstr "Copiar a página para"
+
+#: ink/view/overview.lua
+msgid "Copy to…"
+msgstr "Copiar para…"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Cornell"
+msgstr "Cornell"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Could not check: %1."
+msgstr "Não foi possível verificar: %1."
+
+#: ink/view/export.lua
+msgid "Could not create the bookshelf ornaments folder."
+msgstr "Não foi possível criar a pasta de ornamentos do Bookshelf."
+
+#: ink/view/library.lua
+msgid "Could not create the folder."
+msgstr "Não foi possível criar a pasta."
+
+#: ink/view/trash.lua
+msgid "Could not delete it.\n"
+msgstr "Não foi possível eliminar.\n"
+
+#: ink/reader/inkview.lua
+msgid "Could not delete the annotations.\n"
+msgstr "Não foi possível eliminar as anotações.\n"
+
+#: ink/view/trash.lua
+msgid "Could not delete the page.\n"
+msgstr "Não foi possível eliminar a página.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Could not duplicate.\n"
+msgstr "Não foi possível duplicar.\n"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Could not export PDF.\n"
+msgstr "Não foi possível exportar o PDF.\n"
+
+#: ink/view/export.lua
+msgid "Could not export.\n"
+msgstr "Não foi possível exportar.\n"
+
+#: ink/view/exportbook.lua
+msgid "Could not make the folder.\n"
+msgstr "Não foi possível criar a pasta.\n"
+
+#: ink/view/library.lua
+msgid "Could not move it.\n"
+msgstr "Não foi possível mover.\n"
+
+#: ink/view/notebook.lua
+msgid "Could not open that PDF."
+msgstr "Não foi possível abrir esse PDF."
+
+#: ink/view/document.lua
+msgid "Could not open that file.\n"
+msgstr "Não foi possível abrir esse ficheiro.\n"
+
+#: ink/view/images.lua
+msgid "Could not open that image."
+msgstr "Não foi possível abrir essa imagem."
+
+#: ink/view/notebook.lua
+msgid "Could not open that template."
+msgstr "Não foi possível abrir esse modelo."
+
+#: ink/view/trash.lua
+msgid "Could not put it back.\n"
+msgstr "Não foi possível repor no lugar.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Could not rename.\n"
+msgstr "Não foi possível renomear.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the image.\n"
+"%s"
+msgstr ""
+"Não foi possível guardar a imagem.\n"
+"%s"
+
+#: ink/view/exportbook.lua
+msgid "Could not save the images.\n"
+msgstr "Não foi possível guardar as imagens.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the ornament.\n"
+"%s"
+msgstr ""
+"Não foi possível guardar o ornamento.\n"
+"%s"
+
+#: ink/view/notebook.lua
+msgid "Could not save the template.\n"
+msgstr "Não foi possível guardar o modelo.\n"
+
+#: ink/view/overview.lua
+msgid "Could not save.\n"
+msgstr "Não foi possível guardar.\n"
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"Could not save:\n"
+"%s\n"
+"\n"
+"%s"
+msgstr ""
+"Não foi possível guardar:\n"
+"%s\n"
+"\n"
+"%s"
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't download that image."
+msgstr "Não foi possível transferir essa imagem."
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Couldn't open %s as a notebook"
+msgstr "Não foi possível abrir %s como caderno"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't prepare a folder for the image."
+msgstr "Não foi possível preparar uma pasta para a imagem."
+
+#: ink/view/images.lua
+msgid "Couldn't process that image."
+msgstr "Não foi possível processar essa imagem."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"Couldn't reach the image service.\n"
+"Check your Wi-Fi, or try the other source above."
+msgstr ""
+"Não foi possível aceder ao serviço de imagens.\n"
+"Verifique o Wi-Fi ou experimente a outra fonte acima."
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't read that image."
+msgstr "Não foi possível ler essa imagem."
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't save the image."
+msgstr "Não foi possível guardar a imagem."
+
+#: ink/view/images.lua
+msgid "Couldn't save the processed image."
+msgstr "Não foi possível guardar a imagem processada."
+
+#: ink/view/share.lua
+msgid "Couldn't start sharing: no free port on this reader."
+msgstr "Não foi possível iniciar a partilha: não há porta livre neste leitor."
+
+#: ink/coverpicker.lua
+msgid "Cover colour"
+msgstr "Cor da capa"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Cover on the shelf…"
+msgstr "Capa na estante…"
+
+#: ink/coverpicker.lua
+msgid "Covers on Bookshelf"
+msgstr "Capas no Bookshelf"
+
+#: ink/palette.lua
+msgid "Cream"
+msgstr "Creme"
+
+#: ink/view/library.lua
+msgid "Create"
+msgstr "Criar"
+
+#: ink/ui/brushmaker.lua
+msgid "Create brush"
+msgstr "Criar pincel"
+
+#: ink/palette.lua
+msgid "Custom"
+msgstr "Personalizado"
+
+#: ink/ui/colorpicker.lua
+msgid "Custom colour"
+msgstr "Cor personalizada"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Cut"
+msgstr "Recortar"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Cut %d item(s). Tap with the lasso to paste."
+msgstr "%d item(ns) cortado(s). Toque com o laço para colar."
+
+#: ink/guide.lua
+msgid "Cut or copy, then on any page of any notebook: the page menu, Paste."
+msgstr "Corte ou copie e, em qualquer página de qualquer caderno: menu da página, Colar."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Daily"
+msgstr "Diário"
+
+#: ink/view/settings.lua
+msgid "Dark"
+msgstr "Escuro"
+
+#: ink/palette.lua
+msgid "Dark grey"
+msgstr "Cinzento-escuro"
+
+#: ink/guide.lua
+msgid "Dark mode"
+msgstr "Modo escuro"
+
+#: ink/view/settings.lua
+msgid "Dark turns Ink Away's toolbars and menus dark; the page stays as it is. System follows KOReader's night mode."
+msgstr "Escuro deixa as barras de ferramentas e os menus do Ink Away escuros; a página fica como está. Sistema segue o modo noturno do KOReader."
+
+#: ink/view/textformat.lua
+msgid "Date"
+msgstr "Data"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Default"
+msgstr "Predefinição"
+
+#: ink/view/textformat.lua
+msgid "Default (content font)"
+msgstr "Predefinição (tipo de letra do conteúdo)"
+
+#: ink/reader/inkview.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+#: ink/view/trash.lua
+msgid "Delete"
+msgstr "Eliminar"
+
+#: ink/view/notebook.lua
+msgid "Delete a template…"
+msgstr "Eliminar um modelo…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations on this book…"
+msgstr "Eliminar todas as anotações deste livro…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations?"
+msgstr "Eliminar todas as anotações?"
+
+#: ink/view/trash.lua
+msgid "Delete for good"
+msgstr "Eliminar definitivamente"
+
+#: ink/view/notebook.lua
+msgid "Delete page"
+msgstr "Eliminar página"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Delete the brush “%s”?"
+msgstr "Eliminar o pincel “%s”?"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Delete the template “%s”?"
+msgstr "Eliminar o modelo “%s”?"
+
+#: ink/view/layers.lua
+msgid "Delete this layer?"
+msgstr "Eliminar esta camada?"
+
+#: ink/view/library.lua
+msgid "Delete this page?"
+msgstr "Eliminar esta página?"
+
+#: ink/view/notebook.lua
+msgid "Delete which template?"
+msgstr "Que modelo eliminar?"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Delete “%s” for good?"
+msgstr "Eliminar “%s” definitivamente?"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Delete “%s”?"
+msgstr "Eliminar “%s”?"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted %s · gone for good in %d days"
+msgstr "%s eliminado · desaparece de vez em %d dias"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Deleted notebooks, drawings, pictures and folders wait here for %d days."
+msgstr "Cadernos, desenhos, imagens e pastas eliminados ficam aqui %d dias."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted things stay here for %d days."
+msgstr "O que for eliminado fica aqui %d dias."
+
+#: ink/guide.lua
+msgid "Deleted things, a book's annotations too, wait 30 days and go back where they were."
+msgstr "O que for eliminado, incluindo as anotações de um livro, espera 30 dias e volta para onde estava."
+
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Delete…"
+msgstr "Eliminar…"
+
+#: ink/view/textformat.lua
+msgid "Direction"
+msgstr "Direção"
+
+#: ink/view/receive.lua
+msgid "Don't ask again"
+msgstr "Não perguntar novamente"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/reader/inkview.lua
+#: ink/view/dialogs.lua
+#: ink/view/document.lua
+#: ink/view/gestures.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/overview.lua
+#: ink/view/paper.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+#: ink/view/sheetkit.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+#: ink/view/updates.lua
+msgid "Done"
+msgstr "Concluído"
+
+#: ink/view/settings.lua
+msgid "Dots"
+msgstr "Pontos"
+
+#: ink/ui/pentestscreen.lua
+msgid "Dots show where each contact lands: black for the pen, grey for fingers, light grey for the eraser end and resting hands."
+msgstr "Os pontos mostram onde cada contacto cai: preto para a caneta, cinzento para os dedos, cinzento-claro para a ponta da borracha e mãos pousadas."
+
+#: ink/view/notebook.lua
+msgid "Dotted"
+msgstr "Pontilhado"
+
+#: ink/view/share.lua
+msgid "Download"
+msgstr "Descarregar"
+
+#: ink/view/updates.lua
+msgid "Downloading and checking the update…"
+msgstr "A transferir e a verificar a atualização…"
+
+#: ink/view/imagebrowser.lua
+msgid "Downloading image…"
+msgstr "A transferir a imagem…"
+
+#: ink/view/export.lua
+msgid "Drag a box around the part to export. A single tap keeps the whole page."
+msgstr "Arraste uma caixa à volta da parte a exportar. Um único toque mantém a página inteira."
+
+#: ink/guide.lua
+msgid "Drag the ring above an open text box to turn it to any angle, or pick Reads down or Reads up in Format, Paragraph, for a book's margins."
+msgstr "Arraste o anel acima de uma caixa de texto aberta para a rodar para qualquer ângulo, ou escolha Lê para baixo ou Lê para cima em Formato, Parágrafo, para as margens de um livro."
+
+#: ink/view/images.lua
+msgid "Draw over a photo or screenshot; your drawing sits on top. To write on a PDF, start a notebook from it: File, New, From PDF."
+msgstr "Desenhe sobre uma fotografia ou captura de ecrã; o desenho fica por cima. Para escrever num PDF, crie um caderno a partir dele: Ficheiro, Novo, De PDF."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/share.lua
+msgid "Drawing"
+msgstr "Desenho"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Drawing in %s"
+msgstr "Desenho em %s"
+
+#: ink/pentest.lua
+msgid ""
+"Drawing on a Boox\n"
+"\n"
+"Ink Away asks your Boox for its fast refresh while you write, and ink settles into grey and colour when the pen rests.\n"
+"\n"
+"KOReader leaves every other refresh to the Boox's own mode for KOReader. If the page flashes or ink lags behind the pen: E-Ink Center, App optimisation, KOReader, Refresh mode: Balanced (Regal on older Boox), or Fast.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Desenhar num Boox\n"
+"\n"
+"O Ink Away pede ao seu Boox a atualização rápida enquanto escreve, e a tinta assenta em cinzento e cor quando a caneta descansa.\n"
+"\n"
+"O KOReader deixa qualquer outra atualização para o modo próprio do Boox para o KOReader. Se a página piscar ou a tinta ficar atrás da caneta: E-Ink Center, Otimização de aplicações, KOReader, Modo de atualização: Equilibrado (Regal em Boox mais antigos) ou Rápido.\n"
+"\n"
+"Configurações, Guia, O seu leitor mostra isto de novo."
+
+#: ink/drawingshelf.lua
+msgid "Drawings"
+msgstr "Desenhos"
+
+#: ink/view/document.lua
+msgid "Drawings and notebooks from the old “drawing projects” and “notebook projects” folders are now in the library."
+msgstr "Os desenhos e cadernos das antigas pastas “projetos de desenho” e “projetos de caderno” estão agora na biblioteca."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+msgid "Duplicate"
+msgstr "Duplicar"
+
+#: ink/framecover.lua
+msgid "Dutch Ripple"
+msgstr "Ondulação holandesa"
+
+#: ink/view/paper.lua
+msgid "Each document keeps its paper; a new one starts on the last you picked. On a dark paper black ink and text show white. Dark mode never changes the paper."
+msgstr "Cada documento mantém o seu papel; um novo começa no último escolhido. Em papel escuro, a tinta preta e o texto aparecem a branco. O modo escuro nunca muda o papel."
+
+#: ink/framecover.lua
+msgid "Ebonised"
+msgstr "Ebanizado"
+
+#: ink/framecover.lua
+msgid "Ebony"
+msgstr "Ébano"
+
+#: ink/view/textformat.lua
+msgid "Edit"
+msgstr "Editar"
+
+#: ink/view/export.lua
+msgid "Editable"
+msgstr "Editável"
+
+#: ink/view/receive.lua
+msgid "Either way they stay in Library › Imported. To be asked again, turn on \"Ask to open notebooks that arrive\" in Phone or computer (Wi-Fi)."
+msgstr "Em qualquer dos casos, ficam em Biblioteca › Importados. Para voltar a ser perguntado, ative “Perguntar se quer abrir os cadernos que chegam” em Telemóvel ou computador (Wi-Fi)."
+
+#: ink/framecover.lua
+msgid "Emerald and gold"
+msgstr "Esmeralda e dourado"
+
+#: ink/view/trash.lua
+msgid "Empty"
+msgstr "Vazio"
+
+#: ink/view/trash.lua
+msgid "Empty the trash"
+msgstr "Esvaziar o lixo"
+
+#: ink/view/trash.lua
+msgid "Empty the trash?"
+msgstr "Esvaziar o lixo?"
+
+#: ink/view/toolbar.lua
+msgid "Erase"
+msgstr "Apagar"
+
+#: ink/view/menus.lua
+msgid "Erase pictures"
+msgstr "Apagar imagens"
+
+#: ink/view/menus.lua
+msgid "Erase whole strokes"
+msgstr "Apagar traços inteiros"
+
+#: main.lua
+msgid "Erase with the pen's eraser end"
+msgstr "Apagar com a ponta de borracha da caneta"
+
+#: ink/actions.lua
+#: ink/view/menus.lua
+msgid "Eraser"
+msgstr "Borracha"
+
+#: ink/actions.lua
+msgid "Eraser end"
+msgstr "Ponta da borracha"
+
+#: ink/guide.lua
+msgid "Erasing"
+msgstr "A apagar"
+
+#: ink/guide.lua
+msgid "Every drawing and notebook is a file that saves as you go. File has Rename, Duplicate, Export and New."
+msgstr "Cada desenho e caderno é um ficheiro que se guarda enquanto trabalha. Ficheiro tem Renomear, Duplicar, Exportar e Novo."
+
+#: ink/guide.lua
+msgid "Everything besides ink"
+msgstr "Tudo, menos a tinta"
+
+#: ink/view/trash.lua
+msgid "Everything in it is deleted for good."
+msgstr "Tudo o que tem é eliminado definitivamente."
+
+#: ink/reader/inkview.lua
+msgid "Everything you drew, wrote and placed on this book goes, on every page. Highlights the highlighter turned into the reader's own stay, and so do the book's notes."
+msgstr "Tudo o que desenhou, escreveu e colocou neste livro desaparece, em todas as páginas. Os destaques que o marcador fluorescente transformou em destaques do leitor ficam, tal como as notas do livro."
+
+#: ink/view/toolbar.lua
+msgid "Exit"
+msgstr "Sair"
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to the service below and puts back the text it reads. Wi-Fi has to be on."
+msgstr "Experimental. Converter em texto envia uma imagem da escrita rodeada pelo laço ao serviço abaixo e devolve o texto lido. O Wi-Fi tem de estar ligado."
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to your AI service and puts back the text it reads. Set the three below from your service's account and documentation, then lasso some writing and choose Convert to text, with Wi-Fi on."
+msgstr "Experimental. Converter em texto envia uma imagem da escrita rodeada pelo laço ao seu serviço de IA e devolve o texto lido. Defina os três campos abaixo a partir da conta e da documentação do seu serviço, depois rodeie uma escrita com o laço e escolha Converter em texto, com o Wi-Fi ligado."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Export"
+msgstr "Exportar"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) as PNGs"
+msgstr "Exportar %d página(s) como PNG"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) to PDF"
+msgstr "Exportar %d página(s) para PDF"
+
+#: ink/view/export.lua
+msgid "Export PDF"
+msgstr "Exportar PDF"
+
+#: ink/view/export.lua
+msgid "Export PNG"
+msgstr "Exportar PNG"
+
+#: ink/view/export.lua
+msgid "Export as PDF"
+msgstr "Exportar como PDF"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export as PDF…"
+msgstr "Exportar como PDF…"
+
+#: ink/view/export.lua
+msgid "Export as PNG"
+msgstr "Exportar como PNG"
+
+#: ink/view/export.lua
+msgid "Export as images"
+msgstr "Exportar como imagens"
+
+#: ink/view/export.lua
+msgid "Export editable PDF"
+msgstr "Exportar PDF editável"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Export folder: %s"
+msgstr "Pasta de exportação: %s"
+
+#: ink/view/export.lua
+msgid "Export stopped."
+msgstr "Exportação interrompida."
+
+#: main.lua
+msgid "Export the book with its annotations…"
+msgstr "Exportar o livro com as suas anotações…"
+
+#: ink/view/export.lua
+msgid "Export the folder as PDF"
+msgstr "Exportar a pasta como PDF"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Exporting %d page(s) to PDF"
+msgstr "A exportar %d página(s) para PDF"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Exports: %s"
+msgstr "Exportações: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export…"
+msgstr "Exportar…"
+
+#: ink/view/ocrapi.lua
+msgid "External OCR. Stop discards the result; the request may still finish at the provider."
+msgstr "OCR externo. Parar descarta o resultado; o pedido ainda pode terminar no fornecedor."
+
+#: ink/guide.lua
+msgid "Fast refresh on a Boox"
+msgstr "Atualização rápida num Boox"
+
+#: ink/view/pencase.lua
+msgid "Fast refresh while drawing"
+msgstr "Atualização rápida ao desenhar"
+
+#: ink/view/settings.lua
+msgid "Fast strokes leave faint marks; a full refresh clears them this often."
+msgstr "Os traços rápidos deixam marcas ténues; uma atualização completa limpa-as com esta frequência."
+
+#: ink/guide.lua
+msgid "Faster drawing"
+msgstr "Desenho mais rápido"
+
+#: ink/pentest.lua
+msgid ""
+"Faster drawing on this reader\n"
+"\n"
+"KOReader can't choose the fast e-ink refresh on this device, so its own refresh mode for KOReader decides how quickly ink appears.\n"
+"\n"
+"Look for a per-app refresh or speed mode for KOReader in the device's settings, and choose the fastest.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Desenho mais rápido neste leitor\n"
+"\n"
+"O KOReader não consegue escolher a atualização rápida de e-ink neste dispositivo, por isso o modo de atualização do próprio aparelho para o KOReader decide a rapidez com que a tinta aparece.\n"
+"\n"
+"Procure nas definições do aparelho um modo de atualização ou velocidade por aplicação para o KOReader e escolha o mais rápido.\n"
+"\n"
+"Configurações, Guia, O seu leitor mostra isto de novo."
+
+#: ink/view/toolbar.lua
+msgid "File"
+msgstr "Ficheiro"
+
+#: ink/guide.lua
+msgid "File, Export: transparent or white, the whole page or an area you pick, with or without the grid."
+msgstr "Ficheiro, Exportar: transparente ou branco, a página inteira ou uma área escolhida, com ou sem grelha."
+
+#: ink/guide.lua
+msgid "File, Layers splits a drawing into layers. The strip at the right adds one or picks where you draw; tap that one for its menu."
+msgstr "Ficheiro, Camadas divide um desenho em camadas. A faixa à direita adiciona uma ou escolhe onde desenha; toque numa camada para ver o menu dela."
+
+#: ink/view/settings.lua
+msgid "Files"
+msgstr "Ficheiros"
+
+#: ink/view/share.lua
+msgid "Files arrive in Library › Imported. Reload the page if it was open."
+msgstr "Os ficheiros chegam a Biblioteca › Importados. Recarregue a página se estava aberta."
+
+#: ink/view/menus.lua
+msgid "Fill"
+msgstr "Preenchimento"
+
+#: ink/view/menus.lua
+msgid "Fill colour"
+msgstr "Cor de preenchimento"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Filled shapes and fills: %d"
+msgstr "Formas preenchidas e preenchimentos: %d"
+
+#: ink/penset.lua
+msgid "Fineliner"
+msgstr "Caneta fina"
+
+#: ink/view/pencase.lua
+msgid "Finger on the page"
+msgstr "Dedo na página"
+
+#: ink/framepicker.lua
+msgid "Finish"
+msgstr "Concluir"
+
+#: ink/view/pencase.lua
+msgid "Firm"
+msgstr "Firme"
+
+#: ink/guide.lua
+msgid "First or last page"
+msgstr "Primeira ou última página"
+
+#: ink/view/notebook.lua
+msgid "First page"
+msgstr "Primeira página"
+
+#: ink/actions.lua
+msgid "Fit the page"
+msgstr "Ajustar à página"
+
+#: ink/reader/inkview.lua
+msgid "Fit the toolbar in the margin"
+msgstr "Ajustar a barra de ferramentas à margem"
+
+#: ink/view/handwriting.lua
+msgid "Fix anything misread, then convert."
+msgstr "Corrija o que foi lido mal e depois converta."
+
+#: ink/view/selection.lua
+msgid "Flip"
+msgstr "Inverter"
+
+#: ink/framecover.lua
+msgid "Floating Frame"
+msgstr "Moldura flutuante"
+
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+msgid "Folder"
+msgstr "Pasta"
+
+#: ink/view/library.lua
+msgid "Folder icon"
+msgstr "Ícone da pasta"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Folder in %s"
+msgstr "Pasta em %s"
+
+#: ink/view/library.lua
+msgid "Folder name"
+msgstr "Nome da pasta"
+
+#: ink/view/search.lua
+msgid "Folder, notebook or page name"
+msgstr "Nome da pasta, do caderno ou da página"
+
+#: ink/guide.lua
+msgid "Folders, search and the trash"
+msgstr "Pastas, pesquisa e lixo"
+
+#: ink/view/export.lua
+msgid "Folder…"
+msgstr "Pasta…"
+
+#: ink/view/menus.lua
+msgid "Font size"
+msgstr "Tamanho da fonte"
+
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Font: %s"
+msgstr "Tipo de letra: %s"
+
+#: ink/guide.lua
+msgid "For pen readers: rest your hand while you write. Finger on the page sets what a finger does then."
+msgstr "Para leitores com caneta: apoie a mão enquanto escreve. Dedo na página define o que um dedo faz então."
+
+#: ink/coverpicker.lua
+msgid "Forest"
+msgstr "Floresta"
+
+#: ink/view/export.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+msgid "Format"
+msgstr "Formato"
+
+#: ink/guide.lua
+msgid "Format, Paragraph, Checklist puts a box before each line. Tap a box to tick it, with the text open or closed."
+msgstr "Formato, Parágrafo, Lista de tarefas coloca uma caixa antes de cada linha. Toque numa caixa para a marcar, com o texto aberto ou fechado."
+
+#: ink/penset.lua
+msgid "Fountain"
+msgstr "Caneta de tinta permanente"
+
+#: ink/view/settings.lua
+msgid "Four-way"
+msgstr "Quatro direções"
+
+#: ink/view/library.lua
+msgid "Frame on the shelf…"
+msgstr "Moldura na estante…"
+
+#: ink/view/images.lua
+msgid "Free pictures from Wikimedia and Openverse. Needs Wi-Fi."
+msgstr "Imagens livres da Wikimedia e do Openverse. Precisa de Wi-Fi."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "From %s"
+msgstr "De %s"
+
+#: ink/view/images.lua
+msgid "From Library › Imported › Pictures."
+msgstr "De Biblioteca › Importados › Imagens."
+
+#: ink/view/notebook.lua
+msgid "From a PDF…"
+msgstr "De um PDF…"
+
+#: ink/view/notebook.lua
+msgid "From a template…"
+msgstr "De um modelo…"
+
+#: ink/view/notebook.lua
+msgid "From template…"
+msgstr "De modelo…"
+
+#: ink/view/images.lua
+msgid "From this reader"
+msgstr "Deste leitor"
+
+#: ink/view/receive.lua
+msgid "From your phone or computer"
+msgstr "Do seu telemóvel ou computador"
+
+#: ink/notebookcover.lua
+msgid "Front page"
+msgstr "Primeira página"
+
+#: ink/view/imagebrowser.lua
+msgid "Full resolution"
+msgstr "Resolução total"
+
+#: ink/framecover.lua
+msgid "Fumed oak"
+msgstr "Carvalho fumado"
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/view/gestures.lua
+#: ink/view/settings.lua
+msgid "Gestures and pen buttons"
+msgstr "Gestos e botões da caneta"
+
+#: ink/guide.lua
+msgid "Gestures and pen buttons gives each one an action, and the page turn buttons too: undo, lasso, a saved pen, hiding the toolbar and more."
+msgstr "Gestos e botões da caneta dá uma ação a cada um, e também aos botões de virar página: anular, laço, uma caneta guardada, ocultar a barra de ferramentas e mais."
+
+#: ink/view/images.lua
+msgid "Get from your phone or computer"
+msgstr "Receber do seu telemóvel ou computador"
+
+#: ink/guide.lua
+msgid "Getting around"
+msgstr "Como se orientar"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Ghosting"
+msgstr "Efeito fantasma"
+
+#: ink/framecover.lua
+msgid "Gilded Baroque"
+msgstr "Barroco dourado"
+
+#: ink/view/notebook.lua
+msgid "Go"
+msgstr "Ir"
+
+#: ink/view/updates.lua
+msgid "Go back"
+msgstr "Voltar"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back from this version to the latest release (%1)."
+msgstr "Voltar desta versão para a última versão (%1)."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back to %1?"
+msgstr "Voltar para %1?"
+
+#: ink/view/updates.lua
+msgid "Go back to it"
+msgstr "Voltar para ela"
+
+#: ink/view/selection.lua
+msgid "Go to link"
+msgstr "Ir para a ligação"
+
+#: ink/view/notebook.lua
+msgid "Go to page"
+msgstr "Ir para a página"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Go to page (1–%d)"
+msgstr "Ir para a página (1–%d)"
+
+#: ink/view/notebook.lua
+msgid "Go to page…"
+msgstr "Ir para a página…"
+
+#: ink/actions.lua
+#: ink/view/notebook.lua
+msgid "Go to the contents page"
+msgstr "Ir para o índice"
+
+#: ink/framecover.lua
+msgid "Gold"
+msgstr "Dourado"
+
+#: ink/view/welcome.lua
+msgid "Got it"
+msgstr "Entendi"
+
+#: ink/brushes.lua
+msgid "Grain"
+msgstr "Veio"
+
+#: ink/folderlook.lua
+msgid "Graphite"
+msgstr "Grafite"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Green"
+msgstr "Verde"
+
+#: ink/palette.lua
+msgid "Grey"
+msgstr "Cinzento"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Grid"
+msgstr "Grelha"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Grid: %s"
+msgstr "Grelha: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/guide.lua
+#: ink/view/settings.lua
+msgid "Guide"
+msgstr "Guia"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Habit tracker"
+msgstr "Registo de hábitos"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Handwriting"
+msgstr "Escrita à mão"
+
+#: ink/notebookcover.lua
+msgid "Hardcover"
+msgstr "Hardcover"
+
+#: ink/penset.lua
+msgid "Hatch"
+msgstr "Hachura"
+
+#: ink/view/settings.lua
+msgid "Hidden"
+msgstr "Oculto"
+
+#: ink/view/layers.lua
+msgid "Hide"
+msgstr "Ocultar"
+
+#: ink/actions.lua
+msgid "Hide or show the toolbar"
+msgstr "Ocultar ou mostrar a barra de ferramentas"
+
+#: ink/view/textformat.lua
+msgid "Highlight"
+msgstr "Destacar"
+
+#: ink/guide.lua
+msgid "Highlight while reading"
+msgstr "Destacar durante a leitura"
+
+#: main.lua
+msgid "Highlight with the pen's button"
+msgstr "Destacar com o botão da caneta"
+
+#: ink/actions.lua
+#: ink/penset.lua
+msgid "Highlighter"
+msgstr "Marcador fluorescente"
+
+#: ink/reader/inkview.lua
+msgid "Highlighter snaps to the text"
+msgstr "O marcador fluorescente ajusta-se ao texto"
+
+#: ink/view/textformat.lua
+msgid "Hold a colour you added to remove it."
+msgstr "Mantenha premida uma cor que adicionou para a remover."
+
+#: ink/guide.lua
+msgid "Hold a folder in the Library, Export as PDF."
+msgstr "Mantenha premida uma pasta na Biblioteca, Exportar como PDF."
+
+#: ink/guide.lua
+msgid "Hold a saved pen."
+msgstr "Mantenha premida uma caneta guardada."
+
+#: ink/guide.lua
+msgid "Hold inside the text box you are writing in."
+msgstr "Mantenha premido dentro da caixa de texto em que escreve."
+
+#: ink/view/pencase.lua
+msgid "Hold still to straighten"
+msgstr "Mantenha parado para endireitar"
+
+#: ink/guide.lua
+msgid "Hold the pen still at the end of a stroke: a rough line, box, ellipse or triangle snaps clean. Writing is left alone."
+msgstr "Mantenha a caneta parada no fim de um traço: uma linha, retângulo, elipse ou triângulo aproximado fica limpo. A escrita é deixada em paz."
+
+#: main.lua
+msgid "Hold the pen's side button and run the pen over a line of text: it becomes a highlight, without opening the annotation mode. The button is the one set to Highlighter in Gestures and pen buttons."
+msgstr "Mantenha premido o botão lateral da caneta e passe a caneta sobre uma linha de texto: torna-se um destaque, sem abrir o modo de anotação. O botão é o definido como Marcador fluorescente em Gestos e botões da caneta."
+
+#: ink/guide.lua
+msgid "Hold the pen's side button while drawing."
+msgstr "Mantenha premido o botão lateral da caneta enquanto desenha."
+
+#: ink/guide.lua
+msgid "Hold the previous or next arrow."
+msgstr "Mantenha premida a seta anterior ou seguinte."
+
+#: ink/view/settings.lua
+msgid "Horizontal"
+msgstr "Horizontal"
+
+#: ink/view/menus.lua
+msgid "How big the arrowheads are, in canvas pixels."
+msgstr "O tamanho das pontas das setas, em píxeis da tela."
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Icon: %s"
+msgstr "Ícone: %s"
+
+#: ink/view/toolbar.lua
+msgid "Image"
+msgstr "Imagem"
+
+#: ink/guide.lua
+msgid "Image adds one from a file or from the web. Move, resize or turn it; Remove background cuts it out."
+msgstr "Imagem adiciona uma de um ficheiro ou da web. Mova, redimensione ou rode; Remover fundo recorta-a."
+
+#: ink/guide.lua
+msgid "Image, Background puts a picture behind the page. Hold New drawing to start a drawing from one."
+msgstr "Imagem, Fundo coloca uma imagem atrás da página. Mantenha premido Novo desenho para começar um desenho a partir de uma."
+
+#: ink/guide.lua
+msgid "Import a PDF to write on its pages, then export it back to PDF."
+msgstr "Importe um PDF para escrever nas páginas dele e depois exporte-o de volta para PDF."
+
+#: ink/view/settings.lua
+msgid "In KOReader's night mode, ink keeps its colour: blue stays blue, and dark ink turns light so it reads on the dark page."
+msgstr "No modo noturno do KOReader, a tinta mantém a cor: o azul continua azul, e a tinta escura fica clara para se ler na página escura."
+
+#: ink/view/export.lua
+msgid "Include the PDF page"
+msgstr "Incluir a página do PDF"
+
+#: ink/view/export.lua
+msgid "Include the background"
+msgstr "Incluir o fundo"
+
+#: ink/view/export.lua
+msgid "Include the book's pages"
+msgstr "Incluir as páginas do livro"
+
+#: ink/view/export.lua
+msgid "Include the grid"
+msgstr "Incluir a grelha"
+
+#: ink/view/export.lua
+msgid "Include the paper"
+msgstr "Incluir o papel"
+
+#: ink/brushes.lua
+msgid "Ink"
+msgstr "Tinta"
+
+#: main.lua
+msgid "Ink Away"
+msgstr "Ink Away"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1"
+msgstr "Ink Away %1"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is available: Settings, Updates."
+msgstr "O Ink Away %1 está disponível: Configurações, Atualizações."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is installed. Restart KOReader to use it."
+msgstr "O Ink Away %1 foi instalado. Reinicie o KOReader para o usar."
+
+#: main.lua
+msgid "Ink Away (drawing canvas)"
+msgstr "Ink Away (tela de desenho)"
+
+#: ink/reader/book.lua
+msgid "Ink Away could not save this book's ink: its folder can't be written to."
+msgstr "O Ink Away não conseguiu guardar a tinta deste livro: não é possível escrever na pasta dele."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away downloads it from GitHub (%1) and checks it before it replaces this version; then KOReader restarts to use it. Your drawings, notebooks and settings stay as they are."
+msgstr "O Ink Away transfere-a do GitHub (%1) e verifica-a antes de substituir esta versão; depois o KOReader reinicia para a usar. Os seus desenhos, cadernos e definições ficam como estão."
+
+#: ink/drawingshelf.lua
+msgid "Ink Away drawings"
+msgstr "Desenhos do Ink Away"
+
+#: ink/view/share.lua
+msgid "Ink Away file"
+msgstr "Ficheiro do Ink Away"
+
+#: ink/view/welcome.lua
+msgid "Ink Away in your books"
+msgstr "Ink Away nos seus livros"
+
+#: ink/view/settings.lua
+msgid "Ink Away is free and made by one person. If it makes your writing better, a coffee helps keep it going."
+msgstr "O Ink Away é gratuito e feito por uma só pessoa. Se melhora a sua escrita, um café ajuda a mantê-lo vivo."
+
+#: main.lua
+msgid "Ink Away library"
+msgstr "Biblioteca do Ink Away"
+
+#: ink/bookshelf.lua
+msgid "Ink Away notebooks"
+msgstr "Cadernos do Ink Away"
+
+#: main.lua
+msgid "Ink Away: annotate the book"
+msgstr "Ink Away: anotar o livro"
+
+#: main.lua
+msgid "Ink Away: book notes (Ink Away outside a book)"
+msgstr "Ink Away: notas do livro (Ink Away fora de um livro)"
+
+#: ink/view/pencase.lua
+msgid "Ink shows with the Boox's fast black-and-white refresh as you write, and settles into grey and colour when the pen rests."
+msgstr "A tinta aparece com a atualização rápida a preto e branco do Boox enquanto escreve e assenta em cinzento e cor quando a caneta descansa."
+
+#: ink/guide.lua
+msgid "Ink stays with the words when the font changes. Also in the reader menu: Tools, Ink Away."
+msgstr "A tinta fica com as palavras quando o tipo de letra muda. Também no menu do leitor: Ferramentas, Ink Away."
+
+#: ink/view/notebook.lua
+msgid "Insert before"
+msgstr "Inserir antes"
+
+#: ink/view/updates.lua
+msgid "Install"
+msgstr "Instalar"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Install %1?"
+msgstr "Instalar %1?"
+
+#: ink/framecover.lua
+msgid "Instant Photo"
+msgstr "Foto instantânea"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Into %s"
+msgstr "Em %s"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Isometric"
+msgstr "Isométrico"
+
+#: ink/view/trash.lua
+msgid "It can't be brought back."
+msgstr "Não é possível recuperar."
+
+#: ink/guide.lua
+msgid "It saves itself"
+msgstr "Guarda-se sozinho"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "It stays in the trash for %d days."
+msgstr "Fica no lixo durante %d dias."
+
+#: ink/view/textformat.lua
+msgid "Italic"
+msgstr "Itálico"
+
+#: ink/framecover.lua
+msgid "Ivory and silver"
+msgstr "Marfim e prata"
+
+#: ink/welcome.lua
+msgid "KOReader's gesture manager is off, so Ink Away couldn't give these a gesture."
+msgstr "O gestor de gestos do KOReader está desligado, por isso o Ink Away não lhes pôde dar um gesto."
+
+#: ink/view/exportbook.lua
+msgid "Keep as pictures"
+msgstr "Manter como imagens"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Keep as pictures puts a picture of your ink over the %d page(s) that have them, so they look as you drew them. Their ink there can't be edited stroke by stroke; every other page stays editable. Leave them out writes the PDF without them."
+msgstr "«Manter como imagens» coloca uma imagem da sua tinta sobre as %d página(s) que os têm, para que fiquem como as desenhou. A tinta aí deixa de poder ser editada traço a traço; todas as outras páginas continuam editáveis. «Deixá-los de fora» grava o PDF sem eles."
+
+#: ink/view/settings.lua
+msgid "Keep colours in night mode"
+msgstr "Manter as cores no modo noturno"
+
+#: ink/view/dialogs.lua
+msgid "Keep going"
+msgstr "Continuar"
+
+#: ink/view/ocrapi.lua
+msgid "Key"
+msgstr "Chave"
+
+#: ink/view/pencase.lua
+msgid "Kind of pen"
+msgstr "Tipo de caneta"
+
+#: ink/palette.lua
+msgid "Kraft"
+msgstr "Kraft"
+
+#: ink/notebookcover.lua
+msgid "Kraft with window"
+msgstr "Kraft com janela"
+
+#: ink/view/settings.lua
+msgid "Landscape"
+msgstr "Paisagem"
+
+#: ink/actions.lua
+#: ink/guide.lua
+#: ink/view/toolbar.lua
+msgid "Lasso"
+msgstr "Laço"
+
+#: ink/guide.lua
+msgid "Lasso printed handwriting and Convert to text makes it a text box. One undo brings the writing back."
+msgstr "Rodeie com o laço uma escrita impressa e Converter em texto transforma-a numa caixa de texto. Um único Anular traz a escrita de volta."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Last checked %1."
+msgstr "Última verificação %1."
+
+#: ink/view/settings.lua
+msgid "Last document"
+msgstr "Último documento"
+
+#: ink/view/notebook.lua
+msgid "Last page"
+msgstr "Última página"
+
+#: ink/view/receive.lua
+msgid "Later"
+msgstr "Mais tarde"
+
+#: ink/palette.lua
+msgid "Lavender"
+msgstr "Lavanda"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "Layer %1 of %2. New drawing goes on this layer."
+msgstr "Camada %1 de %2. O novo desenho vai para esta camada."
+
+#: ink/guide.lua
+#: ink/view/document.lua
+msgid "Layers"
+msgstr "Camadas"
+
+#: ink/view/exportbook.lua
+msgid "Leave them out"
+msgstr "Deixá-los de fora"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Left"
+msgstr "Esquerda"
+
+#: ink/notebookcover.lua
+#: ink/palette.lua
+msgid "Legal pad"
+msgstr "Bloco legal"
+
+#: ink/actions.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+#: ink/view/search.lua
+#: ink/view/settings.lua
+#: ink/view/share.lua
+#: ink/view/toolbar.lua
+msgid "Library"
+msgstr "Biblioteca"
+
+#: ink/guide.lua
+msgid "Library and Browse"
+msgstr "Biblioteca e Explorar"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library folder: %s"
+msgstr "Pasta da biblioteca: %s"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library: %s"
+msgstr "Biblioteca: %s"
+
+#: ink/view/settings.lua
+msgid "Light"
+msgstr "Claro"
+
+#: ink/palette.lua
+msgid "Light grey"
+msgstr "Cinzento-claro"
+
+#: ink/framecover.lua
+msgid "Light oak"
+msgstr "Carvalho claro"
+
+#: ink/view/pencase.lua
+msgid "Light touch"
+msgstr "Toque leve"
+
+#: ink/folderlook.lua
+msgid "Lime"
+msgstr "Lima"
+
+#: ink/view/menus.lua
+msgid "Line / arrow / curve"
+msgstr "Linha / seta / curva"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Line spacing"
+msgstr "Espaçamento entre linhas"
+
+#: ink/view/settings.lua
+msgid "Line strength"
+msgstr "Espessura da linha"
+
+#: ink/view/notebook.lua
+msgid "Lined"
+msgstr "Pautado"
+
+#: ink/guide.lua
+msgid "Lined, grid, dotted, Cornell, daily, weekly, monthly, a habit tracker and more, for each page."
+msgstr "Pautado, quadriculado, pontilhado, Cornell, diário, semanal, mensal, um registo de hábitos e mais, para cada página."
+
+#: ink/view/settings.lua
+msgid "Lines"
+msgstr "Linhas"
+
+#: ink/guide.lua
+msgid "Lines, curves, arrows, boxes, ellipses and triangles, filled or outlined."
+msgstr "Linhas, curvas, setas, retângulos, elipses e triângulos, preenchidos ou só o contorno."
+
+#: ink/view/links.lua
+msgid "Link to a page"
+msgstr "Ligação a uma página"
+
+#: ink/guide.lua
+msgid "Link to page in the lasso's menu makes it a link: tap it with Pan, or a finger with palm rejection on, to jump there; Back returns."
+msgstr "Ligação à página no menu do laço transforma-o numa ligação: toque nele com Mover, ou com um dedo se a rejeição da palma estiver ativada, para ir até lá; Voltar regressa."
+
+#: ink/view/selection.lua
+msgid "Link to page…"
+msgstr "Ligação à página…"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Linked to %s"
+msgstr "Ligado a %s"
+
+#: ink/guide.lua
+msgid "Links"
+msgstr "Ligações"
+
+#: ink/view/textformat.lua
+msgid "List"
+msgstr "Lista"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Loading images… %d/%d"
+msgstr "A carregar imagens… %d/%d"
+
+#: ink/actions.lua
+msgid "Long two-finger swipe down"
+msgstr "Deslize longo para baixo com dois dedos"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe down."
+msgstr "Deslize longo para baixo com dois dedos."
+
+#: ink/actions.lua
+msgid "Long two-finger swipe up"
+msgstr "Deslize longo para cima com dois dedos"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe up."
+msgstr "Deslize longo para cima com dois dedos."
+
+#: ink/view/imagebrowser.lua
+msgid "Long-press an image to add it."
+msgstr "Mantenha uma imagem premida para a adicionar."
+
+#: ink/view/search.lua
+msgid "Look inside pages too"
+msgstr "Procurar também dentro das páginas"
+
+#: ink/guide.lua
+msgid "Loop writing, shapes, pictures or text for its menu: cut, copy, duplicate, turn, flip, colour, size, opacity, to front, delete."
+msgstr "Rodeie com o laço escrita, formas, imagens ou texto para ver o menu: cortar, copiar, duplicar, rodar, inverter, cor, tamanho, opacidade, trazer para a frente, eliminar."
+
+#: ink/view/textformat.lua
+msgid "Loose"
+msgstr "Solto"
+
+#: ink/framecover.lua
+msgid "Louis XVI"
+msgstr "Luís XVI"
+
+#: ink/framecover.lua
+msgid "Mahogany"
+msgstr "Mogno"
+
+#: ink/view/pencase.lua
+msgid "Make a brush"
+msgstr "Criar um pincel"
+
+#: ink/guide.lua
+msgid "Make a brush in the list of kinds; hold it there to delete it."
+msgstr "Crie um pincel na lista de tipos; mantenha-o premido aí para o eliminar."
+
+#: ink/view/notebook.lua
+msgid "Make a contents page"
+msgstr "Criar uma página de índice"
+
+#: ink/view/pencase.lua
+msgid "Make a copy"
+msgstr "Fazer uma cópia"
+
+#: ink/guide.lua
+msgid "Make them yours"
+msgstr "Deixe-os ao seu gosto"
+
+#: ink/view/share.lua
+msgid "Making a notebook in Library › Imported › PDFs…"
+msgstr "A criar um caderno em Biblioteca › Importados › PDFs…"
+
+#: ink/view/notebook.lua
+msgid "Margin ruled"
+msgstr "Com margem"
+
+#: ink/penset.lua
+msgid "Mark"
+msgstr "Marcar"
+
+#: ink/penset.lua
+msgid "Marker"
+msgstr "Marcador"
+
+#: ink/view/pencase.lua
+msgid "Medium"
+msgstr "Média"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Meeting notes"
+msgstr "Notas de reunião"
+
+#: ink/view/layers.lua
+msgid "Merge"
+msgstr "Unir"
+
+#: ink/view/layers.lua
+msgid "Merge down"
+msgstr "Unir para baixo"
+
+#: ink/framecover.lua
+msgid "Minimal Metal"
+msgstr "Metal minimalista"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Mint"
+msgstr "Menta"
+
+#: ink/view/ocrapi.lua
+msgid "Model"
+msgstr "Modelo"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Monthly"
+msgstr "Mensal"
+
+#: ink/ui/thumbgrid.lua
+msgid "More"
+msgstr "Mais"
+
+#: ink/view/receive.lua
+msgid "More are still coming."
+msgstr "Ainda há mais para vir."
+
+#: ink/guide.lua
+msgid "More room"
+msgstr "Mais espaço"
+
+#: ink/view/notebook.lua
+msgid "Move"
+msgstr "Mover"
+
+#: ink/guide.lua
+msgid "Move around"
+msgstr "Movimentar-se"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move down"
+msgstr "Mover para baixo"
+
+#: ink/view/library.lua
+msgid "Move here"
+msgstr "Mover para aqui"
+
+#: ink/view/pencase.lua
+msgid "Move left"
+msgstr "Mover para a esquerda"
+
+#: ink/view/pencase.lua
+msgid "Move right"
+msgstr "Mover para a direita"
+
+#: ink/actions.lua
+msgid "Move the page (Pan)"
+msgstr "Mover a página (Mover)"
+
+#: ink/view/overview.lua
+msgid "Move the page to"
+msgstr "Mover a página para"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Move this page to (1–%d)"
+msgstr "Mover esta página para (1–%d)"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Move to %s"
+msgstr "Mover para %s"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Move to…"
+msgstr "Mover para…"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move up"
+msgstr "Mover para cima"
+
+#: ink/guide.lua
+msgid "Move, copy or remove"
+msgstr "Mover, copiar ou remover"
+
+#: ink/reader/inkview.lua
+#: ink/view/trash.lua
+msgid "Moved to the trash"
+msgstr "Movido para o lixo"
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Moved to “%s”"
+msgstr "Movido para “%s”"
+
+#: ink/view/notebook.lua
+msgid "Move…"
+msgstr "Mover…"
+
+#: ink/framecover.lua
+msgid "Museum Mat"
+msgstr "Passe-partout de museu"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Music"
+msgstr "Música"
+
+#: ink/framecover.lua
+msgid "Mustard"
+msgstr "Mostarda"
+
+#: ink/ui/brushmaker.lua
+msgid "Name this brush"
+msgstr "Dê um nome a este pincel"
+
+#: ink/view/pencase.lua
+msgid "Navigate"
+msgstr "Navegar"
+
+#: ink/coverpicker.lua
+msgid "Navy"
+msgstr "Azul-marinho"
+
+#: ink/view/library.lua
+msgid "New"
+msgstr "Novo"
+
+#: ink/view/document.lua
+msgid "New drawing"
+msgstr "Novo desenho"
+
+#: ink/view/library.lua
+msgid "New folder"
+msgstr "Nova pasta"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "New in %s"
+msgstr "Novo em %s"
+
+#: ink/view/document.lua
+#: ink/view/notebook.lua
+msgid "New notebook"
+msgstr "Novo caderno"
+
+#: ink/view/notebook.lua
+msgid "New notebook from template"
+msgstr "Novo caderno a partir de um modelo"
+
+#: ink/view/notebook.lua
+msgid "New page from template"
+msgstr "Nova página a partir de um modelo"
+
+#: ink/view/pencase.lua
+msgid "New pen"
+msgstr "Nova caneta"
+
+#: ink/view/search.lua
+msgid "New search"
+msgstr "Nova pesquisa"
+
+#: ink/bookshelf.lua
+#: ink/drawingshelf.lua
+msgid "New shelf"
+msgstr "Nova estante"
+
+#: ink/view/library.lua
+msgid "Newest first"
+msgstr "Mais recentes primeiro"
+
+#: ink/view/imagebrowser.lua
+msgid "Next"
+msgstr "Seguinte"
+
+#: ink/actions.lua
+msgid "Next page"
+msgstr "Página seguinte"
+
+#: ink/view/pencase.lua
+msgid "Nib angle"
+msgstr "Ângulo da ponta"
+
+#: ink/view/notebook.lua
+msgid "No PDFs or folders here."
+msgstr "Nenhum PDF ou pasta aqui."
+
+#: ink/view/overview.lua
+msgid "No colour"
+msgstr "Sem cor"
+
+#: ink/view/dialogs.lua
+msgid "No files or folders here."
+msgstr "Nenhum ficheiro ou pasta aqui."
+
+#: ink/view/library.lua
+msgid "No folders here."
+msgstr "Nenhuma pasta aqui."
+
+#: ink/view/dialogs.lua
+msgid "No folders in here."
+msgstr "Nenhuma pasta aqui dentro."
+
+#: ink/view/library.lua
+msgid "No icon"
+msgstr "Sem ícone"
+
+#: ink/view/library.lua
+msgid "No icons found."
+msgstr "Nenhum ícone encontrado."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"No images found here.\n"
+"Try another search, or the other source above."
+msgstr ""
+"Nenhuma imagem encontrada aqui.\n"
+"Experimente outra pesquisa ou a outra fonte acima."
+
+#: ink/guide.lua
+msgid "No need to annotate: hold the pen's side button (the one set to Highlighter) and run the pen over a line while reading."
+msgstr "Não precisa de anotar: mantenha premido o botão lateral da caneta (o definido como Marcador fluorescente) e passe a caneta sobre uma linha enquanto lê."
+
+#: ink/view/overview.lua
+msgid "No notebooks here yet."
+msgstr "Ainda não há cadernos aqui."
+
+#: ink/view/links.lua
+msgid "No notebooks here."
+msgstr "Nenhum caderno aqui."
+
+#: ink/view/updates.lua
+msgid "No notes for this version."
+msgstr "Sem notas para esta versão."
+
+#: ink/view/overview.lua
+msgid "No other notebook here"
+msgstr "Nenhum outro caderno aqui"
+
+#: ink/view/export.lua
+msgid "No pages match the chosen range."
+msgstr "Nenhuma página corresponde ao intervalo escolhido."
+
+#: ink/pentest.lua
+msgid ""
+"No pen has been seen since Ink Away opened, so with palm rejection on your finger moves the page.\n"
+"\n"
+"If you are drawing with a pen, this reader reports it as a finger: turn off Palm rejection in the pen menu to draw. Settings, Help, Test pen and touch shows how your pen arrives."
+msgstr ""
+"Nenhuma caneta foi detetada desde que o Ink Away abriu, por isso, com a rejeição da palma ativada, o dedo move a página.\n"
+"\n"
+"Se está a desenhar com uma caneta, este leitor comunica-a como dedo: desative a rejeição da palma no menu da caneta para desenhar. Configurações, Ajuda, Testar caneta e toque mostra como a sua caneta chega."
+
+#: ink/view/images.lua
+msgid "No pictures or folders here."
+msgstr "Nenhuma imagem ou pasta aqui."
+
+#: ink/view/updates.lua
+msgid "No release found on GitHub."
+msgstr "Nenhuma versão encontrada no GitHub."
+
+#: ink/view/overview.lua
+msgid "No starred pages here."
+msgstr "Nenhuma página com estrela aqui."
+
+#: ink/view/notebook.lua
+msgid "No templates yet. Save a page as one from this menu: Save as template."
+msgstr "Ainda não há modelos. Guarde uma página como modelo neste menu: Guardar como modelo."
+
+#: ink/view/handwriting.lua
+msgid "No writing could be read there."
+msgstr "Não foi possível ler nenhuma escrita ali."
+
+#: ink/view/export.lua
+msgid "None of the pages has ink."
+msgstr "Nenhuma página tem tinta."
+
+#: ink/view/textformat.lua
+msgid "Normal"
+msgstr "Normal"
+
+#: ink/view/updates.lua
+msgid "Not checked yet."
+msgstr "Ainda não verificado."
+
+#: ink/view/updates.lua
+msgid "Not installed"
+msgstr "Não instalado"
+
+#: ink/view/welcome.lua
+msgid "Not set up"
+msgstr "Não configurado"
+
+#: ink/view/textformat.lua
+msgid "Note font"
+msgstr "Tipo de letra das notas"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Notebook"
+msgstr "Caderno"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Notebook in %s"
+msgstr "Caderno em %s"
+
+#: ink/view/settings.lua
+msgid "Notebook paper"
+msgstr "Papel do caderno"
+
+#: ink/bookshelf.lua
+#: ink/guide.lua
+#: ink/view/overview.lua
+#: ink/view/settings.lua
+msgid "Notebooks"
+msgstr "Cadernos"
+
+#: ink/actions.lua
+#: ink/view/pencase.lua
+msgid "Nothing"
+msgstr "Nada"
+
+#: ink/view/search.lua
+msgid "Nothing found."
+msgstr "Nada encontrado."
+
+#: ink/view/library.lua
+msgid "Nothing here yet. Make a drawing, a notebook or a folder with + New."
+msgstr "Ainda nada aqui. Crie um desenho, um caderno ou uma pasta com + Novo."
+
+#: ink/view/lasso.lua
+msgid "Nothing inside the loop."
+msgstr "Nada dentro do laço."
+
+#: ink/view/images.lua
+msgid "Nothing sent yet."
+msgstr "Nada enviado ainda."
+
+#: ink/view.lua
+msgid "Nothing to redo."
+msgstr "Nada para refazer."
+
+#: ink/view.lua
+msgid "Nothing to undo."
+msgstr "Nada para anular."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Now in the copy, “%s”"
+msgstr "Agora na cópia “%s”"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Now page %d"
+msgstr "Agora na página %d"
+
+#: ink/view/dialogs.lua
+msgid "OK"
+msgstr "OK"
+
+#: ink/framecover.lua
+msgid "Oak"
+msgstr "Carvalho"
+
+#: ink/view/settings.lua
+msgid "Off"
+msgstr "Desligado"
+
+#: ink/view/settings.lua
+msgid "Off: colour ink shows black until the pen rests, which reads more clearly on some colour e-ink screens."
+msgstr "Desligado: a tinta colorida aparece preta até a caneta descansar, o que se lê com mais clareza em alguns ecrãs e-ink a cores."
+
+#: ink/view/pencase.lua
+msgid "On Android, palm rejection needs a KOReader newer than 2026.07.1 (a nightly build from August 2026 or later). Earlier versions report the pen as a finger, so Ink Away can't tell it from your hand. Your pen draws as it is."
+msgstr "No Android, a rejeição da palma precisa de um KOReader mais recente do que 2026.07.1 (uma versão noturna de agosto de 2026 ou posterior). As versões anteriores comunicam a caneta como dedo, por isso o Ink Away não a consegue distinguir da sua mão. A sua caneta desenha como está."
+
+#: ink/view/updates.lua
+msgid "On its own Ink Away looks once a day, when it opens on Wi-Fi; it never turns Wi-Fi on."
+msgstr "Por si só, o Ink Away verifica uma vez por dia, ao abrir com Wi-Fi; nunca liga o Wi-Fi."
+
+#: ink/view/export.lua
+msgid "One PNG per page, in a folder of its own."
+msgstr "Um PNG por página, numa pasta própria."
+
+#: ink/guide.lua
+msgid "One shape or picture"
+msgstr "Uma forma ou imagem"
+
+#: ink/view/ocrapi.lua
+msgid "Only the lassoed writing is sent. The key is kept unencrypted in KOReader's settings."
+msgstr "Só a escrita rodeada pelo laço é enviada. A chave é guardada sem encriptação nas definições do KOReader."
+
+#: ink/view/gestures.lua
+msgid "Only this one"
+msgstr "Só este"
+
+#: ink/view/export.lua
+msgid "Only your ink, on white pages."
+msgstr "Só a sua tinta, em páginas brancas."
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Opacity"
+msgstr "Opacidade"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/view/export.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+msgid "Open"
+msgstr "Abrir"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Open %s"
+msgstr "Abrir %s"
+
+#: main.lua
+msgid "Open Ink Away"
+msgstr "Abrir o Ink Away"
+
+#: main.lua
+msgid "Open as Ink Away notebook"
+msgstr "Abrir como caderno do Ink Away"
+
+#: ink/view/images.lua
+msgid "Open image as background"
+msgstr "Abrir imagem como fundo"
+
+#: ink/view/export.lua
+msgid "Open the PDF now?"
+msgstr "Abrir o PDF agora?"
+
+#: ink/welcome.lua
+msgid "Open them from the reader menu: Tools, Ink Away. Or give them a gesture in Settings, Taps and gestures, Gesture manager: the actions are “Ink Away: annotate the book” and “Ink Away: book notes”."
+msgstr "Abra-os a partir do menu do leitor: Ferramentas, Ink Away. Ou dê-lhes um gesto em Configurações, Toques e gestos, Gestor de gestos: as ações são “Ink Away: anotar o livro” e “Ink Away: notas do livro”."
+
+#: ink/view/imagebrowser.lua
+msgid "Openverse"
+msgstr "Openverse"
+
+#: ink/view/textformat.lua
+msgid "Or turn the box to any angle with the ring above it."
+msgstr "Ou rode a caixa para qualquer ângulo com o anel acima dela."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Orange"
+msgstr "Laranja"
+
+#: ink/view/library.lua
+msgid "Order"
+msgstr "Ordem"
+
+#: ink/view/settings.lua
+msgid "Orientation"
+msgstr "Orientação"
+
+#: ink/view/export.lua
+msgid "Ornament name"
+msgstr "Nome do ornamento"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "Outside a book, %1 opens Ink Away."
+msgstr "Fora de um livro, %1 abre o Ink Away."
+
+#: ink/welcome.lua
+msgid "Outside a book, it opens Ink Away."
+msgstr "Fora de um livro, abre o Ink Away."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "PDF"
+msgstr "PDF"
+
+#: ink/view/export.lua
+msgid "PDF saved"
+msgstr "PDF guardado"
+
+#: ink/view/export.lua
+msgid "PDF type"
+msgstr "Tipo de PDF"
+
+#: ink/guide.lua
+msgid "PDFs"
+msgstr "PDFs"
+
+#: ink/guide.lua
+msgid "PNG"
+msgstr "PNG"
+
+#: ink/view/export.lua
+msgid "PNG images"
+msgstr "Imagens PNG"
+
+#: ink/guide.lua
+msgid "PNG, PDF and more"
+msgstr "PNG, PDF e mais"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d"
+msgstr "Página %d"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Page %d of %d"
+msgstr "Página %d de %d"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d of %s"
+msgstr "Página %d de %s"
+
+#: ink/view/export.lua
+msgid "Page numbers"
+msgstr "Números de página"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Page range (1–%d), e.g. 3-8"
+msgstr "Intervalo de páginas (1–%d), p. ex. 3-8"
+
+#: ink/view/notebook.lua
+msgid "Page starred"
+msgstr "Página marcada com estrela"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Page title"
+msgstr "Título da página"
+
+#: ink/actions.lua
+msgid "Page turn button back"
+msgstr "Botão de virar página para trás"
+
+#: ink/actions.lua
+msgid "Page turn button forward"
+msgstr "Botão de virar página para a frente"
+
+#: ink/view/gestures.lua
+msgid "Page turn buttons"
+msgstr "Botões de virar página"
+
+#: ink/view/export.lua
+msgid "Pages"
+msgstr "Páginas"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Pages %d–%d (tap to change)"
+msgstr "Páginas %d–%d (toque para mudar)"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pages you added to the notebook aren't in the original PDF, so their ink is left out either way: %d"
+msgstr "As páginas que adicionou ao caderno não estão no PDF original, por isso a tinta delas fica de fora em qualquer caso: %d"
+
+#: ink/guide.lua
+msgid "Pages, papers and PDFs"
+msgstr "Páginas, papéis e PDFs"
+
+#: ink/penset.lua
+msgid "Paint"
+msgstr "Pintura"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+msgid "Paint bucket"
+msgstr "Balde de tinta"
+
+#: ink/framecover.lua
+msgid "Painted Box"
+msgstr "Caixa pintada"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Palm rejection"
+msgstr "Rejeição da palma"
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger does nothing on the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"A rejeição da palma está ativada, por isso a caneta desenha e um dedo não faz nada na página.\n"
+"\n"
+"Para desenhar com o dedo, desative a rejeição da palma no menu da caneta, Caneta e entrada."
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger moves the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"A rejeição da palma está ativada, por isso a caneta desenha e um dedo move a página.\n"
+"\n"
+"Para desenhar com o dedo, desative a rejeição da palma no menu da caneta, Caneta e entrada."
+
+#: ink/view/pencase.lua
+msgid "Palm rejection needs KOReader 2026.07 or newer (that release added the pen input support). Please update KOReader and it will start working. On a reader without a pen it does nothing."
+msgstr "A rejeição da palma precisa do KOReader 2026.07 ou mais recente (essa versão trouxe o suporte para a entrada de caneta). Atualize o KOReader e passará a funcionar. Num leitor sem caneta, não faz nada."
+
+#: ink/guide.lua
+msgid "Pan, above the zoom, moves the page; tap it again to go back to your tool. Two fingers move the page with any tool."
+msgstr "Mover, acima do zoom, move a página; toque outra vez para voltar à sua ferramenta. Dois dedos movem a página com qualquer ferramenta."
+
+#: ink/view/export.lua
+msgid "Paper"
+msgstr "Papel"
+
+#: ink/guide.lua
+#: ink/view/paper.lua
+msgid "Paper colour"
+msgstr "Cor do papel"
+
+#: ink/view/notebook.lua
+msgid "Paper for this page"
+msgstr "Papel desta página"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Paper: %s"
+msgstr "Papel: %s"
+
+#: ink/guide.lua
+msgid "Papers and planners"
+msgstr "Papéis e agendas"
+
+#: ink/view/notebook.lua
+msgid "Paper…"
+msgstr "Papel…"
+
+#: ink/view/textformat.lua
+msgid "Paragraph"
+msgstr "Parágrafo"
+
+#: ink/guide.lua
+msgid "Part of a stroke, or all of it"
+msgstr "Parte de um traço, ou tudo"
+
+#: ink/guide.lua
+msgid "Part or whole"
+msgstr "Parte ou tudo"
+
+#: ink/view/lasso.lua
+#: ink/view/notebook.lua
+#: ink/view/textformat.lua
+msgid "Paste"
+msgstr "Colar"
+
+#: ink/guide.lua
+msgid "Paste anywhere"
+msgstr "Colar em qualquer lugar"
+
+#: ink/view/lasso.lua
+msgid "Paste here"
+msgstr "Colar aqui"
+
+#: ink/guide.lua
+msgid "Paste into text"
+msgstr "Colar no texto"
+
+#: ink/view/lasso.lua
+msgid "Paste where it was"
+msgstr "Colar onde estava"
+
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Pasted the first %d characters."
+msgstr "Colados os primeiros %d carateres."
+
+#: ink/view/pencase.lua
+#: ink/view/toolbar.lua
+msgid "Pen"
+msgstr "Caneta"
+
+#: ink/view/pencase.lua
+msgid "Pen and input"
+msgstr "Caneta e entrada"
+
+#: ink/view/pencase.lua
+msgid "Pen and input settings"
+msgstr "Configurações de caneta e entrada"
+
+#: ink/guide.lua
+msgid "Pen and input, Fast refresh while drawing: ink shows with the Boox's fast refresh as you write."
+msgstr "Caneta e entrada, Atualização rápida ao desenhar: a tinta aparece com a atualização rápida do Boox enquanto escreve."
+
+#: ink/guide.lua
+msgid "Pen and input, Pen taps menus and buttons: work the toolbar and menus with the pen too."
+msgstr "Caneta e entrada, A caneta toca em menus e botões: use também a barra de ferramentas e os menus com a caneta."
+
+#: ink/view/gestures.lua
+msgid "Pen buttons, while held"
+msgstr "Botões da caneta, enquanto premidos"
+
+#: ink/guide.lua
+msgid "Pen pressure"
+msgstr "Pressão da caneta"
+
+#: ink/view/pencase.lua
+msgid "Pen pressure (Beta)"
+msgstr "Pressão da caneta (Beta)"
+
+#: ink/view/pencase.lua
+msgid "Pen taps menus and buttons"
+msgstr "A caneta toca em menus e botões"
+
+#: ink/guide.lua
+msgid "Pen, screen and refresh"
+msgstr "Caneta, ecrã e atualização"
+
+#: ink/penset.lua
+msgid "Pencil"
+msgstr "Lápis"
+
+#: ink/guide.lua
+msgid "Pens"
+msgstr "Canetas"
+
+#: ink/view/share.lua
+msgid "Phone or computer (Wi-Fi)"
+msgstr "Telemóvel ou computador (Wi-Fi)"
+
+#: ink/view/library.lua
+msgid "Phone or computer (Wi-Fi)…"
+msgstr "Telemóvel ou computador (Wi-Fi)…"
+
+#: ink/view/share.lua
+msgid "Phone or computer sharing stopped: Wi-Fi is off"
+msgstr "Partilha com telemóvel ou computador interrompida: o Wi-Fi está desligado"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Phone or computer sharing stopped: nothing happened for %d minutes"
+msgstr "Partilha com telemóvel ou computador interrompida: nada aconteceu durante %d minutos"
+
+#: ink/view/library.lua
+msgid "Pick a PDF that is already on this reader. It becomes a notebook in this folder."
+msgstr "Escolha um PDF que já esteja neste leitor. Passa a ser um caderno nesta pasta."
+
+#: ink/view/share.lua
+msgid "Picture"
+msgstr "Imagem"
+
+#: ink/framecover.lua
+msgid "Picture on the sides"
+msgstr "Imagem nas laterais"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Pictures"
+msgstr "Imagens"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pictures: %d"
+msgstr "Imagens: %d"
+
+#: ink/view/settings.lua
+msgid "Pinch to zoom, and drag with two fingers to move around the page."
+msgstr "Faça o gesto de pinça para ampliar e arraste com dois dedos para se mover pela página."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Pink"
+msgstr "Rosa"
+
+#: ink/view/textformat.lua
+msgid "Plain"
+msgstr "Liso"
+
+#: ink/view/library.lua
+msgid "Plain folder"
+msgstr "Pasta simples"
+
+#: ink/view/notebook.lua
+msgid "Planner"
+msgstr "Agenda"
+
+#: ink/coverpicker.lua
+msgid "Plum"
+msgstr "Ameixa"
+
+#: ink/view/settings.lua
+msgid "Portrait"
+msgstr "Retrato"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Preparing %s"
+msgstr "A preparar %s"
+
+#: ink/view/updates.lua
+msgid "Prerelease"
+msgstr "Pré-versão"
+
+#: ink/ui/thumbgrid.lua
+#: ink/view/imagebrowser.lua
+msgid "Prev"
+msgstr "Ant."
+
+#: ink/actions.lua
+msgid "Previous page"
+msgstr "Página anterior"
+
+#: ink/actions.lua
+msgid "Previous pen"
+msgstr "Caneta anterior"
+
+#: ink/view/menus.lua
+msgid "Protect text from eraser"
+msgstr "Proteger o texto da borracha"
+
+#: ink/guide.lua
+msgid "Protect text from eraser and Erase pictures, in the eraser's menu, decide what it may take."
+msgstr "Proteger o texto da borracha e Apagar imagens, no menu da borracha, decidem o que ela pode levar."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Purple"
+msgstr "Violeta"
+
+#: ink/view/trash.lua
+msgid "Put back"
+msgstr "Repor"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back in %s"
+msgstr "Repor em %s"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back on %s"
+msgstr "Repor em %s"
+
+#: ink/welcome.lua
+msgid "Quick notes for the book you're reading, in a window over the page, with a page for each chapter."
+msgstr "Notas rápidas do livro que está a ler, numa janela sobre a página, com uma página por capítulo."
+
+#: ink/guide.lua
+msgid "Quick notes for the book, in a window over the page, a page for each chapter. Fullscreen gives more room."
+msgstr "Notas rápidas do livro, numa janela sobre a página, uma página por capítulo. O ecrã inteiro dá mais espaço."
+
+#: ink/view/export.lua
+msgid "Range"
+msgstr "Intervalo"
+
+#: ink/view/ocrapi.lua
+msgid "Read handwriting with an AI service you have an account with, instead of on the reader."
+msgstr "Leia a escrita à mão com um serviço de IA em que tenha conta, em vez de no leitor."
+
+#: ink/view/ocrapi.lua
+msgid "Reading the writing"
+msgstr "A ler a escrita"
+
+#: ink/view/handwriting.lua
+msgid "Reading the writing…"
+msgstr "A ler a escrita…"
+
+#: ink/guide.lua
+msgid "Reading without ink"
+msgstr "Leitura sem tinta"
+
+#: ink/view/textformat.lua
+msgid "Reads down"
+msgstr "Lê para baixo"
+
+#: ink/view/textformat.lua
+msgid "Reads up"
+msgstr "Lê para cima"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %d files: %s of %s"
+msgstr "A receber %d ficheiros: %s de %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %s: %s of %s"
+msgstr "A receber %s: %s de %s"
+
+#: ink/view/document.lua
+msgid "Recovered"
+msgstr "Recuperado"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Red"
+msgstr "Vermelho"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Redo"
+msgstr "Refazer"
+
+#: ink/actions.lua
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Refresh the screen"
+msgstr "Atualizar o ecrã"
+
+#: ink/view/updates.lua
+msgid "Release"
+msgstr "Versão"
+
+#: ink/reader/inkview.lua
+#: ink/view/pencase.lua
+msgid "Remove"
+msgstr "Remover"
+
+#: ink/view/selection.lua
+msgid "Remove background"
+msgstr "Remover fundo"
+
+#: ink/view/selection.lua
+msgid "Remove link"
+msgstr "Remover ligação"
+
+#: ink/view/images.lua
+msgid "Remove the background picture"
+msgstr "Remover a imagem de fundo"
+
+#: ink/reader/inkview.lua
+msgid "Remove these highlights?"
+msgstr "Remover estes destaques?"
+
+#: ink/reader/inkview.lua
+msgid "Remove this highlight?"
+msgstr "Remover este destaque?"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename"
+msgstr "Renomear"
+
+#: ink/view/layers.lua
+msgid "Rename layer"
+msgstr "Renomear camada"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename…"
+msgstr "Renomear…"
+
+#: ink/view/dialogs.lua
+msgid "Replace"
+msgstr "Substituir"
+
+#: ink/view/dialogs.lua
+msgid "Replace it?"
+msgstr "Substituir?"
+
+#: ink/notebookcover.lua
+msgid "Reporter pad"
+msgstr "Bloco de repórter"
+
+#: ink/view/updates.lua
+msgid "Restart KOReader"
+msgstr "Reiniciar o KOReader"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Restart KOReader to use %1"
+msgstr "Reinicie o KOReader para usar %1"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Right"
+msgstr "Direita"
+
+#: main.lua
+msgid "Run the pen's eraser end over a highlight or over Ink Away's ink on the page: it goes, without opening the annotation mode. The eraser settings of the annotation mode apply. The part of the pen is the one set to Eraser in Gestures and pen buttons."
+msgstr "Passe a ponta de borracha da caneta sobre um destaque ou sobre a tinta do Ink Away na página: desaparece, sem abrir o modo de anotação. Valem as definições de borracha do modo de anotação. Essa parte da caneta é a definida como Borracha em Gestos e botões da caneta."
+
+#: ink/framecover.lua
+msgid "Sage"
+msgstr "Salva"
+
+#: ink/view/notebook.lua
+msgid "Same as the notebook"
+msgstr "Igual ao caderno"
+
+#: ink/palette.lua
+msgid "Sandpaper"
+msgstr "Lixa"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/export.lua
+#: ink/view/notebook.lua
+#: ink/view/ocrapi.lua
+msgid "Save"
+msgstr "Guardar"
+
+#: ink/view/export.lua
+msgid "Save as bookshelf ornament"
+msgstr "Guardar como ornamento do Bookshelf"
+
+#: ink/view/notebook.lua
+msgid "Save as template…"
+msgstr "Guardar como modelo…"
+
+#: ink/ui/brushmaker.lua
+msgid "Save brush"
+msgstr "Guardar pincel"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d page(s) as images:\n"
+"%s"
+msgstr ""
+"%d página(s) guardadas como imagens:\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d × %d image:\n"
+"%s"
+msgstr ""
+"Imagem de %d × %d guardada:\n"
+"%s"
+
+#: ink/view/export.lua
+msgid ""
+"Saved as a transparent PNG in the bookshelf ornaments folder.\n"
+"End the name with .invert for a dark-mode version."
+msgstr ""
+"Guardado como PNG transparente na pasta de ornamentos do Bookshelf.\n"
+"Termine o nome com .invert para uma versão do modo escuro."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved automatically in %s"
+msgstr "Guardado automaticamente em %s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved bookshelf ornament:\n"
+"%s"
+msgstr ""
+"Ornamento do Bookshelf guardado:\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved image:\n"
+"%s"
+msgstr ""
+"Imagem guardada:\n"
+"%s"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved in %s once there is something in it"
+msgstr "Guardado em %s assim que houver algo nele"
+
+#: ink/view/pencase.lua
+msgid "Saved pen"
+msgstr "Caneta guardada"
+
+#: ink/actions.lua
+msgid "Saved pen 1"
+msgstr "Caneta guardada 1"
+
+#: ink/actions.lua
+msgid "Saved pen 2"
+msgstr "Caneta guardada 2"
+
+#: ink/actions.lua
+msgid "Saved pen 3"
+msgstr "Caneta guardada 3"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Saved the template “%s”"
+msgstr "Modelo “%s” guardado"
+
+#: ink/view/export.lua
+msgid "Saved. Open it from your library."
+msgstr "Guardado. Abra-o a partir da sua biblioteca."
+
+#: ink/view/export.lua
+msgid "Saves each page as a picture with your ink on it. It looks the same everywhere, but the file is bigger and its text can't be selected."
+msgstr "Guarda cada página como uma imagem com a sua tinta por cima. Fica igual em qualquer lado, mas o ficheiro é maior e o texto não pode ser selecionado."
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Saving %d page(s) as images"
+msgstr "A guardar %d página(s) como imagens"
+
+#: ink/view/images.lua
+msgid "Scan a QR code to send pictures over Wi-Fi."
+msgstr "Leia um código QR para enviar imagens por Wi-Fi."
+
+#: ink/view/share.lua
+msgid "Scan with a phone or computer on the same Wi-Fi, or open:"
+msgstr "Leia com um telemóvel ou computador no mesmo Wi-Fi, ou abra:"
+
+#: ink/view/settings.lua
+msgid "Scan with your phone"
+msgstr "Leia com o telemóvel"
+
+#: ink/guide.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/search.lua
+msgid "Search"
+msgstr "Pesquisar"
+
+#: ink/view/imagebrowser.lua
+msgid "Search images"
+msgstr "Pesquisar imagens"
+
+#: ink/view/images.lua
+msgid "Search online"
+msgstr "Pesquisar online"
+
+#: ink/view/search.lua
+msgid "Search stopped."
+msgstr "Pesquisa interrompida."
+
+#: ink/view/search.lua
+msgid "Searching"
+msgstr "A pesquisar"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching images…"
+msgstr "A pesquisar imagens…"
+
+#: ink/view/search.lua
+msgid "Searching inside pages"
+msgstr "A pesquisar dentro das páginas"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching…"
+msgstr "A pesquisar…"
+
+#: ink/view/imagebrowser.lua
+msgid "Search…"
+msgstr "Pesquisar…"
+
+#: ink/actions.lua
+msgid "Second side button"
+msgstr "Segundo botão lateral"
+
+#: ink/guide.lua
+msgid "Select a word"
+msgstr "Selecionar uma palavra"
+
+#: ink/view/textformat.lua
+msgid "Select all"
+msgstr "Selecionar tudo"
+
+#: ink/guide.lua
+msgid "Select and edit"
+msgstr "Selecionar e editar"
+
+#: ink/view/export.lua
+msgid "Send to phone or computer (Wi-Fi)…"
+msgstr "Enviar para telemóvel ou computador (Wi-Fi)…"
+
+#: ink/view/library.lua
+msgid "Send your notebooks and drawings to a phone or computer, or add PDFs and pictures from one, with a QR code."
+msgstr "Envie os seus cadernos e desenhos para um telemóvel ou computador, ou adicione PDFs e imagens de um deles, com um código QR."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %d files: %s of %s"
+msgstr "A enviar %d ficheiros: %s de %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %s: %s of %s"
+msgstr "A enviar %s: %s de %s"
+
+#: ink/view/images.lua
+msgid "Sent from your phone"
+msgstr "Enviado do seu telemóvel"
+
+#: ink/view/images.lua
+#, lua-format
+msgid "Sent from your phone (%d)"
+msgstr "Enviado do seu telemóvel (%d)"
+
+#: ink/view/share.lua
+msgid "Served by your reader over your Wi-Fi. When you're done, close Phone or computer (Wi-Fi) on the reader."
+msgstr "Servido pelo seu leitor através do seu Wi-Fi. Quando terminar, feche Telemóvel ou computador (Wi-Fi) no leitor."
+
+#: ink/view/export.lua
+msgid "Set"
+msgstr "Definir"
+
+#: ink/view/ocrapi.lua
+msgid "Set the address"
+msgstr "Definir o endereço"
+
+#: ink/view/ocrapi.lua
+msgid "Set the key"
+msgstr "Definir a chave"
+
+#: ink/view/ocrapi.lua
+msgid "Set the model"
+msgstr "Definir o modelo"
+
+#: ink/view/settings.lua
+msgid "Settings"
+msgstr "Configurações"
+
+#: ink/guide.lua
+msgid "Settings, Ghosting: a full refresh every few strokes clears the faint marks fast drawing leaves. The Refresh the screen button below it does one now."
+msgstr "Configurações, Efeito fantasma: uma atualização completa a cada poucos traços limpa as marcas ténues que o desenho rápido deixa. O botão Atualizar o ecrã logo abaixo faz uma agora."
+
+#: ink/guide.lua
+msgid "Settings, Updates: the latest release, and prereleases apart. Once a day, opening on Wi-Fi, Ink Away looks; a dot on Settings means news."
+msgstr "Configurações, Atualizações: a última versão, e as pré-versões à parte. Uma vez por dia, ao abrir com Wi-Fi, o Ink Away verifica; um ponto em Configurações significa novidades."
+
+#: ink/guide.lua
+msgid "Settings, When Ink Away opens: the last document, the Library or your Notebooks."
+msgstr "Configurações, Quando o Ink Away abre: o último documento, a Biblioteca ou os seus Cadernos."
+
+#: ink/guide.lua
+msgid "Settings, beside the paper or the grid: cream, sandpaper, kraft, chalkboard and more (white or black on grey). On a dark one black ink shows white."
+msgstr "Configurações, ao lado do papel ou da grelha: creme, lixa, kraft, quadro de giz e mais (branco ou preto sobre cinzento). Num escuro, a tinta preta aparece a branco."
+
+#: ink/guide.lua
+msgid "Settings, the round button by Guide: light, dark, or as KOReader's night mode. The page keeps its colours."
+msgstr "Configurações, o botão redondo junto a Guia: claro, escuro ou como o modo noturno do KOReader. A página mantém as cores."
+
+#: ink/guide.lua
+msgid "Settings: the theme colour, and Colour while drawing."
+msgstr "Configurações: a cor do tema e Cor ao desenhar."
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/toolbar.lua
+msgid "Shapes"
+msgstr "Formas"
+
+#: ink/guide.lua
+msgid "Shapes, text and pictures"
+msgstr "Formas, texto e imagens"
+
+#: ink/view/layers.lua
+msgid "Show"
+msgstr "Mostrar"
+
+#: ink/reader/inkview.lua
+msgid "Show ink while reading"
+msgstr "Mostrar a tinta durante a leitura"
+
+#: ink/view/guide.lua
+msgid "Show me"
+msgstr "Mostrar"
+
+#: ink/view/menus.lua
+msgid "Show the eraser while erasing"
+msgstr "Mostrar a borracha ao apagar"
+
+#: ink/view/receive.lua
+msgid "Show them in the library"
+msgstr "Mostrar na biblioteca"
+
+#: ink/guide.lua
+msgid "Shows how your pen, its buttons and your hand arrive. Handy in a bug report."
+msgstr "Mostra como chegam a sua caneta, os botões dela e a sua mão. Útil num relatório de erro."
+
+#: ink/actions.lua
+msgid "Side button"
+msgstr "Botão lateral"
+
+#: ink/framecover.lua
+msgid "Silver"
+msgstr "Prata"
+
+#: ink/framecover.lua
+msgid "Silver gilt"
+msgstr "Prata dourada"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Size"
+msgstr "Tamanho"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Sky"
+msgstr "Céu"
+
+#: ink/view/pencase.lua
+msgid "Smooths shaky lines. Higher values steady the stroke but trail your finger slightly."
+msgstr "Suaviza linhas trémulas. Valores maiores firmam o traço, mas ficam um pouco atrás do seu dedo."
+
+#: ink/penset.lua
+msgid "Smudge"
+msgstr "Esbater"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Smudges: %d"
+msgstr "Esbatidos: %d"
+
+#: ink/view/menus.lua
+msgid "Snap lines to ruling"
+msgstr "Alinhar linhas à pauta"
+
+#: ink/view/menus.lua
+msgid "Snap to 45°"
+msgstr "Alinhar a 45°"
+
+#: ink/view/menus.lua
+msgid "Snap to grid"
+msgstr "Alinhar à grelha"
+
+#: ink/brushes.lua
+msgid "Soft edge"
+msgstr "Borda suave"
+
+#: ink/view/exportbook.lua
+msgid "Some items can't stay editable"
+msgstr "Alguns itens não podem continuar editáveis"
+
+#: ink/view/exportbook.lua
+msgid "Some pages could not be kept as pictures in this PDF, so the items on them were left out."
+msgstr "Algumas páginas não puderam ser mantidas como imagens neste PDF, por isso os itens nelas ficaram de fora."
+
+#: ink/view/imagebrowser.lua
+msgid "Something went wrong adding that image. Please try another."
+msgstr "Algo correu mal ao adicionar essa imagem. Experimente outra."
+
+#: ink/view/toolbar.lua
+msgid "Something went wrong opening that tool. Please report this."
+msgstr "Algo correu mal ao abrir essa ferramenta. Por favor, comunique."
+
+#: ink/view/handwriting.lua
+msgid "Something went wrong reading the writing."
+msgstr "Algo correu mal ao ler a escrita."
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Source: %s"
+msgstr "Fonte: %s"
+
+#: ink/brushes.lua
+msgid "Spread"
+msgstr "Espalhamento"
+
+#: ink/view/settings.lua
+msgid "Square"
+msgstr "Quadrado"
+
+#: ink/view/pencase.lua
+msgid "Stabilizer"
+msgstr "Estabilizador"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Star"
+msgstr "Estrela"
+
+#: ink/view/notebook.lua
+msgid "Star removed"
+msgstr "Estrela removida"
+
+#: ink/view/overview.lua
+msgid "Starred pages"
+msgstr "Páginas com estrela"
+
+#: ink/guide.lua
+msgid "Start again"
+msgstr "Recomeçar"
+
+#: ink/view/pencase.lua
+msgid "Still being tested. With Palm rejection on, Ballpoint, Fountain, Calligraphy and Pencil get wider the harder you press. If it misbehaves on your reader, I'd love to hear about it on GitHub."
+msgstr "Ainda em teste. Com a rejeição da palma ativada, esferográfica, caneta de tinta permanente, caligrafia e lápis ficam mais largos quanto mais força fizer. Se der problemas no seu leitor, gostaria de saber no GitHub."
+
+#: ink/penset.lua
+msgid "Stipple"
+msgstr "Pontilhismo"
+
+#: ink/view/dialogs.lua
+#: ink/view/share.lua
+msgid "Stop"
+msgstr "Parar"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The PDF will not be saved."
+msgstr "Interromper a exportação? O PDF não será guardado."
+
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The images saved so far will be deleted."
+msgstr "Interromper a exportação? As imagens guardadas até agora serão eliminadas."
+
+#: ink/view/dialogs.lua
+msgid "Stop now?"
+msgstr "Parar agora?"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Stops when closed or after %d idle minutes. Use a Wi-Fi you trust."
+msgstr "Para ao fechar ou após %d minutos parado. Use um Wi-Fi em que confie."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Storyboard"
+msgstr "Storyboard"
+
+#: ink/guide.lua
+msgid "Straight lines"
+msgstr "Linhas retas"
+
+#: ink/view/pencase.lua
+msgid "Strength"
+msgstr "Intensidade"
+
+#: ink/view/textformat.lua
+msgid "Strike"
+msgstr "Rasurado"
+
+#: ink/view/settings.lua
+msgid "Support"
+msgstr "Apoio"
+
+#: ink/welcome.lua
+msgid "Swipe down along the right edge"
+msgstr "Deslizar para baixo ao longo da borda direita"
+
+#: ink/welcome.lua
+msgid "Swipe up along the right edge"
+msgstr "Deslizar para cima ao longo da borda direita"
+
+#: ink/view/settings.lua
+msgid "Symmetry"
+msgstr "Simetria"
+
+#: ink/view/settings.lua
+msgid "System"
+msgstr "Sistema"
+
+#: ink/coverpicker.lua
+#: ink/view/overview.lua
+msgid "Tab colour"
+msgstr "Cor do separador"
+
+#: ink/guide.lua
+msgid "Take up a pen"
+msgstr "Pegue numa caneta"
+
+#: ink/guide.lua
+msgid "Tap a tool to use it, and tap it again for its settings."
+msgstr "Toque numa ferramenta para a usar e toque outra vez para ver as definições dela."
+
+#: ink/guide.lua
+msgid "Tap a word twice in the text you are writing in; drag across text to select more."
+msgstr "Toque duas vezes numa palavra no texto em que escreve; arraste sobre o texto para selecionar mais."
+
+#: ink/guide.lua
+msgid "Tap an area to fill it; hold the bucket in the shapes menu to pick its colour."
+msgstr "Toque numa área para a preencher; mantenha premido o balde no menu de formas para escolher a cor."
+
+#: ink/guide.lua
+msgid "Tap one of your saved pens in the pen menu. Changing its size or colour changes that pen."
+msgstr "Toque numa das suas canetas guardadas no menu de canetas. Mudar o tamanho ou a cor altera essa caneta."
+
+#: ink/guide.lua
+msgid "Tap the page number: go to a page, rename, star, insert, duplicate, move, paper, templates, paste or delete."
+msgstr "Toque no número da página: ir para a página, renomear, estrela, inserir, duplicar, mover, papel, modelos, colar ou eliminar."
+
+#: ink/guide.lua
+msgid "Tap to open, hold for rename, move, duplicate, export or delete. + makes a drawing, a notebook or a folder."
+msgstr "Toque para abrir, mantenha premido para renomear, mover, duplicar, exportar ou eliminar. + cria um desenho, um caderno ou uma pasta."
+
+#: ink/guide.lua
+msgid "Tap where it should go. Format stays open while you pick styles, colours, highlights, lists, spacing and the font; on lined paper text sits on the lines."
+msgstr "Toque onde deve ficar. Formato continua aberto enquanto escolhe estilos, cores, destaques, listas, espaçamento e tipo de letra; em papel pautado o texto fica sobre as linhas."
+
+#: ink/coverpicker.lua
+#: ink/folderlook.lua
+msgid "Teal"
+msgstr "Verde-azulado"
+
+#: ink/view/updates.lua
+msgid "Tell me about prereleases"
+msgstr "Fale-me sobre pré-versões"
+
+#: ink/view/notebook.lua
+msgid "Template name"
+msgstr "Nome do modelo"
+
+#: ink/guide.lua
+#: ink/ui/pentestscreen.lua
+#: ink/view/pencase.lua
+msgid "Test pen and touch"
+msgstr "Testar caneta e toque"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#: ink/view/toolbar.lua
+msgid "Text"
+msgstr "Texto"
+
+#: ink/guide.lua
+msgid "Text and pictures"
+msgstr "Texto e imagens"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Text boxes: %d"
+msgstr "Caixas de texto: %d"
+
+#: ink/view/search.lua
+msgid "That document is no longer there."
+msgstr "Esse documento já não existe."
+
+#: ink/guide.lua
+msgid "The + and − in the corner zoom in and out, and so does a pinch."
+msgstr "O + e o − no canto aumentam e diminuem o zoom, e o gesto de pinça também."
+
+#: ink/view/ocrapi.lua
+msgid "The API key from your account on the service, usually under API keys. It is only sent to the address above."
+msgstr "A chave de API da sua conta no serviço, normalmente em Chaves de API. Só é enviada para o endereço acima."
+
+#: ink/guide.lua
+msgid "The Library"
+msgstr "A Biblioteca"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "The annotations of %s are back where the book was. They show again when the book is back in that place."
+msgstr "As anotações de %s voltaram para onde o livro estava. Aparecem de novo quando o livro estiver de volta nesse sítio."
+
+#: ink/guide.lua
+msgid "The arrows in the bar at the bottom, or swipe two fingers sideways."
+msgstr "As setas na barra de baixo, ou deslize com dois dedos para o lado."
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"The background picture could not be found:\n"
+"%s"
+msgstr ""
+"Não foi possível encontrar a imagem de fundo:\n"
+"%s"
+
+#: ink/view/textformat.lua
+msgid "The clipboard is empty."
+msgstr "A área de transferência está vazia."
+
+#: ink/view/links.lua
+msgid "The contents lists the pages that have a title. Give pages a title first: tap the page number, then Rename."
+msgstr "O índice lista as páginas que têm título. Dê primeiro títulos às páginas: toque no número da página, depois em Renomear."
+
+#: ink/view/document.lua
+msgid "The copy is in Library: Imported only holds what you sent"
+msgstr "A cópia está em Biblioteca: Importados guarda só o que enviou"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "The copy, “%s”, is in Library: Imported only holds what you sent"
+msgstr "A cópia “%s” está em Biblioteca: Importados guarda só o que enviou"
+
+#: ink/guide.lua
+msgid "The eraser rubs out what it touches; Erase whole strokes takes each stroke it crosses."
+msgstr "A borracha apaga o que toca; Apagar traços inteiros leva cada traço que cruza."
+
+#: ink/view/layers.lua
+msgid "The first layer has erasing from before layers were on, so it stays at the bottom."
+msgstr "A primeira camada tem os apagamentos de antes das camadas, por isso fica em baixo."
+
+#: ink/view/library.lua
+msgid "The folder and everything in it go."
+msgstr "A pasta e tudo o que tem são eliminados."
+
+#: ink/view/handwriting.lua
+msgid "The handwriting model could not be loaded."
+msgstr "Não foi possível carregar o modelo de escrita à mão."
+
+#: ink/guide.lua
+msgid "The highlighter"
+msgstr "O marcador fluorescente"
+
+#: ink/guide.lua
+msgid "The lasso, links and text"
+msgstr "O laço, as ligações e o texto"
+
+#: ink/view/ocrapi.lua
+msgid "The name of one of the service's models that can read pictures, as its model list writes it, for example gpt-4o-mini or paddleocr-vl."
+msgstr "O nome de um dos modelos do serviço que leem imagens, tal como a lista de modelos o escreve, por exemplo gpt-4o-mini ou paddleocr-vl."
+
+#: ink/view/document.lua
+msgid "The new document is in Library: Imported only holds what you sent"
+msgstr "O novo documento está em Biblioteca: Importados guarda só o que enviou"
+
+#: ink/view/links.lua
+msgid "The notebook this leads to is no longer there."
+msgstr "O caderno para o qual isto leva já não existe."
+
+#: ink/view/handwriting.lua
+msgid "The page changed. Please read the writing again."
+msgstr "A página mudou. Leia a escrita de novo."
+
+#: ink/guide.lua
+msgid "The page menu"
+msgstr "O menu da página"
+
+#: ink/guide.lua
+msgid "The page menu, Make a contents page: every titled page becomes a link to it. Go to the contents page is there too, and can be a gesture."
+msgstr "O menu da página, Criar uma página de índice: cada página com título passa a ser uma ligação para ele. Ir para o índice também está lá e pode ser um gesto."
+
+#: ink/view/links.lua
+msgid "The page this leads to is no longer there."
+msgstr "A página para a qual isto leva já não existe."
+
+#: ink/view/export.lua
+msgid "The pages are saved as pictures with their text under them, so it can be searched and selected. They are laid out as you read them now: your font, margins and page size."
+msgstr "As páginas são guardadas como imagens com o texto por baixo, para o poder pesquisar e selecionar. Ficam dispostas tal como as lê agora: com o seu tipo de letra, as suas margens e o tamanho da página."
+
+#: ink/view/pencase.lua
+msgid "The pen in hand is not one of your pens: + keeps it as a new one."
+msgstr "A caneta na mão não é uma das suas canetas: + guarda-a como nova."
+
+#: ink/guide.lua
+msgid "The pen on menus"
+msgstr "A caneta nos menus"
+
+#: ink/guide.lua
+msgid "The pen's eraser end, for as long as it touches."
+msgstr "A ponta de borracha da caneta, enquanto tocar."
+
+#: ink/guide.lua
+msgid "The pen's eraser end."
+msgstr "A ponta de borracha da caneta."
+
+#: ink/view/ocrapi.lua
+msgid "The recognition preview could not be opened. Your handwriting was kept."
+msgstr "Não foi possível abrir a pré-visualização do reconhecimento. A sua escrita foi mantida."
+
+#: ink/view/search.lua
+msgid "The search could not finish."
+msgstr "Não foi possível concluir a pesquisa."
+
+#: ink/view/handwriting.lua
+msgid "The selection changed. Please read the writing again."
+msgstr "A seleção mudou. Leia a escrita de novo."
+
+#: ink/guide.lua
+msgid "The small tab at the end of the toolbar folds it away, and brings it back."
+msgstr "O pequeno separador no fim da barra de ferramentas recolhe-a e traz de volta."
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid ""
+"The source PDF could not be opened:\n"
+"%s\n"
+"\n"
+"Your notes are intact, but the page images will be blank until the PDF is back in that location."
+msgstr ""
+"Não foi possível abrir o PDF de origem:\n"
+"%s\n"
+"\n"
+"As suas notas estão intactas, mas as imagens das páginas ficarão em branco até o PDF voltar a esse local."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "The swipes along the right edge already do something on your reader (%1), so Ink Away uses two-finger swipes."
+msgstr "Os deslizes ao longo da borda direita já fazem algo no seu leitor (%1), por isso o Ink Away usa deslizes com dois dedos."
+
+#: ink/welcome.lua
+msgid "The swipes along the right edge already do something on your reader, so Ink Away uses two-finger swipes."
+msgstr "Os deslizes ao longo da borda direita já fazem algo no seu leitor, por isso o Ink Away usa deslizes com dois dedos."
+
+#: ink/reader/inkview.lua
+msgid "The toolbar takes the width of the book's margin on its side, with its icons sized to it, so it stays clear of the text. Widen the margins in the reader's settings to give it more room. PDFs and comics keep the usual size."
+msgstr "A barra de ferramentas ocupa a largura da margem do livro do seu lado, com os ícones dimensionados a ela, para ficar longe do texto. Aumente as margens nas definições do leitor para lhe dar mais espaço. PDFs e bandas desenhadas mantêm o tamanho habitual."
+
+#: ink/view/trash.lua
+msgid "The trash is empty."
+msgstr "O lixo está vazio."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid ""
+"The update was not installed: %1.\n"
+"\n"
+"Nothing was changed."
+msgstr ""
+"A atualização não foi instalada: %1.\n"
+"\n"
+"Nada foi alterado."
+
+#: ink/view/handwriting.lua
+msgid "The word list could not be loaded."
+msgstr "Não foi possível carregar a lista de palavras."
+
+#: ink/view/settings.lua
+msgid "Theme Color"
+msgstr "Cor do tema"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "There is already a file called “%s” here."
+msgstr "Já existe um ficheiro chamado “%s” aqui."
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#, lua-format
+msgid "There is already something called “%s” here."
+msgstr "Já existe algo chamado “%s” aqui."
+
+#: ink/view/handwriting.lua
+msgid "There is no handwriting in the selection."
+msgstr "Não há escrita à mão na seleção."
+
+#: ink/view/layers.lua
+msgid "There is no layer under this one."
+msgstr "Não há camada abaixo desta."
+
+#: ink/view/document.lua
+msgid "There is nothing to copy yet."
+msgstr "Ainda não há nada para copiar."
+
+#: ink/view/export.lua
+msgid "There is nothing to export in this folder."
+msgstr "Não há nada para exportar nesta pasta."
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "There is nothing to export yet."
+msgstr "Ainda não há nada para exportar."
+
+#: ink/view/settings.lua
+msgid "Thirds"
+msgstr "Terços"
+
+#: ink/reader/inkview.lua
+msgid "This book's annotations wait in Ink Away's trash for 30 days. To put them back: Ink Away's library, its menu, Trash."
+msgstr "As anotações deste livro ficam 30 dias no lixo do Ink Away. Para as repor: biblioteca do Ink Away, o seu menu, Lixo."
+
+#: ink/reader/book.lua
+msgid "This book's ink was saved by a newer Ink Away. Update Ink Away to change it."
+msgstr "A tinta deste livro foi guardada por uma versão mais recente do Ink Away. Atualize o Ink Away para a alterar."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the bottom."
+msgstr "Esta camada já está em baixo."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the top."
+msgstr "Esta camada já está em cima."
+
+#: ink/view/links.lua
+msgid "This notebook has no contents page yet: the page menu makes one."
+msgstr "Este caderno ainda não tem página de índice: o menu da página cria uma."
+
+#: ink/view/export.lua
+msgid "This page"
+msgstr "Esta página"
+
+#: ink/view/share.lua
+msgid "This reader can't share over Wi-Fi."
+msgstr "Este leitor não pode partilhar por Wi-Fi."
+
+#: ink/view/share.lua
+msgid "This reader has no address on a network yet. Connect it to Wi-Fi and try again."
+msgstr "Este leitor ainda não tem endereço numa rede. Ligue-o ao Wi-Fi e tente de novo."
+
+#: ink/view/settings.lua
+msgid "This reader needs no special settings for Ink Away."
+msgstr "Este leitor não precisa de definições especiais para o Ink Away."
+
+#: ink/view/textformat.lua
+msgid "Tight"
+msgstr "Justo"
+
+#: ink/view/imagebrowser.lua
+msgid "Tip"
+msgstr "Ponta"
+
+#: ink/view/selection.lua
+msgid "To front"
+msgstr "Trazer para a frente"
+
+#: ink/view/library.lua
+msgid "To keep notebooks and drawings together"
+msgstr "Para manter cadernos e desenhos juntos"
+
+#: ink/reader/inkview.lua
+msgid "Toolbar"
+msgstr "Barra de ferramentas"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Toolbar side"
+msgstr "Lado da barra de ferramentas"
+
+#: ink/guide.lua
+msgid "Tools and their settings"
+msgstr "Ferramentas e as suas definições"
+
+#: ink/guide.lua
+msgid "Tools, zoom and saving"
+msgstr "Ferramentas, zoom e gravação"
+
+#: ink/brushes.lua
+msgid "Tooth"
+msgstr "Textura do papel"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Top"
+msgstr "Superior"
+
+#: ink/framecover.lua
+msgid "Tortoiseshell"
+msgstr "Tartaruga"
+
+#: ink/guide.lua
+msgid "Trace over a picture"
+msgstr "Decalcar uma imagem"
+
+#: ink/view/export.lua
+msgid "Transparent"
+msgstr "Transparente"
+
+#: ink/view/imagebrowser.lua
+msgid "Transparent PNG only"
+msgstr "Só PNG transparente"
+
+#: ink/guide.lua
+#: ink/view/trash.lua
+msgid "Trash"
+msgstr "Lixo"
+
+#: ink/view/library.lua
+msgid "Trash…"
+msgstr "Lixo…"
+
+#: ink/view/imagebrowser.lua
+msgid "Truly transparent pictures are scarce here. Add any image, then switch on Erase pictures in the Eraser settings to wipe its background away."
+msgstr "Imagens realmente transparentes são raras aqui. Adicione qualquer imagem e depois ative Apagar imagens nas definições da borracha para apagar o fundo dela."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Try %1?"
+msgstr "Experimentar %1?"
+
+#: ink/view/updates.lua
+msgid "Try it"
+msgstr "Experimentar"
+
+#: ink/view/layers.lua
+msgid "Turn layers off?"
+msgstr "Desativar as camadas?"
+
+#: ink/view/ocrapi.lua
+msgid "Turn on Wi-Fi to convert online."
+msgstr "Ligue o Wi-Fi para converter online."
+
+#: ink/view/share.lua
+msgid "Turn on to send PDFs and pictures here."
+msgstr "Ative para enviar PDFs e imagens para aqui."
+
+#: ink/guide.lua
+msgid "Turn pages"
+msgstr "Virar páginas"
+
+#: ink/guide.lua
+msgid "Turn text"
+msgstr "Rodar o texto"
+
+#: ink/actions.lua
+msgid "Two-finger double tap"
+msgstr "Toque duplo com dois dedos"
+
+#: ink/guide.lua
+msgid "Two-finger double tap."
+msgstr "Toque duplo com dois dedos."
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the bottom right to the top left"
+msgstr "Deslize com dois dedos de baixo à direita para cima à esquerda"
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the top right to the bottom left"
+msgstr "Deslize com dois dedos de cima à direita para baixo à esquerda"
+
+#: ink/actions.lua
+msgid "Two-finger swipe left"
+msgstr "Deslize com dois dedos para a esquerda"
+
+#: ink/guide.lua
+msgid "Two-finger swipe left."
+msgstr "Deslize com dois dedos para a esquerda."
+
+#: ink/actions.lua
+msgid "Two-finger swipe right"
+msgstr "Deslize com dois dedos para a direita"
+
+#: ink/guide.lua
+msgid "Two-finger swipe right."
+msgstr "Deslize com dois dedos para a direita."
+
+#: ink/actions.lua
+msgid "Two-finger tap"
+msgstr "Toque com dois dedos"
+
+#: ink/guide.lua
+msgid "Two-finger tap."
+msgstr "Toque com dois dedos."
+
+#: ink/view/notebook.lua
+msgid "Type a page number…"
+msgstr "Escreva um número de página…"
+
+#: ink/view/textformat.lua
+msgid "Underline"
+msgstr "Sublinhar"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Undo"
+msgstr "Anular"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Unstar"
+msgstr "Tirar a estrela"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Untitled"
+msgstr "Sem título"
+
+#: ink/view/links.lua
+msgid "Up"
+msgstr "Cima"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Update available: %1"
+msgstr "Atualização disponível: %1"
+
+#: ink/view/notebook.lua
+msgid "Update the contents page"
+msgstr "Atualizar a página de índice"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+#: ink/view/updates.lua
+msgid "Updates"
+msgstr "Atualizações"
+
+#: ink/ui/colorpicker.lua
+msgid "Use"
+msgstr "Usar"
+
+#: ink/coverpicker.lua
+msgid "Use for new notebooks"
+msgstr "Usar para novos cadernos"
+
+#: ink/view/dialogs.lua
+msgid "Use this folder"
+msgstr "Usar esta pasta"
+
+#: ink/view/settings.lua
+msgid "Vertical"
+msgstr "Vertical"
+
+#: ink/view/library.lua
+msgid "View"
+msgstr "Ver"
+
+#: ink/view/share.lua
+msgid "Waiting for your phone or computer…"
+msgstr "A aguardar o seu telemóvel ou computador…"
+
+#: ink/framecover.lua
+msgid "Walnut"
+msgstr "Nogueira"
+
+#: ink/penset.lua
+msgid "Watercolor"
+msgstr "Aguarela"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Week columns"
+msgstr "Colunas da semana"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Weekly"
+msgstr "Semanal"
+
+#: ink/view/guide.lua
+msgid "What Ink Away can do that a glance doesn't show."
+msgstr "O que o Ink Away faz e que não se vê à primeira vista."
+
+#: ink/guide.lua
+msgid "What to set on this reader for quicker ink."
+msgstr "O que definir neste leitor para uma tinta mais rápida."
+
+#: ink/view/updates.lua
+msgid "What's new"
+msgstr "Novidades"
+
+#: ink/view/settings.lua
+msgid "When Ink Away opens"
+msgstr "Quando o Ink Away abre"
+
+#: ink/actions.lua
+msgid "When the page is zoomed in wider than the screen, sideways swipes move the page instead."
+msgstr "Quando a página está ampliada além da largura do ecrã, os deslizes laterais movem a página."
+
+#: ink/guide.lua
+msgid "Where to start"
+msgstr "Por onde começar"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+#: ink/view/export.lua
+msgid "White"
+msgstr "Branco"
+
+#: ink/framecover.lua
+msgid "White and gold"
+msgstr "Branco e dourado"
+
+#: ink/framecover.lua
+msgid "White sides"
+msgstr "Laterais brancas"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia"
+msgstr "Wikimedia"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia is faster. Openverse has a wider variety."
+msgstr "A Wikimedia é mais rápida. A Openverse tem mais variedade."
+
+#: ink/coverpicker.lua
+msgid "Wine"
+msgstr "Vinho"
+
+#: ink/actions.lua
+msgid "With a double tap also set, a single two-finger tap waits a moment for a second one."
+msgstr "Com o toque duplo também definido, um único toque com dois dedos espera um instante por um segundo."
+
+#: ink/view/export.lua
+msgid "With ink"
+msgstr "Com tinta"
+
+#: ink/guide.lua
+msgid "With the Bookshelf plugin installed, save a drawing as one of its ornaments."
+msgstr "Com o plugin Bookshelf instalado, guarde um desenho como um dos ornamentos dele."
+
+#: ink/guide.lua
+msgid "With the lasso, tap a shape or picture to pick it out: move, resize, turn or delete it. On a drawing, a hold with Pan does it too."
+msgstr "Com o laço, toque numa forma ou imagem para a escolher: mover, redimensionar, rodar ou eliminar. Num desenho, manter premido com Mover também faz isso."
+
+#: ink/penset.lua
+msgid "Write"
+msgstr "Escrever"
+
+#: ink/welcome.lua
+msgid "Write and draw on the book's pages. Your ink stays with the words when the font changes."
+msgstr "Escreva e desenhe nas páginas do livro. A sua tinta fica com as palavras quando o tipo de letra muda."
+
+#: ink/view/library.lua
+msgid "Write on a PDF from this reader…"
+msgstr "Escrever num PDF deste leitor…"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+#: ink/view/textformat.lua
+msgid "Yellow"
+msgstr "Amarelo"
+
+#: ink/view/pencase.lua
+#, lua-format
+msgid "You have %d pens, as many as the menu holds. Hold one and Remove it to make room."
+msgstr "Tem %d canetas, tantas quantas o menu comporta. Mantenha uma premida e escolha Remover para abrir espaço."
+
+#: ink/view/updates.lua
+msgid "You have this version."
+msgstr "Tem esta versão."
+
+#: ink/view/pencase.lua
+msgid "Your brushes"
+msgstr "Os seus pincéis"
+
+#: ink/view/pencase.lua
+msgid "Your first four saved pens in a small strip at the bottom of the page, one tap away."
+msgstr "As suas quatro primeiras canetas guardadas numa faixa pequena no fundo da página, a um toque."
+
+#: ink/guide.lua
+msgid "Your own brushes"
+msgstr "Os seus próprios pincéis"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Your pens on the page"
+msgstr "As suas canetas na página"
+
+#: ink/guide.lua
+msgid "Your pens, kinds and pressure"
+msgstr "As suas canetas, tipos e pressão"
+
+#: ink/guide.lua
+msgid "Your reader"
+msgstr "O seu leitor"
+
+#: ink/view/ocrapi.lua
+msgid "Your service's API address, from its documentation. It has to start with https://, for example https://api.openai.com/v1 or https://openrouter.ai/api/v1."
+msgstr "O endereço de API do seu serviço, da documentação dele. Tem de começar por https://, por exemplo https://api.openai.com/v1 ou https://openrouter.ai/api/v1."
+
+#: ink/guide.lua
+msgid "Your shortcuts"
+msgstr "Os seus atalhos"
+
+#: ink/guide.lua
+msgid "Zoom"
+msgstr "Ampliação"
+
+#: ink/view/settings.lua
+msgid "Zoom and Pan buttons"
+msgstr "Botões de zoom e Mover"
+
+#: ink/view/updates.lua
+msgid "a check could not start"
+msgstr "uma verificação não pôde começar"
+
+#: ink/view/updates.lua
+msgid "a prerelease"
+msgstr "uma pré-versão"
+
+#: ink/view/updates.lua
+msgid "a release"
+msgstr "uma versão"
+
+#: ink/view/updates.lua
+msgid "a test build"
+msgstr "uma versão de teste"
+
+#: ink/view/settings.lua
+msgid "blank"
+msgstr "em branco"
+
+#: ink/view/settings.lua
+msgid "checklist"
+msgstr "lista de tarefas"
+
+#: ink/view/settings.lua
+msgid "daily"
+msgstr "diário"
+
+#: ink/view/settings.lua
+msgid "dotted"
+msgstr "pontilhado"
+
+#: ink/view/imagebrowser.lua
+msgid "e.g. cat, tree, arrow"
+msgstr "p. ex. gato, árvore, seta"
+
+#: ink/view/settings.lua
+msgid "grid"
+msgstr "quadriculado"
+
+#: ink/view/settings.lua
+msgid "habit tracker"
+msgstr "registo de hábitos"
+
+#: ink/view/settings.lua
+msgid "handwriting"
+msgstr "escrita à mão"
+
+#: ink/view/menus.lua
+msgid "hold to pick colour"
+msgstr "mantenha premido para escolher a cor"
+
+#: ink/view/settings.lua
+msgid "isometric"
+msgstr "isométrico"
+
+#: ink/view/settings.lua
+msgid "lined"
+msgstr "pautado"
+
+#: ink/view/settings.lua
+msgid "margin"
+msgstr "com margem"
+
+#: ink/view/settings.lua
+msgid "meeting notes"
+msgstr "notas de reunião"
+
+#: ink/view/settings.lua
+msgid "monthly"
+msgstr "mensal"
+
+#: ink/view/settings.lua
+msgid "music"
+msgstr "música"
+
+#: ink/view/settings.lua
+msgid "off"
+msgstr "desligado"
+
+#: ink/view/menus.lua
+msgid "px"
+msgstr "px"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#, lua-format
+msgid "shown at %d%%"
+msgstr "apresentado a %d%%"
+
+#: ink/view/settings.lua
+msgid "storyboard"
+msgstr "storyboard"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "via %s"
+msgstr "via %s"
+
+#: ink/view/settings.lua
+msgid "week columns"
+msgstr "colunas da semana"
+
+#: ink/view/settings.lua
+msgid "weekly"
+msgstr "semanal"
+
+#: ink/view/dialogs.lua
+#, lua-format
+msgid "“%s” already exists. Replace it?"
+msgstr "“%s” já existe. Substituir?"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "“%s” is in Library: Imported only holds what you sent"
+msgstr "“%s” está em Biblioteca: Importados guarda só o que enviou"

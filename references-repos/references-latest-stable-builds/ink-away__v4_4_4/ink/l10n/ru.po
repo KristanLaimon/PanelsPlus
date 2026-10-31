@@ -1,0 +1,4549 @@
+# Ink Away: Russian translation.
+msgid ""
+msgstr ""
+"Project-Id-Version: Ink Away\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: ru\n"
+"Language-Team: Russian\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+
+#: ink/view/menus.lua
+#: ink/view/settings.lua
+msgid " px"
+msgstr " px"
+
+#: ink/view/search.lua
+msgid " · names and text inside pages"
+msgstr " · имена и текст внутри страниц"
+
+#: ink/view/search.lua
+msgid " · names only"
+msgstr " · только имена"
+
+#: ink/view/links.lua
+msgid " · this page"
+msgstr " · эта страница"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 (%2)"
+msgstr "%1 (%2)"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 and %2"
+msgstr "%1 и %2"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "%1 and everything on it are deleted. Undo brings them back."
+msgstr "%1 и всё, что на нём, будет удалено. «Отменить» вернёт их."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: %2 already do something else."
+msgstr "У «%1» нет жеста: %2 уже делают другое."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: its gestures are taken."
+msgstr "У «%1» нет жеста: его жесты заняты."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "%1 is installed. Restart KOReader to use it."
+msgstr "%1 установлен. Перезапустите KOReader, чтобы им пользоваться."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files received"
+msgstr "Получено файлов: %d"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files sent"
+msgstr "Отправлено файлов: %d"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "%d item(s) can't be kept editable. You'll choose what to do when you export."
+msgstr "Элементов, которые нельзя сохранить редактируемыми: %d. Что с ними делать, вы выберете при экспорте."
+
+#: ink/view/lasso.lua
+#, lua-format
+msgid "%d item(s) on the clipboard"
+msgstr "Элементов в буфере обмена: %d"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d more after it"
+msgstr "Ещё %d после него"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks and drawings"
+msgstr "Блокнотов и рисунков: %d"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks arrived in %s. Open one now?"
+msgstr "Поступило блокнотов: %d, папка: %s. Открыть один сейчас?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks from PDFs"
+msgstr "Блокнотов из PDF: %d"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d of %d pages"
+msgstr "%d из %d страниц"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d pictures"
+msgstr "Изображений: %d"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%d results"
+msgstr "Результатов: %d"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "%d strokes"
+msgstr "Штрихов: %d"
+
+#: ink/view/gestures.lua
+#, lua-format
+msgid "%s already does \"%s\". Use it only for %s, or for both?"
+msgstr "%s уже делает «%s». Использовать только для %s или для обоих?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s arrived in %s. Open it now?"
+msgstr "%s поступил в %s. Открыть сейчас?"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s in %s"
+msgstr "%s в %s"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s isn't there any more"
+msgstr "%s больше нет"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s opens once the rest have arrived"
+msgstr "%s откроется, когда придут остальные"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%s · page %d"
+msgstr "%s · страница %d"
+
+#: ink/guide.lua
+msgid "+ in the pen menu asks for its kind (Fineliner, Ballpoint, Fountain, Pencil, Marker, Highlighter, Watercolor...), then its size and colour."
+msgstr "Кнопка + в меню ручек спрашивает вид (тонкий линер, шариковая ручка, перьевая ручка, карандаш, маркер, текстовыделитель, акварель…), затем размер и цвет."
+
+#: ink/view/share.lua
+msgid "1 file received"
+msgstr "Получен 1 файл"
+
+#: ink/view/share.lua
+msgid "1 file sent"
+msgstr "Отправлен 1 файл"
+
+#: ink/view/share.lua
+msgid "1 more after it"
+msgstr "Ещё 1 после него"
+
+#: ink/view/receive.lua
+msgid "1 notebook from a PDF"
+msgstr "1 блокнот из PDF"
+
+#: ink/view/receive.lua
+msgid "1 notebook or drawing"
+msgstr "1 блокнот или рисунок"
+
+#: ink/view/receive.lua
+msgid "1 picture"
+msgstr "1 изображение"
+
+#: ink/view/search.lua
+msgid "1 result"
+msgstr "1 результат"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "2 columns"
+msgstr "2 колонки"
+
+#: ink/view/selection.lua
+msgid "90°"
+msgstr "90°"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A PNG holds the page shown, page %d."
+msgstr "PNG содержит показанную страницу, страницу %d."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "A blank page. Hold to start from a picture."
+msgstr "Пустая страница. Удерживайте, чтобы начать с картинки."
+
+#: ink/guide.lua
+msgid "A contents page"
+msgstr "Страница оглавления"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "A drawing can have up to %1 layers."
+msgstr "В рисунке может быть до %1 слоёв."
+
+#: ink/view/layers.lua
+msgid "A drawing with layers keeps at least one. To stop using layers, turn them off in File."
+msgstr "В рисунке со слоями остаётся хотя бы один. Чтобы не использовать слои, отключите их в меню «Файл»."
+
+#: ink/guide.lua
+msgid "A folder's notebooks are tabs beside their pages. Hold a tab to rename, colour or reorder it; hold a page to star, move or copy it."
+msgstr "Блокноты папки показаны вкладками рядом со страницами. Удерживайте вкладку, чтобы переименовать, раскрасить или переставить её; удерживайте страницу, чтобы отметить звёздочкой, переместить или скопировать."
+
+#: ink/reader/inkview.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight of it, in the pen's colour: in your highlights list, and with the text at any font size. Over empty space it stays ink."
+msgstr "Штрих текстовыделителя поверх текста становится собственным выделением читалки цвета ручки: он попадает в список ваших выделений и остаётся с текстом при любом размере шрифта. Над пустым местом он остаётся чернилами."
+
+#: ink/guide.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight, from the first word it touches to the last. Over empty space it stays ink."
+msgstr "Штрих текстовыделителя поверх текста становится собственным выделением читалки, от первого задетого слова до последнего. Над пустым местом он остаётся чернилами."
+
+#: ink/guide.lua
+msgid "A new pen"
+msgstr "Новая ручка"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A newer release, %1 to download."
+msgstr "Вышла новая версия, %1 для загрузки."
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "A notebook keeps at least one page."
+msgstr "В блокноте остаётся хотя бы одна страница."
+
+#: ink/guide.lua
+msgid "A notebook or some of its pages, with bookmarks for titled pages and links that work."
+msgstr "Блокнот или несколько его страниц, с закладками для страниц с заголовками и рабочими ссылками."
+
+#: ink/view/images.lua
+msgid "A picture file on this reader."
+msgstr "Файл изображения на этой читалке."
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A picture of each page takes about 0.3 MB, so this PDF will be around %d MB."
+msgstr "Изображение каждой страницы занимает около 0,3 МБ, поэтому этот PDF будет весить около %d МБ."
+
+#: ink/view/updates.lua
+msgid "A prerelease is a test build. You can go back to the latest release from Settings, Updates."
+msgstr "Предварительная версия — тестовая сборка. Вернуться к последнему выпуску можно в разделе «Настройки», «Обновления»."
+
+#: ink/guide.lua
+msgid "A strip of your first four pens, one tap away: Pen and input, Your pens on the page."
+msgstr "Полоса с вашими первыми четырьмя ручками, одно касание: «Ручка и ввод», «Ваши ручки на странице»."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A test build before the next release: newer things, maybe rough edges. You can go back to the release here any time. %1."
+msgstr "Тестовая сборка перед следующим выпуском: больше нового, возможны шероховатости. Вернуться к выпуску можно здесь в любой момент. %1."
+
+#: ink/guide.lua
+msgid "A whole folder"
+msgstr "Папка целиком"
+
+#: ink/view/textformat.lua
+msgid "Across"
+msgstr "Поперёк"
+
+#: ink/penset.lua
+msgid "Acrylic"
+msgstr "Акрил"
+
+#: ink/view/imagebrowser.lua
+msgid "Add"
+msgstr "Добавить"
+
+#: ink/view/library.lua
+msgid "Add an icon…"
+msgstr "Добавить значок…"
+
+#: ink/view/images.lua
+msgid "Add image"
+msgstr "Добавить изображение"
+
+#: ink/view/imagebrowser.lua
+msgid "Add this image?"
+msgstr "Добавить это изображение?"
+
+#: ink/view/exportbook.lua
+msgid "Adding your annotations to the PDF"
+msgstr "Добавление ваших аннотаций в PDF"
+
+#: ink/view/ocrapi.lua
+msgid "Address"
+msgstr "Адрес"
+
+#: ink/view/export.lua
+msgid "Adds your ink and highlights to a copy of the original PDF. The text stays real, the file stays small, and any PDF viewer can edit or remove them."
+msgstr "Добавляет ваши чернила и выделения в копию исходного PDF. Текст остаётся настоящим текстом, файл остаётся небольшим, а любая программа для PDF сможет изменить или удалить их."
+
+#: ink/view/textformat.lua
+msgid "Alignment"
+msgstr "Выравнивание"
+
+#: ink/view/export.lua
+msgid "All"
+msgstr "Все"
+
+#: ink/reader/inkview.lua
+msgid "All of this book's annotations will be deleted now. They wait in Ink Away's trash for 30 days in case you want them back."
+msgstr "Все аннотации этой книги будут удалены сейчас. Они хранятся в корзине Ink Away 30 дней на случай, если понадобятся."
+
+#: ink/view/layers.lua
+msgid "All the layers are merged into one drawing, hidden ones too. Undo brings the layers back."
+msgstr "Все слои объединяются в один рисунок, скрытые тоже. «Отменить» вернёт слои."
+
+#: ink/view/share.lua
+msgid "Allow adding files"
+msgstr "Разрешить добавление файлов"
+
+#: ink/view/gestures.lua
+msgid "Already in use"
+msgstr "Уже используется"
+
+#: ink/view/search.lua
+msgid "Also look inside pages (slower)"
+msgstr "Искать и внутри страниц (медленнее)"
+
+#: ink/view/exportbook.lua
+msgid "An editable PDF can't hold these as annotations:"
+msgstr "Редактируемый PDF не может хранить это как аннотации:"
+
+#: ink/guide.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Annotate the book"
+msgstr "Аннотировать книгу"
+
+#: ink/guide.lua
+msgid "Annotations and book notes"
+msgstr "Аннотации и заметки к книге"
+
+#: ink/view/trash.lua
+msgid "Annotations of a deleted book"
+msgstr "Аннотации удалённой книги"
+
+#: ink/view/trash.lua
+msgid "Annotations on this book"
+msgstr "Аннотации к этой книге"
+
+#: ink/view/links.lua
+msgid "Another notebook…"
+msgstr "Другой блокнот…"
+
+#: ink/framecover.lua
+msgid "Antique gold"
+msgstr "Старое золото"
+
+#: ink/view/settings.lua
+msgid "Appearance"
+msgstr "Внешний вид"
+
+#: ink/view/textformat.lua
+msgid "Applies to the selected word or text"
+msgstr "Относится к выбранному слову или тексту"
+
+#: ink/view/textformat.lua
+msgid "Applies to what you type next"
+msgstr "Относится к тому, что вы наберёте дальше"
+
+#: ink/reader/inkview.lua
+msgid "Are you sure?"
+msgstr "Вы уверены?"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Area: %d×%d (tap for the whole page)"
+msgstr "Область: %d×%d (нажмите, чтобы выбрать всю страницу)"
+
+#: ink/view/export.lua
+msgid "Area: the whole page (tap to choose)"
+msgstr "Область: вся страница (нажмите, чтобы выбрать)"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Arrived: %s"
+msgstr "Поступило: %s"
+
+#: ink/view/menus.lua
+msgid "Arrowhead size"
+msgstr "Размер наконечника стрелки"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Arrowhead size: %d px"
+msgstr "Размер наконечника стрелки: %d px"
+
+#: ink/framecover.lua
+msgid "Art Deco"
+msgstr "Ар-деко"
+
+#: ink/framecover.lua
+msgid "Arts and Crafts"
+msgstr "Arts and Crafts"
+
+#: ink/view/share.lua
+msgid "Ask to open notebooks that arrive"
+msgstr "Спрашивать, открывать ли поступающие блокноты"
+
+#: ink/view/updates.lua
+msgid "Asking GitHub what there is…"
+msgstr "Спрашиваем GitHub, что нового…"
+
+#: ink/view/images.lua
+msgid "At save time you can include the picture or export just your drawing. The grid is always left out."
+msgstr "При сохранении можно включить картинку или экспортировать только рисунок. Сетка не включается никогда."
+
+#: ink/coverpicker.lua
+msgid "Automatic"
+msgstr "Автоматически"
+
+#: ink/view/gestures.lua
+#: ink/view/guide.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/toolbar.lua
+#: ink/view/updates.lua
+msgid "Back"
+msgstr "Вернуться"
+
+#: ink/view/gestures.lua
+msgid "Back to the usual"
+msgstr "Вернуть обычное"
+
+#: ink/view/images.lua
+msgid "Background image"
+msgstr "Фоновое изображение"
+
+#: ink/view/images.lua
+msgid "Background…"
+msgstr "Фон…"
+
+#: ink/penset.lua
+msgid "Ballpoint"
+msgstr "Шариковая ручка"
+
+#: ink/guide.lua
+msgid "Ballpoint, Fountain, Calligraphy and Pencil can follow how hard you press: Pen and input, Pen pressure (Beta), with Palm rejection on."
+msgstr "Шариковая ручка, перьевая ручка, каллиграфия и карандаш могут учитывать силу нажима: «Ручка и ввод», «Нажим ручки (бета)», при включённой защите от касания ладони."
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Black"
+msgstr "Чёрный"
+
+#: ink/framecover.lua
+msgid "Black and gold"
+msgstr "Чёрный и золотой"
+
+#: ink/framecover.lua
+msgid "Black sides"
+msgstr "Чёрные поля"
+
+#: ink/view/notebook.lua
+msgid "Blank"
+msgstr "Пустая"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Blue"
+msgstr "Синий"
+
+#: ink/palette.lua
+msgid "Blueprint"
+msgstr "Синька"
+
+#: ink/palette.lua
+msgid "Blush"
+msgstr "Румяна"
+
+#: ink/view/textformat.lua
+msgid "Bold"
+msgstr "Жирный"
+
+#: ink/reader/inkview.lua
+msgid "Book ink"
+msgstr "Чернила книги"
+
+#: ink/guide.lua
+msgid "Book ink, Delete all annotations on this book. They wait in the trash for 30 days."
+msgstr "Чернила книги, удалить все аннотации этой книги. Они хранятся в корзине 30 дней."
+
+#: ink/guide.lua
+msgid "Book ink, Show ink while reading: off shows the plain book. Your ink stays."
+msgstr "Чернила книги, показывать чернила при чтении: «выкл.» показывает чистую книгу. Ваши чернила сохраняются."
+
+#: ink/guide.lua
+msgid "Book ink, Toolbar: on the left, right, top or bottom."
+msgstr "Чернила книги, панель инструментов: слева, справа, сверху или снизу."
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Book notes"
+msgstr "Заметок в книге"
+
+#: ink/guide.lua
+msgid "Books"
+msgstr "Книги"
+
+#: ink/guide.lua
+msgid "Bookshelf"
+msgstr "Bookshelf"
+
+#: ink/view/gestures.lua
+msgid "Both"
+msgstr "Оба"
+
+#: ink/view/welcome.lua
+msgid "Both are also in the reader menu: Tools, Ink Away."
+msgstr "Оба также есть в меню читалки: «Инструменты», Ink Away."
+
+#: ink/reader/inkview.lua
+msgid "Bottom"
+msgstr "Внизу"
+
+#: ink/framecover.lua
+msgid "Brass"
+msgstr "Латунь"
+
+#: ink/folderlook.lua
+msgid "Brown"
+msgstr "Коричневый"
+
+#: ink/guide.lua
+msgid "Browse"
+msgstr "Обзор"
+
+#: ink/view/imagebrowser.lua
+msgid "Browse images"
+msgstr "Обзор изображений"
+
+#: ink/actions.lua
+msgid "Browse notebooks"
+msgstr "Обзор блокнотов"
+
+#: ink/view/library.lua
+msgid "By name"
+msgstr "По имени"
+
+#: ink/guide.lua
+msgid "By name, or tick look inside pages to search typed and converted text too."
+msgstr "По имени, либо отметьте «Искать и внутри страниц», чтобы искать и в набранном и распознанном тексте."
+
+#: ink/penset.lua
+msgid "Calligraphy"
+msgstr "Каллиграфия"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/dialogs.lua
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+#: ink/view/images.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Cancel"
+msgstr "Отменить"
+
+#: ink/framecover.lua
+msgid "Canvas Wrap"
+msgstr "Холст"
+
+#: ink/framecover.lua
+msgid "Carved Victorian"
+msgstr "Резной викторианский"
+
+#: ink/view/textformat.lua
+msgid "Centre"
+msgstr "По центру"
+
+#: ink/palette.lua
+msgid "Chalkboard"
+msgstr "Меловая доска"
+
+#: ink/view/selection.lua
+msgid "Change link…"
+msgstr "Изменить ссылку…"
+
+#: ink/coverpicker.lua
+msgid "Charcoal"
+msgstr "Уголь"
+
+#: ink/view/updates.lua
+msgid "Check now"
+msgstr "Проверить сейчас"
+
+#: ink/view/updates.lua
+msgid "Check once a day"
+msgstr "Проверять раз в день"
+
+#: ink/view/ocrapi.lua
+msgid "Check the address in the Text sheet: it has to be a full address starting with https://."
+msgstr "Проверьте адрес на листе «Текст»: нужен полный адрес, начинающийся с https://."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Checklist"
+msgstr "Список задач"
+
+#: ink/guide.lua
+msgid "Checklists"
+msgstr "Списки задач"
+
+#: ink/framecover.lua
+msgid "Cherry"
+msgstr "Вишня"
+
+#: ink/view/links.lua
+msgid "Choose a notebook"
+msgstr "Выберите блокнот"
+
+#: ink/view/pencase.lua
+msgid "Choose its kind. You can then set its size and colour."
+msgstr "Выберите вид. Затем можно задать размер и цвет."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Choose its paper, a PDF or a template"
+msgstr "Выберите бумагу, PDF или шаблон"
+
+#: ink/ui/pentestscreen.lua
+#: ink/ui/thumbgrid.lua
+#: ink/view/dialogs.lua
+#: ink/view/guide.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/search.lua
+#: ink/view/sheetkit.lua
+#: ink/view/trash.lua
+msgid "Close"
+msgstr "Закрыть"
+
+#: ink/coverpicker.lua
+#: ink/guide.lua
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Colour"
+msgstr "Цвет"
+
+#: ink/view/library.lua
+msgid "Colour and icon…"
+msgstr "Цвет и значок…"
+
+#: ink/coverpicker.lua
+msgid "Colour wheel"
+msgstr "Цветовой круг"
+
+#: ink/view/settings.lua
+msgid "Colour while drawing"
+msgstr "Цвет при рисовании"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Colour: %s"
+msgstr "Цвет: %s"
+
+#: ink/view/overview.lua
+msgid "Colour…"
+msgstr "Цвет…"
+
+#: ink/notebookcover.lua
+msgid "Composition book"
+msgstr "Школьная тетрадь"
+
+#: ink/view/links.lua
+msgid "Contents"
+msgstr "Оглавление"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Contents: %d page(s) listed"
+msgstr "Оглавление: страниц в списке — %d"
+
+#: ink/reader/inkview.lua
+msgid "Continue"
+msgstr "Продолжить"
+
+#: ink/view/handwriting.lua
+msgid "Convert"
+msgstr "Конвертировать"
+
+#: ink/guide.lua
+#: ink/view/handwriting.lua
+#: ink/view/selection.lua
+msgid "Convert to text"
+msgstr "Преобразовать в текст"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online"
+msgstr "Преобразовать в текст онлайн"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online needs your service's address, key and model. Set them in the Text sheet, or switch it off there to read on the reader."
+msgstr "Для онлайн-преобразования в текст нужны адрес, ключ и модель вашего сервиса. Задайте их на листе «Текст» или отключите её там, чтобы читать на читалке."
+
+#: ink/view/textformat.lua
+msgid "Copied"
+msgstr "Скопировано"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Copied %d item(s). Tap with the lasso to paste."
+msgstr "Скопировано элементов: %d. Нажмите лассо, чтобы вставить."
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Copied to “%s”"
+msgstr "Скопировано в «%s»"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Copy"
+msgstr "Копировать"
+
+#: ink/view/overview.lua
+msgid "Copy the page to"
+msgstr "Копировать страницу в"
+
+#: ink/view/overview.lua
+msgid "Copy to…"
+msgstr "Копировать в…"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Cornell"
+msgstr "Корнелл"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Could not check: %1."
+msgstr "Не удалось проверить: %1."
+
+#: ink/view/export.lua
+msgid "Could not create the bookshelf ornaments folder."
+msgstr "Не удалось создать папку украшений Bookshelf."
+
+#: ink/view/library.lua
+msgid "Could not create the folder."
+msgstr "Не удалось создать папку."
+
+#: ink/view/trash.lua
+msgid "Could not delete it.\n"
+msgstr "Не удалось удалить.\n"
+
+#: ink/reader/inkview.lua
+msgid "Could not delete the annotations.\n"
+msgstr "Не удалось удалить аннотации.\n"
+
+#: ink/view/trash.lua
+msgid "Could not delete the page.\n"
+msgstr "Не удалось удалить страницу.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Could not duplicate.\n"
+msgstr "Не удалось дублировать.\n"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Could not export PDF.\n"
+msgstr "Не удалось экспортировать PDF.\n"
+
+#: ink/view/export.lua
+msgid "Could not export.\n"
+msgstr "Не удалось экспортировать.\n"
+
+#: ink/view/exportbook.lua
+msgid "Could not make the folder.\n"
+msgstr "Не удалось создать папку.\n"
+
+#: ink/view/library.lua
+msgid "Could not move it.\n"
+msgstr "Не удалось переместить.\n"
+
+#: ink/view/notebook.lua
+msgid "Could not open that PDF."
+msgstr "Не удалось открыть этот PDF."
+
+#: ink/view/document.lua
+msgid "Could not open that file.\n"
+msgstr "Не удалось открыть этот файл.\n"
+
+#: ink/view/images.lua
+msgid "Could not open that image."
+msgstr "Не удалось открыть это изображение."
+
+#: ink/view/notebook.lua
+msgid "Could not open that template."
+msgstr "Не удалось открыть этот шаблон."
+
+#: ink/view/trash.lua
+msgid "Could not put it back.\n"
+msgstr "Не удалось вернуть на место.\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Could not rename.\n"
+msgstr "Не удалось переименовать.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the image.\n"
+"%s"
+msgstr ""
+"Не удалось сохранить изображение.\n"
+"%s"
+
+#: ink/view/exportbook.lua
+msgid "Could not save the images.\n"
+msgstr "Не удалось сохранить изображения.\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the ornament.\n"
+"%s"
+msgstr ""
+"Не удалось сохранить украшение.\n"
+"%s"
+
+#: ink/view/notebook.lua
+msgid "Could not save the template.\n"
+msgstr "Не удалось сохранить шаблон.\n"
+
+#: ink/view/overview.lua
+msgid "Could not save.\n"
+msgstr "Не удалось сохранить.\n"
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"Could not save:\n"
+"%s\n"
+"\n"
+"%s"
+msgstr ""
+"Не удалось сохранить:\n"
+"%s\n"
+"\n"
+"%s"
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't download that image."
+msgstr "Не удалось скачать это изображение."
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Couldn't open %s as a notebook"
+msgstr "Не удалось открыть %s как блокнот"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't prepare a folder for the image."
+msgstr "Не удалось подготовить папку для изображения."
+
+#: ink/view/images.lua
+msgid "Couldn't process that image."
+msgstr "Не удалось обработать это изображение."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"Couldn't reach the image service.\n"
+"Check your Wi-Fi, or try the other source above."
+msgstr ""
+"Не удалось связаться со службой изображений.\n"
+"Проверьте Wi-Fi или попробуйте другой источник выше."
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't read that image."
+msgstr "Не удалось прочитать это изображение."
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't save the image."
+msgstr "Не удалось сохранить изображение."
+
+#: ink/view/images.lua
+msgid "Couldn't save the processed image."
+msgstr "Не удалось сохранить обработанное изображение."
+
+#: ink/view/share.lua
+msgid "Couldn't start sharing: no free port on this reader."
+msgstr "Не удалось запустить общий доступ: на этой читалке нет свободного порта."
+
+#: ink/coverpicker.lua
+msgid "Cover colour"
+msgstr "Цвет обложки"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Cover on the shelf…"
+msgstr "Обложка на полке…"
+
+#: ink/coverpicker.lua
+msgid "Covers on Bookshelf"
+msgstr "Обложки в Bookshelf"
+
+#: ink/palette.lua
+msgid "Cream"
+msgstr "Кремовый"
+
+#: ink/view/library.lua
+msgid "Create"
+msgstr "Создать"
+
+#: ink/ui/brushmaker.lua
+msgid "Create brush"
+msgstr "Создать кисть"
+
+#: ink/palette.lua
+msgid "Custom"
+msgstr "Свой"
+
+#: ink/ui/colorpicker.lua
+msgid "Custom colour"
+msgstr "Свой цвет"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Cut"
+msgstr "Вырезать"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Cut %d item(s). Tap with the lasso to paste."
+msgstr "Вырезано элементов: %d. Нажмите лассо, чтобы вставить."
+
+#: ink/guide.lua
+msgid "Cut or copy, then on any page of any notebook: the page menu, Paste."
+msgstr "Вырежьте или скопируйте, затем на любой странице любого блокнота: меню страницы, «Вставить»."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Daily"
+msgstr "Ежедневно"
+
+#: ink/view/settings.lua
+msgid "Dark"
+msgstr "Тёмная"
+
+#: ink/palette.lua
+msgid "Dark grey"
+msgstr "Тёмно-серый"
+
+#: ink/guide.lua
+msgid "Dark mode"
+msgstr "Тёмный режим"
+
+#: ink/view/settings.lua
+msgid "Dark turns Ink Away's toolbars and menus dark; the page stays as it is. System follows KOReader's night mode."
+msgstr "«Тёмная» затемняет панели инструментов и меню Ink Away; страница не меняется. «Система» следует ночному режиму KOReader."
+
+#: ink/view/textformat.lua
+msgid "Date"
+msgstr "Дата"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Default"
+msgstr "По умолчанию"
+
+#: ink/view/textformat.lua
+msgid "Default (content font)"
+msgstr "По умолчанию (шрифт содержимого)"
+
+#: ink/reader/inkview.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+#: ink/view/trash.lua
+msgid "Delete"
+msgstr "Удалить"
+
+#: ink/view/notebook.lua
+msgid "Delete a template…"
+msgstr "Удалить шаблон…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations on this book…"
+msgstr "Удалить все аннотации этой книги…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations?"
+msgstr "Удалить все аннотации?"
+
+#: ink/view/trash.lua
+msgid "Delete for good"
+msgstr "Удалить навсегда"
+
+#: ink/view/notebook.lua
+msgid "Delete page"
+msgstr "Удалить страницу"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Delete the brush “%s”?"
+msgstr "Удалить кисть «%s»?"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Delete the template “%s”?"
+msgstr "Удалить шаблон «%s»?"
+
+#: ink/view/layers.lua
+msgid "Delete this layer?"
+msgstr "Удалить этот слой?"
+
+#: ink/view/library.lua
+msgid "Delete this page?"
+msgstr "Удалить эту страницу?"
+
+#: ink/view/notebook.lua
+msgid "Delete which template?"
+msgstr "Какой шаблон удалить?"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Delete “%s” for good?"
+msgstr "Удалить «%s» навсегда?"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Delete “%s”?"
+msgstr "Удалить «%s»?"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted %s · gone for good in %d days"
+msgstr "%s удалено · исчезнет навсегда через %d дн."
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Deleted notebooks, drawings, pictures and folders wait here for %d days."
+msgstr "Удалённые блокноты, рисунки, изображения и папки хранятся здесь %d дн."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted things stay here for %d days."
+msgstr "Удалённое хранится здесь %d дн."
+
+#: ink/guide.lua
+msgid "Deleted things, a book's annotations too, wait 30 days and go back where they were."
+msgstr "Удалённое, включая аннотации книги, ждёт 30 дней и возвращается на прежнее место."
+
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Delete…"
+msgstr "Удалить…"
+
+#: ink/view/textformat.lua
+msgid "Direction"
+msgstr "Направление"
+
+#: ink/view/receive.lua
+msgid "Don't ask again"
+msgstr "Больше не спрашивать"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/reader/inkview.lua
+#: ink/view/dialogs.lua
+#: ink/view/document.lua
+#: ink/view/gestures.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/overview.lua
+#: ink/view/paper.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+#: ink/view/sheetkit.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+#: ink/view/updates.lua
+msgid "Done"
+msgstr "Готово"
+
+#: ink/view/settings.lua
+msgid "Dots"
+msgstr "Точки"
+
+#: ink/ui/pentestscreen.lua
+msgid "Dots show where each contact lands: black for the pen, grey for fingers, light grey for the eraser end and resting hands."
+msgstr "Точки показывают, куда попало каждое касание: чёрные — ручка, серые — пальцы, светло-серые — ластик на конце ручки и лежащие руки."
+
+#: ink/view/notebook.lua
+msgid "Dotted"
+msgstr "В точку"
+
+#: ink/view/share.lua
+msgid "Download"
+msgstr "Загрузка"
+
+#: ink/view/updates.lua
+msgid "Downloading and checking the update…"
+msgstr "Загрузка и проверка обновления…"
+
+#: ink/view/imagebrowser.lua
+msgid "Downloading image…"
+msgstr "Загрузка изображения…"
+
+#: ink/view/export.lua
+msgid "Drag a box around the part to export. A single tap keeps the whole page."
+msgstr "Обведите рамкой часть для экспорта. Одно касание оставляет всю страницу."
+
+#: ink/guide.lua
+msgid "Drag the ring above an open text box to turn it to any angle, or pick Reads down or Reads up in Format, Paragraph, for a book's margins."
+msgstr "Потяните кольцо над открытым текстовым полем, чтобы повернуть его на любой угол, или выберите «Читается сверху вниз» либо «Читается снизу вверх» в разделе «Формат», «Абзац» — для полей книги."
+
+#: ink/view/images.lua
+msgid "Draw over a photo or screenshot; your drawing sits on top. To write on a PDF, start a notebook from it: File, New, From PDF."
+msgstr "Рисуйте поверх фотографии или снимка экрана; ваш рисунок остаётся сверху. Чтобы писать по PDF, создайте из него блокнот: «Файл», «Создать», «Из PDF»."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/share.lua
+msgid "Drawing"
+msgstr "Рисунок"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Drawing in %s"
+msgstr "Рисунок в %s"
+
+#: ink/pentest.lua
+msgid ""
+"Drawing on a Boox\n"
+"\n"
+"Ink Away asks your Boox for its fast refresh while you write, and ink settles into grey and colour when the pen rests.\n"
+"\n"
+"KOReader leaves every other refresh to the Boox's own mode for KOReader. If the page flashes or ink lags behind the pen: E-Ink Center, App optimisation, KOReader, Refresh mode: Balanced (Regal on older Boox), or Fast.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Рисование на Boox\n"
+"\n"
+"Ink Away просит у вашего Boox быстрое обновление, пока вы пишете, а чернила становятся серыми и цветными, когда ручка отдыхает.\n"
+"\n"
+"Все остальные обновления KOReader оставляет собственному режиму Boox для KOReader. Если страница мигает или чернила отстают от ручки: E-Ink Center, Оптимизация приложений, KOReader, Режим обновления: Сбалансированный (Regal на старых Boox) или Быстрый.\n"
+"\n"
+"Настройки, Руководство, «Ваша читалка» покажет это снова."
+
+#: ink/drawingshelf.lua
+msgid "Drawings"
+msgstr "Рисунки"
+
+#: ink/view/document.lua
+msgid "Drawings and notebooks from the old “drawing projects” and “notebook projects” folders are now in the library."
+msgstr "Рисунки и блокноты из старых папок «проекты рисунков» и «проекты блокнотов» теперь в библиотеке."
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+msgid "Duplicate"
+msgstr "Дублировать"
+
+#: ink/framecover.lua
+msgid "Dutch Ripple"
+msgstr "Голландская рябь"
+
+#: ink/view/paper.lua
+msgid "Each document keeps its paper; a new one starts on the last you picked. On a dark paper black ink and text show white. Dark mode never changes the paper."
+msgstr "Каждый документ хранит свою бумагу; новый начинается на последней выбранной. На тёмной бумаге чёрные чернила и текст показываются белыми. Тёмный режим бумагу не меняет."
+
+#: ink/framecover.lua
+msgid "Ebonised"
+msgstr "Чернёный"
+
+#: ink/framecover.lua
+msgid "Ebony"
+msgstr "Эбеновое дерево"
+
+#: ink/view/textformat.lua
+msgid "Edit"
+msgstr "Редактировать"
+
+#: ink/view/export.lua
+msgid "Editable"
+msgstr "Редактируемый"
+
+#: ink/view/receive.lua
+msgid "Either way they stay in Library › Imported. To be asked again, turn on \"Ask to open notebooks that arrive\" in Phone or computer (Wi-Fi)."
+msgstr "В обоих случаях они остаются в разделе «Библиотека › Полученные». Чтобы вопрос появлялся снова, включите «Спрашивать, открывать ли поступающие блокноты» в разделе «Телефон или компьютер (Wi-Fi)»."
+
+#: ink/framecover.lua
+msgid "Emerald and gold"
+msgstr "Изумруд и золото"
+
+#: ink/view/trash.lua
+msgid "Empty"
+msgstr "Пусто"
+
+#: ink/view/trash.lua
+msgid "Empty the trash"
+msgstr "Очистить корзину"
+
+#: ink/view/trash.lua
+msgid "Empty the trash?"
+msgstr "Очистить корзину?"
+
+#: ink/view/toolbar.lua
+msgid "Erase"
+msgstr "Стереть"
+
+#: ink/view/menus.lua
+msgid "Erase pictures"
+msgstr "Стирать изображения"
+
+#: ink/view/menus.lua
+msgid "Erase whole strokes"
+msgstr "Стирать штрихи целиком"
+
+#: main.lua
+msgid "Erase with the pen's eraser end"
+msgstr "Стирать ластиком на конце ручки"
+
+#: ink/actions.lua
+#: ink/view/menus.lua
+msgid "Eraser"
+msgstr "Ластик"
+
+#: ink/actions.lua
+msgid "Eraser end"
+msgstr "Ластик на конце"
+
+#: ink/guide.lua
+msgid "Erasing"
+msgstr "Стирание"
+
+#: ink/guide.lua
+msgid "Every drawing and notebook is a file that saves as you go. File has Rename, Duplicate, Export and New."
+msgstr "Каждый рисунок и блокнот — это файл, который сохраняется по ходу работы. В меню «Файл» есть «Переименовать», «Дублировать», «Экспорт» и «Создать»."
+
+#: ink/guide.lua
+msgid "Everything besides ink"
+msgstr "Всё, кроме чернил"
+
+#: ink/view/trash.lua
+msgid "Everything in it is deleted for good."
+msgstr "Всё в ней удаляется навсегда."
+
+#: ink/reader/inkview.lua
+msgid "Everything you drew, wrote and placed on this book goes, on every page. Highlights the highlighter turned into the reader's own stay, and so do the book's notes."
+msgstr "Всё, что вы нарисовали, написали и разместили в этой книге, исчезнет на каждой странице. Выделения, которые текстовыделитель превратил в выделения читалки, остаются, как и заметки книги."
+
+#: ink/view/toolbar.lua
+msgid "Exit"
+msgstr "Выход"
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to the service below and puts back the text it reads. Wi-Fi has to be on."
+msgstr "Экспериментально. «Преобразовать в текст» отправляет изображение обведённого лассо рукописного текста в сервис ниже и возвращает распознанный текст. Wi-Fi должен быть включён."
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to your AI service and puts back the text it reads. Set the three below from your service's account and documentation, then lasso some writing and choose Convert to text, with Wi-Fi on."
+msgstr "Экспериментально. «Преобразовать в текст» отправляет изображение обведённого лассо рукописного текста в ваш ИИ-сервис и возвращает распознанный текст. Задайте три поля ниже по данным учётной записи и документации сервиса, затем обведите лассо рукописный текст и выберите «Преобразовать в текст» при включённом Wi-Fi."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Export"
+msgstr "Экспорт"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) as PNGs"
+msgstr "Экспорт страниц в PNG: %d"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) to PDF"
+msgstr "Экспорт страниц в PDF: %d"
+
+#: ink/view/export.lua
+msgid "Export PDF"
+msgstr "Экспорт в PDF"
+
+#: ink/view/export.lua
+msgid "Export PNG"
+msgstr "Экспорт в PNG"
+
+#: ink/view/export.lua
+msgid "Export as PDF"
+msgstr "Экспортировать как PDF"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export as PDF…"
+msgstr "Экспортировать как PDF…"
+
+#: ink/view/export.lua
+msgid "Export as PNG"
+msgstr "Экспортировать как PNG"
+
+#: ink/view/export.lua
+msgid "Export as images"
+msgstr "Экспортировать как изображения"
+
+#: ink/view/export.lua
+msgid "Export editable PDF"
+msgstr "Экспортировать редактируемый PDF"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Export folder: %s"
+msgstr "Папка экспорта: %s"
+
+#: ink/view/export.lua
+msgid "Export stopped."
+msgstr "Экспорт остановлен."
+
+#: main.lua
+msgid "Export the book with its annotations…"
+msgstr "Экспортировать книгу с аннотациями…"
+
+#: ink/view/export.lua
+msgid "Export the folder as PDF"
+msgstr "Экспортировать папку как PDF"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Exporting %d page(s) to PDF"
+msgstr "Экспорт страниц в PDF: %d"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Exports: %s"
+msgstr "Экспорт: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export…"
+msgstr "Экспорт…"
+
+#: ink/view/ocrapi.lua
+msgid "External OCR. Stop discards the result; the request may still finish at the provider."
+msgstr "Внешний OCR. «Остановить» отбрасывает результат; запрос у провайдера всё же может завершиться."
+
+#: ink/guide.lua
+msgid "Fast refresh on a Boox"
+msgstr "Быстрое обновление на Boox"
+
+#: ink/view/pencase.lua
+msgid "Fast refresh while drawing"
+msgstr "Быстрое обновление при рисовании"
+
+#: ink/view/settings.lua
+msgid "Fast strokes leave faint marks; a full refresh clears them this often."
+msgstr "Быстрые штрихи оставляют бледные следы; полное обновление стирает их с такой частотой."
+
+#: ink/guide.lua
+msgid "Faster drawing"
+msgstr "Более быстрое рисование"
+
+#: ink/pentest.lua
+msgid ""
+"Faster drawing on this reader\n"
+"\n"
+"KOReader can't choose the fast e-ink refresh on this device, so its own refresh mode for KOReader decides how quickly ink appears.\n"
+"\n"
+"Look for a per-app refresh or speed mode for KOReader in the device's settings, and choose the fastest.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"Более быстрое рисование на этой читалке\n"
+"\n"
+"KOReader не может выбрать быстрое e-ink-обновление на этом устройстве, поэтому скорость появления чернил определяет собственный режим обновления устройства для KOReader.\n"
+"\n"
+"Найдите в настройках устройства режим обновления или скорости для отдельного приложения KOReader и выберите самый быстрый.\n"
+"\n"
+"Настройки, Руководство, «Ваша читалка» покажет это снова."
+
+#: ink/view/toolbar.lua
+msgid "File"
+msgstr "Файл"
+
+#: ink/guide.lua
+msgid "File, Export: transparent or white, the whole page or an area you pick, with or without the grid."
+msgstr "«Файл», «Экспорт»: прозрачный или белый фон, вся страница или выбранная область, с сеткой или без неё."
+
+#: ink/guide.lua
+msgid "File, Layers splits a drawing into layers. The strip at the right adds one or picks where you draw; tap that one for its menu."
+msgstr "«Файл», «Слои» делит рисунок на слои. Полоса справа добавляет слой или выбирает, где вы рисуете; нажмите на слой, чтобы открыть его меню."
+
+#: ink/view/settings.lua
+msgid "Files"
+msgstr "Файлы"
+
+#: ink/view/share.lua
+msgid "Files arrive in Library › Imported. Reload the page if it was open."
+msgstr "Файлы поступают в «Библиотека › Полученные». Перезагрузите страницу, если она была открыта."
+
+#: ink/view/menus.lua
+msgid "Fill"
+msgstr "Заливка"
+
+#: ink/view/menus.lua
+msgid "Fill colour"
+msgstr "Цвет заливки"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Filled shapes and fills: %d"
+msgstr "Заливки и залитые фигуры: %d"
+
+#: ink/penset.lua
+msgid "Fineliner"
+msgstr "Тонкий линер"
+
+#: ink/view/pencase.lua
+msgid "Finger on the page"
+msgstr "Палец на странице"
+
+#: ink/framepicker.lua
+msgid "Finish"
+msgstr "Завершить"
+
+#: ink/view/pencase.lua
+msgid "Firm"
+msgstr "Плотный"
+
+#: ink/guide.lua
+msgid "First or last page"
+msgstr "Первая или последняя страница"
+
+#: ink/view/notebook.lua
+msgid "First page"
+msgstr "Первая страница"
+
+#: ink/actions.lua
+msgid "Fit the page"
+msgstr "По размеру страницы"
+
+#: ink/reader/inkview.lua
+msgid "Fit the toolbar in the margin"
+msgstr "Уместить панель инструментов в поле"
+
+#: ink/view/handwriting.lua
+msgid "Fix anything misread, then convert."
+msgstr "Исправьте неверно прочитанное, затем преобразуйте."
+
+#: ink/view/selection.lua
+msgid "Flip"
+msgstr "Отразить"
+
+#: ink/framecover.lua
+msgid "Floating Frame"
+msgstr "Плавающая рамка"
+
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+msgid "Folder"
+msgstr "Папка"
+
+#: ink/view/library.lua
+msgid "Folder icon"
+msgstr "Значок папки"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Folder in %s"
+msgstr "Папка в %s"
+
+#: ink/view/library.lua
+msgid "Folder name"
+msgstr "Название папки"
+
+#: ink/view/search.lua
+msgid "Folder, notebook or page name"
+msgstr "Название папки, блокнота или страницы"
+
+#: ink/guide.lua
+msgid "Folders, search and the trash"
+msgstr "Папки, поиск и корзина"
+
+#: ink/view/export.lua
+msgid "Folder…"
+msgstr "Папка…"
+
+#: ink/view/menus.lua
+msgid "Font size"
+msgstr "Размер шрифта"
+
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Font: %s"
+msgstr "Шрифт: %s"
+
+#: ink/guide.lua
+msgid "For pen readers: rest your hand while you write. Finger on the page sets what a finger does then."
+msgstr "Для читалок с ручкой: кладите руку при письме. «Палец на странице» задаёт, что тогда делает палец."
+
+#: ink/coverpicker.lua
+msgid "Forest"
+msgstr "Лес"
+
+#: ink/view/export.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+msgid "Format"
+msgstr "Формат"
+
+#: ink/guide.lua
+msgid "Format, Paragraph, Checklist puts a box before each line. Tap a box to tick it, with the text open or closed."
+msgstr "«Формат», «Абзац», «Список задач» ставит флажок перед каждой строкой. Нажмите на флажок, чтобы отметить его, при открытом или закрытом тексте."
+
+#: ink/penset.lua
+msgid "Fountain"
+msgstr "Перьевая ручка"
+
+#: ink/view/settings.lua
+msgid "Four-way"
+msgstr "Четырёхсторонний"
+
+#: ink/view/library.lua
+msgid "Frame on the shelf…"
+msgstr "Рамка на полке…"
+
+#: ink/view/images.lua
+msgid "Free pictures from Wikimedia and Openverse. Needs Wi-Fi."
+msgstr "Свободные изображения из Wikimedia и Openverse. Нужен Wi-Fi."
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "From %s"
+msgstr "Из %s"
+
+#: ink/view/images.lua
+msgid "From Library › Imported › Pictures."
+msgstr "Из «Библиотека › Полученные › Изображения»."
+
+#: ink/view/notebook.lua
+msgid "From a PDF…"
+msgstr "Из PDF…"
+
+#: ink/view/notebook.lua
+msgid "From a template…"
+msgstr "Из шаблона…"
+
+#: ink/view/notebook.lua
+msgid "From template…"
+msgstr "Из шаблона…"
+
+#: ink/view/images.lua
+msgid "From this reader"
+msgstr "С этой читалки"
+
+#: ink/view/receive.lua
+msgid "From your phone or computer"
+msgstr "С телефона или компьютера"
+
+#: ink/notebookcover.lua
+msgid "Front page"
+msgstr "Титульная страница"
+
+#: ink/view/imagebrowser.lua
+msgid "Full resolution"
+msgstr "Полное разрешение"
+
+#: ink/framecover.lua
+msgid "Fumed oak"
+msgstr "Морёный дуб"
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/view/gestures.lua
+#: ink/view/settings.lua
+msgid "Gestures and pen buttons"
+msgstr "Жесты и кнопки ручки"
+
+#: ink/guide.lua
+msgid "Gestures and pen buttons gives each one an action, and the page turn buttons too: undo, lasso, a saved pen, hiding the toolbar and more."
+msgstr "«Жесты и кнопки ручки» назначает действие каждому из них и кнопкам перелистывания: отмена, лассо, сохранённая ручка, скрытие панели инструментов и другое."
+
+#: ink/view/images.lua
+msgid "Get from your phone or computer"
+msgstr "Получить с телефона или компьютера"
+
+#: ink/guide.lua
+msgid "Getting around"
+msgstr "Как ориентироваться"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Ghosting"
+msgstr "Остаточное изображение"
+
+#: ink/framecover.lua
+msgid "Gilded Baroque"
+msgstr "Золочёное барокко"
+
+#: ink/view/notebook.lua
+msgid "Go"
+msgstr "Перейти"
+
+#: ink/view/updates.lua
+msgid "Go back"
+msgstr "Вернуться"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back from this version to the latest release (%1)."
+msgstr "Вернуться с этой версии к последнему выпуску (%1)."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back to %1?"
+msgstr "Вернуться к %1?"
+
+#: ink/view/updates.lua
+msgid "Go back to it"
+msgstr "Вернуться к ней"
+
+#: ink/view/selection.lua
+msgid "Go to link"
+msgstr "Перейти по ссылке"
+
+#: ink/view/notebook.lua
+msgid "Go to page"
+msgstr "Перейти на страницу"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Go to page (1–%d)"
+msgstr "Перейти на страницу (1–%d)"
+
+#: ink/view/notebook.lua
+msgid "Go to page…"
+msgstr "Перейти на страницу…"
+
+#: ink/actions.lua
+#: ink/view/notebook.lua
+msgid "Go to the contents page"
+msgstr "Перейти к оглавлению"
+
+#: ink/framecover.lua
+msgid "Gold"
+msgstr "Золото"
+
+#: ink/view/welcome.lua
+msgid "Got it"
+msgstr "Понятно"
+
+#: ink/brushes.lua
+msgid "Grain"
+msgstr "Текстура"
+
+#: ink/folderlook.lua
+msgid "Graphite"
+msgstr "Графит"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Green"
+msgstr "Зелёный"
+
+#: ink/palette.lua
+msgid "Grey"
+msgstr "Серый"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Grid"
+msgstr "Сетка"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Grid: %s"
+msgstr "Сетка: %s"
+
+#: ink/reader/inkview.lua
+#: ink/view/guide.lua
+#: ink/view/settings.lua
+msgid "Guide"
+msgstr "Руководство"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Habit tracker"
+msgstr "Трекер привычек"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Handwriting"
+msgstr "Рукописный текст"
+
+#: ink/notebookcover.lua
+msgid "Hardcover"
+msgstr "Hardcover"
+
+#: ink/penset.lua
+msgid "Hatch"
+msgstr "Штриховка"
+
+#: ink/view/settings.lua
+msgid "Hidden"
+msgstr "Скрыто"
+
+#: ink/view/layers.lua
+msgid "Hide"
+msgstr "Скрыть"
+
+#: ink/actions.lua
+msgid "Hide or show the toolbar"
+msgstr "Скрыть или показать панель инструментов"
+
+#: ink/view/textformat.lua
+msgid "Highlight"
+msgstr "Выделить"
+
+#: ink/guide.lua
+msgid "Highlight while reading"
+msgstr "Выделять при чтении"
+
+#: main.lua
+msgid "Highlight with the pen's button"
+msgstr "Выделять кнопкой ручки"
+
+#: ink/actions.lua
+#: ink/penset.lua
+msgid "Highlighter"
+msgstr "Текстовыделитель"
+
+#: ink/reader/inkview.lua
+msgid "Highlighter snaps to the text"
+msgstr "Текстовыделитель прилипает к тексту"
+
+#: ink/view/textformat.lua
+msgid "Hold a colour you added to remove it."
+msgstr "Удерживайте добавленный вами цвет, чтобы удалить его."
+
+#: ink/guide.lua
+msgid "Hold a folder in the Library, Export as PDF."
+msgstr "Удерживайте папку в библиотеке, «Экспортировать как PDF»."
+
+#: ink/guide.lua
+msgid "Hold a saved pen."
+msgstr "Удерживайте сохранённую ручку."
+
+#: ink/guide.lua
+msgid "Hold inside the text box you are writing in."
+msgstr "Удерживайте внутри текстового поля, в котором пишете."
+
+#: ink/view/pencase.lua
+msgid "Hold still to straighten"
+msgstr "Задержите, чтобы выпрямить"
+
+#: ink/guide.lua
+msgid "Hold the pen still at the end of a stroke: a rough line, box, ellipse or triangle snaps clean. Writing is left alone."
+msgstr "Задержите ручку в конце штриха: неровная линия, прямоугольник, эллипс или треугольник станет ровным. Письмо не затрагивается."
+
+#: main.lua
+msgid "Hold the pen's side button and run the pen over a line of text: it becomes a highlight, without opening the annotation mode. The button is the one set to Highlighter in Gestures and pen buttons."
+msgstr "Удерживайте боковую кнопку ручки и проведите ручкой по строке текста: она станет выделением, не открывая режим аннотаций. Это кнопка, назначенная на «Текстовыделитель» в разделе «Жесты и кнопки ручки»."
+
+#: ink/guide.lua
+msgid "Hold the pen's side button while drawing."
+msgstr "Удерживайте боковую кнопку ручки во время рисования."
+
+#: ink/guide.lua
+msgid "Hold the previous or next arrow."
+msgstr "Удерживайте стрелку «назад» или «вперёд»."
+
+#: ink/view/settings.lua
+msgid "Horizontal"
+msgstr "По горизонтали"
+
+#: ink/view/menus.lua
+msgid "How big the arrowheads are, in canvas pixels."
+msgstr "Размер наконечников стрелок в пикселях холста."
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Icon: %s"
+msgstr "Значок: %s"
+
+#: ink/view/toolbar.lua
+msgid "Image"
+msgstr "Изображение"
+
+#: ink/guide.lua
+msgid "Image adds one from a file or from the web. Move, resize or turn it; Remove background cuts it out."
+msgstr "«Изображение» добавляет картинку из файла или из интернета. Перемещайте, масштабируйте или поворачивайте её; «Удалить фон» вырезает её."
+
+#: ink/guide.lua
+msgid "Image, Background puts a picture behind the page. Hold New drawing to start a drawing from one."
+msgstr "«Изображение», «Фон» помещает картинку за страницу. Удерживайте «Новый рисунок», чтобы начать рисунок с картинки."
+
+#: ink/guide.lua
+msgid "Import a PDF to write on its pages, then export it back to PDF."
+msgstr "Импортируйте PDF, чтобы писать на его страницах, затем экспортируйте обратно в PDF."
+
+#: ink/view/settings.lua
+msgid "In KOReader's night mode, ink keeps its colour: blue stays blue, and dark ink turns light so it reads on the dark page."
+msgstr "В ночном режиме KOReader чернила сохраняют цвет: синий остаётся синим, а тёмные чернила светлеют, чтобы читаться на тёмной странице."
+
+#: ink/view/export.lua
+msgid "Include the PDF page"
+msgstr "Включить страницу PDF"
+
+#: ink/view/export.lua
+msgid "Include the background"
+msgstr "Включить фон"
+
+#: ink/view/export.lua
+msgid "Include the book's pages"
+msgstr "Включить страницы книги"
+
+#: ink/view/export.lua
+msgid "Include the grid"
+msgstr "Включить сетку"
+
+#: ink/view/export.lua
+msgid "Include the paper"
+msgstr "Включить бумагу"
+
+#: ink/brushes.lua
+msgid "Ink"
+msgstr "Чернила"
+
+#: main.lua
+msgid "Ink Away"
+msgstr "Ink Away"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1"
+msgstr "Ink Away %1"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is available: Settings, Updates."
+msgstr "Доступен Ink Away %1: «Настройки», «Обновления»."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is installed. Restart KOReader to use it."
+msgstr "Ink Away %1 установлен. Перезапустите KOReader, чтобы им пользоваться."
+
+#: main.lua
+msgid "Ink Away (drawing canvas)"
+msgstr "Ink Away (холст для рисования)"
+
+#: ink/reader/book.lua
+msgid "Ink Away could not save this book's ink: its folder can't be written to."
+msgstr "Ink Away не удалось сохранить чернила этой книги: в её папку нельзя писать."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away downloads it from GitHub (%1) and checks it before it replaces this version; then KOReader restarts to use it. Your drawings, notebooks and settings stay as they are."
+msgstr "Ink Away скачивает её с GitHub (%1) и проверяет, прежде чем заменить эту версию; затем KOReader перезапускается. Ваши рисунки, блокноты и настройки остаются как есть."
+
+#: ink/drawingshelf.lua
+msgid "Ink Away drawings"
+msgstr "Рисунки Ink Away"
+
+#: ink/view/share.lua
+msgid "Ink Away file"
+msgstr "Файл Ink Away"
+
+#: ink/view/welcome.lua
+msgid "Ink Away in your books"
+msgstr "Ink Away в ваших книгах"
+
+#: ink/view/settings.lua
+msgid "Ink Away is free and made by one person. If it makes your writing better, a coffee helps keep it going."
+msgstr "Ink Away бесплатен и сделан одним человеком. Если он улучшает ваше письмо, чашка кофе помогает его поддерживать."
+
+#: main.lua
+msgid "Ink Away library"
+msgstr "Библиотека Ink Away"
+
+#: ink/bookshelf.lua
+msgid "Ink Away notebooks"
+msgstr "Блокноты Ink Away"
+
+#: main.lua
+msgid "Ink Away: annotate the book"
+msgstr "Ink Away: аннотировать книгу"
+
+#: main.lua
+msgid "Ink Away: book notes (Ink Away outside a book)"
+msgstr "Ink Away: заметки к книге (Ink Away вне книги)"
+
+#: ink/view/pencase.lua
+msgid "Ink shows with the Boox's fast black-and-white refresh as you write, and settles into grey and colour when the pen rests."
+msgstr "Чернила появляются при быстром чёрно-белом обновлении Boox, пока вы пишете, и становятся серыми и цветными, когда ручка отдыхает."
+
+#: ink/guide.lua
+msgid "Ink stays with the words when the font changes. Also in the reader menu: Tools, Ink Away."
+msgstr "Чернила остаются со словами при смене шрифта. Также в меню читалки: «Инструменты», Ink Away."
+
+#: ink/view/notebook.lua
+msgid "Insert before"
+msgstr "Вставить перед"
+
+#: ink/view/updates.lua
+msgid "Install"
+msgstr "Установить"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Install %1?"
+msgstr "Установить %1?"
+
+#: ink/framecover.lua
+msgid "Instant Photo"
+msgstr "Моментальное фото"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Into %s"
+msgstr "В %s"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Isometric"
+msgstr "Изометрия"
+
+#: ink/view/trash.lua
+msgid "It can't be brought back."
+msgstr "Это нельзя вернуть."
+
+#: ink/guide.lua
+msgid "It saves itself"
+msgstr "Сохраняется само"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "It stays in the trash for %d days."
+msgstr "Хранится в корзине дней: %d."
+
+#: ink/view/textformat.lua
+msgid "Italic"
+msgstr "Курсив"
+
+#: ink/framecover.lua
+msgid "Ivory and silver"
+msgstr "Слоновая кость и серебро"
+
+#: ink/welcome.lua
+msgid "KOReader's gesture manager is off, so Ink Away couldn't give these a gesture."
+msgstr "Менеджер жестов KOReader отключён, поэтому Ink Away не смог назначить им жест."
+
+#: ink/view/exportbook.lua
+msgid "Keep as pictures"
+msgstr "Оставить как изображения"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Keep as pictures puts a picture of your ink over the %d page(s) that have them, so they look as you drew them. Their ink there can't be edited stroke by stroke; every other page stays editable. Leave them out writes the PDF without them."
+msgstr "«Оставить как изображения» накладывает изображение ваших чернил на страницы, где они есть (%d), чтобы они выглядели так, как вы их нарисовали. Чернила на них нельзя будет править штрих за штрихом; остальные страницы остаются редактируемыми. «Не включать» записывает PDF без них."
+
+#: ink/view/settings.lua
+msgid "Keep colours in night mode"
+msgstr "Сохранять цвета в ночном режиме"
+
+#: ink/view/dialogs.lua
+msgid "Keep going"
+msgstr "Продолжить"
+
+#: ink/view/ocrapi.lua
+msgid "Key"
+msgstr "Ключ"
+
+#: ink/view/pencase.lua
+msgid "Kind of pen"
+msgstr "Вид ручки"
+
+#: ink/palette.lua
+msgid "Kraft"
+msgstr "Крафт"
+
+#: ink/notebookcover.lua
+msgid "Kraft with window"
+msgstr "Крафт с окошком"
+
+#: ink/view/settings.lua
+msgid "Landscape"
+msgstr "Альбомная"
+
+#: ink/actions.lua
+#: ink/guide.lua
+#: ink/view/toolbar.lua
+msgid "Lasso"
+msgstr "Лассо"
+
+#: ink/guide.lua
+msgid "Lasso printed handwriting and Convert to text makes it a text box. One undo brings the writing back."
+msgstr "Обведите лассо печатный рукописный текст, и «Преобразовать в текст» сделает из него текстовое поле. Одна отмена вернёт написанное."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Last checked %1."
+msgstr "Последняя проверка: %1."
+
+#: ink/view/settings.lua
+msgid "Last document"
+msgstr "Последний документ"
+
+#: ink/view/notebook.lua
+msgid "Last page"
+msgstr "Последняя страница"
+
+#: ink/view/receive.lua
+msgid "Later"
+msgstr "Позже"
+
+#: ink/palette.lua
+msgid "Lavender"
+msgstr "Лаванда"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "Layer %1 of %2. New drawing goes on this layer."
+msgstr "Слой %1 из %2. Новый рисунок попадает на этот слой."
+
+#: ink/guide.lua
+#: ink/view/document.lua
+msgid "Layers"
+msgstr "Слои"
+
+#: ink/view/exportbook.lua
+msgid "Leave them out"
+msgstr "Не включать"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Left"
+msgstr "Слева"
+
+#: ink/notebookcover.lua
+#: ink/palette.lua
+msgid "Legal pad"
+msgstr "Блокнот для заметок"
+
+#: ink/actions.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+#: ink/view/search.lua
+#: ink/view/settings.lua
+#: ink/view/share.lua
+#: ink/view/toolbar.lua
+msgid "Library"
+msgstr "Библиотека"
+
+#: ink/guide.lua
+msgid "Library and Browse"
+msgstr "Библиотека и Обзор"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library folder: %s"
+msgstr "Папка библиотеки: %s"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library: %s"
+msgstr "Библиотека: %s"
+
+#: ink/view/settings.lua
+msgid "Light"
+msgstr "Светлая"
+
+#: ink/palette.lua
+msgid "Light grey"
+msgstr "Светло-серый"
+
+#: ink/framecover.lua
+msgid "Light oak"
+msgstr "Светлый дуб"
+
+#: ink/view/pencase.lua
+msgid "Light touch"
+msgstr "Лёгкое касание"
+
+#: ink/folderlook.lua
+msgid "Lime"
+msgstr "Лайм"
+
+#: ink/view/menus.lua
+msgid "Line / arrow / curve"
+msgstr "Линия / стрелка / кривая"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Line spacing"
+msgstr "Межстрочный интервал"
+
+#: ink/view/settings.lua
+msgid "Line strength"
+msgstr "Толщина линии"
+
+#: ink/view/notebook.lua
+msgid "Lined"
+msgstr "В линейку"
+
+#: ink/guide.lua
+msgid "Lined, grid, dotted, Cornell, daily, weekly, monthly, a habit tracker and more, for each page."
+msgstr "В линейку, в клетку, в точку, Cornell, дневной, недельный, месячный, трекер привычек и другие — для каждой страницы."
+
+#: ink/view/settings.lua
+msgid "Lines"
+msgstr "Линии"
+
+#: ink/guide.lua
+msgid "Lines, curves, arrows, boxes, ellipses and triangles, filled or outlined."
+msgstr "Линии, кривые, стрелки, прямоугольники, эллипсы и треугольники, залитые или контурные."
+
+#: ink/view/links.lua
+msgid "Link to a page"
+msgstr "Ссылка на страницу"
+
+#: ink/guide.lua
+msgid "Link to page in the lasso's menu makes it a link: tap it with Pan, or a finger with palm rejection on, to jump there; Back returns."
+msgstr "«Ссылка на страницу» в меню лассо превращает его в ссылку: нажмите на неё инструментом «Перемещение» или пальцем при включённой защите от касания ладони, чтобы перейти туда; «Назад» возвращает."
+
+#: ink/view/selection.lua
+msgid "Link to page…"
+msgstr "Ссылка на страницу…"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Linked to %s"
+msgstr "Связано с %s"
+
+#: ink/guide.lua
+msgid "Links"
+msgstr "Ссылки"
+
+#: ink/view/textformat.lua
+msgid "List"
+msgstr "Список"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Loading images… %d/%d"
+msgstr "Загрузка изображений… %d/%d"
+
+#: ink/actions.lua
+msgid "Long two-finger swipe down"
+msgstr "Длинный жест двумя пальцами вниз"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe down."
+msgstr "Длинный жест двумя пальцами вниз."
+
+#: ink/actions.lua
+msgid "Long two-finger swipe up"
+msgstr "Длинный жест двумя пальцами вверх"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe up."
+msgstr "Длинный жест двумя пальцами вверх."
+
+#: ink/view/imagebrowser.lua
+msgid "Long-press an image to add it."
+msgstr "Удерживайте изображение, чтобы добавить его."
+
+#: ink/view/search.lua
+msgid "Look inside pages too"
+msgstr "Искать и внутри страниц"
+
+#: ink/guide.lua
+msgid "Loop writing, shapes, pictures or text for its menu: cut, copy, duplicate, turn, flip, colour, size, opacity, to front, delete."
+msgstr "Обведите лассо письмо, фигуры, изображения или текст, чтобы открыть меню: вырезать, копировать, дублировать, повернуть, отразить, цвет, размер, непрозрачность, на передний план, удалить."
+
+#: ink/view/textformat.lua
+msgid "Loose"
+msgstr "Свободно"
+
+#: ink/framecover.lua
+msgid "Louis XVI"
+msgstr "Людовик XVI"
+
+#: ink/framecover.lua
+msgid "Mahogany"
+msgstr "Красное дерево"
+
+#: ink/view/pencase.lua
+msgid "Make a brush"
+msgstr "Создать кисть"
+
+#: ink/guide.lua
+msgid "Make a brush in the list of kinds; hold it there to delete it."
+msgstr "Создайте кисть в списке видов; удерживайте её там, чтобы удалить."
+
+#: ink/view/notebook.lua
+msgid "Make a contents page"
+msgstr "Создать страницу оглавления"
+
+#: ink/view/pencase.lua
+msgid "Make a copy"
+msgstr "Сделать копию"
+
+#: ink/guide.lua
+msgid "Make them yours"
+msgstr "Настройте под себя"
+
+#: ink/view/share.lua
+msgid "Making a notebook in Library › Imported › PDFs…"
+msgstr "Создаётся блокнот в «Библиотека › Полученные › PDF»…"
+
+#: ink/view/notebook.lua
+msgid "Margin ruled"
+msgstr "С полями"
+
+#: ink/penset.lua
+msgid "Mark"
+msgstr "Отметить"
+
+#: ink/penset.lua
+msgid "Marker"
+msgstr "Маркер"
+
+#: ink/view/pencase.lua
+msgid "Medium"
+msgstr "Средний"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Meeting notes"
+msgstr "Заметки о встрече"
+
+#: ink/view/layers.lua
+msgid "Merge"
+msgstr "Объединить"
+
+#: ink/view/layers.lua
+msgid "Merge down"
+msgstr "Объединить с нижним"
+
+#: ink/framecover.lua
+msgid "Minimal Metal"
+msgstr "Минималистичный металл"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Mint"
+msgstr "Мята"
+
+#: ink/view/ocrapi.lua
+msgid "Model"
+msgstr "Модель"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Monthly"
+msgstr "Месячный"
+
+#: ink/ui/thumbgrid.lua
+msgid "More"
+msgstr "Ещё"
+
+#: ink/view/receive.lua
+msgid "More are still coming."
+msgstr "Скоро будут и другие."
+
+#: ink/guide.lua
+msgid "More room"
+msgstr "Больше места"
+
+#: ink/view/notebook.lua
+msgid "Move"
+msgstr "Переместить"
+
+#: ink/guide.lua
+msgid "Move around"
+msgstr "Перемещение по программе"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move down"
+msgstr "Переместить вниз"
+
+#: ink/view/library.lua
+msgid "Move here"
+msgstr "Переместить сюда"
+
+#: ink/view/pencase.lua
+msgid "Move left"
+msgstr "Переместить влево"
+
+#: ink/view/pencase.lua
+msgid "Move right"
+msgstr "Переместить вправо"
+
+#: ink/actions.lua
+msgid "Move the page (Pan)"
+msgstr "Перемещение страницы (Перемещение)"
+
+#: ink/view/overview.lua
+msgid "Move the page to"
+msgstr "Переместить страницу в"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Move this page to (1–%d)"
+msgstr "Переместить эту страницу на место (1–%d)"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Move to %s"
+msgstr "Переместить в %s"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Move to…"
+msgstr "Переместить в…"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move up"
+msgstr "Переместить вверх"
+
+#: ink/guide.lua
+msgid "Move, copy or remove"
+msgstr "Переместить, скопировать или убрать"
+
+#: ink/reader/inkview.lua
+#: ink/view/trash.lua
+msgid "Moved to the trash"
+msgstr "Перемещено в корзину"
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Moved to “%s”"
+msgstr "Перемещено в «%s»"
+
+#: ink/view/notebook.lua
+msgid "Move…"
+msgstr "Переместить…"
+
+#: ink/framecover.lua
+msgid "Museum Mat"
+msgstr "Музейное паспарту"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Music"
+msgstr "Музыка"
+
+#: ink/framecover.lua
+msgid "Mustard"
+msgstr "Горчица"
+
+#: ink/ui/brushmaker.lua
+msgid "Name this brush"
+msgstr "Назовите эту кисть"
+
+#: ink/view/pencase.lua
+msgid "Navigate"
+msgstr "Навигация"
+
+#: ink/coverpicker.lua
+msgid "Navy"
+msgstr "Тёмно-синий"
+
+#: ink/view/library.lua
+msgid "New"
+msgstr "Новый"
+
+#: ink/view/document.lua
+msgid "New drawing"
+msgstr "Новый рисунок"
+
+#: ink/view/library.lua
+msgid "New folder"
+msgstr "Новая папка"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "New in %s"
+msgstr "Новый в %s"
+
+#: ink/view/document.lua
+#: ink/view/notebook.lua
+msgid "New notebook"
+msgstr "Новый блокнот"
+
+#: ink/view/notebook.lua
+msgid "New notebook from template"
+msgstr "Новый блокнот из шаблона"
+
+#: ink/view/notebook.lua
+msgid "New page from template"
+msgstr "Новая страница из шаблона"
+
+#: ink/view/pencase.lua
+msgid "New pen"
+msgstr "Новая ручка"
+
+#: ink/view/search.lua
+msgid "New search"
+msgstr "Новый поиск"
+
+#: ink/bookshelf.lua
+#: ink/drawingshelf.lua
+msgid "New shelf"
+msgstr "Новая полка"
+
+#: ink/view/library.lua
+msgid "Newest first"
+msgstr "Сначала новые"
+
+#: ink/view/imagebrowser.lua
+msgid "Next"
+msgstr "Далее"
+
+#: ink/actions.lua
+msgid "Next page"
+msgstr "Следующая страница"
+
+#: ink/view/pencase.lua
+msgid "Nib angle"
+msgstr "Угол пера"
+
+#: ink/view/notebook.lua
+msgid "No PDFs or folders here."
+msgstr "Здесь нет PDF и папок."
+
+#: ink/view/overview.lua
+msgid "No colour"
+msgstr "Без цвета"
+
+#: ink/view/dialogs.lua
+msgid "No files or folders here."
+msgstr "Здесь нет файлов и папок."
+
+#: ink/view/library.lua
+msgid "No folders here."
+msgstr "Здесь нет папок."
+
+#: ink/view/dialogs.lua
+msgid "No folders in here."
+msgstr "Внутри нет папок."
+
+#: ink/view/library.lua
+msgid "No icon"
+msgstr "Без значка"
+
+#: ink/view/library.lua
+msgid "No icons found."
+msgstr "Значки не найдены."
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"No images found here.\n"
+"Try another search, or the other source above."
+msgstr ""
+"Здесь изображений не найдено.\n"
+"Попробуйте другой запрос или другой источник выше."
+
+#: ink/guide.lua
+msgid "No need to annotate: hold the pen's side button (the one set to Highlighter) and run the pen over a line while reading."
+msgstr "Аннотировать не нужно: удерживайте боковую кнопку ручки (назначенную на «Текстовыделитель») и проведите ручкой по строке во время чтения."
+
+#: ink/view/overview.lua
+msgid "No notebooks here yet."
+msgstr "Блокнотов здесь пока нет."
+
+#: ink/view/links.lua
+msgid "No notebooks here."
+msgstr "Здесь нет блокнотов."
+
+#: ink/view/updates.lua
+msgid "No notes for this version."
+msgstr "Для этой версии нет заметок."
+
+#: ink/view/overview.lua
+msgid "No other notebook here"
+msgstr "Других блокнотов здесь нет"
+
+#: ink/view/export.lua
+msgid "No pages match the chosen range."
+msgstr "Нет страниц в выбранном диапазоне."
+
+#: ink/pentest.lua
+msgid ""
+"No pen has been seen since Ink Away opened, so with palm rejection on your finger moves the page.\n"
+"\n"
+"If you are drawing with a pen, this reader reports it as a finger: turn off Palm rejection in the pen menu to draw. Settings, Help, Test pen and touch shows how your pen arrives."
+msgstr ""
+"С момента открытия Ink Away ручка не обнаружена, поэтому при включённой защите от касания ладони палец двигает страницу.\n"
+"\n"
+"Если вы рисуете ручкой, эта читалка сообщает о ней как о пальце: чтобы рисовать, отключите защиту от касания ладони в меню ручки. «Настройки», «Справка», «Проверка ручки и касания» показывает, как приходит ваша ручка."
+
+#: ink/view/images.lua
+msgid "No pictures or folders here."
+msgstr "Здесь нет изображений и папок."
+
+#: ink/view/updates.lua
+msgid "No release found on GitHub."
+msgstr "Выпуск на GitHub не найден."
+
+#: ink/view/overview.lua
+msgid "No starred pages here."
+msgstr "Здесь нет страниц со звёздочкой."
+
+#: ink/view/notebook.lua
+msgid "No templates yet. Save a page as one from this menu: Save as template."
+msgstr "Шаблонов пока нет. Сохраните страницу как шаблон из этого меню: «Сохранить как шаблон»."
+
+#: ink/view/handwriting.lua
+msgid "No writing could be read there."
+msgstr "Там не удалось прочитать письмо."
+
+#: ink/view/export.lua
+msgid "None of the pages has ink."
+msgstr "Ни на одной странице нет чернил."
+
+#: ink/view/textformat.lua
+msgid "Normal"
+msgstr "Обычный"
+
+#: ink/view/updates.lua
+msgid "Not checked yet."
+msgstr "Пока не проверялось."
+
+#: ink/view/updates.lua
+msgid "Not installed"
+msgstr "Не установлено"
+
+#: ink/view/welcome.lua
+msgid "Not set up"
+msgstr "Не настроено"
+
+#: ink/view/textformat.lua
+msgid "Note font"
+msgstr "Шрифт заметок"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Notebook"
+msgstr "Блокнот"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Notebook in %s"
+msgstr "Блокнот в %s"
+
+#: ink/view/settings.lua
+msgid "Notebook paper"
+msgstr "Бумага блокнота"
+
+#: ink/bookshelf.lua
+#: ink/guide.lua
+#: ink/view/overview.lua
+#: ink/view/settings.lua
+msgid "Notebooks"
+msgstr "Блокноты"
+
+#: ink/actions.lua
+#: ink/view/pencase.lua
+msgid "Nothing"
+msgstr "Ничего"
+
+#: ink/view/search.lua
+msgid "Nothing found."
+msgstr "Ничего не найдено."
+
+#: ink/view/library.lua
+msgid "Nothing here yet. Make a drawing, a notebook or a folder with + New."
+msgstr "Здесь пока ничего нет. Создайте рисунок, блокнот или папку кнопкой «+ Создать»."
+
+#: ink/view/lasso.lua
+msgid "Nothing inside the loop."
+msgstr "Внутри петли ничего нет."
+
+#: ink/view/images.lua
+msgid "Nothing sent yet."
+msgstr "Пока ничего не отправлено."
+
+#: ink/view.lua
+msgid "Nothing to redo."
+msgstr "Нечего повторять."
+
+#: ink/view.lua
+msgid "Nothing to undo."
+msgstr "Нечего отменять."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Now in the copy, “%s”"
+msgstr "Теперь вы в копии «%s»"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Now page %d"
+msgstr "Теперь страница %d"
+
+#: ink/view/dialogs.lua
+msgid "OK"
+msgstr "ОК"
+
+#: ink/framecover.lua
+msgid "Oak"
+msgstr "Дуб"
+
+#: ink/view/settings.lua
+msgid "Off"
+msgstr "Выкл."
+
+#: ink/view/settings.lua
+msgid "Off: colour ink shows black until the pen rests, which reads more clearly on some colour e-ink screens."
+msgstr "Выкл.: цветные чернила остаются чёрными, пока ручка не отдохнёт, что читается чётче на некоторых цветных e-ink-экранах."
+
+#: ink/view/pencase.lua
+msgid "On Android, palm rejection needs a KOReader newer than 2026.07.1 (a nightly build from August 2026 or later). Earlier versions report the pen as a finger, so Ink Away can't tell it from your hand. Your pen draws as it is."
+msgstr "В Android для защиты от касания ладони нужен KOReader новее 2026.07.1 (ночная сборка августа 2026 или позже). Более ранние версии сообщают о ручке как о пальце, и Ink Away не может отличить её от вашей руки. Ваша ручка рисует как есть."
+
+#: ink/view/updates.lua
+msgid "On its own Ink Away looks once a day, when it opens on Wi-Fi; it never turns Wi-Fi on."
+msgstr "Сам по себе Ink Away проверяет раз в день, когда открывается по Wi-Fi; Wi-Fi он никогда не включает."
+
+#: ink/view/export.lua
+msgid "One PNG per page, in a folder of its own."
+msgstr "Один PNG на страницу, в отдельной папке."
+
+#: ink/guide.lua
+msgid "One shape or picture"
+msgstr "Одна фигура или изображение"
+
+#: ink/view/ocrapi.lua
+msgid "Only the lassoed writing is sent. The key is kept unencrypted in KOReader's settings."
+msgstr "Отправляется только обведённое лассо письмо. Ключ хранится без шифрования в настройках KOReader."
+
+#: ink/view/gestures.lua
+msgid "Only this one"
+msgstr "Только этот"
+
+#: ink/view/export.lua
+msgid "Only your ink, on white pages."
+msgstr "Только ваши чернила, на белых страницах."
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Opacity"
+msgstr "Непрозрачность"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/view/export.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+msgid "Open"
+msgstr "Открыть"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Open %s"
+msgstr "Открыть %s"
+
+#: main.lua
+msgid "Open Ink Away"
+msgstr "Открыть Ink Away"
+
+#: main.lua
+msgid "Open as Ink Away notebook"
+msgstr "Открыть как блокнот Ink Away"
+
+#: ink/view/images.lua
+msgid "Open image as background"
+msgstr "Открыть изображение как фон"
+
+#: ink/view/export.lua
+msgid "Open the PDF now?"
+msgstr "Открыть PDF сейчас?"
+
+#: ink/welcome.lua
+msgid "Open them from the reader menu: Tools, Ink Away. Or give them a gesture in Settings, Taps and gestures, Gesture manager: the actions are “Ink Away: annotate the book” and “Ink Away: book notes”."
+msgstr "Откройте их из меню читалки: «Инструменты», Ink Away. Или назначьте им жест в разделе «Настройки», «Касания и жесты», «Менеджер жестов»: действия называются «Ink Away: аннотировать книгу» и «Ink Away: заметки к книге»."
+
+#: ink/view/imagebrowser.lua
+msgid "Openverse"
+msgstr "Openverse"
+
+#: ink/view/textformat.lua
+msgid "Or turn the box to any angle with the ring above it."
+msgstr "Или поверните поле на любой угол кольцом над ним."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Orange"
+msgstr "Оранжевый"
+
+#: ink/view/library.lua
+msgid "Order"
+msgstr "Порядок"
+
+#: ink/view/settings.lua
+msgid "Orientation"
+msgstr "Ориентация"
+
+#: ink/view/export.lua
+msgid "Ornament name"
+msgstr "Название украшения"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "Outside a book, %1 opens Ink Away."
+msgstr "Вне книги %1 открывает Ink Away."
+
+#: ink/welcome.lua
+msgid "Outside a book, it opens Ink Away."
+msgstr "Вне книги он открывает Ink Away."
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "PDF"
+msgstr "PDF"
+
+#: ink/view/export.lua
+msgid "PDF saved"
+msgstr "PDF сохранён"
+
+#: ink/view/export.lua
+msgid "PDF type"
+msgstr "Тип PDF"
+
+#: ink/guide.lua
+msgid "PDFs"
+msgstr "PDF"
+
+#: ink/guide.lua
+msgid "PNG"
+msgstr "PNG"
+
+#: ink/view/export.lua
+msgid "PNG images"
+msgstr "Изображения PNG"
+
+#: ink/guide.lua
+msgid "PNG, PDF and more"
+msgstr "PNG, PDF и другое"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d"
+msgstr "Страница %d"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Page %d of %d"
+msgstr "Страница %d из %d"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d of %s"
+msgstr "Страница %d из %s"
+
+#: ink/view/export.lua
+msgid "Page numbers"
+msgstr "Номера страниц"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Page range (1–%d), e.g. 3-8"
+msgstr "Диапазон страниц (1–%d), например 3-8"
+
+#: ink/view/notebook.lua
+msgid "Page starred"
+msgstr "Страница отмечена звёздочкой"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Page title"
+msgstr "Название страницы"
+
+#: ink/actions.lua
+msgid "Page turn button back"
+msgstr "Кнопка перелистывания назад"
+
+#: ink/actions.lua
+msgid "Page turn button forward"
+msgstr "Кнопка перелистывания вперёд"
+
+#: ink/view/gestures.lua
+msgid "Page turn buttons"
+msgstr "Кнопки перелистывания"
+
+#: ink/view/export.lua
+msgid "Pages"
+msgstr "Страницы"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Pages %d–%d (tap to change)"
+msgstr "Страницы %d–%d (нажмите, чтобы изменить)"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pages you added to the notebook aren't in the original PDF, so their ink is left out either way: %d"
+msgstr "Страниц, добавленных в блокнот, нет в исходном PDF, поэтому их чернила в любом случае исключаются: %d"
+
+#: ink/guide.lua
+msgid "Pages, papers and PDFs"
+msgstr "Страницы, бумага и PDF"
+
+#: ink/penset.lua
+msgid "Paint"
+msgstr "Краска"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+msgid "Paint bucket"
+msgstr "Заливка"
+
+#: ink/framecover.lua
+msgid "Painted Box"
+msgstr "Расписная шкатулка"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Palm rejection"
+msgstr "Защита от касания ладони"
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger does nothing on the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"Защита от касания ладони включена, поэтому ручка рисует, а палец на странице ничего не делает.\n"
+"\n"
+"Чтобы рисовать пальцем, отключите защиту от касания ладони в меню ручки, «Ручка и ввод»."
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger moves the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"Защита от касания ладони включена, поэтому ручка рисует, а палец двигает страницу.\n"
+"\n"
+"Чтобы рисовать пальцем, отключите защиту от касания ладони в меню ручки, «Ручка и ввод»."
+
+#: ink/view/pencase.lua
+msgid "Palm rejection needs KOReader 2026.07 or newer (that release added the pen input support). Please update KOReader and it will start working. On a reader without a pen it does nothing."
+msgstr "Для защиты от касания ладони нужен KOReader 2026.07 или новее (в этом выпуске появилась поддержка ввода ручкой). Обновите KOReader, и она заработает. На читалке без ручки она ничего не делает."
+
+#: ink/guide.lua
+msgid "Pan, above the zoom, moves the page; tap it again to go back to your tool. Two fingers move the page with any tool."
+msgstr "«Перемещение» над масштабом двигает страницу; нажмите ещё раз, чтобы вернуться к своему инструменту. Два пальца двигают страницу при любом инструменте."
+
+#: ink/view/export.lua
+msgid "Paper"
+msgstr "Бумага"
+
+#: ink/guide.lua
+#: ink/view/paper.lua
+msgid "Paper colour"
+msgstr "Цвет бумаги"
+
+#: ink/view/notebook.lua
+msgid "Paper for this page"
+msgstr "Бумага для этой страницы"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Paper: %s"
+msgstr "Бумага: %s"
+
+#: ink/guide.lua
+msgid "Papers and planners"
+msgstr "Бумага и планеры"
+
+#: ink/view/notebook.lua
+msgid "Paper…"
+msgstr "Бумага…"
+
+#: ink/view/textformat.lua
+msgid "Paragraph"
+msgstr "Абзац"
+
+#: ink/guide.lua
+msgid "Part of a stroke, or all of it"
+msgstr "Часть штриха или весь"
+
+#: ink/guide.lua
+msgid "Part or whole"
+msgstr "Часть или целиком"
+
+#: ink/view/lasso.lua
+#: ink/view/notebook.lua
+#: ink/view/textformat.lua
+msgid "Paste"
+msgstr "Вставить"
+
+#: ink/guide.lua
+msgid "Paste anywhere"
+msgstr "Вставить где угодно"
+
+#: ink/view/lasso.lua
+msgid "Paste here"
+msgstr "Вставить сюда"
+
+#: ink/guide.lua
+msgid "Paste into text"
+msgstr "Вставить в текст"
+
+#: ink/view/lasso.lua
+msgid "Paste where it was"
+msgstr "Вставить на прежнее место"
+
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Pasted the first %d characters."
+msgstr "Вставлены первые символы: %d."
+
+#: ink/view/pencase.lua
+#: ink/view/toolbar.lua
+msgid "Pen"
+msgstr "Ручка"
+
+#: ink/view/pencase.lua
+msgid "Pen and input"
+msgstr "Ручка и ввод"
+
+#: ink/view/pencase.lua
+msgid "Pen and input settings"
+msgstr "Настройки ручки и ввода"
+
+#: ink/guide.lua
+msgid "Pen and input, Fast refresh while drawing: ink shows with the Boox's fast refresh as you write."
+msgstr "«Ручка и ввод», «Быстрое обновление при рисовании»: чернила показываются быстрым обновлением Boox, пока вы пишете."
+
+#: ink/guide.lua
+msgid "Pen and input, Pen taps menus and buttons: work the toolbar and menus with the pen too."
+msgstr "«Ручка и ввод», «Ручка нажимает меню и кнопки»: работайте с панелью инструментов и меню и ручкой."
+
+#: ink/view/gestures.lua
+msgid "Pen buttons, while held"
+msgstr "Кнопки ручки, пока удерживаются"
+
+#: ink/guide.lua
+msgid "Pen pressure"
+msgstr "Нажим ручки"
+
+#: ink/view/pencase.lua
+msgid "Pen pressure (Beta)"
+msgstr "Нажим ручки (бета)"
+
+#: ink/view/pencase.lua
+msgid "Pen taps menus and buttons"
+msgstr "Ручка нажимает меню и кнопки"
+
+#: ink/guide.lua
+msgid "Pen, screen and refresh"
+msgstr "Ручка, экран и обновление"
+
+#: ink/penset.lua
+msgid "Pencil"
+msgstr "Карандаш"
+
+#: ink/guide.lua
+msgid "Pens"
+msgstr "Ручки"
+
+#: ink/view/share.lua
+msgid "Phone or computer (Wi-Fi)"
+msgstr "Телефон или компьютер (Wi-Fi)"
+
+#: ink/view/library.lua
+msgid "Phone or computer (Wi-Fi)…"
+msgstr "Телефон или компьютер (Wi-Fi)…"
+
+#: ink/view/share.lua
+msgid "Phone or computer sharing stopped: Wi-Fi is off"
+msgstr "Обмен с телефоном или компьютером остановлен: Wi-Fi выключен"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Phone or computer sharing stopped: nothing happened for %d minutes"
+msgstr "Обмен с телефоном или компьютером остановлен: ничего не происходило минут: %d"
+
+#: ink/view/library.lua
+msgid "Pick a PDF that is already on this reader. It becomes a notebook in this folder."
+msgstr "Выберите PDF, который уже есть на этой читалке. Он станет блокнотом в этой папке."
+
+#: ink/view/share.lua
+msgid "Picture"
+msgstr "Изображение"
+
+#: ink/framecover.lua
+msgid "Picture on the sides"
+msgstr "Изображение по бокам"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Pictures"
+msgstr "Изображения"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pictures: %d"
+msgstr "Изображения: %d"
+
+#: ink/view/settings.lua
+msgid "Pinch to zoom, and drag with two fingers to move around the page."
+msgstr "Сведите пальцы, чтобы изменить масштаб, и двигайте двумя пальцами, чтобы перемещаться по странице."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Pink"
+msgstr "Розовый"
+
+#: ink/view/textformat.lua
+msgid "Plain"
+msgstr "Простая"
+
+#: ink/view/library.lua
+msgid "Plain folder"
+msgstr "Простая папка"
+
+#: ink/view/notebook.lua
+msgid "Planner"
+msgstr "Планер"
+
+#: ink/coverpicker.lua
+msgid "Plum"
+msgstr "Слива"
+
+#: ink/view/settings.lua
+msgid "Portrait"
+msgstr "Портретная"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Preparing %s"
+msgstr "Подготовка: %s"
+
+#: ink/view/updates.lua
+msgid "Prerelease"
+msgstr "Предварительная версия"
+
+#: ink/ui/thumbgrid.lua
+#: ink/view/imagebrowser.lua
+msgid "Prev"
+msgstr "Назад"
+
+#: ink/actions.lua
+msgid "Previous page"
+msgstr "Предыдущая страница"
+
+#: ink/actions.lua
+msgid "Previous pen"
+msgstr "Предыдущая ручка"
+
+#: ink/view/menus.lua
+msgid "Protect text from eraser"
+msgstr "Защищать текст от ластика"
+
+#: ink/guide.lua
+msgid "Protect text from eraser and Erase pictures, in the eraser's menu, decide what it may take."
+msgstr "«Защищать текст от ластика» и «Стирать изображения» в меню ластика решают, что он может стереть."
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Purple"
+msgstr "Фиолетовый"
+
+#: ink/view/trash.lua
+msgid "Put back"
+msgstr "Вернуть"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back in %s"
+msgstr "Вернуть в %s"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back on %s"
+msgstr "Вернуть на %s"
+
+#: ink/welcome.lua
+msgid "Quick notes for the book you're reading, in a window over the page, with a page for each chapter."
+msgstr "Быстрые заметки к читаемой книге в окне поверх страницы, по странице на каждую главу."
+
+#: ink/guide.lua
+msgid "Quick notes for the book, in a window over the page, a page for each chapter. Fullscreen gives more room."
+msgstr "Быстрые заметки к книге в окне поверх страницы, по странице на главу. Во весь экран места больше."
+
+#: ink/view/export.lua
+msgid "Range"
+msgstr "Диапазон"
+
+#: ink/view/ocrapi.lua
+msgid "Read handwriting with an AI service you have an account with, instead of on the reader."
+msgstr "Распознавайте рукописный текст с помощью ИИ-сервиса, в котором у вас есть учётная запись, а не на читалке."
+
+#: ink/view/ocrapi.lua
+msgid "Reading the writing"
+msgstr "Чтение письма"
+
+#: ink/view/handwriting.lua
+msgid "Reading the writing…"
+msgstr "Чтение письма…"
+
+#: ink/guide.lua
+msgid "Reading without ink"
+msgstr "Чтение без чернил"
+
+#: ink/view/textformat.lua
+msgid "Reads down"
+msgstr "Читается сверху вниз"
+
+#: ink/view/textformat.lua
+msgid "Reads up"
+msgstr "Читается снизу вверх"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %d files: %s of %s"
+msgstr "Получение файлов: %d: %s из %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %s: %s of %s"
+msgstr "Получение %s: %s из %s"
+
+#: ink/view/document.lua
+msgid "Recovered"
+msgstr "Восстановлено"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Red"
+msgstr "Красный"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Redo"
+msgstr "Повторить"
+
+#: ink/actions.lua
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Refresh the screen"
+msgstr "Обновить экран"
+
+#: ink/view/updates.lua
+msgid "Release"
+msgstr "Выпуск"
+
+#: ink/reader/inkview.lua
+#: ink/view/pencase.lua
+msgid "Remove"
+msgstr "Удалить"
+
+#: ink/view/selection.lua
+msgid "Remove background"
+msgstr "Удалить фон"
+
+#: ink/view/selection.lua
+msgid "Remove link"
+msgstr "Удалить ссылку"
+
+#: ink/view/images.lua
+msgid "Remove the background picture"
+msgstr "Удалить фоновое изображение"
+
+#: ink/reader/inkview.lua
+msgid "Remove these highlights?"
+msgstr "Удалить эти выделения?"
+
+#: ink/reader/inkview.lua
+msgid "Remove this highlight?"
+msgstr "Удалить это выделение?"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename"
+msgstr "Переименовать"
+
+#: ink/view/layers.lua
+msgid "Rename layer"
+msgstr "Переименовать слой"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename…"
+msgstr "Переименовать…"
+
+#: ink/view/dialogs.lua
+msgid "Replace"
+msgstr "Заменить"
+
+#: ink/view/dialogs.lua
+msgid "Replace it?"
+msgstr "Заменить?"
+
+#: ink/notebookcover.lua
+msgid "Reporter pad"
+msgstr "Блокнот репортёра"
+
+#: ink/view/updates.lua
+msgid "Restart KOReader"
+msgstr "Перезапустить KOReader"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Restart KOReader to use %1"
+msgstr "Перезапустите KOReader, чтобы использовать %1"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Right"
+msgstr "Справа"
+
+#: main.lua
+msgid "Run the pen's eraser end over a highlight or over Ink Away's ink on the page: it goes, without opening the annotation mode. The eraser settings of the annotation mode apply. The part of the pen is the one set to Eraser in Gestures and pen buttons."
+msgstr "Проведите ластиком на конце ручки по выделению или по чернилам Ink Away на странице: они исчезнут, не открывая режим аннотаций. Действуют настройки ластика режима аннотаций. Эта часть ручки — та, что назначена на «Ластик» в разделе «Жесты и кнопки ручки»."
+
+#: ink/framecover.lua
+msgid "Sage"
+msgstr "Шалфей"
+
+#: ink/view/notebook.lua
+msgid "Same as the notebook"
+msgstr "Как у блокнота"
+
+#: ink/palette.lua
+msgid "Sandpaper"
+msgstr "Наждачная бумага"
+
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/export.lua
+#: ink/view/notebook.lua
+#: ink/view/ocrapi.lua
+msgid "Save"
+msgstr "Сохранить"
+
+#: ink/view/export.lua
+msgid "Save as bookshelf ornament"
+msgstr "Сохранить как украшение Bookshelf"
+
+#: ink/view/notebook.lua
+msgid "Save as template…"
+msgstr "Сохранить как шаблон…"
+
+#: ink/ui/brushmaker.lua
+msgid "Save brush"
+msgstr "Сохранить кисть"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d page(s) as images:\n"
+"%s"
+msgstr ""
+"Страниц сохранено как изображения: %d\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d × %d image:\n"
+"%s"
+msgstr ""
+"Изображение %d × %d сохранено:\n"
+"%s"
+
+#: ink/view/export.lua
+msgid ""
+"Saved as a transparent PNG in the bookshelf ornaments folder.\n"
+"End the name with .invert for a dark-mode version."
+msgstr ""
+"Сохранено как прозрачный PNG в папке украшений Bookshelf.\n"
+"Закончите имя на .invert для версии в тёмном режиме."
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved automatically in %s"
+msgstr "Автоматически сохраняется в %s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved bookshelf ornament:\n"
+"%s"
+msgstr ""
+"Украшение Bookshelf сохранено:\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved image:\n"
+"%s"
+msgstr ""
+"Изображение сохранено:\n"
+"%s"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved in %s once there is something in it"
+msgstr "Сохранится в %s, как только в нём что-то появится"
+
+#: ink/view/pencase.lua
+msgid "Saved pen"
+msgstr "Сохранённая ручка"
+
+#: ink/actions.lua
+msgid "Saved pen 1"
+msgstr "Сохранённая ручка 1"
+
+#: ink/actions.lua
+msgid "Saved pen 2"
+msgstr "Сохранённая ручка 2"
+
+#: ink/actions.lua
+msgid "Saved pen 3"
+msgstr "Сохранённая ручка 3"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Saved the template “%s”"
+msgstr "Шаблон «%s» сохранён"
+
+#: ink/view/export.lua
+msgid "Saved. Open it from your library."
+msgstr "Сохранено. Откройте из своей библиотеки."
+
+#: ink/view/export.lua
+msgid "Saves each page as a picture with your ink on it. It looks the same everywhere, but the file is bigger and its text can't be selected."
+msgstr "Сохраняет каждую страницу как изображение с вашими чернилами. Выглядит везде одинаково, но файл больше, а текст нельзя выделить."
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Saving %d page(s) as images"
+msgstr "Сохранение страниц как изображений: %d"
+
+#: ink/view/images.lua
+msgid "Scan a QR code to send pictures over Wi-Fi."
+msgstr "Отсканируйте QR-код, чтобы отправить изображения по Wi-Fi."
+
+#: ink/view/share.lua
+msgid "Scan with a phone or computer on the same Wi-Fi, or open:"
+msgstr "Отсканируйте телефоном или компьютером в той же сети Wi-Fi или откройте:"
+
+#: ink/view/settings.lua
+msgid "Scan with your phone"
+msgstr "Отсканируйте телефоном"
+
+#: ink/guide.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/search.lua
+msgid "Search"
+msgstr "Поиск"
+
+#: ink/view/imagebrowser.lua
+msgid "Search images"
+msgstr "Искать изображения"
+
+#: ink/view/images.lua
+msgid "Search online"
+msgstr "Искать онлайн"
+
+#: ink/view/search.lua
+msgid "Search stopped."
+msgstr "Поиск остановлен."
+
+#: ink/view/search.lua
+msgid "Searching"
+msgstr "Поиск"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching images…"
+msgstr "Поиск изображений…"
+
+#: ink/view/search.lua
+msgid "Searching inside pages"
+msgstr "Поиск внутри страниц"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching…"
+msgstr "Поиск…"
+
+#: ink/view/imagebrowser.lua
+msgid "Search…"
+msgstr "Поиск…"
+
+#: ink/actions.lua
+msgid "Second side button"
+msgstr "Вторая боковая кнопка"
+
+#: ink/guide.lua
+msgid "Select a word"
+msgstr "Выбрать слово"
+
+#: ink/view/textformat.lua
+msgid "Select all"
+msgstr "Выбрать всё"
+
+#: ink/guide.lua
+msgid "Select and edit"
+msgstr "Выбрать и править"
+
+#: ink/view/export.lua
+msgid "Send to phone or computer (Wi-Fi)…"
+msgstr "Отправить на телефон или компьютер (Wi-Fi)…"
+
+#: ink/view/library.lua
+msgid "Send your notebooks and drawings to a phone or computer, or add PDFs and pictures from one, with a QR code."
+msgstr "Отправляйте блокноты и рисунки на телефон или компьютер или добавляйте с них PDF и изображения с помощью QR-кода."
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %d files: %s of %s"
+msgstr "Отправка файлов: %d: %s из %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %s: %s of %s"
+msgstr "Отправка %s: %s из %s"
+
+#: ink/view/images.lua
+msgid "Sent from your phone"
+msgstr "Отправлено с вашего телефона"
+
+#: ink/view/images.lua
+#, lua-format
+msgid "Sent from your phone (%d)"
+msgstr "Отправлено с вашего телефона (%d)"
+
+#: ink/view/share.lua
+msgid "Served by your reader over your Wi-Fi. When you're done, close Phone or computer (Wi-Fi) on the reader."
+msgstr "Раздаётся вашей читалкой по вашей сети Wi-Fi. Закончив, закройте «Телефон или компьютер (Wi-Fi)» на читалке."
+
+#: ink/view/export.lua
+msgid "Set"
+msgstr "Применить"
+
+#: ink/view/ocrapi.lua
+msgid "Set the address"
+msgstr "Задать адрес"
+
+#: ink/view/ocrapi.lua
+msgid "Set the key"
+msgstr "Задать ключ"
+
+#: ink/view/ocrapi.lua
+msgid "Set the model"
+msgstr "Задать модель"
+
+#: ink/view/settings.lua
+msgid "Settings"
+msgstr "Настройки"
+
+#: ink/guide.lua
+msgid "Settings, Ghosting: a full refresh every few strokes clears the faint marks fast drawing leaves. The Refresh the screen button below it does one now."
+msgstr "«Настройки», «Остаточное изображение»: полное обновление каждые несколько штрихов стирает слабые следы, которые оставляет быстрое рисование. Кнопка «Обновить экран» под ним делает это сразу."
+
+#: ink/guide.lua
+msgid "Settings, Updates: the latest release, and prereleases apart. Once a day, opening on Wi-Fi, Ink Away looks; a dot on Settings means news."
+msgstr "«Настройки», «Обновления»: последний выпуск и отдельно предварительные версии. Раз в день, открываясь по Wi-Fi, Ink Away проверяет; точка на «Настройках» означает новости."
+
+#: ink/guide.lua
+msgid "Settings, When Ink Away opens: the last document, the Library or your Notebooks."
+msgstr "«Настройки», «При открытии Ink Away»: последний документ, библиотека или ваши блокноты."
+
+#: ink/guide.lua
+msgid "Settings, beside the paper or the grid: cream, sandpaper, kraft, chalkboard and more (white or black on grey). On a dark one black ink shows white."
+msgstr "«Настройки», рядом с бумагой или сеткой: кремовая, наждачная, крафт, меловая доска и другие (белый или чёрный на сером). На тёмной чёрные чернила становятся белыми."
+
+#: ink/guide.lua
+msgid "Settings, the round button by Guide: light, dark, or as KOReader's night mode. The page keeps its colours."
+msgstr "«Настройки», круглая кнопка рядом с «Руководством»: светлая, тёмная или как ночной режим KOReader. Страница сохраняет свои цвета."
+
+#: ink/guide.lua
+msgid "Settings: the theme colour, and Colour while drawing."
+msgstr "«Настройки»: цвет темы и «Цвет при рисовании»."
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/toolbar.lua
+msgid "Shapes"
+msgstr "Фигуры"
+
+#: ink/guide.lua
+msgid "Shapes, text and pictures"
+msgstr "Фигуры, текст и изображения"
+
+#: ink/view/layers.lua
+msgid "Show"
+msgstr "Показать"
+
+#: ink/reader/inkview.lua
+msgid "Show ink while reading"
+msgstr "Показывать чернила при чтении"
+
+#: ink/view/guide.lua
+msgid "Show me"
+msgstr "Показать"
+
+#: ink/view/menus.lua
+msgid "Show the eraser while erasing"
+msgstr "Показывать ластик при стирании"
+
+#: ink/view/receive.lua
+msgid "Show them in the library"
+msgstr "Показывать в библиотеке"
+
+#: ink/guide.lua
+msgid "Shows how your pen, its buttons and your hand arrive. Handy in a bug report."
+msgstr "Показывает, как приходят ваша ручка, её кнопки и рука. Пригодится в отчёте об ошибке."
+
+#: ink/actions.lua
+msgid "Side button"
+msgstr "Боковая кнопка"
+
+#: ink/framecover.lua
+msgid "Silver"
+msgstr "Серебро"
+
+#: ink/framecover.lua
+msgid "Silver gilt"
+msgstr "Позолоченное серебро"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Size"
+msgstr "Размер"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Sky"
+msgstr "Небо"
+
+#: ink/view/pencase.lua
+msgid "Smooths shaky lines. Higher values steady the stroke but trail your finger slightly."
+msgstr "Сглаживает дрожащие линии. Большие значения стабилизируют штрих, но он немного отстаёт от пальца."
+
+#: ink/penset.lua
+msgid "Smudge"
+msgstr "Растушёвка"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Smudges: %d"
+msgstr "Растушёвки: %d"
+
+#: ink/view/menus.lua
+msgid "Snap lines to ruling"
+msgstr "Привязывать линии к разлиновке"
+
+#: ink/view/menus.lua
+msgid "Snap to 45°"
+msgstr "Привязка к 45°"
+
+#: ink/view/menus.lua
+msgid "Snap to grid"
+msgstr "Привязка к сетке"
+
+#: ink/brushes.lua
+msgid "Soft edge"
+msgstr "Мягкий край"
+
+#: ink/view/exportbook.lua
+msgid "Some items can't stay editable"
+msgstr "Некоторые элементы нельзя сохранить редактируемыми"
+
+#: ink/view/exportbook.lua
+msgid "Some pages could not be kept as pictures in this PDF, so the items on them were left out."
+msgstr "Некоторые страницы не удалось оставить как изображения в этом PDF, поэтому элементы на них исключены."
+
+#: ink/view/imagebrowser.lua
+msgid "Something went wrong adding that image. Please try another."
+msgstr "При добавлении этого изображения что-то пошло не так. Попробуйте другое."
+
+#: ink/view/toolbar.lua
+msgid "Something went wrong opening that tool. Please report this."
+msgstr "При открытии этого инструмента что-то пошло не так. Пожалуйста, сообщите об этом."
+
+#: ink/view/handwriting.lua
+msgid "Something went wrong reading the writing."
+msgstr "При чтении письма что-то пошло не так."
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Source: %s"
+msgstr "Источник: %s"
+
+#: ink/brushes.lua
+msgid "Spread"
+msgstr "Растекание"
+
+#: ink/view/settings.lua
+msgid "Square"
+msgstr "Квадрат"
+
+#: ink/view/pencase.lua
+msgid "Stabilizer"
+msgstr "Стабилизатор"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Star"
+msgstr "Звёздочка"
+
+#: ink/view/notebook.lua
+msgid "Star removed"
+msgstr "Звёздочка убрана"
+
+#: ink/view/overview.lua
+msgid "Starred pages"
+msgstr "Страницы со звёздочкой"
+
+#: ink/guide.lua
+msgid "Start again"
+msgstr "Начать заново"
+
+#: ink/view/pencase.lua
+msgid "Still being tested. With Palm rejection on, Ballpoint, Fountain, Calligraphy and Pencil get wider the harder you press. If it misbehaves on your reader, I'd love to hear about it on GitHub."
+msgstr "Ещё проверяется. При включённой защите от касания ладони шариковая ручка, перьевая ручка, каллиграфия и карандаш становятся шире при более сильном нажиме. Если на вашей читалке это работает плохо, буду рад услышать об этом на GitHub."
+
+#: ink/penset.lua
+msgid "Stipple"
+msgstr "Пунктир"
+
+#: ink/view/dialogs.lua
+#: ink/view/share.lua
+msgid "Stop"
+msgstr "Стоп"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The PDF will not be saved."
+msgstr "Остановить экспорт? PDF не будет сохранён."
+
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The images saved so far will be deleted."
+msgstr "Остановить экспорт? Уже сохранённые изображения будут удалены."
+
+#: ink/view/dialogs.lua
+msgid "Stop now?"
+msgstr "Остановить сейчас?"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Stops when closed or after %d idle minutes. Use a Wi-Fi you trust."
+msgstr "Останавливается при закрытии или после простоя в минутах: %d. Используйте Wi-Fi, которому доверяете."
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Storyboard"
+msgstr "Раскадровка"
+
+#: ink/guide.lua
+msgid "Straight lines"
+msgstr "Прямые линии"
+
+#: ink/view/pencase.lua
+msgid "Strength"
+msgstr "Сила"
+
+#: ink/view/textformat.lua
+msgid "Strike"
+msgstr "Зачёркнутый"
+
+#: ink/view/settings.lua
+msgid "Support"
+msgstr "Поддержка"
+
+#: ink/welcome.lua
+msgid "Swipe down along the right edge"
+msgstr "Смахивание вниз вдоль правого края"
+
+#: ink/welcome.lua
+msgid "Swipe up along the right edge"
+msgstr "Смахивание вверх вдоль правого края"
+
+#: ink/view/settings.lua
+msgid "Symmetry"
+msgstr "Симметрия"
+
+#: ink/view/settings.lua
+msgid "System"
+msgstr "Система"
+
+#: ink/coverpicker.lua
+#: ink/view/overview.lua
+msgid "Tab colour"
+msgstr "Цвет вкладки"
+
+#: ink/guide.lua
+msgid "Take up a pen"
+msgstr "Возьмите ручку"
+
+#: ink/guide.lua
+msgid "Tap a tool to use it, and tap it again for its settings."
+msgstr "Нажмите на инструмент, чтобы использовать его, и нажмите ещё раз, чтобы открыть его настройки."
+
+#: ink/guide.lua
+msgid "Tap a word twice in the text you are writing in; drag across text to select more."
+msgstr "Дважды нажмите на слово в тексте, в котором пишете; проведите по тексту, чтобы выделить больше."
+
+#: ink/guide.lua
+msgid "Tap an area to fill it; hold the bucket in the shapes menu to pick its colour."
+msgstr "Нажмите на область, чтобы залить её; удерживайте ведро в меню фигур, чтобы выбрать цвет."
+
+#: ink/guide.lua
+msgid "Tap one of your saved pens in the pen menu. Changing its size or colour changes that pen."
+msgstr "Нажмите на одну из сохранённых ручек в меню ручек. Изменение размера или цвета меняет эту ручку."
+
+#: ink/guide.lua
+msgid "Tap the page number: go to a page, rename, star, insert, duplicate, move, paper, templates, paste or delete."
+msgstr "Нажмите на номер страницы: перейти на страницу, переименовать, звёздочка, вставить, дублировать, переместить, бумага, шаблоны, вставить или удалить."
+
+#: ink/guide.lua
+msgid "Tap to open, hold for rename, move, duplicate, export or delete. + makes a drawing, a notebook or a folder."
+msgstr "Нажмите, чтобы открыть, удерживайте, чтобы переименовать, переместить, дублировать, экспортировать или удалить. «+» создаёт рисунок, блокнот или папку."
+
+#: ink/guide.lua
+msgid "Tap where it should go. Format stays open while you pick styles, colours, highlights, lists, spacing and the font; on lined paper text sits on the lines."
+msgstr "Нажмите там, где он должен быть. «Формат» остаётся открытым, пока вы выбираете стили, цвета, выделения, списки, интервалы и шрифт; на линованной бумаге текст стоит на линиях."
+
+#: ink/coverpicker.lua
+#: ink/folderlook.lua
+msgid "Teal"
+msgstr "Бирюзовый"
+
+#: ink/view/updates.lua
+msgid "Tell me about prereleases"
+msgstr "Расскажите о предварительных версиях"
+
+#: ink/view/notebook.lua
+msgid "Template name"
+msgstr "Название шаблона"
+
+#: ink/guide.lua
+#: ink/ui/pentestscreen.lua
+#: ink/view/pencase.lua
+msgid "Test pen and touch"
+msgstr "Проверка ручки и касания"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#: ink/view/toolbar.lua
+msgid "Text"
+msgstr "Текст"
+
+#: ink/guide.lua
+msgid "Text and pictures"
+msgstr "Текст и изображения"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Text boxes: %d"
+msgstr "Текстовые блоки: %d"
+
+#: ink/view/search.lua
+msgid "That document is no longer there."
+msgstr "Этого документа больше нет."
+
+#: ink/guide.lua
+msgid "The + and − in the corner zoom in and out, and so does a pinch."
+msgstr "Кнопки «+» и «−» в углу увеличивают и уменьшают масштаб, как и жест сведения пальцев."
+
+#: ink/view/ocrapi.lua
+msgid "The API key from your account on the service, usually under API keys. It is only sent to the address above."
+msgstr "Ключ API из вашей учётной записи в сервисе, обычно в разделе «Ключи API». Он отправляется только на адрес выше."
+
+#: ink/guide.lua
+msgid "The Library"
+msgstr "Библиотека"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "The annotations of %s are back where the book was. They show again when the book is back in that place."
+msgstr "Аннотации %s вернулись туда, где была книга. Они снова появятся, когда книга окажется на этом месте."
+
+#: ink/guide.lua
+msgid "The arrows in the bar at the bottom, or swipe two fingers sideways."
+msgstr "Стрелки на нижней панели или проведите двумя пальцами в сторону."
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"The background picture could not be found:\n"
+"%s"
+msgstr ""
+"Фоновое изображение не найдено:\n"
+"%s"
+
+#: ink/view/textformat.lua
+msgid "The clipboard is empty."
+msgstr "Буфер обмена пуст."
+
+#: ink/view/links.lua
+msgid "The contents lists the pages that have a title. Give pages a title first: tap the page number, then Rename."
+msgstr "В оглавление попадают страницы с названием. Сначала дайте страницам названия: нажмите на номер страницы, затем «Переименовать»."
+
+#: ink/view/document.lua
+msgid "The copy is in Library: Imported only holds what you sent"
+msgstr "Копия в разделе «Библиотека»: «Полученные» хранит только то, что вы отправили"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "The copy, “%s”, is in Library: Imported only holds what you sent"
+msgstr "Копия «%s» в разделе «Библиотека»: «Полученные» хранит только то, что вы отправили"
+
+#: ink/guide.lua
+msgid "The eraser rubs out what it touches; Erase whole strokes takes each stroke it crosses."
+msgstr "Ластик стирает то, чего касается; «Стирать штрихи целиком» берёт каждый штрих, который он пересекает."
+
+#: ink/view/layers.lua
+msgid "The first layer has erasing from before layers were on, so it stays at the bottom."
+msgstr "В первом слое — стирания, сделанные до появления слоёв, поэтому он остаётся внизу."
+
+#: ink/view/library.lua
+msgid "The folder and everything in it go."
+msgstr "Папка и всё в ней будут удалены."
+
+#: ink/view/handwriting.lua
+msgid "The handwriting model could not be loaded."
+msgstr "Не удалось загрузить модель распознавания рукописного текста."
+
+#: ink/guide.lua
+msgid "The highlighter"
+msgstr "Текстовыделитель"
+
+#: ink/guide.lua
+msgid "The lasso, links and text"
+msgstr "Лассо, ссылки и текст"
+
+#: ink/view/ocrapi.lua
+msgid "The name of one of the service's models that can read pictures, as its model list writes it, for example gpt-4o-mini or paddleocr-vl."
+msgstr "Название одной из моделей сервиса, умеющих читать изображения, как оно записано в списке моделей, например gpt-4o-mini или paddleocr-vl."
+
+#: ink/view/document.lua
+msgid "The new document is in Library: Imported only holds what you sent"
+msgstr "Новый документ в разделе «Библиотека»: «Полученные» хранит только то, что вы отправили"
+
+#: ink/view/links.lua
+msgid "The notebook this leads to is no longer there."
+msgstr "Блокнота, на который ведёт ссылка, больше нет."
+
+#: ink/view/handwriting.lua
+msgid "The page changed. Please read the writing again."
+msgstr "Страница изменилась. Прочитайте письмо заново."
+
+#: ink/guide.lua
+msgid "The page menu"
+msgstr "Меню страницы"
+
+#: ink/guide.lua
+msgid "The page menu, Make a contents page: every titled page becomes a link to it. Go to the contents page is there too, and can be a gesture."
+msgstr "Меню страницы, «Создать страницу оглавления»: каждая страница с названием становится ссылкой на него. «Перейти к оглавлению» тоже там и может быть жестом."
+
+#: ink/view/links.lua
+msgid "The page this leads to is no longer there."
+msgstr "Страницы, на которую ведёт ссылка, больше нет."
+
+#: ink/view/export.lua
+msgid "The pages are saved as pictures with their text under them, so it can be searched and selected. They are laid out as you read them now: your font, margins and page size."
+msgstr "Страницы сохраняются как изображения с текстом под ними, чтобы его можно было искать и выделять. Они выглядят так, как вы читаете их сейчас: ваш шрифт, поля и размер страницы."
+
+#: ink/view/pencase.lua
+msgid "The pen in hand is not one of your pens: + keeps it as a new one."
+msgstr "Ручка в руке — не одна из ваших ручек: «+» сохранит её как новую."
+
+#: ink/guide.lua
+msgid "The pen on menus"
+msgstr "Ручка в меню"
+
+#: ink/guide.lua
+msgid "The pen's eraser end, for as long as it touches."
+msgstr "Ластик на конце ручки, пока он касается."
+
+#: ink/guide.lua
+msgid "The pen's eraser end."
+msgstr "Ластик на конце ручки."
+
+#: ink/view/ocrapi.lua
+msgid "The recognition preview could not be opened. Your handwriting was kept."
+msgstr "Не удалось открыть предпросмотр распознавания. Ваше письмо сохранено."
+
+#: ink/view/search.lua
+msgid "The search could not finish."
+msgstr "Поиск не удалось завершить."
+
+#: ink/view/handwriting.lua
+msgid "The selection changed. Please read the writing again."
+msgstr "Выделение изменилось. Прочитайте письмо заново."
+
+#: ink/guide.lua
+msgid "The small tab at the end of the toolbar folds it away, and brings it back."
+msgstr "Маленькая вкладка в конце панели инструментов сворачивает её и возвращает обратно."
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid ""
+"The source PDF could not be opened:\n"
+"%s\n"
+"\n"
+"Your notes are intact, but the page images will be blank until the PDF is back in that location."
+msgstr ""
+"Не удалось открыть исходный PDF:\n"
+"%s\n"
+"\n"
+"Ваши заметки целы, но изображения страниц останутся пустыми, пока PDF не вернётся на это место."
+
+#: ink/welcome.lua
+#, lua-format
+msgid "The swipes along the right edge already do something on your reader (%1), so Ink Away uses two-finger swipes."
+msgstr "Смахивания вдоль правого края на вашей читалке уже что-то делают (%1), поэтому Ink Away использует смахивания двумя пальцами."
+
+#: ink/welcome.lua
+msgid "The swipes along the right edge already do something on your reader, so Ink Away uses two-finger swipes."
+msgstr "Смахивания вдоль правого края на вашей читалке уже что-то делают, поэтому Ink Away использует смахивания двумя пальцами."
+
+#: ink/reader/inkview.lua
+msgid "The toolbar takes the width of the book's margin on its side, with its icons sized to it, so it stays clear of the text. Widen the margins in the reader's settings to give it more room. PDFs and comics keep the usual size."
+msgstr "Панель инструментов занимает ширину поля книги со своей стороны, а значки подгоняются под неё, чтобы не мешать тексту. Расширьте поля в настройках читалки, чтобы дать ей больше места. PDF и комиксы сохраняют обычный размер."
+
+#: ink/view/trash.lua
+msgid "The trash is empty."
+msgstr "Корзина пуста."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid ""
+"The update was not installed: %1.\n"
+"\n"
+"Nothing was changed."
+msgstr ""
+"Обновление не установлено: %1.\n"
+"\n"
+"Ничего не изменено."
+
+#: ink/view/handwriting.lua
+msgid "The word list could not be loaded."
+msgstr "Не удалось загрузить список слов."
+
+#: ink/view/settings.lua
+msgid "Theme Color"
+msgstr "Цвет темы"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "There is already a file called “%s” here."
+msgstr "Файл «%s» здесь уже есть."
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#, lua-format
+msgid "There is already something called “%s” here."
+msgstr "Объект «%s» здесь уже есть."
+
+#: ink/view/handwriting.lua
+msgid "There is no handwriting in the selection."
+msgstr "В выделении нет рукописного текста."
+
+#: ink/view/layers.lua
+msgid "There is no layer under this one."
+msgstr "Под этим слоем нет другого слоя."
+
+#: ink/view/document.lua
+msgid "There is nothing to copy yet."
+msgstr "Пока нечего копировать."
+
+#: ink/view/export.lua
+msgid "There is nothing to export in this folder."
+msgstr "В этой папке нечего экспортировать."
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "There is nothing to export yet."
+msgstr "Пока нечего экспортировать."
+
+#: ink/view/settings.lua
+msgid "Thirds"
+msgstr "Трети"
+
+#: ink/reader/inkview.lua
+msgid "This book's annotations wait in Ink Away's trash for 30 days. To put them back: Ink Away's library, its menu, Trash."
+msgstr "Аннотации этой книги хранятся в корзине Ink Away 30 дней. Чтобы вернуть: библиотека Ink Away, её меню, «Корзина»."
+
+#: ink/reader/book.lua
+msgid "This book's ink was saved by a newer Ink Away. Update Ink Away to change it."
+msgstr "Чернила этой книги сохранены более новой версией Ink Away. Обновите Ink Away, чтобы изменить их."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the bottom."
+msgstr "Этот слой уже внизу."
+
+#: ink/view/layers.lua
+msgid "This layer is already at the top."
+msgstr "Этот слой уже наверху."
+
+#: ink/view/links.lua
+msgid "This notebook has no contents page yet: the page menu makes one."
+msgstr "В этом блокноте ещё нет страницы оглавления: её создаёт меню страницы."
+
+#: ink/view/export.lua
+msgid "This page"
+msgstr "Эта страница"
+
+#: ink/view/share.lua
+msgid "This reader can't share over Wi-Fi."
+msgstr "Эта читалка не может делиться по Wi-Fi."
+
+#: ink/view/share.lua
+msgid "This reader has no address on a network yet. Connect it to Wi-Fi and try again."
+msgstr "У этой читалки пока нет адреса в сети. Подключите её к Wi-Fi и повторите."
+
+#: ink/view/settings.lua
+msgid "This reader needs no special settings for Ink Away."
+msgstr "Этой читалке не нужны особые настройки для Ink Away."
+
+#: ink/view/textformat.lua
+msgid "Tight"
+msgstr "Плотно"
+
+#: ink/view/imagebrowser.lua
+msgid "Tip"
+msgstr "Кончик"
+
+#: ink/view/selection.lua
+msgid "To front"
+msgstr "На передний план"
+
+#: ink/view/library.lua
+msgid "To keep notebooks and drawings together"
+msgstr "Чтобы держать блокноты и рисунки вместе"
+
+#: ink/reader/inkview.lua
+msgid "Toolbar"
+msgstr "Панель инструментов"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Toolbar side"
+msgstr "Сторона панели инструментов"
+
+#: ink/guide.lua
+msgid "Tools and their settings"
+msgstr "Инструменты и их настройки"
+
+#: ink/guide.lua
+msgid "Tools, zoom and saving"
+msgstr "Инструменты, масштаб и сохранение"
+
+#: ink/brushes.lua
+msgid "Tooth"
+msgstr "Фактура бумаги"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Top"
+msgstr "Вверху"
+
+#: ink/framecover.lua
+msgid "Tortoiseshell"
+msgstr "Черепаховый"
+
+#: ink/guide.lua
+msgid "Trace over a picture"
+msgstr "Обвести картинку"
+
+#: ink/view/export.lua
+msgid "Transparent"
+msgstr "Прозрачный"
+
+#: ink/view/imagebrowser.lua
+msgid "Transparent PNG only"
+msgstr "Только прозрачный PNG"
+
+#: ink/guide.lua
+#: ink/view/trash.lua
+msgid "Trash"
+msgstr "Корзина"
+
+#: ink/view/library.lua
+msgid "Trash…"
+msgstr "Корзина…"
+
+#: ink/view/imagebrowser.lua
+msgid "Truly transparent pictures are scarce here. Add any image, then switch on Erase pictures in the Eraser settings to wipe its background away."
+msgstr "По-настоящему прозрачные картинки здесь редкость. Добавьте любое изображение, затем включите «Стирать изображения» в настройках ластика, чтобы стереть его фон."
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Try %1?"
+msgstr "Попробовать %1?"
+
+#: ink/view/updates.lua
+msgid "Try it"
+msgstr "Попробовать"
+
+#: ink/view/layers.lua
+msgid "Turn layers off?"
+msgstr "Отключить слои?"
+
+#: ink/view/ocrapi.lua
+msgid "Turn on Wi-Fi to convert online."
+msgstr "Включите Wi-Fi, чтобы преобразовывать онлайн."
+
+#: ink/view/share.lua
+msgid "Turn on to send PDFs and pictures here."
+msgstr "Включите, чтобы присылать сюда PDF и изображения."
+
+#: ink/guide.lua
+msgid "Turn pages"
+msgstr "Листание страниц"
+
+#: ink/guide.lua
+msgid "Turn text"
+msgstr "Повернуть текст"
+
+#: ink/actions.lua
+msgid "Two-finger double tap"
+msgstr "Двойное касание двумя пальцами"
+
+#: ink/guide.lua
+msgid "Two-finger double tap."
+msgstr "Двойное касание двумя пальцами."
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the bottom right to the top left"
+msgstr "Смахивание двумя пальцами из правого нижнего угла в левый верхний"
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the top right to the bottom left"
+msgstr "Смахивание двумя пальцами из правого верхнего угла в левый нижний"
+
+#: ink/actions.lua
+msgid "Two-finger swipe left"
+msgstr "Смахивание двумя пальцами влево"
+
+#: ink/guide.lua
+msgid "Two-finger swipe left."
+msgstr "Смахивание двумя пальцами влево."
+
+#: ink/actions.lua
+msgid "Two-finger swipe right"
+msgstr "Смахивание двумя пальцами вправо"
+
+#: ink/guide.lua
+msgid "Two-finger swipe right."
+msgstr "Смахивание двумя пальцами вправо."
+
+#: ink/actions.lua
+msgid "Two-finger tap"
+msgstr "Касание двумя пальцами"
+
+#: ink/guide.lua
+msgid "Two-finger tap."
+msgstr "Касание двумя пальцами."
+
+#: ink/view/notebook.lua
+msgid "Type a page number…"
+msgstr "Введите номер страницы…"
+
+#: ink/view/textformat.lua
+msgid "Underline"
+msgstr "Подчёркивание"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Undo"
+msgstr "Отменить"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Unstar"
+msgstr "Снять звёздочку"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Untitled"
+msgstr "Без названия"
+
+#: ink/view/links.lua
+msgid "Up"
+msgstr "Вверх"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Update available: %1"
+msgstr "Доступно обновление: %1"
+
+#: ink/view/notebook.lua
+msgid "Update the contents page"
+msgstr "Обновить страницу оглавления"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+#: ink/view/updates.lua
+msgid "Updates"
+msgstr "Обновления"
+
+#: ink/ui/colorpicker.lua
+msgid "Use"
+msgstr "Использовать"
+
+#: ink/coverpicker.lua
+msgid "Use for new notebooks"
+msgstr "Использовать для новых блокнотов"
+
+#: ink/view/dialogs.lua
+msgid "Use this folder"
+msgstr "Использовать эту папку"
+
+#: ink/view/settings.lua
+msgid "Vertical"
+msgstr "По вертикали"
+
+#: ink/view/library.lua
+msgid "View"
+msgstr "Просмотр"
+
+#: ink/view/share.lua
+msgid "Waiting for your phone or computer…"
+msgstr "Ожидание вашего телефона или компьютера…"
+
+#: ink/framecover.lua
+msgid "Walnut"
+msgstr "Орех"
+
+#: ink/penset.lua
+msgid "Watercolor"
+msgstr "Акварель"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Week columns"
+msgstr "Колонки недели"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Weekly"
+msgstr "Недельный"
+
+#: ink/view/guide.lua
+msgid "What Ink Away can do that a glance doesn't show."
+msgstr "Что умеет Ink Away и чего не видно с первого взгляда."
+
+#: ink/guide.lua
+msgid "What to set on this reader for quicker ink."
+msgstr "Что настроить на этой читалке для более быстрых чернил."
+
+#: ink/view/updates.lua
+msgid "What's new"
+msgstr "Что нового"
+
+#: ink/view/settings.lua
+msgid "When Ink Away opens"
+msgstr "При открытии Ink Away"
+
+#: ink/actions.lua
+msgid "When the page is zoomed in wider than the screen, sideways swipes move the page instead."
+msgstr "Если страница увеличена шире экрана, боковые смахивания двигают страницу."
+
+#: ink/guide.lua
+msgid "Where to start"
+msgstr "С чего начать"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+#: ink/view/export.lua
+msgid "White"
+msgstr "Белый"
+
+#: ink/framecover.lua
+msgid "White and gold"
+msgstr "Белый и золотой"
+
+#: ink/framecover.lua
+msgid "White sides"
+msgstr "Белые поля"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia"
+msgstr "Wikimedia"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia is faster. Openverse has a wider variety."
+msgstr "Wikimedia быстрее. В Openverse больше разнообразия."
+
+#: ink/coverpicker.lua
+msgid "Wine"
+msgstr "Вино"
+
+#: ink/actions.lua
+msgid "With a double tap also set, a single two-finger tap waits a moment for a second one."
+msgstr "Если задано и двойное касание, одиночное касание двумя пальцами чуть ждёт второго."
+
+#: ink/view/export.lua
+msgid "With ink"
+msgstr "С чернилами"
+
+#: ink/guide.lua
+msgid "With the Bookshelf plugin installed, save a drawing as one of its ornaments."
+msgstr "Если установлен плагин Bookshelf, сохраняйте рисунок как одно из его украшений."
+
+#: ink/guide.lua
+msgid "With the lasso, tap a shape or picture to pick it out: move, resize, turn or delete it. On a drawing, a hold with Pan does it too."
+msgstr "Лассо: нажмите на фигуру или изображение, чтобы выбрать его: переместить, изменить размер, повернуть или удалить. На рисунке то же делает удержание инструментом «Перемещение»."
+
+#: ink/penset.lua
+msgid "Write"
+msgstr "Писать"
+
+#: ink/welcome.lua
+msgid "Write and draw on the book's pages. Your ink stays with the words when the font changes."
+msgstr "Пишите и рисуйте на страницах книги. Ваши чернила остаются со словами при смене шрифта."
+
+#: ink/view/library.lua
+msgid "Write on a PDF from this reader…"
+msgstr "Писать по PDF с этой читалки…"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+#: ink/view/textformat.lua
+msgid "Yellow"
+msgstr "Жёлтый"
+
+#: ink/view/pencase.lua
+#, lua-format
+msgid "You have %d pens, as many as the menu holds. Hold one and Remove it to make room."
+msgstr "У вас ручек: %d — сколько вмещает меню. Удерживайте одну и выберите «Удалить», чтобы освободить место."
+
+#: ink/view/updates.lua
+msgid "You have this version."
+msgstr "У вас эта версия."
+
+#: ink/view/pencase.lua
+msgid "Your brushes"
+msgstr "Ваши кисти"
+
+#: ink/view/pencase.lua
+msgid "Your first four saved pens in a small strip at the bottom of the page, one tap away."
+msgstr "Ваши первые четыре сохранённые ручки в небольшой полосе внизу страницы, одно касание."
+
+#: ink/guide.lua
+msgid "Your own brushes"
+msgstr "Ваши собственные кисти"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Your pens on the page"
+msgstr "Ваши ручки на странице"
+
+#: ink/guide.lua
+msgid "Your pens, kinds and pressure"
+msgstr "Ваши ручки, виды и нажим"
+
+#: ink/guide.lua
+msgid "Your reader"
+msgstr "Ваша читалка"
+
+#: ink/view/ocrapi.lua
+msgid "Your service's API address, from its documentation. It has to start with https://, for example https://api.openai.com/v1 or https://openrouter.ai/api/v1."
+msgstr "API-адрес вашего сервиса из его документации. Он должен начинаться с https://, например https://api.openai.com/v1 или https://openrouter.ai/api/v1."
+
+#: ink/guide.lua
+msgid "Your shortcuts"
+msgstr "Ваши быстрые действия"
+
+#: ink/guide.lua
+msgid "Zoom"
+msgstr "Масштаб"
+
+#: ink/view/settings.lua
+msgid "Zoom and Pan buttons"
+msgstr "Кнопки масштаба и перемещения"
+
+#: ink/view/updates.lua
+msgid "a check could not start"
+msgstr "не удалось начать проверку"
+
+#: ink/view/updates.lua
+msgid "a prerelease"
+msgstr "предварительная версия"
+
+#: ink/view/updates.lua
+msgid "a release"
+msgstr "выпуск"
+
+#: ink/view/updates.lua
+msgid "a test build"
+msgstr "тестовая сборка"
+
+#: ink/view/settings.lua
+msgid "blank"
+msgstr "пустая"
+
+#: ink/view/settings.lua
+msgid "checklist"
+msgstr "список задач"
+
+#: ink/view/settings.lua
+msgid "daily"
+msgstr "дневной"
+
+#: ink/view/settings.lua
+msgid "dotted"
+msgstr "в точку"
+
+#: ink/view/imagebrowser.lua
+msgid "e.g. cat, tree, arrow"
+msgstr "напр. кот, дерево, стрелка"
+
+#: ink/view/settings.lua
+msgid "grid"
+msgstr "в клетку"
+
+#: ink/view/settings.lua
+msgid "habit tracker"
+msgstr "трекер привычек"
+
+#: ink/view/settings.lua
+msgid "handwriting"
+msgstr "рукописный текст"
+
+#: ink/view/menus.lua
+msgid "hold to pick colour"
+msgstr "удерживайте, чтобы выбрать цвет"
+
+#: ink/view/settings.lua
+msgid "isometric"
+msgstr "изометрия"
+
+#: ink/view/settings.lua
+msgid "lined"
+msgstr "в линейку"
+
+#: ink/view/settings.lua
+msgid "margin"
+msgstr "с полями"
+
+#: ink/view/settings.lua
+msgid "meeting notes"
+msgstr "заметки о встрече"
+
+#: ink/view/settings.lua
+msgid "monthly"
+msgstr "месячный"
+
+#: ink/view/settings.lua
+msgid "music"
+msgstr "музыка"
+
+#: ink/view/settings.lua
+msgid "off"
+msgstr "выкл"
+
+#: ink/view/menus.lua
+msgid "px"
+msgstr "px"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#, lua-format
+msgid "shown at %d%%"
+msgstr "показано при %d%%"
+
+#: ink/view/settings.lua
+msgid "storyboard"
+msgstr "раскадровка"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "via %s"
+msgstr "через %s"
+
+#: ink/view/settings.lua
+msgid "week columns"
+msgstr "колонки недели"
+
+#: ink/view/settings.lua
+msgid "weekly"
+msgstr "недельный"
+
+#: ink/view/dialogs.lua
+#, lua-format
+msgid "“%s” already exists. Replace it?"
+msgstr "«%s» уже существует. Заменить?"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "“%s” is in Library: Imported only holds what you sent"
+msgstr "«%s» в разделе «Библиотека»: «Полученные» хранит только то, что вы отправили"

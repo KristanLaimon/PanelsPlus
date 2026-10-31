@@ -14,14 +14,6 @@ panels_plus.stable.koplugin/
 zen_ui.koplugin
 
 PLAN*.md
-# Reference repositories for local development & documentation
-koreader/
-koreader
-kobo.koplugin/
-kobo.koplugin
-kcc
-kcc/
-
 OCR-DEBUG-DATASET-PLAN.md
 DEBUGGING-DETECTION.md
 
@@ -82,6 +74,3 @@ INSTRUCTION*.md
 /PLAN.md
 /FEATURES_SINCE_v1.4.0.md
 panels_plus_v1_4_0_old/
-
-# Ignore this folders that come from the nightly version
-references-repos/
