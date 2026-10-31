@@ -26,7 +26,7 @@ local repo_root = script_dir .. "../../"
 package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;" .. package.path
 io.stdout:setvbuf("line")
 
-require("tests.spec.helper")
+require("tests.helper")
 
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local Loader = require("tests.dataset-mangas.dataset_loader")

@@ -70,7 +70,7 @@ Run from `/usr/lib/koreader` with `PANELSPLUS_OCR_NATIVE=1`,
 these runs so the benchmark did not update `bestbenchmark.json`.
 
 For the before run, extract `src/_wordfinder.lua` from `1bf5d32` and preload it
-as `src._wordfinder` after `tests.spec.helper` but before loading the current
+as `src._wordfinder` after `tests.helper` but before loading the current
 `bloom_ocr_spec.lua`. Skip that spec's bundled-model case, since the historical
 code had no bundled model. This keeps the dataset, fake document, normalization,
 and OCR library identical across runs. The old word-box check fails today's

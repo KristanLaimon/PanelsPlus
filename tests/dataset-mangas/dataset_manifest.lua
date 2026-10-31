@@ -64,8 +64,8 @@ local function loadDatasetMetadata(book_dir)
     f:close()
     local metadata = JSON.decode(raw)
     local dataset_type = metadata and metadata.type or nil
-    if dataset_type ~= "manga" and dataset_type ~= "comic" then
-        error(string.format('%s must contain type "manga" or "comic"', metadata_path))
+    if dataset_type ~= "manga" and dataset_type ~= "comic" and dataset_type ~= "manhwa" then
+        error(string.format('%s must contain type "manga", "comic", or "manhwa"', metadata_path))
     end
     local color_mode = metadata.color_mode
     if color_mode ~= nil then
@@ -118,124 +118,128 @@ local function parseBooksFromRaw(raw_books, dataset_dir, book_dir)
             end
         end
         local dataset_type, color_mode, metadata = loadDatasetMetadata(effective_book_dir)
-        metadata = metadata or {}
-        local book = {
-            book_title = raw_book.book_title,
-            directory = effective_book_dir,
-            finished = metadata.finished,
-            total_pages = metadata.total_pages,
-            panel_benchmark_tier = metadata.panel_benchmark_tier,
-            type = dataset_type,
-            color_mode = color_mode,
-            pages = {},
-        }
-        local smart_pages = loadPanelPages(effective_book_dir, "smart")
-        local safe_pages = loadPanelPages(effective_book_dir, "safe")
-        local raw_pages, seen = {}, {}
-        for _, page in ipairs(raw_book.pages or {}) do
-            raw_pages[#raw_pages + 1] = page
-            seen[page.page_index] = true
-        end
-        -- Panel-only pages still use the shared image convention.
-        for _, mappings in ipairs({ smart_pages or {}, safe_pages or {} }) do
-            for index in pairs(mappings) do
-                if not seen[index] then
-                    raw_pages[#raw_pages + 1] = {
-                        page_index = index,
-                        image_paths = { en = string.format("%s/%02d.png", raw_book.book_title, index - 1) },
-                    }
-                    seen[index] = true
-                end
+        -- Nightly has annotator datasets for continuous strips, but its reader
+        -- benchmarks evaluate manga/comic page coordinates only.
+        if dataset_type ~= "manhwa" then
+            metadata = metadata or {}
+            local book = {
+                book_title = raw_book.book_title,
+                directory = effective_book_dir,
+                finished = metadata.finished,
+                total_pages = metadata.total_pages,
+                panel_benchmark_tier = metadata.panel_benchmark_tier,
+                type = dataset_type,
+                color_mode = color_mode,
+                pages = {},
+            }
+            local smart_pages = loadPanelPages(effective_book_dir, "smart")
+            local safe_pages = loadPanelPages(effective_book_dir, "safe")
+            local raw_pages, seen = {}, {}
+            for _, page in ipairs(raw_book.pages or {}) do
+                raw_pages[#raw_pages + 1] = page
+                seen[page.page_index] = true
             end
-        end
-        table.sort(raw_pages, function(a, b)
-            return a.page_index < b.page_index
-        end)
-        for _, raw_page in ipairs(raw_pages) do
-            local smart_page = smart_pages and (smart_pages[raw_page.page_index] or {}) or raw_page
-            local safe_page = safe_pages and safe_pages[raw_page.page_index] or {}
-            local rel_img = nil
-            if raw_page.image_paths and type(raw_page.image_paths) == "table" then
-                rel_img = raw_page.image_paths.en or raw_page.image_paths.ja
-                if not rel_img then
-                    for _, path in pairs(raw_page.image_paths) do
-                        if type(path) == "string" then
-                            rel_img = path
-                            break
-                        end
+            -- Panel-only pages still use the shared image convention.
+            for _, mappings in ipairs({ smart_pages or {}, safe_pages or {} }) do
+                for index in pairs(mappings) do
+                    if not seen[index] then
+                        raw_pages[#raw_pages + 1] = {
+                            page_index = index,
+                            image_paths = { en = string.format("%s/%02d.png", raw_book.book_title, index - 1) },
+                        }
+                        seen[index] = true
                     end
                 end
             end
-            local img_path = resolveImagePath(dataset_dir, effective_book_dir, rel_img)
-            local frames = {}
-            for _, rf in ipairs(smart_page.frame or {}) do
-                table.insert(frames, {
-                    x = rf.x,
-                    y = rf.y,
-                    w = rf.w,
-                    h = rf.h,
-                })
-            end
-            local phrases = {}
-            for _, rp in ipairs(raw_page.phrase or {}) do
-                table.insert(phrases, {
-                    x = rp.x,
-                    y = rp.y,
-                    w = rp.w,
-                    h = rp.h,
-                    phrase_id = rp.phrase_id,
-                    text = rp.text,
-                })
-            end
-            local words = {}
-            for _, rw in ipairs(raw_page.word or {}) do
-                table.insert(words, {
-                    x = rw.x,
-                    y = rw.y,
-                    w = rw.w,
-                    h = rw.h,
-                    phrase_id = rw.phrase_id,
-                    text = rw.text,
-                })
-            end
-            local illustration_type = smart_page.illustration_type
-            if smart_page.double_illustration == true then
-                illustration_type = "double_page"
-            end
-            if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
-                illustration_type = #frames == 1 and "single_page" or nil
-            end
+            table.sort(raw_pages, function(a, b)
+                return a.page_index < b.page_index
+            end)
+            for _, raw_page in ipairs(raw_pages) do
+                local smart_page = smart_pages and (smart_pages[raw_page.page_index] or {}) or raw_page
+                local safe_page = safe_pages and safe_pages[raw_page.page_index] or {}
+                local rel_img = nil
+                if raw_page.image_paths and type(raw_page.image_paths) == "table" then
+                    rel_img = raw_page.image_paths.en or raw_page.image_paths.ja
+                    if not rel_img then
+                        for _, path in pairs(raw_page.image_paths) do
+                            if type(path) == "string" then
+                                rel_img = path
+                                break
+                            end
+                        end
+                    end
+                end
+                local img_path = resolveImagePath(dataset_dir, effective_book_dir, rel_img)
+                local frames = {}
+                for _, rf in ipairs(smart_page.frame or {}) do
+                    table.insert(frames, {
+                        x = rf.x,
+                        y = rf.y,
+                        w = rf.w,
+                        h = rf.h,
+                    })
+                end
+                local phrases = {}
+                for _, rp in ipairs(raw_page.phrase or {}) do
+                    table.insert(phrases, {
+                        x = rp.x,
+                        y = rp.y,
+                        w = rp.w,
+                        h = rp.h,
+                        phrase_id = rp.phrase_id,
+                        text = rp.text,
+                    })
+                end
+                local words = {}
+                for _, rw in ipairs(raw_page.word or {}) do
+                    table.insert(words, {
+                        x = rw.x,
+                        y = rw.y,
+                        w = rw.w,
+                        h = rw.h,
+                        phrase_id = rw.phrase_id,
+                        text = rw.text,
+                    })
+                end
+                local illustration_type = smart_page.illustration_type
+                if smart_page.double_illustration == true then
+                    illustration_type = "double_page"
+                end
+                if illustration_type ~= "single_page" and illustration_type ~= "double_page" then
+                    illustration_type = #frames == 1 and "single_page" or nil
+                end
 
-            table.insert(book.pages, {
-                dataset = dataset_type,
-                type = dataset_type,
-                color_mode = color_mode,
-                book_title = raw_book.book_title,
-                page_index = raw_page.page_index,
-                image_path = img_path,
-                embedded_image = metadata.source_format == "epub"
-                    or metadata.source_format == "kepub.epub"
-                    or metadata.source_format == "mobi",
-                reading_order = dataset_type,
-                frames = frames,
-                panel_mappings = {
-                    smart = { frames = frames, illustration_type = illustration_type },
-                    safe = {
-                        frames = safe_page.frame or {},
-                        illustration_type = safe_page.illustration_type
-                            or (safe_page.double_illustration and "double_page")
-                            or (#(safe_page.frame or {}) == 1 and "single_page" or nil),
+                table.insert(book.pages, {
+                    dataset = dataset_type,
+                    type = dataset_type,
+                    color_mode = color_mode,
+                    book_title = raw_book.book_title,
+                    page_index = raw_page.page_index,
+                    image_path = img_path,
+                    embedded_image = metadata.source_format == "epub"
+                        or metadata.source_format == "kepub.epub"
+                        or metadata.source_format == "mobi",
+                    reading_order = dataset_type,
+                    frames = frames,
+                    panel_mappings = {
+                        smart = { frames = frames, illustration_type = illustration_type },
+                        safe = {
+                            frames = safe_page.frame or {},
+                            illustration_type = safe_page.illustration_type
+                                or (safe_page.double_illustration and "double_page")
+                                or (#(safe_page.frame or {}) == 1 and "single_page" or nil),
+                        },
                     },
-                },
-                phrases = phrases,
-                words = words,
-                text_direction = raw_page.text_direction or "ltr",
-                illustration_type = illustration_type,
-                double_illustration = illustration_type == "double_page",
-                text = raw_page.text or {},
-            })
+                    phrases = phrases,
+                    words = words,
+                    text_direction = raw_page.text_direction or "ltr",
+                    illustration_type = illustration_type,
+                    double_illustration = illustration_type == "double_page",
+                    text = raw_page.text or {},
+                })
+            end
+            table.insert(books, book)
         end
-        table.insert(books, book)
     end
     return books
 end

@@ -6,21 +6,20 @@ This directory contains the unit tests, integration specs, real-world datasets, 
 
 ```
 tests/
-├── PanelsPlusTestFramework.lua    # Dependency-free Lua test framework (describe, it, assert)
-├── dataset-mangas/                # Manga evaluation suite & OpenMantra dataset
-│   ├── dataset/                   # OpenMantra Dataset (214 pages, 1,069 annotated frames)
-│   │   ├── annotation.json        # Ground-truth frames and text annotations
-│   │   └── images/                # 5 series: tojime_no_siora, balloon_dream, tencho_isoro, etc.
-│   ├── dataset_loader.lua         # Converts image files into PPPageMap using ImageMagick streaming
-│   ├── dataset_manifest.lua       # Indexes books, pages, and ground truth from datasets
-│   ├── panel_evaluator.lua        # Calculates IoU, Precision, Recall, F1, and Reading Order
-│   └── report/                    # Architectural benchmarks & detection improvement reports
-├── helpers/
-│   └── json.lua                   # Pure-Lua JSON decoder for manifests and annotations
-├── run_tests.lua                  # Primary test runner (executes all spec files)
-└── spec/                          # Unit and integration specifications
-    ├── dataset_benchmark_spec.lua # Golden manga regression spec (<1.5s)
-    └── ...
+├── *_spec.lua                    # All Lua unit, integration, and dataset specs
+├── test_*.py                     # Python scheduler, dataset, and annotator tests
+├── helper.lua                    # KOReader module stubs
+├── PanelsPlusTestFramework.lua   # Dependency-free Lua assertions and spies
+├── run_tests.lua                 # Discovers every *_spec.lua in filename order
+├── run_parallel.py               # Schedules Lua jobs and full-volume benchmarks
+├── helpers/json.lua              # JSON decoder for annotations and manifests
+└── dataset-mangas/               # Dataset assets, evaluators, and reports
+    ├── dataset/                  # Manga/comic images and annotations by book
+    ├── dataset-textbasedformats/ # EPUB/KEPUB/MOBI fixtures
+    ├── dataset_loader.lua        # Image decoding and page-map construction
+    ├── dataset_manifest.lua      # Book, page, and annotation discovery
+    ├── panel_evaluator.lua       # Detection and reading-order metrics
+    └── report/                   # Benchmark reports
 ```
 
 ---
@@ -33,7 +32,7 @@ tests/
 ./run-tests.sh --quicker        # Skip Lua lint/format checks and dataset/benchmark specs
 ./run-tests.sh --quick -j 2     # Limit to two workers
 ./run-tests.sh --quick -j 1     # Run jobs sequentially
-./run-tests.sh --quick tests/spec/geometry_spec.lua
+./run-tests.sh --quick tests/geometry_spec.lua
 ./run-tests.sh --ocr            # OCR units and annotated Bloom word images
 ./run-tests.sh --panels         # Panel units and panel datasets
 ```
@@ -77,17 +76,22 @@ for the reader. [OCR_REPORT.md](../OCR_REPORT.md) also documents the native
 KOReader OCR benchmark in `tools/benchmarking/benchmark_ocr_native.lua`, its separate accuracy
 gates, and the limits of both measurements.
 
+Python tests are discovered together with `python -m unittest discover -s tests -p "test_*.py"`.
+Go worker tests remain beside their Go package in `tools/ocr_worker`.
+
 The shell runner requires Python 3.9+ and defaults to at most four Lua workers.
 Each full-volume production benchmark runs in its own process. Golden-page and
 per-manga specs run as separate jobs; ordinary unit tests stay together. All
 pages and accuracy gates are retained. Output is grouped by completed job, with
 elapsed times and a failing exit status if any worker fails. More workers use
-more memory. ImageMagick defaults to one thread per worker; an explicit
-`MAGICK_THREAD_LIMIT` is respected.
+more memory. ImageMagick and Tesseract default to one thread per worker;
+explicit `MAGICK_THREAD_LIMIT` and `OMP_THREAD_LIMIT` values are respected.
 
 `lua tests/run_tests.lua` still runs the complete suite sequentially without the
 Python scheduler. It also accepts one or more spec paths for targeted runs.
 Full local volumes can take minutes; public clones skip unavailable volumes.
+For the complete shell runner with LuaJIT and native FFI arrays, use
+`PANELSPLUS_LUA="luajit -l ffi" ./run-tests.sh --strict`.
 
 ### 2. Code Quality and Linter
 Formats with StyLua and validates with Luacheck:
@@ -100,6 +104,11 @@ Formats with StyLua and validates with Luacheck:
 ## Panel Segmentation Benchmark Tool
 
 A dedicated CLI tool (`tools/benchmarking/benchmark_panels.lua`) evaluates panel detection across real manga and comic pages.
+
+Safe and Smart create independent instances of the shared frame pipeline. Safe
+then retains enclosing frames and connected vertical stacks conservatively.
+Fixed-page crops follow ink bounds; embedded rasters retain one-cell padding.
+The legacy gutter detector tries frame extraction when a page remains one crop.
 
 The reader's connected-component detector can be evaluated with
 `./run-benchmark.sh --detector components --all`. The default benchmark remains
@@ -139,12 +148,11 @@ as skipped. The loader keeps one page map in memory; under LuaJIT it uses the
 same byte-array storage as the reader. Preload real FFI for a native-array run:
 `luajit -l ffi tests/run_tests.lua`.
 
-To check that the optimized detectors preserve their reference outputs
-(Safe uses the stable version requested from three commits before `6086013`):
+To compare detector outputs with the saved full-volume baseline implementation:
 
 ```bash
 git show 6086013:src/_smartcomponentdetector.lua > /tmp/smart-reference.lua
-git show 6a82bc8:src/_safecomponentdetector.lua > /tmp/safe-reference.lua
+git show 6086013:src/_safecomponentdetector.lua > /tmp/safe-reference.lua
 MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/smart-reference.lua
 MAGICK_THREAD_LIMIT=1 luajit tools/benchmarking/benchmark_component_scan.lua /tmp/safe-reference.lua 10000 safe
 ```

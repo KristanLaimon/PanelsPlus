@@ -312,9 +312,9 @@ Additional checks passed: `python3 -m unittest tests.test_parallel_runner` (4 te
 ## Changes made
 
 - `run-tests.sh`, `tests/run_parallel.py`, `tests/test_parallel_runner.py`, and `tests/README.md`: separate `--ocr` and `--panels` modes while preserving the no-argument full run.
-- `tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_ocr_spec.lua`: exercise real annotated word geometry and local OCR text on available PNGs. The fake document emulates KOReader's tight native context; the CLI is a stand-in, not the actual app process.
+- `tests/bloom_ocr_spec.lua`: exercise real annotated word geometry and local OCR text on available PNGs. The fake document emulates KOReader's tight native context; the CLI is a stand-in, not the actual app process.
 - `src/_wordfinder.lua`: improve sparse gap calibration, split suspiciously tall text lines, retain small trailing punctuation runs, tighten the vertical runaway cap, and use a tight single-word native OCR path with fallback.
-- `tests/spec/wordfinder_spec.lua`: cover the new native OCR crop and mode choice.
+- `tests/wordfinder_spec.lua`: cover the new native OCR crop and mode choice.
 
 ## OCR experiments and lessons
 
