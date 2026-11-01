@@ -27,12 +27,13 @@ To exercise the same exact-version suite against a modified stable copy or rolli
 
 ## Build and deploy
 
+For this project, a rolling-release build request includes installation unless the user explicitly asks for an artifact only. Use `--mode=rolling --install` (plus `--source` for a worktree). The CLI itself still defaults to a read-only preview; `--build-only` is the explicit artifact-only exception. Close KOReader and retain all installer identity, local-change and backup checks.
+
 Run from any working directory; paths are anchored to the script's project root. The project must actually be inside a KOReader `plugins/` directory to install. A KOReader runtime (`reader.lua` plus `frontend/`) or the user's KOReader configuration (`settings.reader.lua` plus `settings/`) must be its parent.
 
 ```bash
 ./tools/plugin-compatibility/deploy.sh --plugin=meguru --mode=stable --version=1.7.1
 ./tools/plugin-compatibility/deploy.sh --plugin=meguru --mode=laboratory --version=1.7.1 --experiment=bluetooth-fix
-./tools/plugin-compatibility/deploy.sh --plugin=meguru --mode=rolling --build-only
 ./tools/plugin-compatibility/deploy.sh --plugin=meguru --mode=rolling --install
 ```
 
