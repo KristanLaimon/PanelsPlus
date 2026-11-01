@@ -317,3 +317,40 @@ checks. Coverage includes eased and Classic motion, cropped modes, an open
 annotator, gutters/unrelated rows, overlap and mask-allocation failure. Rendering
 and host UI remain fixtures; live verification requires restarting KOReader.
 The target implementation and installation (`build.jOs0emGa`) are unchanged.
+
+
+## Toolbar backing during Smooth navigation — 2026-11-01
+
+Target-only follow-up: the asynchronous live-page paint path now clears the
+visible toolbar's full rectangle before drawing its transparent button cells,
+icons, tool marks and dark-theme inversion. Previously page pixels showed
+through between icons because this path skipped the normal opaque backing.
+Only the toolbar rectangle is restored, so an old canvas clip cannot obscure
+moving content. Hidden toolbars do not paint a backing. Panels+ runtime and the
+generic surface contract are unchanged.
+
+The original code failed 48 native toolbar-pixel comparisons; the expanded final
+suite passes **160** checks across all four sides, light/dark, grayscale/color,
+changing frames, hidden bars and stale canvas geometry. Uses the actual C blitter
+and ReaderInkView layout/paint/theme, with host widgets/provider/input fixtures.
+Reader **236**, generic-surface **49**, patched compatibility **38** checks pass;
+original stable and rolling fallback suites pass **5 each**.
+
+Retained [toolbar patch](patches/surface-toolbar.patch), SHA-256
+`f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf`, follows
+the navigation/export/focus patches. The full retained stack reconstructs the
+current worktree. Installed build: `build.rgY5ggSs`; previous copy backed up at
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.iwo1EpnM/`.
+All 285 installed payload checksums match. Restart KOReader for live validation.
+
+
+Notes: (by KristanLaimon)
+Ink Away uses a special paint path during Smooth transitions: it draws the moving page, then draws its toolbar on top.
+
+The toolbar’s button cells are intentionally transparent. Normal editor rendering paints an opaque background behind them, but the transition path skipped that step. That let the moving page show through between the icons.
+
+The fix belongs in Ink Away because it owns the toolbar and that paint path. Panels+ supplies the moving page and its coordinates; it shouldn’t need to know the toolbar’s size, position, visibility or theme.
+
+Ink Away now paints the toolbar’s background before its buttons and icons. The fix works for any viewer using the generic surface interface—there’s no Panels+ identification in it.
+
+
