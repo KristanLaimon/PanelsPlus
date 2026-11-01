@@ -1028,6 +1028,27 @@ function ViewerController:showInkAwaySettings(viewer, parent_page)
             end,
         }
     end
+    items[#items + 1] = {
+        id = "inkaway_fit_viewport",
+        help_text = _(
+            "Cycle between fitting panels beside the annotator toolbar and keeping the full viewport. Fitting follows the toolbar when it moves or hides."
+        ),
+        text = _("Panel viewport: ")
+            .. (self.settings.inkaway_fit_viewport ~= false and _("Fit beside toolbar") or _("Full viewport")),
+        callback = function()
+            local fit = self.settings.inkaway_fit_viewport == false
+            self.settings.inkaway_fit_viewport = fit
+            if viewer.setInkAwayFitViewport then
+                viewer:setInkAwayFitViewport(fit)
+            else
+                viewer.inkaway_fit_viewport = fit
+            end
+            self:saveSettings()
+            menu.close_callback = nil
+            UIManager:close(menu)
+            self:showInkAwaySettings(viewer, parent_page)
+        end,
+    }
     menu = require("ui/widget/menu"):new({
         title = _("Ink-away Settings…"),
         item_table = items,
@@ -1107,6 +1128,7 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         reader_ui = self.ui,
         join_spread_fold = self.settings.join_spread_fold ~= false,
         inkaway_join_spread_fold = self.settings.inkaway_join_spread_fold ~= false,
+        inkaway_fit_viewport = self.settings.inkaway_fit_viewport ~= false,
         panel_prerender_callback = function(current_viewer, index)
             return self:prerenderNextPanel(current_viewer, index)
         end,

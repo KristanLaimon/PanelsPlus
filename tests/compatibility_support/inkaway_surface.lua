@@ -29,6 +29,9 @@ return function(reference)
     end
     Base.composeCanvas, Base.renderView, Base.flushPending = noop, noop, noop
     Base.drawFabs = noop
+    Base.newAreaBuffer = function()
+        return { free = noop }
+    end
     Base.cancelShape, Base.resetLasso, Base.markDirty, Base.onCloseWidget = noop, noop, noop, noop
     function Base:closeCanvas()
         self:saveDocument()
@@ -181,6 +184,7 @@ return function(reference)
                 return 1
             end
             function bb:fill() end
+            function bb:paintRect() end
             function bb:free() end
             function bb:blitFrom(source, x, y)
                 self.content = { source = source, x = x, y = y }
@@ -307,6 +311,7 @@ return function(reference)
                 return 1
             end
             function bb:fill() end
+            function bb:paintRect() end
             function bb:free()
                 self.freed = true
             end
@@ -432,9 +437,12 @@ return function(reference)
             viewer.nav_transition_mode, viewer.nav_transition_cross_page = "smooth", true
             viewer.nav_transition_duration = 0.4
             viewer.reading_mode = options.manga and "manga" or "comic"
-            viewer.getPanelViewportSize = function()
-                return 600, 800
-            end
+            viewer.width, viewer.height, viewer.img_container_h = 600, 800, 800
+            viewer.inkaway_fit_viewport = not options.full_viewport
+            viewer.getPanelViewportSize = options.viewport_side and PanelViewer.getPanelViewportSize
+                or function()
+                    return 600, 800
+                end
             viewer.getMarginShrinkFactorForPanel = function(_, index)
                 return options.margin and (index == 1 and 0.9 or 0.7) or 1
             end
@@ -512,9 +520,11 @@ return function(reference)
                 self.scale_factor = scale
                 local w, h = self.image.w * scale, self.image.h * scale
                 local margin = self._panels_plus_transition_margin_factor or 1
-                local vw, vh = math.min(600 * margin, w), math.min(800 * margin, h)
+                local cw, ch, _, _, insets = self:getPanelViewportSize()
+                local vw, vh = math.min(cw * margin, w), math.min(ch * margin, h)
+                local ix, iy = insets and insets.left or 0, insets and insets.top or 0
                 self._image_wg = {
-                    dimen = { x = (600 - vw) / 2, y = (800 - vh) / 2, w = vw, h = vh },
+                    dimen = { x = ix + (cw - vw) / 2, y = iy + (ch - vh) / 2, w = vw, h = vh },
                     width = vw,
                     height = vh,
                     _offset_x = math.max(0, math.min(w - vw, (self._center_x_ratio or 0.5) * w - vw / 2)),
@@ -577,6 +587,38 @@ return function(reference)
                 ink:onInkAwayAnnotate()
                 editor = book._view
                 editor._bar_toggle_hidden = true
+                if options.viewport_side then
+                    editor._toolbar_hidden, editor._bar_side, editor._vb_thick = false, options.viewport_side, 50
+                    editor.toolbar = {
+                        getSize = function()
+                            local across = options.viewport_side == "top" or options.viewport_side == "bottom"
+                            return { w = across and 600 or 50, h = across and 50 or 800 }
+                        end,
+                        paintTo = noop,
+                    }
+                    editor.paintBarMarks, editor.paintBarIcons, editor.darkToolbar = noop, noop, noop
+                    editor:prepareSurfaceLayout()
+                    editor:placeToolbar()
+                    editor:areaChanged()
+                    local w, h = viewer:getPanelViewportSize()
+                    local across = options.viewport_side == "top" or options.viewport_side == "bottom"
+                    check.equals(
+                        (options.full_viewport or across) and 600 or 550,
+                        w,
+                        "toolbar space changes the real panel viewport"
+                    )
+                    check.equals((not options.full_viewport and across) and 750 or 800, h)
+                    if options.toggle_fit then
+                        viewer:setInkAwayFitViewport(false)
+                        local full_w, full_h = viewer:getPanelViewportSize()
+                        check.equals(600, full_w)
+                        check.equals(800, full_h)
+                        viewer:setInkAwayFitViewport(true)
+                        local fit_w, fit_h = viewer:getPanelViewportSize()
+                        check.equals(w, fit_w)
+                        check.equals(h, fit_h)
+                    end
+                end
                 editor:turnArrow(options.manga and "left" or "right")
                 check.is_true(editor._surface_navigating, "the editor waits for the animation handoff")
                 local committed = editor.canvas.rev
@@ -972,6 +1014,23 @@ return function(reference)
         it("masks neighboring source-row panels out of cropped Smooth backgrounds", function()
             smoothAnnotations({ row_transition = true, style = "ease", check_background = true })
             smoothAnnotations({ row_transition = true, style = "classic", check_background = true })
+        end)
+        it("keeps Smooth geometry and ink aligned beside all annotator toolbar positions", function()
+            for _, side in ipairs({ "left", "right", "top", "bottom" }) do
+                smoothAnnotations({ annotator = true, viewport_side = side, style = "ease" })
+                smoothAnnotations({ annotator = true, viewport_side = side, style = "classic" })
+            end
+        end)
+        it("preserves No crop, margin framing and the full-viewport opt-out beside the toolbar", function()
+            smoothAnnotations({ annotator = true, viewport_side = "right", no_crop = true, style = "classic" })
+            smoothAnnotations({ annotator = true, viewport_side = "top", margin = true, style = "ease" })
+            smoothAnnotations({ annotator = true, viewport_side = "left", full_viewport = true, style = "ease" })
+            smoothAnnotations({ annotator = true, viewport_side = "left", toggle_fit = true, style = "ease" })
+        end)
+        it("fits annotator page-boundary animation into its remaining viewport", function()
+            smoothAnnotations({ annotator = true, viewport_side = "left", boundary = true })
+            smoothAnnotations({ annotator = true, viewport_side = "bottom", boundary = true, manga = true })
+            smoothAnnotations({ annotator = true, viewport_side = "left", boundary = true, no_crop = true })
         end)
         it("uses the same cropped row regions while the annotator stays open", function()
             smoothAnnotations({ row_transition = true, annotator = true, style = "ease", manga = true })
