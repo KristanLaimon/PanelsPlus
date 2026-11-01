@@ -28,6 +28,7 @@ local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local PageBitmap = require("src._pagebitmap")
 local PageRender = require("src._pagerender")
+local PanelViewport = require("src._panelviewport")
 local QuickToolbar = require("src._quicktoolbar")
 local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
@@ -1284,9 +1285,14 @@ function PanelViewer:completeAnnotationNavigation(next_viewer)
     if not surface or not surface.navigation_done then
         return
     end
-    local done = surface.navigation_done
-    surface.navigation_done = nil
-    done((next_viewer or self):getAnnotationSurface())
+    surface:completeNavigation((next_viewer or self):getAnnotationSurface())
+end
+
+function PanelViewer:notifyAnnotationNavigationFrame()
+    local surface = self._annotation_surface
+    if surface and surface.navigation_frame then
+        surface.navigation_frame(surface)
+    end
 end
 
 --- Check KOReader's raw document text boxes without triggering its OCR fallback.
@@ -1876,6 +1882,7 @@ function PanelViewer:update()
         end
     end
 
+    self:notifyAnnotationNavigationFrame()
     return result
 end
 
@@ -2036,6 +2043,7 @@ function PanelViewer:onCloseWidget()
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true
+    self._annotation_transition = nil
     self._panels_plus_smooth_preview = nil
     if self._document_boundary_dialog then
         UIManager:close(self._document_boundary_dialog)
@@ -2207,6 +2215,7 @@ end
 
 --- Complete a navigation handoff before notifying a settings preview.
 function PanelViewer:completeNavTransition(target, on_complete)
+    self._annotation_transition = nil
     self:switchToImageNum(target)
     if on_complete then
         on_complete()
@@ -2336,7 +2345,7 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
 
     local scale = target_zoom / zoom_union -- applied once, below, via self.scale_factor
 
-    local canvas
+    local canvas, annotation_rect
     local ok_canvas, canvas_image = pcall(function()
         canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
         canvas:fill(Blitbuffer.COLOR_WHITE)
@@ -2350,6 +2359,15 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
         if blit_w > 0 and blit_h > 0 then
             canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
         end
+        annotation_rect = PanelViewport.canvasRect(
+            union,
+            content_image:getWidth(),
+            content_image:getHeight(),
+            canvas_w,
+            canvas_h,
+            paste_x,
+            paste_y
+        )
         return canvas
     end)
     if content_image_owned and content_image and content_image.free then
@@ -2370,6 +2388,7 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     self._panels_plus_transition_active = true
     local old_image = self.image
     self.image = canvas_image
+    self._annotation_transition = { image = canvas_image, page = self.page, rect = annotation_rect }
     self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
     self.scale_factor = scale
     self._panels_plus_transition_margin_factor = target_margin_factor
@@ -2469,6 +2488,11 @@ function PanelViewer:runNavViewportAnimation(
         end
         local old_image = self.image
         self.image = frame
+        self._annotation_transition = {
+            image = frame,
+            page = self.page,
+            rect = PanelViewport.canvasRect(union, source:getWidth(), source:getHeight(), crop_w, crop_h, -left, -top),
+        }
         self._center_x_ratio, self._center_y_ratio = 0.5, 0.5
         self.scale_factor = 1
         self._panels_plus_transition_margin_factor = frame_margin
@@ -2492,6 +2516,9 @@ function PanelViewer:runNavViewportAnimation(
             self._panels_plus_transition_cleanup = nil
             self._panels_plus_transition_active = nil
             self._panels_plus_transition_margin_factor = nil
+            if self._panels_plus_closed or not self:isOpen() then
+                self._annotation_transition = nil
+            end
             return
         end
         step = step + 1
@@ -2544,6 +2571,9 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
         self._panels_plus_transition_action = nil
         if not self._panels_plus_transition_active or self._panels_plus_closed or not self:isOpen() then
             self._panels_plus_transition_active = nil
+            if self._panels_plus_closed or not self:isOpen() then
+                self._annotation_transition = nil
+            end
             return
         end
         step_n = step_n + 1
@@ -2554,6 +2584,7 @@ function PanelViewer:runNavPanAnimation(target_ratio_x, target_ratio_y, on_compl
             desired_y = start_offset_y + (target_offset_y - start_offset_y) * progress
         end
         self:panBy(desired_x - self._image_wg._offset_x, desired_y - self._image_wg._offset_y)
+        self:notifyAnnotationNavigationFrame()
         if step_n < steps then
             self._panels_plus_transition_action = walkStep
             UIManager:scheduleIn(step_delay, walkStep)
@@ -2752,7 +2783,7 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
     local a_left = travel_west and (2 * half_w_b) or 0
     local b_left = travel_west and 0 or (2 * half_w_a)
 
-    local canvas
+    local canvas, annotation_regions
     local ok_canvas, canvas_image = pcall(function()
         canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
         canvas:fill(Blitbuffer.COLOR_WHITE)
@@ -2770,6 +2801,38 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
         if b_w > 0 and b_h > 0 then
             canvas:blitFrom(tile_b, b_x, b_y, 0, 0, b_w, b_h)
         end
+        local canvas_rects_a = self._images_list and self._images_list.canvas_rects
+        local canvas_rects_b = resolved.next_images and resolved.next_images.canvas_rects
+        local native_a = (canvas_rects_a and canvas_rects_a[self._images_list_cur]) or rect_a
+        local native_b = (canvas_rects_b and canvas_rects_b[resolved.start_idx]) or rect_b
+        annotation_regions = {
+            {
+                page = self.page,
+                clip = native_a,
+                rect = PanelViewport.canvasRect(
+                    native_a,
+                    tile_a_scaled:getWidth(),
+                    tile_a_scaled:getHeight(),
+                    canvas_w,
+                    canvas_h,
+                    a_x,
+                    a_y
+                ),
+            },
+            {
+                page = resolved.next_page,
+                clip = native_b,
+                rect = PanelViewport.canvasRect(
+                    native_b,
+                    tile_b:getWidth(),
+                    tile_b:getHeight(),
+                    canvas_w,
+                    canvas_h,
+                    b_x,
+                    b_y
+                ),
+            },
+        }
         return canvas
     end)
     if tile_a_scaled ~= tile_a and tile_a_scaled.free then
@@ -2801,6 +2864,7 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
         end
     end
     self.image = canvas_image
+    self._annotation_transition = { image = canvas_image, regions = annotation_regions }
     self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
     -- Both slices already share target_zoom. Scale the whole canvas once to
     -- match the landing panel's margin framing; otherwise the camera shows a
@@ -2823,6 +2887,7 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
                 self:runNavPanAnimation(ratio_ax, ratio_ay, function()
                     self._panels_plus_transition_cleanup = nil
                     self.image = old_image
+                    self._annotation_transition = nil
                     self._center_x_ratio, self._center_y_ratio = old_x, old_y
                     self.scale_factor = old_scale
                     self._panels_plus_transition_margin_factor = old_margin
@@ -2838,6 +2903,7 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
             return
         end
         self._panels_plus_transition_margin_factor = nil
+        self._annotation_transition = nil
         if self.nav_boundary_commit_callback then
             self.nav_boundary_commit_callback(self, direction, resolved)
         end

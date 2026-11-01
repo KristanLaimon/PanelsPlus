@@ -13,9 +13,15 @@ end
 
 function Surface:geometry()
     local v = self.viewer
+    local transition = self._transition_region or v._annotation_transition
+    if not self._transition_region and transition and transition.image ~= v.image then
+        transition = nil
+    end
     local index = v._images_list_cur or 1
     local canvas_rects = v._images_list and v._images_list.canvas_rects
-    local rect = (canvas_rects and canvas_rects[index]) or (v.image_rects and v.image_rects[index])
+    local rect = (transition and transition.rect)
+        or (canvas_rects and canvas_rects[index])
+        or (v.image_rects and v.image_rects[index])
     local widget = v._image_wg
     if not rect or not widget or v._panels_plus_closed then
         return nil
@@ -26,19 +32,25 @@ function Surface:geometry()
         return nil
     end
     local dimen = widget.dimen or {}
+    local fold
+    if not transition then
+        fold = v:currentFold()
+    end
     return {
+        page = transition and transition.page or v.page,
         rect = rect,
         w = w,
         h = h,
         x = (dimen.x or 0) - (widget._offset_x or 0),
         y = (dimen.y or 0) - (widget._offset_y or 0),
         angle = v:annotationDrawnAngle(),
-        fold = v:currentFold(),
+        fold = fold,
     }
 end
 
 function Surface:pages()
-    return { self.viewer.page }
+    local g = self:geometry()
+    return { g and g.page or self.viewer.page }
 end
 
 function Surface:isAffine()
@@ -53,7 +65,7 @@ function Surface:key()
     end
     local r, f = g.rect, g.fold or {}
     return table.concat({
-        self.viewer.page,
+        g.page,
         r.x,
         r.y,
         r.w,
@@ -92,12 +104,12 @@ function Surface:toPage(x, y, geometry)
         end
     end
     u = u - (g.shift or 0)
-    return self.viewer.page, g.rect.x + u * g.rect.w, g.rect.y + v * g.rect.h, zoom, -math.rad(g.angle)
+    return g.page, g.rect.x + u * g.rect.w, g.rect.y + v * g.rect.h, zoom, -math.rad(g.angle)
 end
 
 function Surface:toScreen(page, x, y, geometry)
     local g = geometry or self:geometry()
-    if not g or page ~= self.viewer.page then
+    if not g or page ~= g.page then
         return nil
     end
     local u = FoldJoin.toJoinedU((x - g.rect.x) / g.rect.w, g.fold) + (g.shift or 0)
@@ -179,8 +191,8 @@ function Surface:clip()
     local left, top, right, bottom = g.x, g.y, g.x + g.w, g.y + g.h
     if self._region_box or g.fold then
         local r = self._region_box or g.rect
-        local x0, y0 = self:toScreen(self.viewer.page, r.x, r.y)
-        local x1, y1 = self:toScreen(self.viewer.page, r.x + r.w, r.y + r.h)
+        local x0, y0 = self:toScreen(g.page, r.x, r.y)
+        local x1, y1 = self:toScreen(g.page, r.x + r.w, r.y + r.h)
         left, top, right, bottom = math.min(x0, x1), math.min(y0, y1), math.max(x0, x1), math.max(y0, y1)
     end
     local x, y = math.max(0, left, d.x), math.max(0, top, d.y)
@@ -192,9 +204,23 @@ function Surface:clip()
     }
 end
 
--- Each retained half is affine. Rendering the complete native op through each
--- half, clipped afterwards, also handles pictures, text and fills at the join.
+-- Each page slice or retained fold half is affine. Rendering native ops through
+-- each region, clipped afterwards, also handles pictures, text and fills.
 function Surface:regions()
+    local transition = self.viewer._annotation_transition
+    if not self._transition_region and transition and transition.image == self.viewer.image and transition.regions then
+        local regions = {}
+        for _, region in ipairs(transition.regions) do
+            regions[#regions + 1] = setmetatable({
+                version = 1,
+                document = self.document,
+                viewer = self.viewer,
+                _transition_region = region,
+                _region_box = region.clip,
+            }, Surface)
+        end
+        return regions
+    end
     local g = self:geometry()
     if not g or not g.fold then
         return { self }
@@ -265,25 +291,50 @@ end
 
 function Surface:finish()
     self.navigation_done = nil
+    self.navigation_frame = nil
     self:setJoined(nil)
     self:repaint()
 end
 
-function Surface:turn(dir, done)
+function Surface:readingDirection()
+    return self.viewer.reading_mode == "comic" and "ltr" or "rtl"
+end
+
+function Surface:completeNavigation(surface)
+    local done = self.navigation_done
+    self.navigation_done, self.navigation_frame = nil, nil
+    if done then
+        done(surface or self)
+    end
+end
+
+function Surface:turn(dir, done, frame)
     local v = self.viewer
+    if self.navigation_done then
+        return
+    end
+    self.navigation_done, self.navigation_frame = done, frame
     local index = v._images_list_cur + dir
     if index >= 1 and index <= v._images_list_nb then
-        v:switchToImageNum(index)
-        done(self)
+        if v.nav_transition_mode == "smooth" then
+            v:animateSwitchToImageNum(index, function()
+                self:completeNavigation()
+            end)
+        else
+            v:switchToImageNum(index)
+            self:completeNavigation()
+        end
     elseif v.boundary_callback then
-        self.navigation_done = done
-        v.boundary_callback(dir > 0 and "next" or "previous", v)
-        if not v._panels_plus_boundary_pending and self.navigation_done then
-            self.navigation_done = nil
-            done(self)
+        if v.nav_transition_mode == "smooth" then
+            v:onPanelBoundary(dir > 0 and "next" or "previous")
+        else
+            v.boundary_callback(dir > 0 and "next" or "previous", v)
+        end
+        if not v._panels_plus_boundary_pending and not v._panels_plus_transition_active and self.navigation_done then
+            self:completeNavigation()
         end
     else
-        done(self)
+        self:completeNavigation()
     end
 end
 

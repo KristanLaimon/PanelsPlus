@@ -167,3 +167,62 @@ Automated tests do not establish input-driver behavior or refresh quality.
 - Panels+ runtime integration: `0af707c2b168da63ca37a10d06b9ae039a5b6ceb`.
 - Panels+ fold settings: `c93912ab4d05e96e39a48c4b046b1fca492feb9e`.
 - Source branch: `feat/ink-away-compatibility`. No commits were pushed.
+
+## Smooth animation follow-up
+
+The user reported that ink stayed at the starting position during Smooth motion,
+then jumped at handoff. The animated page uses temporary bitmaps while the
+annotation surface had retained the original panel's geometry.
+
+Panels+ now supplies geometry tied to the actual animation image: native bounds
+for each scaled viewport frame or shared Classic canvas, and separate clipped
+page regions for a cross-page canvas. Ink uses the same viewport offsets and
+zoom as the displayed pixels. Temporary fold metadata is not reused, and normal
+panel geometry resumes at handoff or preview return. The No crop compositor and
+animation paths share the same native-canvas calculation.
+
+Three new checks failed before the fix. Expanded checks now validate intermediate
+ink positions against the actual render/blit/scale call chain with framebuffer
+and widget fixtures, including both pages, margin changes, No crop, reading
+direction, preview return, failures and close cleanup. The target-worktree suite
+passes **30 checks**, the original stable/rolling fallback suites pass **5 each**,
+the general suite passes **539**, and Meguru stable/rolling geometry suites pass
+**14 each**. Only Panels+ source changed; the installed target remains the
+implementation preserved in `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
+
+Restart KOReader for live validation that annotations follow the page continuously
+during Smooth navigation. The automated checks do not validate physical refresh
+behavior or input drivers.
+
+## Annotator navigation and reading direction — 2026-11-01
+
+The annotator now uses Panels+'s Smooth panel/page navigation and paints the live
+surface during movement, retaining its own stationary toolbar. Drawing and repeat
+turns are blocked until handoff, when editable operations are loaded at the new
+position. Closing the editor cancels its subscriptions and late completions cannot
+reactivate it. Reading visibility preferences do not hide editable ink in motion.
+
+Physical arrows and unbound navigation swipes follow the supplied reading flow:
+Manga (RTL) uses `<` to advance and `>` to go back; Comic (LTR) uses `>` to advance
+and `<` to go back. Named next/previous actions remain logical forward/backward.
+Ink Away obtains this through optional `readingDirection()` and progress callbacks
+on its generic surface contract; it has no Panels+ identifiers or panel logic.
+
+The target delta against `d87e2b097d6345085f9aa3ea0412bef23775ce10` is preserved in
+[patches/annotation-navigation.patch](patches/annotation-navigation.patch), SHA-256
+`0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735`.
+Apply it after the original surface patch when reconstructing from upstream.
+The target worktree remains on `feature/annotation-surfaces`, with this follow-up
+uncommitted. Original stable and rolling references are unchanged.
+
+Verification: stable **5**, upstream rolling **5**, patched worktree **34** checks
+pass. The real target canvas suites pass **236** and **49** checks; Panels+ general
+tests pass **539**. The new cases cover arrow flow, named actions, live modal
+editor frames, cross-page/No crop motion, repeated input, input blocking and late
+completion after close. Physical reader refresh/input behavior requires live use.
+
+Installed development build:
+`.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.n2v16RYh/ink-away.koplugin/`.
+Previous managed copy backed up at
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.8rAuMrL4/ink-away.koplugin/`.
+Restart KOReader to load both current sources.
