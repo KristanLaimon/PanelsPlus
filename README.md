@@ -35,6 +35,8 @@
   </tr>
 </table>
 
+> Want to know what's coming for the next release v1.6.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.6.0-nightly)
+
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup, external scripts, JSON files required, install Panels+ and *it just works*.
 
 ### Features
