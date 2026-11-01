@@ -1,0 +1,2 @@
+# Unified patch files require a space on otherwise blank context lines.
+references-repos/plugins/*/patches/*.patch whitespace=-blank-at-eol

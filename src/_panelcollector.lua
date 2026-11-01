@@ -95,6 +95,8 @@ end
 --- @param page number Document page number.
 --- @param rect PPPanel Native panel rectangle.
 --- @param page_size PPPageSize Page dimensions.
+--- @param images PPImageList Lazy images and their per-image canvas geometry.
+--- @param index integer Image index receiving the canvas geometry.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
 local function buildNoCropImage(ui, page, rect, page_size, images, index)
@@ -335,7 +337,14 @@ function PanelCollector.buildImages(ui, page, panels, settings)
                     image, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
                 end
                 images.rotated = rotate
-                local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
+                local join_annotation_fold = images.annotation_join_spread_fold
+                if join_annotation_fold == nil then
+                    join_annotation_fold = join_fold
+                end
+                local fold_opts = join_annotation_fold
+                    and DoubleSpread.isSpreadRect(page_size)
+                    and image
+                    and foldSearch(image, image_rect, page_size)
                 if fold_opts then
                     fold_opts.background = PageRender.getBackground(ui)
                     -- The joined bitmap is a new buffer, so it replaces the copy. A
