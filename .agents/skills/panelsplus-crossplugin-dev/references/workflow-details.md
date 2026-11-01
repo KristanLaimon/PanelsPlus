@@ -4,6 +4,16 @@
 
 The current scope of `tests/plugin-compatibility/` is coexistence coverage. Existing standalone Panels+ unit tests remain in `tests/`; mentioning another plugin in a test name does not make it a cross-plugin test. `panelviewer_kobo_bluetooth_spec.lua` loads Panels+ with KOReader mocks and supplies representative action arguments itself. It neither loads Kobo's action definitions nor exercises Kobo dispatch, so it does not establish compatibility with any pinned Kobo release. Keep it in the general unit suite. When requested, add actual reference-backed coexistence/integration tests under the corresponding versioned directories, labeling the kind of evidence accurately.
 
+Keep reusable scenarios, target-module loaders and fixtures in `tests/plugin-compatibility/shared/`. Version-specific `_spec.lua` files remain under `<plugin>__v<version>/` or `<plugin>__rollingrelease/` and pass the selected reference into shared code, for example:
+
+```lua
+require("tests.plugin-compatibility.shared.inkaway_surface")(
+    assert(os.getenv("PANELSPLUS_COMPATIBILITY_REFERENCE"))
+)
+```
+
+The shared directory is not an independent suite. The runner discovers versioned directories only. A target loader may use `loadfile(reference .. "/" .. name .. ".lua", "t", environment)` and a scoped `require` to load the selected counterpart while keeping fixture dependencies isolated.
+
 The Bash selector exports these variables for each suite:
 
 - `PANELSPLUS_COMPATIBILITY_PLUGIN`: canonical directory identifier.

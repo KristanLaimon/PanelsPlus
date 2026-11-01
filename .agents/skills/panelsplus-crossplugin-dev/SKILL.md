@@ -57,6 +57,7 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 - Generated builds: `.cache/plugin-compatibility/builds/<plugin>/v1_7_1/<build-id>/<plugin>.koplugin/` (ignored).
 - Stable tests: `tests/plugin-compatibility/<plugin>__v1_7_1/**/*_spec.lua`; multiple pins may coexist.
 - Rolling tests: `tests/plugin-compatibility/<plugin>__rollingrelease/**/*_spec.lua`; one rolling suite per plugin.
+- Shared test scenarios, target loaders and fixtures: `tests/plugin-compatibility/shared/*.lua`. Version-specific suite entry points invoke this code with the selected reference; `shared/` is not a separately discovered suite.
 - Plugin-specific Bash build helpers: `tools/plugin-compatibility/builders/<plugin>.sh`; shared tooling lives beside `deploy.sh` in `tools/plugin-compatibility/`.
 - Release links and provenance: `references-repos/plugins/<plugin>/releases.md`. Shared attribution: `references-repos/LICENSES.md`.
 - Panels+ uses the project root as its source and has no folder under `references-repos/plugins/`; those folders are for other plugins. Do not recreate a Panels+ reference snapshot as part of ordinary cross-plugin work. Laboratory copies and generated builds are ignored; installation backups remain outside `plugins/`.
