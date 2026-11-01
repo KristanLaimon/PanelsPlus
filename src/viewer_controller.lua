@@ -1008,6 +1008,13 @@ function ViewerController:showPanelSequence(reader_highlight, ges)
         return false
     end
 
+    local document = self.ui.document
+    if document.provider == "meguru" and type(document.spreadPageAt) == "function" then
+        -- The reader transform returns combined spread coordinates. Detection
+        -- and panel crops use the individual page's native coordinates.
+        hold_pos.page, hold_pos.x, hold_pos.y = document:spreadPageAt(hold_pos.page, hold_pos.x, hold_pos.y)
+    end
+
     local panels = self:collectPanels(hold_pos.page, hold_pos)
     if #panels == 0 then
         Timing.log("showPanelSequence: page %d had no panels detected at hold position", hold_pos.page)

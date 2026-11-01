@@ -287,7 +287,9 @@ end
 --- @return boolean[] full_page_flags Per-panel flag matching `images`, for margin-mode gating.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
-    local page_size = document:getPageDimensions(page, 1, 0)
+    -- Panel rectangles are in native single-page coordinates. A provider can
+    -- report a cropped two-page layout through getPageDimensions (Meguru).
+    local page_size = Document.getNativePageDimensions(document, page) or document:getPageDimensions(page, 1, 0)
     settings = settings or Settings.defaults
     local images = {
         image_disposable = true,
