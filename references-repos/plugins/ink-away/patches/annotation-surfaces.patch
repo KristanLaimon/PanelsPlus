@@ -1,0 +1,512 @@
+diff --git a/ink/reader/book.lua b/ink/reader/book.lua
+index 2362f37..fbce9d4 100644
+--- a/ink/reader/book.lua
++++ b/ink/reader/book.lua
+@@ -18,6 +18,7 @@ local BookInk = require("ink/reader/bookink")
+ local Canvas = require("ink/canvas")
+ local Place = require("ink/reader/place")
+ local Snap = require("ink/reader/snap")
++local Surface = require("ink/reader/surface")
+ 
+ local Screen = Device.screen
+ 
+@@ -73,6 +74,7 @@ end
+ 
+ -- The adapter between place.lua and KOReader's document and view.
+ function Book:doc()
++    if self.surface then return Surface.doc(self.surface) end
+     if self._doc then return self._doc end
+     local ui = self.ui
+     local document, view = ui.document, ui.view
+@@ -150,6 +152,7 @@ end
+ 
+ -- The page shown now (the first, when more than one is).
+ function Book:currentPage()
++    if self.surface then return self.surface:pages()[1] end
+     local ui = self.ui
+     if ui.paging then return ui.view.state and ui.view.state.page or ui.paging.current_page end
+     local ok, p = pcall(ui.document.getCurrentPage, ui.document)
+@@ -159,6 +162,7 @@ end
+ -- Every page on the screen: one, or two side by side, or the pages a
+ -- continuous scroll shows.
+ function Book:visiblePages()
++    if self.surface then return self.surface:pages() end
+     local ui = self.ui
+     if ui.paging then
+         local view = ui.view
+@@ -181,6 +185,7 @@ end
+ -- What changes where a page's ink goes: for a reflowing book its layout (font,
+ -- margins, size...), for a fixed-page one its zoom and position on the screen.
+ function Book:layoutKey()
++    if self.surface then return tostring(self.surface) .. "|" .. self.surface:key() end
+     local ui = self.ui
+     if ui.paging then
+         local view = ui.view
+@@ -380,7 +385,13 @@ function Book:pageSelection(op, reach)
+     local document, view = self.ui.document, self.ui.view
+     local doc = self:doc()
+     local function wordAt(x, y)
+-        local pos = view:screenToPageTransform({ x = x, y = y })
++        local pos
++        if self.surface then
++            local page, px, py = self.surface:toPage(x, y)
++            if page then pos = { page = page, x = px, y = py } end
++        else
++            pos = view:screenToPageTransform({ x = x, y = y })
++        end
+         if not (pos and pos.page) then return nil end
+         local ok, w = pcall(document.getWordFromPosition, document, pos)
+         local pb = ok and w and w.pbox
+@@ -442,6 +453,9 @@ function Book:highlightsAt(pts, r)
+     local out = {}
+     local ui = self.ui
+     local view = ui and ui.view
++    -- The normal reader's hit boxes describe its own viewport. Never erase
++    -- an unrelated native highlight through stale boxes in an external view.
++    if self.surface then return out end
+     local vis = view and view.highlight and view.highlight.visible_boxes
+     local anns = ui and ui.annotation and ui.annotation.annotations
+     if not (vis and anns and #vis > 0 and view.screenToPageTransform and pts and #pts >= 2) then return out end
+@@ -533,7 +547,7 @@ function Book:overlay()
+             if this.hidden or not book:hasInk() then return end
+             local G = rawget(_G, "G_reader_settings")
+             if G and G.readSetting and G:readSetting("inkaway_book_ink") == false then return end
+-            local ok, err = pcall(book.paintInk, book, bb, x, y)
++            local ok, err = pcall(book.paintOnSurface, book, nil, bb, x, y)
+             if not ok then logger.warn("Ink Away: could not paint the book's ink:", err) end
+         end,
+     }
+@@ -546,6 +560,39 @@ function Book:paintInk(bb, x, y)
+     require("ink/reader/paint").ops(bb, placed.ops, x, y, self)
+ end
+ 
++function Book:setSurface(surface)
++    if self.surface == surface then return end
++    self.surface = surface
++    self._placed, self._doc, self._layout_last = nil, nil, nil
++end
++
++-- A render must not change the context of an open annotation session.
++function Book:paintOnSurface(surface, bb, x, y)
++    local previous = self.surface
++    self:setSurface(surface)
++    local ok, err = pcall(self.paintInk, self, bb, x, y)
++    self:setSurface(previous)
++    if not ok then error(err) end
++end
++
++function Book:paintSurface(surface, bb)
++    local G = rawget(_G, "G_reader_settings")
++    if not self:hasInk() or (G and G:readSetting("inkaway_book_ink") == false) then return end
++    if self._snapshotting then return end
++    -- Paint in screen coordinates, then copy only the surface's content area:
++    -- ink outside a crop must not cover its viewer's controls or letterboxing.
++    for _, region in ipairs(surface.regions and surface:regions() or { surface }) do
++        local clip = region:clip()
++        if clip and clip.w > 0 and clip.h > 0 then
++            local work = bb:copy()
++            local ok, err = pcall(self.paintOnSurface, self, region, work, 0, 0)
++            if ok then bb:blitFrom(work, clip.x, clip.y, clip.x, clip.y, clip.w, clip.h) end
++            work:free()
++            if not ok then logger.warn("Ink Away: could not paint the document surface:", err) end
++        end
++    end
++end
++
+ -- Open the annotation mode over the page shown (once: a second call while it is
+ -- open does nothing).
+ -- Is `w` still shown?
+@@ -564,7 +611,16 @@ function Book:annotate()
+     end
+     local ok, ReaderInkView = pcall(require, "ink/reader/inkview")
+     if not ok then logger.warn("Ink Away: annotation mode unavailable:", ReaderInkView); return end
+-    local view = ReaderInkView:new{ book = self }
++    local surface = Surface.find(self.ui)
++    if surface and surface.begin then surface:begin() end
++    self:setSurface(surface)
++    local created, view = pcall(ReaderInkView.new, ReaderInkView, { book = self, modal = surface and true or nil })
++    if not created then
++        self:setSurface(nil)
++        if surface and surface.finish then surface:finish() end
++        logger.warn("Ink Away: annotation mode unavailable:", view)
++        return
++    end
+     self._view = view
+     UIManager:show(view)
+ end
+@@ -589,9 +645,19 @@ function Book:close()
+ end
+ 
+ -- Turn the book's page (dir 1 forward, -1 back), as KOReader does.
+-function Book:turn(dir)
++function Book:turn(dir, done)
++    if self.surface then
++        if self.surface.turn then self.surface:turn(dir, function(surface)
++            self:setSurface(surface)
++            if surface and surface.begin then surface:begin() end
++            if done then done() end
++        end)
++        elseif done then done() end
++        return
++    end
+     local Event = require("ui/event")
+     self.ui:handleEvent(Event:new("GotoViewRel", dir))
++    if done then done() end
+ end
+ 
+ -- Paint the page shown into `bb` (screen-sized), without the ink unless
+@@ -599,8 +665,13 @@ end
+ function Book:snapshot(bb, with_ink)
+     local ov = self:overlay()
+     ov.hidden = not with_ink
+-    local ok, err = pcall(self.ui.view.paintTo, self.ui.view, bb, 0, 0)
++    self._snapshotting = true
++    local ok, err
++    if self.surface then ok, err = pcall(self.surface.snapshot, self.surface, bb)
++    else ok, err = pcall(self.ui.view.paintTo, self.ui.view, bb, 0, 0) end
++    self._snapshotting = nil
+     ov.hidden = false
++    if ok and with_ink and self.surface then self:paintSurface(self.surface, bb) end
+     if not ok then logger.warn("Ink Away: could not draw the page:", err) end
+ end
+ 
+@@ -702,6 +773,7 @@ end
+ 
+ -- Repaint the reader (after the ink changed).
+ function Book:repaint()
++    if self.surface then self.surface:repaint() end
+     UIManager:setDirty(self.ui.dialog or "all", "ui")
+ end
+ 
+diff --git a/ink/reader/inkview.lua b/ink/reader/inkview.lua
+index 47409b7..24325e9 100644
+--- a/ink/reader/inkview.lua
++++ b/ink/reader/inkview.lua
+@@ -82,6 +82,15 @@ function ReaderInkView:placeToolbar()
+         else v.area_h = H - t; self._bar_y = H - t end
+     end
+     v.pan_x, v.pan_y = v.area_x, v.area_y
++    local surface = self.book and self.book.surface
++    local clip = surface and surface:clip()
++    if clip then
++        local right = math.min(v.area_x + v.area_w, clip.x + clip.w)
++        local bottom = math.min(v.area_y + v.area_h, clip.y + clip.h)
++        v.area_x, v.area_y = math.max(v.area_x, clip.x), math.max(v.area_y, clip.y)
++        v.area_w, v.area_h = math.max(1, right - v.area_x), math.max(1, bottom - v.area_y)
++        v.pan_x, v.pan_y = v.area_x, v.area_y
++    end
+     if self._toolbar_hidden then self[1] = nil else self[1] = self.toolbar end
+ end
+ 
+@@ -121,6 +130,12 @@ function ReaderInkView:loadBookPage()
+     local W, H = self.view.canvas_w, self.view.canvas_h
+     if not self.bg_bb then self.bg_bb = Blitbuffer.new(W, H, Screen.bb:getType()) end
+     self.book:snapshot(self.bg_bb)
++    if self.book.surface then
++        -- Snapshot primes a newly navigated viewer's layout before asking for
++        -- its content clip. The canvas still uses absolute screen coordinates.
++        self:placeToolbar()
++        if self.area_bb then self.area_bb:free(); self.area_bb = self:newAreaBuffer() end
++    end
+     local placed = self.book:pageOps()
+     local ops, from = {}, {}
+     for i, op in ipairs(placed and placed.ops or {}) do
+@@ -335,11 +350,15 @@ function ReaderInkView:turnPage(dir)
+     if self.editing_text then self:finishTextEdit(true) end
+     self:resetLasso()
+     self:saveDocument()
+-    self.book:turn(dir)
+-    self:loadBookPage()
+-    self:composeCanvas()
+-    self:renderView()
+-    UIManager:setDirty(self, "partial")
++    local function loaded()
++        if self.closing then return end
++        self:loadBookPage()
++        self:composeCanvas()
++        self:renderView()
++        UIManager:setDirty(self, "partial")
++    end
++    if self.book.surface then self.book:turn(dir, loaded)
++    else self.book:turn(dir); loaded() end
+ end
+ 
+ -- The canvas's page turns (a finger swipe with Finger on the page set to
+@@ -434,8 +453,14 @@ function ReaderInkView:onCloseWidget()
+     -- can leave it thinking annotation mode is still open
+     local book = self.book
+     if book and book._view == self then book._view = nil end
+-    InkAwayView.onCloseWidget(self)
++    local ok, err = pcall(InkAwayView.onCloseWidget, self)
++    if book and book.surface then
++        local surface = book.surface
++        book:setSurface(nil)
++        if surface and surface.finish then surface:finish() end
++    end
+     if book then book:repaint() end
++    if not ok then error(err) end
+ end
+ 
+ ------------------------------------------------------------------------------
+diff --git a/ink/reader/place.lua b/ink/reader/place.lua
+index 23d0f47..4bab2d5 100644
+--- a/ink/reader/place.lua
++++ b/ink/reader/place.lua
+@@ -60,6 +60,7 @@ end
+ 
+ -- Anchor a screen op. Returns the item, or nil for an op that draws nothing.
+ function Place.anchor(op, doc)
++    if doc.anchorOp then return doc:anchorOp(op) end
+     local bx0, by0, x1, y1 = Canvas.opBox(op)
+     if not bx0 then return nil end
+     local x0, y0 = floor(bx0), floor(by0)
+@@ -135,6 +136,7 @@ end
+ 
+ -- An item as a screen op on the page now shown, or nil if it is not on it.
+ function Place.place(item, doc)
++    if item.a.page and doc.placeOp then return doc:placeOp(item) end
+     local a = item.a
+     if a.page then
+         local sx, sy, zoom = doc:toScreen(a.page, a.x, a.y)
+diff --git a/main.lua b/main.lua
+index 2601f33..2913618 100644
+--- a/main.lua
++++ b/main.lua
+@@ -194,6 +194,21 @@ function InkAway:onInkAwayAnnotate()
+     return true
+ end
+ 
++-- Public surface API, versioned independently of plugin releases. Viewers
++-- supply geometry; Ink Away retains ownership of tools, ink and persistence.
++InkAway.document_surface_version = 1
++
++function InkAway:paintDocumentSurface(surface, bb)
++    if self.book and surface.document == self.ui.document then self.book:paintSurface(surface, bb) end
++end
++
++function InkAway:releaseDocumentSurface(surface)
++    if self.book and self.book.surface == surface then
++        self.book:closeViews()
++        self.book:setSurface(nil)
++    end
++end
++
+ -- The export sheet of the book being read, over the annotation mode (the one
+ -- place a book is exported from, see ink/view/export.lua).
+ function InkAway:onInkAwayExportBook()
+diff --git a/docs/annotation-surfaces.md b/docs/annotation-surfaces.md
+new file mode 100644
+index 0000000..8012bb4
+--- /dev/null
++++ b/docs/annotation-surfaces.md
+@@ -0,0 +1,54 @@
++# Document annotation surfaces, version 1
++
++Ink Away owns tools, ink operations, undo and sidecar persistence. An external
++fixed-page viewer can supply document geometry without either plugin replacing
++the other's methods. This interface contains no viewer-specific identifiers.
++
++A visible widget exposes `getAnnotationSurface()`. Ink Away searches the window
++stack from the top when annotation starts, stopping at an unrelated fullscreen
++widget. It accepts a surface only when `version == 1` and `document` is the
++current reader document object. It uses the ordinary reader when none exists.
++
++Required methods (colon calls):
++
++- `pages()`: array of visible native document page numbers.
++- `key()`: string that changes on page, crop, zoom, pan, rotation or layout changes.
++- `toPage(x, y)`: screen point to `page, x, y, zoom, angle`; angle is the
++  clockwise document-to-screen rotation in radians; zoom is positive.
++- `toScreen(page, x, y)`: native document point to `x, y, zoom, angle`, or nil
++  for another page. Both mappings must extend beyond the viewport: the top-left
++  of a stroke's bounding box can be just outside it.
++- `snapshot(bb)`: paint the screen-sized background without Ink Away annotations.
++- `repaint()`: request a viewer repaint.
++- `clip()`: content rectangle `{x,y,w,h}` in screen coordinates, excluding chrome.
++
++Optional methods:
++
++- `begin()` / `finish()`: acquire/release annotation resources. `finish` must be
++  safe after the viewer closes.
++- `turn(direction, done)`: navigate, then call `done(surface)` once the new
++  surface and its geometry are ready. The old ink is saved before this call.
++  Navigation can be asynchronous. A drawing canvas stays modal over its viewer.
++- `mapPath(points, to_page, page)`: map a flat x/y path, inserting vertices at
++  layout discontinuities. Needed when an affine transform alone is insufficient.
++- `isAffine()`: false when primitive shape outlines need path mapping.
++- `regions()`: retained affine sub-surfaces with their own `clip`, `key`, point
++  mappings and `pages`. Rendering clips each native operation through each
++  region, keeping text/pictures/fills correct at discontinuities while reading.
++
++The plugin advertises `document_surface_version = 1`. A viewer calls
++`ink:paintDocumentSurface(surface, bb)` after painting its background to display
++saved ink, and `ink:releaseDocumentSurface(surface)` before disposing of the
++surface. The latter saves/closes an active canvas. It must not release a surface
++being handed to `turn`'s completion callback.
++
++The sidecar schema is unchanged. Untouched operations retain their original
++items. Native page coordinates are saved, never screen coordinates or external
++viewer metadata. A surface must belong to a fixed-page document; reflowing text
++uses the existing word anchors in the native reader.
++
++Path strokes and shape outlines can cross discontinuities. In the editable
++canvas, text boxes, pictures and pixel-run fills use their local affine
++transform; their contents are not warped across a removed region. A provider
++should offer an affine/original view when editing those objects across such a
++region. The reading overlay can use `regions()` for exact retained content.
+diff --git a/ink/reader/surface.lua b/ink/reader/surface.lua
+new file mode 100644
+index 0000000..228b26a
+--- /dev/null
++++ b/ink/reader/surface.lua
+@@ -0,0 +1,80 @@
++-- Optional document surfaces supplied by viewers. No viewer/plugin identities
++-- belong here: see docs/annotation-surfaces.md for the versioned contract.
++local Canvas = require("ink/canvas")
++local Transform = require("ink/transform")
++local UIManager = require("ui/uimanager")
++
++local Surface = {}
++
++function Surface.find(ui)
++    for i = #(UIManager._window_stack or {}), 1, -1 do
++        local widget = UIManager._window_stack[i].widget
++        if widget and type(widget.getAnnotationSurface) == "function" then
++            local surface = widget:getAnnotationSurface()
++            if surface and surface.version == 1 and surface.document == ui.document
++                    and type(surface.pages) == "function" and type(surface.key) == "function"
++                    and type(surface.toPage) == "function" and type(surface.toScreen) == "function"
++                    and type(surface.snapshot) == "function" and type(surface.repaint) == "function"
++                    and type(surface.clip) == "function" then
++                return surface
++            end
++        end
++        if widget and widget.covers_fullscreen and not widget.toast and not widget.invisible then return nil end
++    end
++end
++
++-- An affine part of a surface also describes how widths and non-path objects
++-- turn. Path mapping can additionally cross discontinuities in a document view.
++local function mapped(op, surface, page, to_page)
++    local c = Canvas.cloneOp(nil, op)
++    local x0, y0 = Canvas.opBox(op)
++    if not x0 then return nil end
++    local x, y, scale, angle
++    if to_page then
++        local p, px, py, zoom, rotation = surface:toPage(x0, y0)
++        if not p then return nil end
++        page, x, y, scale, angle = p, px, py, 1 / zoom, -(rotation or 0)
++    else
++        x, y, scale, angle = surface:toScreen(page, x0, y0)
++        if not x then return nil end
++    end
++    Transform.scale(c, x0, y0, scale)
++    Transform.rotate(c, x0, y0, angle or 0)
++    Canvas.translateOp(c, x - x0, y - y0)
++    if surface.mapPath then
++        if op.kind == "ink" then
++            c.pts = surface:mapPath(op.pts, to_page, page)
++        elseif op.kind == "shape" and surface.isAffine and not surface:isAffine() then
++            -- A primitive crossing a discontinuity is a polygon in the other
++            -- coordinate system. Keep it in the existing shape format; no new
++            -- persistent op types or viewer-specific metadata are needed.
++            local outline = require("ink/shapes").outlines(op)[1]
++            if outline then
++                c.pts = surface:mapPath(outline, to_page, page)
++                c.shape, c.angle = "poly", nil
++                c.closed = op.shape ~= "line" and op.shape ~= "curve"
++                    and (op.shape ~= "poly" or op.closed) or false
++            end
++        end
++    end
++    return c, page
++end
++
++function Surface.doc(surface)
++    local doc = { kind = "paging" }
++    function doc:toPage(x, y) return surface:toPage(x, y) end
++    function doc:toScreen(page, x, y) return surface:toScreen(page, x, y) end
++    function doc:anchorOp(op)
++        local c, page = mapped(op, surface, nil, true)
++        if not c then return nil end
++        local x, y = Canvas.opBox(c)
++        return { op = require("ink/reader/place").moved(c, -x, -y), a = { page = page, x = x, y = y } }
++    end
++    function doc:placeOp(item)
++        local op = require("ink/reader/place").moved(item.op, item.a.x, item.a.y)
++        return mapped(op, surface, item.a.page, false)
++    end
++    return doc
++end
++
++return Surface
+diff --git a/tests/annotation_surface.lua b/tests/annotation_surface.lua
+new file mode 100644
+index 0000000..7c5ebc0
+--- /dev/null
++++ b/tests/annotation_surface.lua
+@@ -0,0 +1,64 @@
++-- Generic external viewer with the real annotation canvas and gesture handlers.
++-- Run with: luajit tests/annotation_surface.lua
++package.path = "./?.lua;./tests/mock/?.lua;" .. package.path
++local BB = require("ffi/blitbuffer")
++local Device = require("device")
++local UIManager = require("ui/uimanager")
++local Book = require("ink/reader/book")
++local BookInk = require("ink/reader/bookink")
++local env = require("testenv")
++G_reader_settings = {
++    data = env.settings(),
++    readSetting = function(self, k) return self.data[k] end,
++    saveSetting = function(self, k, v) self.data[k] = v end,
++}
++Device.screen:setSize(600, 800)
++local checks = 0
++local function check(condition, message)
++    checks = checks + 1
++    assert(condition, message)
++end
++local surface = { version = 1, document = { file = env.libraryDir() .. "/surface.cbz" }, finished = false }
++function surface:pages() return {7} end
++function surface:key() return "surface-7" end
++function surface:toPage(x, y) return 7, 100 + x / 2, 200 + y / 2, 2, 0 end
++function surface:toScreen(page, x, y)
++    if page == 7 then return (x - 100) * 2, (y - 200) * 2, 2, 0 end
++end
++function surface:snapshot(bb) bb:fill(BB.COLOR_WHITE) end
++function surface:repaint() end
++function surface:clip() return {x = 0, y = 0, w = 600, h = 800} end
++function surface:finish() self.finished = true end
++local ui = { document = surface.document, paging = {}, view = {
++    state = { page = 1, zoom = 1, offset = {x = 0, y = 0} }, visible_area = {x = 0, y = 0},
++} }
++local book = Book.new(ui)
++book._data = BookInk.new()
++book.sidecar, book.dirs = env.libraryDir(), {env.libraryDir()}
++UIManager._window_stack = {{widget = {getAnnotationSurface = function() return surface end}}}
++book:annotate()
++local view = book._view
++check(view ~= nil and book.surface == surface, "annotation action adopts the generic surface")
++check(view.modal == true, "the active drawing canvas stays above its external viewer")
++local function pos(x, y) return {pos = {x = x, y = y}} end
++local x, y = view.view.area_x + 40, 350
++view:onIaTouch(nil, pos(x, y))
++for i = 1, 6 do view:onIaPan(nil, pos(x + i * 12, y + i)) end
++view:onIaPanRelease(nil, pos(x + 72, y + 6))
++view:flushPending()
++check(#view.canvas.ops == 1, "the real canvas accepts a stroke")
++check(#book:data().items == 1, "the stroke is anchored in the real book model")
++local item = book:data().items[1]
++check(item.a.page == 7, "the stroke belongs to the external page, not reader page 1")
++check(math.abs(item.a.x + item.op.pts[1] - (100 + x / 2)) < 1e-6, "stroke x uses document coordinates")
++check(math.abs(item.a.y + item.op.pts[2] - (200 + y / 2)) < 1e-6, "stroke y uses document coordinates")
++view:saveDocument()
++check(BookInk.exists(book.sidecar), "annotations save through the existing sidecar format")
++view:closeCanvas()
++check(book.surface == nil and book._view == nil and surface.finished, "closing releases the surface")
++check(UIManager.stackCount() == 1, "the external viewer stays open")
++local overlay = BB.new(600, 800, BB.TYPE_BB8)
++book:paintSurface(surface, overlay)
++check(not overlay.freed and book.surface == nil, "the real ink painter renders without retaining the surface")
++overlay:free()
++print(("annotation_surface: %d checks, 0 failures"):format(checks))
