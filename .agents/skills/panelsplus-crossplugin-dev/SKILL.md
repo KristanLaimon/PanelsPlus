@@ -1,11 +1,11 @@
 ---
 name: panelsplus-crossplugin-dev
-description: Develop and test Panels+ compatibility or integration with other KOReader plugins, using pinned stable references before rolling sources and limiting changes to the appropriate plugin.
+description: Develop and test Panels+ compatibility or integration with other KOReader plugins, using pinned stable references before rolling sources, limiting changes to the appropriate plugin, and keeping versioned per-plugin history for session handoff.
 ---
 
 # Panels+ cross-plugin development
 
-At the start of each session using this skill, read `references-repos/relationships.md` first, relative to the Panels+ project root. Then read the selected plugin's `references-repos/plugins/<plugin>/releases.md` and the relevant pinned sources. Do not infer compatibility from a plugin's presence alone.
+At the start of each session using this skill, read `references-repos/relationships.md` first, relative to the Panels+ project root. Then read the selected plugin's `references-repos/plugins/<plugin>/releases.md` and **`history-changes.md`** before investigating or editing its sources. Use the history's current-state summary to resume after a cleared chat; verify its repository/build state before acting. If the history does not exist, create it as described below. Do not infer compatibility from a plugin's presence alone.
 
 Panels+ owns panel-related features. Prefer integration with existing plugins over duplicating their functionality or copying their implementation. KOReader is the host source, not a plugin or a relationship-matrix entry.
 
@@ -59,6 +59,7 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 - Rolling tests: `tests/plugin-compatibility/<plugin>__rollingrelease/**/*_spec.lua`; one rolling suite per plugin.
 - Shared test scenarios, target loaders and fixtures: `tests/plugin-compatibility/shared/*.lua`. Version-specific suite entry points invoke this code with the selected reference; `shared/` is not a separately discovered suite.
 - Plugin-specific Bash build helpers: `tools/plugin-compatibility/builders/<plugin>.sh`; shared tooling lives beside `deploy.sh` in `tools/plugin-compatibility/`.
+- Required per-plugin backlog and restart handoff: `references-repos/plugins/<plugin>/history-changes.md`. Keep a single cumulative file across versions; version every chronological entry.
 - Release links and provenance: `references-repos/plugins/<plugin>/releases.md`. Shared attribution: `references-repos/LICENSES.md`.
 - Panels+ uses the project root as its source and has no folder under `references-repos/plugins/`; those folders are for other plugins. Do not recreate a Panels+ reference snapshot as part of ordinary cross-plugin work. Laboratory copies and generated builds are ignored; installation backups remain outside `plugins/`.
 
@@ -80,6 +81,35 @@ Pinned stable results determine completion. Still run and report rolling results
 
 Run `./run-tests.sh --compatibility-plugin=<plugin> --compatibility-plugin-version=1.7.1`, then the same command with `rollingrelease`. Omitting the version runs all existing stable suites first and rolling last. A missing requested suite is an error. Each suite runs separately to prevent module/mock state leaking between pins. Read `references/workflow-details.md` for suite context and deployment commands.
 
-Update the relationship matrix with direction, visibility, version range and evidence. Record exact tested tuples separately; distinguish upstream stable, laboratory patches and rolling SHAs. Unit tests do not replace the developer's live KOReader validation. Preserve uncertainty and report remaining live checks.
+Update the relationship matrix with direction, visibility, version range and a link to the plugin history. Record exact tested tuples, detailed steps and outcomes in `history-changes.md`; distinguish upstream stable, laboratory patches and rolling SHAs. Unit tests do not replace the developer's live KOReader validation. Preserve uncertainty and report remaining live checks.
 
 Use `tools/plugin-compatibility/deploy.sh` for build/install planning. Select a named laboratory experiment with `--experiment=<name>`. In this project, a user request to build a rolling release also authorizes installing that build: use `--install`, with `--source` for an isolated worktree. Use `--build-only` only when the user explicitly requests an artifact without installation. Read-only planning still previews; stable/laboratory installation requires authorization. Close KOReader before installation, back up outside the plugins directory and stop on local changes or ambiguous identities. Never remove the working project or reference checkout. Do not install a second Panels+ beside this live development copy.
+
+
+## Required versioned history and restart handoff
+
+For every plugin touched by this workflow, create or maintain
+`references-repos/plugins/<plugin>/history-changes.md`, including investigation-only
+work. This is the durable backlog, not a final-response transcript. Start its
+entry before dependent work, update it after meaningful investigation, changes,
+tests and deployment, and finish the handoff before ending the task. Do not defer
+all recording until the final successful result.
+
+Use the narrative style and required fields in
+[references/history-changes.md](references/history-changes.md). Keep a concise
+**Current state** at the top and dated chronological entries below. Every entry
+must name source/target metadata versions, release/rolling provenance and exact
+revisions or patch identities. Local changes do not invent a new release version.
+Record each step's test method, command/working directory/environment, what was
+real versus mocked, failing-before and passing-after results, skipped/not-rerun
+checks, and live-validation status. Keep material failed approaches and why the
+next check changed; do not replace earlier failures with a final green total.
+
+A reader with no chat history must be able to recover the objective, ownership,
+authorized working copies, behavior/defaults, implementation decisions, patch
+order, current build/install/backup, tests and their limits, and the next action
+from this file alone. Preserve author notes and historical evidence when
+migrating older logs; mark unknowns instead of inventing dates, SHAs or results.
+Keep `relationships.md` as the cross-plugin index. Rename a legacy per-feature
+backlog to this canonical name and fix its links; counterpart API documentation
+such as a target's `docs/annotation-surfaces.md` remains separate.
