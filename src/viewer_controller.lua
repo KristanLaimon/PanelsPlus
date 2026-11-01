@@ -1061,6 +1061,8 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         image_rects = image_rects,
         panel_is_full_page = full_page_flags,
         reader_ui = self.ui,
+        join_spread_fold = self.settings.join_spread_fold ~= false,
+        inkaway_join_spread_fold = self.settings.inkaway_join_spread_fold ~= false,
         panel_prerender_callback = function(current_viewer, index)
             return self:prerenderNextPanel(current_viewer, index)
         end,
@@ -1176,6 +1178,9 @@ function ViewerController:showPanelViewerForPage(page, panels, start_idx, option
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)
+    if options.replace_viewer and options.replace_viewer._annotation_surface then
+        options.replace_viewer:completeAnnotationNavigation(viewer)
+    end
     if not options.defer_preload then
         self:preloadNextPanels(page)
     end
@@ -1321,6 +1326,9 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
             })
         else
             current_viewer._panels_plus_boundary_pending = nil
+            if current_viewer._annotation_surface then
+                current_viewer:completeAnnotationNavigation()
+            end
         end
     end)
     return true

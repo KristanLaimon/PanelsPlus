@@ -220,6 +220,41 @@ describe("Fold join in the panel collector", function()
         assert.equals(1000, image.getWidth())
         assert.is_nil(images.folds)
     end)
+
+    it("allows annotation joining to override either reading setting and restores the original choice", function()
+        for _, reading in ipairs({ true, false }) do
+            local images = PanelCollector.buildImages(
+                { document = spreadDocument() },
+                1,
+                { { x = 0, y = 0, w = 1600, h = 1000 } },
+                Settings.withDefaults({ auto_rotate_double_pages = false, join_spread_fold = reading })
+            )
+            for _, annotation in ipairs({ true, false }) do
+                images.annotation_join_spread_fold, images.folds = annotation, nil
+                images[1]()
+                assert.equals(annotation, images.folds ~= nil)
+            end
+            images.annotation_join_spread_fold, images.folds = nil, nil
+            images[1]()
+            assert.equals(reading, images.folds ~= nil)
+        end
+    end)
+
+    it("never treats a single portrait page as a spread when annotation joining is enabled", function()
+        local document = spreadDocument()
+        document.getPageDimensions = function()
+            return { w = 1000, h = 1600 }
+        end
+        local images = PanelCollector.buildImages(
+            { document = document },
+            1,
+            { { x = 0, y = 0, w = 1000, h = 1600 } },
+            Settings.withDefaults({ auto_rotate_double_pages = false, join_spread_fold = false })
+        )
+        images.annotation_join_spread_fold = true
+        images[1]()
+        assert.is_nil(images.folds)
+    end)
 end)
 
 describe("Fold join in the viewer's coordinate transforms", function()

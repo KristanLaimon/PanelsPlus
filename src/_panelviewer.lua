@@ -1242,6 +1242,51 @@ function PanelViewer:paintTo(bb, x, y)
         bb:invertRect(d.x, d.y, d.w, d.h)
     end
     self:paintHighlights(bb, x, y)
+    local ink = self.reader_ui and (self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+    if
+        ink
+        and ink.document_surface_version == 1
+        and type(ink.paintDocumentSurface) == "function"
+        and not self._annotation_snapshot
+    then
+        local surface = self:getAnnotationSurface()
+        if surface then
+            ink:paintDocumentSurface(surface, bb)
+        end
+    end
+end
+
+function PanelViewer:annotationDrawnAngle()
+    return drawnAngle(self)
+end
+
+function PanelViewer:getAnnotationSurface()
+    if not self.page or self.embedded_source_image or not self.reader_ui or self._panels_plus_closed then
+        return nil
+    end
+    if not self._annotation_surface then
+        self._annotation_surface = require("src._annotationsurface").new(self)
+    end
+    return self._annotation_surface
+end
+
+function PanelViewer:paintAnnotationBackground(bb)
+    self._annotation_snapshot = true
+    local ok, err = pcall(self.paintTo, self, bb, 0, 0)
+    self._annotation_snapshot = nil
+    if not ok then
+        error(err)
+    end
+end
+
+function PanelViewer:completeAnnotationNavigation(next_viewer)
+    local surface = self._annotation_surface
+    if not surface or not surface.navigation_done then
+        return
+    end
+    local done = surface.navigation_done
+    surface.navigation_done = nil
+    done((next_viewer or self):getAnnotationSurface())
 end
 
 --- Check KOReader's raw document text boxes without triggering its OCR fallback.
@@ -1982,6 +2027,12 @@ end
 
 --- Close ImageViewer resources while guarding its final dirty-region callback.
 function PanelViewer:onCloseWidget()
+    self._annotation_closing = true
+    local surface = self._annotation_surface
+    local ink = self.reader_ui and (self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+    if surface and not surface.navigation_done and ink and type(ink.releaseDocumentSurface) == "function" then
+        ink:releaseDocumentSurface(surface)
+    end
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true

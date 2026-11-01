@@ -95,9 +95,11 @@ end
 --- @param page number Document page number.
 --- @param rect PPPanel Native panel rectangle.
 --- @param page_size PPPageSize Page dimensions.
+--- @param images PPImageList Lazy images and their per-image canvas geometry.
+--- @param index integer Image index receiving the canvas geometry.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
-local function buildNoCropImage(ui, page, rect, page_size, images)
+local function buildNoCropImage(ui, page, rect, page_size, images, index)
     local screen_w = Screen:getWidth()
     local screen_h = Screen:getHeight()
     local viewport = PanelViewport.noCrop(rect, page_size)
@@ -122,6 +124,11 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
     }
 
     local image_func = function()
+        -- The displayed bitmap includes padding outside the page-content
+        -- rectangle. Keep its native coordinate bounds separately from the
+        -- clipped rectangle used for document rendering and transitions.
+        images.canvas_rects = images.canvas_rects or {}
+        images.canvas_rects[index] = nil
         if viewport.union_w <= 0 or viewport.union_h <= 0 then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
             canvas:fill(Blitbuffer.COLOR_WHITE)
@@ -151,6 +158,14 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
             if blit_w > 0 and blit_h > 0 then
                 canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
+            local units_x = image_rect.w / content_image:getWidth()
+            local units_y = image_rect.h / content_image:getHeight()
+            images.canvas_rects[index] = {
+                x = image_rect.x - paste_x * units_x,
+                y = image_rect.y - paste_y * units_y,
+                w = canvas_w * units_x,
+                h = canvas_h * units_y,
+            }
         end)
 
         if ok then
@@ -308,7 +323,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
             and settings.image_rotation == nil
             and DoubleSpread.shouldRotate(rect, is_full_page, #panels == 1)
         if settings.crop_mode == "none" and not direct_spread then
-            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images)
+            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images, index)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else
@@ -324,7 +339,14 @@ function PanelCollector.buildImages(ui, page, panels, settings)
                     image, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
                 end
                 images.rotated = rotate
-                local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
+                local join_annotation_fold = images.annotation_join_spread_fold
+                if join_annotation_fold == nil then
+                    join_annotation_fold = join_fold
+                end
+                local fold_opts = join_annotation_fold
+                    and DoubleSpread.isSpreadRect(page_size)
+                    and image
+                    and foldSearch(image, image_rect, page_size)
                 if fold_opts then
                     -- The joined bitmap is a new buffer, so it replaces the copy. A
                     -- bitmap that cannot be read or joined is shown as it is.
