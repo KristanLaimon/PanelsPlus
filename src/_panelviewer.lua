@@ -60,6 +60,45 @@ local function canvasFitZoom(rect)
     return math.min(Screen:getWidth() / (rect.w or 1), Screen:getHeight() / (rect.h or 1))
 end
 
+-- Rendered unions contain neighboring panels and gutters between endpoints.
+-- Retain only the actual crops, without altering a DocCache-owned source tile.
+local function maskTransitionSource(source, union, clips)
+    local masked
+    local ok, result = pcall(function()
+        local w, h = source:getWidth(), source:getHeight()
+        masked = Blitbuffer.new(w, h, source:getType())
+        masked:fill(Blitbuffer.COLOR_WHITE)
+        for _, r in ipairs(clips) do
+            local x0 = math.max(0, math.floor((r.x - union.x) * w / union.w))
+            local y0 = math.max(0, math.floor((r.y - union.y) * h / union.h))
+            local x1 = math.min(w, math.ceil((r.x + r.w - union.x) * w / union.w))
+            local y1 = math.min(h, math.ceil((r.y + r.h - union.y) * h / union.h))
+            if x1 > x0 and y1 > y0 then
+                masked:blitFrom(source, x0, y0, x0, y0, x1 - x0, y1 - y0)
+            end
+        end
+        return masked
+    end)
+    if not ok then
+        if masked then
+            masked:free()
+        end
+        return nil
+    end
+    return result
+end
+
+local function transitionAnnotations(image, page, rect, clips)
+    local transition = { image = image, page = page, rect = rect }
+    if clips then
+        transition.regions = {}
+        for _, clip in ipairs(clips) do
+            transition.regions[#transition.regions + 1] = { page = page, rect = rect, clip = clip }
+        end
+    end
+    return transition
+end
+
 --- Angle the current bitmap is drawn at.
 ---
 --- `rotated` is a number when Panels+ set it. `true` is ImageViewer's auto-rotation, which picks 90
@@ -2257,6 +2296,7 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     Timing.memory("smooth_transition")
 
     local union = Geometry.rectUnion(rect_a, rect_b)
+    local clips = self.crop_mode ~= "none" and PanelViewport.transitionClips(rect_a, rect_b) or nil
     -- Margin mode does not alter `rect_b`; it renders the same pixels inside a
     -- smaller viewport. Match that smaller destination scale here as well, or
     -- ImageWidget clamps the camera to the full-size canvas and the animation
@@ -2307,7 +2347,8 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     local transition_pixels = use_viewport_frames and screen_area * 4
         or canvas_w * canvas_h
             + math.ceil(canvas_w * target_zoom / zoom_union) * math.ceil(canvas_h * target_zoom / zoom_union)
-    local transition_bytes = (source_pixels + transition_pixels) * 4 + 2 * 1024 * 1024
+    -- Cropped modes briefly hold both the rendered union and its masked copy.
+    local transition_bytes = (source_pixels * (clips and 2 or 1) + transition_pixels) * 4 + 2 * 1024 * 1024
     if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, transition_bytes) then
         Timing.log("animateSwitchToImageNum: transition working set is too large, falling back to instant swap")
         return self:completeNavTransition(target, on_complete)
@@ -2326,6 +2367,17 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
         return self:completeNavTransition(target, on_complete)
     end
 
+    if clips then
+        local masked = maskTransitionSource(content_image, union, clips)
+        if content_image_owned then
+            content_image:free()
+        end
+        if not masked then
+            return self:completeNavTransition(target, on_complete)
+        end
+        content_image, content_image_owned = masked, true
+    end
+
     if use_viewport_frames then
         return self:runNavViewportAnimation(
             target,
@@ -2339,7 +2391,8 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
             by,
             target_zoom,
             target_margin_factor,
-            on_complete
+            on_complete,
+            clips
         )
     end
 
@@ -2388,7 +2441,7 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     self._panels_plus_transition_active = true
     local old_image = self.image
     self.image = canvas_image
-    self._annotation_transition = { image = canvas_image, page = self.page, rect = annotation_rect }
+    self._annotation_transition = transitionAnnotations(canvas_image, self.page, annotation_rect, clips)
     self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
     self.scale_factor = scale
     self._panels_plus_transition_margin_factor = target_margin_factor
@@ -2417,7 +2470,8 @@ function PanelViewer:runNavViewportAnimation(
     by,
     target_zoom,
     margin_factor,
-    on_complete
+    on_complete,
+    clips
 )
     -- Document tiles belong to DocCache and can be evicted by an idle render
     -- between animation ticks. Retain our own pixels until the pan completes.
@@ -2488,11 +2542,12 @@ function PanelViewer:runNavViewportAnimation(
         end
         local old_image = self.image
         self.image = frame
-        self._annotation_transition = {
-            image = frame,
-            page = self.page,
-            rect = PanelViewport.canvasRect(union, source:getWidth(), source:getHeight(), crop_w, crop_h, -left, -top),
-        }
+        self._annotation_transition = transitionAnnotations(
+            frame,
+            self.page,
+            PanelViewport.canvasRect(union, source:getWidth(), source:getHeight(), crop_w, crop_h, -left, -top),
+            clips
+        )
         self._center_x_ratio, self._center_y_ratio = 0.5, 0.5
         self.scale_factor = 1
         self._panels_plus_transition_margin_factor = frame_margin

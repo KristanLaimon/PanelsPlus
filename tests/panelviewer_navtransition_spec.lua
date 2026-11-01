@@ -193,6 +193,9 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         local buffers, frames, blits = {}, {}, {}
         local source
         Blitbuffer.new = function(w, h, kind)
+            if options.fail_mask and #buffers == 1 then
+                error("mask allocation failed")
+            end
             local bb = old_new(w, h, kind)
             bb.getWidth = function()
                 return w
@@ -346,6 +349,17 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             end
             assert.is_true(blits[1].sx ~= blits[#blits].sx, "the camera moves toward the destination")
             assert.is_true(blits[1].w > blits[#blits].w, "the camera zooms toward the small panel")
+        end)
+    end)
+
+    it("falls back cleanly when the cropped transition mask cannot be allocated", function()
+        withTransition({ fail_mask = true }, function(viewer, _, frames, _, source)
+            viewer:animateSwitchToImageNum(2)
+            assert.equals(2, viewer.switched_to)
+            assert.equals(0, #frames)
+            assert.equals(1, source().frees)
+            assert.is_nil(viewer._annotation_transition)
+            assert.is_nil(viewer._panels_plus_transition_active)
         end)
     end)
 

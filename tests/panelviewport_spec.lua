@@ -40,3 +40,32 @@ describe("PanelViewport no-crop geometry", function()
         assert.near(2, viewport.scale, 0.001)
     end)
 end)
+
+describe("PanelViewport cropped transition coverage", function()
+    it("covers overlapping endpoints once without exposing their bounding-box gaps", function()
+        local function inside(r, x, y)
+            return x >= r.x and x < r.x + r.w and y >= r.y and y < r.y + r.h
+        end
+        for _, b in ipairs({
+            { x = 20, y = 20, w = 30, h = 30 }, -- partial overlap
+            { x = 15, y = 15, w = 10, h = 10 }, -- contained
+            { x = 0, y = 0, w = 50, h = 50 }, -- containing
+            { x = 10, y = 40, w = 30, h = 10 }, -- touching
+            { x = 45, y = 0, w = 10, h = 50 }, -- separated
+        }) do
+            local a = { x = 10, y = 10, w = 30, h = 30 }
+            local clips = PanelViewport.transitionClips(a, b)
+            for x = 0.5, 59.5 do
+                for y = 0.5, 59.5 do
+                    local count = 0
+                    for _, clip in ipairs(clips) do
+                        if inside(clip, x, y) then
+                            count = count + 1
+                        end
+                    end
+                    assert.equals((inside(a, x, y) or inside(b, x, y)) and 1 or 0, count)
+                end
+            end
+        end
+    end)
+end)

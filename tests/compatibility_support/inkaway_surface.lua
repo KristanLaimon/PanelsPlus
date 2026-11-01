@@ -359,16 +359,17 @@ return function(reference)
         end
         local ok, err = pcall(function()
             local book, viewer, ink = fixture()
-            local rects = options.far
-                    and {
-                        { x = 100, y = 200, w = 200, h = 200 },
-                        {
-                            x = 6500,
-                            y = 250,
-                            w = 200,
-                            h = 200,
-                        },
-                    }
+            local rects = options.row_transition
+                    and { { x = 100, y = 100, w = 200, h = 350 }, { x = 100, y = 650, w = 600, h = 200 } }
+                or options.far and {
+                    { x = 100, y = 200, w = 200, h = 200 },
+                    {
+                        x = 6500,
+                        y = 250,
+                        w = 200,
+                        h = 200,
+                    },
+                }
                 or { { x = 100, y = 200, w = 200, h = 200 }, { x = 400, y = 250, w = 150, h = 200 } }
             local doc = book.ui.document
             function doc:getNativePageDimensions()
@@ -396,8 +397,23 @@ return function(reference)
                     end
                 end
             end
+            local unrelated = {
+                { page = 7, x = 340, y = 360 }, -- neighboring panel in the source row
+                { page = 7, x = 400, y = 530 }, -- gutter between the endpoint panels
+                { page = 7, x = 250, y = 1000 }, -- another row outside the rendered union
+            }
+            if options.row_transition then
+                for _, point in ipairs(unrelated) do
+                    local id = #items + 1
+                    items[id] = {
+                        a = { page = point.page, x = point.x, y = point.y },
+                        op = { kind = "ink", width = 2, pts = { 0, 0, 3, 2 }, test_id = id },
+                    }
+                    native[id] = point
+                end
+            end
             book:data().items = items
-            viewer.crop_mode = options.no_crop and "none" or "tight"
+            viewer.crop_mode = options.no_crop and "none" or options.crop or "tight"
             viewer.panels = rects
             local images
             if options.no_crop then
@@ -439,6 +455,25 @@ return function(reference)
                     self:paintTo(bitmap(600, 800), 0, 0)
                 end
                 local wg, found = self._image_wg, {}
+                if options.row_transition and self._annotation_transition and not options.no_crop then
+                    for _, point in ipairs(unrelated) do
+                        if options.check_background then
+                            check.is_nil(
+                                locate(self.image, point.page, point.x, point.y),
+                                "cropped transitions must not expose neighboring panels or gutters"
+                            )
+                        else
+                            for _, region in ipairs(self:getAnnotationSurface():regions()) do
+                                local x, y = region:toScreen(point.page, point.x, point.y)
+                                local clip = region:clip()
+                                check.is_true(
+                                    not x or x < clip.x or y < clip.y or x >= clip.x + clip.w or y >= clip.y + clip.h,
+                                    "cropped ink regions must exclude unrelated panels and gutters"
+                                )
+                            end
+                        end
+                    end
+                end
                 for _, ops in ipairs(paint_calls) do
                     for _, op in ipairs(ops) do
                         local point = native[op.test_id]
@@ -926,6 +961,25 @@ return function(reference)
             key = book:layoutKey()
             viewer._images_list_cur = 2
             check.is_true(book:layoutKey() ~= key)
+        end)
+        it("clips row-transition ink to the source and destination in cropped modes", function()
+            for _, style in ipairs({ "ease", "classic" }) do
+                for _, crop in ipairs({ "tight", "loose", "margin" }) do
+                    smoothAnnotations({ row_transition = true, style = style, crop = crop })
+                end
+            end
+        end)
+        it("masks neighboring source-row panels out of cropped Smooth backgrounds", function()
+            smoothAnnotations({ row_transition = true, style = "ease", check_background = true })
+            smoothAnnotations({ row_transition = true, style = "classic", check_background = true })
+        end)
+        it("uses the same cropped row regions while the annotator stays open", function()
+            smoothAnnotations({ row_transition = true, annotator = true, style = "ease", manga = true })
+            smoothAnnotations({ row_transition = true, annotator = true, style = "classic", check_background = true })
+        end)
+        it("preserves surrounding page and ink context for No crop row transitions", function()
+            smoothAnnotations({ row_transition = true, no_crop = true, style = "ease" })
+            smoothAnnotations({ row_transition = true, no_crop = true, style = "classic" })
         end)
         it("accepts an unrelated viewer implementing the same contract", function()
             local book, _, ink = fixture()
