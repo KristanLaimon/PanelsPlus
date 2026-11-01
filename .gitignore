@@ -73,3 +73,5 @@ panelsplus_OCR_stable_kindaold.koplugin
 INSTRUCTION*.md
 /PLAN.md
 /FEATURES_SINCE_v1.4.0.md
+
+references-repos/_build-artifacts/
