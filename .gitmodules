@@ -1,12 +1,12 @@
 [submodule "references-repos/kobo.koplugin"]
-	path = references-repos/kobo.koplugin
+	path = references-repos/plugins/kobo/rolling.koplugin
 	url = https://github.com/OGKevin/kobo.koplugin.git
 [submodule "references-repos/koreader"]
 	path = references-repos/koreader
 	url = https://github.com/koreader/koreader.git
 [submodule "references-repos/meguru"]
-	path = references-repos/meguru.koplugin
+	path = references-repos/plugins/meguru/rolling.koplugin
 	url = https://github.com/Craftwork2720/meguru.git
 [submodule "references-repos/ink-away.koplugin"]
-	path = references-repos/ink-away.koplugin
+	path = references-repos/plugins/ink-away/rolling.koplugin
 	url = https://github.com/EmirErtorer/ink-away.koplugin.git

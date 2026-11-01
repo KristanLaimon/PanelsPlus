@@ -1,6 +1,9 @@
 dist/
 frontend/
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/panelsplus-crossplugin-dev/
 .codex/
 .foxnvim/
 nvim.log
@@ -74,4 +77,4 @@ INSTRUCTION*.md
 /PLAN.md
 /FEATURES_SINCE_v1.4.0.md
 
-references-repos/_build-artifacts/
+references-repos/plugins/*/laboratory/
