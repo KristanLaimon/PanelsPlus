@@ -299,3 +299,21 @@ after the export patch. Current installation: `build.jOs0emGa`; previous build
 backed up at `~/.config/koreader/.panelsplus-plugin-backups/ink-away.OJO4z7UN/`.
 Installed-file and 285 payload checksums verified. Restart KOReader, tap the
 export filename field, then submit to validate the full live path.
+
+
+## Cropped Smooth row transitions — 2026-11-01
+
+Panels+-only correction: Tight/Loose/Margin transitions now retain only the
+source and destination crops, for both background pixels and annotation clips.
+Previously the rectangular union exposed neighboring source-row panels, while
+ink used the entire synthetic canvas as its clip. No crop keeps surrounding
+page/ink context as requested. Disjoint clip regions avoid double-compositing
+ink where Loose crops overlap; allocation estimates include the owned mask.
+
+Both failures were reproduced before the correction. Final modified-target
+integration checks pass **38**, original stable/rolling fallback checks **5 each**;
+source regression tests pass **541**, including **30** focused transition/viewport
+checks. Coverage includes eased and Classic motion, cropped modes, an open
+annotator, gutters/unrelated rows, overlap and mask-allocation failure. Rendering
+and host UI remain fixtures; live verification requires restarting KOReader.
+The target implementation and installation (`build.jOs0emGa`) are unchanged.

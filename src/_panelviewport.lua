@@ -20,6 +20,29 @@ local Screen = require("device").screen
 --- EPUB/KEPUB/MOBI bitmaps navigate through the same panel positions.
 local PanelViewport = {}
 
+--- Disjoint rectangles covering only the two cropped transition endpoints.
+--- Loose crops may overlap; splitting that overlap avoids painting translucent
+--- ink twice when the annotation renderer visits each retained region.
+function PanelViewport.transitionClips(a, b)
+    local clips = { a }
+    local x0, y0 = math.max(a.x, b.x), math.max(a.y, b.y)
+    local x1, y1 = math.min(a.x + a.w, b.x + b.w), math.min(a.y + a.h, b.y + b.h)
+    if x1 <= x0 or y1 <= y0 then
+        clips[2] = b
+        return clips
+    end
+    local function add(x, y, w, h)
+        if w > 0 and h > 0 then
+            clips[#clips + 1] = { x = x, y = y, w = w, h = h }
+        end
+    end
+    add(b.x, b.y, b.w, y0 - b.y)
+    add(b.x, y1, b.w, b.y + b.h - y1)
+    add(b.x, y0, x0 - b.x, y1 - y0)
+    add(x1, y0, b.x + b.w - x1, y1 - y0)
+    return clips
+end
+
 --- Native bounds of a whole canvas containing a translated page bitmap.
 --- Uses actual bitmap sizes so rounding, padding and rescaling share the
 --- compositor's coordinates rather than a separately estimated camera zoom.
