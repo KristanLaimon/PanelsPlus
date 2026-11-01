@@ -113,6 +113,9 @@ If we're reaching point 2. or 3., then its allowed to do combination of changes 
 but IS FAR PREFERRABLE if all changes could be made only 1 side (only panels+ OR only target plugin)
 modifying BOTH plugins is the LASTT RESORT UNLESS IS REALLY NECCESARY TO DO SO.
 
+
+yeah, not all related .koplugin and koreader and build scripts start with _ (to differenciate our folders from theirs)
+
 -----
 
 The following content doesn belong explicitly to the skill are instructions only but if you found any information

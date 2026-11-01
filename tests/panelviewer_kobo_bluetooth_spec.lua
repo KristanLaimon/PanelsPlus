@@ -10,6 +10,7 @@ License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
 --- Regression prevention suite for Kobo physical buttons and Bluetooth page turners.
+--- Panels+ unit tests using mocked KOReader APIs; does not load kobo.koplugin.
 
 local framework = require("tests.PanelsPlusTestFramework")
 local describe, it, assert, spy = framework.describe, framework.it, framework.assert, framework.spy
@@ -257,8 +258,9 @@ describe("Bluetooth device page-turners and remote clickers", function()
         assert.equals(1, prev_spy:callCount())
     end)
 
-    it("integrates with kobo.koplugin Bluetooth essential actions", function()
-        -- kobo.koplugin binds Bluetooth devices to 'GotoViewRel' with args 1 (next_page) and -1 (prev_page)
+    it("handles relative page actions used by Bluetooth bindings", function()
+        -- Exercise the receiving handler with representative arguments. This does
+        -- not verify kobo.koplugin's actual action definitions or event dispatch.
         local next_spy, prev_spy = makeSpy(true), makeSpy(true)
         local viewer = PanelViewer:new({ onShowNextImage = next_spy, onShowPrevImage = prev_spy })
 

@@ -35,6 +35,12 @@ Options:
   -p, --python     Run only the Python annotator unit tests
       --panels     Run panel specs and panel datasets only
       --ocr        Run WordFinder/OCR specs and annotated-word dataset only
+      --compatibility-plugin=NAME
+                   Run pinned compatibility suites (stable first, rolling last)
+      --compatibility-plugin-version=VERSION
+                   Select an exact version or rollingrelease; requires plugin
+      --compatibility-reference=PATH
+                   Test a laboratory copy/worktree; requires an exact selector
   -j, --jobs N     Maximum parallel Lua workers (default: up to 4 CPUs; 1 for serial)
 
 Examples:
@@ -52,6 +58,9 @@ SKIP_DATASETS=false
 PYTHON_ONLY=false
 GRACEFUL=true
 FOCUS=""
+COMPATIBILITY_PLUGIN=""
+COMPATIBILITY_VERSION=""
+COMPATIBILITY_REFERENCE=""
 FORWARD_ARGS=()
 
 for arg in "$@"; do
@@ -86,11 +95,39 @@ for arg in "$@"; do
             fi
             FOCUS="${arg#--}"
             ;;
+        --compatibility-plugin=*)
+            COMPATIBILITY_PLUGIN="${arg#*=}"
+            [ -n "$COMPATIBILITY_PLUGIN" ] || { echo "Empty compatibility plugin" >&2; exit 2; }
+            ;;
+        --compatibility-plugin-version=*)
+            COMPATIBILITY_VERSION="${arg#*=}"
+            [ -n "$COMPATIBILITY_VERSION" ] || { echo "Empty compatibility version" >&2; exit 2; }
+            ;;
+        --compatibility-reference=*)
+            COMPATIBILITY_REFERENCE="${arg#*=}"
+            [ -n "$COMPATIBILITY_REFERENCE" ] || { echo "Empty compatibility reference" >&2; exit 2; }
+            ;;
         *)
             FORWARD_ARGS+=("$arg")
             ;;
     esac
 done
+
+if [ -n "$COMPATIBILITY_VERSION" ] && [ -z "$COMPATIBILITY_PLUGIN" ]; then
+    echo "--compatibility-plugin-version requires --compatibility-plugin" >&2
+    exit 2
+fi
+if [ -n "$COMPATIBILITY_REFERENCE" ] && { [ -z "$COMPATIBILITY_PLUGIN" ] || [ -z "$COMPATIBILITY_VERSION" ]; }; then
+    echo "--compatibility-reference requires plugin and exact version/rollingrelease selectors" >&2
+    exit 2
+fi
+if [ -n "$COMPATIBILITY_PLUGIN" ]; then
+    if [ -n "$FOCUS" ] || [ "$CHECK_ONLY" = true ] || [ "$PYTHON_ONLY" = true ] || [ "${#FORWARD_ARGS[@]}" -gt 0 ]; then
+        echo "Compatibility selection cannot be combined with other suite selectors or positional arguments" >&2
+        exit 2
+    fi
+    exec bash tests/run-compatibility.sh "$COMPATIBILITY_PLUGIN" "$COMPATIBILITY_VERSION" "$COMPATIBILITY_REFERENCE"
+fi
 
 # Tool availability checks
 HAS_GO=false
