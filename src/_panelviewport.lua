@@ -20,6 +20,22 @@ local Screen = require("device").screen
 --- EPUB/KEPUB/MOBI bitmaps navigate through the same panel positions.
 local PanelViewport = {}
 
+--- Native bounds of a whole canvas containing a translated page bitmap.
+--- Uses actual bitmap sizes so rounding, padding and rescaling share the
+--- compositor's coordinates rather than a separately estimated camera zoom.
+function PanelViewport.canvasRect(content_rect, content_w, content_h, canvas_w, canvas_h, paste_x, paste_y)
+    if content_w <= 0 or content_h <= 0 then
+        return nil
+    end
+    local units_x, units_y = content_rect.w / content_w, content_rect.h / content_h
+    return {
+        x = content_rect.x - paste_x * units_x,
+        y = content_rect.y - paste_y * units_y,
+        w = canvas_w * units_x,
+        h = canvas_h * units_y,
+    }
+end
+
 --- Build the screen-aspect viewport centred on a panel.
 ---
 --- @param rect PPPanel Selected panel rectangle in source coordinates.

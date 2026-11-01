@@ -13,7 +13,7 @@ return function(reference)
     UIManager.show = function(_, widget)
         UIManager._window_stack[#UIManager._window_stack + 1] = { widget = widget }
     end
-    local modules, rendered, saved = {}, {}, 0
+    local modules, rendered, saved, paint_calls = {}, {}, 0, {}
     local noop = function() end
     local Base = {}
     function Base:extend(fields)
@@ -28,6 +28,7 @@ return function(reference)
         return fields
     end
     Base.composeCanvas, Base.renderView, Base.flushPending = noop, noop, noop
+    Base.drawFabs = noop
     Base.cancelShape, Base.resetLasso, Base.markDirty, Base.onCloseWidget = noop, noop, noop, noop
     function Base:closeCanvas()
         self:saveDocument()
@@ -89,6 +90,7 @@ return function(reference)
         ["ink/reader/paint"] = {
             ops = function(_, ops)
                 rendered = ops
+                paint_calls[#paint_calls + 1] = ops
             end,
         },
         ["ffi/blitbuffer"] = blitbuffer,
@@ -274,6 +276,328 @@ return function(reference)
         end
     end
 
+    -- Track native points through the actual render/blit/scale calls, then
+    -- compare Ink Away's overlay at each scheduled animation frame. Widget
+    -- layout and framebuffer storage are fixtures; camera code is real.
+    local function smoothAnnotations(options)
+        local original_settings = G_reader_settings
+        if options.hide_reading then
+            _G.G_reader_settings = {
+                readSetting = function()
+                    return false
+                end,
+            }
+        end
+        local source_bb = require("ffi/blitbuffer")
+        local renderer = require("ui/renderimage")
+        local memory = require("src._memory")
+        local draw = require("src._pagerender")
+        local old_new, old_scale, old_schedule = source_bb.new, renderer.scaleBlitBuffer, UIManager.scheduleIn
+        local old_headroom, old_allocation = memory.hasHeadroom, memory.hasAllocationHeadroom
+        local timers, frames, visible = {}, 0, 0
+        local function bitmap(w, h)
+            local bb = { w = w, h = h, blits = {} }
+            function bb:getWidth()
+                return self.w
+            end
+            function bb:getHeight()
+                return self.h
+            end
+            function bb:getType()
+                return 1
+            end
+            function bb:fill() end
+            function bb:free()
+                self.freed = true
+            end
+            function bb:copy()
+                local copy = bitmap(self.w, self.h)
+                copy.original = self
+                return copy
+            end
+            function bb:blitFrom(source, x, y, sx, sy, w2, h2)
+                self.blits[#self.blits + 1] = { source = source, x = x, y = y, sx = sx, sy = sy, w = w2, h = h2 }
+            end
+            return bb
+        end
+        local function locate(bb, page, x, y)
+            if bb.native and bb.native.page == page then
+                local r = bb.native.rect
+                if x >= r.x and x < r.x + r.w and y >= r.y and y < r.y + r.h then
+                    return (x - r.x) * bb.w / r.w, (y - r.y) * bb.h / r.h
+                end
+            elseif bb.original then
+                return locate(bb.original, page, x, y)
+            elseif bb.scaled then
+                local px, py = locate(bb.scaled, page, x, y)
+                if px then
+                    return px * bb.w / bb.scaled.w, py * bb.h / bb.scaled.h
+                end
+            end
+            for _, blit in ipairs(bb.blits) do
+                local px, py = locate(blit.source, page, x, y)
+                if px and px >= blit.sx and px < blit.sx + blit.w and py >= blit.sy and py < blit.sy + blit.h then
+                    return blit.x + px - blit.sx, blit.y + py - blit.sy
+                end
+            end
+        end
+        source_bb.new = bitmap
+        renderer.scaleBlitBuffer = function(_, source, w, h)
+            if options.fail_scale then
+                error("fixture scale failure")
+            end
+            local frame = bitmap(w, h)
+            frame.scaled = source
+            return frame
+        end
+        memory.hasHeadroom = function()
+            return not options.low_memory
+        end
+        memory.hasAllocationHeadroom = memory.hasHeadroom
+        UIManager.scheduleIn = function(_, _, callback)
+            timers[#timers + 1] = callback
+        end
+        local ok, err = pcall(function()
+            local book, viewer, ink = fixture()
+            local rects = options.far
+                    and {
+                        { x = 100, y = 200, w = 200, h = 200 },
+                        {
+                            x = 6500,
+                            y = 250,
+                            w = 200,
+                            h = 200,
+                        },
+                    }
+                or { { x = 100, y = 200, w = 200, h = 200 }, { x = 400, y = 250, w = 150, h = 200 } }
+            local doc = book.ui.document
+            function doc:getNativePageDimensions()
+                return { w = 8000, h = 1600 }
+            end
+            function doc:transformRect(r, z)
+                return { x = r.x * z, y = r.y * z, w = r.w * z, h = r.h * z }
+            end
+            function doc:renderPage(page, r, z)
+                local bb = bitmap(math.ceil(r.w * z), math.ceil(r.h * z))
+                bb.native = { page = page, rect = r }
+                return { bb = bb }
+            end
+            local items, native = {}, {}
+            for index, r in ipairs(rects) do
+                local page = options.boundary and index + 6 or 7
+                for _, u in ipairs({ 0.2, 0.5, 0.8 }) do
+                    for _, v in ipairs({ 0.2, 0.5, 0.8 }) do
+                        local id, x, y = #items + 1, r.x + r.w * u, r.y + r.h * v
+                        items[id] = {
+                            a = { page = page, x = x, y = y },
+                            op = { kind = "ink", width = 2, pts = { 0, 0, 3, 2 }, test_id = id },
+                        }
+                        native[id] = { page = page, x = x, y = y }
+                    end
+                end
+            end
+            book:data().items = items
+            viewer.crop_mode = options.no_crop and "none" or "tight"
+            viewer.panels = rects
+            local images
+            if options.no_crop then
+                images, viewer.image_rects = Collector.buildImages(book.ui, 7, rects, {
+                    crop_mode = "none",
+                    auto_rotate_double_pages = false,
+                    join_spread_fold = false,
+                })
+                viewer._images_list = images
+            else
+                viewer.image_rects = rects
+                viewer._images_list = {}
+            end
+            viewer.image_disposable, viewer.rotated, viewer.auto_rotate_double_pages = false, 0, false
+            viewer.nav_smooth_style, viewer.nav_transition_frames = options.style or "linear", 4
+            viewer.nav_transition_mode, viewer.nav_transition_cross_page = "smooth", true
+            viewer.nav_transition_duration = 0.4
+            viewer.reading_mode = options.manga and "manga" or "comic"
+            viewer.getPanelViewportSize = function()
+                return 600, 800
+            end
+            viewer.getMarginShrinkFactorForPanel = function(_, index)
+                return options.margin and (index == 1 and 0.9 or 0.7) or 1
+            end
+            viewer.shouldAutoRotateDoublePage = function()
+                return false
+            end
+            viewer.isOpen = function(self)
+                return not self._panels_plus_closed
+            end
+            local editor, editor_frames
+            editor_frames = 0
+            local function paintFrame(self)
+                paint_calls = {}
+                if editor and editor._surface_navigating then
+                    editor_frames = editor_frames + 1
+                    editor:paintTo(bitmap(600, 800), 0, 0)
+                else
+                    self:paintTo(bitmap(600, 800), 0, 0)
+                end
+                local wg, found = self._image_wg, {}
+                for _, ops in ipairs(paint_calls) do
+                    for _, op in ipairs(ops) do
+                        local point = native[op.test_id]
+                        if point then
+                            local px, py = locate(self.image, point.page, point.x, point.y)
+                            if px then
+                                local sx = wg.dimen.x + px * self.scale_factor - wg._offset_x
+                                local sy = wg.dimen.y + py * self.scale_factor - wg._offset_y
+                                if
+                                    sx >= wg.dimen.x
+                                    and sx < wg.dimen.x + wg.width
+                                    and sy >= wg.dimen.y
+                                    and sy < wg.dimen.y + wg.height
+                                then
+                                    check.near(sx, op.pts[1], 1e-5, "ink must follow the frame's page pixels (x)")
+                                    check.near(sy, op.pts[2], 1e-5, "ink must follow the frame's page pixels (y)")
+                                    found[op.test_id], visible = true, visible + 1
+                                end
+                            end
+                        end
+                    end
+                end
+                for id, point in ipairs(native) do
+                    local px, py = locate(self.image, point.page, point.x, point.y)
+                    if px then
+                        local x, y = px * self.scale_factor - wg._offset_x, py * self.scale_factor - wg._offset_y
+                        if x >= 0 and x < wg.width and y >= 0 and y < wg.height then
+                            check.is_true(found[id] == true, "each visible page's annotation must be painted")
+                        end
+                    end
+                end
+                frames = frames + 1
+            end
+            viewer.update = function(self)
+                local scale = self.scale_factor or 1
+                self.scale_factor = scale
+                local w, h = self.image.w * scale, self.image.h * scale
+                local margin = self._panels_plus_transition_margin_factor or 1
+                local vw, vh = math.min(600 * margin, w), math.min(800 * margin, h)
+                self._image_wg = {
+                    dimen = { x = (600 - vw) / 2, y = (800 - vh) / 2, w = vw, h = vh },
+                    width = vw,
+                    height = vh,
+                    _offset_x = math.max(0, math.min(w - vw, (self._center_x_ratio or 0.5) * w - vw / 2)),
+                    _offset_y = math.max(0, math.min(h - vh, (self._center_y_ratio or 0.5) * h - vh / 2)),
+                    getSize = noop,
+                    getCurrentWidth = function()
+                        return w
+                    end,
+                    getCurrentHeight = function()
+                        return h
+                    end,
+                }
+                paintFrame(self)
+                self:notifyAnnotationNavigationFrame()
+            end
+            viewer.panBy = function(self, dx, dy)
+                local wg = self._image_wg
+                wg._offset_x, wg._offset_y = wg._offset_x + dx, wg._offset_y + dy
+                paintFrame(self)
+            end
+            viewer.switchToImageNum = function(self, index)
+                self._images_list_cur = index
+                self.image = images and images[index]() or draw.drawPagePart(book.ui, self.page, rects[index], 0)
+                self.scale_factor, self._center_x_ratio, self._center_y_ratio = 1, 0.5, 0.5
+                self:update()
+            end
+            viewer.image = images and images[1]() or draw.drawPagePart(book.ui, 7, rects[1], 0)
+            viewer.scale_factor = 1
+            if options.boundary then
+                local resolved = { next_page = 8, target_rect = rects[2], start_idx = 1, panels = { rects[2] } }
+                if options.no_crop then
+                    local next_rects
+                    resolved.next_images, next_rects = Collector.buildImages(book.ui, 8, { rects[2] }, {
+                        crop_mode = "none",
+                        auto_rotate_double_pages = false,
+                        join_spread_fold = false,
+                    })
+                    resolved.target_rect = next_rects[1]
+                end
+                viewer.nav_boundary_peek_callback = function()
+                    return resolved
+                end
+                viewer.nav_boundary_commit_callback = function(self)
+                    self.page, self.image_rects, self._images_list_cur = 8, { resolved.target_rect }, 1
+                    self._images_list = resolved.next_images or {}
+                    self.image = resolved.next_images and resolved.next_images[1]()
+                        or draw.drawPagePart(book.ui, 8, rects[2], 0)
+                    self.scale_factor = 1
+                    self:update()
+                    if editor then
+                        self:completeAnnotationNavigation(self)
+                    end
+                end
+                viewer.boundary_callback = function()
+                    viewer.nav_boundary_commit_callback(viewer)
+                end
+            end
+            if options.annotator then
+                viewer.paintAnnotationBackground = PanelViewer.paintAnnotationBackground
+                ink:onInkAwayAnnotate()
+                editor = book._view
+                editor._bar_toggle_hidden = true
+                editor:turnArrow(options.manga and "left" or "right")
+                check.is_true(editor._surface_navigating, "the editor waits for the animation handoff")
+                local committed = editor.canvas.rev
+                editor:turnArrow(options.manga and "left" or "right")
+                check.equals(committed, editor.canvas.rev, "repeated input cannot reload a moving canvas")
+                if options.close_editor then
+                    editor:closeCanvas()
+                end
+            elseif options.boundary then
+                viewer:animateBoundaryTransition("next", options.preview and function()
+                    viewer.preview_complete = true
+                end or nil)
+            else
+                viewer:animateSwitchToImageNum(2)
+            end
+            if options.close_first then
+                viewer._panels_plus_closed = true
+            end
+            local count = 0
+            while #timers > 0 do
+                count = count + 1
+                check.is_true(count < 30, "animation must terminate")
+                table.remove(timers, 1)()
+            end
+            check.is_true(frames > ((options.low_memory or options.fail_scale or options.close_first) and 0 or 2))
+            check.is_true(visible > 0)
+            check.is_nil(viewer._annotation_transition, "animation geometry must be released at handoff")
+            if options.preview then
+                check.is_true(viewer.preview_complete)
+            end
+            if editor then
+                check.is_true(
+                    editor_frames > (options.close_editor and 0 or 1),
+                    "the editor displays the moving surface"
+                )
+                check.is_nil(editor._surface_navigating)
+                check.is_nil(viewer:getAnnotationSurface().navigation_done)
+                check.is_nil(viewer:getAnnotationSurface().navigation_frame)
+                if options.close_editor then
+                    check.is_nil(book.surface)
+                else
+                    editor:closeCanvas()
+                end
+            end
+            for i, item in ipairs(items) do
+                check.equals(item, book:data().items[i])
+            end
+        end)
+        source_bb.new, renderer.scaleBlitBuffer, UIManager.scheduleIn = old_new, old_scale, old_schedule
+        memory.hasHeadroom, memory.hasAllocationHeadroom = old_headroom, old_allocation
+        _G.G_reader_settings = original_settings
+        if not ok then
+            error(err)
+        end
+    end
+
     describe(
         "Ink Away reference: " .. (supports and "surface integration" or "native coexistence; surface API absent"),
         function()
@@ -328,6 +652,66 @@ return function(reference)
     end
 
     describe("Ink Away generic document-surface integration", function()
+        it("animates inside the annotator using physical arrows for Comic and Manga", function()
+            smoothAnnotations({ annotator = true, style = "ease" })
+            smoothAnnotations({ annotator = true, style = "classic", manga = true })
+            smoothAnnotations({ annotator = true, hide_reading = true })
+        end)
+        it("keeps the annotator open through Smooth page boundaries and No crop movement", function()
+            smoothAnnotations({ annotator = true, boundary = true, manga = true })
+            smoothAnnotations({ annotator = true, no_crop = true })
+        end)
+        it("does not reactivate a closed annotator when its animation finishes", function()
+            smoothAnnotations({ annotator = true, close_editor = true })
+        end)
+        it("keeps physical arrow direction separate from semantic next/previous actions", function()
+            for _, mode in ipairs({ "manga", "comic" }) do
+                local book, viewer, ink = fixture()
+                viewer.reading_mode = mode
+                ink:onInkAwayAnnotate()
+                local view = book._view
+                viewer._images_list_cur = 2
+                view:turnArrow(mode == "manga" and "right" or "left")
+                check.equals(1, viewer._images_list_cur)
+                view:turnArrow(mode == "manga" and "left" or "right")
+                check.equals(2, viewer._images_list_cur)
+                view:runAction("prev_page")
+                check.equals(1, viewer._images_list_cur)
+                view:runAction("next_page")
+                check.equals(2, viewer._images_list_cur)
+                view:nbGo(mode == "manga" and 1 or -1)
+                check.equals(1, viewer._images_list_cur, "physical swipe navigation follows reading flow")
+                view:closeCanvas()
+            end
+        end)
+        it("moves ink with every Smooth pan/zoom frame and margin change", function()
+            smoothAnnotations({ style = "linear", margin = true })
+            smoothAnnotations({ style = "ease", margin = true })
+        end)
+        it("moves ink with the Classic shared-canvas pan", function()
+            smoothAnnotations({ style = "classic" })
+        end)
+        it("moves both pages' ink through cross-page Smooth transitions", function()
+            smoothAnnotations({ boundary = true })
+            smoothAnnotations({ boundary = true, manga = true })
+        end)
+        it("keeps No crop ink attached during panel and page animation", function()
+            smoothAnnotations({ no_crop = true, style = "ease" })
+            smoothAnnotations({ no_crop = true, style = "classic" })
+            smoothAnnotations({ no_crop = true, boundary = true })
+        end)
+        it("maps ink through the bounded-frame fallback for a large Classic canvas", function()
+            smoothAnnotations({ style = "classic", far = true })
+        end)
+        it("restores ink placement after an out-and-back page preview", function()
+            smoothAnnotations({ boundary = true, preview = true })
+        end)
+        it("cleans up animation geometry on failure, low memory and close", function()
+            smoothAnnotations({ low_memory = true })
+            smoothAnnotations({ fail_scale = true })
+            smoothAnnotations({ close_first = true })
+            smoothAnnotations({ style = "classic", close_first = true })
+        end)
         for _, case in ipairs({
             {
                 edge = "right",

@@ -154,15 +154,15 @@ local function buildNoCropImage(ui, page, rect, page_size, images, index)
             if blit_w > 0 and blit_h > 0 then
                 canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
-            -- Include padding in the native bounds of the displayed bitmap.
-            local units_x = image_rect.w / content_image:getWidth()
-            local units_y = image_rect.h / content_image:getHeight()
-            images.canvas_rects[index] = {
-                x = image_rect.x - paste_x * units_x,
-                y = image_rect.y - paste_y * units_y,
-                w = canvas_w * units_x,
-                h = canvas_h * units_y,
-            }
+            images.canvas_rects[index] = PanelViewport.canvasRect(
+                image_rect,
+                content_image:getWidth(),
+                content_image:getHeight(),
+                canvas_w,
+                canvas_h,
+                paste_x,
+                paste_y
+            )
         end)
 
         if ok then
