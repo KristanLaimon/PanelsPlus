@@ -226,3 +226,76 @@ Installed development build:
 Previous managed copy backed up at
 `~/.config/koreader/.panelsplus-plugin-backups/ink-away.8rAuMrL4/ink-away.koplugin/`.
 Restart KOReader to load both current sources.
+
+
+## Fixed-page export — 2026-11-01
+
+Export is owned by Ink Away and uses KOReader's original document pages. No new
+Panels+ runtime code or export interface was added. Native saved coordinates
+place ink on full pages even when it was drawn across panels or joined folds.
+Fixed-page dispatch is separated from actual-PDF eligibility; comic archives
+cannot enter the editable-copy writer merely because MuPDF sets `is_pdf`.
+The shared fixed-page PDF/PNG path offers Compact and Detailed raster quality,
+independent of editor canvas size, retaining page-by-page streaming and scopes.
+Comic annotations are flattened in the exported PDF; originals stay unchanged.
+
+The independent [export patch](patches/fixed-page-export.patch), SHA-256
+`e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28`, applies
+to original upstream rolling without requiring the integration patches. It also
+contains target documentation, host-mock tests and synthetic native archive tests.
+Existing integration work is retained separately and remains uncommitted in the
+target worktree.
+
+New host-mock export checks: **42**; annotation/export checks **21**; view checks
+**1462**; reader checks **236**; generic-surface checks **49**. Original stable and
+rolling fallback checks pass **5 each**, modified-target integration **34**.
+Installed KOReader `v2026.07.1` native suites pass **15** PDF-edit, **18** streaming
+PDF, **13** small comic and **17** large comic checks. Both synthetic 100-page,
+144 MB archives export to valid PDFs with correctly placed ink. Desktop CPU time
+was about 6.6 seconds each and sampled peak RSS below 47 MB for the large test.
+The native suite adapts host UI/registry/cache behavior; compressed/solid RAR,
+physical-reader timing and live toolbar export remain unverified.
+
+Current installed artifact is `build.yGg8gD1F`. Previous installation backup:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.7fBmIc2j/`.
+All 285 installed payload checksums were verified. Restart KOReader and export
+from the annotation toolbar to validate real comics. The target's
+`docs/fixed-page-export.md` documents quality limits, commands and remaining limits.
+
+Other notes (added by KristanLaimon):
+Implemented and installed, entirely in Ink Away.
+
+- CBZ/CBR share full-page PDF/PNG export with correctly positioned annotations.
+- Editable export requires an actual PDF.
+- Export → Page quality offers Compact or Detailed, independently of panel zoom.
+- Processing remains page by page, with progress and cancellation.
+
+Both synthetic 144 MB, 100-page CBZ/CBR archives exported successfully. Desktop tests took about 6.6 CPU seconds each, with sampled peak memory below 47 MB. Integration checks also pass.
+
+Restart KOReader to try toolbar export on your comics. Changes remain uncommit
+
+
+## Filename prompt crash correction — 2026-11-01
+
+The user's live export attempt crashed before rendering, on tapping the filename
+field. A Lua traceback recovered from the 06:39:52 PST core dump reports
+`inputtext.lua:161: attempt to call method 'getFocusableWidgetXY' (a nil value)`.
+Ink Away's prompt sheet supplied an InputContainer parent where the desktop
+InputText expected FocusManager methods. The core's final native Wayland-thread
+SIGSEGV does not establish a PDF encoder fault.
+
+IconMenu now uses the host FocusManager; text prompts register their input in
+its layout and retain their Back/page bindings. Panels+ and KOReader are unchanged.
+A regression loads actual host InputText/FocusManager code, reproduces the exact
+failure before this correction, and passes **7 checks** afterward. Existing target
+view/dialog **1462**, reader **236**, surface **49**, export **42**, and patched
+compatibility **34** checks pass. Original stable/rolling fallback checks pass
+**5 each**. Rendering, keyboard display and event delivery remain adapted in the
+new test; live validation is still required.
+
+Retained [focus patch](patches/prompt-focus.patch), SHA-256
+`906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3`, applies
+after the export patch. Current installation: `build.jOs0emGa`; previous build
+backed up at `~/.config/koreader/.panelsplus-plugin-backups/ink-away.OJO4z7UN/`.
+Installed-file and 285 payload checksums verified. Restart KOReader, tap the
+export filename field, then submit to validate the full live path.

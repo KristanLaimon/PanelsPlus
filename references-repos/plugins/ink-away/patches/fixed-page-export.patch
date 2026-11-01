@@ -1,0 +1,697 @@
+diff --git a/ink/export/pdfedit.lua b/ink/export/pdfedit.lua
+index 74759a9..6429510 100644
+--- a/ink/export/pdfedit.lua
++++ b/ink/export/pdfedit.lua
+@@ -28,6 +28,7 @@ local ffi = require("ffi")
+ local Overlay = require("ink/export/pdfoverlay")
+ 
+ local Pdfedit = {}
++local Pdf = require("ink/pdf")
+ 
+ local CHUNK = 1048576   -- bytes copied per step
+ 
+@@ -35,6 +36,7 @@ local CHUNK = 1048576   -- bytes copied per step
+ -- call that makes them (older builds have only the highlights); the call is
+ -- found on a page of `path`, the PDF about to be written to.
+ function Pdfedit.available(path)
++    if not Pdf.isPDF(path) then return false end
+     local ok, yes = pcall(function()
+         local M = require("ffi/mupdf")
+         local doc = M.openDocument(path)
+@@ -133,6 +135,7 @@ local function copier(src, dst)
+ end
+ 
+ function Pdfedit.job(src, dst, pages)
++    if not Pdf.isPDF(src) then return nil, "the source is not a PDF" end
+     local M = require("ffi/mupdf")
+     local job = { i = 0, n = #pages }
+     local copy, doc, finished
+diff --git a/ink/pdf.lua b/ink/pdf.lua
+index 96be237..d66bab4 100644
+--- a/ink/pdf.lua
++++ b/ink/pdf.lua
+@@ -18,6 +18,16 @@ letter widths, so a selection tracks the line closely, not to the pixel.
+ 
+ local Pdf = {}
+ 
++-- MuPDF also opens image archives and other fixed-page formats. A provider's
++-- is_pdf flag does not mean its source can be copied and edited as a PDF.
++function Pdf.isPDF(path)
++    local f = path and io.open(path, "rb")
++    if not f then return false end
++    local header = f:read(1024) or ""
++    f:close()
++    return header:match("^%%PDF%-%d%.%d") ~= nil
++end
++
+ local Stream = {}
+ Stream.__index = Stream
+ 
+diff --git a/ink/reader/bookexport.lua b/ink/reader/bookexport.lua
+index cc4434f..269a8f0 100644
+--- a/ink/reader/bookexport.lua
++++ b/ink/reader/bookexport.lua
+@@ -11,6 +11,7 @@ call reads what the book holds now, so a long export builds nothing up.
+ ]]
+ 
+ local Place = require("ink/reader/place")
++local Pdf = require("ink/pdf")
+ 
+ local BookExport = {}
+ 
+@@ -23,7 +24,7 @@ end
+ -- The book's PDF file, or nil (a reflowing book, a comic, a DjVu).
+ function BookExport.pdfPath(book)
+     local d = book.ui.document
+-    if book.ui.paging and d and d.is_pdf and d.file then return d.file end
++    if BookExport.paged(book) and d and Pdf.isPDF(d.file) then return d.file end
+     return nil
+ end
+ 
+diff --git a/ink/view/export.lua b/ink/view/export.lua
+index a1f418a..ce3a2b0 100644
+--- a/ink/view/export.lua
++++ b/ink/view/export.lua
+@@ -14,6 +14,7 @@ local logger = require("logger")
+ local _ = require("ink/l10n")
+ local RenderImage = require("ui/renderimage")
+ local Export = require("ink/export")
++local BookExport = require("ink/reader/bookexport")
+ local ImageProc = require("ink/imageproc")
+ local Layers = require("ink/layers")
+ local Links = require("ink/links")
+@@ -179,7 +180,7 @@ function InkAwayView:openExport()
+     local can_edit = pdf_src and o.fmt == "pdf" and self:exportEditable() or false
+     local editable = can_edit and o.pdf_type ~= "pictures"
+     -- a book that reflows is saved as pictures laid out as it is now
+-    local reflow = book and not pdf_src
++    local reflow = book and not BookExport.paged(book)
+     self:closeSheet("_save_dialog")
+     self:ensureUserIcons()
+     local content_w = self:sheetWidth()
+@@ -270,6 +271,18 @@ function InkAwayView:openExport()
+             end
+         end
+         if not editable then
++            if book and BookExport.paged(book) then
++                add(vspan(12))
++                add(self:sheetLabel(_("Page quality"), true))
++                add(vspan(6))
++                add(self:segmentedRow({ { "compact", _("Compact") }, { "detailed", _("Detailed") } },
++                    o.page_quality == "detailed" and "detailed" or "compact", content_w,
++                    function(v) o.page_quality = v; reopen() end))
++                add(vspan(4))
++                add(self:sheetHint(o.page_quality == "detailed"
++                    and _("Up to 2400 pixels on the long edge. More detail, larger files and slower export.")
++                    or _("Up to 1600 pixels on the long edge. Smaller files and faster export."), content_w))
++            end
+             if nb then
+                 toggle(pdf_src and _("Include the PDF page") or _("Include the paper"), "include_bg")
+             elseif book then
+diff --git a/ink/view/exportbook.lua b/ink/view/exportbook.lua
+index 8050bec..33b8e3a 100644
+--- a/ink/view/exportbook.lua
++++ b/ink/view/exportbook.lua
+@@ -376,33 +376,40 @@ function InkAwayView:notebookSpec(o)
+     return spec
+ end
+ 
+--- A PDF book's pages (the chosen ones) as a spec, each at its own size: the
+--- ink and highlights as ops at the size the page is drawn at, the page itself
+--- rendered as it is written. The PDF is opened a second time for it, and
+--- closed when the export ends.
+-function InkAwayView:pdfBookSpec(o)
++-- All fixed-page books use their original pages and native ink coordinates.
++-- Resolution is bounded independently of the editor, so a zoomed panel never
++-- determines the quality of a full-page export. Only this step's geometry and
++-- raster buffers are retained; the existing writer streams each page to disk.
++function InkAwayView:fixedBookSpec(o)
+     local book = self.book
+     local pages = self:exportPageList()
+     local items, marks = BookExport.inkByPage(book), BookExport.marksByPage(book)
+     local picture = function(path) return BookInk.picturePath(book.sidecar, path) end
+-    local W, H = self.view.canvas_w, self.view.canvas_h
+-    local doc
+-    local ok, d = pcall(function() return require("document/documentregistry"):openDocument(BookExport.pdfPath(book)) end)
+-    if ok then doc = d end
++    local detailed = o.page_quality == "detailed"
++    local edge, pixels = detailed and 2400 or 1600, detailed and 4000000 or 2000000
++    local doc, open_error
++    local ok, d = pcall(function()
++        return require("document/documentregistry"):openDocument(book.ui.document.file)
++    end)
++    if ok then doc = d else open_error = d end
+     local Document = require("document/document")
+-    local geo = {}   -- per step: the page's drawn size and zoom
++    local geo = {}   -- only the page in hand
+     local function geom(i)
+         local g = geo[i]
+         if g then return g end
+-        local native = doc and Document.getNativePageDimensions(doc, pages[i])
+-        if not (native and native.w and native.h) then native = { w = W, h = H } end
+-        local z = math.min(W / native.w, H / native.h)
+-        g = { w = math.max(1, math.floor(native.w * z + 0.5)), h = math.max(1, math.floor(native.h * z + 0.5)),
++        if not doc then error("Could not open the book for export: " .. tostring(open_error or "unsupported document")) end
++        local native = Document.getNativePageDimensions(doc, pages[i])
++        if not (native and native.w and native.h and native.w > 0 and native.h > 0) then
++            error("Could not read dimensions for page " .. pages[i])
++        end
++        local z = math.min(edge / math.max(native.w, native.h), math.sqrt(pixels / (native.w * native.h)))
++        g = { w = math.max(1, math.floor(native.w * z)), h = math.max(1, math.floor(native.h * z)),
+             z = z, pw = native.w, ph = native.h }
+-        geo = { [i] = g }   -- (only the page in hand is kept)
++        geo = { [i] = g }
+         return g
+     end
+-    local spec = { n = #pages, quality = 80, numbers = o.numbers, template = self:exportDress({ style = "blank" }),
++    local spec = { n = #pages, quality = detailed and 90 or 80, numbers = o.numbers,
++        template = self:exportDress({ style = "blank" }),
+         size = function(i) local g = geom(i); return g.w, g.h end,
+         box = function(i) local g = geom(i); return g.pw, g.ph end,
+         pages = function(i)
+@@ -410,13 +417,15 @@ function InkAwayView:pdfBookSpec(o)
+             return BookExport.pageOps(items[pages[i]], marks[pages[i]], g.z, picture)
+         end,
+         done = function() if doc then pcall(function() doc:close() end); doc = nil end end }
+-    if o.include_bg and doc then
++    if o.include_bg then
+         spec.bg = function(i, s)
+             local g = geom(i)
+-            local img = self:renderPdfPage(doc, pages[i], g.w * (s or 1), g.h * (s or 1))
+-            if not img then return nil end
+-            local rgba = bbToRGBA(img, g.w * (s or 1), g.h * (s or 1))
++            local w, h = g.w * (s or 1), g.h * (s or 1)
++            local img = self:renderPdfPage(doc, pages[i], w, h)
++            if not img then error("Could not render page " .. pages[i]) end
++            local converted, rgba = pcall(bbToRGBA, img, w, h)
+             img:free()
++            if not converted or not rgba then error(rgba or "Could not convert page " .. pages[i]) end
+             return rgba
+         end
+         spec.bg_opaque = true
+@@ -494,7 +503,7 @@ end
+ function InkAwayView:exportSpec()
+     local o = self:exportOptions()
+     if self.book then
+-        return BookExport.pdfPath(self.book) and self:pdfBookSpec(o) or self:reflowBookSpec(o)
++        return BookExport.paged(self.book) and self:fixedBookSpec(o) or self:reflowBookSpec(o)
+     end
+     return self:notebookSpec(o)
+ end
+diff --git a/tests/README.md b/tests/README.md
+index 2804200..010846c 100644
+--- a/tests/README.md
++++ b/tests/README.md
+@@ -19,6 +19,11 @@ GitHub runs `luacheck` and every suite that needs no KOReader build on each push
+ Most suites only need LuaJIT. They run the plugin against small stand-ins for
+ KOReader's modules, which live in `tests/mock/`.
+ 
++`luajit tests/bookexport.lua` checks fixed-page book export routing and native ink
++placement. With a built runtime, `realbb/comicexport.lua` additionally tests real
++CBZ/CBR decoding and PDF output. See `docs/fixed-page-export.md` for the commands
++and an optional 144 MB synthetic-archive measurement.
++
+ ## Suites that need the KOReader emulator
+ 
+ A few suites use KOReader's own code, so they need a KOReader checkout with the
+diff --git a/tests/annots.lua b/tests/annots.lua
+index db7ee9b..f684ce1 100644
+--- a/tests/annots.lua
++++ b/tests/annots.lua
+@@ -89,6 +89,9 @@ do
+         }
+     end
+     local b = book(true)
++    local pdf = os.tmpname()
++    local f = assert(io.open(pdf, "wb")); f:write("%PDF-1.7\n"); f:close()
++    b.ui.document.file = pdf
+     local function list(t) return table.concat(t, ",") end
+     ok(list(BookExport.pages(b, "page")) == "4", "this page: the one shown")
+     ok(list(BookExport.pages(b, "all")) == "1,2,3,4,5,6,7,8,9,10", "all pages")
+@@ -96,7 +99,8 @@ do
+     ok(list(BookExport.pages(b, "range", { from = 2, to = 4 })) == "2,3,4", "a range")
+     ok(list(BookExport.pages(b, "range", { from = 8, to = 99 })) == "8,9,10", "a range stops at the last page")
+     ok(list(BookExport.pages(b, "all", nil, 2)) == "1,3,5,7,9", "two pages on the screen: every second")
+-    ok(BookExport.pdfPath(b) == "/books/x.pdf" and BookExport.pdfPath(book(false)) == nil, "only a PDF book has a PDF to edit")
++    ok(BookExport.pdfPath(b) == pdf and BookExport.pdfPath(book(false)) == nil, "only a PDF book has a PDF to edit")
++    os.remove(pdf)
+     ok(#BookExport.highlights(b) == 1, "a bookmark is not a highlight")
+ 
+     local ops = BookExport.pageOps(items, nil, 2)
+diff --git a/tests/realbb/pdfedit.lua b/tests/realbb/pdfedit.lua
+index 9d30ee3..a341e60 100644
+--- a/tests/realbb/pdfedit.lua
++++ b/tests/realbb/pdfedit.lua
+@@ -80,9 +80,8 @@ job2.cancel()
+ ok(not io.open(dst, "rb"), "stopping removes the partial file")
+ 
+ -- a source that is not there fails cleanly
+-local job3 = assert(Pdfedit.job(tmp .. "/nope.pdf", dst, work))
+-local s, e = job3.step()
+-ok(s == nil and e, "a missing source ends the job with an error")
++local job3, err3 = Pdfedit.job(tmp .. "/nope.pdf", dst, work)
++ok(job3 == nil and err3, "a missing source is rejected before making an output file")
+ 
+ if os.getenv("KEEP") then print("kept", src, dst) else os.remove(src); os.remove(dst) end
+ print(("pdfedit: %d checks, %d failures"):format(checks, failures))
+diff --git a/tests/run.lua b/tests/run.lua
+index 8b7b721..c37943a 100644
+--- a/tests/run.lua
++++ b/tests/run.lua
+@@ -1,6 +1,6 @@
+ -- Run the whole Ink Away test suite:  luajit tests/run.lua
+ -- (core logic under real FFI, then the view against a mock KOReader env)
+-local suites = { "tests/core.lua", "tests/library.lua", "tests/raster_identity.lua", "tests/text.lua", "tests/recognize.lua", "tests/stylus.lua", "tests/imagesearch.lua", "tests/hwr.lua", "tests/wipe.lua", "tests/view.lua", "tests/rawfinger.lua", "tests/hwrnet.lua", "tests/hwrwords.lua", "tests/search.lua", "tests/trash.lua", "tests/transform.lua", "tests/links.lua", "tests/pentest.lua", "tests/pens.lua", "tests/wash.lua", "tests/smudge.lua", "tests/penset.lua", "tests/actions.lua", "tests/bookink.lua", "tests/cut.lua", "tests/readerview.lua", "tests/einkdrive.lua", "tests/elipsadrive.lua", "tests/elipsaworker.lua", "tests/guide.lua", "tests/snap.lua", "tests/update.lua", "tests/layers.lua", "tests/bookshelf.lua", "tests/drawingshelf.lua", "tests/share.lua", "tests/annots.lua", "tests/l10n.lua" }
++local suites = { "tests/core.lua", "tests/library.lua", "tests/raster_identity.lua", "tests/text.lua", "tests/recognize.lua", "tests/stylus.lua", "tests/imagesearch.lua", "tests/hwr.lua", "tests/wipe.lua", "tests/view.lua", "tests/rawfinger.lua", "tests/hwrnet.lua", "tests/hwrwords.lua", "tests/search.lua", "tests/trash.lua", "tests/transform.lua", "tests/links.lua", "tests/pentest.lua", "tests/pens.lua", "tests/wash.lua", "tests/smudge.lua", "tests/penset.lua", "tests/actions.lua", "tests/bookink.lua", "tests/cut.lua", "tests/readerview.lua", "tests/einkdrive.lua", "tests/elipsadrive.lua", "tests/elipsaworker.lua", "tests/guide.lua", "tests/snap.lua", "tests/update.lua", "tests/layers.lua", "tests/bookshelf.lua", "tests/drawingshelf.lua", "tests/share.lua", "tests/annots.lua", "tests/bookexport.lua", "tests/l10n.lua" }
+ -- Some suites need a KOReader checkout with the emulator built in it:
+ -- ~/koreader-emulator unless KO_SRC says otherwise (see tests/README.md).
+ local KO_SRC = os.getenv("KO_SRC") or (os.getenv("HOME") .. "/koreader-emulator")
+@@ -28,7 +28,7 @@ end
+ local REAL = {}
+ if exists(EMU .. "/luajit") then
+     local here = io.popen("pwd"):read("*l")
+-    for _, t in ipairs({ "tests/realbb/eraser.lua", "tests/realbb/colour.lua", "tests/realbb/pdfexport.lua", "tests/realbb/pdfedit.lua", "tests/realbb/pdfoverlay.lua", "tests/realbb/pdftext.lua",
++    for _, t in ipairs({ "tests/realbb/eraser.lua", "tests/realbb/colour.lua", "tests/realbb/pdfexport.lua", "tests/realbb/comicexport.lua", "tests/realbb/pdfedit.lua", "tests/realbb/pdfoverlay.lua", "tests/realbb/pdftext.lua",
+         "tests/realbb/wipe.lua", "tests/realbb/accent.lua", "tests/realbb/selection.lua",
+         "tests/realbb/android.lua", "tests/realbb/wash.lua", "tests/realbb/smudge.lua", "tests/realbb/greylive.lua",
+         "tests/realbb/theme.lua", "tests/realbb/paper.lua", "tests/realbb/layers.lua",
+diff --git a/tests/bookexport.lua b/tests/bookexport.lua
+new file mode 100644
+index 0000000..4a9942c
+--- /dev/null
++++ b/tests/bookexport.lua
+@@ -0,0 +1,118 @@
++-- Fixed-page export routing, native ink placement and bounded quality, without
++-- a live reader. Actual archive/render/encoder coverage: realbb/comicexport.lua.
++package.path = "./?.lua;./tests/mock/?.lua;" .. package.path
++local ffi = require("ffi")
++local env = require("testenv")
++local Pdf = require("ink/pdf")
++local Pdfedit = require("ink/export/pdfedit")
++local BookExport = require("ink/reader/bookexport")
++local freed, closed, rendered = 0, 0, {}
++local dims = { { w = 2000, h = 3000 }, { w = 6000, h = 2000 }, { w = 5000, h = 5000 } }
++local doc = { close = function() closed = closed + 1 end }
++package.loaded["document/document"] = {
++    getNativePageDimensions = function(_, p) return dims[p] end,
++}
++package.loaded["document/documentregistry"] = { openDocument = function() return doc end }
++local ImageProc = require("ink/imageproc")
++ImageProc.bbToRGBA = function(_, w, h) return ffi.new("uint8_t[?]", w * h * 4) end
++local View = require("ink/view/exportbook")
++local checks, failures = 0, 0
++local function ok(c, what)
++    checks = checks + 1
++    if not c then failures = failures + 1; print("FAIL: " .. what) end
++end
++local function near(a, b) return math.abs(a - b) < 0.001 end
++local function fixture(name, bytes)
++    local path = env.libraryDir() .. "/" .. name
++    local f = assert(io.open(path, "wb")); f:write(bytes); f:close()
++    return path
++end
++local files = {
++    fixture("book.cbz", "PK\003\004%PDF-1.7"),
++    fixture("book.cbr", "Rar!\026\007\001\000"),
++    fixture("book.djvu", "AT&TFORM"),
++    fixture("fake.pdf", "PK\003\004%PDF-1.7"),
++}
++local pdf = fixture("actual.bin", "%PDF-1.7\n")
++local item = { op = { kind = "ink", pts = { 0, 0, 100, 50 }, width = 8 }, a = { page = 1, x = 400, y = 600 } }
++local book = {
++    ui = { paging = {}, document = { is_pdf = true, getPageCount = function() return 3 end } },
++    data = function() return { items = { item } } end,
++    doc = function() return { kind = "paging" } end,
++    currentPage = function() return 2 end,
++}
++local options = { scope = "all", include_bg = true }
++local view = setmetatable({ book = book, view = { canvas_w = 100, canvas_h = 200 } }, { __index = View })
++function view:exportOptions() return options end
++function view:exportDress(t) return t end
++function view:renderPdfPage(_, page, w, h)
++    rendered[#rendered + 1] = page
++    return { free = function() freed = freed + 1 end, w = w, h = h }
++end
++for _, path in ipairs(files) do
++    book.ui.document.file = path
++    ok(BookExport.pdfPath(book) == nil and not Pdfedit.available(path), "non-PDF is never eligible for editable export: " .. path)
++    local job, err = Pdfedit.job(path, env.libraryDir() .. "/bad.pdf", {})
++    ok(job == nil and err and not io.open(env.libraryDir() .. "/bad.pdf"), "non-PDF cannot be copied into a .pdf")
++    local before = #rendered
++    local spec = view:exportSpec()
++    ok(spec.n == 3 and #rendered == before, "fixed-page spec is lazy and does not visit the reader")
++    local w, h = spec.size(1)
++    ok(w == 1066 and h == 1600, "full page quality is independent of the 100x200 editor")
++    local op = spec.pages(1)[1]
++    ok(near(op.pts[1], 400 * 1600 / 3000) and near(op.pts[2], 600 * 1600 / 3000)
++        and near(op.width, 8 * 1600 / 3000), "native ink anchor and width follow the full page")
++    spec.bg(1)
++    ok(rendered[#rendered] == 1 and freed == #rendered, "each requested page renders once and its bitmap is freed")
++    local pw, ph = spec.box(1)
++    ok(pw == 2000 and ph == 3000, "page box preserves native aspect ratio")
++    spec.done(); spec.done()
++end
++ok(closed == #files, "each export releases its document once")
++book.ui.document.file = pdf
++ok(Pdf.isPDF(pdf) and BookExport.pdfPath(book) == pdf, "real PDF identified by content, independent of extension")
++book.ui.paging = nil
++ok(BookExport.pdfPath(book) == nil, "reflow documents cannot use the fixed-page PDF path")
++local reflowed = false
++view.reflowBookSpec = function() reflowed = true; return {} end
++view:exportSpec()
++ok(reflowed, "EPUB/MOBI keep their existing reflow export")
++book.ui.paging = {}
++options.page_quality = "detailed"
++local detailed = view:exportSpec()
++local w, h = detailed.size(1)
++ok(w == 1600 and h == 2400 and detailed.quality == 90, "Detailed selects higher resolution and JPEG quality")
++w, h = detailed.size(3)
++ok(w == 2000 and h == 2000, "Detailed bounds square-page work to four million pixels")
++detailed.done()
++options.scope, options.range = "range", { from = 2, to = 3 }
++local range = view:exportSpec()
++ok(range.n == 2 and #range.pages(1) == 0, "ranges retain source page identity and do not borrow another page's ink")
++w, h = range.size(1)
++ok(w == 2400 and h == 800, "landscape pages retain their own dimensions")
++range.bg(1)
++ok(rendered[#rendered] == 2, "range renders source page two as output page one")
++range.done()
++options.scope, options.include_bg = "all", false
++local ink = view:exportSpec()
++ok(ink.bg == nil and #ink.pages(1) == 1, "ink-only export keeps ink without rendering backgrounds")
++ink.done()
++options.include_bg = true
++local broken = view:exportSpec()
++view.renderPdfPage = function() return nil end
++local success, err = pcall(broken.bg, 1)
++ok(not success and tostring(err):find("Could not render page 1", 1, true), "render failures report an error instead of exporting a blank page")
++broken.done()
++local old = dims[1]
++dims[1] = { w = 0, h = 0 }
++local invalid = view:exportSpec()
++ok(not pcall(invalid.size, 1), "invalid source dimensions fail instead of guessing from the panel")
++invalid.done(); dims[1] = old
++package.loaded["document/documentregistry"].openDocument = function() return nil end
++local missing = view:exportSpec()
++ok(not pcall(missing.size, 1), "an unavailable source fails cleanly on its first export step")
++missing.done()
++ok(item.a.x == 400 and item.op.pts[1] == 0 and item.op.width == 8, "exports never rewrite saved annotations")
++env.cleanup()
++print(("bookexport: %d checks, %d failures"):format(checks, failures))
++os.exit(failures == 0 and 0 or 1)
+diff --git a/tests/realbb/comicexport.lua b/tests/realbb/comicexport.lua
+new file mode 100644
+index 0000000..76cd3f8
+--- /dev/null
++++ b/tests/realbb/comicexport.lua
+@@ -0,0 +1,133 @@
++-- Real MuPDF archive decoding, native blitbuffers, ink compositor, JPEG encoder
++-- and streaming PDF writer. UI and KOReader document registry are adapters.
++-- Generate fixtures with comic_fixtures.py, then from a KOReader runtime:
++-- ./luajit REPO/tests/realbb/comicexport.lua REPO FIXTURE_DIR
++local REPO, FIXTURES = assert(arg[1]), arg[2]
++local generated = FIXTURES == nil
++local function quote(s) return "'" .. s:gsub("'", "'\\''") .. "'" end
++if generated then
++    FIXTURES = os.tmpname()
++    os.remove(FIXTURES)
++    assert(os.execute("python3 " .. quote(REPO .. "/tests/realbb/comic_fixtures.py") .. " " .. quote(FIXTURES)) == 0)
++end
++require("ffi/loadlib")
++require("ffi/blitbuffer")
++local M = require("ffi/mupdf")
++package.path = REPO .. "/?.lua;" .. REPO .. "/tests/mock/?.lua;" .. package.path
++local Export = require("ink/export")
++local BookExport = require("ink/reader/bookexport")
++local Pdfedit = require("ink/export/pdfedit")
++local View = require("ink/view/exportbook")
++local NotebookView = require("ink/view/notebook")
++local checks, failures = 0, 0
++local function ok(c, what)
++    checks = checks + 1
++    if not c then failures = failures + 1; print("FAIL: " .. what) end
++end
++local function rss()
++    local f = assert(io.open("/proc/self/status"))
++    local kb = tonumber(f:read("*a"):match("VmRSS:%s+(%d+)")); f:close()
++    return kb / 1024
++end
++local function dc(z) return { zoom = z, rotate = 0, offset_x = 0, offset_y = 0, gamma = 1, saturation = 1 } end
++local released = 0
++local tiles = {}
++local function releaseTiles()
++    for _, tile in ipairs(tiles) do tile:free() end
++    tiles = {}
++end
++package.loaded["document/document"] = {
++    getNativePageDimensions = function(doc, p)
++        local page = doc.native:openPage(p)
++        local w, h = page:getSize(dc(1)); page:close()
++        return { w = w, h = h }
++    end,
++    renderPage = function(doc, p, rect, zoom)
++        local page = doc.native:openPage(p)
++        local bb = page:draw_new(dc(zoom), rect.w, rect.h, 0, 0)
++        page:close(); tiles[#tiles + 1] = bb
++        return { bb = bb }
++    end,
++}
++package.loaded["document/documentregistry"] = {
++    openDocument = function(_, path)
++        local native = M.openDocument(path)
++        native:setColorRendering(true)
++        return { native = native, close = function() native:close(); released = released + 1 end }
++    end,
++}
++for _, ext in ipairs({ "cbz", "cbr" }) do
++    local path = FIXTURES .. "/comic." .. ext
++    local source = M.openDocument(path)
++    local n = source:getPages()
++    local first = source:openPage(1)
++    local pw, ph = first:getSize(dc(1)); first:close(); source:close()
++    local item = { op = { kind = "ink", style = "solid", width = pw * 0.02, alpha = 255,
++        color = { 255, 0, 0 }, pts = { 0, 0, pw * 0.3, 0 } }, a = { page = 1, x = pw * 0.2, y = ph * 0.2 } }
++    local book = {
++        ui = { paging = {}, document = { file = path, is_pdf = true, getPageCount = function() return n end } },
++        data = function() return { items = { item } } end,
++        doc = function() return { kind = "paging" } end,
++        currentPage = function() return 1 end,
++    }
++    local options = { scope = "all", include_bg = true }
++    local view = setmetatable({ book = book, view = { canvas_w = 150, canvas_h = 200 } }, { __index = View })
++    function view:exportOptions() return options end
++    function view:exportDress(t) return t end
++    function view:renderPdfPage(...)
++        local image = NotebookView.renderPdfPage(self, ...)
++        releaseTiles()
++        return image
++    end
++    ok(BookExport.pdfPath(book) == nil and not Pdfedit.available(path), ext .. " cannot use editable-PDF export")
++    local spec = view:exportSpec()
++    local output = FIXTURES .. "/export-" .. ext .. ".pdf"
++    local job = assert(Export.notebookPDFJob(spec.pages, nil, nil, spec.template, output, spec.quality,
++        FIXTURES, spec.bg, { n = spec.n, size = spec.size, box = spec.box, bg_opaque = true }))
++    collectgarbage("collect")
++    local start, peak, halfway, t0 = rss(), rss(), nil, os.clock()
++    while true do
++        local state, i = job.step()
++        assert(state, i)
++        peak = math.max(peak, rss())
++        if i == math.floor(n / 2) then halfway = rss() end
++        if state == "done" then break end
++    end
++    spec.done()
++    local f = assert(io.open(output, "rb")); local bytes = f:seek("end"); f:close()
++    print(("  %s: %d pages, %.2f CPU seconds, PDF %.2f MB, RSS start %.1f / peak %.1f / halfway %.1f MB")
++        :format(ext, n, os.clock() - t0, bytes / 1e6, start, peak, halfway or peak))
++    if n >= 50 then
++        ok(peak - start < 100, ext .. " pixel working memory stays bounded below 100 MB growth")
++        ok(peak - halfway < 40, ext .. " memory does not accumulate in the second half")
++    end
++    local pdf = M.openDocument(output)
++    pdf:setColorRendering(true)
++    ok(pdf:getPages() == n, ext .. " exported PDF reopens with every page")
++    local p = pdf:openPage(1)
++    local ew, eh = p:getSize(dc(1))
++    ok(math.abs(ew - pw) < 0.01 and math.abs(eh - ph) < 0.01, ext .. " retains original page geometry")
++    local z = 400 / math.max(pw, ph)
++    local bb = p:draw_new(dc(z), math.floor(pw * z), math.floor(ph * z), 0, 0)
++    local pixel = bb:getPixel(math.floor(pw * 0.35 * z), math.floor(ph * 0.2 * z)):getColorRGB32()
++    ok(pixel:getR() > 180 and pixel:getG() < 100 and pixel:getB() < 100, ext .. " saved native ink appears at the right position")
++    bb:free(); p:close(); pdf:close()
++    options.scope = "ink"
++    local stopped = view:exportSpec()
++    ok(stopped.n == 1, ext .. " annotated-pages-only excludes untouched pages")
++    local partial = FIXTURES .. "/cancel-" .. ext .. ".pdf"
++    local cancel = assert(Export.notebookPDFJob(stopped.pages, nil, nil, stopped.template, partial,
++        stopped.quality, FIXTURES, stopped.bg, { n = stopped.n, size = stopped.size, box = stopped.box, bg_opaque = true }))
++    assert(cancel.step()); cancel.cancel(); stopped.done()
++    ok(not io.open(partial, "rb") and not io.open(FIXTURES .. "/inkaway_page.jpg", "rb"), ext .. " cancellation deletes partial PDF and scratch JPEG")
++end
++ok(released == 4, "finished and cancelled exports release every opened document")
++print(("comicexport: %d checks, %d failures"):format(checks, failures))
++if generated then
++    for _, ext in ipairs({ "cbz", "cbr" }) do
++        os.remove(FIXTURES .. "/comic." .. ext)
++        os.remove(FIXTURES .. "/export-" .. ext .. ".pdf")
++    end
++    require("libs/libkoreader-lfs").rmdir(FIXTURES)
++end
++os.exit(failures == 0 and 0 or 1)
+diff --git a/tests/realbb/comic_fixtures.py b/tests/realbb/comic_fixtures.py
+new file mode 100644
+index 0000000..6f2d932
+--- /dev/null
++++ b/tests/realbb/comic_fixtures.py
+@@ -0,0 +1,66 @@
++"""Generate original synthetic comic archives; no downloaded/copyrighted pages.
++
++Usage: python3 tests/realbb/comic_fixtures.py OUTPUT [--large]
++RAR5 stored blocks follow https://www.rarlab.com/technote.htm (no RAR tool needed).
++Large fixtures contain 100 noise pages, about 144 MB per archive.
++"""
++import argparse
++import random
++import struct
++import zipfile
++import zlib
++from pathlib import Path
++
++
++def vint(value):
++    out = bytearray()
++    while value >= 128:
++        out.append((value & 127) | 128)
++        value >>= 7
++    out.append(value)
++    return bytes(out)
++
++
++def block(body):
++    header = vint(len(body)) + body
++    return struct.pack("<I", zlib.crc32(header)) + header
++
++
++def png(w, h, noise):
++    def chunk(kind, data):
++        return struct.pack(">I", len(data)) + kind + data + struct.pack(">I", zlib.crc32(kind + data))
++    pixels = random.Random(42).randbytes(w * h * 3) if noise else bytes([255]) * (w * h * 3)
++    rows = b"".join(b"\0" + pixels[y * w * 3:(y + 1) * w * 3] for y in range(h))
++    return (b"\x89PNG\r\n\x1a\n" + chunk(b"IHDR", struct.pack(">IIBBBBB", w, h, 8, 2, 0, 0, 0))
++            + chunk(b"IDAT", zlib.compress(rows)) + chunk(b"IEND", b""))
++
++
++def main():
++    parser = argparse.ArgumentParser(description=__doc__)
++    parser.add_argument("output", type=Path)
++    parser.add_argument("--large", action="store_true")
++    args = parser.parse_args()
++    args.output.mkdir(parents=True, exist_ok=True)
++    pages = [(600, 800)] * 100 if args.large else [(2000, 3000), (3000, 1000), (2000, 2000)]
++    cached = {}
++    with zipfile.ZipFile(args.output / "comic.cbz", "w", compression=zipfile.ZIP_STORED) as cbz, \
++            (args.output / "comic.cbr").open("wb") as cbr:
++        cbr.write(b"Rar!\x1a\x07\x01\0" + block(vint(1) + vint(0) + vint(0)))
++        for i, size in enumerate(pages, 1):
++            if size not in cached:
++                cached[size] = png(*size, noise=args.large)
++            data = cached[size]
++            name = f"{i:04}.png".encode()
++            cbz.writestr(name.decode(), data)
++            # File header: data present, CRC present, stored compression, Unix host.
++            header = (vint(2) + vint(2) + vint(len(data)) + vint(4) + vint(len(data)) + vint(0)
++                      + struct.pack("<I", zlib.crc32(data)) + vint(0) + vint(1) + vint(len(name)) + name)
++            cbr.write(block(header) + data)
++        cbr.write(block(vint(5) + vint(0) + vint(0)))
++    for ext in ("cbz", "cbr"):
++        path = args.output / f"comic.{ext}"
++        print(f"{path}: {path.stat().st_size / 1e6:.2f} MB, {len(pages)} pages")
++
++
++if __name__ == "__main__":
++    main()
+diff --git a/docs/fixed-page-export.md b/docs/fixed-page-export.md
+new file mode 100644
+index 0000000..012c48c
+--- /dev/null
++++ b/docs/fixed-page-export.md
+@@ -0,0 +1,79 @@
++# Fixed-page book exports
++
++Ink Away exports fixed-page books through KOReader's document renderer. PDF,
++CBZ, CBR and other paged sources share the same full-page raster export to PDF
++or PNG. EPUB/MOBI keep their existing reader-layout export. No viewer-specific
++export interface or plugin identifiers are involved.
++
++The saved ink is positioned in native page coordinates. Export uses the original
++pages, regardless of panel zoom, crop, reading direction or a joined fold in the
++viewer. A double-page source image remains one source page. Page ranges and
++With ink select original document pages, not individual panels.
++
++Editable export copies and annotates an actual PDF. The source must have a PDF
++signature; MuPDF's `is_pdf` provider flag alone is insufficient because the same
++provider opens comic archives. This check also guards the editable writer itself.
++The MuPDF annotation-writing capability check is still required for actual PDFs.
++Comic export initially flattens the ink into page images; it does not claim
++editable PDF annotations or rewrite the original archive.
++
++## Quality and resource usage
++
++The export sheet offers Page quality for raster exports of fixed-page books:
++
++| Choice | Long-edge limit | Pixel-count limit | PDF JPEG quality |
++| --- | --- | --- | --- |
++| Compact (default) | 1600 px | 2 million | 80 |
++| Detailed | 2400 px | 4 million | 90 |
++
++Aspect ratio and native PDF page boxes are retained. Raster size is independent
++of the editor canvas. PNG is lossless at the selected raster size. A low-resolution
++source cannot acquire extra detail through the Detailed setting.
++
++The existing exporter processes one selected page per progress step, streams its
++temporary JPEG into the PDF, deletes the temporary file and collects raster
++buffers before the next step. The source document is released on completion,
++cancellation or failure. Open/render/dimension errors fail the export rather
++than substituting a blank page. Whole archives are not extracted up front.
++Decoded source pages and the host's document caches can still use memory in
++addition to the capped output raster; input archive size alone does not determine
++peak memory. Device refresh, IO and UI scheduling also affect elapsed time.
++
++Direct embedding of original JPEG data and editable annotations over converted
++comic pages remain possible future optimizations, not implemented behavior.
++
++## Verification
++
++`luajit tests/bookexport.lua` exercises actual export specifications with a
++stand-in host: format routing, quality independent of editor size, native
++anchors and widths, mixed dimensions, range/ink-only selection, cleanup and
++render/dimension/open errors. `tests/annots.lua` retains PDF/annotation checks.
++
++`tests/realbb/comic_fixtures.py` generates original synthetic PNG pages in CBZ
++and stored RAR5/CBR archives. It follows the public RAR format description at
++https://www.rarlab.com/technote.htm; no external comic content is downloaded.
++
++From a built KOReader runtime, run:
++
++```
++./luajit REPO/tests/realbb/comicexport.lua REPO
++```
++
++It generates and removes small fixtures automatically. It exercises the real
++MuPDF archive decoder/page renderer, blitbuffers, ink compositor, JPEG encoder
++and PDF writer, with adapted UI/document registry. It reopens the PDF and checks
++page count, dimensions and ink pixels, plus cancellation, scratch cleanup and
++document lifetime. It is registered with the native test runner.
++
++For a larger desktop measurement:
++
++```
++python3 REPO/tests/realbb/comic_fixtures.py /tmp/inkaway-comics --large
++./luajit REPO/tests/realbb/comicexport.lua REPO /tmp/inkaway-comics
++```
++
++This leaves the generated files for inspection and reports CPU time, output size
++and sampled resident memory (including native allocations). The synthetic large
++archives contain 100 noise pages and are approximately 144 MB each. They are not
++a benchmark of reader hardware, compressed/solid RAR archives or unusually large
++individual scanned pages. Live export from the reader toolbar remains necessary.
