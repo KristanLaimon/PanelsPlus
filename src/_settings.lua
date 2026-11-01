@@ -42,6 +42,7 @@ local Settings = {
         rotate_screen_for_double_pages = false,
         spread_rotation_direction = "auto",
         join_spread_fold = true,
+        inkaway_join_spread_fold = true,
         hold_text_selection = true,
         prefer_native_text_layer = true,
         nav_transition_mode = "classic",

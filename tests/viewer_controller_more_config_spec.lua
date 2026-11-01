@@ -50,6 +50,43 @@ describe("ViewerController page-turn animation settings", function()
         return UIManager._last_shown[1]
     end
 
+    it("offers Ink-away Settings only when Ink Away is loaded and saves both fold choices", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        local viewer = {}
+        controller.ui = {}
+        controller:showMoreConfigMenu(viewer)
+        local items = UIManager._last_shown[1].item_table
+        for _, item in ipairs(items) do
+            assert.is_true(item.id ~= "inkaway_settings")
+        end
+        controller.ui["ink-away"] = {}
+        controller:showMoreConfigMenu(viewer)
+        items = UIManager._last_shown[1].item_table
+        local entry
+        for _, item in ipairs(items) do
+            if item.id == "inkaway_settings" then
+                entry = item
+            end
+        end
+        assert.is_not_nil(entry)
+        assert.equals("Ink-away Settings…", entry.text)
+        entry.callback()
+        local menu = UIManager._last_shown
+        assert.equals(2, #menu.item_table)
+        assert.is_true(menu.item_table[1].text:match("^◉ ") ~= nil)
+        menu.item_table[2].callback()
+        assert.is_nil(menu.close_callback, "the old menu must not reopen its parent after selecting a choice")
+        assert.is_false(controller.settings.inkaway_join_spread_fold)
+        assert.is_false(viewer.inkaway_join_spread_fold)
+        menu = UIManager._last_shown
+        assert.is_true(menu.item_table[2].text:match("^◉ ") ~= nil)
+        menu.item_table[1].callback()
+        assert.is_true(viewer.inkaway_join_spread_fold)
+        assert.equals(2, saved:callCount())
+        UIManager._last_shown.close_callback()
+        assert.equals("More Config", UIManager._last_shown[1].title)
+    end)
+
     it("animates pages only when Animated mode and its page option are enabled", function()
         withAnimationEnvironment(function()
             local controller = makeController({})
