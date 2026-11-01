@@ -289,10 +289,45 @@ function Surface:begin()
     self:setJoined(self.viewer.inkaway_join_spread_fold ~= false)
 end
 
+-- The editor supplies screen space left free by its own chrome. Panels+ owns
+-- fitting the image into it; no toolbar-side knowledge belongs in this adapter.
+function Surface:setViewport(rect, refresh)
+    local v = self.viewer
+    if v._panels_plus_closed or v._annotation_closing then
+        return false
+    end
+    self.refresh_layout = refresh
+    local old = v._annotation_viewport
+    if old and old.x == rect.x and old.y == rect.y and old.w == rect.w and old.h == rect.h then
+        return false
+    end
+    local before = v:getAnnotationViewportInsets()
+    v._annotation_viewport = { x = rect.x, y = rect.y, w = rect.w, h = rect.h }
+    local after = v:getAnnotationViewportInsets()
+    if
+        before.left ~= after.left
+        or before.top ~= after.top
+        or before.right ~= after.right
+        or before.bottom ~= after.bottom
+    then
+        v:update()
+        return true
+    end
+    return false
+end
+
 function Surface:finish()
     self.navigation_done = nil
     self.navigation_frame = nil
+    self.refresh_layout = nil
+    local v = self.viewer
+    local insets = v:getAnnotationViewportInsets()
+    local resized = insets.left > 0 or insets.top > 0 or insets.right > 0 or insets.bottom > 0
+    v._annotation_viewport = nil
     self:setJoined(nil)
+    if resized and not v._panels_plus_closed and not v._annotation_closing then
+        v:update()
+    end
     self:repaint()
 end
 

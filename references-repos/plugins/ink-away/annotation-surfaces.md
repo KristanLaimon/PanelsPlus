@@ -354,3 +354,80 @@ The fix belongs in Ink Away because it owns the toolbar and that paint path. Pan
 Ink Away now paints the toolbar’s background before its buttons and icons. The fix works for any viewer using the generic surface interface—there’s no Panels+ identification in it.
 
 
+
+
+## Annotator-aware panel viewport — 2026-11-01
+
+Panels+ now defaults to fitting panels into the space beside the annotator's
+visible toolbar. More Config → Ink-away Settings… → **Panel viewport** cycles
+**Fit beside toolbar** / **Full viewport**. The first follows left/right/top/bottom
+placement and collapse; the second keeps the previous overlay framing. Closing
+the annotator restores ordinary panel layout. Source controls and the annotator
+viewport are intersected so overlapping bottom bars are not subtracted twice.
+
+Ink Away's optional generic `setViewport(rect, refresh)` report supplies free
+screen space; Panels+ owns fit/centering and Smooth camera geometry. No target
+plugin identity or panel-specific behavior is added. Edits are anchored before
+reflow; snapshot primes new widget bounds before clip lookup; editable operations
+are then reloaded. Provider-side preference changes use the same transaction.
+Saved native coordinates and untouched items are retained; local canvas editing
+history is replaced when reloaded, as on a page load.
+
+The [viewport patch](patches/surface-viewport.patch), SHA-256
+`024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e`, follows
+the navigation/export/focus/toolbar patches. The full stack reconstructs current
+target source and tests. Stable/original rolling references remain unchanged.
+
+Source regressions **546**, patched integration **41**, original stable/rolling
+fallback **5 each** pass. Target generic viewport **38**, reader **236**, existing
+surface **49**, native toolbar pixel **160** checks pass. Source integration
+covers all edges, eased/Classic motion, No crop/margins, setting cycles while
+open and page crossings. Host widgets/rasterization remain fixtures; physical
+reader behavior requires live validation.
+
+Installed artifact: `build.7eiLxb4a`. Previous copy:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.YON9nsjt/`.
+Installed viewport code and 285 payload checksums verified. Restart KOReader.
+
+
+## Arrow handoff with an unchanged toolbar rectangle — 2026-11-01
+
+The reported Fit beside toolbar crash was reproduced with real KOReader widgets:
+a completed turn creates a fresh ImageWidget whose `.dimen` is still nil. Ink
+Away's pre-snapshot placement queried its clip because the toolbar rectangle
+had not changed. `loadBookPage` now always marks that preliminary phase pending,
+paints the snapshot, then reads the landed widget's clip. This is a target-only
+reload-order correction; the original viewport feature source remains intact.
+
+The exact old artifact `build.7eiLxb4a` fails in this native reproduction at
+`_annotationsurface.lua:198`; fixed code passes **32 cases / 800 checks**, covering
+128 real arrow callbacks across four toolbar sides, Comic/Manga, eased/Classic
+and Tight/Margin. The target portable viewport test adds the unchanged-rectangle
+widget replacement and passes **42** checks; reader **236**, surface **49**, patched
+integration **41**, original stable/rolling fallback **5 each** pass.
+
+For layout/navigation changes, run the real-widget regression from a KOReader
+runtime, with an existing isolated scratch home and library folder:
+
+```
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/inkaway-native-viewport ./luajit \
+  SOURCE/tests/plugin-compatibility/shared/inkaway_native_viewport.lua SOURCE TARGET
+```
+
+`SOURCE` is the Panels+ root; `TARGET` is the exact modified Ink Away source or
+built artifact. The script uses real KOReader UI/layout/painting; document pixels
+and timer delivery are fixtures. It does not test physical input/refresh behavior.
+
+Retained [reload patch](patches/surface-viewport-reload.patch), SHA-256
+`2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3`, follows
+the viewport patch. Current installed artifact: `build.1nDooCiZ`; backup:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.0MgfotSR/`.
+Installed reload code and 285 payload checksums verified. Restart for live testing.
+
+Notes: (KristanLaimon)
+Reproduced and fixed. Ink Away was reading the new panel widget’s clip before its first paint. It now paints the snapshot before reading the clip.
+
+Installed the corrected build. Passed 800 real KOReader widget checks, including 128 arrow turns across all toolbar positions and Manga/Comic flow.
+
+Restart KOReader and try < / > again
