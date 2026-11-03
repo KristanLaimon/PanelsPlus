@@ -139,6 +139,9 @@ return function(reference)
         local ink = setmetatable({ ui = ui, book = book }, { __index = Ink })
         -- KOReader registers plugins by folder name, ignoring _meta.lua.name.
         ui["ink-away"] = ink
+        if type(ink.installPluginIntegration) == "function" then
+            book.extensions:publish(ui, ink)
+        end
         local quarter = (angle or 0) % 180 ~= 0
         local viewer = setmetatable({
             reader_ui = ui,
@@ -1078,5 +1081,77 @@ return function(reference)
             book._view:closeCanvas()
         end)
     end)
+    if Ink.integration_api_version == 1 then
+        describe("Ink Away registered rendering provider", function()
+            it("selects the Panels+ registration without widget discovery", function()
+                local book, viewer, ink = fixture()
+                local surface = viewer:getAnnotationSurface()
+                -- This would hide the viewer from the old discovery mechanism.
+                viewer.getAnnotationSurface = false
+                local opened, closed = 0, 0
+                local off_open = ink:onAnnotationOpened(function(payload)
+                    check.equals(surface, payload.surface)
+                    opened = opened + 1
+                end)
+                local off_close = ink:onAnnotationClosed(function()
+                    closed = closed + 1
+                end)
+                ink:onInkAwayAnnotate()
+                check.equals(surface, book.surface)
+                check.equals(1, opened)
+                book._view:closeCanvas()
+                check.equals(1, closed)
+                off_open()
+                off_close()
+                -- Exercise the actual source close path and its unregister handle.
+                viewer:onCloseWidget()
+                check.is_nil(viewer._annotation_unregister)
+                check.is_nil(book.extensions:select(book.ui))
+            end)
+        end)
+    end
+    if type(Ink.installPluginIntegration) == "function" then
+        describe("Ink Away readiness handshake with Panels+", function()
+            it("configures the viewer with either plugin loading first", function()
+                for _, consumer_first in ipairs({ true, false }) do
+                    local book, viewer, ink = fixture()
+                    local ui = book.ui
+                    if consumer_first then
+                        book.extensions:unpublish(ui, ink)
+                    end
+                    -- Directory-name registration can occur after Ink Away init.
+                    ui["ink-away"] = nil
+                    local surface = viewer:getAnnotationSurface()
+                    if consumer_first then
+                        check.equals(viewer._annotation_configure, ui.inkAwayPendingIntegrations[viewer])
+                        book.extensions:publish(ui, ink)
+                    end
+                    check.equals(ink, viewer._annotation_provider_ink)
+                    check.is_nil(ui.inkAwayPendingIntegrations)
+                    local cleanup = viewer._annotation_unregister
+                    viewer:getAnnotationSurface()
+                    check.equals(cleanup, viewer._annotation_unregister)
+                    viewer.getAnnotationSurface = false
+                    ink:onInkAwayAnnotate()
+                    check.equals(surface, book.surface)
+                    viewer:onCloseWidget()
+                    check.is_nil(book.surface)
+                    check.is_nil(book._view)
+                end
+            end)
+            it("cancels a viewer's queued setup before Ink Away becomes ready", function()
+                local book, viewer, ink = fixture()
+                book.extensions:unpublish(book.ui, ink)
+                book.ui["ink-away"] = nil
+                viewer:getAnnotationSurface()
+                check.is_true(book.ui.inkAwayPendingIntegrations[viewer] ~= nil)
+                viewer:onCloseWidget()
+                check.is_nil(book.ui.inkAwayPendingIntegrations)
+                book.extensions:publish(book.ui, ink)
+                check.is_nil(viewer._annotation_unregister)
+                check.is_nil(book.extensions:select(book.ui))
+            end)
+        end)
+    end
     UIManager.show = original_show
 end
