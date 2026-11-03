@@ -24,14 +24,17 @@ Include the latest outcome and whether it is installed, tested, or still awaitin
 live confirmation. State:
 
 - Source/target names, metadata versions and stable/rolling/laboratory provenance;
-  full SHAs/base pins, branches, paths, dirty/staged/uncommitted state, immutable
-  references and installed KOReader version separately from the host source pin.
+  full SHAs/base pins, local feature branches, canonical rolling paths,
+  dirty/staged/uncommitted state, immutable stable references and installed KOReader version separately from the host source pin.
 - Agreed scope/authorization, responsibility boundary, user-facing defaults,
   relevant settings, invariants and known limitations. A history records granted
   scope; it does not itself authorize unrelated mutations or publication.
-- Active worktree, ordered retained patches with hashes and applicability, latest
-  artifact/install/backup, and whether changes were committed/published. Say when
-  the working copy already contains the patch stack so it is not reapplied.
+- Active canonical rolling checkout, current local branch/base and working diff,
+  latest artifact/install/backup, and whether anything was committed/published.
+  Former worktrees are frozen source backups, not active sources. Preserve
+  historical patch identities/evidence in this history, without requiring
+  generated patch archives or links to deleted files. Keep uncommitted changes
+  in place; do not generate patch files for new handoffs.
 - Latest checks with dates/entry references, actual-versus-fixture scope, skipped
   or carried-forward results, and exact run commands with their working directory
   and required environment. A shared runbook in the same file avoids duplication.
@@ -46,7 +49,7 @@ Use a heading such as:
 ## YYYY-MM-DD — NN: Concrete change — Source VERSION dev / Target VERSION patched rolling
 
 **Versions and provenance:** Source metadata version, SHA/base and branch;
-target metadata version, pin/SHA/worktree and patch identity; host source pin
+target metadata version, base SHA/local branch and working-diff state; host source pin
 and native runtime/device when exercised. Mark unavailable facts explicitly.
 
 Describe the trigger, observed behavior and evidence. Explain which side changed,
@@ -63,13 +66,13 @@ why it owns the behavior, relevant files/API, and the resulting user behavior.
 4. Build/install if performed: source identity, command, artifact, destination,
    backup, payload verification, and live result or pending manual check.
 
-Record the final state, known limits, and next action. Link the retained patch
-or relevant code when useful; preserve decision context needed to resume.
+Record the final state, known limits, and next action. Link the active rolling
+code or diff context when useful; preserve decision context needed to resume.
 ```
 
 Adapt the number of steps to the actual work. An investigation-only entry has no
 invented implementation/deployment; a commit-only entry explicitly says tests
-were not rerun. Metadata version plus a precise local patch/revision distinguishes
+were not rerun. Metadata version plus a base SHA, local branch and working-diff state distinguishes
 a patched rolling build from an unchanged release with the same version string.
 
 ## Evidence rules
@@ -81,7 +84,8 @@ reader input. A source mock alone is not counterpart integration, and native
 library checks alone are not live UI/device validation. Record exact failing
 errors and failing-before counts only when observed; use “not recorded” otherwise.
 
-Separate stable fallback, original rolling and patched-worktree results. Keep
+Separate stable fallback, any historical unmodified-rolling result and current
+modified-rolling results. Keep
 performance measurements tied to input size/page count, environment and metric
 (CPU time versus elapsed time, resident memory versus Lua heap). Preserve a
 failed old artifact's identity if it demonstrates a regression. Do not silently
