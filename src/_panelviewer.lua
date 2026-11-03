@@ -1282,7 +1282,8 @@ function PanelViewer:paintTo(bb, x, y)
         bb:invertRect(d.x, d.y, d.w, d.h)
     end
     self:paintHighlights(bb, x, y)
-    local ink = self.reader_ui and (self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+    local ink = self.reader_ui
+        and (self.reader_ui.inkAwayIntegrationAPI or self.reader_ui["ink-away"] or self.reader_ui.inkaway)
     if
         ink
         and ink.document_surface_version == 1
@@ -1306,6 +1307,37 @@ function PanelViewer:getAnnotationSurface()
     end
     if not self._annotation_surface then
         self._annotation_surface = require("src._annotationsurface").new(self)
+    end
+    local ui = self.reader_ui
+    if not self._annotation_configure then
+        self._annotation_configure = function(ink)
+            if self._panels_plus_closed or self._annotation_closing or self._annotation_provider_ink == ink then
+                return
+            end
+            if self._annotation_unregister then
+                self._annotation_unregister(false)
+            end
+            self._annotation_unregister = ink:installPluginIntegration(self, self._annotation_surface)
+            self._annotation_provider_ink = ink
+        end
+    end
+    local ready = ui.inkAwayIntegrationAPI
+    if ready and type(ready.installPluginIntegration) == "function" then
+        self._annotation_configure(ready)
+    else
+        local ink = ui["ink-away"] or ui.inkaway
+        if ink and not ink.installPluginIntegration and type(ink.registerRenderingView) == "function" then
+            -- Compatibility with the earlier surface API, before readiness.
+            if self._annotation_provider_ink ~= ink then
+                self._annotation_unregister = ink:registerRenderingView(self, function()
+                    return self._annotation_surface
+                end)
+                self._annotation_provider_ink = ink
+            end
+        else
+            ui.inkAwayPendingIntegrations = ui.inkAwayPendingIntegrations or {}
+            ui.inkAwayPendingIntegrations[self] = self._annotation_configure
+        end
     end
     return self._annotation_surface
 end
@@ -1877,6 +1909,7 @@ end
 --- Schedule the initial full repaint without assuming layout already happened.
 function PanelViewer:onShow()
     self._panels_plus_closed = nil
+    self:getAnnotationSurface()
     self.dithered = true
     UIManager:setDirty(self, function()
         if not self:isOpen() or not self.main_frame or not self.main_frame.dimen then
@@ -2075,10 +2108,25 @@ end
 function PanelViewer:onCloseWidget()
     self._annotation_closing = true
     local surface = self._annotation_surface
-    local ink = self.reader_ui and (self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+    local ink = self.reader_ui
+        and (self.reader_ui.inkAwayIntegrationAPI or self.reader_ui["ink-away"] or self.reader_ui.inkaway)
     if surface and not surface.navigation_done and ink and type(ink.releaseDocumentSurface) == "function" then
         ink:releaseDocumentSurface(surface)
     end
+    if self._annotation_unregister then
+        -- The release above deliberately preserves an in-flight handoff.
+        self._annotation_unregister(false)
+        self._annotation_unregister, self._annotation_provider_ink = nil, nil
+    end
+    local ui = self.reader_ui
+    local pending_integrations = ui and ui.inkAwayPendingIntegrations
+    if pending_integrations and pending_integrations[self] == self._annotation_configure then
+        pending_integrations[self] = nil
+        if next(pending_integrations) == nil then
+            ui.inkAwayPendingIntegrations = nil
+        end
+    end
+    self._annotation_configure = nil
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true

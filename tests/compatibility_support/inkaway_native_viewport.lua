@@ -26,6 +26,7 @@ local UI = require("ui/uimanager")
 local Viewer = require("src._panelviewer")
 local Book = require("ink/reader/book")
 local BookInk = require("ink/reader/bookink")
+local InkAway = dofile(target .. "/main.lua")
 local checks, cases = 0, 0
 local function check(c, message)
     checks = checks + 1
@@ -76,6 +77,10 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                     },
                 }
                 local book = Book.new(ui)
+                ui["ink-away"] = setmetatable({ ui = ui, book = book }, { __index = InkAway })
+                if type(ui["ink-away"].installPluginIntegration) == "function" then
+                    book.extensions:publish(ui, ui["ink-away"])
+                end
                 book._data = BookInk.new()
                 local ink = {
                     a = { page = 1, x = 100, y = 200 },

@@ -21,9 +21,9 @@ Panels+ owns panel-related features. Prefer integration with existing plugins ov
 | No relationship | The developer has established no relevant interaction for the recorded versions and scope. This is a positive finding, not a missing test. |
 | Unknown Behavior Relationship | Coexistence or interaction has not been established; test the pair before classifying it. Often concerns two plugins other than Panels+. |
 | Source Plugin | Plugin being modified for the task; its authorized working copy is writable. Usually Panels+. |
-| Target Plugin | Plugin the source is being made compatible with; its reference sources are read-only. Relationship arrows do not identify edit permissions. |
+| Target Plugin | Plugin the source is being made compatible with; stable pins are read-only, while its canonical rolling checkout is the working source when target changes are required. Relationship arrows do not identify edit permissions. |
 | Stable Release | Upstream release artifact retained locally under an exact version pin; the local pin is not automatically today's latest upstream release. |
-| Git Rolling Release | Local checkout of upstream development source, identified by commit SHA and dirty state. A submodule is pinned until explicitly updated; do not silently fetch/update it. |
+| Git Rolling Release | Local checkout at its existing commit SHA, identified by local branch and dirty state. Develop directly here on a separate local branch; never fetch/update/rebase it without an explicit request. |
 | Laboratory modified stable | Writable copy of a pinned stable target under the plugin's `laboratory/<version>/<experiment>/`; the original remains untouched. |
 | Build artifact | Installable output in `.cache/plugin-compatibility/builds/`, separate from source and pinned references. |
 | Declared range | Developer's intended compatibility range, such as `>= 1.3.0`; it is not proof for every future release. |
@@ -39,21 +39,53 @@ Visual/Not visual qualifies knowledge relationships. For BothWays, record visibi
 2. Look for the target's exact stable pin in `references-repos/plugins/<plugin>/stable/`. If missing, report what is absent and stop dependent integration work until the user supplies or authorizes establishing the pin. Do not substitute rolling source silently.
 3. Describe material edge cases or flaws in the proposed design and ask focused questions where answers change behavior. Continue independent investigation while awaiting answers; do not treat silence as approval.
 
+## Working copy and Git policy
+
+Target-plugin development always uses
+`references-repos/plugins/<plugin>/rolling.koplugin/`, on a separate **local
+feature branch**. Panels+ itself remains this project. Before editing, inspect
+HEAD, branch, working changes and staging; preserve them and record the base SHA.
+Create a new branch at the current HEAD when needed, or reuse the task's existing
+feature branch. Do not move to another commit just to begin work.
+
+- Keep changes uncommitted. Do not stage, commit, push, reset or discard existing
+  work unless the user explicitly requests that action.
+- Do not fetch, pull, sync submodules, merge or rebase as session setup. Remote
+  commits stay out of the task until the user explicitly requests integrating
+  them. Passing tests is not permission to perform a later rebase.
+- Edit the canonical rolling checkout directly. Do not create new target
+  worktrees, laboratory copies or retained Git patch files as the normal workflow.
+  Use the working diff and per-plugin history for review and handoff.
+- Keep existing stable pins unchanged. Retain former worktrees as frozen source
+  backups; do not resume development there. Record historical patch filenames,
+  hashes, base revisions and evidence in the plugin history instead of keeping
+  generated integration patch archives. Update file links when removing obsolete
+  artifacts. Directories named `patches/` inside a plugin can contain shipped
+  runtime code; do not confuse those with generated Git `.patch` archives.
+- Tests and builds use the canonical rolling source. Historical clean-rolling
+  results do not describe a checkout that now contains local changes.
+
 ## Change priority
 
-1. Inspect the relevant Panels+ source first. Prefer fulfilling the request using only Panels+ changes.
-2. If that cannot fulfill the behavior, explain the limitation and copy the exact target stable pin to `references-repos/plugins/<plugin>/laboratory/v<underscored-version>/<experiment>/`. Modify only this named laboratory experiment. Record its base pin and patch; never edit the original stable reference.
-3. If minimal stable-target changes are insufficient, explain why, create a local branch in an isolated target worktree, then make the smallest rolling-target change. Keep the reference submodule unchanged. Build that worktree with the corresponding build helper.
+1. Inspect the relevant Panels+ source first. Prefer fulfilling the request using
+   only Panels+ changes when that matches the requested responsibility boundary.
+2. When target changes are needed, explain the limitation and make the smallest
+   appropriate change in its canonical `rolling.koplugin/`, on the task's local
+   feature branch at the existing base. Preserve all prior local work.
+3. Changes to both plugins are allowed when required by the authorized integration.
+   Prefer clear ownership to duplicating counterpart functionality in Panels+.
 
-At steps 2–3, changes to Panels+ plus the target are allowed when necessary. Prefer changing one side; modifying both is the last resort. Source-only/target-only here describes the changed code, not knowledge direction. The target becomes writable only in the designated experimental copy/worktree, within the requested task. Do not publish upstream changes without authorization.
+Source/target describes the changed code, not knowledge direction. Stable pins
+remain read-only; the task's rolling source is writable within the requested
+scope. Publishing and Git commits require explicit user instructions.
 
 ## Paths and version conventions
 
 Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`. Test suite directories retain their plugin prefix, e.g. `meguru__v1_7_1`. CLI versions may be dotted (`1.7.1`) and are normalized for lookup.
 
 - Stable pins: `references-repos/plugins/<plugin>/stable/v1_7_1/`.
-- Rolling references: `references-repos/plugins/<plugin>/rolling.koplugin/`; Panels+ rolling source is this project itself. KOReader source is `references-repos/koreader/`.
-- Experimental stable copies: `references-repos/plugins/<plugin>/laboratory/v1_7_1/<experiment>/`.
+- Rolling working sources: `references-repos/plugins/<plugin>/rolling.koplugin/`; Panels+ rolling source is this project itself. KOReader source is `references-repos/koreader/`.
+- Historical experimental stable copies (preserve, do not develop here): `references-repos/plugins/<plugin>/laboratory/v1_7_1/<experiment>/`.
 - Generated builds: `.cache/plugin-compatibility/builds/<plugin>/v1_7_1/<build-id>/<plugin>.koplugin/` (ignored).
 - Stable tests: `tests/plugin-compatibility/<plugin>__v1_7_1/**/*_spec.lua`; multiple pins may coexist.
 - Rolling tests: `tests/plugin-compatibility/<plugin>__rollingrelease/**/*_spec.lua`; one rolling suite per plugin.
@@ -64,11 +96,22 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 
 Canonical directory identifiers: `panels_plus`, `kobo`, `meguru`, `ink-away`. Panels, Panels+, PanelsPlus and panelsplus refer to Panels+ here. Ink Away's metadata identifier is `inkaway`; do not derive its directory identifier from that spelling.
 
-## Sync rolling submodules
+## Updating upstream (only on explicit request)
 
-Use the project-root `run-sync-submodules.sh` when the user requests updating rolling plugin sources or KOReader. With no flags it updates all reference submodules; select one or more with `--kobo`, `--meguru`, `--ink-away`, or `--koreader`. For example, `./run-sync-submodules.sh --meguru --koreader` updates only those two. `--help` lists available selectors.
+Do not update repositories during ordinary development, testing or resumption.
+Keep the existing local base even when newer remote commits are known to exist.
+A final rebase/merge is a separate user-requested step after review; never infer
+permission from a plan to do it eventually.
 
-The script initializes missing submodules and follows each configured remote branch, or remote HEAD when no branch is configured. Nested dependencies stay pinned. It reports commit and file/line changes and stages the selected submodule pointers; review `git diff --cached` before committing. It does not commit automatically. Failures stop the sync and preserve any earlier completed updates. Stable snapshots and laboratory experiments are not refreshed by this tool. Do not run a sync merely to inspect or test the currently pinned rolling version.
+If the user explicitly requests updating rolling sources or KOReader, use the
+project-root `run-sync-submodules.sh` with only the requested selectors, such as
+`--ink-away`, `--meguru`, `--kobo` or `--koreader`. With no flags it selects all
+references, so do not omit selectors for a scoped request. The helper follows
+configured upstream branches and stages selected pointers; it does not commit.
+Inspect and preserve local feature branches, changes and staging before any
+update, and do not run a sync that would overwrite or bypass ongoing work.
+Review any resulting pointer changes without committing them unless requested.
+Stable snapshots and frozen backups are not refreshed by this tool.
 
 ## Verify and record
 
@@ -80,9 +123,9 @@ Pinned stable results determine completion. Still run and report rolling results
 
 Run `./run-tests.sh --compatibility-plugin=<plugin> --compatibility-plugin-version=1.7.1`, then the same command with `rollingrelease`. Omitting the version runs all existing stable suites first and rolling last. A missing requested suite is an error. Each suite runs separately to prevent module/mock state leaking between pins. Read `references/workflow-details.md` for suite context and deployment commands.
 
-Update the relationship matrix with direction, visibility, version range and a link to the plugin history. Record exact tested tuples, detailed steps and outcomes in `history-changes.md`; distinguish upstream stable, laboratory patches and rolling SHAs. Unit tests do not replace the developer's live KOReader validation. Preserve uncertainty and report remaining live checks.
+Update the relationship matrix with direction, visibility, version range and a link to the plugin history. Record exact tested tuples, detailed steps and outcomes in `history-changes.md`; distinguish upstream stable, the rolling base SHA, local feature branch and uncommitted diff. New APIs absent from stable need separate stable-fallback and modified-rolling feature evidence. Unit tests do not replace the developer's live KOReader validation. Preserve uncertainty and report remaining live checks.
 
-Use `tools/plugin-compatibility/deploy.sh` for build/install planning. Select a named laboratory experiment with `--experiment=<name>`. In this project, a user request to build a rolling release also authorizes installing that build: use `--install`, with `--source` for an isolated worktree. Use `--build-only` only when the user explicitly requests an artifact without installation. Read-only planning still previews; stable/laboratory installation requires authorization. Close KOReader before installation, back up outside the plugins directory and stop on local changes or ambiguous identities. Never remove the working project or reference checkout. Do not install a second Panels+ beside this live development copy.
+Use `tools/plugin-compatibility/deploy.sh` for build/install planning. Normal development builds use the canonical rolling checkout. Historical stable/laboratory builds are reproduced only when explicitly requested; a named existing laboratory experiment uses `--experiment=<name>`. In this project, a user request to build a rolling release also authorizes installing that build: use `--install` against the canonical rolling checkout, without selecting a former worktree. Use `--build-only` only when the user explicitly requests an artifact without installation. Read-only planning still previews; stable/laboratory installation requires authorization. Close KOReader before installation, back up outside the plugins directory and stop on local changes or ambiguous identities. Never remove the working project or reference checkout. Do not install a second Panels+ beside this live development copy.
 
 
 ## Required versioned history and restart handoff
@@ -98,17 +141,18 @@ Use the narrative style and required fields in
 [references/history-changes.md](references/history-changes.md). Keep a concise
 **Current state** at the top and dated chronological entries below. Every entry
 must name source/target metadata versions, release/rolling provenance and exact
-revisions or patch identities. Local changes do not invent a new release version.
+base revisions, local branches and working-diff state. Retain historical patch
+identities only for earlier evidence; do not generate new patch files for handoff. Local changes do not invent a new release version.
 Record each step's test method, command/working directory/environment, what was
 real versus mocked, failing-before and passing-after results, skipped/not-rerun
 checks, and live-validation status. Keep material failed approaches and why the
 next check changed; do not replace earlier failures with a final green total.
 
 A reader with no chat history must be able to recover the objective, ownership,
-authorized working copies, behavior/defaults, implementation decisions, patch
-order, current build/install/backup, tests and their limits, and the next action
+authorized working copies, behavior/defaults, implementation decisions, local branch/base and working changes,
+current build/install/backup, tests and their limits, and the next action
 from this file alone. Preserve author notes and historical evidence when
 migrating older logs; mark unknowns instead of inventing dates, SHAs or results.
 Keep `relationships.md` as the cross-plugin index. Rename a legacy per-feature
 backlog to this canonical name and fix its links; counterpart API documentation
-such as a target's `docs/annotation-surfaces.md` remains separate.
+such as a target's `docs/Plugin-integration.md` remains separate.

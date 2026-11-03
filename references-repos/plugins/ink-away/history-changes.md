@@ -5,29 +5,42 @@ state** and **Test and deployment runbook** after `/clear`, then the relevant
 versioned entries. Paths are relative to the Panels+ root unless stated otherwise.
 The chronology preserves the original investigation prose and KristanLaimon's
 notes; old test counts, builds and pending checks belong to their dated entries.
-This migration adds documentation, not a new runtime release or fresh runtime
-validation. Unknown historical facts are marked instead of reconstructed from
-assumptions.
+The chronology includes documentation-only and runtime changes; their validation
+belongs to the corresponding dated entry. Unknown historical facts are marked
+instead of reconstructed from assumptions.
 
-## Current state — as of 2026-11-01
+## Current state — as of 2026-11-02
 
-**Latest outcome:** the Fit beside toolbar arrow-handoff crash was reproduced
-against the exact previous installation and fixed in Ink Away. Corrected build
-`build.1nDooCiZ` is installed. Real KOReader widget tests pass; confirmation from
-live reader use after that last installation is still pending.
+**Latest outcome:** the loading-order handshake is complete and validated in
+`references-repos/plugins/ink-away/rolling.koplugin/`, local branch
+`feature/plugin-integration`, unchanged HEAD/base
+`8dda5407e05446dddb20ba5d6fbac263955d0db3` (entries 17–20). The ready instance and
+per-widget configuration queue support either loading order; composite installs
+are idempotent and return cleanup. Panels+ uses that protocol and preserves
+handoffs. Tests and API/architecture docs are updated in the canonical checkout.
+The former `.cache/.../ink-away-annotation-surfaces/` directory is a **frozen
+backup**. Do not edit/build from it or create new retained patches/worktrees.
+The skill now requires direct rolling development on a local feature branch,
+without commits, staging, remote updates or rebase unless explicitly requested.
+The obsolete generated patch archive has been removed; historical identities
+remain below (entry 21). Stable 4.4.0 remains unchanged. This work is uncommitted and **not installed**;
+the installed target remains `build.1nDooCiZ`. Next: review the working diffs;
+only build/install or integrate upstream when the user requests those actions.
 
 ### Versions, repositories and writable scope
 
 | Component | Version / exact identity | Location and state |
 | --- | --- | --- |
-| Panels+ source | **1.5.1 development**; HEAD `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd` | This live plugin project, `/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin`; branch `feat/ink-away-compatibility`; viewport/runtime/test work is now committed. This documentation migration is uncommitted; no staged changes were present at the final check. Inspect status before editing. |
-| Ink Away target working copy | **4.4.0 patched rolling**; HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10`, based on upstream `8dda5407e05446dddb20ba5d6fbac263955d0db3`, plus the ordered patches below | `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`; branch `feature/annotation-surfaces`; generic follow-ups are uncommitted. This is the authorized writable target. |
+| Panels+ source | **1.5.1 development**; HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d` | This live plugin project, `/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin`; branch `feat/ink-away-compatibility`; the provider registration, integration/native tests, history and patch-archive removal are uncommitted; no source staging was changed by this task. Inspect status before editing. |
+| Ink Away active source | **4.4.0 patched rolling**, HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `feature/plugin-integration` | `references-repos/plugins/ink-away/rolling.koplugin/`; explicitly user-authorized writable checkout. All transferred changes are unstaged/new files; upstream HEAD and submodule pointer unchanged. |
+| Ink Away frozen backup | HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10`, plus refactor/docs/loading-order changes at migration | `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`; preserved byte-for-byte, including user staging and `.foxnvim/pins.json`. Do not use for further development. |
 | Original stable target | **4.4.0** | `references-repos/plugins/ink-away/stable/v4_4_0/`; immutable reference, surface feature absent. |
-| Original rolling target | **4.4.0 metadata**, commit `8dda5407e05446dddb20ba5d6fbac263955d0db3` | `references-repos/plugins/ink-away/rolling.koplugin/`; clean reference, surface feature absent. This is the last pinned/synced upstream identity, not a claim about today's remote HEAD. |
+| Upstream rolling base | **4.4.0 metadata**, commit `8dda5407e05446dddb20ba5d6fbac263955d0db3` | Git HEAD of the now-writable rolling checkout. Historical original-rolling test results refer to this commit without local changes; current default rolling tests use the modified checkout. |
 | KOReader source reference | Commit `035e00b21d0286325ef2e8a7e3b6326f340e2ded` | `references-repos/koreader/`; read-only host reference. |
 | Native test runtime | **v2026.07.1**, Linux x86_64 | `/usr/lib/koreader`; real widgets/blitter/MuPDF tested in isolated scratch homes. This is distinct from the source reference. |
 
-Keep the existing source and target changes. Do not refresh references, recreate
+Keep the existing source and target changes. The ownership table above supersedes
+historical worktree/immutable-rolling instructions below. Do not refresh references, recreate
 the working copy, reapply patches to it, or overwrite staged work just to resume.
 No upstream PR/push is recorded. Earlier user-authorized atomic commits are in
 entry 04; source viewport commit `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd`
@@ -85,36 +98,39 @@ scans have not been established by the synthetic/native tests.
   closing the annotator, both reading flows and page crossings. Record the user's
   actual result in a new entry. Do not infer confirmation from an unrelated reply.
 
-### Retained target patch order
+### Historical change identities (patch files removed)
 
-A fresh writable copy of upstream `8dda5407e05446dddb20ba5d6fbac263955d0db3`
-needs all patches below in order. A copy at `d87e2b097d6345085f9aa3ea0412bef23775ce10`
-already contains the first one. The current working copy contains the full
-stack: **do not apply it again**. Apply/reverse checks and stack reconstruction
-passed when recorded; hashes identify exact retained deltas. Export was also
-verified independently against original rolling source.
+The generated Git patch archive was removed on 2026-11-02 by user request
+(entry 21). This table preserves the original filenames, ordering and hashes as
+provenance; it is not a list of available files or instructions to reapply them.
+The historical base was `8dda5407e05446dddb20ba5d6fbac263955d0db3`; commit
+`d87e2b097d6345085f9aa3ea0412bef23775ce10` already included the first change.
+The dated chronology below retains the actual apply/reconstruction/test results
+from when those artifacts existed. Current source is the uncommitted canonical
+rolling checkout; the former worktree remains a frozen source backup.
 
 | Order | Patch | SHA-256 |
 | --- | --- | --- |
-| 1 | [annotation-surfaces.patch](patches/annotation-surfaces.patch) | `f0c33b7ed9e98043af5051cd06f3cc2d43d9b42bd2af397fd70027b8650845d0` |
-| 2 | [annotation-navigation.patch](patches/annotation-navigation.patch) | `0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735` |
-| 3 | [fixed-page-export.patch](patches/fixed-page-export.patch) | `e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28` |
-| 4 | [prompt-focus.patch](patches/prompt-focus.patch) | `906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3` |
-| 5 | [surface-toolbar.patch](patches/surface-toolbar.patch) | `f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf` |
-| 6 | [surface-viewport.patch](patches/surface-viewport.patch) | `024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e` |
-| 7 | [surface-viewport-reload.patch](patches/surface-viewport-reload.patch) | `2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3` |
+| 1 | `annotation-surfaces.patch` | `f0c33b7ed9e98043af5051cd06f3cc2d43d9b42bd2af397fd70027b8650845d0` |
+| 2 | `annotation-navigation.patch` | `0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735` |
+| 3 | `fixed-page-export.patch` | `e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28` |
+| 4 | `prompt-focus.patch` | `906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3` |
+| 5 | `surface-toolbar.patch` | `f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf` |
+| 6 | `surface-viewport.patch` | `024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e` |
+| 7 | `surface-viewport-reload.patch` | `2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3` |
+| 8 | `annotation-extension-api.patch` | `6238cffd35f77e51be8f55e1f93f3a1f408a1bc318f7f252ceff9e08bb0d63d2` |
 
 ### Latest recorded validation, with its scope
 
 | Check | Last recorded result | What was actually exercised |
 | --- | --- | --- |
-| Original stable / original rolling | **5 / 5 passed**, entry 12 | Fallback/coexistence smoke behavior; neither reference has the surface API. |
-| Patched pair integration | **41 passed**, entry 12 | Actual selected target modules and source camera/geometry; host/UI/raster fixtures. |
-| Panels+ general + Go | **546 passed**, entry 11 | Source regression suite and Go checks; not rerun for target-only entry 12. Python annotator environment was not synced and those tests were skipped. |
-| Target viewport / reader / generic surface | **42 / 236 / 49 passed**, entry 12 | Real target model/editor logic with host fixtures, including unchanged-rectangle widget replacement. |
-| Native whole-widget navigation | **32 cases / 800 checks**, entry 12 | 128 real toolbar arrow callbacks; actual KOReader layout/widgets/blitter and both runtime modules; synthetic document pixels and timer delivery. Old installed artifact fails. |
-| Native toolbar pixels | **160 passed**, entry 11 | Actual blitter and toolbar paint/theme; widget/provider fixtures. Not a full live-layout claim. |
-| Export and prompt regression | See entries 07–08 | Prior native library and focus checks, not newly rerun for entry 12. |
+| Stable fallback / current modified rolling | **5 / 44 passed**, entry 20 | Actual pinned stable fallback; modified canonical rolling integration, including both loading orders and source cleanup. Historical original rolling fallback **5** remains entry 17 evidence. |
+| Local pair integration | **44 passed**, entry 20 | Actual selected target modules and source camera/geometry; host/UI/raster fixtures. |
+| Panels+ general + Go | **546 passed**, entry 17 | Source regression suite and Go checks. Python annotator environment was not synced and those tests were skipped. |
+| Target viewport / reader / generic surface | **43 / 236 / 49 passed**, entry 14 | Real target model/editor logic with host fixtures, including unchanged-rectangle widget replacement. |
+| Native whole-widget navigation | **32 cases / 800 checks**, entry 20 | 128 real toolbar arrow callbacks; actual KOReader layout/widgets/blitter and both runtime modules; synthetic document pixels and timer delivery. Old installed artifact fails. |
+| Native toolbar pixels | **160 passed**, entry 14 | Actual blitter and toolbar paint/theme; widget/provider fixtures. Not a full live-layout claim. |
+| Loading order / API / storage / export | **47 / 30 / 133 / 42 / 21 passed**, entry 20 | Actual Ink Away init/facade/registry/editor with host fixtures. Prior view/dialog **1462**, native toolbar **160** and focus **7** remain entry 14 evidence; not repeated for this handshake. |
 
 ## Test and deployment runbook
 
@@ -125,19 +141,20 @@ failure. Use the exact source/target identities listed in the relevant entry.
 
 ```sh
 PANELSPLUS_ROOT=/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin
-INKAWAY_SOURCE="$PANELSPLUS_ROOT/.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces"
+INKAWAY_SOURCE="$PANELSPLUS_ROOT/references-repos/plugins/ink-away/rolling.koplugin"
 ```
 
 ### A — Source and version-pinned integration
 
-From `$PANELSPLUS_ROOT`, run stable before original rolling, then select the
-modified target explicitly. These are different tested tuples.
+From `$PANELSPLUS_ROOT`, run stable fallback before the modified canonical
+rolling source. Default rolling selection now loads the current local changes.
+Historical original-rolling/worktree results are separate tuples, not current
+source validation.
 
 ```sh
 cd "$PANELSPLUS_ROOT"
 ./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
 ./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
-./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease --compatibility-reference="$INKAWAY_SOURCE"
 ./run-tests.sh --quicker
 ```
 
@@ -157,6 +174,8 @@ cd "$INKAWAY_SOURCE"
 luajit tests/readerview.lua
 luajit tests/annotation_surface.lua
 luajit tests/surface_viewport.lua
+luajit tests/integration.lua
+luajit tests/loading_order.lua
 luajit tests/bookexport.lua
 luajit tests/annots.lua
 ```
@@ -206,11 +225,12 @@ libraries with adapted UI/document registry, not the full live toolbar flow.
 ### E — Build/install and provenance
 
 A rolling build request includes installation unless explicitly artifact-only.
-Check KOReader is closed, then run the helper from the source root:
+No build/install is authorized merely by source changes. When requested, check
+KOReader is closed and run the helper against the canonical rolling source:
 
 ```sh
 cd "$PANELSPLUS_ROOT"
-./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --source="$INKAWAY_SOURCE" --install
+./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install
 ```
 
 Keep backups outside `plugins/`, preserve installer identity/hash checks, and
@@ -253,7 +273,7 @@ sources. The immutable stable pin and upstream rolling reference are unchanged.
   `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`.
   Implementation committed locally as `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
   No upstream publication; live installation is recorded below.
-- Reproducible target patch: [patches/annotation-surfaces.patch](patches/annotation-surfaces.patch).
+- Reproducible target patch: `annotation-surfaces.patch`.
   SHA-256: `f0c33b7ed9e98043af5051cd06f3cc2d43d9b42bd2af397fd70027b8650845d0`.
   `git apply --check` passes against the clean upstream reference above. The
   patch includes new files, the generic interface documentation and its test.
@@ -498,7 +518,7 @@ Ink Away obtains this through optional `readingDirection()` and progress callbac
 on its generic surface contract; it has no Panels+ identifiers or panel logic.
 
 The target delta against `d87e2b097d6345085f9aa3ea0412bef23775ce10` is preserved in
-[patches/annotation-navigation.patch](patches/annotation-navigation.patch), SHA-256
+`annotation-navigation.patch`, SHA-256
 `0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735`.
 Apply it after the original surface patch when reconstructing from upstream.
 The target worktree remains on `feature/annotation-surfaces`, with this follow-up
@@ -538,7 +558,7 @@ The shared fixed-page PDF/PNG path offers Compact and Detailed raster quality,
 independent of editor canvas size, retaining page-by-page streaming and scopes.
 Comic annotations are flattened in the exported PDF; originals stay unchanged.
 
-The independent [export patch](patches/fixed-page-export.patch), SHA-256
+The independent `fixed-page-export.patch`, SHA-256
 `e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28`, applies
 to original upstream rolling without requiring the integration patches. It also
 contains target documentation, host-mock tests and synthetic native archive tests.
@@ -601,7 +621,7 @@ compatibility **34** checks pass. Original stable/rolling fallback checks pass
 **5 each**. Rendering, keyboard display and event delivery remain adapted in the
 new test; live validation is still required.
 
-Retained [focus patch](patches/prompt-focus.patch), SHA-256
+Retained `prompt-focus.patch`, SHA-256
 `906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3`, applies
 after the export patch. Current installation: `build.jOs0emGa`; previous build
 backed up at `~/.config/koreader/.panelsplus-plugin-backups/ink-away.OJO4z7UN/`.
@@ -662,7 +682,7 @@ and ReaderInkView layout/paint/theme, with host widgets/provider/input fixtures.
 Reader **236**, generic-surface **49**, patched compatibility **38** checks pass;
 original stable and rolling fallback suites pass **5 each**.
 
-Retained [toolbar patch](patches/surface-toolbar.patch), SHA-256
+Retained `surface-toolbar.patch`, SHA-256
 `f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf`, follows
 the navigation/export/focus patches. The full retained stack reconstructs the
 current worktree. Installed build: `build.rgY5ggSs`; previous copy backed up at
@@ -706,7 +726,7 @@ are then reloaded. Provider-side preference changes use the same transaction.
 Saved native coordinates and untouched items are retained; local canvas editing
 history is replaced when reloaded, as on a page load.
 
-The [viewport patch](patches/surface-viewport.patch), SHA-256
+The `surface-viewport.patch`, SHA-256
 `024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e`, follows
 the navigation/export/focus/toolbar patches. The full stack reconstructs current
 target source and tests. Stable/original rolling references remain unchanged.
@@ -762,7 +782,7 @@ KO_HOME=/tmp/inkaway-native-viewport ./luajit \
 built artifact. The script uses real KOReader UI/layout/painting; document pixels
 and timer delivery are fixtures. It does not test physical input/refresh behavior.
 
-Retained [reload patch](patches/surface-viewport-reload.patch), SHA-256
+Retained `surface-viewport-reload.patch`, SHA-256
 `2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3`, follows
 the viewport patch. Current installed artifact: `build.1nDooCiZ`; backup:
 `~/.config/koreader/.panelsplus-plugin-backups/ink-away.0MgfotSR/`.
@@ -822,3 +842,365 @@ narrative style, per-entry fields and evidence boundaries.
    This is an observed state update, not a commit made by this documentation task
    or a fresh runtime test result.
 
+
+
+## 2026-11-02 — 14: Explicit extension boundary — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`,
+branch `feat/ink-away-compatibility`; Ink Away worktree HEAD
+`d87e2b097d6345085f9aa3ea0412bef23775ce10`, branch `feature/annotation-surfaces`,
+with the existing seven-patch stack (staged before this task). Original stable
+4.4.0 and rolling `8dda5407e05446dddb20ba5d6fbac263955d0db3` remain immutable.
+Host reference remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+
+User authorized refactoring both working copies while preserving behavior and
+consolidating only the target worktree's docs into FEATURES.md, Arquitecture.md
+and Plugin-integration.md. Preserve unrelated export/focus fixes. No installation
+or publication requested.
+
+### Investigation, tests and outcome by step
+
+1. Read-only review found a generic surface contract, but native behavior remained
+   inline and lifecycle/provider registration were not public abstractions.
+2. Before edits, created and reapplied one backup in each repository. Ink Away
+   stash `12e139c5ef9e34d8bd9b23399f0ef31643776f9c` restored with `--index`.
+   Panels+ was clean; normal stash reported no changes, so recorded its exact
+   clean HEAD/index trees as stash `a039b65dd0fa791cc94234b1b01f1e4e21d23530`
+   and applied it once. Both stash entries are retained. Initial sandbox attempts
+   could not write Git metadata; approved escalation completed the backups.
+3. Extracted the existing native placement/pages/layout implementation into a
+   default viewer adapter. External providers implement the same internal
+   viewer contract. Added widget-owned public registration with duplicate-owner
+   rejection, visibility selection, lifecycle listeners and isolated callbacks.
+   Panels+ registers once and unregisters on close; version-1 discovery remains
+   available to existing consumers. Editor navigation now uses one callback path.
+4. Initial stable-first/original-rolling checks passed **5 / 5**. Existing patched
+   integration passed **41**, then **42** with explicit registered-provider
+   selection and actual Panels+ close/unregister coverage. Initial native widget
+   regression passed **32 cases / 800 checks**. New public API test passed **25**.
+   First storage regression failed because its fixtures bypassed Book.new and
+   injected the old private _doc field; updated those fixtures to construct Book
+   normally and inject the native adapter's placement fixture. Storage **133**
+   then passed. New facade test initially lacked the host Dispatcher module;
+   added an explicit dispatcher fixture (dispatch itself is not exercised).
+   Two early test invocations used the wrong cwd; no dependent files changed
+   in those failed commands. Expanded tests and final native checks in progress.
+5. Consolidated only the target docs directory into unchanged FEATURES.md,
+   Arquitecture.md and Plugin-integration.md. Removed the five added feature/fix
+   documents; consumer contract/viewport details were consolidated, while testing
+   commands moved into tests/README.md. Existing detailed investigation/export
+   evidence remains in this history and the retained historical patches/backups.
+   Existing installed build `build.1nDooCiZ` is unchanged. No live result yet.
+
+6. Final automated results from the source root, runbook A: original stable
+   **5**, original rolling **5**, patched worktree **42**. Full source
+   `./run-tests.sh --quicker`: **546**, Go OCR checks passed; Python tests skipped
+   because that environment is not synced. Target cwd portable commands in B:
+   reader **236**, storage **133**, generic surface **49**, viewport **43**,
+   public integration API **30**, book export **42**, annots **21**, view **1462**
+   passed. The final API checks include failed construction/show without fake
+   events, duplicate owners, independent listeners, selection without discovery,
+   late callbacks, wrong-document handoff and stale-editor ownership. The core
+   and new API/editor use real selected modules; UI/document rendering is mocked.
+7. Runbook C on installed KOReader **v2026.07.1**, Linux x86_64:
+   `KO_HOME=/tmp/inkaway-refactor-native` plus dummy SDL variables, real-widget
+   regression **32 cases / 800 checks** passed. It now registers the actual
+   target facade on the reader UI, exercising explicit provider registration
+   through real Panels+ widgets. Real blitter toolbar **160** and native focus
+   **7** passed. Physical input/refresh and real user comics remain unverified;
+   this task did not repeat native export/large-archive measurements.
+8. Source targeted StyLua and Luacheck **3 files**, target Luacheck **11 files**
+   and both whitespace checks passed. Original stable/rolling reference content
+   and pointers remain unchanged. FEATURES.md and all unrelated export/focus
+   runtime files are byte-identical to the pre-refactor stash. Target formatting
+   retains its existing upstream style; no global formatter ran over references.
+9. Retained patch 8, SHA-256
+   `6238cffd35f77e51be8f55e1f93f3a1f408a1bc318f7f252ceff9e08bb0d63d2`,
+   is the exact delta after the old seven-patch stack. An initial reconstruction
+   using `git archive` omitted tests due to upstream export-ignore attributes;
+   its apply check failed on missing test files, without changing either source.
+   Reconstructing from Git blobs succeeded. All **eight** patches also apply in
+   order to a scratch copy of original rolling source, and reconstruct every
+   tracked/new current target file, including doc deletions. Scratch validation
+   path: `/tmp/inkaway-extension-stack-temk9zmh/`. Do not reapply to the current
+   worktree, which already contains the entire stack.
+10. Final state: backups retained; source edits unstaged; pre-existing target
+    staging preserved with new refactor edits unstaged/untracked. No metadata
+    version bump, commit, push, build or installation. Existing installed build
+    remains `build.1nDooCiZ`. Next review entry 14 and the target's
+    `docs/Arquitecture.md` / `docs/Plugin-integration.md`; after an authorized
+    installation run the existing live checklist. Do not interpret automated
+    test success as physical-reader confirmation.
+
+
+## 2026-11-02 — 15: Architecture diagram — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Same source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`
+and target worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor. User requested an ASCII diagram in the target's `docs/Arquitecture.md`.
+Documentation-only follow-up; existing runtime, staging and installation remain
+unchanged. Added a consumer/public/private diagram showing registration, lifecycle events
+and both viewer adapters. Corrected one initial box-width mismatch; verified
+ASCII-only content, aligned boxes and closed Markdown fences. No runtime tests
+rerun for this documentation-only edit. This follow-up is not included in retained
+patch 8; apply it separately when reproducing the current documentation. The
+runtime patch stack remains unchanged.
+
+
+Entry 15 refinement: at the user's request, replaced the stacked overview with
+a wide side-by-side ASCII diagram. It shows a **generic plugin** outside the
+Ink Away PR scope, its private internals, event subscription/data arrows, viewer
+registration/unregister arrows, and adjacent public API/private core areas with
+the two adaptation scopes. Method names and return semantics match the actual
+API; the diagram does not claim published PRs or generic-consumer test evidence.
+Checked ASCII content, consumer naming, layout bounds and Markdown fences.
+Documentation-only; no runtime tests, staging, build or installation changes.
+
+
+## 2026-11-02 — 16: Consumer API reference — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+target worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor and subsequent documentation edits. User requested REST-reference-style
+documentation for the in-process Lua API: hookup example first, initialization
+timing, all public methods, parameters, results, errors and edge cases.
+
+Read the actual facade, registry, model/editor lifecycle and surface adapters
+before writing. Recommended consumer timing is after obtaining the loaded
+instance and before opening annotation; pre-init registration is supported but
+not required. Rewrote the target reference with a beginning-to-end hookup example, recommended
+initialization order, version/method index, parameter/result/error tables for
+all six documented instance methods (including the existing annotate action),
+and required/optional surface methods. Added a complete affine surface example,
+asynchronous navigation/reflow examples, selection/cleanup edge cases and
+persistence limits. Method names and actual return/error behavior were checked
+against the current source; no HTTP endpoints or invented status codes added.
+
+Verified all **16 Lua snippets compile**, every local link/heading anchor and
+Markdown code fences. Executed the documented hookup and minimal surface in a
+scratch harness: coordinate round-trip, callback hookup, release/unregister/
+unsubscribe ordering, repeated disposal and unavailable/wrong-document guards
+passed. The harness initially loaded its logger fixture after importing the
+example; moved that fixture before import, with no example change required.
+This uses a facade/logger fixture and is documentation-example evidence only,
+not a new plugin compatibility or physical-reader result. Existing runtime
+suites were not rerun for this documentation-only edit. Whitespace checks pass.
+
+No code, staging, build or installation changed. Like entry 15, this documentation
+follow-up is outside retained patch 8. The runtime patch stack and installation
+remain unchanged.
+
+
+## 2026-11-02 — 17: Loading-order handshake — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`,
+Ink Away worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor and entries 15–16's documentation. User authorized the readiness-instance
+handshake, per-widget pending configuration queue and composite integration
+installation/cleanup, including both loading orders. Original pins are unchanged.
+
+KOReader's actual ReaderUI creates each plugin instance before registerModule
+publishes its directory-name UI key. Therefore deferred callbacks must receive
+the ready Ink Away instance directly, rather than looking up that key during init.
+Preserve existing staged user work (including newly staged documentation and
+.foxnvim/pins.json); index snapshots and pre-edit target files are saved under
+`/tmp/inkaway-loading-order-baseline/`. No additional stash was requested or made.
+Implementation and validation completed in the canonical rolling source after
+entry 18 migration; see entry 20 for final results. No installation/publication
+was authorized.
+
+
+## 2026-11-02 — 18: Move active changes to rolling checkout — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+new active target HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `main`,
+at `references-repos/plugins/ink-away/rolling.koplugin/`. Frozen backup HEAD
+`d87e2b097d6345085f9aa3ea0412bef23775ce10`, branch `feature/annotation-surfaces`,
+in `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`.
+
+User explicitly rejected further worktree/patch maintenance and authorized direct
+rolling-checkout edits. This overrides the generic skill's immutable-rolling rule
+for Ink Away. Preserve the old worktree as a backup; no further source changes
+or builds there. Stable release snapshots remain read-only.
+
+1. Verified the rolling checkout was completely clean at the shared upstream
+   base. Transferred the entire current diff, including the committed original
+   surface feature, staged/unstaged changes and untracked loading-order test.
+   Included the user's `.foxnvim/pins.json` exactly as present in the source.
+   Used a transient `/tmp/inkaway-transfer-to-rolling.diff` solely to move bytes;
+   no new retained Git patch or worktree was created. Transfer SHA-256
+   `bb8fddb4cac5537b0b29c9e34d32f425b9590639da0d46f9c490789ad27559d2`.
+2. Compared **509 files**, executable modes and deletions against the backup.
+   All match. Both Git indexes remain unchanged, so original user staging stays
+   in the frozen backup and new rolling changes are unstaged. No commit, branch
+   switch, fetch, submodule-pointer change, build or installation. Frozen bytes
+   manifest: `/tmp/inkaway-backup-frozen-manifest.json`.
+3. Continue entry 17 in the active rolling checkout, including final docs/tests.
+   Default rolling compatibility now exercises modified source. Historical clean
+   rolling results remain historical evidence, not results for the changed tree.
+
+
+## 2026-11-02 — 19: Direct rolling workflow skill — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Same source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`. User clarified
+that no repository update should occur while current work is ongoing and asked
+to make the rolling/local-branch/no-commit rule permanent in the skill.
+
+1. Created local branch `feature/plugin-integration` at the existing target HEAD
+   with all current changes preserved. Git metadata required approved sandbox
+   escalation; no commit, checkout to another revision, fetch, pull, sync, merge,
+   rebase or push occurred. Future upstream integration needs an explicit request.
+2. Used skill-creator guidance to update the cross-plugin skill and its workflow
+   and history references. Target development always uses canonical rolling on a
+   local feature branch; default worktrees, new laboratory copies and retained
+   patch artifacts are removed. Existing backups remain intact. Builds/tests use
+   canonical rolling, stable pins remain immutable and local changes/staging must
+   be preserved. Branch creation does not authorize commits or remote updates.
+3. The bundled quick validator still cannot import PyYAML. Direct checks passed
+   for this skill's simple frontmatter, linked references and consistent ownership/
+   Git rules. No dependencies were installed. Existing user Git staging unchanged.
+
+## 2026-11-02 — 20: Handshake validation and handoff — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`
+on `feat/ink-away-compatibility`, uncommitted consumer/test/history changes. Active
+target HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3` on local branch
+`feature/plugin-integration`, uncommitted transferred/refactored source and the
+new handshake. Host reference `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; native
+runtime **v2026.07.1**, Linux x86_64. No metadata version bump.
+
+The ready instance is `ui.inkAwayIntegrationAPI`. Before readiness, consumers put
+independent `configure(ink)` requests in `ui.inkAwayPendingIntegrations[widget]`.
+Ink Away publishes only after its reader setup is usable, drains/cancels safely
+and isolates failures. Newly created composite installs are rolled back when a
+configuration throws. Reader shutdown unpublishes and disposes consumer state.
+`installPluginIntegration(widget, surface, options)` supplies one idempotent
+provider/scoped-listener cleanup. Repeated same-widget/surface configuration
+retains the original callbacks; a different surface requires prior cleanup.
+`cleanup(false)` supports outgoing navigation handoffs without closing the
+landing session. The low-level APIs and old discovery path stay compatible.
+
+Panels+ queues setup from its viewer lifecycle, accepts the ready instance before
+the directory key exists, removes pending setup when closed, and uses composite
+cleanup while preserving in-flight handoffs. The new docs quick start can be used
+in either order and cancels even when Ink Away never loads. Architecture and API
+method/state/return/error references reflect the implemented behavior.
+
+### Investigation, tests and outcome by step
+
+1. Target `luajit tests/loading_order.lua` loads real Ink Away init, Book, public
+   facade/registry/editor, with explicit host menu, pen/shelf, framebuffer/widget
+   fixtures. **47 checks passed**: both orders, missing directory-key publication,
+   multiple consumers, cancellation before/during drain, failed callback rollback,
+   failed init without readiness, shutdown during drain, duplicate setup, cleanup
+   and reinstallation. Against the pre-handshake modules saved in
+   `/tmp/inkaway-loading-order-baseline`, the same test fails at
+   `consumer-first: hookup completed`, establishing the missing behavior.
+2. An early source edit left a trailing fragment of its previous registration
+   lambda. Targeted StyLua and stable test loading caught the syntax error before
+   execution; fixed the edit boundary and reran successfully. Source lint later
+   caught a shadowed local pending variable; renamed it. No reference formatting
+   or runtime adjustment was used to suppress those checks.
+3. Stable-first compatibility command from runbook A: **5 passed**. Before the
+   migration, original clean rolling fallback **5** and modified-worktree **44**
+   passed. After migration, normal `rollingrelease` selection against canonical
+   rolling **44 passed**, including actual Panels+ setup without directory-key
+   lookup, both orders and cancellation on source close. These use real selected
+   target/source modules with host/document/raster fixtures; not full loader or
+   physical-reader evidence.
+4. Target cwd runbook B: loading order **47**, existing public API **30**, generic
+   surface **49**, viewport **43**, reader **236**, storage **133**, book export
+   **42**, annots **21** passed. Source `./run-tests.sh --quicker`: **546 passed**
+   and Go OCR passed; Python skipped because its environment is not synced.
+   Unrelated target view/native-export benchmarks were not repeated.
+5. Native runbook C selected the canonical rolling directory, with
+   `KO_HOME=/tmp/inkaway-loading-native` and dummy SDL drivers: **32 cases /
+   800 checks passed**, all toolbar sides, reading directions, eased/Classic
+   transitions and Tight/Margin crops. Actual KOReader layout/widgets/blitter and
+   both runtime modules execute; source bitmaps and timer delivery are synthetic.
+6. Source targeted StyLua/Luacheck and target handshake/facade/test Luacheck pass;
+   whitespace checks pass. All **17 API Lua examples compile**, internal links/
+   anchors/fences validate. Executed the documented hookup and affine surface
+   against actual Ink Away init/API in both orders, with the host fixtures from
+   the 47-check suite: no directory-name key required, cancellation works.
+7. No new retained patch, worktree, build or installation. Existing frozen backup
+   remains at its migration snapshot; original stash backups stay retained. Git
+   base and user staging are preserved. Next: review canonical rolling diffs and
+   the updated skill/docs. A build/install and eventual upstream rebase remain
+   separate explicit user actions; live input/refresh confirmation remains open.
+
+
+Final entry 20 audit: canonical HEAD remains `8dda5407e05446dddb20ba5d6fbac263955d0db3`,
+branch `feature/plugin-integration`; canonical index has no staged changes and
+the parent gitlink was not staged/updated. Frozen backup payload and its original
+index match the migration manifest exactly. Root-level unrelated staged additions
+(CODE_OF_CONDUCT.md, SECURITY.md) and README.nightly.md deletion appeared during
+the session; preserved as observed, without staging/resetting them. An initial
+audit comparing the entire root index to its earlier snapshot stopped on that
+concurrent staging difference; no source changes were rolled back. Final checks
+verify ownership/base/backup independently of those unrelated edits. Wide diagram
+alignment, documentation links/fences and both whitespace checks pass.
+
+
+## 2026-11-02 — 21: Remove obsolete integration patch archives — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch
+`feature/plugin-integration`. User explicitly authorized removing generated
+integration patch archives now that development uses canonical rolling diffs.
+
+Inventory found one such archive: Ink Away's eight `.patch` files. Their exact
+filenames/hashes are preserved in the historical change-identity table above,
+with original base commits, scope and test evidence in the dated entries. Kobo's
+nested stable/rolling `patches/` contain shipped Lua code included by the existing
+builder; those are plugin runtime inputs and remain unchanged. The frozen Ink
+Away worktree remains a backup.
+
+Removed all eight generated artifacts and the empty Ink Away `patches/` folder.
+Converted artifact links in this history and relationships.md to historical
+filename identifiers, preserving all eight hashes and original revision/test
+records. Updated the skill and history reference to keep provenance in the
+history instead of requiring patch archives; retained the frozen-worktree rule
+and distinguished shipped runtime patch code.
+
+Validation: no top-level plugin integration archives remain; all relevant
+Markdown file links and code fences resolve; all eight removed identities remain
+in the history; whitespace check passes. Compared pre/post Git HEADs/indexes and
+all tracked/new active target and frozen backup file hashes: unchanged. Kobo's
+three Lua runtime patch files remain in each stable/rolling location. No runtime
+suite rerun because only obsolete artifacts/docs/skill instructions changed.
+No staging, commit, remote update, source change, build or installation.
+
+
+## 2026-11-02 — 22: Separate mock consumer entry points — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, local branch
+`feature/plugin-integration`, existing uncommitted integration changes. User
+requested replacing the long opening Markdown helper with two separate examples
+beside the document: `main-connect-before.lua` and `main-connect-after.lua`.
+Both must be illustrative mocks of YourPlugin, not functional/installable
+plugins. Show coherent real API calls, event handling, painting, annotation
+opening and cleanup; link/explain both files from Plugin-integration.md.
+Added both illustrative files directly under the active target's `docs/`,
+using a mock `YourPlugin` table with clearly omitted viewer/surface rendering.
+The before-ready case queues a cancellable configure callback and uses composite
+installation/scoped callbacks. The after-ready case uses explicit registration,
+reader-wide event filtering and release/unregister/unsubscribe ordering. Both
+show annotation action, background-first saved-ink painting, status changes,
+error handling, repeated-setup guards and close lifecycle. No mock is loaded by
+Ink Away or added to a runtime/test runner.
+
+Replaced the opening inline helper with links, scenario comparison and lifecycle
+walkthroughs. Clarified that composite versus manual ownership is independent
+of loading order, and that the init arguments/methods are mock YourPlugin
+interfaces. Updated stale helper references elsewhere in the API reference.
+
+Validation: both Lua mock files and remaining inline snippets compile;
+Luacheck passes for both files with zero warnings. Markdown links, local anchors,
+code fences and whitespace checks pass; the old connectInkAway helper is gone.
+One initial edit command used the wrong cwd and changed nothing; corrected it,
+then addressed the unused mock arguments found by lint. No runtime suite rerun
+or functionality claim for these nonfunctional examples. Runtime sources,
+installation, staging and Git base remain unchanged; no commit/remote update.
