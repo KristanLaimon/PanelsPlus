@@ -18,6 +18,7 @@ local RenderImage = require("ui/renderimage")
 local Screen = require("device").screen
 local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
+local PanelViewport = require("src._panelviewport")
 local PageRender = require("src._pagerender")
 local logger = require("logger")
 
@@ -27,6 +28,43 @@ local NAV_TRANSITION_MAX_AREA_MULTIPLIER = Constants.NAV_TRANSITION_MAX_AREA_MUL
 local NAV_TRANSITION_MIN_FREE_BYTES = Constants.NAV_TRANSITION_MIN_FREE_BYTES
 
 return function(PanelViewer)
+    local function transitionAnnotations(image, page, rect, clips)
+        local transition = { image = image, page = page, rect = rect }
+        if clips then
+            transition.regions = {}
+            for _, clip in ipairs(clips) do
+                transition.regions[#transition.regions + 1] = { page = page, rect = rect, clip = clip }
+            end
+        end
+        return transition
+    end
+
+    local function maskTransitionSource(source, union, clips, background)
+        local masked
+        local ok, result = pcall(function()
+            local w, h = source:getWidth(), source:getHeight()
+            masked = Blitbuffer.new(w, h, source:getType())
+            masked:fill(background)
+            for _, r in ipairs(clips) do
+                local x0 = math.max(0, math.floor((r.x - union.x) * w / union.w))
+                local y0 = math.max(0, math.floor((r.y - union.y) * h / union.h))
+                local x1 = math.min(w, math.ceil((r.x + r.w - union.x) * w / union.w))
+                local y1 = math.min(h, math.ceil((r.y + r.h - union.y) * h / union.h))
+                if x1 > x0 and y1 > y0 then
+                    masked:blitFrom(source, x0, y0, x0, y0, x1 - x0, y1 - y0)
+                end
+            end
+            return masked
+        end)
+        if not ok then
+            if masked then
+                masked:free()
+            end
+            return nil
+        end
+        return result
+    end
+
     --- Return the KOReader canvas-fit zoom for a native-page rectangle.
     ---
     --- Mirrors `Document:drawPagePart()`'s own (non-rotated) best-fit formula, so
@@ -40,6 +78,7 @@ return function(PanelViewer)
 
     --- Complete a navigation handoff before notifying a settings preview.
     function PanelViewer:completeNavTransition(target, on_complete)
+        self._annotation_transition = nil
         self:switchToImageNum(target)
         if on_complete then
             on_complete()
@@ -81,6 +120,7 @@ return function(PanelViewer)
         Timing.memory("smooth_transition")
 
         local union = Geometry.rectUnion(rect_a, rect_b)
+        local clips = self.crop_mode ~= "none" and PanelViewport.transitionClips(rect_a, rect_b) or nil
         -- Margin mode does not alter `rect_b`; it renders the same pixels inside a
         -- smaller viewport. Match that smaller destination scale here as well, or
         -- ImageWidget clamps the camera to the full-size canvas and the animation
@@ -138,7 +178,8 @@ return function(PanelViewer)
         local transition_pixels = use_viewport_frames and screen_area * 4
             or canvas_w * canvas_h
                 + math.ceil(canvas_w * target_zoom / zoom_union) * math.ceil(canvas_h * target_zoom / zoom_union)
-        local transition_bytes = (source_pixels + transition_pixels) * 4 + 2 * 1024 * 1024
+        -- Cropped modes briefly hold both the rendered union and its masked copy.
+        local transition_bytes = (source_pixels * (clips and 2 or 1) + transition_pixels) * 4 + 2 * 1024 * 1024
         if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, transition_bytes) then
             Timing.log("animateSwitchToImageNum: transition working set is too large, falling back to instant swap")
             return self:completeNavTransition(target, on_complete)
@@ -157,6 +198,17 @@ return function(PanelViewer)
             return self:completeNavTransition(target, on_complete)
         end
 
+        if clips then
+            local masked = maskTransitionSource(content_image, union, clips, PageRender.getBackground(self.reader_ui))
+            if content_image_owned then
+                content_image:free()
+            end
+            if not masked then
+                return self:completeNavTransition(target, on_complete)
+            end
+            content_image, content_image_owned = masked, true
+        end
+
         if use_viewport_frames then
             return self:runNavViewportAnimation(
                 target,
@@ -170,13 +222,14 @@ return function(PanelViewer)
                 by,
                 target_zoom,
                 target_margin_factor,
-                on_complete
+                on_complete,
+                clips
             )
         end
 
         local scale = target_zoom / zoom_union -- applied once, below, via self.scale_factor
 
-        local canvas
+        local canvas, annotation_rect
         local ok_canvas, canvas_image = pcall(function()
             canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
             canvas:fill(PageRender.getBackground(self.reader_ui))
@@ -190,6 +243,15 @@ return function(PanelViewer)
             if blit_w > 0 and blit_h > 0 then
                 canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
+            annotation_rect = PanelViewport.canvasRect(
+                union,
+                content_image:getWidth(),
+                content_image:getHeight(),
+                canvas_w,
+                canvas_h,
+                paste_x,
+                paste_y
+            )
             return canvas
         end)
         if content_image_owned and content_image and content_image.free then
@@ -210,6 +272,7 @@ return function(PanelViewer)
         self._panels_plus_transition_active = true
         local old_image = self.image
         self.image = canvas_image
+        self._annotation_transition = transitionAnnotations(canvas_image, self.page, annotation_rect, clips)
         self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
         self.scale_factor = scale
         self._panels_plus_transition_margin_factor = target_margin_factor
@@ -238,7 +301,8 @@ return function(PanelViewer)
         by,
         target_zoom,
         margin_factor,
-        on_complete
+        on_complete,
+        clips
     )
         -- Document tiles belong to DocCache and can be evicted by an idle render
         -- between animation ticks. Retain our own pixels until the pan completes.
@@ -309,6 +373,12 @@ return function(PanelViewer)
             end
             local old_image = self.image
             self.image = frame
+            self._annotation_transition = transitionAnnotations(
+                frame,
+                self.page,
+                PanelViewport.canvasRect(union, source:getWidth(), source:getHeight(), crop_w, crop_h, -left, -top),
+                clips
+            )
             self._center_x_ratio, self._center_y_ratio = 0.5, 0.5
             self.scale_factor = 1
             self._panels_plus_transition_margin_factor = frame_margin
@@ -332,6 +402,9 @@ return function(PanelViewer)
                 self._panels_plus_transition_cleanup = nil
                 self._panels_plus_transition_active = nil
                 self._panels_plus_transition_margin_factor = nil
+                if self._panels_plus_closed or not self:isOpen() then
+                    self._annotation_transition = nil
+                end
                 return
             end
             step = step + 1
@@ -384,6 +457,9 @@ return function(PanelViewer)
             self._panels_plus_transition_action = nil
             if not self._panels_plus_transition_active or self._panels_plus_closed or not self:isOpen() then
                 self._panels_plus_transition_active = nil
+                if self._panels_plus_closed or not self:isOpen() then
+                    self._annotation_transition = nil
+                end
                 return
             end
             step_n = step_n + 1
@@ -394,6 +470,7 @@ return function(PanelViewer)
                 desired_y = start_offset_y + (target_offset_y - start_offset_y) * progress
             end
             self:panBy(desired_x - self._image_wg._offset_x, desired_y - self._image_wg._offset_y)
+            self:notifyAnnotationNavigationFrame()
             if step_n < steps then
                 self._panels_plus_transition_action = walkStep
                 UIManager:scheduleIn(step_delay, walkStep)
@@ -587,8 +664,9 @@ return function(PanelViewer)
         local viewport_w, viewport_h = Screen:getWidth(), Screen:getHeight()
         local half_w_a = math.max(viewport_w / 2, tile_a_scaled:getWidth() / 2)
         local half_h_a = math.max(viewport_h / 2, tile_a_scaled:getHeight() / 2)
-        local half_w_b = math.max(viewport_w / 2, tile_b:getWidth() / 2)
-        local half_h_b = math.max(viewport_h / 2, tile_b:getHeight() / 2)
+        local target_pixel_w, target_pixel_h = tile_b:getWidth(), tile_b:getHeight()
+        local half_w_b = math.max(viewport_w / 2, target_pixel_w / 2)
+        local half_h_b = math.max(viewport_h / 2, target_pixel_h / 2)
 
         local canvas_w = math.max(1, math.ceil(2 * half_w_a + 2 * half_w_b))
         local canvas_h = math.max(1, math.ceil(math.max(2 * half_h_a, 2 * half_h_b)))
@@ -608,7 +686,7 @@ return function(PanelViewer)
         local a_left = travel_west and (2 * half_w_b) or 0
         local b_left = travel_west and 0 or (2 * half_w_a)
 
-        local canvas
+        local canvas, annotation_regions
         local ok_canvas, canvas_image = pcall(function()
             canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
             canvas:fill(PageRender.getBackground(self.reader_ui))
@@ -626,6 +704,38 @@ return function(PanelViewer)
             if b_w > 0 and b_h > 0 then
                 canvas:blitFrom(tile_b, b_x, b_y, 0, 0, b_w, b_h)
             end
+            local canvas_rects_a = self._images_list and self._images_list.canvas_rects
+            local canvas_rects_b = resolved.next_images and resolved.next_images.canvas_rects
+            local native_a = (canvas_rects_a and canvas_rects_a[self._images_list_cur]) or rect_a
+            local native_b = (canvas_rects_b and canvas_rects_b[resolved.start_idx]) or rect_b
+            annotation_regions = {
+                {
+                    page = self.page,
+                    clip = native_a,
+                    rect = PanelViewport.canvasRect(
+                        native_a,
+                        tile_a_scaled:getWidth(),
+                        tile_a_scaled:getHeight(),
+                        canvas_w,
+                        canvas_h,
+                        a_x,
+                        a_y
+                    ),
+                },
+                {
+                    page = resolved.next_page,
+                    clip = native_b,
+                    rect = PanelViewport.canvasRect(
+                        native_b,
+                        tile_b:getWidth(),
+                        tile_b:getHeight(),
+                        canvas_w,
+                        canvas_h,
+                        b_x,
+                        b_y
+                    ),
+                },
+            }
             return canvas
         end)
         if tile_a_scaled ~= tile_a and tile_a_scaled.free then
@@ -657,11 +767,13 @@ return function(PanelViewer)
             end
         end
         self.image = canvas_image
+        self._annotation_transition = { image = canvas_image, regions = annotation_regions }
         self._center_x_ratio, self._center_y_ratio = ratio_ax, ratio_ay
-        -- Both slices already share target_zoom. Scale the whole canvas once to
-        -- match the landing panel's margin framing; otherwise the camera shows a
-        -- full-size slice and snaps to its smaller margin-sized destination.
-        self.scale_factor = target_margin_factor
+        -- Fit the landing tile's actual pixels, including No crop padding, into
+        -- the available viewport. Toolbar space and margins must match the final
+        -- stationary panel instead of snapping back to screen-sized framing.
+        local available_w, available_h = self:getPanelViewportSize()
+        self.scale_factor = target_margin_factor * math.min(available_w / target_pixel_w, available_h / target_pixel_h)
         self._panels_plus_transition_margin_factor = target_margin_factor
         self:update()
         if self.image_disposable and not preview_complete then
@@ -679,6 +791,7 @@ return function(PanelViewer)
                     self:runNavPanAnimation(ratio_ax, ratio_ay, function()
                         self._panels_plus_transition_cleanup = nil
                         self.image = old_image
+                        self._annotation_transition = nil
                         self._center_x_ratio, self._center_y_ratio = old_x, old_y
                         self.scale_factor = old_scale
                         self._panels_plus_transition_margin_factor = old_margin
@@ -694,6 +807,7 @@ return function(PanelViewer)
                 return
             end
             self._panels_plus_transition_margin_factor = nil
+            self._annotation_transition = nil
             if self.nav_boundary_commit_callback then
                 self.nav_boundary_commit_callback(self, direction, resolved)
             end

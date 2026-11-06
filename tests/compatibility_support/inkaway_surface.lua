@@ -1123,7 +1123,7 @@ return function(reference)
                     ui["ink-away"] = nil
                     local surface = viewer:getAnnotationSurface()
                     if consumer_first then
-                        check.equals(viewer._annotation_configure, ui.inkAwayPendingIntegrations[viewer])
+                        check.is_true(ui.inkAwayPendingIntegrations[viewer])
                         book.extensions:publish(ui, ink)
                     end
                     check.equals(ink, viewer._annotation_provider_ink)
