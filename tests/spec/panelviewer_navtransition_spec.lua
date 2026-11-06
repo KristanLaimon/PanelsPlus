@@ -182,6 +182,9 @@ describe("PanelViewer smooth pan and zoom navigation", function()
     local PageRender = require("src._pagerender")
 
     local function withTransition(options, check)
+        local screen = require("device").screen
+        local old_night_mode = screen.night_mode
+        screen.night_mode = options.night_mode
         local old_draw = PageRender.drawPagePart
         local old_new = Blitbuffer.new
         local old_scale = RenderImage.scaleBlitBuffer
@@ -199,6 +202,9 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             end
             bb.free = function(self)
                 self.frees = (self.frees or 0) + 1
+            end
+            bb.fill = function(self, color)
+                self.background = color
             end
             bb.blitFrom = function(_, _, _, _, sx, sy, bw, bh)
                 blits[#blits + 1] = { sx = sx, sy = sy, w = bw, h = bh }
@@ -224,6 +230,7 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             return not options.low_memory and (not options.free_bytes or options.free_bytes >= minimum + allocation)
         end
         local viewer = PanelViewer:new({
+            reader_ui = { document = { configurable = { nightmode_document = options.invert_document } } },
             _images_list_cur = 1,
             image_rects = options.rects or {
                 { x = 0, y = 0, w = 600, h = 800 },
@@ -279,10 +286,47 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         RenderImage.scaleBlitBuffer = old_scale
         Memory.hasHeadroom = old_headroom
         Memory.hasAllocationHeadroom = old_allocation
+        screen.night_mode = old_night_mode
         if not ok then
             error(err)
         end
     end
+
+    it("keeps Smooth padding dark when document colors are preserved in night mode", function()
+        for _, style in ipairs({ "linear", "classic", "boundary" }) do
+            for _, night_mode in ipairs({ false, true }) do
+                for _, invert_document in ipairs({ 0, 1 }) do
+                    withTransition({
+                        style = style,
+                        night_mode = night_mode,
+                        invert_document = invert_document,
+                        cached_source = style == "boundary",
+                        rects = { { x = 0, y = 0, w = 300, h = 400 }, { x = 300, y = 0, w = 300, h = 400 } },
+                    }, function(viewer, buffers)
+                        if style == "boundary" then
+                            viewer.page = 1
+                            viewer.nav_boundary_peek_callback = function()
+                                return { next_page = 2, target_rect = viewer.image_rects[2] }
+                            end
+                            viewer:animateBoundaryTransition("next")
+                        else
+                            viewer:animateSwitchToImageNum(2)
+                        end
+                        local fills = 0
+                        for _, buffer in ipairs(buffers) do
+                            if buffer.background ~= nil then
+                                fills = fills + 1
+                                local expected = night_mode and invert_document == 1 and Blitbuffer.COLOR_BLACK
+                                    or Blitbuffer.COLOR_WHITE
+                                assert.equals(expected, buffer.background)
+                            end
+                        end
+                        assert.is_true(fills > 0)
+                    end)
+                end
+            end
+        end
+    end)
 
     it("animates a tiny destination with screen-sized frames and releases its source", function()
         withTransition({}, function(viewer, buffers, frames, blits, source)

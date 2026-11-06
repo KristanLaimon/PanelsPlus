@@ -89,7 +89,7 @@ end
 ---
 --- Centers the panel's width (`rect.w`) to fill the screen width (`Screen:getWidth()`),
 --- and centers its height vertically in the screen. Any region outside the document
---- page boundaries is filled with a white background.
+--- page boundaries follows the viewer background.
 ---
 --- @param ui table KOReader reader UI object.
 --- @param page number Document page number.
@@ -124,7 +124,7 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
     local image_func = function()
         if viewport.union_w <= 0 or viewport.union_h <= 0 then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
-            canvas:fill(Blitbuffer.COLOR_WHITE)
+            canvas:fill(PageRender.getBackground(ui))
             return canvas
         end
 
@@ -132,7 +132,7 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
         images.rotated = rotate
         if not content_image then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
-            canvas:fill(Blitbuffer.COLOR_WHITE)
+            canvas:fill(PageRender.getBackground(ui))
             return canvas
         end
 
@@ -141,7 +141,7 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
         local canvas
         local ok = pcall(function()
             canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
-            canvas:fill(Blitbuffer.COLOR_WHITE)
+            canvas:fill(PageRender.getBackground(ui))
 
             local paste_x = math.max(0, math.floor((viewport.union_x - viewport.box_x) * viewport.scale + 0.5))
             local paste_y = math.max(0, math.floor((viewport.union_y - viewport.box_y) * viewport.scale + 0.5))
@@ -324,6 +324,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
                 images.rotated = rotate
                 local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
                 if fold_opts then
+                    fold_opts.background = PageRender.getBackground(ui)
                     -- The joined bitmap is a new buffer, so it replaces the copy. A
                     -- bitmap that cannot be read or joined is shown as it is.
                     local ok, joined, fold = pcall(FoldJoin.joinBitmap, image, fold_opts)

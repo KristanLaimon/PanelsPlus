@@ -117,3 +117,62 @@ describe("PanelViewer:paintHighlights anomalous box guard", function()
         assert.is_not_nil(viewer.reader_ui.view.highlight.temp[1], "reader-owned selection is left to KOReader")
     end)
 end)
+
+describe("PanelViewer document inversion", function()
+    for _, night_mode in ipairs({ false, true }) do
+        for _, setting in ipairs({ "no document", "unset", 0, 1 }) do
+            it(
+                "matches document inversion with night mode "
+                    .. tostring(night_mode)
+                    .. " and setting "
+                    .. tostring(setting),
+                function()
+                    local viewer, bb, invert_spy = newViewerAndBB()
+                    viewer._image_wg.dimen = { x = 10, y = 20, w = 300, h = 400 }
+                    if setting ~= "no document" then
+                        viewer.reader_ui.document = { configurable = {} }
+                        if type(setting) == "number" then
+                            viewer.reader_ui.document.configurable.nightmode_document = setting
+                        end
+                    end
+                    local screen = require("device").screen
+                    local old_night_mode = screen.night_mode
+                    screen.night_mode = night_mode
+                    viewer:paintTo(bb, 0, 0)
+                    screen.night_mode = old_night_mode
+
+                    assert.is_false(viewer._image_wg.original_in_nightmode)
+                    local expected = night_mode and setting == 1 and 1 or 0
+                    assert.equals(expected, invert_spy:callCount())
+                    if expected == 1 then
+                        local call = invert_spy:lastCall()
+                        assert.equals(10, call[2])
+                        assert.equals(20, call[3])
+                        assert.equals(300, call[4])
+                        assert.equals(400, call[5])
+                    end
+                end
+            )
+        end
+    end
+
+    it("preserves only image pixels inside a letterboxed viewport", function()
+        local viewer, bb, invert_spy = newViewerAndBB()
+        viewer.reader_ui.document = { configurable = { nightmode_document = 1 } }
+        viewer._image_wg.dimen = { x = 10, y = 20, w = 600, h = 800 }
+        viewer._image_wg._offset_x = -150
+        viewer._image_wg._offset_y = -200
+        local screen = require("device").screen
+        local old_night_mode = screen.night_mode
+        screen.night_mode = true
+        viewer:paintTo(bb, 0, 0)
+        screen.night_mode = old_night_mode
+
+        assert.equals(1, invert_spy:callCount())
+        local call = invert_spy:lastCall()
+        assert.equals(160, call[2])
+        assert.equals(220, call[3])
+        assert.equals(300, call[4])
+        assert.equals(400, call[5])
+    end)
+end)

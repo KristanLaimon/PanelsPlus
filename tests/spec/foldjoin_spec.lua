@@ -189,6 +189,42 @@ describe("Fold join in the panel collector", function()
         assert.is_not_nil(images.folds[1])
     end)
 
+    it("keeps padding outside loose and no-crop page images dark in night mode", function()
+        local Blitbuffer = require("ffi/blitbuffer")
+        local screen = require("device").screen
+        local old_new, old_night_mode = Blitbuffer.new, screen.night_mode
+        Blitbuffer.new = function(...)
+            local bb = old_new(...)
+            bb.fill = function(self, color)
+                self.background = color
+            end
+            return bb
+        end
+        local ok, err = pcall(function()
+            for _, mode in ipairs({ "loose", "none" }) do
+                for _, night_mode in ipairs({ false, true }) do
+                    for _, invert_document in ipairs({ 0, 1 }) do
+                        screen.night_mode = night_mode
+                        local document = spreadDocument()
+                        document.configurable = { nightmode_document = invert_document }
+                        local images = PanelCollector.buildImages(
+                            { document = document },
+                            1,
+                            { { x = 0, y = 0, w = 1600, h = 1000 } },
+                            Settings.withDefaults({ crop_mode = mode, auto_rotate_double_pages = false })
+                        )
+                        local image = images[1]()
+                        local expected = night_mode and invert_document == 1 and Blitbuffer.COLOR_BLACK
+                            or Blitbuffer.COLOR_WHITE
+                        assert.equals(expected, image.background)
+                    end
+                end
+            end
+        end)
+        Blitbuffer.new, screen.night_mode = old_new, old_night_mode
+        assert.is_true(ok, tostring(err))
+    end)
+
     it("joins a panel that crosses the fold, looking where the fold is in that panel", function()
         local document = spreadDocument()
         -- The panel starts at x=400 of a 1600 wide page, so the fold (x=800) is at 40% of it.

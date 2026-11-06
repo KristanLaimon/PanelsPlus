@@ -14,6 +14,7 @@ local Event = require("ui/event")
 local Geometry = require("src._smartgeometry")
 local DoubleSpread = require("src._doublespread")
 local PanelViewport = require("src._panelviewport")
+local PageRender = require("src._pagerender")
 local PanelViewer = require("src._panelviewer")
 local RenderImage = require("ui/renderimage")
 local NativeDetector = require("src._nativedetector")
@@ -105,9 +106,9 @@ end
 
 --- Render an extracted image using the shared no-crop panel viewport. This
 --- matches the fixed-layout behavior: the selected panel is centred in a
---- screen-aspect canvas, with white padding only where that viewport reaches
+--- screen-aspect canvas, with background padding only where that viewport reaches
 --- beyond the image edge.
-local function buildNoCropImage(source, rect, source_size)
+local function buildNoCropImage(source, rect, source_size, ui)
     local viewport = PanelViewport.noCrop(rect, source_size)
     if not viewport then
         return function()
@@ -125,7 +126,7 @@ local function buildNoCropImage(source, rect, source_size)
     return function()
         if viewport.union_w <= 0 or viewport.union_h <= 0 then
             local canvas = Blitbuffer.new(screen_w, screen_h, source:getType())
-            canvas:fill(Blitbuffer.COLOR_WHITE)
+            canvas:fill(PageRender.getBackground(ui))
             return canvas
         end
 
@@ -139,7 +140,7 @@ local function buildNoCropImage(source, rect, source_size)
             local scaled_h = math.max(1, math.floor(viewport.union_h * viewport.scale + 0.5))
             content = RenderImage:scaleBlitBuffer(content, scaled_w, scaled_h, true)
             canvas = Blitbuffer.new(screen_w, screen_h, content:getType())
-            canvas:fill(Blitbuffer.COLOR_WHITE)
+            canvas:fill(PageRender.getBackground(ui))
             local paste_x = math.max(0, math.floor((viewport.union_x - viewport.box_x) * viewport.scale + 0.5))
             local paste_y = math.max(0, math.floor((viewport.union_y - viewport.box_y) * viewport.scale + 0.5))
             local blit_w = math.min(content:getWidth(), screen_w - paste_x)
@@ -294,7 +295,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
             and self.settings.image_rotation == nil
             and DoubleSpread.shouldRotate(panel, is_full_page, #panels == 1)
         if self.settings.crop_mode == "none" and not direct_spread then
-            local image_func, viewport_rect = buildNoCropImage(image, panel, { w = width, h = height })
+            local image_func, viewport_rect = buildNoCropImage(image, panel, { w = width, h = height }, self.ui)
             image_rects[#image_rects] = viewport_rect
             table.insert(images, image_func)
         else

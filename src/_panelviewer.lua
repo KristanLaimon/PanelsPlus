@@ -1210,36 +1210,22 @@ function PanelViewer:paintHighlights(bb, x, y)
     end
 end
 
---- KOReader's night mode is a single global invert applied to the whole
---- framebuffer at flush time (`Screen:toggleNightMode()`), not something
---- each widget opts into -- that's why plain chrome (button table, frame
---- background, progress bar) needs no dark-mode-aware colors of its own to
---- look right: it gets inverted for free along with everything else on
---- screen. `ImageWidget` defaults `original_in_nightmode = true` specifically
---- to *cancel* that global invert for actual image content, so a manga scan
---- keeps its real colors instead of rendering as a photo negative.
----
---- This used to invert `main_frame.dimen` here manually, on the belief that
---- ImageViewer's chrome had no night-mode awareness at all. It does, via the
---- mechanism above -- and the manual invert stacked with the global one,
---- cancelling out for every pixel it covered. That left the button table and
---- any letterboxed/margin background stuck showing their original light
---- colors while the rest of the screen went dark.
----
---- But for comic/manga pages specifically, "keep the original colors" is the
---- wrong call: these are line art on a bright white background, not photos,
---- so leaving `ImageWidget`'s cancel-invert in place makes the panel a
---- blinding white rectangle in an otherwise dark screen. We want the panel
---- itself to go dark too. Inverting just `self._image_wg.dimen` (populated
---- by `ImageWidget:paintTo` during the call above) cancels ImageWidget's own
---- cancel-invert -- one more invert on top of two is net-inverted -- without
---- touching the chrome around it, which stays correctly dark from the single
---- global invert alone.
+--- Apply document inversion only to image pixels, leaving letterboxing to night mode.
 function PanelViewer:paintTo(bb, x, y)
+    if self._image_wg then
+        self._image_wg.original_in_nightmode = false
+    end
     ImageViewer.paintTo(self, bb, x, y)
-    if Screen.night_mode and self._image_wg and self._image_wg.dimen then
-        local d = self._image_wg.dimen
-        bb:invertRect(d.x, d.y, d.w, d.h)
+    local document = self.reader_ui and self.reader_ui.document
+    local keep_original = document and document.configurable and document.configurable.nightmode_document == 1
+    local image = self._image_wg
+    if Screen.night_mode and keep_original and image and image.dimen then
+        local d = image.dimen
+        local ox, oy = image._offset_x or 0, image._offset_y or 0
+        local dx, dy = math.max(0, -ox), math.max(0, -oy)
+        local w = math.min(d.w, image:getCurrentWidth() - ox) - dx
+        local h = math.min(d.h, image:getCurrentHeight() - oy) - dy
+        bb:invertRect(d.x + dx, d.y + dy, w, h)
     end
     self:paintHighlights(bb, x, y)
 end
@@ -2288,7 +2274,7 @@ function PanelViewer:animateSwitchToImageNum(target, on_complete)
     local canvas
     local ok_canvas, canvas_image = pcall(function()
         canvas = Blitbuffer.new(canvas_w, canvas_h, content_image:getType())
-        canvas:fill(Blitbuffer.COLOR_WHITE)
+        canvas:fill(PageRender.getBackground(self.reader_ui))
         -- Clamp against float-rounding drift between this module's zoom math and
         -- drawPagePart()'s own internal rect scaling, so the blit never reads or
         -- writes a row/column past either buffer's actual allocated bounds.
@@ -2400,7 +2386,7 @@ function PanelViewer:runNavViewportAnimation(
         local crop, frame
         local ok = pcall(function()
             crop = Blitbuffer.new(crop_w, crop_h, source:getType())
-            crop:fill(Blitbuffer.COLOR_WHITE)
+            crop:fill(PageRender.getBackground(self.reader_ui))
             local sx, sy = math.max(0, left), math.max(0, top)
             local dx, dy = math.max(0, -left), math.max(0, -top)
             local w = math.min(source:getWidth() - sx, crop_w - dx)
@@ -2704,7 +2690,7 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
     local canvas
     local ok_canvas, canvas_image = pcall(function()
         canvas = Blitbuffer.new(canvas_w, canvas_h, tile_b:getType())
-        canvas:fill(Blitbuffer.COLOR_WHITE)
+        canvas:fill(PageRender.getBackground(self.reader_ui))
         local a_x = math.max(0, math.floor(a_left + half_w_a - tile_a_scaled:getWidth() / 2))
         local a_y = math.max(0, math.floor(canvas_h / 2 - tile_a_scaled:getHeight() / 2))
         local a_w = math.min(tile_a_scaled:getWidth(), canvas_w - a_x)

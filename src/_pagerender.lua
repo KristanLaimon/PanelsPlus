@@ -16,6 +16,8 @@ if not ok then
     CanvasContext = require("document/canvascontext")
 end
 local Geom = require("ui/geometry")
+local Blitbuffer = require("ffi/blitbuffer")
+local Screen = require("device").screen
 
 --- Page-crop rendering shared by panel images, transitions, and pre-rendering.
 ---
@@ -101,6 +103,14 @@ function PageRender.drawPagePart(ui, pageno, native_rect, rotation, zoom)
     local gamma, saturation = PageRender.getAdjustments(ui)
     local tile = document:renderPage(pageno, rect, zoom, rotation, gamma, saturation, true)
     return tile and tile.bb, rotate
+end
+
+-- Padding is inverted along with document pixels by the viewer, then again by night mode.
+function PageRender.getBackground(ui)
+    local document = ui and ui.document
+    local configurable = document and document.configurable
+    return Screen.night_mode and configurable and configurable.nightmode_document == 1 and Blitbuffer.COLOR_BLACK
+        or Blitbuffer.COLOR_WHITE
 end
 
 return PageRender
