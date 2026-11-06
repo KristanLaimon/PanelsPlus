@@ -340,6 +340,22 @@ return function(PanelViewer)
             end
         end
         self:paintHighlights(bb, x, y)
+        local ink = self.reader_ui
+            and (self.reader_ui.inkAwayIntegrationAPI or self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+        if
+            ink
+            and ink.document_surface_version == 1
+            and type(ink.paintDocumentSurface) == "function"
+            and not self._annotation_snapshot
+        then
+            local surface = self:getAnnotationSurface()
+            if surface then
+                local ok, err = pcall(ink.paintDocumentSurface, ink, surface, bb)
+                if not ok then
+                    logger.warn("[Panels+] Ink Away painting failed:", tostring(err))
+                end
+            end
+        end
     end
 
     --- Return the button label for the crop mode currently in use.
@@ -438,7 +454,10 @@ return function(PanelViewer)
     function PanelViewer:getPanelViewportSize()
         local viewer_width = self.width or Screen:getWidth()
         local viewer_container_h = self.img_container_h or Screen:getHeight()
-        local portrait = viewer_width <= (self.height or Screen:getHeight())
+        local insets = self:getAnnotationViewportInsets()
+        viewer_width = viewer_width - insets.left - insets.right
+        viewer_container_h = viewer_container_h - insets.top - insets.bottom
+        local portrait = (self.width or Screen:getWidth()) <= (self.height or Screen:getHeight())
         local row_height = self.buttons_visible
                 and self.quick_controls
                 and portrait
@@ -454,7 +473,7 @@ return function(PanelViewer)
                     return Screen:scaleBySize(value)
                 end)
             or 0
-        return viewer_width - rail_width, viewer_container_h - row_height, row_height, rail_width
+        return viewer_width - rail_width, viewer_container_h - row_height, row_height, rail_width, insets
     end
 
     --- Shrink the box ImageViewer renders the panel into, for "margin" crop mode.
@@ -469,7 +488,10 @@ return function(PanelViewer)
         QuickToolbar.free(self.quick_controls)
         local viewer_width = self.width
         local viewer_container_h = self.img_container_h
-        local panel_w, panel_h, row_height, rail_width = self:getPanelViewportSize()
+        local panel_w, panel_h, row_height, rail_width, insets = self:getPanelViewportSize()
+        insets = insets or { left = 0, top = 0, right = 0, bottom = 0 }
+        local body_w = viewer_width - insets.left - insets.right
+        local body_h = viewer_container_h - insets.top - insets.bottom
         self.width = panel_w
         self.img_container_h = panel_h
         local factor = self:getMarginShrinkFactor()
@@ -499,15 +521,15 @@ return function(PanelViewer)
         end
         if row_height > 0 then
             local VerticalGroup = require("ui/widget/verticalgroup")
-            self.quick_rail = QuickToolbar.build(self.quick_controls, viewer_width, row_height, true)
+            self.quick_rail = QuickToolbar.build(self.quick_controls, body_w, row_height, true)
             self.image_container = VerticalGroup:new({
                 align = "center",
                 self.image_container,
-                CenterContainer:new({ dimen = Geom:new({ w = viewer_width, h = row_height }), self.quick_rail }),
+                CenterContainer:new({ dimen = Geom:new({ w = body_w, h = row_height }), self.quick_rail }),
             })
         elseif rail_width > 0 then
             local HorizontalGroup = require("ui/widget/horizontalgroup")
-            self.quick_rail = QuickToolbar.build(self.quick_controls, rail_width, self.img_container_h)
+            self.quick_rail = QuickToolbar.build(self.quick_controls, rail_width, body_h)
             self.image_container = HorizontalGroup:new({
                 align = "top",
                 allow_mirroring = false,
@@ -517,5 +539,59 @@ return function(PanelViewer)
         else
             self.quick_rail = nil
         end
+        if insets.left > 0 or insets.right > 0 then
+            self.image_container = require("ui/widget/horizontalgroup"):new({
+                align = "top",
+                allow_mirroring = false,
+                require("ui/widget/horizontalspan"):new({ width = insets.left }),
+                self.image_container,
+                require("ui/widget/horizontalspan"):new({ width = insets.right }),
+            })
+        end
+        if insets.top > 0 or insets.bottom > 0 then
+            self.image_container = require("ui/widget/verticalgroup"):new({
+                align = "left",
+                require("ui/widget/verticalspan"):new({ width = insets.top }),
+                self.image_container,
+                require("ui/widget/verticalspan"):new({ width = insets.bottom }),
+            })
+        end
+    end
+
+    function PanelViewer:setInkAwayFitViewport(fit)
+        local function reflow()
+            self.inkaway_fit_viewport = fit
+            self:update()
+        end
+        local surface = self._annotation_surface
+        if surface and surface.refresh_layout then
+            surface.refresh_layout(reflow)
+        else
+            reflow()
+        end
+    end
+
+    function PanelViewer:getAnnotationViewportInsets()
+        local insets = { left = 0, top = 0, right = 0, bottom = 0 }
+        local rect = self._annotation_viewport
+        if not rect or self.inkaway_fit_viewport == false then
+            return insets
+        end
+        local w, h = self.width or Screen:getWidth(), self.img_container_h or Screen:getHeight()
+        local x = math.floor((Screen:getWidth() - w) / 2)
+        local y = math.floor((Screen:getHeight() - (self.height or Screen:getHeight())) / 2)
+        if self.with_title_bar then
+            local title = self.caption and self.caption_visible and self.captioned_title_bar or self.title_bar
+            y = y + (title and title:getSize().h or 0)
+        end
+        insets.left = math.max(0, math.min(w - 1, rect.x - x))
+        insets.top = math.max(0, math.min(h - 1, rect.y - y))
+        insets.right = math.max(0, math.min(w - insets.left - 1, x + w - rect.x - rect.w))
+        insets.bottom = math.max(0, math.min(h - insets.top - 1, y + h - rect.y - rect.h))
+        return insets
+    end
+
+    function PanelViewer:annotationDrawnAngle()
+        return drawnAngle(self)
     end
 end

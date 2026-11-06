@@ -18,6 +18,60 @@ local UIManager = require("ui/uimanager")
 local Screen = Device.screen
 
 return function(ViewerController)
+    function ViewerController:showInkAwaySettings(viewer, parent_page)
+        local _ = require("gettext")
+        local menu
+        local items = {}
+        for _, choice in ipairs({
+            { true, _("Keep spread fold joined while annotating") },
+            { false, _("Show original fold while annotating") },
+        }) do
+            local joined = choice[1]
+            items[#items + 1] = {
+                text = ((self.settings.inkaway_join_spread_fold ~= false) == joined and "◉ " or "○ ") .. choice[2],
+                callback = function()
+                    self.settings.inkaway_join_spread_fold = joined
+                    viewer.inkaway_join_spread_fold = joined
+                    self:saveSettings()
+                    menu.close_callback = nil
+                    UIManager:close(menu)
+                    self:showInkAwaySettings(viewer, parent_page)
+                end,
+            }
+        end
+        items[#items + 1] = {
+            id = "inkaway_fit_viewport",
+            help_text = _(
+                "Cycle between fitting panels beside the annotator toolbar and keeping the full viewport. Fitting follows the toolbar when it moves or hides."
+            ),
+            text = _("Panel viewport: ")
+                .. (self.settings.inkaway_fit_viewport ~= false and _("Fit beside toolbar") or _("Full viewport")),
+            callback = function()
+                local fit = self.settings.inkaway_fit_viewport == false
+                self.settings.inkaway_fit_viewport = fit
+                if viewer.setInkAwayFitViewport then
+                    viewer:setInkAwayFitViewport(fit)
+                else
+                    viewer.inkaway_fit_viewport = fit
+                end
+                self:saveSettings()
+                menu.close_callback = nil
+                UIManager:close(menu)
+                self:showInkAwaySettings(viewer, parent_page)
+            end,
+        }
+        menu = require("ui/widget/menu"):new({
+            title = _("Ink-away Settings…"),
+            item_table = items,
+            close_callback = function()
+                UIManager:close(menu)
+                self:showMoreConfigMenu(viewer, parent_page)
+            end,
+        })
+        UIManager:show(menu)
+        return true
+    end
+
     --- Find a live viewer, including embedded-image viewers which are not tracked
     --- by active_panel_viewer. The explicit context also supports menus in tests.
     function ViewerController:getOpenPanelViewer()
@@ -219,6 +273,17 @@ return function(ViewerController)
                 end,
             },
         }
+        if self.ui and (self.ui["ink-away"] or self.ui.inkaway) then
+            table.insert(items, #items, {
+                id = "inkaway_settings",
+                text = _("Ink-away Settings…"),
+                mandatory = "›",
+                callback = function()
+                    close()
+                    self:showInkAwaySettings(viewer, menu.page)
+                end,
+            })
+        end
         menu = require("src._configmenu").new({
             title = _("More Config"),
             item_table = items,

@@ -20,7 +20,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | Relationship | Left plugin / scope | Direction | Right plugin / scope | Visibility | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | OneWay Knowledge | Panels+ 1.5.1 development tree with spread touch patch | → | Meguru 1.7.1 and pinned rolling SHA below | Not visual (no added UI) | Calls Meguru `spreadPageAt` before panel collection/selection; reference-backed geometry integration checks pass. Together with the declared Meguru → Panels+ awareness above, this adds reciprocal knowledge; the reverse direction's visibility remains unspecified. No future version range claimed. |
-| OneWay Knowledge | Panels+ 1.5.1 development tree with annotation-surface adapter, mapping fixes and animated annotator navigation | → | Ink Away local `feature/annotation-surfaces` commit `d87e2b097d63` plus generic navigation and fixed-page export patches, based on rolling `8dda5407e054` | Visual: conditional More Config… → Ink-away Settings…; annotation arrows follow reading direction | Generic document-surface API in Ink Away; no target knowledge of Panels+ identities. 41 reference-backed compatibility checks pass against the modified target worktree. Fixed-page export belongs entirely to Ink Away, with separate native export evidence below. Unmodified 4.4.0/rolling provide fallback only; no future range claimed. See exact tuples and linked development notes below. |
+| OneWay Knowledge | Panels+ 1.6.0, `feat/ink-away-compatibility` rebased onto `main-nightly` `cbfe882` | → | Ink Away 4.4.0-derived rolling `b5b83b2f6b67` (`feature/plugin-integration`) | Visual: More Config → Ink-away Settings; annotation navigation and toolbar fitting | 44 reference-backed rolling integration checks pass; original stable 4.4.0 has 5 fallback checks. Exact rebase provenance and validation: [history](plugins/ink-away/history-changes.md#2026-11-07--rebase-onto-main-nightly--panels-160-dev--ink-away-440-derived-rolling). Live validation remains pending; no future-version guarantee. |
 
 ## Historical artifact references
 
@@ -260,3 +260,14 @@ Add records here with exact versions/SHAs for both plugins, stable/laboratory/ro
   and frozen backup remain unchanged. Kobo's shipped Lua patch directories are
   preserved as runtime inputs. No runtime tests rerun for archive/docs cleanup.
   See [entry 21](plugins/ink-away/history-changes.md).
+
+
+### 2026-11-02 — Ink Away consumer method readiness queue
+
+The uncommitted canonical rolling pair now queues `pending[consumer] = true`
+and invokes `consumer:configureInkAway(ink)` directly (no callback wrapper).
+Same bases/branches and environment as Ink Away history entry 24. Stable
+4.4.0 fallback: 5 passed; modified rolling integration: 44 passed; target
+loading-order: 57 checks; registry integration: 30. Event-only method consumers
+require no viewer/surface. Host UI remains mocked; no new live/device evidence.
+See [history entry 24](plugins/ink-away/history-changes.md).

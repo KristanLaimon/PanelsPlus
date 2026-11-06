@@ -19,15 +19,16 @@ No crop padding, panning, quarter-turn rotations, and joined folds. Snapshotting
 paints the background without ink; closing cancels pending registration and
 releases the active surface before disposing viewer resources.
 
-Extracted reflow images and temporary transition canvases are not document
-surfaces. Annotation navigation remains on the selected surface; cross-panel
-editor navigation and toolbar-specific viewport fitting are not implemented here.
-The existing `feat/ink-away-compatibility` branch is separate work, not merged by
-this adapter extraction.
+Extracted reflow images are not document surfaces. Fixed-page annotations follow
+panel and page navigation, including retained regions during transitions. The
+editor can fit the panel beside its toolbar or keep the full viewport. Surface
+geometry lives in `src/_annotationsurface.lua`; the adapter owns readiness and
+registration. Rendering and navigation hooks remain in the split viewer modules.
 
 Run `./run-tests.sh --compatibility-plugin=meguru` and
 `./run-tests.sh --compatibility-plugin=kobo` for their stable and rolling pins.
 Run `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease`
-for the optional surface API. Ink Away 4.4.0 is outside this task's requested scope.
+for the optional surface API. Stable 4.4.0 has fallback-only coverage via
+`--compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0`.
 Gestures and LiveLight retain their existing Panels+ unit coverage; this does not
 claim new version-pinned compatibility testing for either plugin.

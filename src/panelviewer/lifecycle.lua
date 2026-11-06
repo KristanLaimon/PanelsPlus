@@ -18,6 +18,7 @@ local UIManager = require("ui/uimanager")
 local QuickToolbar = require("src._quicktoolbar")
 local WordFinder = require("src._wordfinder")
 local _ = require("gettext")
+local logger = require("logger")
 
 local Constants = require("src.panelviewer.constants")
 local NAV_TRANSITION_MIN_FREE_BYTES = Constants.NAV_TRANSITION_MIN_FREE_BYTES
@@ -70,6 +71,7 @@ return function(PanelViewer)
             end
         end
 
+        self:notifyAnnotationNavigationFrame()
         return result
     end
 
@@ -221,9 +223,36 @@ return function(PanelViewer)
 
     --- Close ImageViewer resources while guarding its final dirty-region callback.
     function PanelViewer:onCloseWidget()
+        self._annotation_closing = true
+        local surface = self._annotation_surface
+        local ink = self.reader_ui
+            and (self.reader_ui.inkAwayIntegrationAPI or self.reader_ui["ink-away"] or self.reader_ui.inkaway)
+        if surface and not surface.navigation_done and ink and type(ink.releaseDocumentSurface) == "function" then
+            local ok, err = pcall(ink.releaseDocumentSurface, ink, surface)
+            if not ok then
+                logger.warn("[Panels+] Ink Away release failed:", tostring(err))
+            end
+        end
+        if self._annotation_unregister then
+            -- The release above deliberately preserves an in-flight handoff.
+            local ok, err = pcall(self._annotation_unregister, false)
+            if not ok then
+                logger.warn("[Panels+] Ink Away unregister failed:", tostring(err))
+            end
+            self._annotation_unregister, self._annotation_provider_ink = nil, nil
+        end
+        local ui = self.reader_ui
+        local pending_integrations = ui and ui.inkAwayPendingIntegrations
+        if pending_integrations and pending_integrations[self] == true then
+            pending_integrations[self] = nil
+            if next(pending_integrations) == nil then
+                ui.inkAwayPendingIntegrations = nil
+            end
+        end
         self:_cancelPhraseHold()
         self._phrase_selected = nil
         self._panels_plus_closed = true
+        self._annotation_transition = nil
         self._panels_plus_smooth_preview = nil
         if self._document_boundary_dialog then
             UIManager:close(self._document_boundary_dialog)

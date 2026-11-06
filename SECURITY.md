@@ -28,4 +28,3 @@ versions and the device. A file that shows it (a drawing, a notebook or a book's
 I will answer within a week. Once it is fixed I will put out a release, say
 what was fixed in the changelog and credit you unless you would rather not be
 named.
-
