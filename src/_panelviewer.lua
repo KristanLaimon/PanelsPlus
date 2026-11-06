@@ -3487,6 +3487,41 @@ function PanelViewer:replaceButtonTable()
             actions[action.id] = action
         end
     end
+    local reader_ui = self.reader_ui
+    local configurable = reader_ui and reader_ui.document and reader_ui.document.configurable
+    actions.night_mode = {
+        text = Screen.night_mode and _("Night Mode") or _("Light Mode"),
+        icon = Screen.night_mode and "moon" or "sun",
+        dim = not reader_ui,
+        callback = function()
+            if not reader_ui then
+                return
+            end
+            reader_ui:handleEvent(Event:new("ToggleNightMode"))
+            self:replaceButtonTable()
+            self:update()
+        end,
+    }
+    actions.invert_document = {
+        text = configurable and configurable.nightmode_document == 1 and _("Inverted") or _("Invert"),
+        dim = not Screen.night_mode or not configurable,
+        callback = function()
+            if not Screen.night_mode then
+                UIManager:show(require("ui/widget/infomessage"):new({
+                    text = _("This option inverts panel colors in night mode. Turn on Night Mode first to use it."),
+                    timeout = FLOW_WARNING_TIMEOUT,
+                }))
+                return
+            end
+            if not configurable then
+                return
+            end
+            local value = configurable.nightmode_document == 1 and 0 or 1
+            reader_ui:handleEvent(Event:new("ConfigChange", "nightmode_document", value))
+            self:replaceButtonTable()
+            self:update()
+        end,
+    }
     QuickToolbar.free(self.quick_controls)
     self.quick_controls = QuickToolbar.controls(actions)
     buttons = {

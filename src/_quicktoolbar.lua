@@ -3,11 +3,21 @@ local Toolbar = {}
 local gettext = require("gettext")
 local icon_dir = (debug.getinfo(1, "S").source:match("^@(.+/)") or "src/") .. "../assets/icons/"
 
-Toolbar.order = { "rotate", "ocr_language", "screenshot", "progress_bar", "scale" }
-local icons =
-    { rotate = "rotate", ocr_language = "ocr", screenshot = "screenshot", progress_bar = "progress", scale = "scale" }
+Toolbar.order = { "rotate", "ocr_language", "screenshot", "progress_bar", "scale", "night_mode", "invert_document" }
+local icons = {
+    rotate = "rotate",
+    ocr_language = "ocr",
+    screenshot = "screenshot",
+    progress_bar = "progress",
+    scale = "scale",
+    night_mode = "sun",
+    invert_document = "sun_moon",
+}
 
 function Toolbar.caption(id, text)
+    if id == "night_mode" or id == "invert_document" then
+        return text
+    end
     if id == "rotate" then
         return gettext("Rotate")
     end
@@ -32,7 +42,7 @@ function Toolbar.controls(actions)
             callback = action.callback,
             hold_callback = action.hold_callback,
             dim = action.dim,
-            icon_file = icon_dir .. icons[id] .. ".svg",
+            icon_file = icon_dir .. (action.icon or icons[id]) .. ".svg",
             width = 0,
         }
         function control:setText(text)

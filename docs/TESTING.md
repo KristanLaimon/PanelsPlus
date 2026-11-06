@@ -38,6 +38,15 @@ native-array path:
 PANELSPLUS_REQUIRE_DATASETS=1 luajit -l ffi tests/run_tests.lua
 ```
 
+The KOReader launcher checks run without a GUI, network, or Python packages:
+
+```sh
+python3 -m unittest discover -s tests -p test_koreader_launcher.py
+```
+
+They exercise installation, version-specific profiles, download reuse, failure
+cleanup, and plugin-link conflicts using a small local release archive.
+
 ## Test architecture
 
 `tests/PanelsPlusTestFramework.lua` provides `describe`, `it`, assertions, and
@@ -95,9 +104,12 @@ and per-book regressions.
 ## Real-device checks
 
 The mock suite cannot reproduce renderer ownership, framebuffer effects,
-touch-zone registration, or e-ink memory pressure. Use `rungeneric.sh` for the
-desktop Flatpak and `runkobo.sh` for the Kobo-like emulated profile. Verify at
-least:
+touch-zone registration, or e-ink memory pressure. Use `./koreader.sh`
+for your system KOReader, or `./koreader.sh menu` to install and launch
+isolated desktop releases with this checkout linked. See
+[the launcher setup](../CONTRIBUTING.md#launching-and-testing-koreader-versions)
+for commands, dependencies, and profile locations. Follow desktop checks with
+tests on the target device. Verify at least:
 
 - first open, next-panel prerender, and cross-page replacement;
 - Manga/Comic order plus inverted gestures;

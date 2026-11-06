@@ -102,6 +102,21 @@ msgstr "Ocultar barra"
 msgid "Actual Size"
 msgstr "Tamanho real"
 
+msgid "Night Mode"
+msgstr "Modo noturno"
+
+msgid "Light Mode"
+msgstr "Modo claro"
+
+msgid "Invert"
+msgstr "Inverter"
+
+msgid "Inverted"
+msgstr "Invertido"
+
+msgid "This option inverts panel colors in night mode. Turn on Night Mode first to use it."
+msgstr "Esta opção inverte as cores dos painéis no modo noturno. Ative primeiro o modo noturno para usá-la."
+
 # Reading mode and KOReader actions
 # Screen: Comic/manga mode, native panel zoom and assignable Panels+ actions.
 # Path: Top menu > Tools > Panels+; or panel viewer > Comic mode / Manga mode. Assign actions through KOReader gesture or shortcut settings.

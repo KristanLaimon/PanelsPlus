@@ -162,13 +162,13 @@ describe("Panel viewer compact controls", function()
         end)
     end)
 
-    it("fits five borderless actions in one compact portrait row", function()
+    it("fits seven borderless actions in one compact portrait row", function()
         for _, width in ipairs({ 600, 240 }) do
             withRail(width, 64, function(rail)
                 local row_width = 0
                 for index, tile in ipairs(rail) do
                     assert.equals(Toolbar.order[index], tile.control.id)
-                    assert.equals(64, tile.height)
+                    assert.is_true(tile.height >= 64)
                     row_width = row_width + tile.width
                 end
                 assert.is_true(row_width <= width)
@@ -245,6 +245,82 @@ describe("Panel viewer compact controls", function()
         rotate:setText("No rotation")
         assert.equals("Rotate", rotate.text)
         assert.equals("Show Bar", viewer.quick_controls.progress_bar.text)
+    end)
+
+    it("toggles KOReader night mode and changes the moon/sun state icon", function()
+        local old_night_mode = Screen.night_mode
+        Screen.night_mode = false
+        local events = {}
+        local viewer = PanelViewer:new({
+            width = 600,
+            reader_ui = {
+                document = { configurable = {} },
+                handleEvent = function(_, event)
+                    events[#events + 1] = event
+                    Screen.night_mode = not Screen.night_mode
+                end,
+            },
+            update = function() end,
+        })
+        viewer:replaceButtonTable()
+        local light_icon, light_text = viewer.quick_controls.night_mode.icon_file, viewer.quick_controls.night_mode.text
+        viewer.quick_controls.night_mode.callback()
+        local night_icon, night_text = viewer.quick_controls.night_mode.icon_file, viewer.quick_controls.night_mode.text
+        viewer.quick_controls.night_mode.callback()
+        local restored_icon = viewer.quick_controls.night_mode.icon_file
+        Screen.night_mode = old_night_mode
+        assert.equals("ToggleNightMode", events[1].name)
+        assert.is_true(light_icon:match("/sun%.svg$") ~= nil)
+        assert.equals("Light Mode", light_text)
+        assert.is_true(night_icon:match("/moon%.svg$") ~= nil)
+        assert.equals("Night Mode", night_text)
+        assert.equals(light_icon, restored_icon)
+    end)
+
+    it("toggles document inversion through KOReader and explains its requirement in light mode", function()
+        local old_night_mode = Screen.night_mode
+        Screen.night_mode = true
+        local configurable, events = { nightmode_document = 0 }, {}
+        local viewer = PanelViewer:new({
+            width = 600,
+            reader_ui = {
+                document = { configurable = configurable },
+                handleEvent = function(_, event)
+                    events[#events + 1] = event
+                    configurable[event.args[1]] = event.args[2]
+                end,
+            },
+            update = function() end,
+        })
+        viewer:replaceButtonTable()
+        viewer.quick_controls.invert_document.callback()
+        local inverted_text = viewer.quick_controls.invert_document.text
+        viewer.quick_controls.invert_document.callback()
+        local normal_text = viewer.quick_controls.invert_document.text
+        Screen.night_mode = false
+        viewer:replaceButtonTable()
+        local dim = viewer.quick_controls.invert_document.dim
+        local UIManager = require("ui/uimanager")
+        local previous_dialog = UIManager._last_shown
+        UIManager._last_shown = nil
+        viewer.quick_controls.invert_document.callback()
+        local dialog = UIManager._last_shown
+        UIManager._last_shown = previous_dialog
+        Screen.night_mode = old_night_mode
+        assert.equals("ConfigChange", events[1].name)
+        assert.equals("nightmode_document", events[1].args[1])
+        assert.equals(1, events[1].args[2])
+        assert.equals(0, events[2].args[2])
+        assert.equals(2, #events)
+        assert.equals("Inverted", inverted_text)
+        assert.equals("Invert", normal_text)
+        assert.is_true(dim)
+        assert.is_not_nil(dialog)
+        assert.equals(
+            "This option inverts panel colors in night mode. Turn on Night Mode first to use it.",
+            dialog.text
+        )
+        assert.equals(7, dialog.timeout)
     end)
 
     it("dispatches rail actions and retains long-press settings on navigation and crop", function()

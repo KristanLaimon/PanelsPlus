@@ -1,7 +1,17 @@
 # Contributing to Panels+
 
-
 Thank you for your interest in contributing to Panels+! Whether you are fixing bugs, improving performance, or adding new features, your help is welcome!
+
+### First of all, you need a LINUX ENVIRONMENT. You can't develop KOReader plugins in windows (unless you use WSL).
+<em>This is because there are no ports of KOReader for windows (or at least, none that I'm aware of) and this project
+uses tooling available only in linux</em>
+With linux environment could be:
+
+1. A virtual machine (Oracle Virtual box, QUEMU, etc...).
+2. WSL "Windows Subsytem For linux".
+3. A distro linux. (If you're newbie you can try with debian, fedora, linux mint or arch-linux\[pre-riced\])
+
+You need to be comfortable using the terminal. I assume git knowledge, we're on github at the end of the day.
 
 # 🧰 Setup
 Panels+ is the combination of 3 little proyects here in same repo:
@@ -16,13 +26,77 @@ You would need the following to start developing a PR in Panels+:
 In case you're messing only with Lua code and the plugin itself, this is far enough to install. (Not python or golang)
 The following needs to be installed in your path/system:
 
-1. [KOReader](https://github.com/koreader/koreader). Can be obvious, but needed. My recommendation is to set a WSL environment if windows, or directly use a linux distro.
+1. [KOReader](https://github.com/koreader/koreader). Can be obvious, but needed.
+My recommendation is to use a WSL environment or directly use linux while
+developing in Panels+ (VM, Dualboot, etc...).
 
 2. [LuaJIT](https://luajit.org/install.html) or [Lua 5.1](https://www.lua.org/download.html). It's the main language of this plugin. So your PR code must run without errors in both of them (Compatibility with KOReader emmbeded lua runtime)
 
 3. [Stylua](https://github.com/JohnnyMorganz/StyLua) (Codebase's Formatter). Used to have a consistent code style (indentation, tabs, etc...)
 
 4. [Luacheck](https://github.com/mpeterv/luacheck) (Codebase's Linter). Used to have consistent code patterns (Which globals are available in intelissense, function declaration styles, etc...)
+
+
+KOReader (A little dev trick) (OPTIONAL, but recommended)
+
+I've created a little script to manage easily multiple KOReaders installed in system
+so you can test the you're installed version along with others like 2025.04 "Moon flake".
+
+```bash
+./koreader.sh                         # your system KOReader
+./koreader.sh menu                    # install or launch a test release
+./koreader.sh install 2025.04          # Full Moon; download once
+./koreader.sh run 2025.04              # run with this checkout linked
+./koreader.sh run 2025.04 /path/to/test.cbz
+```
+
+Panels+ ensures compatibility starting from version 2025.04 to newest in all releases.
+
+---
+Why 2025.04? you may ask
+I bought my first e-reader and installed this KOReader version at that time, and never update it.
+Panels+ started to grow popular in stars and downloads and I had to give support for my old KOReader installation
+as well. I realised this is useful for users that can't update their KOReader for x reason, and it gives better compatibility
+for older devices. It's great that a plugin can guarantee it *works* for your 1 year old device right?.
+
+In later 2026 I had to upgrade the version so I can install other plugins that *sadly* don't share this same
+philosophy as I do...I was forced to. But I don't want to loose this valuable compatibility. Eventually I'll
+try to make backwards compatibility PR's to the plugins (Meguru, Ink-away, kobo.koplugin and other plugins
+officially supported, which you can read from README.md details) I use alongside with Panels+. So i'll really
+appreciate if you test your changes against this version as well, for that, you only need to execute:
+
+```bash
+#Install
+./koreader.sh install 2025.04
+
+#Run
+./koreader.sh run 2025.04
+```
+
+***This won't mess with your globally installed koreader, its installed along side and runnable only from this script***
+
+---
+
+The script downloads the official Linux archive for x86_64, aarch64, or armv7l
+when that release provides it. It needs Bash, curl, tar, and xz and python installed, normally packaged
+already in any decent linux distro.
+
+It will install itself in the following path ~/.config/koreader-_<version/
+
+```text
+~/.config/koreader-_2025.04/
+├── runtime/                         # downloaded KOReader
+└── profile/                         # version-specific KO_HOME
+    └── plugins/panelsplus.koplugin   # symlink to this checkout
+```
+
+Panels+ will install from this repo to the plugins from that version symlinked, so all
+changes made here are reflected there without "copying" the plugin twice.
+
+```bash
+./koreader.sh               # This runs your globally installed KOReader (any version)
+./koreader.sh 2025.04       # This runs KOReader 2025.04, completely aislated.
+```
 
 ###  2. Panels+: Manga Annotator (Python/uv) (OPTIONAL but PREFFERED)
 In case you're only interested in Panels+ Manga Annotator GUI app. It's made in python (is easier to make GUI apps here for this kind of purposes) but this repo uses `uv` instead of plain python3, for best practices.
