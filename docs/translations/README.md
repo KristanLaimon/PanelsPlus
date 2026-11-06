@@ -1,6 +1,6 @@
 # 🌍 Panels+ Translation Guide
 
-Thank you for wanting to help translate **Panels+**! Whether you want to add a brand-new language or improve an existing translation, your help makes the plugin better for readers around the world.
+Thank you for wanting to help translate **Panels+**. Whether you want to add a brand-new language or improve an existing translation, your help makes the plugin better for readers around the world.
 
 ---
 
@@ -8,9 +8,10 @@ Thank you for wanting to help translate **Panels+**! Whether you want to add a b
 
 Panels+ uses simple translation text files called `.po` files, located in the [`locales/`](../../locales) directory:
 
-- `locales/en.po` — English (The master template)
-- `locales/es.po` — Spanish
+- `locales/en.po` — English (The master template) (KL / KristanLaimon)
+- `locales/es.po` — Spanish (KL / KristanLaimon)
 - `locales/zh_CN.po` — Simplified Chinese (瑾轩小狼 / [@IMJXXL](https://github.com/IMJXXL), [#12](https://github.com/KristanLaimon/PanelsPlus/issues/12))
+- `locales/pt_BR.po` — Brazilian Portuguese (Matheus Lopes / [@MatheusLope](https://github.com/MatheusLope), [#16](https://github.com/KristanLaimon/PanelsPlus/issues/16))
 - `locales/your_language.po` — Your language
 
 Inside a `.po` file, you will see pairs of text lines like this:
@@ -178,7 +179,7 @@ When naming your `.po` file in `locales/`, use the language code recognized by K
 | ⌛ Needed | **Pashto**                        | `ps`          | `ps.po`        |
 | ⌛ Needed | **Persian**                       | `fa`          | `fa.po`        |
 | ⌛ Needed | **Polish**                        | `pl`          | `pl.po`        |
-| ⌛ Needed | **Portuguese (Brazil)**           | `pt_BR`       | `pt_BR.po`     |
+| ✅        | **Portuguese (Brazil)**           | `pt_BR`       | `pt_BR.po`     |
 | ⌛ Needed | **Portuguese (Portugal)**         | `pt_PT`       | `pt_PT.po`     |
 | ⌛ Needed | **Punjabi**                       | `pa`          | `pa.po`        |
 | ⌛ Needed | **Romanian**                      | `ro`          | `ro.po`        |

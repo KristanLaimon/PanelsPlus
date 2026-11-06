@@ -260,7 +260,7 @@ If you're interested in contributing:
 
 - Check out our [Translations Quick Guide](./docs/translations/README.md) to get started.
 
-Currently supported languages are ***English***, ***Spanish***, and ***Simplified Chinese***.
+Currently supported languages are ***English***, ***Spanish***, ***Simplified Chinese***, and ***Brazilian Portuguese***.
 
 ---
 

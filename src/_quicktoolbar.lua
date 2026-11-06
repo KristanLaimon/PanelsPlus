@@ -57,15 +57,35 @@ function Toolbar.free(controls)
     end
 end
 
+local function captionWidget(text, width)
+    return require("ui/widget/textboxwidget"):new({
+        text = text,
+        face = require("ui/font"):getFace("cfont", 11),
+        width = math.max(1, width - require("device").screen:scaleBySize(4)),
+        alignment = "center",
+    })
+end
+
+function Toolbar.rowHeight(controls, width)
+    local Screen = require("device").screen
+    local item_width = math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / #Toolbar.order)))
+    local icon_size = math.max(1, math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12)))
+    local height = Screen:scaleBySize(64)
+    for _, control in pairs(controls) do
+        local caption = captionWidget(control.text, item_width)
+        height = math.max(height, icon_size + caption:getSize().h)
+        caption:free()
+    end
+    return height
+end
+
 function Toolbar.build(controls, width, height, horizontal)
     local InputContainer = require("ui/widget/container/inputcontainer")
     local CenterContainer = require("ui/widget/container/centercontainer")
     local Geom = require("ui/geometry")
     local GestureRange = require("ui/gesturerange")
     local IconWidget = require("ui/widget/iconwidget")
-    local TextWidget = require("ui/widget/textwidget")
     local VerticalGroup = require("ui/widget/verticalgroup")
-    local Font = require("ui/font")
     local Screen = require("device").screen
     local Tile = InputContainer:extend({})
     function Tile:init()
@@ -98,12 +118,10 @@ function Toolbar.build(controls, width, height, horizontal)
     for _, id in ipairs(Toolbar.order) do
         local control = controls[id]
         control.width = item_width
-        local caption =
-            TextWidget:new({ text = control.text, face = Font:getFace("cfont", 11), max_width = item_width - 4 })
-        local icon_size = math.max(
-            1,
-            math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12), item_height - caption:getSize().h)
-        )
+        local caption = captionWidget(control.text, item_width)
+        local icon_size =
+            math.max(1, math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12), item_height))
+        local tile_height = math.max(item_height, icon_size + caption:getSize().h)
         local content = VerticalGroup:new({
             align = "center",
             IconWidget:new({
@@ -117,9 +135,9 @@ function Toolbar.build(controls, width, height, horizontal)
         })
         local tile = Tile:new({
             width = item_width,
-            height = item_height,
+            height = tile_height,
             control = control,
-            CenterContainer:new({ dimen = Geom:new({ w = item_width, h = item_height }), content }),
+            CenterContainer:new({ dimen = Geom:new({ w = item_width, h = tile_height }), content }),
         })
         control.widget = tile
         rail[#rail + 1] = tile

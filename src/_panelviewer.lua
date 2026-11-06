@@ -2880,7 +2880,7 @@ function PanelViewer:getPanelViewportSize()
     local row_height = self.buttons_visible
             and self.quick_controls
             and portrait
-            and math.min(Screen:scaleBySize(64), math.max(1, viewer_container_h - 1))
+            and math.min(QuickToolbar.rowHeight(self.quick_controls, viewer_width), math.max(1, viewer_container_h - 1))
         or 0
     local rail_width = self.buttons_visible
             and self.quick_controls

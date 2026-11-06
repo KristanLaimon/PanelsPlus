@@ -7,7 +7,7 @@ local Screen = require("device").screen
 
 -- Model KOReader's child-first event propagation, including the second dispatch
 -- of named events after GestureRange matching (generic Tap skips that matching).
-local function withRail(width, height, callback, horizontal, dim_ocr)
+local function withRail(width, height, callback, horizontal, dim_ocr, captions)
     local saved = {}
     local Widget = {}
     function Widget:extend(value)
@@ -23,6 +23,11 @@ local function withRail(width, height, callback, horizontal, dim_ocr)
     end
     function Widget:getSize()
         return { w = self.width or 40, h = self.height or 12 }
+    end
+    function Widget:free() end
+    local TextBox = Widget:extend({})
+    function TextBox:init()
+        self.height = math.max(1, math.ceil(#self.text * 6 / self.width)) * 12
     end
     function Widget:handleEvent(name, gesture)
         for _, child in ipairs(self) do
@@ -56,7 +61,7 @@ local function withRail(width, height, callback, horizontal, dim_ocr)
         ["ui/widget/verticalgroup"] = Widget,
         ["ui/widget/horizontalgroup"] = Widget,
         ["ui/widget/iconwidget"] = Widget,
-        ["ui/widget/textwidget"] = Widget,
+        ["ui/widget/textboxwidget"] = TextBox,
         ["ui/gesturerange"] = Widget,
         ["ui/font"] = { getFace = function() end },
     }
@@ -79,12 +84,18 @@ local function withRail(width, height, callback, horizontal, dim_ocr)
                 end,
             }
         end
-        local rail = Toolbar.build(Toolbar.controls(actions), width, height, horizontal)
-        for index, tile in ipairs(rail) do
-            tile.dimen.x = 600 - width
-            tile.dimen.y = (index - 1) * tile.height
+        local controls = Toolbar.controls(actions)
+        for id, text in pairs(captions or {}) do
+            controls[id].text = text
         end
-        callback(rail, calls)
+        local rail = Toolbar.build(controls, width, height, horizontal)
+        local y = 0
+        for _, tile in ipairs(rail) do
+            tile.dimen.x = 600 - width
+            tile.dimen.y = y
+            y = y + tile.height
+        end
+        callback(rail, calls, controls)
     end)
     Screen.scaleBySize = old_scale
     for name, value in pairs(saved) do
@@ -163,6 +174,43 @@ describe("Panel viewer compact controls", function()
                 assert.is_true(row_width <= width)
             end, true)
         end
+    end)
+
+    it("wraps long translated captions and moves the following rail actions down", function()
+        local label = "Mostrar a barra de progresso"
+        withRail(52, 420, function(rail, calls)
+            local tile = rail[4]
+            local caption = tile[1][1][2]
+            assert.equals(label, caption.text)
+            assert.equals("center", caption.alignment)
+            assert.is_true(caption:getSize().h > 12)
+            assert.is_true(tile.height >= tile[1][1][1].height + caption:getSize().h)
+            assert.equals(tile.dimen.y + tile.height, rail[5].dimen.y)
+            rail:handleEvent("Gesture", {
+                ges = "tap",
+                pos = { x = tile.dimen.x + 10, y = tile.dimen.y + tile.height - 1 },
+            })
+            assert.equals(1, calls.progress_bar)
+        end, false, false, { progress_bar = label })
+    end)
+
+    it("reserves a taller portrait row for wrapped captions in the panel viewport", function()
+        withRail(240, 64, function(rail, _, controls)
+            local viewer = PanelViewer:new({
+                width = 240,
+                height = 800,
+                img_container_h = 500,
+                buttons_visible = true,
+                quick_controls = controls,
+            })
+            local width, height, row_height = viewer:getPanelViewportSize()
+            assert.equals(240, width)
+            assert.is_true(row_height > 64)
+            assert.equals(500 - row_height, height)
+            for _, tile in ipairs(rail) do
+                assert.is_true(tile.height <= row_height)
+            end
+        end, true, false, { progress_bar = "Mostrar a barra de progresso" })
     end)
 
     it("places settings in two rows of three and Close across the bottom", function()

@@ -1,0 +1,796 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: mangacomicsmoother\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+
+# Paths below use English UI labels, matching the msgid values.
+# Open a panel with a long press, or with two fingers if that gesture is configured.
+
+# Shared actions and status values
+# Screen: Shared dialog buttons, language names and enabled/disabled values.
+# Path: Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.
+
+msgid "Cancel"
+msgstr "Cancelar"
+
+msgid "In use"
+msgstr "Em uso"
+
+msgid "Back"
+msgstr "Voltar"
+
+msgid "English"
+msgstr "Inglês"
+
+msgid "Spanish"
+msgstr "Espanhol"
+
+msgid "Apply"
+msgstr "Aplicar"
+
+msgid "Close"
+msgstr "Fechar"
+
+msgid "Save"
+msgstr "Salvar"
+
+msgid "false"
+msgstr "desativado"
+
+msgid "true"
+msgstr "ativado"
+
+msgid "Off"
+msgstr "Desativado"
+
+msgid "On"
+msgstr "Ativado"
+
+# Panel viewer: main controls and action rail
+# Screen: Panel viewer: reading mode, scale, progress and menu buttons.
+# Path: Open a book > long-press a panel (or use the configured two-finger tap) > tap the panel to show controls.
+
+msgid "Fit"
+msgstr "Ajustar"
+
+msgid "Comic mode"
+msgstr "Modo quadrinho"
+
+msgid "Hide progress"
+msgstr "Ocultar progresso"
+
+msgid "Manga mode"
+msgstr "Modo mangá"
+
+msgid "More config..."
+msgstr "Mais configurações..."
+
+msgid "Original size"
+msgstr "Tamanho original"
+
+msgid "Rotate"
+msgstr "Girar"
+
+msgid "Scale"
+msgstr "Escala"
+
+msgid "Screenshot"
+msgstr "Captura de tela"
+
+msgid "Show progress"
+msgstr "Mostrar progresso"
+
+msgid "OCR Language"
+msgstr "Idioma do OCR"
+
+# Icon captions
+# Screen: Panel viewer: captions under the rotation, OCR, screenshot, progress and scale icons.
+# Path: Open a book > open a panel > tap the panel to show controls > bottom icon row in portrait / side icon rail in landscape.
+
+msgid "OCR Model"
+msgstr "Modelo OCR"
+
+msgid "SShot"
+msgstr "Captura"
+
+msgid "Show Bar"
+msgstr "Mostrar barra"
+
+msgid "Hide Bar"
+msgstr "Ocultar barra"
+
+msgid "Actual Size"
+msgstr "Tamanho real"
+
+# Reading mode and KOReader actions
+# Screen: Comic/manga mode, native panel zoom and assignable Panels+ actions.
+# Path: Top menu > Tools > Panels+; or panel viewer > Comic mode / Manga mode. Assign actions through KOReader gesture or shortcut settings.
+
+msgid "Manga"
+msgstr "Mangá"
+
+msgid "Comic"
+msgstr "Quadrinho"
+
+msgid "Comic mode: left to right"
+msgstr "Modo quadrinho: esquerda-direita"
+
+msgid "Disable plugin panel focusing"
+msgstr "Desativar foco de painéis do plugin"
+
+msgid "Manga mode: right to left"
+msgstr "Modo mangá: direita-esquerda"
+
+msgid "Native panel focusing enabled"
+msgstr "Foco nativo de painéis ativado"
+
+msgid "Panels+ panel focusing enabled"
+msgstr "Foco de painéis do Panels+ ativado"
+
+msgid "Panels+: comic mode"
+msgstr "Panels+: modo quadrinho"
+
+msgid "Panels+: manga mode"
+msgstr "Panels+: modo mangá"
+
+msgid "Panels+: manga/comic mode"
+msgstr "Panels+: modo mangá/quadrinho"
+
+msgid "Panels+: set comic mode"
+msgstr "Panels+: definir modo quadrinho"
+
+msgid "Panels+: set manga mode"
+msgstr "Panels+: definir modo mang"
+
+msgid "Panels+: toggle panel focusing"
+msgstr "Panels+: alternar foco de painéis"
+
+msgid "Use KOReader's native panel zoom instead of the Panels+ panel sequence viewer."
+msgstr "Usar o zoom nativo de painéis do KOReader em vez do visualizador de sequência do Panels+."
+
+# More Config: navigation and text selection
+# Screen: More Config: swipe/tap navigation, direction and text-selection toggles.
+# Path: Open a book > open a panel > More config... .
+
+msgid "Invert panel swipe direction"
+msgstr "Inverter direção do deslizar entre painéis"
+
+msgid "Invert tap direction"
+msgstr "Inverter direção dos toques"
+
+msgid "More Config"
+msgstr "Mais configurações"
+
+msgid "Open advanced options"
+msgstr "Abrir opções avançadas"
+
+msgid "Swipe to navigate"
+msgstr "Deslizar para navegar"
+
+msgid "Tap screen sides to navigate"
+msgstr "Tocar nas laterais para navegar"
+
+msgid "Touch & hold text selection"
+msgstr "Seleção de texto com toque longo"
+
+# Panel-opening gesture picker
+# Screen: Open panels with: Long press / Two-finger tap, including their help text.
+# Path: Panel viewer > More config... > Open panels with; or top menu > Tools > Panels+ > Open panels with.
+
+msgid "A long press on the page opens the panel under it. Panels+ takes over KOReader's long press on comic pages."
+msgstr "Um toque longo na página abre o painel tocado. Nas páginas de quadrinhos, o Panels+ passa a controlar o toque longo do KOReader."
+
+msgid "A tap with two fingers opens the panel under them, and a long press is left to KOReader or other plugins. Needs a multi-touch screen."
+msgstr "Um toque com dois dedos abre o painel tocado e deixa o toque longo para o KOReader ou outros plugins. Requer uma tela com suporte a multitoque."
+
+msgid "Long press"
+msgstr "Toque longo"
+
+msgid "Open panels with"
+msgstr "Abrir painéis com"
+
+msgid "Two-finger tap"
+msgstr "Toque com dois dedos"
+
+# More Config: double-page spreads
+# Screen: More Config: Rotate spreads / Remove spread fold line and their values.
+# Path: Panel viewer > More config... > Rotate spreads / Remove spread fold line.
+
+msgid "Viewer"
+msgstr "Visualizador"
+
+msgid "Viewer + reading"
+msgstr "Visualizador + leitura"
+
+msgid "Reading"
+msgstr "Leitura"
+
+msgid "Remove spread fold line"
+msgstr "Remover dobra da página dupla"
+
+msgid "Rotate spreads"
+msgstr "Girar páginas duplas"
+
+# Advanced options: reader preferences and diagnostics
+# Screen: Panels+ reader menu: per-book settings, native PDF text, pre-rendering, edge gestures and debug logging.
+# Path: Panel viewer > More config... > Open advanced options; or top menu > Tools > Panels+.
+
+msgid "Enable debugging logs"
+msgstr "Ativar logs de depuração"
+
+msgid "Remember per-document settings"
+msgstr "Lembrar configurações por documento"
+
+msgid "Pre-render next panel"
+msgstr "Pré-renderizar próximo painel"
+
+msgid "Write panel detection, render timings, and memory usage to KOReader's log. Useful for diagnosing slowness or crashes, otherwise leave off."
+msgstr "Grava detecção de painéis, tempos de renderização e memória no log do KOReader. Útil para diagnosticar lentidão ou falhas; caso contrário, deixe desativado."
+
+msgid "Kobo-like edge vertical gesture"
+msgstr "Gesto vertical de borda tipo Kobo"
+
+msgid "Panels+ advanced options are unavailable."
+msgstr "As opções avançadas do Panels+ não estão disponíveis."
+
+msgid "Prefer native-text layer in PDF files over Panels+ text recognition"
+msgstr "Priorizar o texto nativo do PDF em vez do reconhecimento de texto do Panels+"
+
+msgid "Use a word from the document's own text layer when it covers the pressed position. Otherwise, try KOReader's word detection and Panels+ text recognition."
+msgstr "Usa a palavra do texto nativo do documento que estiver no ponto tocado. Se não houver uma palavra ali, tenta a detecção de palavras do KOReader e o reconhecimento de texto do Panels+."
+
+# Advanced options: spread rotation direction
+# Screen: Spread rotation direction: automatic, clockwise and counter-clockwise choices.
+# Path: Top menu > Tools > Panels+ > Spread rotation direction; also accessible through More config... > Open advanced options.
+
+msgid "Spread rotation direction"
+msgstr "Direção de rotação das páginas duplas"
+
+msgid "Which way double-page spreads are rotated, in the panel viewer and while reading. The first choice follows \"Invert default rotation in portrait mode\" in KOReader's rotation settings."
+msgstr "Define o sentido de rotação das páginas duplas, no visualizador e na leitura. A primeira opção segue \"Inverter a rotação padrão no modo retrato\" nas configurações de rotação do KOReader."
+
+msgid "Same as KOReader's image viewer"
+msgstr "Igual ao visualizador do KOReader"
+
+msgid "Clockwise"
+msgstr "Sentido horário"
+
+msgid "Counter-clockwise"
+msgstr "Sentido anti-horário"
+
+# Animation and transition settings
+# Screen: Animation settings: transition toggles, duration, frames, smooth style and preview notices.
+# Path: Top menu > Tools > Panels+ > Animation; or panel viewer > hold Nav. Animated / Nav. Smooth.
+
+msgid "Classic"
+msgstr "Clássico"
+
+msgid "Smooth"
+msgstr "Suave"
+
+msgid "Animated"
+msgstr "Animado"
+
+msgid "(Long Press)"
+msgstr "(Toque longo)"
+
+msgid "(Long press config)"
+msgstr "(Config. de toque longo)"
+
+msgid "Adjust how long the camera pan between panels takes in milliseconds."
+msgstr "Ajusta a duração (ms) do movimento da câmera entre painéis."
+
+msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgstr "Também desloca a câmera pela borda entre o último painel de uma página e o primeiro da seguinte, em vez de corte instantâneo. Só anima quando a página adjacente já foi detectada em segundo plano; caso contrário, a transição continua como corte instantâneo."
+
+msgid "Animate page-to-page transitions (Actual: "
+msgstr "Animar transições entre páginas (Atual: "
+
+msgid "Animate between panels (Actual: "
+msgstr "Animar entre painéis (Atual: "
+
+msgid "Animate between pages (Actual: "
+msgstr "Animar entre páginas (Atual: "
+
+msgid "How long the camera pan between panels takes."
+msgstr "Duração do movimento da câmera entre painéis."
+
+msgid "How many discrete steps the smooth camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "Em quantos passos o deslocamento suave da câmera entre painéis é dividido. Mais quadros deixam a transição mais suave, mas exigem mais trabalho por transição."
+
+msgid "How many steps the camera pan between panels is split into. More frames look smoother but schedule more work per transition."
+msgstr "Em quantos passos o deslocamento da câmera entre painéis é dividido. Mais quadros deixam a transição mais suave, mas exigem mais trabalho por transição."
+
+msgid "Nav. Classic"
+msgstr "Navegação clássica"
+
+msgid "Nav. Animated"
+msgstr "Navegação animada"
+
+msgid "Nav. Smooth"
+msgstr "Navegação suave"
+
+msgid "Navigation Transition Settings"
+msgstr "Ajustes de transição de navegação"
+
+msgid "Navigation"
+msgstr "Navegação"
+
+msgid "Pan animation duration..."
+msgstr "Duração da animação de deslocamento..."
+
+msgid "Smooth navigation duration"
+msgstr "Duração da navegação suave"
+
+msgid "Smooth navigation frames"
+msgstr "Quadros da navegação suave"
+
+msgid "Transition frames (Actual: "
+msgstr "Quadros de transição (Atual: "
+
+msgid "frames"
+msgstr "quadros"
+
+msgid " fps)"
+msgstr " fps)"
+
+msgid "After changing Smooth settings, preview the next panel and return here. At the last panel, preview the previous panel instead. A preview needs at least two panels."
+msgstr "Após ajustar a navegação suave, veja uma prévia da transição para o próximo painel e volte aqui. Se estiver no último painel, a prévia usa o anterior. É preciso ter pelo menos dois painéis."
+
+msgid "Animate between pages"
+msgstr "Animar entre páginas"
+
+msgid "Animate between panels"
+msgstr "Animar entre painéis"
+
+msgid "Animate page-to-page transitions"
+msgstr "Animar transições entre páginas"
+
+msgid "Animation"
+msgstr "Animação"
+
+msgid "Cycle CSS timing functions for pan and zoom, or select Classic for the earlier camera pan."
+msgstr "Alterne entre curvas de animação CSS para o deslocamento e o zoom, ou escolha Clássico para usar o movimento de câmera anterior."
+
+msgid "Pan animation duration"
+msgstr "Duração da animação de deslocamento"
+
+msgid "Preview can't be shown because only one panel is available in the current panel view. Select another document/book."
+msgstr "Não é possível mostrar a prévia porque só há um painel nesta visualização. Selecione outro documento ou livro."
+
+msgid "Preview can't be shown in this book because it contains only one panel. Select another document/book."
+msgstr "Não é possível mostrar a prévia porque este livro só tem um painel. Selecione outro documento ou livro."
+
+msgid "Preview smooth transitions"
+msgstr "Prévia das transições suaves"
+
+msgid "Smooth style"
+msgstr "Estilo da navegação suave"
+
+msgid "Transition frames"
+msgstr "Quadros de transição"
+
+# Crop modes and crop adjustment dialogs
+# Screen: Viewer crop modes and the panel-margin / loose-crop bleed adjustment dialogs.
+# Path: Panel viewer > tap the crop button to cycle modes > hold With margin / Loose crop to adjust.
+
+msgid "Crop"
+msgstr "Corte"
+
+msgid "How much page area outside each panel's edges to reveal."
+msgstr "Quanta área além das bordas de cada painel deve aparecer."
+
+msgid "Loose crop"
+msgstr "Corte amplo"
+
+msgid "Loose crop bleed"
+msgstr "Margem do corte amplo"
+
+msgid "No crop"
+msgstr "Sem corte"
+
+msgid "Panel margin"
+msgstr "Margem do painel"
+
+msgid "Strict crop"
+msgstr "Corte estrito"
+
+msgid "With margin"
+msgstr "Com margem"
+
+msgid "Zooms panels out a little to leave breathing room around them. Has no effect on full-page panels."
+msgstr "Diminui um pouco o zoom dos painéis para dar espaço ao redor. Sem efeito em painéis de página inteira."
+
+# Panel detection
+# Screen: Viewer panel-detection button and its mode labels.
+# Path: Open a book > open a panel > panel-detection button.
+
+msgid "Panels Finding: Safe"
+msgstr "Detecção de painéis: Segura"
+
+msgid "Panels Finding: Smart"
+msgstr "Detecção de painéis: Inteligente"
+
+msgid "Deep mode"
+msgstr "Modo profundo"
+
+# Rotation picker and orientation values
+# Screen: Rotation picker and orientation names reused in profile details.
+# Path: Panel viewer > Rotate icon; or Settings Profile: > Manage profiles... > select a profile > Rotation.
+
+msgid "Portrait"
+msgstr "Retrato"
+
+msgid "Landscape right"
+msgstr "Paisagem à direita"
+
+msgid "Inverted portrait"
+msgstr "Retrato invertido"
+
+msgid "Landscape left"
+msgstr "Paisagem à esquerda"
+
+msgid "Device"
+msgstr "Dispositivo"
+
+msgid "Image"
+msgstr "Imagem"
+
+msgid "Auto"
+msgstr "Auto"
+
+msgid "Device rotation"
+msgstr "Rotação do dispositivo"
+
+msgid "Image rotation (this view only)"
+msgstr "Rotação da imagem (só nesta tela)"
+
+msgid "No rotation"
+msgstr "Sem rotação"
+
+msgid "Rotation"
+msgstr "Rotação"
+
+# OCR model picker and disabled-selection warning
+# Screen: OCR model groups, installation instructions and the disabled-text-selection warning.
+# Path: Panel viewer > OCR icon. To enable selection: More config... > Touch & hold text selection.
+
+msgid "Install Panels+ with OCR bundled, or install your own OCR models in /koreader/data/tessdata"
+msgstr "Instale a versão do Panels+ com modelos de OCR incluídos ou adicione seus próprios modelos em /koreader/data/tessdata"
+
+msgid "KOReader User Installed"
+msgstr "Instalados pelo usuário no KOReader"
+
+msgid "OCR text selection is disabled. Enable ‘Touch & hold text selection’ in ‘More Config…’ to use OCR and select an OCR model."
+msgstr "A seleção de texto por OCR está desativada. Ative “Seleção de texto com toque longo” em “Mais configurações...” para usar o OCR e escolher um modelo."
+
+msgid "Panels+ Fine-Tuned"
+msgstr "Modelos ajustados para o Panels+"
+
+msgid "Select OCR Model"
+msgstr "Selecionar modelo de OCR"
+
+# Settings profiles: selection, management and editing
+# Screen: Profile selector, name entry, profile details, editor and save/delete confirmations.
+# Path: Panel viewer > Settings Profile: > Create from current settings...; or Manage profiles... > select a profile > Edit settings... / Rename... / Delete... .
+
+msgid "None"
+msgstr "Nenhum"
+
+msgid "The profile's OCR model is unavailable. The available fallback is in use; profile selection is None."
+msgstr "O modelo de OCR do perfil está indisponível. O modelo alternativo está em uso; o perfil selecionado é Nenhum."
+
+msgid "Rename profile"
+msgstr "Renomear perfil"
+
+msgid "Create profile from current settings"
+msgstr "Criar perfil com as configurações atuais"
+
+msgid "Create from current settings..."
+msgstr "Criar com as configurações atuais..."
+
+msgid "Manage profiles..."
+msgstr "Gerenciar perfis..."
+
+msgid "Settings Profiles"
+msgstr "Perfis de configurações"
+
+msgid "Manage Profiles"
+msgstr "Gerenciar perfis"
+
+msgid "Shown"
+msgstr "Visível"
+
+msgid "Hidden"
+msgstr "Oculto"
+
+msgid "Edit settings..."
+msgstr "Editar configurações..."
+
+msgid "Rename..."
+msgstr "Renomear..."
+
+msgid "Replace with current settings..."
+msgstr "Substituir pelas configurações atuais..."
+
+msgid "Replace this profile with the current reading settings?"
+msgstr "Substituir este perfil pelas configurações de leitura atuais?"
+
+msgid "Delete..."
+msgstr "Excluir..."
+
+msgid "Delete profile?"
+msgstr "Excluir perfil?"
+
+msgid "Edit profile"
+msgstr "Editar perfil"
+
+msgid "Profile setting"
+msgstr "Configuração do perfil"
+
+msgid "Choose a non-empty name other than None."
+msgstr "Escolha um nome não vazio diferente de Nenhum."
+
+msgid "A profile with this name already exists."
+msgstr "Já existe um perfil com este nome."
+
+msgid "Reading order"
+msgstr "Ordem de leitura"
+
+msgid "Progress"
+msgstr "Progresso"
+
+msgid "OCR"
+msgstr "OCR"
+
+msgid "Settings Profile:"
+msgstr "Perfil de configurações:"
+
+msgid "Recommended"
+msgstr "Recomendado"
+
+# First/last panel boundary confirmations
+# Screen: Confirmation before returning to KOReader at the beginning or end of the book.
+# Path: Panel viewer > navigate backward from the first panel or forward from the last panel.
+
+msgid "Continue"
+msgstr "Continuar"
+
+msgid "Stay here"
+msgstr "Ficar aqui"
+
+msgid "This is the first panel of the first page. Continue to KOReader’s beginning of the book?"
+msgstr "Este é o primeiro painel da primeira página. Ir para o início do livro no KOReader?"
+
+msgid "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
+msgstr "Este é o último painel da última página. Continuar com a ação de fim de livro do KOReader?"
+
+# Legacy entries
+# The following msgids have no entries in the current English catalog.
+# Existing translations are retained here, outside the active screen groups.
+
+# Legacy: Shared actions and status values
+# Related screen: Shared dialog buttons, language names and enabled/disabled values.
+# Related path (context only; these entries are unused): Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.
+
+msgid "Show"
+msgstr "Mostrar"
+
+msgid "Hide"
+msgstr "Ocultar"
+
+msgid "Skip"
+msgstr "Pular"
+
+# Legacy: Panel viewer: main controls and action rail
+# Related screen: Panel viewer: reading mode, scale, progress and menu buttons.
+# Related path (context only; these entries are unused): Open a book > long-press a panel (or use the configured two-finger tap) > tap the panel to show controls.
+
+msgid "Shot"
+msgstr "Captura"
+
+# Legacy: More Config: navigation and text selection
+# Related screen: More Config: swipe/tap navigation, direction and text-selection toggles.
+# Related path (context only; these entries are unused): Open a book > open a panel > More config... .
+
+msgid "Allow touch and hold on text inside zoomed panels to select text and trigger OCR-based dictionary lookups. On by default; turn off if the OCR word detection misfires often on your comics."
+msgstr "Permite tocar e manter pressionado o texto em painéis ampliados para selecionar texto e acionar consultas ao dicionário via OCR. Ativado por padrão; desative se a detecção de palavras por OCR falhar com frequência nos seus quadrinhos."
+
+msgid "Swipe left/right to move between panels. Turning this off leaves panel navigation to taps, buttons, or physical page-turn keys only."
+msgstr "Deslize para a esquerda/direita para navegar entre painéis. Desativando, a navegação fica só com toques, botões ou teclas físicas de virada de página."
+
+msgid "Tap the left or right edge of the screen to move to the previous or next panel, instead of only showing/hiding the controls. Which side advances depends on reading mode: right side in Comic mode, left side in Manga mode. Only active at standard zoom."
+msgstr "Toque na borda esquerda ou direita da tela para ir ao painel anterior ou seguinte, em vez de só mostrar/ocultar os controles. O lado que avança depende do modo: direito no modo quadrinho, esquerdo no modo mangá. Ativo só no zoom padrão."
+
+msgid "Text Selection"
+msgstr "Seleção de texto"
+
+msgid "Touch & hold text selection in zoom [EXPERIMENTAL]"
+msgstr "Seleção de texto com toque longo no zoom [EXPERIMENTAL]"
+
+msgid "Use this if panel navigation feels reversed on your device. It changes swipe direction only, not panel order."
+msgstr "Use se a navegação entre painéis parecer invertida no dispositivo. Altera só a direção do deslizar, não a ordem dos painéis."
+
+# Legacy: More Config: double-page spreads
+# Related screen: More Config: Rotate spreads / Remove spread fold line and their values.
+# Related path (context only; these entries are unused): Panel viewer > More config... > Rotate spreads / Remove spread fold line.
+
+msgid "Auto-rotate double-page spreads"
+msgstr "Girar páginas duplas automaticamente"
+
+msgid "Rotate a wide full-page image inside the panel viewer to fit a portrait screen. Manual image rotation takes priority; device orientation is unchanged."
+msgstr "Girar uma imagem larga de página inteira no visualizador para ajustá-la a uma tela em retrato. A rotação manual da imagem tem prioridade; a orientação do dispositivo não muda."
+
+msgid "Remove the fold line from double-page spreads"
+msgstr "Remover a linha de dobra das páginas duplas"
+
+msgid "Some scans join the two pages of a spread with a black strip. Remove that strip and join the two halves, on the reading page and in the panel viewer. When a page is zoomed in so far that it is rendered in parts, the strip stays."
+msgstr "Alguns escaneamentos unem as duas páginas de uma página dupla com uma faixa preta. Remova essa faixa e una as metades, na página de leitura e no visualizador de painéis. Quando uma página é ampliada a ponto de ser renderizada em partes, a faixa permanece."
+
+msgid "Rotate double-page spreads by a quarter turn so they fill a portrait screen. In the panel viewer the whole-spread image is rotated and the device stays as it is. While reading, the screen is rotated when a page turn lands on a spread and restored on the next normal page, in the same direction."
+msgstr "Gira as páginas duplas em 25° para preencherem uma tela em modo retrato. No visualizador de painéis a imagem da página dupla é girada enquanto o dispositivo permanece na mesma posição. Na leitura, a tela é girada quando uma virada de página cai numa página dupla e é restaurada na próxima página normal, na mesma direção."
+
+msgid "In the panel viewer"
+msgstr "no visualizador de painéis"
+
+msgid "In the panel viewer and while reading"
+msgstr "no visualizador de painéis e na leitura"
+
+msgid "While reading"
+msgstr "Durante a leitura"
+
+# Legacy: Advanced options: reader preferences and diagnostics
+# Related screen: Panels+ reader menu: per-book settings, native PDF text, pre-rendering, edge gestures and debug logging.
+# Related path (context only; these entries are unused): Panel viewer > More config... > Open advanced options; or top menu > Tools > Panels+.
+
+msgid "Swipe vertically within the left 25% of the screen to zoom in (swipe up) or zoom out (swipe down), similar to Kobo's edge gesture. Only active at standard zoom."
+msgstr "Deslize verticalmente nos 25% esquerdos da tela para ampliar (para cima) ou reduzir (para baixo), como no gesto de borda do Kobo. Ativo só no zoom padrão."
+
+msgid "Performance"
+msgstr "Desempenho"
+
+msgid "Render the next panel while you read the current one, so swiping to it is instant. Skipped automatically when the device is low on memory."
+msgstr "Renderiza o próximo painel enquanto você lê o atual, para que deslizar até ele seja instantâneo. Ignorado quando o dispositivo estiver com pouca memória."
+
+# Legacy: Advanced options: spread rotation direction
+# Related screen: Spread rotation direction: automatic, clockwise and counter-clockwise choices.
+# Related path (context only; these entries are unused): Top menu > Tools > Panels+ > Spread rotation direction; also accessible through More config... > Open advanced options.
+
+msgid "KOReader"
+msgstr "KOReader"
+
+# Legacy: Animation and transition settings
+# Related screen: Animation settings: transition toggles, duration, frames, smooth style and preview notices.
+# Related path (context only; these entries are unused): Top menu > Tools > Panels+ > Animation; or panel viewer > hold Nav. Animated / Nav. Smooth.
+
+msgid " (fps)"
+msgstr " (fps)"
+
+msgid "Requires special e-ink devices swipe hardware support (Kindles, Kobos, etc..) not compatible with Android and Desktop (Linux)"
+msgstr "Requer suporte de hardware a gestos de deslizar em e-ink (Kindles, Kobos etc.); incompatível com Android e Desktop (Linux)."
+
+msgid "Page turn animations (Actual: "
+msgstr "Animações de virada de página (Atual: "
+
+msgid "Animate page boundaries in PDF, CBZ, CBR, and embedded-image documents. Smooth navigation temporarily disables this animation because the two effects are incompatible; returning to Classic restores the saved preference."
+msgstr "Anima os limites de página em PDF, CBZ, CBR e imagens incorporadas. A navegação suave desativa temporariamente esta animação porque os efeitos são incompatíveis; voltar ao Clássico restaura a preferência salva."
+
+msgid "Sync page animations with KOReader (Actual: "
+msgstr "Sincronizar animações de página com o KOReader (Atual: "
+
+msgid "When enabled, Panels+ follows KOReader's global Page turn animations setting and changes made here update KOReader too. Disable sync to keep an independent Panels+ on/off preference."
+msgstr "Quando ativado, o Panels+ segue a configuração global de Animações de virada de página do KOReader, e mudanças aqui também o atualizam. Desative para manter uma preferência independente do Panels+."
+
+# Legacy: Panel detection
+# Related screen: Viewer panel-detection button and older detector choices/help retained in the catalog.
+# Related path (context only; these entries are unused): Open a book > open a panel > Deep mode button. Earlier detector choices are not all exposed in the current UI.
+
+msgid "Always detect panels from a reduced-size page. Quickest, and the only mode that works on pages with a dark background, but it cannot split interlocking panel layouts."
+msgstr "Sempre detectar painéis a partir de uma página em tamanho reduzido. Mais rápido e o único modo que funciona em páginas com fundo escuro, mas não consegue dividir layouts de painéis interligados."
+
+msgid "Always use KOReader's own panel detector. Slower and unable to find panels on pages with a dark background, but more literal about panel edges. Unavailable in comic mode, where dark backgrounds are common."
+msgstr "Sempre usar o detector de painéis nativo do KOReader. Mais lento e incapaz de encontrar painéis em páginas com fundo escuro, mas mais fiel às bordas dos painéis. Indisponível no modo quadrinho, onde fundos escuros são comuns."
+
+msgid "Comic mode only. Split panels that touch edge to edge with no gap between them, using the black stroke the artist drew between them. Off by default: that stroke looks exactly like a horizon, a caption rule or a black band drawn inside a single panel, so this also cuts some whole panels in half. Try it if your comic's panels are being merged together."
+msgstr "Somente no modo quadrinho. Divide painéis que se tocam de borda a borda, sem espaço, usando o traço preto desenhado pelo artista. Desativado por padrão: esse traço parece um horizonte, uma linha de legenda ou uma faixa preta dentro de um painel, então também corta alguns painéis inteiros ao meio. Experimente se os painéis do seu quadrinho estiverem sendo mesclados."
+
+msgid "Panel detection"
+msgstr "Detecção de painéis"
+
+msgid "Quick mode"
+msgstr "Modo rápido"
+
+msgid "Smart Mode"
+msgstr "Modo inteligente"
+
+msgid "Split on drawn panel borders (experimental)"
+msgstr "Dividir nas bordas desenhadas (experimental)"
+
+msgid "Use fast detection, falling back to exact detection on layouts it cannot split. Recommended."
+msgstr "Usar detecção rápida, recorrendo a detecção exata em layouts que não puder dividir. Recomendado."
+
+# Legacy: Legacy OCR review dialogs
+# Related screen: Earlier OCR review prompts and word-box correction dialogs; translations retained.
+# Related path (context only; these entries are unused): No current menu entry. Former flow: enable OCR debug review > hold text for lookup > review result > mark word corners > correct text.
+
+msgid "After each dictionary lookup that used OCR in a zoomed panel, ask whether the word was read correctly. If not, draw the correct word box and type what it actually says. Everything -- including the exact long-press point -- is appended to OCR.debug.session.log for later review. Off by default."
+msgstr "Após cada consulta ao dicionário que usou OCR em um painel ampliado, perguntar se a palavra foi lida corretamente. Se não, desenhe a caixa da palavra correta e digite o que ela realmente contém. Tudo -- incluindo o ponto exato do toque longo -- é registrado em OCR.debug.session.log para revisão posterior. Desativado por padrão."
+
+msgid "Correct word/text"
+msgstr "Corrigir palavra/texto"
+
+msgid "No, wrong"
+msgstr "Não, incorreto"
+
+msgid "OCR debug review mode"
+msgstr "Modo de revisão de depuração de OCR"
+
+msgid "Panels+ OCR debug"
+msgstr "Depuração OCR do Panels+"
+
+msgid "Panels+ OCR debug: no word was read here. Draw the correct box and type what it says."
+msgstr "Depuração OCR do Panels+: nada foi lido aqui. Desenhe a caixa correta e digite o texto."
+
+msgid "Panels+ OCR debug\n\nWas the OCR word correct?"
+msgstr "Depuração OCR do Panels+\n\nA palavra do OCR estava correta?"
+
+msgid "Tap the correct word's top-left corner, then tap its bottom-right corner."
+msgstr "Toque no canto superior esquerdo da palavra correta, depois no canto inferior direito."
+
+msgid "Top-left corner marked. Now tap the bottom-right corner."
+msgstr "Canto superior esquerdo marcado. Agora toque no inferior direito."
+
+msgid "What is actually written in the box you drew?"
+msgstr "O que está escrito na caixa que você desenhou?"
+
+msgid "Yes, correct"
+msgstr "Sim, correto"
+
+# Legacy: Legacy configuration labels
+# Related screen: Former More Panel Viewer Settings menu and inline labels containing "Actual:"; translations retained.
+# Related path (context only; these entries are unused): No current menu entry for these labels. Former flow: panel viewer > More config... > select an option; current options have separate status values.
+
+msgid "Comic mode (left to right)"
+msgstr "Modo quadrinho (da esquerda para direita)"
+
+msgid "Invert panel swipe direction (Actual: "
+msgstr "Inverter direção do deslizar entre painéis (Atual: "
+
+msgid "Invert tap screens direction"
+msgstr "Inverter direção dos toques na tela"
+
+msgid "Invert tap screens direction (Actual: "
+msgstr "Inverter direção dos toques na tela (Atual: "
+
+msgid "Kobo-like edge vertical gesture (Actual: "
+msgstr "Gesto vertical de borda tipo Kobo (Atual: "
+
+msgid "Remember per-document settings (Actual: "
+msgstr "Lembrar configurações por documento (Atual: "
+
+msgid "Manga mode (right to left)"
+msgstr "Modo mangá (direita-esquerda)"
+
+msgid "More Panel Viewer Settings"
+msgstr "Mais opções do visualizador de painéis"
+
+msgid "Pre-render next panel (Actual: "
+msgstr "Pré-renderizar próximo painel (Atual: "
+
+msgid "Swipe to navigate (Actual: "
+msgstr "Deslizar para navegar (Atual: "
+
+msgid "Tap screen sides to navigate (Actual: "
+msgstr "Tocar nas laterais para navegar (Atual: "
+
+msgid "Touch & hold (Actual: "
+msgstr "Toque longo (Atual: "
+
+msgid "Remove spread fold line (Actual: "
+msgstr "Remover dobra da página dupla (Atual: "
+
+msgid "Rotate spreads (Actual: "
+msgstr "Girar páginas duplas (Atual: "
+
+msgid "Spread direction (Actual: "
+msgstr "Direção da página dupla (Atual: "

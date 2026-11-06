@@ -249,7 +249,7 @@ If you're interested in contributing:
 
 - Check out our [Translations Quick Guide](./docs/translations/README.md) to get started.
 
-Currently there is only ***English*** and ***Spanish*** support.
+Currently supported languages are ***English***, ***Spanish***, ***Simplified Chinese***, and ***Brazilian Portuguese***.
 
 ---
 

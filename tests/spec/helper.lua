@@ -329,6 +329,24 @@ function WidgetStub:getSize()
 end
 function WidgetStub:free() end
 
+preload("ui/font", function()
+    return {
+        getFace = function(_, _, size)
+            return { size = size }
+        end,
+    }
+end)
+
+preload("ui/widget/textboxwidget", function()
+    local TextBox = setmetatable({}, { __index = WidgetStub })
+    function TextBox:getSize()
+        -- Approximate wrapping for layout tests without KOReader's font engine.
+        local lines = math.max(1, math.ceil(#self.text * self.face.size / 2 / self.width))
+        return { w = self.width, h = lines * 12 }
+    end
+    return TextBox
+end)
+
 for _, name in ipairs({
     "ui/widget/buttontable",
     "ui/widget/container/centercontainer",
