@@ -11,11 +11,24 @@ instead of reconstructed from assumptions.
 
 ## Current state — as of 2026-11-02
 
+**Documentation site:** new standalone Fumadocs/Bun submodule at
+`references-repos/plugins/ink-away/Ink-away-documentation/`, origin
+`https://github.com/KristanLaimon/Ink-away-documentation.git`. The former template
+code is replaced with Fumadocs integration/API articles and an Ink-away.koplugin
+landing page. Site changes through c19a2a7 (crayon animation) are pushed to
+origin/main. A subsequent readability rewrite is local and uncommitted:
+14 pages, beginner introduction, two guides and one page per public Ink Away
+method/field (entry 31). Static build, Lua snippets and exported links pass.
+Parent submodule registration/staging should be inspected before committing.
+
 **Latest outcome:** the loading-order handshake is complete and validated in
 `references-repos/plugins/ink-away/rolling.koplugin/`, local branch
-`feature/plugin-integration`, unchanged HEAD/base
-`8dda5407e05446dddb20ba5d6fbac263955d0db3` (entries 17–20). The ready instance and
-per-widget configuration queue support either loading order; composite installs
+`feature/plugin-integration`, now HEAD
+`b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2` with unchanged ancestor base
+`8dda5407e05446dddb20ba5d6fbac263955d0db3`. Four atomic commits were pushed
+to the user fork (entry 25). The ready instance and
+per-consumer method queue (`pending[consumer] = true`, then
+`consumer:configureInkAway(ink)`) supports either loading order (entry 24); composite installs
 are idempotent and return cleanup. Panels+ uses that protocol and preserves
 handoffs. Tests and API/architecture docs are updated in the canonical checkout.
 The former `.cache/.../ink-away-annotation-surfaces/` directory is a **frozen
@@ -23,7 +36,8 @@ backup**. Do not edit/build from it or create new retained patches/worktrees.
 The skill now requires direct rolling development on a local feature branch,
 without commits, staging, remote updates or rebase unless explicitly requested.
 The obsolete generated patch archive has been removed; historical identities
-remain below (entry 21). Stable 4.4.0 remains unchanged. This work is uncommitted and **not installed**;
+remain below (entry 21). Stable 4.4.0 remains unchanged. Ink Away changes are committed/pushed; Panels+
+changes remain uncommitted. This work is **not installed**;
 the installed target remains `build.1nDooCiZ`. Next: review the working diffs;
 only build/install or integrate upstream when the user requests those actions.
 
@@ -32,17 +46,17 @@ only build/install or integrate upstream when the user requests those actions.
 | Component | Version / exact identity | Location and state |
 | --- | --- | --- |
 | Panels+ source | **1.5.1 development**; HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d` | This live plugin project, `/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin`; branch `feat/ink-away-compatibility`; the provider registration, integration/native tests, history and patch-archive removal are uncommitted; no source staging was changed by this task. Inspect status before editing. |
-| Ink Away active source | **4.4.0 patched rolling**, HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `feature/plugin-integration` | `references-repos/plugins/ink-away/rolling.koplugin/`; explicitly user-authorized writable checkout. All transferred changes are unstaged/new files; upstream HEAD and submodule pointer unchanged. |
+| Ink Away active source | **4.4.0 patched rolling**, HEAD `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, ancestor base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `feature/plugin-integration` | `references-repos/plugins/ink-away/rolling.koplugin/`; explicitly user-authorized writable checkout. Four commits pushed to kristanlaimonorigin; branch tracks that fork. Only .foxnvim remains untracked. Parent submodule pointer is unstaged. |
 | Ink Away frozen backup | HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10`, plus refactor/docs/loading-order changes at migration | `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`; preserved byte-for-byte, including user staging and `.foxnvim/pins.json`. Do not use for further development. |
 | Original stable target | **4.4.0** | `references-repos/plugins/ink-away/stable/v4_4_0/`; immutable reference, surface feature absent. |
-| Upstream rolling base | **4.4.0 metadata**, commit `8dda5407e05446dddb20ba5d6fbac263955d0db3` | Git HEAD of the now-writable rolling checkout. Historical original-rolling test results refer to this commit without local changes; current default rolling tests use the modified checkout. |
+| Upstream rolling base | **4.4.0 metadata**, commit `8dda5407e05446dddb20ba5d6fbac263955d0db3` | Ancestor base of the now-writable rolling checkout. Historical original-rolling test results refer to this commit without local changes; current default rolling tests use the modified checkout. |
 | KOReader source reference | Commit `035e00b21d0286325ef2e8a7e3b6326f340e2ded` | `references-repos/koreader/`; read-only host reference. |
 | Native test runtime | **v2026.07.1**, Linux x86_64 | `/usr/lib/koreader`; real widgets/blitter/MuPDF tested in isolated scratch homes. This is distinct from the source reference. |
 
 Keep the existing source and target changes. The ownership table above supersedes
 historical worktree/immutable-rolling instructions below. Do not refresh references, recreate
 the working copy, reapply patches to it, or overwrite staged work just to resume.
-No upstream PR/push is recorded. Earlier user-authorized atomic commits are in
+No upstream PR/push is recorded; the user fork branch push is recorded in entry 25. Earlier user-authorized atomic commits are in
 entry 04; source viewport commit `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd`
 was observed while preparing this handoff. Target follow-ups remain uncommitted.
 Version strings have not been bumped:
@@ -1204,3 +1218,291 @@ One initial edit command used the wrong cwd and changed nothing; corrected it,
 then addressed the unused mock arguments found by lint. No runtime suite rerun
 or functionality claim for these nonfunctional examples. Runtime sources,
 installation, staging and Git base remain unchanged; no commit/remote update.
+
+
+## 23 — 2026-11-02 — Consumer-role documentation mocks
+
+User requested event-only and rendering-consumer examples, each handling both
+loading orders. Source Panels+ 1.5.1 remains at b648faf4ade09ea22b06716406ba2288a3389c0d
+on feat/ink-away-compatibility; target Ink Away 4.4.0 modified rolling remains
+at 8dda5407e05446dddb20ba5d6fbac263955d0db3 on feature/plugin-integration,
+with the existing uncommitted diff. Stable and frozen backup are untouched.
+
+Replaced the two before/after docs mocks with main-event-only.lua and
+main-rendering-consumer.lua beside Plugin-integration.md. Event-only uses its
+plugin table as a readiness-queue key and subscribes/unsubscribes without viewer,
+surface, surface version check or surface release. Rendering keeps the viewer
+and surface injection with optional scoped callbacks. Both handle ready and
+queued paths, cancellation and disposal. Updated guide links, registration flow
+and queue terminology; consumer roles may coexist in one plugin. The runtime
+queue already accepts table keys, so no runtime change is needed.
+
+Validation: both Lua mocks compile with LuaJIT; Luacheck reports zero warnings/errors.
+Guide local file links, code fences and both repositories' diff whitespace checks
+pass. Runtime suites were not rerun for this documentation-only change.
+No runtime installation, staging, commits or remote updates.
+
+
+## 24 — 2026-11-02 — Direct configureInkAway consumer method
+
+User authorized replacing callback wrappers with consumer:configureInkAway(ink).
+Lua method names cannot contain hyphens; configureInkAway names the integration
+explicitly. Same source/target versions, branches and bases as entry 23; all
+changes remain uncommitted in Panels+ and canonical rolling Ink Away.
+Queue contract becomes pending[consumer] = true; publication invokes the method
+with consumer as self. Updated Panels+ and documentation mocks, retaining queue
+cancellation, initialization ordering, failure isolation and shutdown guards.
+Validation from canonical rolling: `luajit tests/loading_order.lua` passes 57
+checks (47 existing plus 10 event-only checks for both load orders, method self,
+no provider registration, native event payload and unsubscribe);
+`luajit tests/integration.lua` passes 30. These load actual Ink Away modules with
+host menus/shelf/pen/UI fixtures; event-only checks emit native-style lifecycle
+payloads through the actual registry rather than exercising physical input.
+From Panels+ root, stable-first `./run-tests.sh --compatibility-plugin=ink-away
+--compatibility-plugin-version=4.4.0` passes 5 fallback checks, followed by
+`rollingrelease` passing 44 integration checks, including actual Panels+ ready,
+deferred and cancellation paths. Target registry, both mocks and Panels+ viewer
+Luacheck pass with zero warnings/errors; both repositories' whitespace checks
+pass. No pre-change failure run or live/device validation claimed. No deployment,
+staging, commits or remote operations. This replaces the unpublished callback-valued
+queue contract; older queued callback values are rejected/logged. Installed build
+and frozen backup remain unchanged.
+
+
+## 25 — 2026-11-02 — Atomic Ink Away commits and fork branch push
+
+User explicitly authorized commits and push to
+`git@github.com:KristanLaimon/ink-away.koplugin-fork.git`, using another remote
+`kristanlaimonorigin` as default. This overrides the usual no-commit/no-push
+policy for the Ink Away task changes only. Panels+ remains uncommitted.
+Same metadata versions and host/test provenance as entry 24.
+
+Created four Conventional Commits, without co-author trailers:
+- 704353b: feat(integration): expose annotation events and injectable rendering views
+- d811eb8: fix(export): render fixed-page books at bounded native page dimensions
+- 917ff54: fix(ui): restore text prompt focus on devices with directional keys
+- b5b83b2: docs(integration): document consumer roles and the public extension API
+
+Each code commit includes its tests and only its runner registrations. All
+original modified/untracked file bytes were hashed before committing and verified
+unchanged afterward. Local editor .foxnvim/pins.json was excluded and remains
+untracked. No co-author trailers occur in the four commit messages.
+
+Added the fork remote, set remote.pushDefault and branch pushRemote to it, then
+`git push --set-upstream kristanlaimonorigin feature/plugin-integration` succeeded
+as a new branch. HEAD and upstream tracking ref both resolve to
+b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2. Existing origin still points to
+EmirErtorer upstream. No fetch/pull/rebase/merge, main branch change or force push.
+No source logic changed during commit preparation; entry 24 test evidence carries
+forward, not claimed as rerun. Git staged-whitespace checks passed for each commit.
+No installation. Frozen backup and retained stashes remain intact.
+
+
+## 26 — 2026-11-02 — Standalone Fumadocs documentation submodule
+
+User initially requested reusing their cloned WhatsBotCord documentation, then
+explicitly replaced that plan with removing all template code and using Fumadocs.
+Also requested integration guides and complete public API pages. Bun only, no
+npx/pnpm. No commits or push authorized for this documentation work.
+
+Renamed the clone to references-repos/plugins/ink-away/Ink-away-documentation,
+registered it as a submodule, absorbed its gitdir, removed the old origin, and
+added https://github.com/KristanLaimon/Ink-away-documentation.git. Registration
+staged only .gitmodules and the new gitlink as Git requires, without commits.
+The clone history is retained; all old site source/config/content was removed.
+Used official create-fumadocs-app via bunx with static Next.js/MDX, local search,
+no Git initialization; generated in /tmp and transferred into the submodule.
+An earlier npx scaffold request was aborted before execution; Bun did the work.
+
+Built 22 documentation articles from the canonical rolling public API text,
+including guides and complete Lua mocks for both consumer roles, all public
+methods with parameter/return/edge-case tables, surface contract and optional
+methods, errors, compatibility and architecture. Added a new Ink-away.koplugin
+landing page and Bun scripts. No WhatsBotCord runtime, chat playground, branding
+or deployment workflow is retained. The frozen Ink Away backup is untouched.
+Validation: `bun install` generated bun.lock using Bun 1.4.3. `bun run
+types:check` passes. Initial `bun run build` (Turbopack) failed because this
+environment blocks its local worker-port binding, including an escalated retry.
+Changed the build script to supported `next build --webpack`; `bun run build`
+then passed TypeScript, compilation and all 50 static route outputs (22 docs,
+Markdown endpoints, search, homepage and support routes). Webpack reported
+upstream dynamic-import cache-dependency warnings, with a successful exit.
+Parsed generated HTML to verify cross-page documentation anchors; source links,
+code fences, exported search and exact downloadable Lua bytes pass. Both site
+and parent diff whitespace checks pass. No browser/device claim.
+
+Standalone docs HEAD remains inherited template commit
+733a00240c3141e504f9f985e0c984b0907a4844 on main. All replacement source is
+uncommitted/deleted/new; no remotes were fetched or pushed. Runtime Ink Away
+remains at b5b83b2; Panels+ runtime changes are untouched. To resume:
+`cd references-repos/plugins/ink-away/Ink-away-documentation`, `bun run dev`.
+Production output is out/; no deployment or GitHub Pages settings were changed.
+
+
+## 27 — 2026-11-02 — Ink Away title artwork and green documentation theme
+
+User requested the upstream ink-away-title.svg as homepage title, with
+readme-divider.svg immediately underneath, and green documentation styling.
+Same standalone docs HEAD 733a00240c3141e504f9f985e0c984b0907a4844 and
+uncommitted replacement as entry 26. Downloaded both original SVGs unchanged
+from raw.githubusercontent.com/EmirErtorer/ink-away.koplugin/main/assets/
+into public/assets/. Recorded their origin links in that directory's README.
+ink-away-title.svg SHA-256 751f0568a314d4025aa30e70c13c5f52eca211ba9a015f5d6b281729005f118e
+readme-divider.svg SHA-256 8430ee9792ddd43f9108359287c7dd47577faaa3fc56a0c6b15129efe7f7720d
+
+Replaced the homepage text heading with responsive local SVG artwork and
+placed the decorative divider directly below it. Kept an accessible title
+label and intrinsic image dimensions. Switched the Fumadocs preset to emerald
+and customized primary colors to match Ink Away lime lettering, with forest
+backgrounds in dark mode and green accents in light mode. No new packages.
+First download attempt failed sandbox DNS; authorized escalation succeeded.
+Validation: `bun run build` passes compilation, TypeScript and all 50 static
+route outputs. Parsed SVGs successfully; exported assets match downloaded
+bytes exactly. Generated homepage places title then divider then introduction.
+Diff whitespace checks pass. No browser screenshot/visual-device claim.
+No commits, push or deployment.
+
+
+## 28 — 2026-11-02 — Restore homepage and publish atomic documentation commits
+
+User rejected a homepage redesign and requested restoring the previous page.
+Restored the original SVG title/divider layout, removed the added CSS module
+and hero artwork, and rebuilt successfully with Bun. The resulting production
+build passes compilation, TypeScript and all 50 static outputs; no rejected
+design files are committed.
+
+User then explicitly authorized atomic commits with no co-author trailers and
+push. Documentation repo only: created three Conventional Commits:
+- 0d8e78c chore(docs): replace legacy site with Fumadocs and Bun
+- 7c2a17e docs(api): add integration guides and the complete public API reference
+- 9df86c2 feat(home): add Ink Away title artwork and green documentation theme
+
+The first commit has a minimal coherent homepage/docs index; the second adds
+all guides/API content, and the third adds the final homepage/theme. Used staged
+blob versions without modifying working-file bytes; SHA-256 manifest confirms
+final working contents unchanged. All staged whitespace checks pass. Removed
+the obsolete README statement that the documentation was intentionally uncommitted.
+No co-author trailers occur in these commit messages.
+
+Remote branch check found no heads. HTTPS push initially failed because no
+interactive GitHub username could be read. Set only origin's push URL to
+git@github.com:KristanLaimon/Ink-away-documentation.git and pushed main using
+SSH; fetch URL remains the requested HTTPS URL. New branch push succeeded and
+main tracks origin/main. Both refs resolve to
+9df86c28ed4aa9acb6112877391a36a52feb5113. Documentation checkout is clean.
+Updated only the documentation gitlink in the parent index to this pushed HEAD;
+no parent commit or push. Preserve all other user staging. No runtime plugin
+changes, deployment, rebase, or force push.
+
+
+## 29 — 2026-11-02 — Entry-only crayon drawing animation
+
+User requested three crayons (two left, one right) drawing randomized paths
+on homepage entry while keeping the center clear. Documentation base remains
+9df86c28ed4aa9acb6112877391a36a52feb5113 on main; no runtime plugin changes.
+Added a small client component with original inline SVG crayons and scoped CSS.
+Random cubic paths are generated only after mount to avoid hydration mismatch.
+Each path and its moving crayon stay inside a bounded side rail; content has
+reserved spacing. requestAnimationFrame synchronizes the wax tip and line
+reveal, staggers the three drawings, then stops and lifts/fades the crayons.
+Finished marks remain. There are no scroll/repeat triggers. Cleanup cancels
+the frame and removes the media listener; reduced-motion preference suppresses
+this decorative animation. Rails scale on mobile. No animation dependency added.
+
+`bun run build` passes compilation, TypeScript and all 50 static outputs.
+Headless Chromium desktop/mobile screenshots inspected. Browser timing checks
+initially measured before hydration; corrected the verification wait. An initial
+bounds selector also included the CTA arrow SVG; restricted it to the three
+crayon SVGs. No production logic workaround was needed. Final browser checks pass:
+all three crayons draw, finish with zero remaining line offset, and remain
+stopped; mobile rails do not intersect the content or cause horizontal overflow;
+reduced motion runs no path animation. Both diff whitespace checks pass.
+Temporary localhost preview required permission after sandbox socket denial.
+No commits, push, or deployment requested for this addition.
+
+
+## 30 — 2026-11-02 — Larger crayons at outer viewport edges
+
+User clarified that the drawing crayons were too small and too near the center.
+Changed the homepage hero to span the available viewport rather than the narrow
+max-width content container. Kept the title/text centered in a reserved column,
+while guide cards retain their previous max-width container. Side rail widths
+now grow to 240px (previously 148px), with viewport-edge insets; mobile uses
+48–64px rails and protected content spacing. No change to timing, random path
+generation, one-shot behavior or reduced-motion handling. Same documentation
+base/main and uncommitted addition as entry 29.
+
+`bun run build` passes compilation, TypeScript and all 50 static route outputs.
+Headless Chromium verifies all three desktop rails lie within the outer
+viewport quarters, at 228px width for a 1440px viewport (previous cap 148px).
+Desktop screenshot inspected. Mobile rails remain outside the content, with
+no horizontal overflow. One-shot completion and reduced-motion checks pass.
+Diff whitespace check passes. No commits or push.
+
+
+## 31 — 2026-11-02 — Push crayons and simplify developer onboarding
+
+User explicitly requested commit/push of the animation, then a documentation
+rewrite for developers unfamiliar with Ink Away. Created c19a2a7
+feat(home): animate three crayons within the outer hero margins, without
+co-author trailers, and pushed main to the documentation origin successfully.
+This includes the size/placement adjustment from entry 30. No parent commit.
+
+For the subsequent rewrite, read Panels+ docs/INTRO.md, WORD-LOOKUP.md and
+EMBEDDED-IMAGES.md as writing references: define terms first, show concrete
+behavior, then explain relevant details. Replaced 22 documentation articles
+with 14: one introduction, two guided examples, seven public Ink Away methods
+and four public version/readiness fields. Surface callback contracts are
+kept with the rendering registration reference, not extra conceptual pages.
+Removed architecture, duplicate indexes, generic loading-order/conventions,
+standalone errors/persistence and surface essays; retained necessary rules on
+the corresponding method/field pages.
+
+Introduction defines Ink Away's user workflow and ui/ink/consumer/viewer/surface.
+Examples explain objects before code, handle both loading orders, show teardown
+and a complete minimal surface for a uniformly scaled fixed page. Renamed the
+downloadable mock setup method to connectInkAway to avoid implying that its
+arguments are a standard KOReader init signature. configureInkAway is unchanged.
+Home/nav now lead beginners to the introduction; API links go to its member
+index. Canonical runtime source and its existing docs are unchanged.
+
+Validation: `bun run build` passes compilation, TypeScript and all 34 static
+outputs (14 documentation articles, their Markdown exports and support routes).
+All 22 inline Lua snippets and both downloadable mocks compile with LuaJIT;
+Luacheck reports zero warnings/errors on both mocks. An initial lint command
+used the parent cwd and found no files; reran in the site directory successfully.
+Parsed exported HTML to verify every home/sidebar/article documentation link
+and local anchor, exactly 14 articles, removal of the architecture route, both
+native expandable surface-contract sections, and exact downloadable mock bytes.
+Both whitespace checks pass. Later small wording/expandable-reference changes
+triggered fresh final builds; no stale earlier build is used as final evidence.
+No new runtime plugin tests or device validation claimed for prose changes.
+The readability rewrite remains local and uncommitted after the separately
+requested animation push. No parent commit/push or runtime source modification.
+
+
+## 32 — 2026-11-02 — Explicit documentation index route
+
+User reported Next 16.4.2 Turbopack's missing-generateStaticParams-param error
+for the optional /docs/[[...slug]] page. Source's Fumadocs generator already
+includes index slugs as []; production /docs was present and warm dev requests
+succeeded. The existing dev log preserved the reported startup error. A second
+temporary dev server refused to start because the user's server owns the
+project lock; did not stop or modify that user process. Checked its existing
+localhost:3000 endpoints instead.
+
+Made /docs an explicit static app/docs/page.tsx. Named articles now use the
+required app/docs/[...slug]/page.tsx route, exclude empty slugs from generated
+params and set dynamicParams=false. Shared rendering/metadata moved into
+components/documentation-page.tsx so both paths display identical Fumadocs
+content. No disabling of static export, no dependency update, no new document
+articles. Same c19a2a7 base and local readability rewrite as entry 31.
+
+Validation: bun run build passes compilation, TypeScript and all 34 outputs;
+route summary now lists /docs separately and 13 named article paths. On the
+existing Turbopack dev server, /docs, an API article and both example guides
+return 200 without the missing-param error; an unknown article returns 404.
+Diff whitespace checks pass. The exact original cold-start failure was present
+in the user log but not reproducible after warm-up; this change removes the
+empty optional-catch-all case rather than claiming a dependency-level fix.
+No commits/push, no parent or runtime-plugin source changes.

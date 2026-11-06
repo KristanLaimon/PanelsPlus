@@ -1301,6 +1301,18 @@ function PanelViewer:annotationDrawnAngle()
     return drawnAngle(self)
 end
 
+-- Readiness handshake consumer method; also used when Ink Away is already ready.
+function PanelViewer:configureInkAway(ink)
+    if self._panels_plus_closed or self._annotation_closing or self._annotation_provider_ink == ink then
+        return
+    end
+    if self._annotation_unregister then
+        self._annotation_unregister(false)
+    end
+    self._annotation_unregister = ink:installPluginIntegration(self, self._annotation_surface)
+    self._annotation_provider_ink = ink
+end
+
 function PanelViewer:getAnnotationSurface()
     if not self.page or self.embedded_source_image or not self.reader_ui or self._panels_plus_closed then
         return nil
@@ -1309,21 +1321,9 @@ function PanelViewer:getAnnotationSurface()
         self._annotation_surface = require("src._annotationsurface").new(self)
     end
     local ui = self.reader_ui
-    if not self._annotation_configure then
-        self._annotation_configure = function(ink)
-            if self._panels_plus_closed or self._annotation_closing or self._annotation_provider_ink == ink then
-                return
-            end
-            if self._annotation_unregister then
-                self._annotation_unregister(false)
-            end
-            self._annotation_unregister = ink:installPluginIntegration(self, self._annotation_surface)
-            self._annotation_provider_ink = ink
-        end
-    end
     local ready = ui.inkAwayIntegrationAPI
     if ready and type(ready.installPluginIntegration) == "function" then
-        self._annotation_configure(ready)
+        self:configureInkAway(ready)
     else
         local ink = ui["ink-away"] or ui.inkaway
         if ink and not ink.installPluginIntegration and type(ink.registerRenderingView) == "function" then
@@ -1336,7 +1336,7 @@ function PanelViewer:getAnnotationSurface()
             end
         else
             ui.inkAwayPendingIntegrations = ui.inkAwayPendingIntegrations or {}
-            ui.inkAwayPendingIntegrations[self] = self._annotation_configure
+            ui.inkAwayPendingIntegrations[self] = true
         end
     end
     return self._annotation_surface
@@ -2120,13 +2120,12 @@ function PanelViewer:onCloseWidget()
     end
     local ui = self.reader_ui
     local pending_integrations = ui and ui.inkAwayPendingIntegrations
-    if pending_integrations and pending_integrations[self] == self._annotation_configure then
+    if pending_integrations and pending_integrations[self] == true then
         pending_integrations[self] = nil
         if next(pending_integrations) == nil then
             ui.inkAwayPendingIntegrations = nil
         end
     end
-    self._annotation_configure = nil
     self:_cancelPhraseHold()
     self._phrase_selected = nil
     self._panels_plus_closed = true

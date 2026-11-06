@@ -243,3 +243,14 @@ Add records here with exact versions/SHAs for both plugins, stable/laboratory/ro
   and frozen backup remain unchanged. Kobo's shipped Lua patch directories are
   preserved as runtime inputs. No runtime tests rerun for archive/docs cleanup.
   See [entry 21](plugins/ink-away/history-changes.md).
+
+
+### 2026-11-02 — Ink Away consumer method readiness queue
+
+The uncommitted canonical rolling pair now queues `pending[consumer] = true`
+and invokes `consumer:configureInkAway(ink)` directly (no callback wrapper).
+Same bases/branches and environment as Ink Away history entry 24. Stable
+4.4.0 fallback: 5 passed; modified rolling integration: 44 passed; target
+loading-order: 57 checks; registry integration: 30. Event-only method consumers
+require no viewer/surface. Host UI remains mocked; no new live/device evidence.
+See [history entry 24](plugins/ink-away/history-changes.md).
