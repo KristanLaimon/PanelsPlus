@@ -145,7 +145,7 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                     reading_mode = flow,
                     margin_ratio = 0.12,
                     inkaway_fit_viewport = true,
-                    buttons_visible = false,
+                    buttons_visible = true,
                     progress_bar_visible = false,
                     image_union_renderer = function(rect, zoom)
                         return bitmap(rect, zoom)
@@ -157,6 +157,8 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                 viewer:replaceButtonTable()
                 check(viewer.quick_controls.draw_inkaway ~= nil, "successful integration offers Draw")
                 viewer.quick_controls.draw_inkaway.callback()
+                check(not viewer.buttons_visible, "Draw hides Panels+ options before editor layout")
+                check(viewer.quick_rail == nil, "Draw releases the options rail's reserved space")
                 local editor = assert(book._view)
                 editor:paintTo(bb, 0, 0)
                 drain(editor, bb)
@@ -215,6 +217,7 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                 end
                 editor:closeCanvas()
                 check(viewer._annotation_viewport == nil, "closing restores the normal viewport")
+                check(viewer.buttons_visible, "closing restores previously visible Panels+ options")
                 UI:close(viewer)
                 drain(nil, bb)
                 bb:free()

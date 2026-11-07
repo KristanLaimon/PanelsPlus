@@ -286,6 +286,12 @@ function Surface:setJoined(joined)
 end
 
 function Surface:begin()
+    local v = self.viewer
+    if v.buttons_visible then
+        self.restore_controls = true
+        v.buttons_visible = false
+        v:update()
+    end
     self:setJoined(self.viewer.inkaway_join_spread_fold ~= false)
 end
 
@@ -324,8 +330,13 @@ function Surface:finish()
     local insets = v:getAnnotationViewportInsets()
     local resized = insets.left > 0 or insets.top > 0 or insets.right > 0 or insets.bottom > 0
     v._annotation_viewport = nil
+    local restore_controls = self.restore_controls
+    self.restore_controls = nil
+    if restore_controls then
+        v.buttons_visible = true
+    end
     self:setJoined(nil)
-    if resized and not v._panels_plus_closed and not v._annotation_closing then
+    if (resized or restore_controls) and not v._panels_plus_closed and not v._annotation_closing then
         v:update()
     end
     self:repaint()
