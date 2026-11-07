@@ -6,6 +6,8 @@ local Memory = require("src._memory")
 local Cache = require("src.cache")
 local UIManager = require("ui/uimanager")
 local PanelsPlus = require("main")
+local PageRender = require("src._pagerender")
+local Blitbuffer = require("ffi/blitbuffer")
 
 describe("Low-memory resource lifecycle", function()
     it("reuses bounded Smart and Safe results across 300 finding-mode changes", function()
@@ -376,7 +378,6 @@ describe("Low-memory resource lifecycle", function()
 
     it("reserves the next panel tile before warming it and rechecks memory at execution", function()
         local ViewerController = require("src.viewer_controller")
-        local PageRender = require("src._pagerender")
         local original_headroom = Memory.hasHeadroom
         local original_allocation_headroom = Memory.hasAllocationHeadroom
         local original_draw = PageRender.drawPagePart
@@ -419,4 +420,90 @@ describe("Low-memory resource lifecycle", function()
         PageRender.drawPagePart = original_draw
         assert.is_true(ok, tostring(err))
     end)
+end)
+
+describe("Boundary render tile ownership", function()
+    for _, scenario in ipairs({ "eviction", "low memory", "copy failure", "render failure" }) do
+        it("keeps boundary tile ownership safe during " .. scenario, function()
+            local original_draw = PageRender.drawPagePart
+            local original_headroom = Memory.hasAllocationHeadroom
+            local original_new = Blitbuffer.new
+            local freed, copies, owned_frees, fallbacks = false, 0, 0, 0
+            local function bitmap(borrowed)
+                return {
+                    getWidth = function()
+                        if borrowed and freed then
+                            error("use after tile eviction")
+                        end
+                        return 600
+                    end,
+                    getHeight = function()
+                        return 800
+                    end,
+                    getType = function()
+                        return 0
+                    end,
+                    fill = function() end,
+                    blitFrom = function() end,
+                    free = function()
+                        assert.is_false(borrowed, "must not free cache-owned tiles")
+                        owned_frees = owned_frees + 1
+                    end,
+                    copy = function()
+                        assert.is_false(freed)
+                        if scenario == "copy failure" then
+                            error("copy allocation failed")
+                        end
+                        copies = copies + 1
+                        return bitmap(false)
+                    end,
+                }
+            end
+            local first = bitmap(true)
+            PageRender.drawPagePart = function(_, page)
+                if page == 1 then
+                    return first
+                end
+                freed = true -- DocCache eviction runs TileCacheItem:onFree synchronously.
+                if scenario == "render failure" then
+                    error("destination render failed")
+                end
+                return bitmap(false)
+            end
+            Memory.hasAllocationHeadroom = function()
+                return scenario ~= "low memory"
+            end
+            Blitbuffer.new = function()
+                return bitmap(false)
+            end
+            local rect = { x = 0, y = 0, w = 600, h = 800 }
+            local viewer = PanelViewer:new({
+                boundary_callback = function()
+                    fallbacks = fallbacks + 1
+                    return true
+                end,
+                page = 1,
+                _images_list_cur = 1,
+                image_rects = { rect },
+                auto_rotate_double_pages = false,
+                crop_mode = "strict",
+                nav_boundary_peek_callback = function()
+                    return { next_page = 2, target_rect = rect, start_idx = 1 }
+                end,
+            })
+            viewer.update = function() end
+            viewer.runNavPanAnimation = function() end
+            local ok, result = pcall(viewer.animateBoundaryTransition, viewer, "next")
+            PageRender.drawPagePart = original_draw
+            Memory.hasAllocationHeadroom = original_headroom
+            Blitbuffer.new = original_new
+            assert.is_true(ok, tostring(result))
+            assert.is_true(result)
+            local copied = scenario == "eviction" or scenario == "render failure"
+            assert.equals(copied and 1 or 0, copies)
+            assert.equals(copied and 1 or 0, owned_frees)
+            assert.equals(copied, freed)
+            assert.equals(scenario == "eviction" and 0 or 1, fallbacks)
+        end)
+    end
 end)

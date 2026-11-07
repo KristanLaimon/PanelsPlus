@@ -2635,6 +2635,18 @@ function PanelViewer:animateBoundaryTransition(direction, preview_complete)
         logger.warn("[Panels+] boundary transition tile A render failed, falling back:", tostring(tile_a))
         return fallback()
     end
+    -- Rendering the destination can evict the first tile from DocCache.
+    if not owned_a then
+        local bytes = tile_a:getWidth() * tile_a:getHeight() * 4
+        if not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, bytes) then
+            return fallback()
+        end
+        local ok_copy, copy = pcall(tile_a.copy, tile_a)
+        if not ok_copy or not copy then
+            return fallback()
+        end
+        owned_a, tile_a = copy, copy
+    end
     local ok_b, tile_b, rotated_b = pcall(function()
         if self.crop_mode == "none" and resolved.next_images and resolved.next_images[resolved.start_idx] then
             local img = resolved.next_images[resolved.start_idx]
