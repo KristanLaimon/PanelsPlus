@@ -21,6 +21,7 @@ local UIManager = require("ui/uimanager")
 local PanelViewport = require("src._panelviewport")
 local PageRender = require("src._pagerender")
 local logger = require("logger")
+local time = require("ui/time")
 
 local Constants = require("src.panelviewer.constants")
 local NAV_TRANSITION_STEPS_DEFAULT = Constants.NAV_TRANSITION_STEPS_DEFAULT
@@ -333,7 +334,8 @@ return function(PanelViewer)
             start_zoom = target_zoom
         end
         local steps = math.max(1, self.nav_transition_frames or NAV_TRANSITION_STEPS_DEFAULT)
-        local delay = (self.nav_transition_duration or 0.4) / steps
+        local delay = math.max(0.001, self.nav_transition_duration or 0.4) / steps
+        local start_time = time.now()
         local step = 0
         local function cleanup()
             if owned then
@@ -415,16 +417,17 @@ return function(PanelViewer)
                 end
                 return
             end
-            step = step + 1
+            -- Skip overdue frames instead of adding render time to every delay.
+            step = math.min(steps, math.max(step + 1, math.floor(time.to_s(time.since(start_time)) / delay)))
             if not showFrame(step / steps) or step >= steps then
                 finish()
             else
                 self._panels_plus_transition_action = walkStep
-                UIManager:scheduleIn(delay, walkStep)
+                UIManager:scheduleIn(math.max(0, (step + 1) * delay - time.to_s(time.since(start_time))), walkStep)
             end
         end
         self._panels_plus_transition_action = walkStep
-        UIManager:scheduleIn(delay, walkStep)
+        UIManager:scheduleIn(math.max(0, delay - time.to_s(time.since(start_time))), walkStep)
     end
 
     --- Run the smooth-navigation pan from the widget's current offset to a target
@@ -456,7 +459,8 @@ return function(PanelViewer)
         if not steps or steps <= 0 then
             steps = NAV_TRANSITION_STEPS_DEFAULT
         end
-        local step_delay = (self.nav_transition_duration or 0.4) / steps
+        local step_delay = math.max(0.001, self.nav_transition_duration or 0.4) / steps
+        local start_time = time.now()
         local style = NavEasing.normalize(self.nav_smooth_style)
 
         local step_n = 0
@@ -470,7 +474,7 @@ return function(PanelViewer)
                 end
                 return
             end
-            step_n = step_n + 1
+            step_n = math.min(steps, math.max(step_n + 1, math.floor(time.to_s(time.since(start_time)) / step_delay)))
             local progress = NavEasing.progress(style, step_n / steps)
             local desired_x, desired_y = target_offset_x, target_offset_y
             if step_n < steps then
@@ -481,7 +485,10 @@ return function(PanelViewer)
             self:notifyAnnotationNavigationFrame()
             if step_n < steps then
                 self._panels_plus_transition_action = walkStep
-                UIManager:scheduleIn(step_delay, walkStep)
+                UIManager:scheduleIn(
+                    math.max(0, (step_n + 1) * step_delay - time.to_s(time.since(start_time))),
+                    walkStep
+                )
             else
                 self._panels_plus_transition_active = nil
                 on_complete()
