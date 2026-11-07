@@ -37,6 +37,27 @@ copy_plugin "$BUNDLED_DIR"
 copy_plugin "$MANUAL_DIR"
 rm -rf "$MANUAL_DIR/data/ocr"
 
+python3 - "$OUT_DIR" "$PLUGIN_NAME" <<'PY'
+import sys
+from pathlib import Path
+from zipfile import ZIP_DEFLATED, ZipFile
+
+out_dir = Path(sys.argv[1])
+plugin_dir = f"{sys.argv[2]}.koplugin"
+zip_dir = out_dir / "zips"
+zip_dir.mkdir(exist_ok=True)
+packages = {
+    "panels_plus.koplugin.zip": out_dir / plugin_dir,
+    "panelsplus_with_ocrmodels.koplugin.zip": out_dir / "with_ocrmodels" / plugin_dir,
+}
+for archive_name, source_dir in packages.items():
+    with ZipFile(zip_dir / archive_name, "w", ZIP_DEFLATED) as archive:
+        for path in sorted(source_dir.rglob("*")):
+            if path.is_file():
+                archive.write(path, Path(plugin_dir) / path.relative_to(source_dir))
+PY
+
 echo "Bundled OCR: $BUNDLED_DIR"
 echo "Manual OCR:  $MANUAL_DIR"
+echo "ZIP archives: $OUT_DIR/zips"
 echo "Each edition installs as ${PLUGIN_NAME}.koplugin; install only one."
