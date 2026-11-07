@@ -3539,5 +3539,6 @@ end
 require("src.plugins-support.kobo").attach(PanelViewer)
 require("src.plugins-support.gestures").attach(PanelViewer)
 require("src.plugins-support.livelight").attach(PanelViewer)
+require("src.plugins-support.ink-away").attach(PanelViewer)
 
 return PanelViewer

@@ -97,7 +97,7 @@ end
 --- @param page_size PPPageSize Page dimensions.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
-local function buildNoCropImage(ui, page, rect, page_size, images)
+local function buildNoCropImage(ui, page, rect, page_size, images, index)
     local screen_w = Screen:getWidth()
     local screen_h = Screen:getHeight()
     local viewport = PanelViewport.noCrop(rect, page_size)
@@ -122,6 +122,7 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
     }
 
     local image_func = function()
+        images.canvas_rects[index] = nil
         if viewport.union_w <= 0 or viewport.union_h <= 0 then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
             canvas:fill(PageRender.getBackground(ui))
@@ -151,6 +152,15 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
             if blit_w > 0 and blit_h > 0 then
                 canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
+            -- Include padding in the native bounds of the displayed bitmap.
+            local units_x = image_rect.w / content_image:getWidth()
+            local units_y = image_rect.h / content_image:getHeight()
+            images.canvas_rects[index] = {
+                x = image_rect.x - paste_x * units_x,
+                y = image_rect.y - paste_y * units_y,
+                w = canvas_w * units_x,
+                h = canvas_h * units_y,
+            }
         end)
 
         if ok then
@@ -293,6 +303,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
     settings = settings or Settings.defaults
     local images = {
         image_disposable = true,
+        canvas_rects = {},
     }
     local image_rects = {}
     local full_page_flags = {}
@@ -308,7 +319,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
             and settings.image_rotation == nil
             and DoubleSpread.shouldRotate(rect, is_full_page, #panels == 1)
         if settings.crop_mode == "none" and not direct_spread then
-            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images)
+            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images, index)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else

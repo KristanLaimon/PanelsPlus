@@ -188,6 +188,7 @@ SPDX-License-Identifier: MIT
 --- @class PPImageList : table
 --- @field image_disposable boolean Whether ImageViewer owns decoded panel images.
 --- @field rotated boolean|nil Last rotation flag returned by `drawPagePart`.
+--- @field canvas_rects table<integer, PPRect>|nil Native bounds of padded display bitmaps, by image index.
 --- @field folds table<integer, table>|nil Removed fold range per image index (see `FoldJoin.joinBitmap`).
 
 --- Result of a side-effect-free adjacent-page lookup for boundary crossings.

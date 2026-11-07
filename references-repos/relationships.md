@@ -20,6 +20,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | Relationship | Left plugin / scope | Direction | Right plugin / scope | Visibility | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | OneWay Knowledge | Panels+ 1.5.1 development tree with spread touch patch | → | Meguru 1.7.1 and pinned rolling SHA below | Not visual (no added UI) | Calls Meguru `spreadPageAt` before panel collection/selection; reference-backed geometry integration checks pass. Together with the declared Meguru → Panels+ awareness above, this adds reciprocal knowledge; the reverse direction's visibility remains unspecified. No future version range claimed. |
+| OneWay Knowledge | Panels+ 1.6.0 with per-plugin adapters | → | Ink Away optional version-1 surface API, rolling SHA below | Not visual (existing annotation action; no new controls) | Actual target facade/registry integration checks; 4.4.0 excluded by user direction. Live annotation validation pending. |
 
 ## Exact tested tuples
 
@@ -47,3 +48,16 @@ Add records here with exact versions/SHAs for both plugins, stable/laboratory/ro
 - Added reference-backed geometry integration checks for complete bottom-right panel containment on both pages in No crop, Loose and Tight. Uses the actual selected Meguru base-dimension shim and document geometry, and real Panels+ image-rectangle construction; pixel rendering remains untested. Reproduced a failing bounds check before the fix.
 - Stable-first and rolling commands above now pass **14 checks each**. Collector, viewport, viewer margins, fold joining, rotation and page rendering regression suites: **43 passed**. Targeted formatter/linter and whitespace checks pass.
 - Relationship stays Panels+ → Meguru, Not visual, scoped to these exact references. Live No crop validation on the reported pages remains pending; no new load-order/lifecycle compatibility claim.
+
+### 2026-11-07 — Per-plugin adapters and optional Ink Away surface API
+
+- Source: Panels+ metadata 1.6.0, working tree based on `e1c52a1aad44a671871eebd0d183725ca34f16b7`, with the `src/plugins-support/` refactor. Only Panels+ source, tests and documentation were changed.
+- Host reference: KOReader `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; desktop Lua fixtures, not a live reader/stylus session.
+- Meguru: unchanged stable v1.7.1 pin and rolling `8f98bd28f89ce0e769fd71a9218a320577c81618`; **14 geometry integration checks pass per pin**. The existing spread gesture behavior is now attached by `meguru.lua`.
+- Kobo: unchanged stable v0.4.1 pin and rolling `baa133794c8567a68068c7337d68d2fbf05631c7`; **2 action integration checks pass per pin**. The selected target's actual Bluetooth action definitions dispatch through Panels+ navigation. Bluetooth hardware and Dispatcher discovery are fixtures; this does not establish device/load-order coexistence.
+- Ink Away: rolling `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, whose existing staged `.foxnvim/pins.json` change remains untouched. The tested runtime API sources are unchanged. Per user direction, 4.4.0 is excluded; no stable integration claim is made.
+- Ink Away scope: **12 API integration checks pass**, loading the target's actual plugin facade and integration registry. Book painting/storage and the host UI are fixtures. Checks cover both readiness orders, absent/incompatible API, pending-request cancellation, duplicate configuration, close/error cleanup, painting/snapshots, rotations, panning, folded regions, padded No crop geometry, and refusal of reflow images, transition canvases and foreign documents. Absence/incompatible API also have ordinary Panels+ unit coverage.
+- Implemented relationship: Panels+ → Ink Away's optional version-1 surface API, Not visual (no new controls). Saved ink can be painted and existing Ink Away actions can select a registered panel surface. There is no claim of cross-panel editor navigation, toolbar fitting, or pixel/storage correctness on a device.
+- Commands: `./run-tests.sh --compatibility-plugin=meguru`, `./run-tests.sh --compatibility-plugin=kobo`, and `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease`.
+- Existing Gestures and LiveLight routing was extracted to individual adapters and retains unit coverage; no new version-pinned compatibility evidence is claimed for either.
+- Live validation remains pending. No target references were updated, no live plugins were installed, and no annotation data format was changed.
