@@ -269,22 +269,30 @@ define the same method name.
 | `main.lua` | Plugin object, settings setters, lifecycle, teardown |
 | `src/native_panel_zoom.lua` | Patch and restore KOReader's panel-zoom entry point |
 | `src/cache.lua` | Rectangle LRU, detection prefetch, cancellation |
-| `src/viewer_controller.lua` | Open/rebuild viewers, cross-page flow, prerender requests |
+| `src/viewer_controller/init.lua` | Open/rebuild viewers, cross-page flow, prerender requests |
 | `src/embedded_image.lua` | Extract and navigate images in reflowable documents |
 | `src/_pagebitmap.lua` | Raster acquisition, background estimation, binary ink map |
 | `src/_smartcomponentdetector.lua` | Deep mode's connected-component and frame heuristics |
-| `src/_segmenter.lua` | Legacy X-Y cut; its page-level acceptance helper is still reused |
+| `src/segmenter/init.lua` | Legacy X-Y cut; its page-level acceptance helper is still reused |
 | `src/_nativedetector.lua` | Internal K2PDFOpt compatibility fallback |
 | `src/_smartgeometry.lua` | Rectangle operations and reading-order sorting |
 | `src/_panelcollector.lua` | Detection orchestration and lazy crop construction |
-| `src/_panelviewer.lua` | `ImageViewer` subclass, controls, gestures, panel switching |
+| `src/panelviewer/init.lua` | `ImageViewer` subclass, controls, gestures, panel switching |
 | `src/_panelviewport.lua` | Crop/viewport geometry |
 | `src/_memory.lua` | Free-memory and working-set guards |
 | `src/_settings.lua` | Defaults, persistence, migration |
 | `src/_timing.lua` | Optional diagnostic logging |
-| `src/_wordfinder.lua` | Comic-lettering-aware word localization and OCR handoff |
+| `src/wordfinder/init.lua` | Comic-lettering-aware word localization and OCR handoff |
 | `src/_ocrdebug.lua` | Opt-in OCR review dataset capture |
 | `src/types.lua` | Side-effect-free LuaLS record annotations |
+
+The viewer, its controller, word lookup and segmentation each have a directory.
+Start at `init.lua` to see how the module is assembled, then open the part that
+owns the behavior you need. For example, viewer input lives in
+`src/panelviewer/input.lua`, while word-box detection lives in
+`src/wordfinder/detection.lua`. The old entry files still forward to these
+modules, so existing callers keep working. See the
+[architecture module map](ARCHITECTURE.md#modules) for the full split.
 
 ## Invariants to preserve when changing the code
 

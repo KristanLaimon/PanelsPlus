@@ -1,0 +1,832 @@
+--[[
+Panels+
+File: src/wordfinder/detection.lua
+Name: WordFinder
+Description: Locates comic-lettering word boxes from rendered ink.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
+local Blitbuffer = require("ffi/blitbuffer")
+local Document = require("document/document")
+local Geom = require("ui/geometry")
+local Memory = require("src._memory")
+local Timing = require("src._timing")
+local ffi = require("ffi")
+local logger = require("logger")
+
+return function(WordFinder)
+    -- Crop rendered around the tap point, as a fraction of native page size.
+    -- Wide enough to comfortably contain a full speech-bubble line either side
+    -- of the tap, tall enough for a couple of lines above/below it.
+    local CROP_HALF_W_FRAC = 0.15
+    local CROP_HALF_H_FRAC = 0.05
+    -- Rendered at 2x native pixel density so small lettering still resolves
+    -- enough separate ink columns for gap detection to be meaningful.
+    local CROP_ZOOM = 2.0
+    -- Half-extent, in native pixels, of the box background luminance is sampled
+    -- from around the tap point (see estimateBackground). Real comic panels are
+    -- art-dense right up to a speech bubble's edge, so a percentile over the
+    -- *whole* render crop (up to 30% of the page's width) routinely lands on
+    -- ink/art instead of the bubble's own paper colour, which then poisons every
+    -- ink/gap decision downstream. Anchoring the sample to a small, tap-centred
+    -- box instead makes "background" mean the bubble's own fill.
+    local BG_LOCAL_HALF_W = 30
+    -- Taller than the width half-extent so the box reliably spans a full text
+    -- line's height plus surrounding bubble padding even when the tap lands on a
+    -- bold glyph, without reaching past it into a neighbouring line or bubble.
+    local BG_LOCAL_HALF_H = 70
+    -- Luminance delta from the crop's background counted as "ink".
+    local INK_DELTA = 40
+    -- Fallback column-gap threshold, as a fraction of the text line's height,
+    -- used only when the line has too few internal gaps to calibrate one (see
+    -- MEDIAN_GAP_MULTIPLIER below).
+    local WORD_GAP_RATIO = 0.5
+    -- Floor for the calibrated threshold, as a fraction of line height. Guards
+    -- against a degenerate (near-zero) median gap on very tightly-set text.
+    -- Set to 0.15 (~5px on a 35px line at 2x zoom) so tight two-word phrases
+    -- like "my shift" are not over-thresholded and merged into one box.
+    local MIN_WORD_GAP_RATIO = 0.15
+    -- Ceiling for the calibrated threshold, as a fraction of line height. A
+    -- speech bubble's own edge produces one gap (bubble padding) that has
+    -- nothing to do with inter-word spacing; with only a couple of gaps to
+    -- median from, that single outlier can dominate and inflate the threshold
+    -- past the real word boundary. Past the bubble edge is unrelated panel
+    -- art/screentone, which is uniformly "ink" (darker than the bubble's own
+    -- background) with no further internal gaps -- so an inflated threshold
+    -- doesn't just miss the boundary, it sends the hunt straight to the crop
+    -- edge. Set well above ordinary inter-word spacing so real multi-word gaps
+    -- still calibrate normally.
+    local MAX_WORD_GAP_RATIO = 1.5
+    -- A column gap must be at least this many times the line's own median
+    -- inter-letter gap to count as a word boundary. Calibrating from the line
+    -- itself (rather than a fixed fraction of line height) matters for
+    -- x-height-only words (no ascenders/descenders, e.g. "eater"): their
+    -- `line_h` is short, so a fixed ratio of it can undercut normal kerning in
+    -- bold/wide comic fonts and split the word at every letter.
+    --
+    -- Field data from a real OCR debug session (see OCR.debug.session.log/
+    -- OCR-debug-session dataset, 2026-08) showed this set too high: on bold
+    -- shouting/hand-lettered comic fonts, the gap between two whole *words*
+    -- ("OH"|"GOD...", "I"|"CAN'T", "DE"|"UN"|"ACTOR") is often not much wider
+    -- than that same font's own inter-letter kerning, so `median_gap * 2.2`
+    -- routinely exceeded the real word gap and every word on the line merged
+    -- into one box -- the single largest failure mode in that dataset (11 of 25
+    -- reviewed misreads). Lowered to 1.6; the regression tests below (tight
+    -- inter-letter kerning that must NOT split, "eater"'s x-height-only line,
+    -- the deliberately tight "my shift" word gap that MUST split) are what
+    -- actually bound this constant -- if you retune it, they must still pass.
+    local MEDIAN_GAP_MULTIPLIER = 1.6
+    -- Half-width of the window, as a multiple of line height, that inter-letter
+    -- gaps are calibrated from. The render crop reaches up to 15% of the page
+    -- width either side of the tap, which on a normal panel is mostly art rather
+    -- than lettering; ink runs out there contribute "gaps" that have nothing to
+    -- do with the tapped line's spacing and skew the median that the word-gap
+    -- threshold is derived from. Six line heights is several words of real
+    -- context on the tapped line while rarely reaching past the speech bubble.
+    local GAP_WINDOW_RATIO = 6
+    -- Consecutive blank rows that end a text line when hunting for its extent.
+    local LINE_BLANK_RUN = 2
+    -- Furthest, in multiples of the line height, a tap that landed on blank
+    -- background is allowed to snap sideways onto ink. Without a bound, the
+    -- nearest-ink search spans the whole render crop, so a tap in a bubble's
+    -- margin can silently jump to a word in a *different* bubble -- or onto
+    -- panel art -- 15% of a page away, and everything downstream then describes
+    -- the wrong word confidently. Two line heights covers the blank margin
+    -- around any word the user plausibly meant to hit.
+    local SNAP_X_RATIO = 2
+    -- Widest a single word can plausibly be, as a multiple of its line's ink
+    -- height. Long words in x-height-only lettering (no ascenders/descenders,
+    -- so a short `line_h`) reach about 11x, so this leaves headroom while still
+    -- rejecting a box that has clearly run past the word it started from.
+    local MAX_WORD_WIDTH_RATIO = 14
+    -- Tallest the word's-own-columns vertical extent (see the `word_has_ink`
+    -- pass in findWordBox) may grow relative to the whole line's own extent
+    -- before it is treated as having run away instead of legitimately reaching
+    -- an ascender/descender. Field data (OCR debug session, 2026-08) showed a
+    -- real failure mode this guards against: in a multi-line speech bubble
+    -- where consecutive lines' words happen to share similar x-columns (common
+    -- with left/right-aligned dialogue), a word whose own column span has no
+    -- blank rows narrower than LINE_BLANK_RUN anywhere between it and the next
+    -- line's ink grows straight through the line gap and keeps going until it
+    -- hits the search's outer bound -- producing a box 3-4 lines tall instead
+    -- of one, which OCR then reads as nothing at all. The "ascender outside the
+    -- tap band" regression test below reaches ~1.8x the line's own height
+    -- legitimately; this is set comfortably above that and well below the ~4x
+    -- the runaway case actually reached.
+    local WORD_HEIGHT_LINE_RATIO_CAP = 1.9
+    -- Extra padding kept around the found word, as a fraction of its height.
+    -- Keep antialiased edge pixels and punctuation around the ink extent.
+    -- Horizontal padding is half the vertical padding to protect word boundaries.
+    local PAD_RATIO = 0.15
+
+    --- @param value number Value to constrain.
+    --- @param low number Lower bound (inclusive).
+    --- @param high number Upper bound (inclusive).
+    --- @return number clamped
+    local function clamp(value, low, high)
+        if value < low then
+            return low
+        end
+        if value > high then
+            return high
+        end
+        return value
+    end
+
+    --- @param bb table Rendered blitbuffer.
+    --- @return table bb Buffer to sample.
+    --- @return table|nil owned Buffer the caller must free, if one was allocated.
+    local function toGreyscale(bb)
+        if bb:getType() == Blitbuffer.TYPE_BB8 and bb:getRotation() == 0 and bb:getInverse() == 0 then
+            return bb, nil
+        end
+        local target
+        local ok, grey = pcall(function()
+            target = Blitbuffer.new(bb.w, bb.h, Blitbuffer.TYPE_BB8)
+            target:blitFrom(bb, 0, 0, 0, 0, bb.w, bb.h)
+            return target
+        end)
+        if ok and grey then
+            return grey, grey
+        end
+        if target then
+            target:free()
+        end
+        return bb, nil
+    end
+
+    --- @param bb table Buffer to sample.
+    --- @return fun(x:integer, y:integer):integer sample Luminance accessor.
+    local function makeSampler(bb)
+        if bb:getType() == Blitbuffer.TYPE_BB8 and bb:getRotation() == 0 and bb:getInverse() == 0 then
+            local ok, data = pcall(ffi.cast, "uint8_t *", bb.data)
+            if ok and data ~= nil then
+                local stride = tonumber(bb.stride)
+                return function(x, y)
+                    return data[y * stride + x]
+                end
+            end
+        end
+        return function(x, y)
+            return bb:getPixel(x, y):getColor8().a
+        end
+    end
+
+    --- Estimate background luminance and polarity from a bounded box, rather
+    --- than the whole render crop -- see BG_LOCAL_HALF_W/H above for why.
+    --- @param x0 integer Sample box left bound (inclusive).
+    --- @param x1 integer Sample box right bound (inclusive).
+    --- @param y0 integer Sample box top bound (inclusive).
+    --- @param y1 integer Sample box bottom bound (inclusive).
+    local function estimateBackground(sample, x0, x1, y0, y1)
+        local histogram = {}
+        for value = 0, 255 do
+            histogram[value] = 0
+        end
+        local total = 0
+        local box_w = x1 - x0 + 1
+        local box_h = y1 - y0 + 1
+        local step = math.max(1, math.floor(math.min(box_w, box_h) / 32))
+        for y = y0, y1, step do
+            for x = x0, x1, step do
+                local value = sample(x, y)
+                histogram[value] = histogram[value] + 1
+                total = total + 1
+            end
+        end
+        if total == 0 then
+            return 255, false
+        end
+
+        local target = total * 0.75
+        local seen, bg = 0, 255
+        for value = 0, 255 do
+            seen = seen + histogram[value]
+            if seen >= target then
+                bg = value
+                break
+            end
+        end
+
+        local is_inverted = bg < 128
+        return bg, is_inverted
+    end
+
+    local function isInk(sample, x, y, background, is_inverted)
+        local val = sample(x, y)
+        if is_inverted then
+            return (val - background) > INK_DELTA
+        else
+            return (background - val) > INK_DELTA
+        end
+    end
+
+    --- Save a greyscale crop tile as a binary PGM (P5) image with an optional box outline.
+    local function savePGM(filename, sample, w, h, x0, x1, y0, y1)
+        pcall(function()
+            local f = io.open(filename, "wb")
+            if not f then
+                return
+            end
+            f:write(string.format("P5\n%d %d\n255\n", w, h))
+            for y = 0, h - 1 do
+                local buf = {}
+                for x = 0, w - 1 do
+                    local val = sample(x, y)
+                    if x0 and x1 and y0 and y1 then
+                        if (y == y0 or y == y1) and (x >= x0 and x <= x1) then
+                            val = 0
+                        elseif (x == x0 or x == x1) and (y >= y0 and y <= y1) then
+                            val = 0
+                        end
+                    end
+                    table.insert(buf, string.char(val))
+                end
+                f:write(table.concat(buf))
+            end
+            f:close()
+        end)
+    end
+
+    --- Find the nearest row/column index carrying ink, within a bounded distance.
+    ---
+    --- @param counts table Ink counts indexed by row or column.
+    --- @param origin integer Index to search out from.
+    --- @param limit integer Furthest distance to search, in either direction.
+    --- @param low integer Lowest valid index.
+    --- @param high integer Highest valid index.
+    --- @return integer|nil index Nearest index with ink, or nil if none is close enough.
+    local function nearestInk(counts, origin, limit, low, high)
+        if (counts[origin] or 0) > 0 then
+            return origin
+        end
+        for distance = 1, limit do
+            local before = origin - distance
+            if before >= low and (counts[before] or 0) > 0 then
+                return before
+            end
+            local after = origin + distance
+            if after <= high and (counts[after] or 0) > 0 then
+                return after
+            end
+        end
+        return nil
+    end
+
+    --- Grow a seed row outwards over a set of columns, stopping at a real gap.
+    ---
+    --- @param has_ink table Row -> boolean ink presence over the columns of interest.
+    --- @param seed integer Row to grow from.
+    --- @param low integer Lowest row the extent may reach.
+    --- @param high integer Highest row the extent may reach.
+    --- @return integer top
+    --- @return integer bottom
+    local function growRowExtent(has_ink, seed, low, high)
+        local top, blank = seed, 0
+        while top > low do
+            if not has_ink[top - 1] then
+                blank = blank + 1
+                if blank >= LINE_BLANK_RUN then
+                    break
+                end
+            else
+                blank = 0
+            end
+            top = top - 1
+        end
+        while top < seed and not has_ink[top] do
+            top = top + 1
+        end
+
+        local bottom = seed
+        blank = 0
+        while bottom < high do
+            if not has_ink[bottom + 1] then
+                blank = blank + 1
+                if blank >= LINE_BLANK_RUN then
+                    break
+                end
+            else
+                blank = 0
+            end
+            bottom = bottom + 1
+        end
+        while bottom > seed and not has_ink[bottom] do
+            bottom = bottom - 1
+        end
+
+        return top, bottom
+    end
+
+    --- Find the tight word box under a native-page-space point.
+    ---
+    --- @param document table KOReader document object (paging backend).
+    --- @param pageno number Page number.
+    --- @param px number Native page x coordinate.
+    --- @param py number Native page y coordinate.
+    --- @param narrow_retry boolean|nil Internal flag limiting crop retries to one.
+    --- @return PPRect|nil box Tight word box in native page coordinates, or nil.
+    --- @return PPPageSize|nil native Native page dimensions, when a box was found.
+    function WordFinder.findWordBox(document, pageno, px, py, narrow_retry)
+        WordFinder.last_diagnostics = nil
+        if not (document and pageno and px and py) then
+            return nil
+        end
+
+        local native = document.is_bitmap_source and document:getNativePageDimensions(pageno)
+            or Document.getNativePageDimensions(document, pageno)
+        if not native or not native.w or not native.h or native.w <= 0 or native.h <= 0 then
+            return nil
+        end
+
+        local half_w = math.max(40, native.w * (narrow_retry and 0.08 or CROP_HALF_W_FRAC))
+        local half_h = math.max(20, native.h * CROP_HALF_H_FRAC)
+
+        local cx0 = math.max(0, px - half_w)
+        local cy0 = math.max(0, py - half_h)
+        local cx1 = math.min(native.w, px + half_w)
+        local cy1 = math.min(native.h, py + half_h)
+        local crop_w = cx1 - cx0
+        local crop_h = cy1 - cy0
+        if crop_w < 4 or crop_h < 4 then
+            return nil
+        end
+
+        local rect = Geom:new({ x = cx0, y = cy0, w = crop_w, h = crop_h })
+        rect.scaled_rect = document:transformRect(rect, CROP_ZOOM, 0)
+
+        -- The tile covers the crop starting at `scaled_rect`'s *integer* origin,
+        -- not at `cx0 * CROP_ZOOM`: `Geom:transformByScale` floors x/y, and
+        -- `Document:renderPage` draws the page offset by exactly those floored
+        -- values. Deriving tile coordinates from `cx0` directly (and mapping the
+        -- result back the same way) leaves the reported box shifted from the
+        -- pixels that were actually measured, so anchor both directions to the
+        -- origin the renderer used. `transformRect` always sets x/y; the fallback
+        -- reproduces its rounding for stand-ins that only return a size.
+        local scaled = rect.scaled_rect
+        local origin_x = (scaled and scaled.x) or math.floor(cx0 * CROP_ZOOM + 0.001)
+        local origin_y = (scaled and scaled.y) or math.floor(cy0 * CROP_ZOOM + 0.001)
+
+        -- Rendering may temporarily hold a color tile plus its grayscale copy.
+        -- Preserve the same 40 MiB reserve used by panel transitions, including
+        -- on unusually large scans. Leave the reader's existing selection intact.
+        if not Memory.hasAllocationHeadroom(40 * 1024 * 1024, scaled.w * scaled.h * 6) then
+            return nil
+        end
+
+        local tile
+        local ok, err = pcall(function()
+            tile = document:renderPage(pageno, rect, CROP_ZOOM, 0, 1.0, 1.0, false)
+        end)
+        if not ok or not tile or not tile.bb then
+            logger.dbg("[Panels+] word finder render failed:", err)
+            return nil
+        end
+
+        origin_x = tile.origin_x or origin_x
+        origin_y = tile.origin_y or origin_y
+        local work, owned = toGreyscale(tile.bb)
+
+        -- The search below is wrapped in its own function and run through pcall
+        -- so that any unexpected error partway through still reaches the single
+        -- `owned:free()` after it, instead of leaking the greyscale copy
+        -- toGreyscale() may have allocated. Every early exit inside just returns
+        -- normally (nil, or a nil first value for the abort() paths); an actual
+        -- Lua error is the only way `ok2` below comes back false.
+        local function search()
+            local w, h = work.w, work.h
+            if not w or not h or w < 4 or h < 4 then
+                return nil
+            end
+            local sample = makeSampler(work)
+
+            --- Log why the search gave up, and return nil.
+            local function abort(reason)
+                WordFinder.last_diagnostics = { abort_reason = reason }
+                if Timing.enabled then
+                    WordFinder.logDiagnostic("findWordBox gave up, falling back to KOReader's own box", {
+                        reason = reason,
+                        tap = string.format("(%.1f,%.1f)", px, py),
+                    })
+                end
+                return nil
+            end
+
+            local tap_x = clamp(math.floor(px * CROP_ZOOM) - origin_x, 0, w - 1)
+            local tap_y = clamp(math.floor(py * CROP_ZOOM) - origin_y, 0, h - 1)
+
+            local local_band_w = math.floor(BG_LOCAL_HALF_W * CROP_ZOOM)
+            local lx0 = math.max(0, tap_x - local_band_w)
+            local lx1 = math.min(w - 1, tap_x + local_band_w)
+
+            local local_band_h = math.floor(BG_LOCAL_HALF_H * CROP_ZOOM)
+            local bg_y0 = math.max(0, tap_y - local_band_h)
+            local bg_y1 = math.min(h - 1, tap_y + local_band_h)
+
+            local background, is_inverted = estimateBackground(sample, lx0, lx1, bg_y0, bg_y1)
+
+            -- A tap that landed between lines may snap onto the line above or below,
+            -- but never further than one maximum line height away -- past that it is
+            -- a different line, a different bubble, or panel art. The snap can then
+            -- re-center the line-extent band up to another `max_half_h` further out,
+            -- so every later read of `row_ink` (the snap search and the line-extent
+            -- band, whichever side of the original tap they land on) stays within
+            -- +/-2*max_half_h of the original tap row; rows further out are never
+            -- consulted.
+            local max_half_h = math.floor(35 * CROP_ZOOM)
+            local row_y0 = math.max(0, tap_y - 2 * max_half_h)
+            local row_y1 = math.min(h - 1, tap_y + 2 * max_half_h)
+
+            local row_ink = {}
+            for y = row_y0, row_y1 do
+                local count = 0
+                for x = lx0, lx1 do
+                    if isInk(sample, x, y, background, is_inverted) then
+                        count = count + 1
+                    end
+                end
+                row_ink[y] = count
+            end
+
+            local snapped_y = nearestInk(row_ink, tap_y, max_half_h, 0, h - 1)
+            if not snapped_y then
+                return abort("no ink near the tap row")
+            end
+            tap_y = snapped_y
+
+            -- Expand the tap row into its full text line, tolerating a couple of
+            -- blank rows (crossbars, gaps inside glyphs) but stopping at a real gap
+            -- between lines. Max single-line height capped at ~70px (at 2x zoom).
+            local min_y_bound = math.max(0, tap_y - max_half_h)
+            local max_y_bound = math.min(h - 1, tap_y + max_half_h)
+
+            local band_has_ink = {}
+            for y = min_y_bound, max_y_bound do
+                band_has_ink[y] = row_ink[y] > 0
+            end
+            local y0, y1 = growRowExtent(band_has_ink, tap_y, min_y_bound, max_y_bound)
+            if y1 - y0 + 1 > 70 then
+                local row_peak = 0
+                for y = min_y_bound, max_y_bound do
+                    row_peak = math.max(row_peak, row_ink[y])
+                end
+                local weak_row_cutoff = math.max(2, math.floor(row_peak * 0.12))
+                for y = min_y_bound, max_y_bound do
+                    -- On a suspiciously tall line, antialiasing and italic
+                    -- strokes may bridge the otherwise empty separator rows.
+                    band_has_ink[y] = row_ink[y] >= weak_row_cutoff
+                end
+                y0, y1 = growRowExtent(band_has_ink, tap_y, min_y_bound, max_y_bound)
+            end
+
+            local line_h = y1 - y0 + 1
+            -- Italic stems can bridge a word gap in an ordinary vertical
+            -- projection. Search a small set of slopes for the projection with
+            -- most blank columns, with a bias towards leaving upright text alone.
+            -- This only changes sampling; the returned box is mapped back to
+            -- the original page below.
+            local raw_sample = sample
+            local shear, best_score = 0, -math.huge
+            local sx0, sx1 = math.max(0, tap_x - line_h * 3), math.min(w - 1, tap_x + line_h * 3)
+            for _, candidate in ipairs({ 0, 0.15, 0.3, 0.45, -0.15 }) do
+                local blanks = 0
+                for x = math.floor(sx0), math.floor(sx1) do
+                    local ink = false
+                    for y = y0, y1 do
+                        local rx = clamp(x + math.floor((tap_y - y) * candidate), 0, w - 1)
+                        if isInk(raw_sample, rx, y, background, is_inverted) then
+                            ink = true
+                            break
+                        end
+                    end
+                    if not ink then
+                        blanks = blanks + 1
+                    end
+                end
+                local score = blanks - math.abs(candidate) * line_h * 0.2
+                if score > best_score then
+                    shear, best_score = candidate, score
+                end
+            end
+            if shear ~= 0 then
+                sample = function(x, y)
+                    return raw_sample(clamp(x + math.floor((tap_y - y) * shear), 0, w - 1), y)
+                end
+            end
+
+            -- Only presence is used by gap detection and snapping. Stop at the
+            -- first ink pixel instead of counting every dark pixel in the column.
+            local col_ink = {}
+            for x = 0, w - 1 do
+                local count = 0
+                for y = y0, y1 do
+                    if isInk(sample, x, y, background, is_inverted) then
+                        count = 1
+                        break
+                    end
+                end
+                col_ink[x] = count
+            end
+
+            local snapped_x = nearestInk(col_ink, tap_x, math.max(4, math.floor(line_h * SNAP_X_RATIO)), 0, w - 1)
+            if not snapped_x then
+                return abort("no ink near the tap column")
+            end
+            tap_x = snapped_x
+
+            -- Calibrate the word-gap threshold from this line's own letter spacing:
+            -- collect every internal gap between ink runs across a window of the line
+            -- around the tap, and require a real word boundary to be a clear outlier
+            -- above the median of those (mostly inter-letter) gaps.
+            local gap_window = math.max(line_h, math.floor(line_h * GAP_WINDOW_RATIO))
+            local gap_x0 = math.max(0, tap_x - gap_window)
+            local gap_x1 = math.min(w - 1, tap_x + gap_window)
+            local gaps = {}
+            do
+                local in_gap, gap_start, seen_ink = false, nil, false
+                for x = gap_x0, gap_x1 do
+                    if col_ink[x] > 0 then
+                        if in_gap and seen_ink then
+                            table.insert(gaps, x - gap_start)
+                        end
+                        in_gap = false
+                        seen_ink = true
+                    elseif seen_ink and not in_gap then
+                        in_gap = true
+                        gap_start = x
+                    end
+                end
+            end
+
+            local gap_threshold, median_gap
+            if #gaps >= 2 then
+                table.sort(gaps)
+                -- Bubble margins are not samples of the font's letter spacing.
+                while #gaps > 2 and gaps[#gaps] > line_h do
+                    table.remove(gaps)
+                end
+                local mid = math.floor(#gaps / 2)
+                median_gap = (#gaps % 2 == 1) and gaps[mid + 1] or (gaps[mid] + gaps[mid + 1]) / 2
+                -- On a short line the gap sample may contain just a word gap and
+                -- the much larger padding to the speech-bubble edge. The median
+                -- then exceeds the word gap itself.
+                if #gaps <= 3 and gaps[#gaps] >= gaps[1] * 2.5 and gaps[#gaps] >= line_h * 0.5 then
+                    gap_threshold = gaps[1]
+                    if gaps[1] < line_h * 0.2 and gaps[2] < line_h * 0.7 then
+                        gap_threshold = math.floor(gaps[1] * MEDIAN_GAP_MULTIPLIER)
+                    end
+                elseif #gaps <= 3 and gaps[1] >= line_h * 0.25 then
+                    -- Sparse connected lettering has few internal gaps at all.
+                    -- These wide gaps separate words rather than letters.
+                    gap_threshold = math.floor(line_h * 0.18 * MEDIAN_GAP_MULTIPLIER)
+                else
+                    gap_threshold = math.floor(median_gap * MEDIAN_GAP_MULTIPLIER)
+                end
+                -- Separate the small letter-gap cluster from a wider word gap
+                -- even when there are too few samples for a useful median.
+                if #gaps == 2 and gaps[2] >= gaps[1] * 1.6 and gaps[2] <= line_h * 0.5 then
+                    gap_threshold = gaps[2]
+                elseif #gaps == 3 and gaps[1] < line_h * 0.08 and gaps[2] > line_h * 0.2 then
+                    gap_threshold = gaps[2]
+                elseif #gaps == 3 and gaps[2] <= line_h * 0.18 and gaps[3] >= line_h * 0.5 then
+                    gap_threshold = math.floor(gaps[2] * MEDIAN_GAP_MULTIPLIER)
+                end
+                if #gaps > 3 then
+                    gap_threshold = math.max(math.floor(line_h * MIN_WORD_GAP_RATIO), gap_threshold)
+                end
+                gap_threshold = math.min(gap_threshold, math.ceil(line_h * MAX_WORD_GAP_RATIO))
+            else
+                gap_threshold = math.floor(line_h * WORD_GAP_RATIO)
+            end
+            -- Two native pixels of whitespace can occur inside connected lettering.
+            -- Keep such small gaps inside the word even with a sparse sample.
+            gap_threshold = math.max(6, gap_threshold)
+            -- Short dialogue lines may contain more word gaps than letter gaps,
+            -- inflating the median. Cap that estimate only when tightly connected
+            -- letters establish a smaller spacing scale. A well-populated, uniform
+            -- gap sample (such as widely tracked chapter headings) keeps its median.
+            if
+                line_h >= 36
+                and #gaps > 0
+                and gaps[1] <= line_h * 0.15
+                and (#gaps <= 8 or gaps[math.ceil(#gaps / 4)] <= median_gap * 0.5)
+            then
+                gap_threshold = math.min(gap_threshold, math.max(4, math.floor(line_h * 0.21)))
+            end
+            WordFinder.last_diagnostics = {
+                gap_threshold = gap_threshold,
+                median_gap = median_gap,
+                line_h = line_h,
+                gaps = gaps,
+                shear = shear,
+            }
+
+            local x0, x1, gap = tap_x, tap_x, 0
+            while x0 > 0 do
+                if col_ink[x0 - 1] == 0 then
+                    gap = gap + 1
+                    if gap >= gap_threshold then
+                        break
+                    end
+                else
+                    gap = 0
+                end
+                x0 = x0 - 1
+            end
+            while x0 < tap_x and col_ink[x0] == 0 do
+                x0 = x0 + 1
+            end
+            gap = 0
+            while x1 < w - 1 do
+                if col_ink[x1 + 1] == 0 then
+                    gap = gap + 1
+                    if gap >= gap_threshold then
+                        break
+                    end
+                else
+                    gap = 0
+                end
+                x1 = x1 + 1
+            end
+            while x1 > tap_x and col_ink[x1] == 0 do
+                x1 = x1 - 1
+            end
+
+            -- A closing quote or period can sit across a full word-sized blank
+            -- column gap from the last letter. Keep a small final ink run with
+            -- the tapped word; a neighbouring word has a wider run.
+            local next_x = x1 + 1
+            local punctuation_gap = math.floor(line_h * 0.3)
+            while next_x < w and next_x - x1 - 1 <= punctuation_gap and col_ink[next_x] == 0 do
+                next_x = next_x + 1
+            end
+            if next_x < w and next_x - x1 - 1 <= punctuation_gap then
+                local run_end = next_x
+                while run_end + 1 < w and col_ink[run_end + 1] > 0 do
+                    run_end = run_end + 1
+                end
+                if run_end - next_x + 1 <= line_h * 0.6 then
+                    x1 = run_end
+                end
+            end
+
+            -- An ink run that reaches the edge of the render crop still going was
+            -- never a word: nothing bounded it, so it is screentone, a bubble
+            -- border, or panel art the ink test could not tell from lettering. The
+            -- box would be arbitrary and OCR would transcribe the arbitrariness, so
+            -- hand the tap back to KOReader instead of inventing an answer.
+            if col_ink[0] > 0 and x0 <= 0 then
+                return abort("ink runs off the left edge of the crop")
+            end
+            if col_ink[w - 1] > 0 and x1 >= w - 1 then
+                return abort("ink runs off the right edge of the crop")
+            end
+            if (x1 - x0 + 1) > line_h * MAX_WORD_WIDTH_RATIO then
+                return abort(string.format("box too wide for one word (%dpx over a %dpx line)", x1 - x0 + 1, line_h))
+            end
+
+            -- Re-derive the vertical extent from the word's *own* columns. The line
+            -- extent above came from a fixed band around the tap (BG_LOCAL_HALF_W
+            -- wide), which is narrower than many words: an ascender or descender
+            -- belonging to this word but sitting outside that band was invisible to
+            -- it, and cropping the glyph there is exactly what makes OCR return part
+            -- of a word instead of the word.
+            local word_has_ink = {}
+            for y = min_y_bound, max_y_bound do
+                local found = false
+                for x = x0, x1 do
+                    if isInk(sample, x, y, background, is_inverted) then
+                        found = true
+                        break
+                    end
+                end
+                word_has_ink[y] = found
+            end
+
+            local seed_y = tap_y
+            if not word_has_ink[seed_y] then
+                for distance = 0, line_h do
+                    if word_has_ink[tap_y - distance] then
+                        seed_y = tap_y - distance
+                        break
+                    elseif word_has_ink[tap_y + distance] then
+                        seed_y = tap_y + distance
+                        break
+                    end
+                end
+            end
+            if not word_has_ink[seed_y] then
+                return abort("no ink in the word's own columns")
+            end
+            local ty0, ty1 = growRowExtent(word_has_ink, seed_y, min_y_bound, max_y_bound)
+
+            -- Runaway guard: if the word's own vertical extent grew far beyond the
+            -- whole line's, it almost certainly bridged into a neighbouring line
+            -- instead of legitimately reaching an ascender/descender -- fall back to
+            -- the (already correctly bounded) line extent instead of handing OCR a
+            -- multi-line box. See WORD_HEIGHT_LINE_RATIO_CAP above.
+            if (ty1 - ty0) > (y1 - y0) * WORD_HEIGHT_LINE_RATIO_CAP then
+                ty0, ty1 = y0, y1
+            end
+
+            if Timing.enabled then
+                for _, dir in ipairs({ ".", "/tmp" }) do
+                    savePGM(dir .. "/wordfinder_crop.pgm", sample, w, h)
+                    savePGM(dir .. "/wordfinder_crop_box.pgm", sample, w, h, x0, x1, ty0, ty1)
+                end
+            end
+
+            local word_h = ty1 - ty0 + 1
+            local pad_x = math.max(0, math.floor(word_h * PAD_RATIO * 0.5))
+            local pad_y = math.max(0, math.floor(word_h * PAD_RATIO))
+
+            local top_shift = math.floor((tap_y - ty0) * shear)
+            local bottom_shift = math.floor((tap_y - ty1) * shear)
+            local px0 = math.max(0, x0 - pad_x + math.min(top_shift, bottom_shift))
+            local px1 = math.min(w - 1, x1 + pad_x + math.max(top_shift, bottom_shift))
+            local py0 = math.max(0, ty0 - pad_y)
+            local py1 = math.min(h - 1, ty1 + pad_y)
+
+            local box_res = {
+                x = (origin_x + px0) / CROP_ZOOM,
+                y = (origin_y + py0) / CROP_ZOOM,
+                w = (px1 - px0 + 1) / CROP_ZOOM,
+                h = (py1 - py0 + 1) / CROP_ZOOM,
+            }
+            local ocr_pad_x = math.floor(word_h * 0.025)
+            local ocr_pad_y = math.floor(word_h * 0.05)
+            local ox0 = math.max(0, x0 - ocr_pad_x + math.min(top_shift, bottom_shift))
+            local ox1 = math.min(w - 1, x1 + ocr_pad_x + math.max(top_shift, bottom_shift))
+            local oy0 = math.max(0, ty0 - ocr_pad_y)
+            local oy1 = math.min(h - 1, ty1 + ocr_pad_y)
+            box_res.ocr_box = {
+                x = (origin_x + ox0) / CROP_ZOOM,
+                y = (origin_y + oy0) / CROP_ZOOM,
+                w = (ox1 - ox0 + 1) / CROP_ZOOM,
+                h = (oy1 - oy0 + 1) / CROP_ZOOM,
+            }
+
+            if Timing.enabled then
+                local map_start = math.max(0, x0 - 15)
+                local map_end = math.min(w - 1, x1 + 15)
+                local map_chars = {}
+                for x = map_start, map_end do
+                    if x >= x0 and x <= x1 then
+                        table.insert(map_chars, col_ink[x] > 0 and "#" or ".")
+                    else
+                        table.insert(map_chars, col_ink[x] > 0 and "|" or " ")
+                    end
+                end
+                WordFinder.logDiagnostic(
+                    string.format(
+                        "findWordBox tap=(%.1f,%.1f) pg=%s -> box=(x=%.1f,y=%.1f,w=%.1f,h=%.1f)",
+                        px,
+                        py,
+                        tostring(pageno),
+                        box_res.x,
+                        box_res.y,
+                        box_res.w,
+                        box_res.h
+                    ),
+                    {
+                        bg = background,
+                        inv = is_inverted,
+                        bg_box = string.format("(%d,%d)-(%d,%d)", lx0, bg_y0, lx1, bg_y1),
+                        line_h = line_h,
+                        gap_thresh = gap_threshold,
+                        all_gaps = "[" .. table.concat(gaps, ",") .. "]",
+                        col_map = table.concat(map_chars),
+                    }
+                )
+            end
+
+            return box_res, native
+        end -- search()
+
+        local ok2, result_box, result_native = pcall(search)
+        if tile.disposable then
+            pcall(tile.bb.free, tile.bb)
+        end
+        if not ok2 then
+            if owned then
+                pcall(owned.free, owned)
+            end
+            logger.warn("[Panels+] word box search failed:", result_box)
+            return nil
+        end
+        local reason = WordFinder.last_diagnostics and WordFinder.last_diagnostics.abort_reason
+        local edge_abort = not result_box and reason and reason:find("ink runs off", 1, true)
+        if owned then
+            pcall(owned.free, owned)
+        end
+        if not result_box and edge_abort and not narrow_retry then
+            -- A smaller search region can exclude adjoining artwork that bridged
+            -- the row projection. Require the retry to find its own bounded box.
+            return WordFinder.findWordBox(document, pageno, px, py, true)
+        end
+        return result_box, result_native
+    end
+end

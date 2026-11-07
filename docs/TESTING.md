@@ -84,6 +84,26 @@ page-level `Segmenter.accept()` validator and benchmark tooling retains the old
 algorithm for historical comparisons. Its presence does not imply a
 reader-selectable detector mode.
 
+## Checking a module split
+
+Run the existing tests before moving code, then run them again after the split.
+The specs still use the original module imports, so they exercise the
+compatibility entry files and the assembled modules together. Keep the full
+suite as the final check: the four modules also participate in dataset,
+embedded-image and OCR flows.
+
+```sh
+./run-tests.sh --quicker
+PANELSPLUS_LUA=luajit python3 tests/run_parallel.py --skip-datasets
+./run-tests.sh
+```
+
+The first command runs the Lua unit specs plus available Go and Python suites.
+The second checks the Lua unit specs under KOReader's runtime. The last adds
+formatting, lint and dataset checks. Check the reported skips as well as the
+exit code: graceful mode can omit Python tests when its environment is not
+synced, and some reflow datasets still have pending panel mappings.
+
 ## Testing computer-vision heuristics
 
 A detector fix should normally include more than one positive example. At

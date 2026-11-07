@@ -90,8 +90,11 @@ PNG DPI is normalized to annotation coordinates. It makes no accuracy claim
 for this rendering harness; the separate OCR dataset suite supplies that gate.
 
 Optional arguments are a WordFinder source snapshot and repeat count. A
-snapshot must retain the `src/_wordfinder.lua` layout and have access to the
-same `data/ocr` directory. `PANELSPLUS_OCR_RESULTS=/tmp/results.txt` writes exact
+historical single-file snapshot must retain its `src/_wordfinder.lua` layout
+and have access to the same `data/ocr` directory. For the modular version, keep
+`src/wordfinder/` with the compatibility entry file: copying the entry file
+alone would load the current parts instead of preserving a snapshot. Use a
+separate checkout for comparisons between modular versions. `PANELSPLUS_OCR_RESULTS=/tmp/results.txt` writes exact
 boxes and returned strings for comparing implementations. The benchmark does
 not modify bestbenchmark records.
 

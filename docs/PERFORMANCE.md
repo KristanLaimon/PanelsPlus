@@ -128,7 +128,7 @@ spend exactly the memory this is meant to protect.
 
 A refined word selection on an unblocked zoomed panel pays for two things, both
 scoped to that one word, not the whole page: a small crop render around the tap
-(`src/_wordfinder.lua`'s `CROP_HALF_W_FRAC`/`CROP_HALF_H_FRAC`, at 2x zoom)
+(`src/wordfinder/detection.lua`'s `CROP_HALF_W_FRAC`/`CROP_HALF_H_FRAC`, at 2x zoom)
 and a Tesseract OCR call over the resulting tight box, with one retry on a
 padded box if the first result doesn't look like a plausible word. Both are
 orders of magnitude cheaper than a full-page detection pass, but Tesseract
