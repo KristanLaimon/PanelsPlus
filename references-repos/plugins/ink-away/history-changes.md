@@ -1,3 +1,43 @@
+## Current state — Kindle Draw options sizing fix, 2026-11-07
+
+Panels+ 1.6.0 at `ec6673472a57e1c9fd997fac2324aa0b1517cea3` on `feat/ink-away-compatibility` now has an uncommitted source-only fix in `src/_annotationsurface.lua`: beginning annotation hides and refits visible Panels+ controls before Ink Away snapshots/layouts the panel; finishing restores their previous visibility. Repeated begin/finish calls retain the original state. Ink Away's own toolbar viewport and crop margins still apply. Canonical target remains 4.4.0-derived rolling `356f40367a032fe5e2808abb8ff4aacb68e4674e`, `feature/plugin-integration`, with its staged PR.md, modified translation template and untracked editor/log files preserved. Stable v4_4_0 is unchanged; existing parent staging is preserved.
+
+Native reproduction failed before the fix at “Draw hides Panels+ options before editor layout”; afterward 48 cases / 2736 checks pass with actual KOReader widgets/loader/blitter and both plugins, synthetic document/timer delivery. Stable fallback 5, rolling integration 44, focused units 39 pass; scoped StyLua/Luacheck and whitespace pass. See the final dated entry for commands and limits. No rebuild, installation, staging, commit or upstream operation. Installed target remains the previously recorded build.R1Rcoavc; Downloads ZIPs predate this correction. Kindle KOReader version and physical validation remain unknown/pending. Next: package/update Panels+ on the Kindle, then open its options → Draw and verify reclaimed options space and restoration on editor close.
+
+---
+
+## Current state — rolling deployment without backup, 2026-11-07
+
+User requested replacing stable with canonical local rolling and explicitly directed no backup. Installed `../ink-away.koplugin` from artifact `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.R1Rcoavc/ink-away.koplugin`, metadata 4.4.0, commit `356f40367a032fe5e2808abb8ff4aacb68e4674e`, branch `feature/plugin-integration`. All 289 installed payload checksums pass. No backup created; this supersedes the stable installation summary below. Existing source staged `PR.md` and untracked `.foxnvim/` remain untouched and are excluded from runtime files. Runtime tests not rerun for deployment; restart KOReader and validate live behavior. No running KOReader/LuaJIT process was found before deployment. No source changes, commits or upstream updates performed.
+
+---
+
+## Current state — stable deployment, 2026-11-07
+
+User requested and completed installation of the unchanged pinned Ink Away v4.4.0 to `../ink-away.koplugin`, superseding the older installation summaries below. Artifact: `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.msp8BSpU/ink-away.koplugin`. Installed payload hashes match the full immutable stable pin and its deployment manifest. No existing Ink Away directory was present to replace; the helper created an empty backup directory at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.LDlMfV3D`. No running KOReader/LuaJIT process was found. Start/restart KOReader for live validation; runtime tests were not rerun for this copy-only deployment. Canonical rolling source and its local Git state are unchanged; this installed stable release does not include the rolling integration API. Prior source/refactor provenance remains below.
+
+---
+
+## Current state — atomic refactor commits, 2026-11-07
+
+Ink Away 4.4.0-derived canonical rolling now ends at `9925fd954e30f832fd617c467d19b4ae8ce5195a` on `feature/plugin-integration`. User explicitly authorized splitting/committing the existing staged diff; all 26 allowed files are committed in five focused commits (final entry below). Editor config `.foxnvim/` and `PR.md`/`PR-observations.md` remain untracked and excluded; no .krsnvim files were present. The final HEAD tree exactly matches the original staged tree `8d9925012a07f194f25d28aefddde066b2753489`. All original working-file and excluded-file SHA-256 hashes match; no working bytes or original index contents changed. The author's architecture draft, including its URL placeholder and existing EOF whitespace, is preserved in a separate documentation commit.
+
+Panels+ runtime remains 1.6.0 at `ec6673472a57e1c9fd997fac2324aa0b1517cea3`, `feat/ink-away-compatibility`; its submodule pointer and handoff notes are uncommitted. No parent commit, push, install, fetch or rebase. Installed Ink Away remains build.uCHGAckH, backup ink-away.3nm5FqK3, and does not include this refactor. Previous full static comparison (653 → 631, zero additions), 5 stable / 44 rolling and native 48 cases / 2592 checks remain evidence for the tested code; this commit operation reran exact intermediate snapshot unit/registry/geometry/reader/export checks and lint, not native/device suites. Next step: review or explicitly request push/build/install. Physical reader validation remains pending.
+
+---
+
+## Current state — typed viewer contract and delegates, 2026-11-07
+
+Completed the user's PR review requests in canonical Ink Away rolling: reusable typed `ink/delegate.lua`, explicit LuaLS contracts in `ink/contracts.lua`, PR-scoped annotations on integration/geometry/export/focus boundaries and public Lua examples, and removal of `reader/external.lua`. Book consumes external surfaces directly; KOReaderSurface now implements the same pages/key presentation contract. Public API/surface version 1 and the existing Panels+ consumer remain compatible. Drawing-coordinate conversion stays inside Ink Away, with navigation defaults, cache identity and host repainting owned by Book.
+
+Panels+ 1.6.0, `feat/ink-away-compatibility`, HEAD `ec6673472a57e1c9fd997fac2324aa0b1517cea3` has no new runtime changes. Ink Away 4.4.0-derived rolling, `feature/plugin-integration`, HEAD `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, contains the uncommitted refactor. Existing `.foxnvim/pins.json` staging/worktree changes, author-edited `docs/Arquitecture.md` and untracked `PR.md`/`PR-observations.md` are untouched. Stable v4_4_0 remains unchanged. No staging, commits, remote changes or installation performed. Installed build remains build.uCHGAckH, backup ink-away.3nm5FqK3; this refactor is **not installed**.
+
+Validation: stable fallback **5**, rolling integration **44**, target delegate **10**, registry/editor **36**, loading order **57**, generic surface **49**, viewport **43**, reader **236**, book ink **133**, export **42 / 21**, view/dialog **1462** checks passed. Native KOReader v2026.07.1 on Linux x86_64: **48 cases / 2592 checks**, real widgets/blitter/loader/plugins with synthetic document/timer fixtures. Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`. Luacheck passed 22 files. LuaLS full before/after diagnostics: **653 → 631, zero added**; the repository is not globally type-clean. Focused contracts/delegate static check clean; negative fixture correctly rejects missing surface methods and wrong event payload type. Scoped whitespace check passes; the author's pre-existing Arquitecture.md EOF warning remains untouched.
+
+Full target/Panels+ general suites, physical reader input and PDF pixel/large-archive benchmarks were not repeated; focused integration/native/geometry/editor tests cover the refactor. Next step is review of the uncommitted diff; deployment requires a separate build/install request and then live validation. Exact commands and typing evidence are in the final dated entry.
+
+---
+
 ## Current state — Draw handler-wrapper fix, 2026-11-07
 
 Latest correction supersedes earlier summaries: Draw stayed hidden even after the rolling deployment because KOReader wraps onInkAwayAnnotate in a callable HandlerSandbox table. Panels+ now accepts the wrapped action after successful integration. The native test now loads the **actual installed plugin through KOReader PluginLoader**, reproduces the missing button before the fix, and passes 48 scenarios / 2592 checks afterward. Unit control/support 20, stable fallback 5 and rolling integration 44 pass. Full 579-unit run predates this one-condition correction.
@@ -1670,3 +1710,115 @@ Failing-before evidence: native test now calls actual KOReader PluginLoader:_loa
 Validation commands: `lua tests/run_tests.lua tests/plugin_support_spec.lua tests/panelviewer_controls_spec.lua` (**20 passed**); stable-first `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0` (**5 passed**), then rollingrelease (**44 passed**). Native command uses the earlier documented `/usr/lib/koreader` cwd/environment, KO_HOME=/tmp/panelsplus-loader-after and the actual installed target `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin`; output `/tmp/panelsplus-loader-after.log`. Targeted StyLua, Luacheck (3 changed Lua files) and whitespace checks pass. Previous full 579-unit run predates this one-condition correction; full suite not rerun because focused failure-before/pass-after checks and native loader coverage exercise the issue directly. Live physical UI remains unverified.
 
 No old active plugin was found to delete. Previous installed copy remains backed up outside `/plugins`. No new deployment, staging, commit or push; source fix and tests are unstaged alongside earlier user-staged work. Next action: fully restart KOReader to load the updated Panels+ action gate, then show controls and check Draw immediately after Inverted. The installation mismatch and this host-wrapper bug were separate causes; installation alone could not correct the wrapper gate.
+
+## 2026-11-07 — Typed viewer contract and reusable event delegates — Panels+ 1.6.0 / Ink Away 4.4.0-derived rolling
+
+Versions, branches, base revisions, preserved work, install and authorization are recorded in the current-state summary above. User reviewed the four PR commits and requested explicit LuaLS contracts, PR-scoped function documentation, reusable delegate subscription logic and removal of external.lua's redundant interface translation.
+
+Investigation: Panels+ `src/_annotationsurface.lua` implements the public pages/key/transform contract. The smallest compatible unification is to make Native use pages/key too and have Book consume surfaces directly; retain Ink Away's drawing conversion in surface.lua. Public surface version remains 1. No consumer changes or duplicate consumer-side ink conversion are needed. Stable fallback passed 5 checks before edits; no failing-before runtime result claimed.
+
+### Implementation and validation outcome
+
+1. Extracted ordered multicast subscriptions from integration.lua into delegate.lua, used by both opened/closed events. Kept per-listener payload isolation, callback error reporting, immediate unsubscribe, deferred new subscribers and disposal during dispatch. New delegate suite has 10 checks; expanded actual registry/editor integration suite has 36 (formerly 30), including direct viewer identity, optional navigation/direction defaults and disposal during emission. An initial standalone invocation from Panels+ root failed module lookup; running from the target source directory is required and passed. No failing-before functional regression is claimed.
+2. Removed external.lua by aligning Native with the already-public pages/key contract and selecting the surface directly in Book. Retained Ink Away's operation conversion in surface.lua. Defaults/cache identity/host repaint are explicit Book responsibilities. Added a nil-page guard before reverse mapping. No public contract rename, consumer modifications, stored-ink schema change, version bump or new dependency. Existing native highlight protection, synchronous/native turns and asynchronous surface handoff remain covered.
+3. Added LuaLS contracts for the viewer, coordinate map, external surface, internal placement document, drawing anchors, event payloads, registration/facade callbacks and export options/specification. Applied annotations only around the four-commit PR's runtime boundaries and its Lua examples; host-owned UI/FFI objects remain opaque. Existing placement fixtures now assert successful anchor creation before passing nonoptional items. Updated Plugin-integration.md/tests README; preserved author's architecture edits and PR observation files.
+4. Target checks (cwd `references-repos/plugins/ink-away/rolling.koplugin`): `luajit tests/delegate.lua` 10; `tests/integration.lua` 36; `tests/loading_order.lua` 57; `tests/annotation_surface.lua` 49; `tests/surface_viewport.lua` 43; `tests/readerview.lua` 236; `tests/bookink.lua` 133; `tests/bookexport.lua` 42; `tests/annots.lua` 21; `tests/view.lua` 1462. Each was run as `luajit <file>`. These load actual target modules with KOReader host fixtures. Focused Luacheck passed all 22 modified/new Lua runtime/example/test files. Scoped `git diff --check -- . ':!docs/Arquitecture.md' ':!.foxnvim/pins.json'` passes; pre-existing author Arquitecture.md EOF warning is excluded, not fixed.
+5. Panels+ root stable-first commands `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0`, then `--compatibility-plugin-version=rollingrelease`: 5 / 44 passed, repeated after runtime changes. Actual selected target code and actual Panels+ consumer are loaded with host geometry/UI fixtures; this includes both loading orders, disabled/absent API, folds, navigation and cleanup.
+6. Native command below passed 48 cases / 2592 checks using real KOReader widgets, loader, blitter and both plugins. Document pixels/metadata and timer delivery remain fixtures, not physical reader evidence. Full target suite, Panels+ full units/Go/Python, native PDF pixel tests and large-archive measurements were not rerun because no encoders, panel implementation or workers changed. No build/install/commit/staging/push occurred.
+
+```bash
+# cwd /usr/lib/koreader
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-typed-contract ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+### Static typing evidence and limits
+
+Initial LuaLS scan found 706 diagnostics. The first baseline assembled through git archive omitted export-ignored tests (156 files / 59 diagnostics), so it was **not a comparable baseline**. Completed a temporary analysis-only snapshot of all tracked HEAD Lua files with `git ls-tree`/`git show` under `/tmp/ink-types-before`; no worktree/branch or retained patch was created. Both full scans use the same parent `.luarc.json` and actual host/mock source inference. Baseline: 296 files / 653 diagnostics; final: 298 files / 631 diagnostics. Comparing diagnostic counts by relative file, diagnostic code and full message yields zero additions. Existing global host/mock warnings are not suppressed or claimed fixed. Intermediate annotation errors (generic delegate binding, nil anchor results, range conversion and factory error/result mixing) were corrected before this result.
+
+```bash
+# Panels+ root; baseline uses --check=/tmp/ink-types-before with the same config.
+lua-language-server --check=references-repos/plugins/ink-away/rolling.koplugin \
+  --check_format=json --check_out_path=/tmp/ink-types-complete-report \
+  --logpath=/tmp/ink-types-complete-log --metapath=/tmp/ink-types-complete-meta \
+  --configpath=/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/.luarc.json
+```
+
+Full static scans exit nonzero because existing diagnostics remain. A separate temporary workspace containing only contracts.lua, delegate.lua and tests/delegate.lua reports no problems. A negative fixture annotated an incomplete `{version=1, document={}}` as InkSurface and assigned event.document to a string: LuaLS reported exactly the missing required methods and assignment mismatch, proving the interfaces and generic payload are checked. Negative fixture is not committed or part of the runtime test suite. Temporary analysis reports are not durable artifacts; repeat the commands/snapshot if needed.
+
+Final source ownership, exact bases, dirty/staged state and installed artifact are in the current-state summary. Public surface version 1 remains compatible; new runtime behavior is uninstalled pending review and an explicit deployment request. Physical stylus/device validation remains pending.
+
+## 2026-11-07 — Rename the built-in viewer to KOReaderSurface
+
+User requested `KOReaderSurface.lua` instead of native.lua. Same Panels+ 1.6.0 and Ink Away 4.4.0-derived rolling bases/branches and existing uncommitted refactor as the preceding entry. Renamed the canonical target file, Lua implementation/class and Book require/type references; updated the active API documentation. The private `_native` Book field remains unchanged so callers/fixtures are unaffected. No behavior change, staging, commit or installation. Historical mentions of native.lua above describe the implementation at that point. Validation from canonical target cwd: `luajit tests/integration.lua` (36 checks), `luajit tests/readerview.lua` (236 checks), and `luacheck ink/reader/KOReaderSurface.lua ink/reader/book.lua` all pass. No remaining runtime requires or type references use the old name. Broader/native/static comparison results from the preceding refactor were not rerun for this rename.
+
+User-requested reader-suite rerun after the rename: `luajit tests/readerview.lua` from canonical rolling source passed **236 checks, 0 failures**, exit 0. Same bases/branches and uncommitted state as above. This is the reader suite with host mocks, not a full plugin/native/device run.
+
+Investigation-only clarification: Panels+ already supplies standalone KOReader/FFI mocks through `tests/helper.lua`, loaded by `tests/run_tests.lua`; cross-plugin geometry tests add target-specific fixtures in `tests/compatibility_support/inkaway_surface.lua`. No mock copying or runtime changes performed. Installed execution uses actual KOReader APIs; native viewport tests exercise real widgets/blitter with documented document/timer fixtures. This was source inspection, not a new test run. Same current bases/branches and dirty state as above.
+
+## 2026-11-07 — Atomic commits for the rolling refactor
+
+User explicitly authorized committing the existing Ink Away rolling diff, excluding editor config (.krsnvim/.foxnvim) and PR Markdown files. Target starts at b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 on feature/plugin-integration; Panels+ remains ec6673472a57e1c9fd997fac2324aa0b1517cea3 on feat/ink-away-compatibility. All 26 allowed target files were already staged; exclusions are untracked. A temporary Git index preserves the original staging and working bytes while splitting event delegates, direct surfaces, type annotations and documentation. The author architecture introduction contains a URL placeholder and will be preserved separately. Initial sandbox blocked Git metadata index.lock; escalated preparation succeeded. The exact first event snapshot passes delegate 10, integration 32 and loading-order 57 plus Luacheck. Commit sequence in progress; no push/install requested.
+
+### Commit outcome and verification
+
+- `b99a43e349fa0c7f94e8704518acf53ff35e720e` — refactor(events): extract reusable multicast delegates
+- `2ec85a5a2351e162e4ade2714041848558fa7118` — refactor(integration): consume viewer surfaces directly
+- `153a4517e215a348f3b4dbae350098ae162186e9` — docs(types): annotate integration and export contracts
+- `392bc7fdbb2727cfc27443b2e91a0a3492407de1` — docs(integration): explain typed surfaces and delegate lifecycle
+- `9925fd954e30f832fd617c467d19b4ae8ce5195a` — docs(integration): revise the architecture guide introduction
+
+Used a temporary Git index, leaving the user's original staging intact. Before each behavioral commit, exported the exact proposed index to an analysis-only temporary snapshot and ran actual target modules with host mocks: events 10 delegate / 32 integration / 57 loading-order; direct surfaces 36 integration / 49 surface / 43 viewport / 236 reader / 133 book ink; types 10 delegate / 36 integration / 133 book ink / 42 export / 21 annots. Luacheck passed the event files and all 17 selected runtime/type/fixture files in the typing snapshot. Whitespace checks passed except the deliberately preserved architecture draft's known EOF warning. No new live/native/full static run claimed for this commit-only task.
+
+Verified the combined final tree equals the originally staged payload, every original working-file hash is unchanged and excluded files retain their original hashes. Target status now contains only the three excluded untracked entries (.foxnvim/, PR-observations.md, PR.md). Existing staged content was incorporated without resetting the original index; its tree now matches HEAD. No parent commits or remote operations. User review files and editor config remain available locally.
+
+
+## 2026-11-07 — Deploy pinned stable Ink Away 4.4.0
+
+User requested deploying the stable version to the parent plugins directory. Selected the immutable local `stable/v4_4_0/` pin, not the modified rolling source. Deployment plan targets `../ink-away.koplugin` using `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=stable --version=4.4.0 --install` from the Panels+ root. No running KOReader/LuaJIT process was found. Installation and checksum verification are pending; existing source changes remain untouched.
+
+Deployment completed successfully with the planned `--install` command (filesystem escalation required for the parent directory). Artifact `build.msp8BSpU`; destination `../ink-away.koplugin`; backup directory `ink-away.LDlMfV3D` is empty because no existing copy was found. Verified all 284 manifest checksums and exact payload equality with the stable pin using Python hashlib. No runtime or compatibility suites rerun for this deployment; live reader behavior remains pending. No source edits, commits, staging or upstream updates.
+
+
+## 2026-11-07 — Deploy canonical rolling after stable comparison
+
+User requested replacing the stable install with current local rolling. Canonical source is `rolling.koplugin/`, branch `feature/plugin-integration`, HEAD `356f40367a032fe5e2808abb8ff4aacb68e4674e`, metadata 4.4.0. Status contains staged `PR.md` and untracked `.foxnvim/`; preserve both. No running KOReader/LuaJIT process found. Plan targets `../ink-away.koplugin`; use `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install` from Panels+ root. Build, replacement and verification pending. No upstream update requested.
+
+User explicitly directed no backup. Built with `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --build-only`, artifact `build.R1Rcoavc/ink-away.koplugin`. Since the install helper always backs up, used Python shutil to replace `../ink-away.koplugin` directly after verifying both source and existing installed payload against their manifests, plugin identity, and absence of a Git checkout/symlink at destination. Installed rolling payload verified: 289 checksums. No backup created. Parent-directory write required filesystem escalation. No runtime tests rerun for deployment; restart KOReader for live validation. Staged PR.md and untracked .foxnvim/ are excluded by the runtime build recipe and preserved in source. No commits, staging or upstream operations.
+
+
+## 2026-11-07 — Kindle Draw keeps the options-sized panel — investigation
+
+User reports opening Draw from visible Panels+ options hides the options but leaves the panel at their reduced size. Investigating Panels+ ownership first. Source Panels+ 1.6.0, ec6673472a57e1c9fd997fac2324aa0b1517cea3, feat/ink-away-compatibility; target canonical rolling Ink Away 4.4.0-derived 356f40367a032fe5e2808abb8ff4aacb68e4674e, feature/plugin-integration. Existing parent staged history/relationships/submodule pointer and target staged PR.md, modified ink/l10n/ink-away.pot, untracked editor/log files are preserved. Stable v4_4_0 is present and immutable; host reference 035e00b21d0286325ef2e8a7e3b6326f340e2ded. Kindle runtime version unknown. No build/install/commit/update requested. Investigation and stable-first tests pending.
+
+### Investigation and outcome
+
+The native regression previously always constructed Panels+ with `buttons_visible=false`, missing entry through its visible Draw tile. Changing the regression to start with visible controls and asserting controls/rail removal fails before the runtime correction at “Draw hides Panels+ options before editor layout”. Panels+ kept reserving options space in its layout while Ink Away painted its own editor over the snapshot. Fix belongs in Panels+ surface begin/finish, so it also applies to target-owned annotation actions, preserves controls on failed editor creation, and avoids any Ink Away source change. Unit coverage checks visible/hidden initial states, repeat begin during navigation, finish without a toolbar inset (including editor-init failure), and repeat finish without duplicate refreshes.
+
+From Panels+ root, stable-first commands before/after the runtime edit:
+
+```bash
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+lua tests/run_tests.lua tests/panelviewer_annotationviewport_spec.lua tests/panelviewer_controls_spec.lua tests/plugin_support_spec.lua tests/panelviewer_highlight_spec.lua
+stylua --check src/_annotationsurface.lua tests/panelviewer_annotationviewport_spec.lua tests/compatibility_support/inkaway_native_viewport.lua
+luacheck src/_annotationsurface.lua tests/panelviewer_annotationviewport_spec.lua tests/compatibility_support/inkaway_native_viewport.lua
+git diff --check
+```
+
+Stable 5 and rolling 44 passed after the fix (stable also passed before investigation). These load actual selected counterpart code with KOReader host fixtures, retaining absence, load-order and lifecycle coverage. Focused units 39 passed. All scoped style/lint/whitespace checks passed. No full-suite rerun: changed behavior is confined to annotation lifecycle and exercised directly.
+
+Native before/after command from `/usr/lib/koreader`, using separate isolated KO_HOME directories `/tmp/panelsplus-draw-options-before` and `/tmp/panelsplus-draw-options-after`:
+
+```bash
+env SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-draw-options-after ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+After fix: 48 cases / 2736 checks passed, all four toolbar sides, Comic/Manga, ease/Classic, Tight/Margin/No crop, navigation and close restoration. Real widgets, loader HandlerSandbox, bitmap blitter and plugin modules; synthetic document and manual timer delivery. Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; runtime uses the existing `/usr/lib/koreader` installation, whose exact version was not queried in this task. This is not physical Kindle/input/refresh evidence. No new builds/installations; the existing Downloads archives contain the earlier code. No target source changes. Finish handoff: only source/tests/history/index changes are uncommitted alongside preserved prior work; package Panels+ and validate the reported Kindle flow next.

@@ -16,6 +16,27 @@ describe("PanelViewer annotator viewport", function()
         })
     end
 
+    it("hides options for annotation and restores their prior visibility once", function()
+        for _, visible in ipairs({ true, false }) do
+            local v = viewer()
+            v.buttons_visible = visible
+            local updates = 0
+            v.update = function()
+                updates = updates + 1
+            end
+            local surface = v:getAnnotationSurface()
+            surface:begin()
+            surface:begin() -- Navigation can begin the same surface again.
+            assert.is_false(v.buttons_visible)
+            assert.equals(visible and 1 or 0, updates)
+            surface:finish() -- Also used when creating the editor fails.
+            assert.equals(visible, v.buttons_visible)
+            assert.equals(visible and 2 or 0, updates)
+            surface:finish()
+            assert.equals(visible and 2 or 0, updates)
+        end
+    end)
+
     it("reserves each available screen edge and restores it when the editor closes", function()
         for _, rect in ipairs({
             { x = 50, y = 0, w = 550, h = 800 },
