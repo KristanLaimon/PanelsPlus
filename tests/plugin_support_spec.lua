@@ -57,6 +57,55 @@ describe("Optional plugin support", function()
         assert.is_nil(viewer._annotation_unregister)
     end)
 
+    it("shows Draw only after successful Ink Away registration and opens annotation", function()
+        local draws = 0
+        local api = {
+            integration_api_version = 1,
+            document_surface_version = 1,
+            installPluginIntegration = function()
+                return function() end
+            end,
+            paintDocumentSurface = function() end,
+            releaseDocumentSurface = function() end,
+            onInkAwayAnnotate = function()
+                draws = draws + 1
+            end,
+        }
+        local v = PanelViewer:new({ page = 1, reader_ui = { document = {}, inkaway = api } })
+        v:replaceButtonTable()
+        assert.is_nil(v.quick_controls.draw_inkaway, "presence alone is insufficient")
+        v.reader_ui.inkAwayIntegrationAPI = api
+        v:onShow()
+        local draw = v.quick_controls.draw_inkaway
+        assert.is_not_nil(draw)
+        assert.equals("Draw (Ink-away)", draw.text)
+        draw.callback()
+        assert.equals(1, draws)
+        v:onCloseWidget()
+
+        local annotate = api.onInkAwayAnnotate
+        api.onInkAwayAnnotate = setmetatable({}, {
+            __call = function(_, instance)
+                return annotate(instance)
+            end,
+        })
+        v = PanelViewer:new({ page = 1, reader_ui = { document = {}, inkAwayIntegrationAPI = api } })
+        v:onShow()
+        assert.is_not_nil(v.quick_controls.draw_inkaway, "KOReader wraps handlers in callable tables")
+        v.quick_controls.draw_inkaway.callback()
+        assert.equals(2, draws)
+        v:onCloseWidget()
+
+        api.installPluginIntegration = function()
+            error("registration failed")
+        end
+        v = PanelViewer:new({ page = 1, reader_ui = { document = {}, inkAwayIntegrationAPI = api } })
+        v:onShow()
+        v:replaceButtonTable()
+        assert.is_nil(v.quick_controls.draw_inkaway)
+        v:onCloseWidget()
+    end)
+
     it("never registers extracted reflow images as fixed-page annotation surfaces", function()
         local registrations = 0
         local api = {

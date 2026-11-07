@@ -3,7 +3,8 @@ local Toolbar = {}
 local gettext = require("gettext")
 local icon_dir = (debug.getinfo(1, "S").source:match("^@(.+/)") or "src/") .. "../assets/icons/"
 
-Toolbar.order = { "rotate", "ocr_language", "screenshot", "progress_bar", "scale", "night_mode", "invert_document" }
+Toolbar.order =
+    { "rotate", "ocr_language", "screenshot", "progress_bar", "scale", "night_mode", "invert_document", "draw_inkaway" }
 local icons = {
     rotate = "rotate",
     ocr_language = "ocr",
@@ -12,10 +13,11 @@ local icons = {
     scale = "scale",
     night_mode = "sun",
     invert_document = "sun_moon",
+    draw_inkaway = "inkaway_settings",
 }
 
 function Toolbar.caption(id, text)
-    if id == "night_mode" or id == "invert_document" then
+    if id == "night_mode" or id == "invert_document" or id == "draw_inkaway" then
         return text
     end
     if id == "rotate" then
@@ -37,19 +39,21 @@ function Toolbar.controls(actions)
     local controls = {}
     for _, id in ipairs(Toolbar.order) do
         local action = actions[id]
-        local control = {
-            id = id,
-            callback = action.callback,
-            hold_callback = action.hold_callback,
-            dim = action.dim,
-            icon_file = icon_dir .. (action.icon or icons[id]) .. ".svg",
-            width = 0,
-        }
-        function control:setText(text)
-            self.text = Toolbar.caption(self.id, text)
+        if action then
+            local control = {
+                id = id,
+                callback = action.callback,
+                hold_callback = action.hold_callback,
+                dim = action.dim,
+                icon_file = icon_dir .. (action.icon or icons[id]) .. ".svg",
+                width = 0,
+            }
+            function control:setText(text)
+                self.text = Toolbar.caption(self.id, text)
+            end
+            control:setText(action.text)
+            controls[id] = control
         end
-        control:setText(action.text)
-        controls[id] = control
     end
     return controls
 end
@@ -76,9 +80,17 @@ local function captionWidget(text, width)
     })
 end
 
+local function controlCount(controls)
+    local count = 0
+    for _ in pairs(controls) do
+        count = count + 1
+    end
+    return math.max(1, count)
+end
+
 function Toolbar.rowHeight(controls, width)
     local Screen = require("device").screen
-    local item_width = math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / #Toolbar.order)))
+    local item_width = math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / controlCount(controls))))
     local icon_size = math.max(1, math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12)))
     local height = Screen:scaleBySize(64)
     for _, control in pairs(controls) do
@@ -119,44 +131,49 @@ function Toolbar.build(controls, width, height, horizontal)
     function Tile:onQuickActionHoldRelease()
         return true
     end
-    local item_height =
-        math.max(1, math.min(Screen:scaleBySize(64), horizontal and height or math.floor(height / #Toolbar.order)))
-    local item_width = horizontal and math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / #Toolbar.order)))
+    local item_height = math.max(
+        1,
+        math.min(Screen:scaleBySize(64), horizontal and height or math.floor(height / controlCount(controls)))
+    )
+    local item_width = horizontal
+            and math.max(1, math.min(Screen:scaleBySize(72), math.floor(width / controlCount(controls))))
         or width
     local Group = horizontal and require("ui/widget/horizontalgroup") or VerticalGroup
     local rail = Group:new({ align = "center", allow_mirroring = false })
     for _, id in ipairs(Toolbar.order) do
         local control = controls[id]
-        control.width = item_width
-        local caption = captionWidget(control.text, item_width)
-        local icon_size = math.max(
-            1,
-            math.min(
-                Screen:scaleBySize(40),
-                item_width - Screen:scaleBySize(12),
-                horizontal and item_height or item_height - caption:getSize().h
+        if control then
+            control.width = item_width
+            local caption = captionWidget(control.text, item_width)
+            local icon_size = math.max(
+                1,
+                math.min(
+                    Screen:scaleBySize(40),
+                    item_width - Screen:scaleBySize(12),
+                    horizontal and item_height or item_height - caption:getSize().h
+                )
             )
-        )
-        local tile_height = math.max(item_height, icon_size + caption:getSize().h)
-        local content = VerticalGroup:new({
-            align = "center",
-            IconWidget:new({
-                file = control.icon_file,
-                width = icon_size,
-                height = icon_size,
-                alpha = true,
-                dim = control.dim,
-            }),
-            caption,
-        })
-        local tile = Tile:new({
-            width = item_width,
-            height = tile_height,
-            control = control,
-            CenterContainer:new({ dimen = Geom:new({ w = item_width, h = tile_height }), content }),
-        })
-        control.widget = tile
-        rail[#rail + 1] = tile
+            local tile_height = math.max(item_height, icon_size + caption:getSize().h)
+            local content = VerticalGroup:new({
+                align = "center",
+                IconWidget:new({
+                    file = control.icon_file,
+                    width = icon_size,
+                    height = icon_size,
+                    alpha = true,
+                    dim = control.dim,
+                }),
+                caption,
+            })
+            local tile = Tile:new({
+                width = item_width,
+                height = tile_height,
+                control = control,
+                CenterContainer:new({ dimen = Geom:new({ w = item_width, h = tile_height }), content }),
+            })
+            control.widget = tile
+            rail[#rail + 1] = tile
+        end
     end
     return rail
 end

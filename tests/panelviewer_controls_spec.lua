@@ -7,7 +7,7 @@ local Screen = require("device").screen
 
 -- Model KOReader's child-first event propagation, including the second dispatch
 -- of named events after GestureRange matching (generic Tap skips that matching).
-local function withRail(width, height, callback, horizontal, dim_ocr, captions)
+local function withRail(width, height, callback, horizontal, dim_ocr, captions, with_draw)
     local saved = {}
     local Widget = {}
     function Widget:extend(value)
@@ -76,13 +76,15 @@ local function withRail(width, height, callback, horizontal, dim_ocr, captions)
     local ok, err = pcall(function()
         local calls, actions = {}, {}
         for _, id in ipairs(Toolbar.order) do
-            actions[id] = {
-                text = id,
-                dim = id == "ocr_language" and dim_ocr or false,
-                callback = function()
-                    calls[id] = (calls[id] or 0) + 1
-                end,
-            }
+            if id ~= "draw_inkaway" or with_draw then
+                actions[id] = {
+                    text = id,
+                    dim = id == "ocr_language" and dim_ocr or false,
+                    callback = function()
+                        calls[id] = (calls[id] or 0) + 1
+                    end,
+                }
+            end
         end
         local controls = Toolbar.controls(actions)
         for id, text in pairs(captions or {}) do
@@ -137,8 +139,8 @@ describe("Panel viewer compact controls", function()
             assert.is_nil(calls.rotate)
             assert.is_true(viewer:onTap(nil, center))
             assert.is_true(viewer.buttons_visible)
-            for index, id in ipairs(Toolbar.order) do
-                local tile = rail[index]
+            for index, tile in ipairs(rail) do
+                local id = Toolbar.order[index]
                 assert.is_true(rail:handleEvent("Gesture", {
                     ges = "tap",
                     pos = { x = tile.dimen.x + 10, y = tile.dimen.y + 10 },
@@ -148,6 +150,25 @@ describe("Panel viewer compact controls", function()
             assert.is_nil(rail:handleEvent("Hold", center))
             assert.is_nil(rail:handleEvent("HoldRelease", center))
         end)
+    end)
+
+    it("places the optional Draw tile after Inverted and fits all eight actions", function()
+        for _, horizontal in ipairs({ true, false }) do
+            withRail(horizontal and 600 or 72, horizontal and 64 or 600, function(rail, calls)
+                assert.equals(8, #rail)
+                assert.equals("invert_document", rail[7].control.id)
+                assert.equals("draw_inkaway", rail[8].control.id)
+                if horizontal then
+                    local width = 0
+                    for _, tile in ipairs(rail) do
+                        width = width + tile.width
+                    end
+                    assert.is_true(width <= 600)
+                end
+                rail[8]:onQuickActionTap()
+                assert.equals(1, calls.draw_inkaway)
+            end, horizontal, false, nil, true)
+        end
     end)
 
     it("uses larger icons while fitting captions inside compact tiles", function()
@@ -260,8 +281,10 @@ describe("Panel viewer compact controls", function()
         assert.equals(1, #rows[3])
         assert.equals("close", rows[3][1].id)
         for _, id in ipairs(Toolbar.order) do
-            assert.is_not_nil(viewer.quick_controls[id])
-            assert.is_true(viewer.quick_controls[id].icon_file:match("%.svg$") ~= nil)
+            if id ~= "draw_inkaway" then
+                assert.is_not_nil(viewer.quick_controls[id])
+                assert.is_true(viewer.quick_controls[id].icon_file:match("%.svg$") ~= nil)
+            end
         end
     end)
 

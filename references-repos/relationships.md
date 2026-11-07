@@ -271,3 +271,17 @@ Same bases/branches and environment as Ink Away history entry 24. Stable
 loading-order: 57 checks; registry integration: 30. Event-only method consumers
 require no viewer/surface. Host UI remains mocked; no new live/device evidence.
 See [history entry 24](plugins/ink-away/history-changes.md).
+
+### 2026-11-07 — No crop Smooth toolbar fit and Draw shortcut
+
+- Panels+ 1.6.0, `feat/ink-away-compatibility` at `d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4` plus uncommitted changes → Ink Away 4.4.0-derived rolling `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, `feature/plugin-integration`. OneWay Knowledge, **Visual**: conditional Draw (Ink-away) after Inverted, existing settings/toolbar fitting. No new target runtime changes or future-version range claimed.
+- No crop Smooth camera framing now fits the same padded canvas as the stationary panel, eliminating the toolbar-fit scale jump. Original stable 4.4.0 fallback: **5 passed**; rolling integration: **44 passed**; Panels+ Lua units: **579 passed**. Native KOReader v2026.07.1 (host source pin unchanged): **48 cases / 2592 checks**, actual widgets/blitter/plugins with document/timer fixtures; new padded No crop geometry fails with the prior animation code. Both load orders and annotation through Draw are covered.
+- No build/install/commit; live reader confirmation remains pending. Provenance, exact commands and limitations: [history](plugins/ink-away/history-changes.md#2026-11-07--smooth-toolbar-fit-and-draw-shortcut--panels-160-dev--ink-away-440-derived-rolling).
+
+### 2026-11-07 — Installed rolling API for Draw
+
+User authorized installing canonical Ink Away rolling `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`: artifact `build.uCHGAckH`, backup `ink-away.3nm5FqK3`. The older installed build lacked the registration API, explaining the hidden Draw action. No legacy fallback retained; Panels+ runtime changes remain the previously staged implementation. Newly installed target passed **48 native cases / 2592 checks**, including actual Draw-to-annotator dispatch; all **288 payload checksums** verified. Relationship remains Panels+ → Ink Away, Visual. Restart/live confirmation pending. See [history](plugins/ink-away/history-changes.md#2026-11-07--draw-hidden-with-installed-legacy-surface-api--panels-160-dev--ink-away-440-derived-installed).
+
+### 2026-11-07 — Draw visibility under KOReader's actual plugin loader
+
+Panels+ → installed rolling Ink Away remains Visual, at the same versions/SHAs as above. One active target exists; no duplicate required deletion. Installation alone did not fix Draw: KOReader wraps plugin handlers in callable tables, and Panels+'s plain-function gate hid the registered action. Gate corrected; native test now uses actual PluginLoader:_load, fails before the correction, and passes **48 cases / 2592 checks** after it, including wrapped annotation dispatch. Stable 5, rolling 44 and focused units 20 pass. No further install or target modification; restart/live confirmation pending. [History](plugins/ink-away/history-changes.md#2026-11-07--draw-visibility-with-koreader-handlersandbox--panels-160-dev--installed-rolling-ink-away).
