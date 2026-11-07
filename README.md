@@ -94,7 +94,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 
 ### KOReader Plugins Ecosystem
 *Panels+*, only focuses in Panels from mangas & comics (and soon manhwas) as you can see. It won't include outer-futures non-related
-to panels, but still, mangas and comics aren't 100% panels right?. 
+to panels, but still, mangas and comics aren't 100% panels right?.
 
 To improve your experience, this plugin has tested/garanteed compatibility with the following:
 
@@ -290,7 +290,16 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructio
 
 ### 🏗️ Building From Source
 
-You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), just clone or download this repository, then run:
+You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), just clone this repository either in windows or linux:
+
+```bash
+git clone https://github.com/KristanLaimon/PanelsPlus.git --depth 1  # --depth 1 to make the cloning faster. Only downloading the last commit.
+git branch # By default you'll bee in main-nightly. If you run ./build.sh here, you'll get the latest update possible (cutting-edge) but bould be unstable.
+git switch main-stable  # You can go to stable version and run ./build.sh there instead.
+
+```
+
+then run:
 
 ```bash
 ./build.sh
