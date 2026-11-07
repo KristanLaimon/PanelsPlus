@@ -271,6 +271,9 @@ preload("ui/time", function()
     function time.to_ms(t)
         return 0
     end
+    function time.to_s(t)
+        return t / 1000000
+    end
     return time
 end)
 

@@ -190,6 +190,23 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         local old_scale = RenderImage.scaleBlitBuffer
         local old_headroom = Memory.hasHeadroom
         local old_allocation = Memory.hasAllocationHeadroom
+        local time = require("ui/time")
+        local old_now, old_since, old_schedule = time.now, time.since, UIManager.scheduleIn
+        local elapsed = 0
+        if options.frame_seconds then
+            time.now = function()
+                return 0
+            end
+            time.since = function()
+                return elapsed * 1000000
+            end
+            UIManager.scheduleIn = function(_, delay, action)
+                UIManager._last_scheduled = function()
+                    elapsed = elapsed + delay
+                    action()
+                end
+            end
+        end
         local buffers, frames, blits = {}, {}, {}
         local source
         Blitbuffer.new = function(w, h, kind)
@@ -272,6 +289,7 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         end
         viewer.update = function(self)
             frames[#frames + 1] = { image = self.image, margin = self:getMarginShrinkFactor() }
+            elapsed = elapsed + (options.frame_seconds or 0)
         end
         viewer.switchToImageNum = function(self, target)
             self.switched_to = target
@@ -290,6 +308,7 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         RenderImage.scaleBlitBuffer = old_scale
         Memory.hasHeadroom = old_headroom
         Memory.hasAllocationHeadroom = old_allocation
+        time.now, time.since, UIManager.scheduleIn = old_now, old_since, old_schedule
         screen.night_mode = old_night_mode
         if not ok then
             error(err)
@@ -350,6 +369,54 @@ describe("PanelViewer smooth pan and zoom navigation", function()
             end
             assert.is_true(blits[1].sx ~= blits[#blits].sx, "the camera moves toward the destination")
             assert.is_true(blits[1].w > blits[#blits].w, "the camera zooms toward the small panel")
+        end)
+    end)
+
+    it("skips overdue viewport frames when rendering exceeds the frame interval", function()
+        withTransition({ frame_seconds = 0.16 }, function(viewer, _, frames, _, source)
+            viewer:animateSwitchToImageNum(2)
+            for _ = 1, 3 do
+                UIManager._last_scheduled()
+            end
+            assert.equals(2, viewer.switched_to)
+            assert.equals(4, #frames)
+            assert.equals(1, source().frees)
+            assert.is_nil(viewer._panels_plus_transition_active)
+        end)
+    end)
+
+    it("finishes an overdue shared-canvas pan without replaying missed frames", function()
+        withTransition({ frame_seconds = 0.5 }, function(viewer)
+            local image = {
+                width = 600,
+                height = 800,
+                _offset_x = 0,
+                _offset_y = 0,
+                getSize = function() end,
+                getCurrentWidth = function()
+                    return 1200
+                end,
+                getCurrentHeight = function()
+                    return 800
+                end,
+            }
+            viewer._image_wg = image
+            viewer._panels_plus_transition_active = true
+            viewer.panBy = function(_, dx, dy)
+                image._offset_x = image._offset_x + dx
+                image._offset_y = image._offset_y + dy
+                viewer:update()
+            end
+            local completed = false
+            PanelViewer.runNavPanAnimation(viewer, 1, 0.5, function()
+                completed = true
+            end)
+            UIManager._last_scheduled()
+            assert.is_false(completed)
+            UIManager._last_scheduled()
+            assert.is_true(completed)
+            assert.equals(900, image._offset_x)
+            assert.is_nil(viewer._panels_plus_transition_active)
         end)
     end)
 
