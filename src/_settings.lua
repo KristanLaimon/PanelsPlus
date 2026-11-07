@@ -113,6 +113,7 @@ end
 --- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
+    settings.doc_settings = settings.doc_settings or {}
     if settings.nav_transition_frames == nil then
         settings.nav_transition_frames = NavCapabilities.defaultFrames()
     end

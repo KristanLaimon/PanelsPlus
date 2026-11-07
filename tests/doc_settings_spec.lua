@@ -47,6 +47,19 @@ local function newPluginInstance(doc_file, doc_settings_mock, global_settings_ov
 end
 
 describe("PanelsPlus per-document settings persistence", function()
+    it("isolates new settings document storage while preserving existing saved documents", function()
+        local first = newPluginInstance("/books/independent.cbz")
+        first.settings = Settings.withDefaults({})
+        local second = Settings.withDefaults({})
+        first:setMode("comic")
+        assert.equals("comic", first.settings.doc_settings["/books/independent.cbz"].mode)
+        assert.is_nil(second.doc_settings["/books/independent.cbz"])
+        assert.is_nil(Settings.defaults.doc_settings["/books/independent.cbz"])
+        assert.is_nil(Settings.withDefaults({}).doc_settings["/books/independent.cbz"])
+        local saved = { ["/books/existing.cbz"] = { mode = "comic" } }
+        assert.equals(saved, Settings.withDefaults({ doc_settings = saved }).doc_settings)
+    end)
+
     it("defaults Smooth style to ease and restores Classic independently for each book", function()
         assert.equals("ease", Settings.withDefaults({}).nav_smooth_style)
         local p = newPluginInstance("/books/a.cbz", nil)
