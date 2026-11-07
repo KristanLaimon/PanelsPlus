@@ -4,7 +4,7 @@
   <strong>Panels+</strong>
   <br>
   <span style="display:block;font-size:1.25rem;">Read manga and comics without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
-  <br><br>
+  <br><a href="#what-this-plugin-does">Overview</a> | <a href="#installation">Installation</a> | <a href="#compatibility">Compatibility</a> | <a href="#features">Features</a> | <a href="#prs-and-building">PR's &amp; Building</a><br><br>
   <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?color=blue&style=flat-square" alt="Latest Release"></a>
   <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://flat.badgen.net/github/assets-dl/KristanLaimon/PanelsPlus/total?color=green&label=downloads" alt="Downloads"></a>
   <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
@@ -37,13 +37,14 @@
 
 > Want to know what's coming for the next release v1.7.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly)
 
+<a id="what-this-plugin-does"></a>
+
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup, external scripts, JSON files required, install Panels+ and *it just works*.
 
 ### Features
 
 - Includes 3 panel transition modes:
 <table>
-  <!-- Videos (mismo alto y centrados) -->
   <tr valign="middle">
     <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/7200f3e1-74d8-4b24-bd64-c775600d35ed"></video>
@@ -84,6 +85,8 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 - And much more.
 
 > Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, check our [Translation Quick Guide](docs/translations/README.md).
+
+<a id="compatibility"></a>
 
 ## 🧩 Compatibility
 
@@ -141,6 +144,8 @@ This could work with even older versions, but not personally tested. If any issu
     </td>
   </tr>
 </table>
+
+<a id="installation"></a>
 
 ## 📦 Installation
 
@@ -282,6 +287,8 @@ Currently supported languages are ***English***, ***Spanish***, ***Simplified Ch
 
 ---
 
+<a id="prs-and-building"></a>
+
 ## 🛠️ Pull Requests\Developer Setup
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructions, project documentation, and contribution guidelines.
@@ -294,7 +301,7 @@ You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), j
 
 ```bash
 git clone https://github.com/KristanLaimon/PanelsPlus.git --depth 1  # --depth 1 to make the cloning faster. Only downloading the last commit.
-git branch # By default you'll bee in main-nightly. If you run ./build.sh here, you'll get the latest update possible (cutting-edge) but bould be unstable.
+git branch # By default you'll bee in main-nightly. If you run ./build.sh here, you'll get the latest update possible (cutting-edge) but could be unstable.
 git switch main-stable  # You can go to stable version and run ./build.sh there instead.
 
 ```
