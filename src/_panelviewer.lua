@@ -290,11 +290,6 @@ local ALWAYS_PASSTHROUGH_ZONES = {
     readermenu_ext_tap = true,
     readermenu_swipe = true,
     readermenu_ext_swipe = true,
-    -- LiveLight must receive the whole slide, including the release, before local panning.
-    livelight_pan = true,
-    livelight_pan_release = true,
-    livelight_swipe = true,
-    livelight_multiswipe = true,
 }
 
 --- Return whether a reader touch zone should be passed through to KOReader.
@@ -304,9 +299,8 @@ local ALWAYS_PASSTHROUGH_ZONES = {
 --- and highlight zones are captured by PanelViewer.
 ---
 --- @param zone_id string|nil KOReader touch zone id.
---- @param gestures table|nil Gestures plugin instance from the reader UI.
 --- @return boolean is_gesture_zone `true` when this touch zone should be dispatched to KOReader.
-function PanelViewer:isReaderGestureZone(zone_id, gestures)
+function PanelViewer:isReaderGestureZone(zone_id)
     if not zone_id then
         return false
     end
@@ -317,13 +311,12 @@ function PanelViewer:isReaderGestureZone(zone_id, gestures)
     if ALWAYS_PASSTHROUGH_ZONES[zone_id] then
         return true
     end
-    if not gestures then
-        return false
-    end
-    if zone_id == "multiswipe" then
-        return true
-    end
-    return gestures.gestures and gestures.gestures[zone_id] ~= nil
+    return false
+end
+
+--- Reader-owned controls that stay available while the image is zoomed.
+function PanelViewer:allowsReaderGestureWhilePanning(zone_id)
+    return ALWAYS_PASSTHROUGH_ZONES[zone_id] == true
 end
 
 --- Execute one normal reader gesture while this fullscreen viewer is on top.
@@ -417,7 +410,7 @@ end
 --- Try handling a gesture or touch zone through KOReader's normal reader UI touch zones.
 ---
 --- While the image is pannable (actually zoomed in past the viewport), a
---- swipe is normally a pan and stays local. Reader-menu and LiveLight zones
+--- swipe is normally a pan and stays local. Reader controls with passthrough zones
 --- still receive it so menus and live edge-light controls work while zoomed.
 ---
 --- @param ges table Gesture event.
@@ -426,7 +419,6 @@ function PanelViewer:dispatchReaderGesture(ges)
     local pannable = self:isImagePannable()
 
     local reader_ui = self.reader_ui
-    local gestures = reader_ui and reader_ui.gestures
     local zones = reader_ui and reader_ui._ordered_touch_zones
     if not zones then
         return false
@@ -442,8 +434,8 @@ function PanelViewer:dispatchReaderGesture(ges)
     for _, zone in ipairs(zones) do
         local zone_id = zone.def and zone.def.id
         if
-            self:isReaderGestureZone(zone_id, gestures)
-            and (not pannable or ALWAYS_PASSTHROUGH_ZONES[zone_id])
+            self:isReaderGestureZone(zone_id)
+            and (not pannable or self:allowsReaderGestureWhilePanning(zone_id))
             and zone.gs_range
             and zone.handler
             and zone.gs_range:match(ges)
@@ -723,57 +715,6 @@ function PanelViewer:onGotoViewRel(diff)
         return self:onShowNextImage()
     end
     return self:onShowPrevImage()
-end
-
---- Page-forward event handlers for physical buttons and Bluetooth page turners.
-function PanelViewer:onGotoNextPage()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onPageForward()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onShowNextPage()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onPhysicalPageForward()
-    return self:onShowNextImage()
-end
-
-function PanelViewer:onNextPage()
-    return self:onShowNextImage()
-end
-
---- Page-backward event handlers for physical buttons and Bluetooth page turners.
-function PanelViewer:onGotoPrevPage()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onPageBackward()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onShowPrevPage()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onPhysicalPageBackward()
-    return self:onShowPrevImage()
-end
-
-function PanelViewer:onPrevPage()
-    return self:onShowPrevImage()
-end
-
---- Relative page and position jump event handlers.
-function PanelViewer:onGotoPageRel(diff)
-    return self:onGotoViewRel(diff)
-end
-
-function PanelViewer:onGotoPosRel(diff)
-    return self:onGotoViewRel(diff)
 end
 
 --- Move to the next or previous panel when navigating left ("A" or Arrow Left),
@@ -3594,5 +3535,9 @@ function PanelViewer:replaceButtonTable()
         self.button_table,
     })
 end
+
+require("src.plugins-support.kobo").attach(PanelViewer)
+require("src.plugins-support.gestures").attach(PanelViewer)
+require("src.plugins-support.livelight").attach(PanelViewer)
 
 return PanelViewer

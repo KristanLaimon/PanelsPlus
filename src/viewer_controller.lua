@@ -1008,12 +1008,7 @@ function ViewerController:showPanelSequence(reader_highlight, ges)
         return false
     end
 
-    local document = self.ui.document
-    if document.provider == "meguru" and type(document.spreadPageAt) == "function" then
-        -- The reader transform returns combined spread coordinates. Detection
-        -- and panel crops use the individual page's native coordinates.
-        hold_pos.page, hold_pos.x, hold_pos.y = document:spreadPageAt(hold_pos.page, hold_pos.x, hold_pos.y)
-    end
+    hold_pos = self:mapPanelPosition(hold_pos)
 
     local panels = self:collectPanels(hold_pos.page, hold_pos)
     if #panels == 0 then
@@ -1325,5 +1320,7 @@ function ViewerController:onPanelViewerBoundary(direction, current_viewer)
     end)
     return true
 end
+
+require("src.plugins-support.meguru").attach(ViewerController)
 
 return ViewerController
