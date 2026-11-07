@@ -277,17 +277,28 @@ describe("Panel viewer compact controls", function()
         assert.equals(light_icon, restored_icon)
     end)
 
-    it("toggles document inversion through KOReader and explains its requirement in light mode", function()
+    it("persists document inversion in KOReader and explains its requirement in light mode", function()
         local old_night_mode = Screen.night_mode
         Screen.night_mode = true
         local configurable, events = { nightmode_document = 0 }, {}
+        local saved, flushes = {}, 0
         local viewer = PanelViewer:new({
             width = 600,
             reader_ui = {
                 document = { configurable = configurable },
+                doc_settings = {
+                    saveSetting = function(_, key, value)
+                        saved[key] = value
+                    end,
+                    flush = function()
+                        flushes = flushes + 1
+                    end,
+                },
                 handleEvent = function(_, event)
                     events[#events + 1] = event
-                    configurable[event.args[1]] = event.args[2]
+                    if event.name == "ConfigChange" then
+                        configurable[event.args[1]] = event.args[2]
+                    end
                 end,
             },
             update = function() end,
@@ -295,6 +306,7 @@ describe("Panel viewer compact controls", function()
         viewer:replaceButtonTable()
         viewer.quick_controls.invert_document.callback()
         local inverted_text = viewer.quick_controls.invert_document.text
+        local saved_inverted = saved.kopt_nightmode_document
         viewer.quick_controls.invert_document.callback()
         local normal_text = viewer.quick_controls.invert_document.text
         Screen.night_mode = false
@@ -310,8 +322,14 @@ describe("Panel viewer compact controls", function()
         assert.equals("ConfigChange", events[1].name)
         assert.equals("nightmode_document", events[1].args[1])
         assert.equals(1, events[1].args[2])
-        assert.equals(0, events[2].args[2])
-        assert.equals(2, #events)
+        assert.equals(1, saved_inverted)
+        assert.equals(0, saved.kopt_nightmode_document)
+        assert.equals(2, flushes)
+        assert.equals("RedrawCurrentPage", events[2].name)
+        assert.equals("ConfigChange", events[3].name)
+        assert.equals(0, events[3].args[2])
+        assert.equals("RedrawCurrentPage", events[4].name)
+        assert.equals(4, #events)
         assert.equals("Inverted", inverted_text)
         assert.equals("Invert", normal_text)
         assert.is_true(dim)

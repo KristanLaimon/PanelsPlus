@@ -212,7 +212,7 @@ describe("Fold join in the panel collector", function()
                             handleEvent = function(_, event)
                                 if event.name == "ToggleNightMode" then
                                     screen.night_mode = not screen.night_mode
-                                else
+                                elseif event.name == "ConfigChange" then
                                     document.configurable[event.args[1]] = event.args[2]
                                 end
                             end,

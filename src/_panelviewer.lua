@@ -1223,9 +1223,12 @@ function PanelViewer:paintTo(bb, x, y)
         local d = image.dimen
         local ox, oy = image._offset_x or 0, image._offset_y or 0
         local dx, dy = math.max(0, -ox), math.max(0, -oy)
-        local w = math.min(d.w, image:getCurrentWidth() - ox) - dx
-        local h = math.min(d.h, image:getCurrentHeight() - oy) - dy
-        bb:invertRect(d.x + dx, d.y + dy, w, h)
+        -- Blits floor their bounds; invertRect rounds up and would invert a margin pixel.
+        local w = math.floor(math.min(d.w, image:getCurrentWidth() - ox) - dx)
+        local h = math.floor(math.min(d.h, image:getCurrentHeight() - oy) - dy)
+        if w > 0 and h > 0 then
+            bb:invertRect(d.x + dx, d.y + dy, w, h)
+        end
     end
     self:paintHighlights(bb, x, y)
 end
@@ -3531,6 +3534,11 @@ function PanelViewer:replaceButtonTable()
             end
             local value = configurable.nightmode_document == 1 and 0 or 1
             reader_ui:handleEvent(Event:new("ConfigChange", "nightmode_document", value))
+            if reader_ui.doc_settings then
+                reader_ui.doc_settings:saveSetting("kopt_nightmode_document", value)
+                reader_ui.doc_settings:flush()
+            end
+            reader_ui:handleEvent(Event:new("RedrawCurrentPage"))
             self:refreshPanelColors()
         end,
     }

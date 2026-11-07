@@ -175,4 +175,33 @@ describe("PanelViewer document inversion", function()
         assert.equals(300, call[4])
         assert.equals(400, call[5])
     end)
+
+    it("matches blit rounding at the bottom and right of fractional Smooth margin frames", function()
+        local screen = require("device").screen
+        local old_night_mode = screen.night_mode
+        for _, factor in ipairs({ 0.88, 0.879999999, 0.873, 0.8125 }) do
+            local viewer, bb, invert_spy = newViewerAndBB()
+            local width, height = 600 * factor, 800 * factor
+            local frame_w, frame_h = math.floor(width), math.floor(height)
+            local ox, oy = math.floor((frame_w - width) / 2), math.floor((frame_h - height) / 2)
+            viewer.reader_ui.document = { configurable = { nightmode_document = 1 } }
+            viewer._image_wg.dimen = { x = 10, y = 20, w = width, h = height }
+            viewer._image_wg._offset_x, viewer._image_wg._offset_y = ox, oy
+            viewer._image_wg.getCurrentWidth = function()
+                return frame_w
+            end
+            viewer._image_wg.getCurrentHeight = function()
+                return frame_h
+            end
+            screen.night_mode = true
+            viewer:paintTo(bb, 0, 0)
+            screen.night_mode = old_night_mode
+
+            local call = invert_spy:lastCall()
+            assert.equals(10 - ox, call[2])
+            assert.equals(20 - oy, call[3])
+            assert.equals(math.floor(width + ox), call[4])
+            assert.equals(math.floor(height + oy), call[5])
+        end
+    end)
 end)
