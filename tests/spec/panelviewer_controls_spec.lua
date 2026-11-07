@@ -176,6 +176,37 @@ describe("Panel viewer compact controls", function()
         end
     end)
 
+    it("keeps seven landscape actions within the panel height, including wrapped captions", function()
+        local captions = {
+            rotate = "Girar",
+            ocr_language = "Modelo OCR",
+            screenshot = "Captura",
+            progress_bar = "Mostrar barra",
+            scale = "Tamanho real",
+            night_mode = "Modo noturno",
+            invert_document = "Invertido",
+        }
+        for _, width in ipairs({ 52, 72 }) do
+            for _, height in ipairs({ 280, 350, 420 }) do
+                withRail(width, height, function(rail, calls)
+                    local rail_height = 0
+                    for _, tile in ipairs(rail) do
+                        local content = tile[1][1]
+                        assert.is_true(content[1].height + content[2]:getSize().h <= tile.height)
+                        rail_height = rail_height + tile.height
+                    end
+                    assert.is_true(rail_height <= height, "the icon rail must not push Close below the viewport")
+                    local last = rail[#rail]
+                    rail:handleEvent("Gesture", {
+                        ges = "tap",
+                        pos = { x = last.dimen.x + 10, y = last.dimen.y + last.height - 1 },
+                    })
+                    assert.equals(1, calls.invert_document)
+                end, false, false, captions)
+            end
+        end
+    end)
+
     it("wraps long translated captions and moves the following rail actions down", function()
         local label = "Mostrar a barra de progresso"
         withRail(52, 420, function(rail, calls)

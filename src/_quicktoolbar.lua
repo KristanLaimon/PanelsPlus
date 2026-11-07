@@ -129,8 +129,14 @@ function Toolbar.build(controls, width, height, horizontal)
         local control = controls[id]
         control.width = item_width
         local caption = captionWidget(control.text, item_width)
-        local icon_size =
-            math.max(1, math.min(Screen:scaleBySize(40), item_width - Screen:scaleBySize(12), item_height))
+        local icon_size = math.max(
+            1,
+            math.min(
+                Screen:scaleBySize(40),
+                item_width - Screen:scaleBySize(12),
+                horizontal and item_height or item_height - caption:getSize().h
+            )
+        )
         local tile_height = math.max(item_height, icon_size + caption:getSize().h)
         local content = VerticalGroup:new({
             align = "center",
