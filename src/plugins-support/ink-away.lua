@@ -29,6 +29,8 @@ function InkAway.attach(PanelViewer)
         end
         self._annotation_unregister = ink:installPluginIntegration(self, self._annotation_surface)
         self._annotation_provider_ink = ink
+        self:replaceButtonTable()
+        self:update()
     end
 
     function PanelViewer:getAnnotationSurface()

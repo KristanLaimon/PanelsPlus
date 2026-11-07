@@ -596,6 +596,16 @@ return function(PanelViewer)
                 self:refreshPanelColors()
             end,
         }
+        local ink = self._annotation_provider_ink
+        -- KOReader wraps plugin event handlers in callable tables.
+        if self._annotation_unregister and ink and ink.onInkAwayAnnotate then
+            actions.draw_inkaway = {
+                text = _("Draw (Ink-away)"),
+                callback = function()
+                    ink:onInkAwayAnnotate()
+                end,
+            }
+        end
         QuickToolbar.free(self.quick_controls)
         self.quick_controls = QuickToolbar.controls(actions)
         buttons = {

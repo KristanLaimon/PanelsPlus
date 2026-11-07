@@ -223,7 +223,8 @@ describe("PanelViewer smooth pan and zoom navigation", function()
                 error("scale failed")
             end
             local frame = Blitbuffer.new(w, h, 0)
-            frame.crop_w = crop.w
+            frame.crop_w = crop:getWidth()
+            frame.crop_h = crop:getHeight()
             return frame
         end
         Memory.hasHeadroom = function()
@@ -407,6 +408,26 @@ describe("PanelViewer smooth pan and zoom navigation", function()
                     assert.equals(2, viewer.switched_to)
                 end)
             end
+        end
+    end)
+
+    it("fits No crop's padded canvas beside the annotation toolbar", function()
+        for _, style in ipairs({ "linear", "classic" }) do
+            withTransition({ style = style }, function(viewer, _, frames)
+                viewer.crop_mode = "none"
+                viewer.width, viewer.height, viewer.img_container_h = 600, 800, 800
+                viewer._annotation_viewport = { x = 50, y = 0, w = 550, h = 800 }
+                viewer.image_rects = { { x = 0, y = 0, w = 300, h = 800 }, { x = 650, y = 0, w = 30, h = 80 } }
+                viewer:animateSwitchToImageNum(2)
+                for _ = 1, 4 do
+                    UIManager._last_scheduled()
+                end
+                local source_zoom = math.min(600 / 680, 800 / 800)
+                local expected_zoom = 10 * 550 / 600
+                local last = frames[#frames]
+                assert.equals(math.ceil(550 * source_zoom / expected_zoom), last.image.crop_w)
+                assert.equals(math.ceil(800 * source_zoom / expected_zoom), last.image.crop_h)
+            end)
         end
     end)
 

@@ -25,8 +25,20 @@ local BB = require("ffi/blitbuffer")
 local UI = require("ui/uimanager")
 local Viewer = require("src._panelviewer")
 local Book = require("ink/reader/book")
+local Collector = require("src._panelcollector")
 local BookInk = require("ink/reader/bookink")
-local InkAway = dofile(target .. "/main.lua")
+local PluginLoader = require("pluginloader")
+PluginLoader.enabled_plugins, PluginLoader.disabled_plugins = {}, {}
+PluginLoader:_load({
+    {
+        main = target .. "/main.lua",
+        meta = target .. "/_meta.lua",
+        path = target,
+        name = "ink-away",
+        disabled = false,
+    },
+})
+local InkAway = assert(PluginLoader.enabled_plugins[1], "Ink Away must load through KOReader's handler sandbox")
 local checks, cases = 0, 0
 local function check(c, message)
     checks = checks + 1
@@ -58,10 +70,13 @@ end
 for _, side in ipairs({ "left", "right", "top", "bottom" }) do
     for _, flow in ipairs({ "comic", "manga" }) do
         for _, style in ipairs({ "ease", "classic" }) do
-            for _, crop in ipairs({ "tight", "margin" }) do
+            for _, crop in ipairs({ "tight", "margin", "none" }) do
                 cases = cases + 1
                 G_reader_settings:saveSetting("inkaway_book_toolbar_side", side)
                 local rects = { { x = 0, y = 0, w = 300, h = 400 }, { x = 320, y = 200, w = 200, h = 500 } }
+                if crop == "none" then
+                    rects = { { x = 0, y = 0, w = 300, h = 800 }, { x = 0, y = 900, w = 200, h = 500 } }
+                end
                 local images = { image_disposable = true }
                 for i, rect in ipairs(rects) do
                     images[i] = function()
@@ -76,6 +91,27 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                         visible_area = { x = 0, y = 0 },
                     },
                 }
+                ui.document.mod_time = 0
+                ui.document._document = {
+                    openPage = function()
+                        return {
+                            getSize = function()
+                                return 1200, 1600
+                            end,
+                            close = function() end,
+                        }
+                    end,
+                }
+                function ui.document:drawPagePart(_, rect)
+                    return bitmap(rect), false
+                end
+                local image_rects = rects
+                if crop == "none" then
+                    images, image_rects = Collector.buildImages(ui, 1, rects, {
+                        crop_mode = crop,
+                        auto_rotate_double_pages = false,
+                    })
+                end
                 local book = Book.new(ui)
                 ui["ink-away"] = setmetatable({ ui = ui, book = book }, { __index = InkAway })
                 if type(ui["ink-away"].installPluginIntegration) == "function" then
@@ -96,7 +132,7 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                 book._data.items = { ink }
                 local viewer = Viewer:new({
                     image = images,
-                    image_rects = rects,
+                    image_rects = image_rects,
                     panels = rects,
                     page = 1,
                     reader_ui = ui,
@@ -118,10 +154,39 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                 UI:show(viewer)
                 local bb = BB.new(W, H)
                 viewer:paintTo(bb, 0, 0)
-                book:annotate()
+                viewer:replaceButtonTable()
+                check(viewer.quick_controls.draw_inkaway ~= nil, "successful integration offers Draw")
+                viewer.quick_controls.draw_inkaway.callback()
                 local editor = assert(book._view)
                 editor:paintTo(bb, 0, 0)
                 drain(editor, bb)
+                local original_update = viewer.update
+                viewer.update = function(self)
+                    local result = original_update(self)
+                    if self._annotation_transition then
+                        self:paintTo(bb, 0, 0)
+                        local d = self._image_wg.dimen
+                        local rect = assert(self._annotation_viewport)
+                        check(d.x >= rect.x and d.y >= rect.y, "animation starts beside toolbar")
+                        check(
+                            d.x + d.w <= rect.x + rect.w and d.y + d.h <= rect.y + rect.h,
+                            "animation remains inside toolbar-free viewport"
+                        )
+                    end
+                    return result
+                end
+                local complete = viewer.completeNavTransition
+                viewer.completeNavTransition = function(self, target_index, done)
+                    self:paintTo(bb, 0, 0)
+                    local moving = self:getAnnotationSurface():geometry()
+                    complete(self, target_index, done)
+                    self:paintTo(bb, 0, 0)
+                    local landed = self:getAnnotationSurface():geometry()
+                    check(
+                        math.abs(moving.w / moving.rect.w - landed.w / landed.rect.w) < 0.025,
+                        "Smooth lands at the stationary panel's toolbar-fit zoom"
+                    )
+                end
                 for turn = 1, 4 do
                     local forward = turn % 2 == 1
                     local id = (forward == (flow == "comic")) and "next" or "prev"

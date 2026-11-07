@@ -1,3 +1,31 @@
+## Current state — Draw handler-wrapper fix, 2026-11-07
+
+Latest correction supersedes earlier summaries: Draw stayed hidden even after the rolling deployment because KOReader wraps onInkAwayAnnotate in a callable HandlerSandbox table. Panels+ now accepts the wrapped action after successful integration. The native test now loads the **actual installed plugin through KOReader PluginLoader**, reproduces the missing button before the fix, and passes 48 scenarios / 2592 checks afterward. Unit control/support 20, stable fallback 5 and rolling integration 44 pass. Full 579-unit run predates this one-condition correction.
+
+Only one active Ink Away exists; no old copy was found to delete. Current install remains build.uCHGAckH from canonical rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2; backup remains outside plugins at ink-away.3nm5FqK3. Panels+ 1.6.0 base d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility. Prior user staging preserved; gate fix/tests/history are unstaged. No target source changes or new installation. **Restart KOReader again to load the corrected Panels+ code**, then verify Draw after Inverted. Earlier history was not inspected. See final dated entry for exact failure and commands.
+
+---
+
+## Current state — installed rolling API, 2026-11-07
+
+Latest user decision supersedes earlier summaries: **install current rolling Ink Away**, keeping the newer-API Draw implementation. Missing Draw was caused by the old installed plugin, which used surface discovery and lacked the registry API. The exploratory legacy fallback was removed. Panels+ task changes remain staged as left by the user; only this follow-up history/index is additionally unstaged. No commits or staging performed by the agent.
+
+Installed canonical Ink Away 4.4.0-derived rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 (feature/plugin-integration), artifact build.uCHGAckH; 288 payload checksums verified. Backup: /home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.3nm5FqK3/. Target's existing staged .foxnvim/pins.json preserved. Panels+ 1.6.0 base d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility. Host source 035e00b21d0286325ef2e8a7e3b6326f340e2ded; native runtime v2026.07.1.
+
+Actual installed payload passes 48 native scenarios / 2592 checks, including opening through Draw. Stable fallback 5, rolling integration 44 and final control/support units 20 pass; preceding full 579-unit run retained. **Restart KOReader** before live validation. No newer remote sources fetched. Earlier large history was not inspected; final dated entry records deployment and exact validation details.
+
+---
+
+## Current state — latest task update, 2026-11-07
+
+This update supersedes older current-state summaries below; historical evidence is preserved verbatim. Latest task: Smooth No crop now matches the padded canvas fit beside Ink Away's toolbar. Conditional **Draw (Ink-away)** follows Inverted and opens the existing Ink Away annotator after successful registration. All runtime changes belong to Panels+.
+
+Panels+ 1.6.0 rolling: `feat/ink-away-compatibility`, base `d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4`, new uncommitted runtime/tests/docs changes. Canonical Ink Away 4.4.0-derived rolling: `references-repos/plugins/ink-away/rolling.koplugin/`, `feature/plugin-integration`, base `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`; only its pre-existing staged `.foxnvim/pins.json` remains dirty. Stable `v4_4_0` unchanged. Host source `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; native runtime v2026.07.1 Linux x86_64.
+
+Latest checks: 579 Lua units, 5 stable fallback, 44 rolling integration, 48 native cases / 2592 checks; Go and targeted style/lint/whitespace checks pass. Native padded No crop reproduction fails with the old animation code and passes with the fix. No build/install/commit/push; prior artifact/backup identity not re-investigated. Restart the live development plugin and validate on the reader; physical input/refresh remains unverified. See the final dated entry for commands, fixtures, failures and next checks. Per user request, earlier history was not inspected during this task.
+
+---
+
 # Panels+ → Ink Away — history and restart handoff
 
 This is the durable development backlog for this integration. Read **Current
@@ -1572,3 +1600,73 @@ performed. Physical reader/stylus validation was not rerun; prior device limits
 remain. Next action, if desired, is live KOReader validation of annotation
 navigation, toolbar fitting and night-mode transitions. Logs are retained under
 `/tmp/panelsplus-*` for this session.
+
+
+## 2026-11-07 — Smooth toolbar fit and Draw shortcut — Panels+ 1.6.0 dev / Ink Away 4.4.0-derived rolling
+
+User requests keeping Smooth transitions beside the open annotation toolbar and adding a conditional Draw (Ink-away) action immediately after Inverted. Panels+ owns both changes. The user explicitly requested avoiding reads of this large history; no historical content was read for this task.
+
+Source: Panels+ `d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4`, branch `feat/ink-away-compatibility`, initially clean except target submodule dirty marker. Target: canonical `rolling.koplugin/`, `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, branch `feature/plugin-integration`; pre-existing staged `.foxnvim/pins.json` preserved. Stable v4_4_0 remains read-only. Host source `035e00b21d0286325ef2e8a7e3b6326f340e2ded`. Investigation underway; no build/install or commit requested. Live validation pending.
+
+### Investigation, implementation and validation
+
+1. User confirmed the symptom is **No crop**. Existing viewport sizing already excludes toolbar space. The mismatch is in the camera zoom: No crop first renders its clipped content and pads it to a screen-aspect canvas. Smooth fit the clipped content directly into the available rectangle; the stationary image instead uniformly fits the padded canvas. `src/panelviewer/animations.lua` now uses the same canvas fit for both camera endpoints. Cropped modes keep their prior formula. Existing cross-page animation already fits the actual landing tile and required no runtime change.
+2. Added **Draw (Ink-away)** after Inverted in the quick controls. `src/_quicktoolbar.lua` skips unavailable optional actions and sizes the row/rail by the actual control count. It reuses the existing pen icon. `controls.lua` exposes Draw only after a successful surface registration with a cleanup callback and an annotation action. The adapter rebuilds controls after registration so either readiness order works. Draw calls the target's existing `onInkAwayAnnotate`; tools/storage remain entirely owned by Ink Away. Absent, incompatible or failed registration hides the button. No target runtime changes.
+3. Unit regression with mocked bitmaps: before the fix, the final crop width was **49 instead of 53** in the left-toolbar No crop case (28 passed / 1 failed in `panelviewer_navtransition_spec.lua`). It now passes for eased and bounded Classic frames. An earlier test draft read a nonexistent fixture field and failed with nil; corrected the fixture to use `getWidth()`/`getHeight()` before evaluating the real mismatch. Button tests cover hidden-before-registration, failed registration, annotation dispatch and all eight tiles fitting the portrait row; existing seven-action behavior remains covered.
+4. Real-widget reproduction: extended `tests/compatibility_support/inkaway_native_viewport.lua` to include padded No crop panels at page edges, per-frame toolbar bounds, endpoint zoom, and opening through Draw. Initial native fixture needed KOReader's base document `_document:openPage`/`mod_time` fields; adding them fixed the fixture failure. The former tight/margin-only 32-case test passed before the fix but did not exercise padded No crop geometry. With the new geometry, loading the original HEAD animation module from `/tmp/panelsplus-before-animations.lua` fails case 3 (left / comic / ease / none): **Smooth lands at the stationary panel's toolbar-fit zoom**. The modified source passes **48 cases / 2592 checks**, including 192 physical-arrow callback turns. Real KOReader ImageViewer/ImageWidget/layout/blitter, Panels+, Ink Away Book/ReaderInkView and registry run; document pixels/native-page metadata and timer delivery remain fixtures. No physical stylus/device input was tested.
+
+Commands run from the Panels+ project root:
+
+```bash
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+./run-tests.sh --quicker
+```
+
+Results: stable original 4.4.0 **5 passed**, current modified rolling reference **44 passed** (now dispatching Draw through the real target action in both readiness orders), general Lua suite **579 passed**, Go OCR worker tests passed. Python was skipped by the runner because its uv environment is not synced. Dataset/benchmark suites were intentionally skipped for this viewer/UI change. Targeted StyLua, Luacheck (9 changed Lua files), and `git diff --check` passed.
+
+Native command, cwd `/usr/lib/koreader`, installed runtime **v2026.07.1**, Linux x86_64:
+
+```bash
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-inkaway-after ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+All task changes remain uncommitted in Panels+. Ink Away's staged `.foxnvim/pins.json` is untouched. No build, installation, backup, fetch or publication performed; no prior artifact identity was investigated. This Panels+ project is the live development plugin, so restart KOReader to load it. Next live check: No crop with Fit beside toolbar, all toolbar sides, eased/Classic movement, Draw opening the current panel, and absence of Draw when Ink Away is disabled. Live validation remains pending.
+
+
+## 2026-11-07 — Draw hidden with installed legacy surface API — Panels+ 1.6.0 dev / Ink Away 4.4.0-derived installed
+
+User reports the new Draw icon is missing. Actual installed `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin/` advertises document_surface_version=1 with paint/release/action methods, and `ink/reader/surface.lua` discovers Panels+ via getAnnotationSurface. It predates integration_api_version/installPluginIntegration and registerRenderingView. The initial Draw gate incorrectly required the newer registry's cleanup callback. Investigating a Panels+-only correction; no replacement of the installed plugin is needed. Source base remains d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4 on feat/ink-away-compatibility. Prior task changes are now staged by the user; preserve staging and add follow-up changes unstaged. Canonical target b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 and its staged pins.json remain untouched. Earlier history remains unread per user request.
+
+User clarified that KOReader should use the current rolling API and explicitly selected **Install current rolling Ink Away**. The exploratory legacy-support runtime/test changes were removed by restoring only those files to their already-staged task contents; no user staging was changed. Final runtime code is the original newer-API Draw implementation and No crop Smooth fix. The missing button was a deployment mismatch, not failure of the current registry API.
+
+The previously installed manifest identified a former frozen worktree build based on d87e2b097d6345085f9aa3ea0412bef23775ce10, with retained old patches. Its main.lua SHA256 was 99448e56d52da3d56a973a0fa1a6e41838e63ae15bf186d8b85e36a993f8074f. A temporary legacy-support experiment passed the portable unit and native checks but was discarded in favor of the user's requested current deployment.
+
+Executed from Panels+ root, with filesystem escalation for the external installation:
+
+```bash
+./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install
+```
+
+Built canonical rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2, branch feature/plugin-integration; only staged .foxnvim/pins.json makes its source dirty. Artifact `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.uCHGAckH/ink-away.koplugin/` installed at `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin/`. Previous managed copy backed up at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.3nm5FqK3/`. All **288 payload checksums verified** with `sha256sum --quiet -c .panelsplus-deployment/SHA256SUMS`, cwd installed directory. Confirmed installed main.lua now has integration_api_version=1 and installPluginIntegration. Process lookup before installation was sandbox-limited; host process closure was not independently established. Restart KOReader before live testing to guarantee loaded modules match installed files.
+
+Validation: stable fallback 5 and rolling integration 44 pass. Final restored Panels+ plugin-support/control units: **20 passed**. Native command from the preceding entry, with KO_HOME=/tmp/panelsplus-installed-current and TARGET=/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin, verifies the **actual newly installed payload**: **48 cases / 2592 checks passed**, including Draw opening annotation, all toolbar sides, eased/Classic, No crop/Tight/Margin, and Comic/Manga. Output `/tmp/panelsplus-installed-current.log`. The prior full 579-unit result still applies to unchanged final runtime sources; it was not rerun solely for installation. No fetch, commit or push. Next: restart KOReader, open Panels+ controls, confirm the pen icon/Draw (Ink-away) after Inverted and live No crop toolbar fitting.
+
+
+## 2026-11-07 — Draw visibility with KOReader HandlerSandbox — Panels+ 1.6.0 dev / installed rolling Ink Away
+
+User still cannot see Draw and suspects an old duplicate. Read-only inspection finds exactly one active Ink Away folder across /usr/lib/koreader/plugins and the configured extra_plugin_paths (/home/kristanlaimon/.config/koreader/plugins/). It is the verified current build.uCHGAckH; the former copy is already outside plugin discovery in ink-away.3nm5FqK3. No deletion is appropriate. Host reader process was started at 07:12:49, after the update.
+
+Found an independent runtime gate bug: actual KOReader pluginloader.lua `_load` calls sandboxPluginEventHandlers, replacing onInkAwayAnnotate with a HandlerSandbox callable table. Panels+ tested type(handler)==function, hiding the button even with a successful modern registration. Earlier native tests directly loaded main.lua and missed this host wrapping. Correct the button gate and load the actual plugin through KOReader PluginLoader in the native regression. Versions/bases unchanged: Panels+ 1.6.0 d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility; target installed and canonical rolling 4.4.0-derived b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2, feature/plugin-integration. Existing staged task changes and target staged pins.json remain preserved; this follow-up is unstaged.
+
+Changed only the action-presence gate in `src/panelviewer/controls.lua`: a successfully registered provider and its callable onInkAwayAnnotate handler enable Draw, whether the handler is a plain function or KOReader's callable table. The callback still invokes the target-owned action. No target change, replacement or deletion.
+
+Failing-before evidence: native test now calls actual KOReader PluginLoader:_load on the installed Ink Away (rather than dofile), so sandboxPluginEventHandlers runs. The first scenario fails at **successful integration offers Draw**. With the gate fix, the same test passes **48 cases / 2592 checks** and invokes the sandbox-wrapped Draw callback to open annotation. Unit coverage now also models a callable-table action and verifies its dispatch. Existing presence/registration-failure coverage remains.
+
+Validation commands: `lua tests/run_tests.lua tests/plugin_support_spec.lua tests/panelviewer_controls_spec.lua` (**20 passed**); stable-first `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0` (**5 passed**), then rollingrelease (**44 passed**). Native command uses the earlier documented `/usr/lib/koreader` cwd/environment, KO_HOME=/tmp/panelsplus-loader-after and the actual installed target `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin`; output `/tmp/panelsplus-loader-after.log`. Targeted StyLua, Luacheck (3 changed Lua files) and whitespace checks pass. Previous full 579-unit run predates this one-condition correction; full suite not rerun because focused failure-before/pass-after checks and native loader coverage exercise the issue directly. Live physical UI remains unverified.
+
+No old active plugin was found to delete. Previous installed copy remains backed up outside `/plugins`. No new deployment, staging, commit or push; source fix and tests are unstaged alongside earlier user-staged work. Next action: fully restart KOReader to load the updated Panels+ action gate, then show controls and check Draw immediately after Inverted. The installation mismatch and this host-wrapper bug were separate causes; installation alone could not correct the wrapper gate.

@@ -76,6 +76,14 @@ return function(PanelViewer)
         return math.min(Screen:getWidth() / (rect.w or 1), Screen:getHeight() / (rect.h or 1))
     end
 
+    local function panelFitZoom(viewer, rect, viewport_w, viewport_h)
+        if viewer.crop_mode == "none" then
+            -- No crop pads its native render to a screen-sized canvas before fitting.
+            return canvasFitZoom(rect) * math.min(viewport_w / Screen:getWidth(), viewport_h / Screen:getHeight())
+        end
+        return math.min(viewport_w / rect.w, viewport_h / rect.h)
+    end
+
     --- Complete a navigation handoff before notifying a settings preview.
     function PanelViewer:completeNavTransition(target, on_complete)
         self._annotation_transition = nil
@@ -127,7 +135,7 @@ return function(PanelViewer)
         -- appears stationary before snapping to the margin-sized panel.
         local target_margin_factor = self:getMarginShrinkFactorForPanel(target) or 1
         local viewport_w, viewport_h = self:getPanelViewportSize()
-        local target_zoom = math.min(viewport_w / rect_b.w, viewport_h / rect_b.h) * target_margin_factor
+        local target_zoom = panelFitZoom(self, rect_b, viewport_w, viewport_h) * target_margin_factor
 
         local bx, by
         if self.crop_mode == "none" and self.panels and self.panels[target] then
@@ -317,7 +325,7 @@ return function(PanelViewer)
         local start_margin_factor = self:getMarginShrinkFactorForPanel(self._images_list_cur) or 1
         local container_w, container_h = self:getPanelViewportSize()
         local start_rect = self.image_rects[self._images_list_cur]
-        local start_zoom = math.min(container_w / start_rect.w, container_h / start_rect.h) * start_margin_factor
+        local start_zoom = panelFitZoom(self, start_rect, container_w, container_h) * start_margin_factor
         if style == "classic" then
             -- Match Classic's shared canvas even when only viewport crops fit in
             -- memory: pan at the destination's zoom and framing throughout.

@@ -1132,7 +1132,10 @@ return function(reference)
                     viewer:getAnnotationSurface()
                     check.equals(cleanup, viewer._annotation_unregister)
                     viewer.getAnnotationSurface = false
-                    ink:onInkAwayAnnotate()
+                    local draw = viewer.quick_controls.draw_inkaway
+                    check.is_not_nil(draw, "registered integration exposes Draw in either load order")
+                    check.equals("Draw (Ink-away)", draw.text)
+                    draw.callback()
                     check.equals(surface, book.surface)
                     viewer:onCloseWidget()
                     check.is_nil(book.surface)
