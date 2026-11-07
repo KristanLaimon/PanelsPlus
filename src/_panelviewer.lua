@@ -290,6 +290,11 @@ local ALWAYS_PASSTHROUGH_ZONES = {
     readermenu_ext_tap = true,
     readermenu_swipe = true,
     readermenu_ext_swipe = true,
+    -- LiveLight must receive the whole slide, including the release, before local panning.
+    livelight_pan = true,
+    livelight_pan_release = true,
+    livelight_swipe = true,
+    livelight_multiswipe = true,
 }
 
 --- Return whether a reader touch zone should be passed through to KOReader.
@@ -302,14 +307,20 @@ local ALWAYS_PASSTHROUGH_ZONES = {
 --- @param gestures table|nil Gestures plugin instance from the reader UI.
 --- @return boolean is_gesture_zone `true` when this touch zone should be dispatched to KOReader.
 function PanelViewer:isReaderGestureZone(zone_id, gestures)
-    if not zone_id or not gestures then
+    if not zone_id then
         return false
     end
     -- Keep panel ImageViewer pinch/spread zooming local.
     if zone_id == "spread_gesture" or zone_id == "pinch_gesture" then
         return false
     end
-    if zone_id == "multiswipe" or ALWAYS_PASSTHROUGH_ZONES[zone_id] then
+    if ALWAYS_PASSTHROUGH_ZONES[zone_id] then
+        return true
+    end
+    if not gestures then
+        return false
+    end
+    if zone_id == "multiswipe" then
         return true
     end
     return gestures.gestures and gestures.gestures[zone_id] ~= nil
@@ -406,9 +417,8 @@ end
 --- Try handling a gesture or touch zone through KOReader's normal reader UI touch zones.
 ---
 --- While the image is pannable (actually zoomed in past the viewport), a
---- swipe is normally a pan and stays local -- except the top-menu zones,
---- which are a fixed screen-region gesture rather than a pan, and would
---- otherwise be permanently unreachable while zoomed in.
+--- swipe is normally a pan and stays local. Reader-menu and LiveLight zones
+--- still receive it so menus and live edge-light controls work while zoomed.
 ---
 --- @param ges table Gesture event.
 --- @return boolean handled Whether a configured reader touch zone or gesture consumed it.
@@ -418,7 +428,7 @@ function PanelViewer:dispatchReaderGesture(ges)
     local reader_ui = self.reader_ui
     local gestures = reader_ui and reader_ui.gestures
     local zones = reader_ui and reader_ui._ordered_touch_zones
-    if not gestures or not zones then
+    if not zones then
         return false
     end
     if not reader_ui.document then

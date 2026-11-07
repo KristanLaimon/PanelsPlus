@@ -82,6 +82,82 @@ describe("PanelViewer reader gesture lifecycle", function()
     end)
 end)
 
+describe("PanelViewer LiveLight compatibility", function()
+    for _, pannable in ipairs({ false, true }) do
+        it("forwards LiveLight's complete slide sequence with pannable=" .. tostring(pannable), function()
+            local calls, zones = {}, {}
+            for _, name in ipairs({ "pan", "pan_release", "swipe", "multiswipe" }) do
+                zones[#zones + 1] = {
+                    def = { id = "livelight_" .. name },
+                    gs_range = {
+                        match = function(_, ges)
+                            return ges.ges == name
+                        end,
+                    },
+                    handler = function(ges)
+                        calls[#calls + 1] = ges
+                        return true
+                    end,
+                }
+            end
+            -- LiveLight also works when KOReader's Gestures plugin is disabled.
+            local closed = false
+            local viewer = newViewer({ document = {}, _ordered_touch_zones = zones }, function()
+                closed = true
+            end)
+            viewer.isImagePannable = function()
+                return pannable
+            end
+            for index, name in ipairs({ "pan", "pan", "pan_release", "pan", "swipe", "pan", "multiswipe" }) do
+                local ges = { ges = name, pos = { x = 10, y = 100 - index * 10 } }
+                assert.is_true(viewer:onGesture(ges))
+                assert.equals(ges, calls[index])
+            end
+            assert.is_false(closed)
+        end)
+    end
+
+    it("keeps unclaimed gestures in Panels+ and blocks ordinary reader gestures while zoomed", function()
+        local light_calls, reader_calls = 0, 0
+        local viewer = newViewer({
+            document = {},
+            gestures = { gestures = { swipe = true } },
+            _ordered_touch_zones = {
+                {
+                    def = { id = "livelight_swipe" },
+                    gs_range = {
+                        match = function()
+                            return true
+                        end,
+                    },
+                    handler = function()
+                        light_calls = light_calls + 1
+                        return false -- Disabled LiveLight, an inactive edge, or a horizontal swipe.
+                    end,
+                },
+                {
+                    def = { id = "swipe" },
+                    gs_range = {
+                        match = function()
+                            return true
+                        end,
+                    },
+                    handler = function()
+                        reader_calls = reader_calls + 1
+                        return true
+                    end,
+                },
+            },
+        })
+        viewer.isImagePannable = function()
+            return true
+        end
+        assert.is_false(viewer:dispatchReaderGesture({ ges = "swipe", direction = "west" }))
+        assert.equals(1, light_calls)
+        assert.equals(0, reader_calls)
+    end)
+end)
+
 describe("PanelViewer bundled OCR selection", function()
     it("selects a native word from a single-line PDF text layer", function()
         local seen = {}
