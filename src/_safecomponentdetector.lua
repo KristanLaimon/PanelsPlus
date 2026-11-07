@@ -13,8 +13,8 @@ local scratch_white_capacity = 0
 local scratch_white
 local function ensureWhiteScratch(size)
     if scratch_white_capacity < size then
-        scratch_white_capacity = size
         scratch_white = ffi.new("uint8_t[?]", size)
+        scratch_white_capacity = size
     end
 end
 

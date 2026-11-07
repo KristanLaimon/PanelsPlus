@@ -23,8 +23,8 @@ return function()
     local split_rows, split_cols, split_brows, split_bcols = {}, {}, {}, {}
     local function ensureWhiteScratch(size)
         if scratch_white_capacity < size then
-            scratch_white_capacity = size
             scratch_white = ffi.new("uint8_t[?]", size)
+            scratch_white_capacity = size
         end
     end
 

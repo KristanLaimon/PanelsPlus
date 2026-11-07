@@ -357,6 +357,68 @@ describe("Experimental component detector", function()
         assert.equals(panels1[1].x, panels3[1].x)
         Detector.clearScratch()
     end)
+    it("recovers component detection after any scratch allocation fails", function()
+        local ffi = require("ffi")
+        local Safe = require("src._safecomponentdetector")
+        local original_new = ffi.new
+        local ok, err = pcall(function()
+            for _, detector in ipairs({ Detector, Safe }) do
+                for _, warm in ipairs({ false, true }) do
+                    for failed_allocation = 1, detector == Safe and 8 or 7 do
+                        detector.clearScratch()
+                        local small
+                        if warm then
+                            small = {
+                                w = 40,
+                                h = 60,
+                                native_w = 80,
+                                native_h = 120,
+                                scale_x = 2,
+                                scale_y = 2,
+                                ink = 0,
+                                data = {},
+                            }
+                            for index = 0, small.w * small.h - 1 do
+                                small.data[index] = 0
+                            end
+                            frame(small, 2, 2, 36, 56)
+                            detector.detectPage(small, { mode = "manga", component_holes = true })
+                        end
+                        local map = page()
+                        frame(map, 20, 20, 440, 600)
+                        local allocations = 0
+                        ffi.new = function(...)
+                            allocations = allocations + 1
+                            if allocations == failed_allocation then
+                                error("simulated scratch allocation failure")
+                            end
+                            return original_new(...)
+                        end
+                        local detected, failure =
+                            pcall(detector.detectPage, map, { mode = "manga", component_holes = true })
+                        ffi.new = original_new
+                        assert.is_false(detected, "allocation should fail")
+                        assert.is_true(tostring(failure):find("simulated scratch allocation failure", 1, true) ~= nil)
+                        if small then
+                            local previous, previous_accepted =
+                                detector.detectPage(small, { mode = "manga", component_holes = true })
+                            assert.is_true(previous_accepted)
+                            assert.equals(1, #previous)
+                        end
+                        local panels, accepted = detector.detectPage(map, { mode = "manga", component_holes = true })
+                        assert.is_true(accepted)
+                        assert.equals(1, #panels)
+                        assert.equals(40, panels[1].x)
+                    end
+                end
+            end
+        end)
+        ffi.new = original_new
+        Safe.clearScratch()
+        Detector.clearScratch()
+        assert.is_true(ok, tostring(err))
+    end)
+
     it("matches eight-neighbor flood fill on fragmented runs and page boundaries", function()
         local Scanner = require("src._componentscan")
         local seed = 417
