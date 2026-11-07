@@ -158,6 +158,45 @@ describe("Independent algorithm baselines", function()
             assert.is_false(Benchmark.verifyProductionTargets(expected, current))
         end
     end)
+    it("guards the three reviewed Smart exceptions against their saved metrics", function()
+        for _, title in ipairs({ "Horimiya_Vol1", "Chainsmoker_Cat_Vol_1", "SHY_Vol_01" }) do
+            local expected = { title = title, minimum_f1 = 0.90, strict_metrics = true }
+            local current = metrics(0.70)
+            current.reading_order_accuracy, current.reading_order_pair_accuracy = 0.70, 0.70
+            assert.is_true(Benchmark.verifyProductionTargets(expected, current, "smart"), title)
+            assert.is_false(Benchmark.verifyProductionTargets(expected, current, "safe"), title)
+            local record = {}
+            for key, value in pairs(current) do
+                record[key] = value
+            end
+            local data = { book_title = title, smart_full_volume = record }
+            assert.is_true(Benchmark.verify(data, "smart", current), title)
+            for _, key in ipairs({
+                "precision",
+                "recall",
+                "f1",
+                "mean_iou",
+                "reading_order_accuracy",
+                "reading_order_pair_accuracy",
+            }) do
+                current[key] = 0.69
+                assert.is_false(Benchmark.verify(data, "smart", current), title .. " " .. key)
+                current[key] = 0.70
+            end
+            current.false_positives = 1
+            assert.is_false(Benchmark.verify(data, "smart", current), title .. " false positives")
+            assert.is_false(Benchmark.verify({ book_title = title }, "smart", metrics(0.70)), title)
+            assert.is_false(Benchmark.verify(nil, "smart", metrics(0.70)), title .. " missing baseline file")
+        end
+        assert.is_false(
+            Benchmark.verifyProductionTargets(
+                { title = "Other_Volume", minimum_f1 = 0.90, strict_metrics = true },
+                metrics(0.70),
+                "smart"
+            )
+        )
+    end)
+
     it("keeps the existing challenging and experimental dataset targets for both algorithms", function()
         assert.is_true(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.90)))
         assert.is_false(Benchmark.verifyProductionTargets({ minimum_f1 = 0.85 }, metrics(0.85)))

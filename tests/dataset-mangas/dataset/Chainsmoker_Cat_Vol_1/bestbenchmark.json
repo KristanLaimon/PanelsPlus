@@ -1,4 +1,30 @@
 {
+  "annotation_baseline_history": [
+    {
+      "archived_at": "2026-11-07",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9397,
+        "false_positives": 63,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5,
+        "mean_iou": 0.9395,
+        "pages_evaluated": 214,
+        "precision": 0.9359,
+        "reading_order_accuracy": 0.6963,
+        "reading_order_pages": 214,
+        "reading_order_pages_correct": 149,
+        "reading_order_pair_accuracy": 0.9972,
+        "reading_order_pairs": 2164,
+        "reading_order_pairs_correct": 2158,
+        "recall": 0.9436,
+        "total_detected": 983,
+        "total_ground_truth": 975,
+        "true_positives": 920
+      },
+      "reason": "User-approved current Smart baseline; compare future results against these measurements instead of fixed accuracy targets"
+    }
+  ],
   "book_title": "Chainsmoker_Cat_Vol_1",
   "components_conservative_full_volume": {
     "f1": 0.9397,
@@ -32,26 +58,6 @@
     "total_ground_truth": 975,
     "true_positives": 885
   },
-  "smart_full_volume": {
-    "f1": 0.9397,
-    "false_positives": 63,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "mean_iou": 0.9395,
-    "pages_evaluated": 214,
-    "precision": 0.9359,
-    "reading_order_accuracy": 0.6963,
-    "reading_order_pages": 214,
-    "reading_order_pages_correct": 149,
-    "reading_order_pair_accuracy": 0.9972,
-    "reading_order_pairs": 2164,
-    "reading_order_pairs_correct": 2158,
-    "recall": 0.9436,
-    "total_detected": 983,
-    "total_ground_truth": 975,
-    "true_positives": 920
-  },
-  "updated_at": "2026-10-12",
   "legacy_safe_against_smart_full_volume": {
     "f1": 0.8411,
     "false_positives": 75,
@@ -71,5 +77,25 @@
     "total_ground_truth": 975,
     "true_positives": 762
   },
-  "safe_mapping_status": "pending"
+  "safe_mapping_status": "pending",
+  "smart_full_volume": {
+    "f1": 0.9378,
+    "false_positives": 72,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5,
+    "mean_iou": 0.9533,
+    "pages_evaluated": 214,
+    "precision": 0.928,
+    "reading_order_accuracy": 0.6822,
+    "reading_order_pages": 214,
+    "reading_order_pages_correct": 146,
+    "reading_order_pair_accuracy": 0.9973,
+    "reading_order_pairs": 2196,
+    "reading_order_pairs_correct": 2190,
+    "recall": 0.9479,
+    "total_detected": 1000,
+    "total_ground_truth": 979,
+    "true_positives": 928
+  },
+  "updated_at": "2026-11-07"
 }

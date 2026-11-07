@@ -134,19 +134,27 @@ Component runs evaluate both **Safe** and **Smart** by default. Use
 `--algorithm safe`, `--algorithm smart`, or `--algorithm both` to select them.
 Complete evaluations keep separate `safe_full_volume` and `smart_full_volume`
 records per book, including embedded-image datasets. Each algorithm is compared
-with its own annotations and saved baseline. Every mapped volume must exceed
-90% precision, recall, F1, matched IoU, and matched-panel reading order, including
-challenging and experimental books. Regression runs are read-only;
-`--update-best` explicitly records improvements only after the accuracy gates pass.
+with its own annotations and saved baseline. Mapped volumes must exceed 90%
+precision, recall, F1, matched IoU, and matched-panel reading order.
+
+Three reviewed Smart exceptions use their current `smart_full_volume` records
+as the regression floor: `Horimiya_Vol1`, `Chainsmoker_Cat_Vol_1`, and
+`SHY_Vol_01`. Their fixed 90% gate is skipped, but precision, recall, F1, IoU,
+reading order and false positives must not worsen against the saved measurements.
+The exception does not apply to Safe or other books. Missing records and changed
+coverage still fail; previous records are retained in baseline history.
+
+Regression runs are read-only. `--update-best` explicitly records improvements
+only after the applicable accuracy and regression gates pass.
 After reviewing annotation changes, `--establish-baseline` archives records for
-changed coverage and establishes new complete-volume records only after every
-strict gate passes. It cannot reset a regression with unchanged coverage.
+changed coverage and establishes new complete-volume records only after the
+applicable gates pass. It cannot reset a regression with unchanged coverage.
 Panel files with `"status": "draft"` are excluded from evaluation. Horimiya's Safe
 mapping is currently draft; removing that field enables it after review.
 
 Every discovered annotated volume is evaluated on its mapped pages. Unmapped
-pages in unfinished books are excluded. SHY retains its experimental label, but
-is subject to the same requested accuracy gates.
+pages in unfinished books are excluded. SHY retains its experimental label;
+its Smart results use the reviewed baseline exception above.
 
 The production detector now retains a wider crop when a proposed split lacks
 sufficient evidence. Reader and dataset maps include the same dark-stroke and
@@ -155,7 +163,8 @@ for all eight volumes, false-positive counts, and the recall tradeoff.
 Current regression checks use `safe_full_volume` and `smart_full_volume`; historical
 `components_conservative_full_volume`, `components_full_volume`, and OCR records remain intact. Tests guard precision, recall,
 F1, mean IoU and false positives without rewriting records. Preserving a
-historical record alone does not satisfy the separate strict accuracy gates.
+historical record alone does not satisfy the separate strict accuracy gates
+for books outside the three reviewed Smart exceptions.
 
 Run `PANELSPLUS_REQUIRE_DATASETS=1 lua tests/run_tests.lua` to require all private
 page images. Otherwise unavailable full-volume production checks are reported

@@ -125,7 +125,8 @@ describe("Manga and comic full-volume production benchmarks", function()
                         mean_iou
                     )
                 )
-                local target_ok, target_reason = AlgorithmBenchmark.verifyProductionTargets(expected, current)
+                local target_ok, target_reason =
+                    AlgorithmBenchmark.verifyProductionTargets(expected, current, algorithm)
                 assert.is_true(target_ok, algorithm .. ": " .. tostring(target_reason))
                 assert.is_true(baseline_ok, baseline_reason)
             end)
