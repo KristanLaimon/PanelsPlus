@@ -2108,6 +2108,20 @@ function PanelViewer:requestPanelPrerender()
     end
 end
 
+--- Rebuild baked-in padding after a color change, retaining the current pan and zoom.
+function PanelViewer:refreshPanelColors()
+    local old_image = self.image
+    local render = self._images_list and self._images_list[self._images_list_cur or 1]
+    if type(render) == "function" then
+        self.image = render()
+    end
+    self:replaceButtonTable()
+    self:update()
+    if self.image_disposable and old_image ~= self.image then
+        self:releasePreviousPanelImage(old_image)
+    end
+end
+
 --- Switch panel images after rendering the destination panel.
 ---
 --- KOReader's base ImageViewer frees the current image before `update()`
@@ -3498,8 +3512,7 @@ function PanelViewer:replaceButtonTable()
                 return
             end
             reader_ui:handleEvent(Event:new("ToggleNightMode"))
-            self:replaceButtonTable()
-            self:update()
+            self:refreshPanelColors()
         end,
     }
     actions.invert_document = {
@@ -3518,8 +3531,7 @@ function PanelViewer:replaceButtonTable()
             end
             local value = configurable.nightmode_document == 1 and 0 or 1
             reader_ui:handleEvent(Event:new("ConfigChange", "nightmode_document", value))
-            self:replaceButtonTable()
-            self:update()
+            self:refreshPanelColors()
         end,
     }
     QuickToolbar.free(self.quick_controls)

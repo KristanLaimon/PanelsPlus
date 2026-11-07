@@ -189,7 +189,7 @@ describe("Fold join in the panel collector", function()
         assert.is_not_nil(images.folds[1])
     end)
 
-    it("keeps padding outside loose and no-crop page images dark in night mode", function()
+    it("refreshes padded panel images when night mode or document inversion changes, preserving zoom", function()
         local Blitbuffer = require("ffi/blitbuffer")
         local screen = require("device").screen
         local old_new, old_night_mode = Blitbuffer.new, screen.night_mode
@@ -207,16 +207,56 @@ describe("Fold join in the panel collector", function()
                         screen.night_mode = night_mode
                         local document = spreadDocument()
                         document.configurable = { nightmode_document = invert_document }
+                        local ui = {
+                            document = document,
+                            handleEvent = function(_, event)
+                                if event.name == "ToggleNightMode" then
+                                    screen.night_mode = not screen.night_mode
+                                else
+                                    document.configurable[event.args[1]] = event.args[2]
+                                end
+                            end,
+                        }
                         local images = PanelCollector.buildImages(
-                            { document = document },
+                            ui,
                             1,
-                            { { x = 0, y = 0, w = 1600, h = 1000 } },
+                            { { x = 0, y = 0, w = 1600, h = mode == "none" and 200 or 1000 } },
                             Settings.withDefaults({ crop_mode = mode, auto_rotate_double_pages = false })
                         )
                         local image = images[1]()
                         local expected = night_mode and invert_document == 1 and Blitbuffer.COLOR_BLACK
                             or Blitbuffer.COLOR_WHITE
                         assert.equals(expected, image.background)
+                        local viewer = PanelViewer:new({
+                            width = 600,
+                            crop_mode = mode,
+                            reader_ui = ui,
+                            image = image,
+                            image_disposable = true,
+                            _images_list = images,
+                            _images_list_cur = 1,
+                            scale_factor = 2,
+                            _center_x_ratio = 0.3,
+                            _center_y_ratio = 0.2,
+                            update = function() end,
+                        })
+                        viewer:replaceButtonTable()
+                        viewer.quick_controls.night_mode.callback()
+                        expected = not night_mode and invert_document == 1 and Blitbuffer.COLOR_BLACK
+                            or Blitbuffer.COLOR_WHITE
+                        assert.equals(expected, viewer.image.background)
+                        assert.is_true(viewer.image ~= image)
+                        assert.equals(image, viewer._pending_panel_images[1].image)
+                        viewer.quick_controls.night_mode.callback()
+                        if night_mode then
+                            viewer.quick_controls.invert_document.callback()
+                            expected = invert_document == 0 and Blitbuffer.COLOR_BLACK or Blitbuffer.COLOR_WHITE
+                            assert.equals(expected, viewer.image.background)
+                        end
+                        assert.equals(1, viewer._images_list_cur)
+                        assert.equals(2, viewer.scale_factor)
+                        assert.equals(0.3, viewer._center_x_ratio)
+                        assert.equals(0.2, viewer._center_y_ratio)
                     end
                 end
             end
