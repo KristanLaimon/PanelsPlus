@@ -5,7 +5,7 @@ Thank you for your interest in contributing to Panels+! Whether you are fixing b
 ### First of all, you need a LINUX ENVIRONMENT. You can't develop KOReader plugins in windows (unless you use WSL).
 <em>This is because there are no ports of KOReader for windows (or at least, none that I'm aware of) and this project
 uses tooling available only in linux</em>
-With linux environment could be:
+A linux environment could be:
 
 1. A virtual machine (Oracle Virtual box, QUEMU, etc...).
 2. WSL "Windows Subsytem For linux".
@@ -40,7 +40,7 @@ developing in Panels+ (VM, Dualboot, etc...).
 KOReader (A little dev trick) (OPTIONAL, but recommended)
 
 I've created a little script to manage easily multiple KOReaders installed in system
-so you can test the you're installed version along with others like 2025.04 "Moon flake".
+so you can test the your installed version along with others like 2025.04 "Moon flake".
 
 ```bash
 ./koreader.sh                         # your system KOReader
