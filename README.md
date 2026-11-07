@@ -35,7 +35,7 @@
   </tr>
 </table>
 
-> Want to know what's coming for the next release v1.6.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.6.0-nightly)
+> Want to know what's coming for the next release v1.7.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly)
 
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup, external scripts, JSON files required, install Panels+ and *it just works*.
 
@@ -99,13 +99,14 @@ to panels, but still, mangas and comics aren't 100% panels right?.
 To improve your experience, this plugin has tested/garanteed compatibility with the following:
 
 <div align="center">
-    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/a8c14718-5a51-4e4e-8e5a-8f262921c8cd" />
+    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/0df8d4d8-601a-4e11-8fa9-4a2fbe8f82c0" />
 </div>
 
 Download/Repos:
 - Ink-away: https://github.com/EmirErtorer/ink-away.koplugin
 - Meguru: https://github.com/Craftwork2720/meguru
 - kobo.koplugin: https://github.com/OGKevin/kobo.koplugin
+- LiveLight: https://github.com/ironicsans/livelight.koplugin
 
 ### KOReader versions
 
