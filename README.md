@@ -230,29 +230,51 @@ Configuration is as easy as just using the plugin itself!
   - Smooth animations (Recommended in no ink-devices)
 
 ### Showcase
+
+### Showcase
+
 <table>
   <tr>
-    <td align="center" width="30%">
-      <video src="https://github.com/user-attachments/assets/40d19a65-8bef-4e0e-b48b-575e0ab8fdb7" controls width="420"></video>
-      <br>
-      <sub>Panels+ v1.6.0 running on a Kindle. All features in 1 video. Including incoming ink-away integration (not released yet, waiting for the next stable release of Ink-Away, you can check the status <a href="https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly">here</a>)</sub>
-    </td>
-    <td align="center" width="30%">
-      <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
+    <td align="center" valign="top" width="50%">
+      <video
+        src="https://github.com/user-attachments/assets/40d19a65-8bef-4e0e-b48b-575e0ab8fdb7"
+        controls
+        width="420">
+      </video>
       <br>
       <sub>
-            Panels+ v1.3.0 (Old, video but the advice is the same). For a more fluent and immersive navigation, my personal recommendation is to set KOReader to **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. <br>
-            While playing and testing this plugin from months of usage I found this setup the most convenient way to experience your manga (and probably the way it was intended)./sub>
+        Panels+ v1.6.0 running on a Kindle. All features in 1 video.
+        <br><br>
+        This demo includes v1.7.0-nightly ink-away integration which is
+        not released yet until the next stable release of Ink-Away.
+        You can check the status
+        <a href="https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly">here</a>.
+      </sub>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <video
+        src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4"
+        controls
+        width="420">
+      </video>
+      <br>
+      <sub>
+        Panels+ v1.3.0 (Old, video but the advice is the same).
+        For a more fluent and immersive navigation, my personal
+        recommendation is to set KOReader to
+        <strong>landscape (horizontal) rotation</strong> and enable
+        <strong>strict-crop mode</strong> in Panels+ with classic
+        navigation for e-ink based devices and smooth navigation
+        for Android and non-e-ink devices.
+        <br><br>
+        While playing and testing this plugin from months of usage,
+        I found this setup the most convenient way to experience
+        your manga (and probably the way it was intended).
+      </sub>
     </td>
   </tr>
 </table>
 
-<div align="center">
-  <video src="" controls width="420"></video>
-  <br>
-  <em></em>
-</div>
-<br>
 Of course if you prefer vertical, with margin, loose cropped or even animated, then use it that way!. I've made all this config fully customizable to make this plugin `adapt to you`, not you to the plugin. Your manga, your rules.
 
 ### 🔍 OCR Word Lookup Setup
