@@ -231,8 +231,6 @@ Configuration is as easy as just using the plugin itself!
 
 ### Showcase
 
-### Showcase
-
 <table>
   <tr>
     <td align="center" valign="top" width="50%">
