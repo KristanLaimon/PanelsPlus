@@ -388,6 +388,7 @@ return function(PanelViewer)
             return
         end
 
+        self._gesture_zoom_restore = nil
         local old_image = self.image
         self.image = self._images_list[image_num]
         if type(self.image) == "function" then
