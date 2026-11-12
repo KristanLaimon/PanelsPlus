@@ -45,6 +45,7 @@ describe("Panel gesture zoom", function()
                     self.scale_factor = 1.75
                     zoom_calls = zoom_calls + 1
                 end,
+                replaceButtonTable = function() end,
                 update = function()
                     updates = updates + 1
                 end,
@@ -57,13 +58,32 @@ describe("Panel gesture zoom", function()
             if gesture.ges == "hold" then
                 assert.is_true(viewer:onGesture({ ges = "hold_release" }))
             end
+            local saved = viewer._gesture_zoom_restore
+            viewer:refreshPanelColors()
+            assert.equals(saved, viewer._gesture_zoom_restore)
+            assert.equals(1.75, viewer.scale_factor)
             assert.is_true(viewer:onGesture(gesture))
+            assert.equals(1, zoom_calls)
             assert.equals(0, viewer.scale_factor)
             assert.is_true(viewer._scale_to_fit)
             assert.equals(0.5, viewer._center_x_ratio)
-            assert.equals(1, updates)
+            assert.equals(2, updates)
         end)
     end
+    it("clears the saved view when switching panels", function()
+        local viewer = PanelViewer:new({
+            image = "first",
+            _images_list = { "first", "second" },
+            _images_list_cur = 1,
+            _gesture_zoom_restore = { scale = 0 },
+            applyImageRotation = function() end,
+            update = function() end,
+            requestPanelPrerender = function() end,
+        })
+        viewer:switchToImageNum(2)
+        assert.equals(nil, viewer._gesture_zoom_restore)
+    end)
+
     it("keeps disabled and unselected gestures on the normal input path", function()
         local forwarded = 0
         local viewer = PanelViewer:new({
