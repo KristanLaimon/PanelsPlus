@@ -77,7 +77,9 @@ function Menu.panelZoomItems(self)
         },
         {
             text = _("Enable panel gesture zoom"),
-            help_text = _("In panel view, use the selected zoom gesture to zoom at the touched position. Repeat it to restore the view. Long press zoom takes priority over text selection."),
+            help_text = _(
+                "In panel view, use the selected zoom gesture to zoom at the touched position. Repeat it to restore the view. Long press zoom takes priority over text selection."
+            ),
             checked_func = function()
                 return self.settings.panel_gesture_zoom == true
             end,

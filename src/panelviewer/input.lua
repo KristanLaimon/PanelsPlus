@@ -296,8 +296,12 @@ return function(PanelViewer)
 
     --- Toggle magnification around the touched image position, restoring the prior view.
     function PanelViewer:toggleGestureZoom(pos)
-        if self._panels_plus_transition_active or self._panels_plus_boundary_pending
-            or self._panels_plus_smooth_preview or not self._image_wg then
+        if
+            self._panels_plus_transition_active
+            or self._panels_plus_boundary_pending
+            or self._panels_plus_smooth_preview
+            or not self._image_wg
+        then
             return true
         end
         local saved = self._gesture_zoom_restore
@@ -319,8 +323,10 @@ return function(PanelViewer)
             return true
         end
         self._gesture_zoom_restore = {
-            scale = self.scale_factor, fit = self._scale_to_fit,
-            x = self._center_x_ratio, y = self._center_y_ratio,
+            scale = self.scale_factor,
+            fit = self._scale_to_fit,
+            x = self._center_x_ratio,
+            y = self._center_y_ratio,
         }
         local dimen = image.dimen or { x = 0, y = 0 }
         self._center_x_ratio = math.max(0, math.min(1, (pos.x - dimen.x + (image._offset_x or 0)) / width))
