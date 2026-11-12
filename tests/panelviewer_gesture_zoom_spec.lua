@@ -33,15 +33,21 @@ describe("Panel gesture zoom", function()
                     _offset_x = 20,
                     _offset_y = 40,
                     getSize = function() end,
-                    getCurrentWidth = function() return 400 end,
-                    getCurrentHeight = function() return 800 end,
+                    getCurrentWidth = function()
+                        return 400
+                    end,
+                    getCurrentHeight = function()
+                        return 800
+                    end,
                 },
                 onZoomIn = function(self, increment)
                     assert.equals(0.75, increment)
                     self.scale_factor = 1.75
                     zoom_calls = zoom_calls + 1
                 end,
-                update = function() updates = updates + 1 end,
+                update = function()
+                    updates = updates + 1
+                end,
             })
             local gesture = { ges = zoom, pos = { x = 90, y = 180 } }
             assert.is_true(viewer:onGesture(gesture))
@@ -62,8 +68,13 @@ describe("Panel gesture zoom", function()
         local forwarded = 0
         local viewer = PanelViewer:new({
             panel_zoom_settings = { panel_gesture = "hold", panel_gesture_zoom = false },
-            dispatchReaderGesture = function() forwarded = forwarded + 1; return true end,
-            toggleGestureZoom = function() error("Unexpected zoom") end,
+            dispatchReaderGesture = function()
+                forwarded = forwarded + 1
+                return true
+            end,
+            toggleGestureZoom = function()
+                error("Unexpected zoom")
+            end,
         })
         viewer:onGesture({ ges = "two_finger_tap" })
         viewer.panel_zoom_settings.panel_gesture_zoom = true
@@ -76,7 +87,9 @@ describe("Panel gesture zoom", function()
         local saves = 0
         local controller = {
             settings = { panel_gesture = "hold" },
-            saveSettings = function() saves = saves + 1 end,
+            saveSettings = function()
+                saves = saves + 1
+            end,
         }
         local items = menu.panelZoomItems(controller)
         assert.equals("Two-finger tap", items[1].mandatory)
@@ -101,5 +114,4 @@ describe("Panel gesture zoom", function()
         assert.equals(7, saves)
         assert.equals(2, #menu.panelGestureItems(controller))
     end)
-
 end)
