@@ -44,6 +44,65 @@ function Menu:getModeText()
     return _("Panels+: manga mode")
 end
 
+--- Shared optional panel zoom choices for the reader and viewer menus.
+function Menu.panelZoomItems(self)
+    local items = {
+        {
+            text = _("Zoom gesture"),
+            mandatory = self.settings.panel_zoom_gesture == "hold" and _("Long press") or _("Two-finger tap"),
+            sub_item_table = {
+                {
+                    text = _("Long press"),
+                    radio = true,
+                    checked_func = function()
+                        return self.settings.panel_zoom_gesture == "hold"
+                    end,
+                    callback = function()
+                        self.settings.panel_zoom_gesture = "hold"
+                        self:saveSettings()
+                    end,
+                },
+                {
+                    text = _("Two-finger tap"),
+                    radio = true,
+                    checked_func = function()
+                        return self.settings.panel_zoom_gesture ~= "hold"
+                    end,
+                    callback = function()
+                        self.settings.panel_zoom_gesture = "two_finger_tap"
+                        self:saveSettings()
+                    end,
+                },
+            },
+        },
+        {
+            text = _("Enable panel gesture zoom"),
+            help_text = _("In panel view, use the selected zoom gesture to zoom at the touched position. Repeat it to restore the view. Long press zoom takes priority over text selection."),
+            checked_func = function()
+                return self.settings.panel_gesture_zoom == true
+            end,
+            callback = function()
+                self.settings.panel_gesture_zoom = not self.settings.panel_gesture_zoom
+                self:saveSettings()
+            end,
+        },
+    }
+    for _, factor in ipairs({ 1.25, 1.5, 1.75, 2 }) do
+        items[#items + 1] = {
+            text = tostring(factor) .. "×",
+            radio = true,
+            checked_func = function()
+                return (self.settings.panel_gesture_zoom_factor or 1.5) == factor
+            end,
+            callback = function()
+                self.settings.panel_gesture_zoom_factor = factor
+                self:saveSettings()
+            end,
+        }
+    end
+    return items
+end
+
 --- Shared gesture choices remain accessible before opening any panel viewer.
 function Menu.panelGestureItems(self)
     return {
@@ -333,6 +392,10 @@ function Menu:addToMainMenu(menu_items)
                 panels_plus_section = "animation",
                 sub_item_table = Menu.animationItems(self),
                 separator = true,
+            },
+            {
+                text = _("Panel gesture zoom"),
+                sub_item_table = Menu.panelZoomItems(self),
             },
             {
                 text = _("Enable debugging logs"),

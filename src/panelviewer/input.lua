@@ -278,11 +278,63 @@ return function(PanelViewer)
         return false
     end
 
+    --- Toggle magnification around the touched image position, restoring the prior view.
+    function PanelViewer:toggleGestureZoom(pos)
+        if self._panels_plus_transition_active or self._panels_plus_boundary_pending
+            or self._panels_plus_smooth_preview or not self._image_wg then
+            return true
+        end
+        local saved = self._gesture_zoom_restore
+        if saved then
+            self.scale_factor = saved.scale
+            self._scale_to_fit = saved.fit
+            self._center_x_ratio, self._center_y_ratio = saved.x, saved.y
+            self._gesture_zoom_restore = nil
+            self:update()
+            return true
+        end
+        if not pos then
+            return true
+        end
+        local image = self._image_wg
+        image:getSize()
+        local width, height = image:getCurrentWidth(), image:getCurrentHeight()
+        if not width or not height or width <= 0 or height <= 0 then
+            return true
+        end
+        self._gesture_zoom_restore = {
+            scale = self.scale_factor, fit = self._scale_to_fit,
+            x = self._center_x_ratio, y = self._center_y_ratio,
+        }
+        local dimen = image.dimen or { x = 0, y = 0 }
+        self._center_x_ratio = math.max(0, math.min(1, (pos.x - dimen.x + (image._offset_x or 0)) / width))
+        self._center_y_ratio = math.max(0, math.min(1, (pos.y - dimen.y + (image._offset_y or 0)) / height))
+        local factor = self.panel_zoom_settings.panel_gesture_zoom_factor
+        if factor ~= 1.25 and factor ~= 1.5 and factor ~= 1.75 and factor ~= 2 then
+            factor = 1.5
+        end
+        self:onZoomIn(factor - 1)
+        return true
+    end
+
     --- Let configured reader gestures run in focused-panel mode before local viewer gestures.
     ---
     --- @param ges table Gesture event.
     --- @return boolean|nil handled Whether the gesture was consumed.
     function PanelViewer:onGesture(ges)
+        if self._gesture_zoom_holding and (ges.ges == "hold_release" or ges.ges == "hold_pan_release") then
+            self._gesture_zoom_holding = nil
+            return true
+        end
+        if self._gesture_zoom_holding and ges.ges == "hold_pan" then
+            return true
+        end
+        local settings = self.panel_zoom_settings
+        local zoom_gesture = settings and settings.panel_zoom_gesture == "hold" and "hold" or "two_finger_tap"
+        if settings and settings.panel_gesture_zoom == true and ges.ges == zoom_gesture then
+            self._gesture_zoom_holding = ges.ges == "hold" or nil
+            return self:toggleGestureZoom(ges.pos)
+        end
         if self:dispatchReaderGesture(ges) then
             return true
         end

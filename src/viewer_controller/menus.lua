@@ -208,6 +208,24 @@ return function(ViewerController)
                 viewer:update()
             end),
             {
+                id = "scale",
+                text = _("Panel gesture zoom"),
+                mandatory = self.settings.panel_gesture_zoom == true and _("On") or _("Off"),
+                callback = function()
+                    close()
+                    local picker
+                    picker = require("ui/widget/menu"):new({
+                        title = _("Panel gesture zoom"),
+                        item_table = require("src.menu").panelZoomItems(self),
+                        close_callback = function()
+                            UIManager:close(picker)
+                            self:showMoreConfigMenu(viewer, menu.page)
+                        end,
+                    })
+                    UIManager:show(picker)
+                end,
+            },
+            {
                 id = "advanced",
                 text = _("Open advanced options"),
                 bold = true,

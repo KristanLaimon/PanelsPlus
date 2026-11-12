@@ -102,6 +102,7 @@ return function(ViewerController)
             kobo_vertical_gesture = self.settings.kobo_vertical_gesture ~= false,
             progress_bar_visible = self.settings.progress_bar_visible ~= false,
             hold_text_selection = self.settings.hold_text_selection ~= false,
+            panel_zoom_settings = self.settings,
             prefer_native_text_layer = self.settings.prefer_native_text_layer ~= false,
             ocr_bundled_language = self:getSelectedOcrModel(),
             image_rotation = self.settings.image_rotation,
