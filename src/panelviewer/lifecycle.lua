@@ -363,7 +363,6 @@ return function(PanelViewer)
 
     --- Rebuild baked-in padding after a color change, retaining the current pan and zoom.
     function PanelViewer:refreshPanelColors()
-        self._gesture_zoom_restore = nil
         local old_image = self.image
         local render = self._images_list and self._images_list[self._images_list_cur or 1]
         if type(render) == "function" then
