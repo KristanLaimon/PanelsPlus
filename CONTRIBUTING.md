@@ -125,8 +125,9 @@ You'll need **Python 3.9+** for the development environment. See the
 [annotator README](tools/manga_annotator/README.md) and
 [dataset guide](tests/dataset-mangas/USAGE.md) for the actual mapping workflow.
 
-**About the books:** full volumes are local inputs. Use copies you have
-permission to use; public fixtures only include part of the image corpus.
+**About the books:** For obvious copyright reasons, full volume mangas can't be uploaded to this repo for easy share testing (also to avoid DMCA takedown of this repo). You would need to download them manually. I can't give you instructions about how to have locally your legal bought mangas. If only you [could know where to find them](./tests/dataset-mangas/dataset/mangas_datasets_reference.md) and [download them somehow](https://hakuneko.download/) , [package them in CBZ file](https://github.com/ciromattia/kcc), and import them from the Manga-annotator tool, maybe you would be able to create yourself your datasets or have the current tested datasets, but, who-knows.
+
+Use copies you have permission to use; public fixtures only include part of the image corpus.
 A fresh clone won't reproduce every full-volume benchmark, so mention missing
 pages when reporting a run.
 

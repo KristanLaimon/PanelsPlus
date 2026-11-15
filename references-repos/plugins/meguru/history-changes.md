@@ -2,6 +2,8 @@
 
 ## Current state
 
+2026-11-15 test rerun: all retained stable and current local rolling suites passed; see the test-suite rerun entry below. No runtime changes or installation.
+
 2026-11-15: Stable 1.8.7 added from the verified upstream release ZIP; stable
 1.7.1 retained unchanged. Canonical rolling is clean detached HEAD
 `7a6e9b8033c228c187855af8fcd4c4580018ac4b`, metadata 1.8.7; sync staged
@@ -85,3 +87,27 @@ Ink Away 4.5.0 also passed: Python 101 (one skip), Go worker tests, LuaJIT
 selectors, 26 workflow checks, and lint 151 owned files. Meguru release payload
 was reverified against every ZIP member after formatting: unchanged. Final
 details and commands are also recorded in LiveLight history entry 01.
+
+## 2026-11-15 — Test-suite rerun — Panels+ 1.6.0 / meguru 1.8.7
+
+User requested running all tests and checking green. Source: Panels+ 1.6.0,
+`main-nightly`, HEAD `b966904dd0ce1937549a57ab5e02e1657a256f85`;
+initial working tree clean. Dataset metadata changed during the broader run;
+those changes were preserved. Target canonical `rolling.koplugin/`:
+`7a6e9b8033c228c187855af8fcd4c4580018ac4b`, detached HEAD, clean working tree and index.
+Host source pin: `035e00b21d0286325ef2e8a7e3b6326f340e2ded`;
+installed reader/device version was not inspected.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=meguru`
+ran retained immutable stable references first, then the existing local rolling
+checkout. Passed counts: 1.7.1: 14; 1.8.7: 14; rolling: 14; zero failures or skips in each suite.
+These are the existing reference-backed desktop Lua tests with mocked KOReader
+services; their established scenario scope and physical-device limits remain
+as documented above. No counterpart source changes, updates, builds, deployment,
+commits or publication. User-facing defaults unchanged. Live reader validation
+was not rerun; further device validation remains separate from this test rerun.
+
+Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
+Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
+Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
+warnings/errors in 150 files. Workflow shell checks: 26 passed.

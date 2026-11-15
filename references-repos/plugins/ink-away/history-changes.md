@@ -2065,3 +2065,27 @@ User explicitly requests installing the audited rolling using deploy. Panels+ 1.
 ### Deployment outcome
 
 Initial sandboxed deploy built artifact build.6TBT8aRq but stopped before replacement at the external KOReader deployment lock (read-only filesystem). Retried the same `--install` command with explicit filesystem escalation, which succeeded and produced build.2Plwja9Q. Standard deploy verified the old installation, moved it to backup ink-away.W6nytsQ8 and installed one canonical ink-away.koplugin. Independent Python hashlib verification checked all 340 installed payload files and exact relative file-set equality against `.panelsplus-deployment/SHA256SUMS`; manifest provenance reports rolling 4.5.0 at 0015691669e74baeb4b0d3e13f61f3e629279fb7 with no dirty source. No runtime test repeated; previous source test evidence remains unchanged. No physical Kindle validation or GUI launch performed. User can open/restart KOReader and exercise Panels+ Draw; separately check grayscale artwork during pen strokes and text dragging. No agent staging or commits; concurrent user-side parent commit recorded in current state.
+
+## 2026-11-15 — Test-suite rerun — Panels+ 1.6.0 / ink-away 4.5.0
+
+User requested running all tests and checking green. Source: Panels+ 1.6.0,
+`main-nightly`, HEAD `b966904dd0ce1937549a57ab5e02e1657a256f85`;
+initial working tree clean. Dataset metadata changed during the broader run;
+those changes were preserved. Target canonical `rolling.koplugin/`:
+`0015691669e74baeb4b0d3e13f61f3e629279fb7`, main, clean working tree and index.
+Host source pin: `035e00b21d0286325ef2e8a7e3b6326f340e2ded`;
+installed reader/device version was not inspected.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=ink-away`
+ran retained immutable stable references first, then the existing local rolling
+checkout. Passed counts: 4.5.0: 44; rolling: 44; zero failures or skips in each suite.
+These are the existing reference-backed desktop Lua tests with mocked KOReader
+services; their established scenario scope and physical-device limits remain
+as documented above. No counterpart source changes, updates, builds, deployment,
+commits or publication. User-facing defaults unchanged. Live reader validation
+was not rerun; further device validation remains separate from this test rerun.
+
+Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
+Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
+Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
+warnings/errors in 150 files. Workflow shell checks: 26 passed.

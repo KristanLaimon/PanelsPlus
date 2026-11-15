@@ -2,6 +2,8 @@
 
 ## Current state
 
+2026-11-15 test rerun: all retained stable and current local rolling suites passed; see the test-suite rerun entry below. No runtime changes or installation.
+
 2026-11-15: Registered stable 1.2.0 and canonical rolling submodule, clean
 `main` at `af2c6bac7a81a2e175319fb57af70d0cb10c31ed` (exact v1.2.0 tag).
 Both pass 18 reference-backed integration cases using the existing Panels+
@@ -86,3 +88,27 @@ not install a plugin or retain a project build artifact. All three newly pinned
 release payloads (Meguru, Ink Away and LiveLight) were compared byte-for-byte
 and by complete file set to their original ZIPs after `check.sh`: unchanged.
 Old stable references and all target runtime working trees remain unchanged.
+
+## 2026-11-15 — Test-suite rerun — Panels+ 1.6.0 / livelight unversioned metadata; release/tag 1.2.0
+
+User requested running all tests and checking green. Source: Panels+ 1.6.0,
+`main-nightly`, HEAD `b966904dd0ce1937549a57ab5e02e1657a256f85`;
+initial working tree clean. Dataset metadata changed during the broader run;
+those changes were preserved. Target canonical `rolling.koplugin/`:
+`af2c6bac7a81a2e175319fb57af70d0cb10c31ed`, main, clean working tree and index.
+Host source pin: `035e00b21d0286325ef2e8a7e3b6326f340e2ded`;
+installed reader/device version was not inspected.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=livelight`
+ran retained immutable stable references first, then the existing local rolling
+checkout. Passed counts: 1.2.0: 18; rolling: 18; zero failures or skips in each suite.
+These are the existing reference-backed desktop Lua tests with mocked KOReader
+services; their established scenario scope and physical-device limits remain
+as documented above. No counterpart source changes, updates, builds, deployment,
+commits or publication. User-facing defaults unchanged. Live reader validation
+was not rerun; further device validation remains separate from this test rerun.
+
+Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
+Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
+Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
+warnings/errors in 150 files. Workflow shell checks: 26 passed.
