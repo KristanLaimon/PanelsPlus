@@ -27,8 +27,8 @@ registration. Rendering and navigation hooks remain in the split viewer modules.
 
 Run `./run-tests.sh --compatibility-plugin=meguru` and
 `./run-tests.sh --compatibility-plugin=kobo` for their stable and rolling pins.
-Run `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease`
-for the optional surface API. Stable 4.4.0 has fallback-only coverage via
-`--compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0`.
+Run `./run-tests.sh --compatibility-plugin=ink-away` for stable 4.5.0 surface
+integration and the separate rolling suite. Stable 4.4.0 has no Panels+
+integration compatibility; its pin and fallback-only suite were retired.
 Gestures and LiveLight retain their existing Panels+ unit coverage; this does not
 claim new version-pinned compatibility testing for either plugin.

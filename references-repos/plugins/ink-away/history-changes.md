@@ -1,4 +1,72 @@
-## Current state — Upstream Ink Away 4.5.0 rolling installed, 2026-11-15
+## Current state — Retire unsupported stable 4.4.0, 2026-11-15
+
+At the developer's explicit request, removed stable `v4_4_0/` and its exact
+`ink-away__v4_4_0/` suite. That release has no Panels+ integration compatibility;
+its five historical fallback/coexistence smoke checks must not be presented as
+integration support. Existing records below are historical, not instructions
+to restore the retired pin. Stable 4.5.0 and its own versioned suite remain;
+rolling and shared fixtures remain unchanged. Active release/license/support
+and relationship indexes were corrected; the MIT notice is retained.
+
+Source: Panels+ metadata 1.6.0, `main-nightly` base
+`38022f41209497efcd1ac4e58e456c7d45c1f7e0`, preserving the ongoing parent
+reference/tooling changes and staging. Target rolling metadata 4.5.0, clean
+`main` at `0015691669e74baeb4b0d3e13f61f3e629279fb7`; stable 4.5.0 release
+payload remains unchanged. Host pin:
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. No target runtime change,
+update, build, installation, commit or push.
+
+Skill retention policy now keeps at most five **stable** releases per plugin,
+each with its corresponding suite; adding a sixth retires the oldest stable
+pin, its suite and pin-specific sidecars. Rolling does not count toward this
+limit and is never removed by that policy. Historical evidence is retained.
+`./run-tests.sh --compatibility-plugin=ink-away` from the Panels+ root now
+selects only stable 4.5.0 and rolling: **44 passed / zero failures / zero skips
+each**, using the same real-target/modules and host-fixture scope as before.
+Checked that the retired pin/suite are absent, all retained stable pins have
+their exact matching suites, and each plugin has at most five stable pins.
+Whitespace checks passed. Skill `quick_validate.py` could not run because
+PyYAML is absent from both available Python interpreters; frontmatter is
+unchanged and the focused Markdown rule was reviewed directly. The full
+general suite was not repeated for this documentation/reference deletion;
+no new physical-device claim is made.
+
+## Previous state — Stable 4.5.0 reference verified, 2026-11-15
+
+User authorized adding the latest upstream stable release pin and testing it.
+GitHub latest is v4.5.0 (published 2026-11-14); canonical rolling remains
+clean `main` at `0015691669e74baeb4b0d3e13f61f3e629279fb7`, metadata 4.5.0.
+Panels+ is now 1.6.0 `main-nightly` at
+`38022f41209497efcd1ac4e58e456c7d45c1f7e0`; ongoing parent formatter/lint,
+Meguru fixture/reference and LiveLight registration work is preserved.
+Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+Existing stable 4.4.0 is retained unchanged. No install or rolling update
+requested in this step; prior installation evidence below is historical
+and was not reverified. New stable 4.5.0 and unchanged rolling each pass 44
+surface integration cases; retained stable 4.4.0 passes 5 fallback cases.
+No runtime changes were needed. Physical Kindle validation remains pending.
+
+Release asset `ink-away.koplugin-v4.5.0.zip` was extracted unchanged to
+`stable/v4_5_0/`. SHA-256
+`c9b0f707d9e93aa6cea0f01b22f21e8d72f98e714449bb9dca954e5459203f92`
+matches GitHub's API digest. New `ink-away__v4_5_0/surface_spec.lua` invokes
+the same required-public-API integration fixture as rolling, not the legacy
+fallback fixture. `./run-tests.sh --compatibility-plugin=ink-away` from the
+Panels+ root passes 5 / 44 / 44 tests in that order. Actual target modules and
+registration/facade run; host UI, documents/storage and timers remain fixtures.
+Prior native 48 scenarios / 2742 checks were not rerun for this pin-only change;
+new stable evidence is the automated Lua integration suite. No install,
+commit, push or target source update. Release/index/license records updated;
+next action is physical reader validation when requested.
+
+Combined final verification: same 5/44/44 selected compatibility counts after
+formatting; Python 101 (one skip), Go worker tests, LuaJIT 645 passed / zero
+failed / five pending-mapping skips in 13 jobs, 26 workflow checks, and lint
+151 owned files all passed. Stable 4.5.0's complete 341-file payload remains
+byte-identical to the release ZIP after `check.sh`. No native/device result
+is added by these host-fixture checks.
+
+## Previous state — Upstream Ink Away 4.5.0 rolling installed, 2026-11-15
 
 Installed canonical clean Ink Away rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` (`main`, metadata 4.5.0, exact local v4.5.0 tag) to `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin` using `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install`. Artifact `.cache/plugin-compatibility/builds/ink-away/v4_5_0/build.2Plwja9Q/ink-away.koplugin`; previous unchanged installed copy retained at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.W6nytsQ8/ink-away.koplugin`. Independently verified all 340 runtime file SHA256 hashes and complete file set against the installed manifest; provenance matches the requested clean source. No matching KOReader/Lua/LuaJIT process before install. Restart/open KOReader for live validation; grayscale drawing and dragging on physical Kindle remain unverified.
 

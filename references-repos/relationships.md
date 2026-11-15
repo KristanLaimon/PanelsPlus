@@ -12,7 +12,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | --- | --- | --- | --- | --- | --- |
 | OneWay Knowledge | Panels+ >= v1.3.0 | → | kobo.koplugin >= v0.4.1 | Unspecified | Developer's `promptt.md` |
 | OneWay Knowledge | Meguru >= v1.7.0 | → | Panels+ >= v1.5.1 | Unspecified | Developer's `promptt.md`; identity clarified in conversation |
-| Unknown Behavior Relationship | Panels+ >= v1.5.1 | ? | Ink Away >= v4.4.0 | N/A | Developer changed the original No relationship declaration to Unknown pending testing; Ink Away version corrected in conversation |
+| Unsupported integration | Panels+ 1.6.0 | — | Ink Away stable 4.4.0 | N/A | Developer confirms no Panels+ integration compatibility; pin and versioned fallback suite retired on 2026-11-15. Historical smoke checks do not establish integration. |
 | Unknown Behavior Relationship | Ink Away >= v4.4.0 | ? | Meguru >= v1.7.1 | N/A | Developer explicitly requests coexistence testing; arrow direction is unestablished |
 
 ## Implemented relationships (limited to the evidence below)
@@ -20,7 +20,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | Relationship | Left plugin / scope | Direction | Right plugin / scope | Visibility | Evidence |
 | --- | --- | --- | --- | --- | --- |
 | OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Meguru stable 1.7.1, stable 1.8.7 and rolling `7a6e9b8033c228c187855af8fcd4c4580018ac4b` | Not visual (no added UI) | Calls Meguru `spreadPageAt` before panel collection/selection; 14 reference-backed geometry integration tests pass per reference. Together with the declared Meguru → Panels+ awareness above, this adds reciprocal knowledge; the reverse direction's visibility remains unspecified. No future version range claimed. [History](plugins/meguru/history-changes.md). |
-| OneWay Knowledge | Panels+ 1.6.0 at `898635a70b26831994b158f75da99a1d9a5ed484`, `feat/ink-away-compatibility` | → | Clean upstream Ink Away 4.5.0 rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` (exact local `v4.5.0` tag) | Visual: Draw, Ink-away Settings, navigation and toolbar fitting | Existing runtime compatible without changes. Updated fixtures: 44 rolling integration cases and 48 native scenarios / 2742 checks pass, plus 5 stable 4.4.0 fallback cases. No 4.5.0 release-artifact pin or future-version guarantee; physical Kindle validation pending. [History](plugins/ink-away/history-changes.md#2026-11-15--audit-merged-pr-80-against-upstream-ink-away-450). |
+| OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Stable Ink Away 4.5.0 release ZIP and clean rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` | Visual: Draw, Ink-away Settings, navigation and toolbar fitting | Existing runtime compatible without changes: 44 integration cases per 4.5.0 reference. Stable 4.4.0 and its fallback-only suite are retired. Prior native 48 scenarios / 2742 checks were not repeated in this reference-only update. No future-version guarantee; physical Kindle validation pending. [History](plugins/ink-away/history-changes.md). |
 
 ## Historical artifact references
 

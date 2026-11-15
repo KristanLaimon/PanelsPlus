@@ -9,7 +9,7 @@ This index supplements those files; it does not replace them.
 
 | Directory | Project / upstream | License and notices |
 | --- | --- | --- |
-| `plugins/ink-away/stable/v4_4_0/` | [Ink Away](https://github.com/EmirErtorer/ink-away.koplugin), Emir Devlet Ertörer | [MIT](plugins/ink-away/stable/v4_4_0/LICENSE); additional asset and third-party notices in [NOTICE.md](plugins/ink-away/stable/v4_4_0/NOTICE.md) |
+| `plugins/ink-away/stable/v4_5_0/` | [Ink Away](https://github.com/EmirErtorer/ink-away.koplugin), Emir Devlet Ertörer | [MIT](plugins/ink-away/stable/v4_5_0/LICENSE); additional asset and third-party notices in [NOTICE.md](plugins/ink-away/stable/v4_5_0/NOTICE.md) |
 | `plugins/kobo/stable/v0_4_1/` | [kobo.koplugin](https://github.com/OGKevin/kobo.koplugin), OGKevin | GNU General Public License, version 3; [full license](plugins/kobo/stable/v0_4_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later, as declared in its source headers; [full license](plugins/meguru/stable/v1_7_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_7_1/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_7_1/libs/README.md) |
@@ -35,7 +35,7 @@ Keeping independent projects together as references does not by itself change
 their licenses. Copying or adapting their code into another project requires a
 separate review of the applicable license terms.
 
-## ink-away__v4_4_0
+## Ink Away MIT notice (retained attribution)
 
 MIT License
 
