@@ -15,7 +15,19 @@ See [relationships](../../relationships.md) for declarations and exact tested tu
 Development backlog and restart handoff: [history-changes.md](history-changes.md).
 It records exact modified versions, test methods/results, installation and open live checks.
 
-## Active local development
+## Current local reference — verified 2026-11-15
+
+Canonical `rolling.koplugin/` is clean upstream `main` at
+`0015691669e74baeb4b0d3e13f61f3e629279fb7`, metadata 4.5.0, exactly local tag
+`v4.5.0`. It includes PR #80's upstream merge `0e63969` and integration rework
+`4a8568a5dd0413442588aa095a502e106a7ef0f2`. No fetch/update was performed in this
+audit. [Upstream v4.5.0](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.0)
+is a provenance link; no local `stable/v4_5_0/` release-artifact pin was created.
+The existing immutable stable pin remains v4.4.0. Panels+'s current runtime works
+with the public facade without adaptation; exact tests and limits are in the
+[2026-11-15 history](history-changes.md#2026-11-15--audit-merged-pr-80-against-upstream-ink-away-450).
+
+## Historical local development — superseded by the reference above
 
 As explicitly requested on 2026-11-02, `rolling.koplugin/` is now the writable
 Ink Away source, based on `8dda5407e05446dddb20ba5d6fbac263955d0db3` on local branch `feature/plugin-integration`. Integration changes are now committed through

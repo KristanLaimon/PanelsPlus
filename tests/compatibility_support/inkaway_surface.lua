@@ -8,7 +8,7 @@ local UIManager = require("ui/uimanager")
 local Screen = require("device").screen
 local Collector = require("src._panelcollector")
 
-return function(reference)
+return function(reference, expect_integration)
     local original_show = UIManager.show
     UIManager.show = function(_, widget)
         UIManager._window_stack[#UIManager._window_stack + 1] = { widget = widget }
@@ -57,6 +57,12 @@ return function(reference)
     function BB:getType()
         return 1
     end
+    function BB:getWidth()
+        return 600
+    end
+    function BB:getHeight()
+        return 800
+    end
     local blitbuffer = {
         new = function()
             return setmetatable({}, BB)
@@ -66,6 +72,8 @@ return function(reference)
         ["bit"] = {}, -- Raster's grain functions are outside these geometry tests.
         ["device"] = { screen = setmetatable({ bb = setmetatable({}, BB) }, { __index = Screen }) },
         ["ui/uimanager"] = UIManager,
+        ["ui/widget/horizontalgroup"] = {},
+        ["ui/widget/horizontalspan"] = {},
         ["ui/widget/verticalgroup"] = {},
         ["ui/widget/verticalspan"] = {},
         ["ink/l10n"] = function(s)
@@ -80,6 +88,9 @@ return function(reference)
             end,
             new = function()
                 return { items = {} }
+            end,
+            empty = function(data)
+                return #data.items == 0
             end,
             saveAny = function(dirs)
                 saved = saved + 1
@@ -119,7 +130,8 @@ return function(reference)
     local Book = targetRequire("ink/reader/book")
     local Place = targetRequire("ink/reader/place")
     targetRequire("ink/canvas")
-    local supports = Ink.document_surface_version == 1
+    local supports = type(Ink.integrationFacade) == "function"
+    assert(not expect_integration or supports, "selected Ink Away must expose its integration facade")
 
     local function fixture(angle, fold)
         UIManager._window_stack = {}
@@ -135,12 +147,13 @@ return function(reference)
                 end,
             },
         }
-        local book = Book.new(ui)
+        local book = Book.new(ui, supports and targetRequire("ink/integration").new() or nil)
         local ink = setmetatable({ ui = ui, book = book }, { __index = Ink })
         -- KOReader registers plugins by folder name, ignoring _meta.lua.name.
         ui["ink-away"] = ink
-        if type(ink.installPluginIntegration) == "function" then
-            book.extensions:publish(ui, ink)
+        local api = supports and ink:integrationFacade() or ink
+        if supports then
+            book.integration:publish(ui, api)
         end
         local quarter = (angle or 0) % 180 ~= 0
         local viewer = setmetatable({
@@ -169,7 +182,8 @@ return function(reference)
             end,
         }, { __index = PanelViewer })
         UIManager._window_stack[1] = { widget = viewer }
-        return book, viewer, ink
+        viewer:getAnnotationSurface()
+        return book, viewer, api
     end
 
     local function noCropAcrossPanels(case)
@@ -715,13 +729,17 @@ return function(reference)
                 if not supports then
                     check.is_nil(Ink.paintDocumentSurface)
                 else
-                    check.equals(1, Ink.document_surface_version)
+                    local _, _, api = fixture()
+                    check.equals(1, api.integration_api_version)
+                    check.equals(1, api.document_surface_version)
+                    check.is_nil(Ink.installPluginIntegration)
                 end
             end)
             it("keeps the panel paint path working with Ink Away absent or without the new API", function()
                 local _, viewer = fixture()
                 viewer:paintTo(setmetatable({}, BB), 0, 0)
                 viewer.reader_ui["ink-away"] = nil
+                viewer.reader_ui.inkAwayIntegrationAPI = nil
                 viewer:paintTo(setmetatable({}, BB), 0, 0)
             end)
         end
@@ -872,7 +890,7 @@ return function(reference)
             check.near(110, rendered[1].pts[1], 1e-6)
             check.near(80, rendered[1].pts[2], 1e-6)
             check.is_nil(book.surface)
-            check.equals(400, bb.blit.w)
+            check.is_nil(bb.blit, "ink inside the clip needs no screen copy")
         end)
         it("keeps newly saved annotations visible after the annotator closes", function()
             local book, viewer, ink = fixture()
@@ -1075,13 +1093,16 @@ return function(reference)
                     },
                 },
             }
+            local widget = UIManager._window_stack[1].widget
+            local cleanup = ink:installPluginIntegration(widget, surface)
             ink:onInkAwayAnnotate()
             check.equals(surface, book.surface)
             check.equals(9, book:visiblePages()[1])
             book._view:closeCanvas()
+            cleanup()
         end)
     end)
-    if Ink.integration_api_version == 1 then
+    if supports then
         describe("Ink Away registered rendering provider", function()
             it("selects the Panels+ registration without widget discovery", function()
                 local book, viewer, ink = fixture()
@@ -1106,25 +1127,27 @@ return function(reference)
                 -- Exercise the actual source close path and its unregister handle.
                 viewer:onCloseWidget()
                 check.is_nil(viewer._annotation_unregister)
-                check.is_nil(book.extensions:select(book.ui))
+                check.is_nil(book.integration:select(book.ui))
             end)
         end)
     end
-    if type(Ink.installPluginIntegration) == "function" then
+    if supports then
         describe("Ink Away readiness handshake with Panels+", function()
             it("configures the viewer with either plugin loading first", function()
                 for _, consumer_first in ipairs({ true, false }) do
                     local book, viewer, ink = fixture()
                     local ui = book.ui
+                    viewer._annotation_unregister(false)
+                    viewer._annotation_unregister, viewer._annotation_provider_ink = nil, nil
                     if consumer_first then
-                        book.extensions:unpublish(ui, ink)
+                        book.integration:unpublish(ui, ink)
                     end
                     -- Directory-name registration can occur after Ink Away init.
                     ui["ink-away"] = nil
                     local surface = viewer:getAnnotationSurface()
                     if consumer_first then
                         check.is_true(ui.inkAwayPendingIntegrations[viewer])
-                        book.extensions:publish(ui, ink)
+                        book.integration:publish(ui, ink)
                     end
                     check.equals(ink, viewer._annotation_provider_ink)
                     check.is_nil(ui.inkAwayPendingIntegrations)
@@ -1144,15 +1167,17 @@ return function(reference)
             end)
             it("cancels a viewer's queued setup before Ink Away becomes ready", function()
                 local book, viewer, ink = fixture()
-                book.extensions:unpublish(book.ui, ink)
+                viewer._annotation_unregister(false)
+                viewer._annotation_unregister, viewer._annotation_provider_ink = nil, nil
+                book.integration:unpublish(book.ui, ink)
                 book.ui["ink-away"] = nil
                 viewer:getAnnotationSurface()
                 check.is_true(book.ui.inkAwayPendingIntegrations[viewer] ~= nil)
                 viewer:onCloseWidget()
                 check.is_nil(book.ui.inkAwayPendingIntegrations)
-                book.extensions:publish(book.ui, ink)
+                book.integration:publish(book.ui, ink)
                 check.is_nil(viewer._annotation_unregister)
-                check.is_nil(book.extensions:select(book.ui))
+                check.is_nil(book.integration:select(book.ui))
             end)
         end)
     end

@@ -25,6 +25,7 @@ local BB = require("ffi/blitbuffer")
 local UI = require("ui/uimanager")
 local Viewer = require("src._panelviewer")
 local Book = require("ink/reader/book")
+local Integration = require("ink/integration")
 local Collector = require("src._panelcollector")
 local BookInk = require("ink/reader/bookink")
 local PluginLoader = require("pluginloader")
@@ -112,11 +113,9 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                         auto_rotate_double_pages = false,
                     })
                 end
-                local book = Book.new(ui)
+                local book = Book.new(ui, Integration.new())
                 ui["ink-away"] = setmetatable({ ui = ui, book = book }, { __index = InkAway })
-                if type(ui["ink-away"].installPluginIntegration) == "function" then
-                    book.extensions:publish(ui, ui["ink-away"])
-                end
+                book.integration:publish(ui, ui["ink-away"]:integrationFacade())
                 book._data = BookInk.new()
                 local ink = {
                     a = { page = 1, x = 100, y = 200 },
