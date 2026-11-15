@@ -4,3 +4,4 @@ zen_ui.koplugin/
 vendor/
 dist/
 .luarocks/
+references-repos/
