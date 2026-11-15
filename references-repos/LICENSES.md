@@ -13,6 +13,8 @@ This index supplements those files; it does not replace them.
 | `plugins/kobo/stable/v0_4_1/` | [kobo.koplugin](https://github.com/OGKevin/kobo.koplugin), OGKevin | GNU General Public License, version 3; [full license](plugins/kobo/stable/v0_4_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later, as declared in its source headers; [full license](plugins/meguru/stable/v1_7_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_7_1/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_7_1/libs/README.md) |
+| `plugins/meguru/stable/v1_8_7/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later; [full license](plugins/meguru/stable/v1_8_7/LICENSE) |
+| `plugins/meguru/stable/v1_8_7/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_8_7/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_8_7/libs/README.md) |
 
 
 ## Redistribution notes

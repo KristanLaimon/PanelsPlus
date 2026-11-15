@@ -36,6 +36,12 @@ return function(reference)
                 getRotationMode = function()
                     return rotation
                 end,
+                getWidth = function()
+                    return rotation % 2 == 1 and 1200 or 800
+                end,
+                getHeight = function()
+                    return rotation % 2 == 1 and 800 or 1200
+                end,
             }, { __index = Screen }),
         },
         ["meguru/spread"] = assert(loadfile(reference .. "/meguru/spread.lua"))(),
