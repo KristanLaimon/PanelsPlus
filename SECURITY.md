@@ -4,11 +4,11 @@
 
 I give support for the following versions in order of priority:
 
-- Latest Stable Release v1.5.1 (High Priority) | Any kind of feedback
+- Latest Stable Release (High Priority) | Any kind of feedback
 - Legacy Stable v1.4.0 (Medium Priority | Only:
     - Critical bugs
     - Security Concerns
-- Latest NIGHTLY Release v1.6.0-nightly (Low priority) | Only:
+- Latest NIGHTLY Release ***-nightly (Low priority) | Only:
     - Features feedback
     - Features request
     - Performance bugs (or in general)
