@@ -297,3 +297,15 @@ The preceding target-only refactor is now committed through `9925fd9` (`feature/
 ### 2026-11-07 — Kindle Draw reclaims Panels+ options space
 
 Panels+ → Ink Away remains Visual, scoped to Panels+ 1.6.0 base `ec6673472a57e1c9fd997fac2324aa0b1517cea3` with uncommitted surface-lifecycle correction and canonical Ink Away 4.4.0-derived rolling `356f40367a032fe5e2808abb8ff4aacb68e4674e`. Stable 4.4.0 fallback 5 / rolling integration 44 checks pass; native actual-widget regression starting with visible options fails before the fix and passes 48 cases / 2736 checks afterward. Panels+ now hides/refits its controls for annotation and restores their prior visibility on finish. Exact provenance, commands, preserved work and fixtures: [history](plugins/ink-away/history-changes.md#2026-11-07--kindle-draw-keeps-the-options-sized-panel--investigation). No target changes or deployment; physical Kindle validation pending. No future-version range is claimed.
+
+### 2026-11-07 — Paperwhite live brush shading
+
+Existing Visual Panels+ → Ink Away relationship retained for Panels+ 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 and Ink Away 4.4.0-derived rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e with uncommitted reader drawing-waveform correction. Stable fallback 5 / rolling integration 44 pass. Target reader regression fails before and passes 241 checks after: grayscale reader backgrounds use ui instead of monochrome fast brush rectangles. Host/device refresh behavior is mocked; Paperwhite 12th-gen physical confirmation pending, no installed/build claim. [History](plugins/ink-away/history-changes.md#2026-11-07--kindle-live-brush-square-fades-panel-shading--investigation).
+
+### 2026-11-07 — Annotator picker visibility
+
+Existing Visual Panels+ → Ink Away relationship retained at Panels+ 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 and canonical target rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e with uncommitted child-picker modal inheritance fix. Stable 5 / rolling 44 pass. Actual KOReader native stack reproduces hidden local picker before and verifies six child windows above the annotator after (48 cases / 2742 checks). [History](plugins/ink-away/history-changes.md#2026-11-07--add-image-file-picker-hidden-behind-annotation-editor). No deployment, physical Kindle or network-feature certification.
+
+### 2026-11-07 — Text controls and grayscale previews
+
+Same Visual Panels+ → Ink Away relationship, exact source/target bases ec6673472a57e1c9fd997fac2324aa0b1517cea3 / 356f40367a032fe5e2808abb8ff4aacb68e4674e with local corrections. Target text controls now anchor to reader viewport and accept touches beyond panel clip; ordinary grayscale e-ink liveBox previews use ui. Stable fallback 5 / rolling integration 44 pass; target reader regression 245 passes after 3 failing-before checks. [History](plugins/ink-away/history-changes.md#2026-11-07--text-edit-buttons-follow-panel-clip-and-text-drags-crush-shading). Physical Paperwhite validation pending; no deployment or future-version claim.

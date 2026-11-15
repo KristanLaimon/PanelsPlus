@@ -160,6 +160,43 @@ for _, side in ipairs({ "left", "right", "top", "bottom" }) do
                 check(not viewer.buttons_visible, "Draw hides Panels+ options before editor layout")
                 check(viewer.quick_rail == nil, "Draw releases the options rail's reserved space")
                 local editor = assert(book._view)
+                if cases == 1 then
+                    local function pickerOnTop(open, label)
+                        open()
+                        local top = UI._window_stack[#UI._window_stack].widget
+                        check(top ~= editor, label .. " opens above the modal annotator")
+                        UI:close(top)
+                    end
+                    pickerOnTop(function()
+                        editor:chooseLocalImage()
+                    end, "From this reader")
+                    pickerOnTop(function()
+                        editor:pickFolder(home, function() end)
+                    end, "Folder picker")
+                    pickerOnTop(function()
+                        editor:chooseSentPicture()
+                    end, "Sent pictures")
+                    local ReaderUI = require("apps/reader/readerui")
+                    local old_instance = ReaderUI.instance
+                    ReaderUI.instance = {
+                        folder_shortcuts = {
+                            hasFolderShortcut = function()
+                                return false
+                            end,
+                            getShortcutFullName = function() end,
+                        },
+                    }
+                    pickerOnTop(function()
+                        editor:browseKoreaderFiles(home, function() end)
+                    end, "File list")
+                    ReaderUI.instance = old_instance
+                    pickerOnTop(function()
+                        editor:openTextFont()
+                    end, "Font picker")
+                    pickerOnTop(function()
+                        editor:openPenTest()
+                    end, "Pen and touch test")
+                end
                 editor:paintTo(bb, 0, 0)
                 drain(editor, bb)
                 local original_update = viewer.update
