@@ -132,12 +132,18 @@ pages when reporting a run.
 
 ### Some demos about how it looks/works
 
-<video width="99%" height="auto" src= "https://github.com/user-attachments/assets/9ab66374-da4c-4576-9a8c-ba4bb6931452" controls></video>
-<em>This is how Panels+ internal algorithm got tested. Manually mapping over 1500+ panels across many mangas, AI can't generate a stable/reliable dataset</em>
+
+
+https://github.com/user-attachments/assets/2d6805ba-07f0-4d4d-b470-d0eb41c657e0
+
+<em>This is how Panels+ internal algorithm got tested. Manually mapping over 1500+ panels across many mangas</em>
+
 <em>Manga-Annotator can create datasets of: <strong>Panels</strong>, <strong>Phrases</strong>, <strong>and words!</strong></em>
 
 
-<video width="99%" height="auto" src= "https://github.com/user-attachments/assets/4989ce84-d6f3-47e1-9d1f-db5c11d9eb9b" controls></video>
+
+https://github.com/user-attachments/assets/13af8304-b0be-40ec-95f4-ca3d15ba76f1
+
 <em>A normal Manga's panel dataset is created like this. (Me working, wuoooh so fun)</em>
 
 ***When pressing ctrl + s, datasets are saved in***
