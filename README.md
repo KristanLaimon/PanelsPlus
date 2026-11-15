@@ -386,11 +386,15 @@ Check "LICENSE" file in this repository.
 
 ---
 
-<h3 align="center">Sponsors</h3>
+<h1 align="center">Sponsors</h1>
 
+<img width="99%" height="auto" alt="image" src="https://github.com/user-attachments/assets/72b5c4cd-3081-4707-8647-27f69e07f86e" />
+
+<p align="center">Thanks for all the sponsors. This helps me a lot to continue with this project, and motivates me to release faster releases.</p>
+
+<!-- 
 ![sponsors_tier_gold_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part1.png)
-
 ![sponsors_bakers_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part2.png)
-
 ![past_sponsors_not actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.past.png)
+-->
 
