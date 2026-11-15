@@ -130,6 +130,33 @@ permission to use; public fixtures only include part of the image corpus.
 A fresh clone won't reproduce every full-volume benchmark, so mention missing
 pages when reporting a run.
 
+### Some demos about how it looks/works
+
+<video width="99%" height="auto" src= "https://github.com/user-attachments/assets/9ab66374-da4c-4576-9a8c-ba4bb6931452" controls></video>
+<em>This is how Panels+ internal algorithm got tested. Manually mapping over 1500+ panels across many mangas, AI can't generate a stable/reliable dataset</em>
+<em>Manga-Annotator can create datasets of: <strong>Panels</strong>, <strong>Phrases</strong>, <strong>and words!</strong></em>
+
+
+<video width="99%" height="auto" src= "https://github.com/user-attachments/assets/4989ce84-d6f3-47e1-9d1f-db5c11d9eb9b" controls></video>
+<em>A normal Manga's panel dataset is created like this. (Me working, wuoooh so fun)</em>
+
+***When pressing ctrl + s, datasets are saved in***
+<table>
+  <tr>
+    <td align="center" valign="top" width="49%">
+      <img src="https://github.com/user-attachments/assets/c0baf571-fc92-44b0-8ba3-1987b25243f7"></img>
+      <br>
+      <em>From Panels/, all datasets are stored in their corresponding folder.</em>
+    </td>
+    <td align="center" valign="top" width="49%">
+      <img src="https://github.com/user-attachments/assets/78d0fb06-2d9b-4eb0-bcff-c2921ca03431" controls width="420"></img>
+      <em>All annotations are stored in .json.</em>
+    </td>
+  </tr>
+</table>
+
+> Probably I need to separate this into another github repo and make it generic, it could be used for any generic dataset creation..... (nevermind)
+
 ### 3. 🔎 Panel & OCR testing — FOR DATASET/OCR WORK
 
 Those mappings let us compare what Panels+ found against what should be there.
