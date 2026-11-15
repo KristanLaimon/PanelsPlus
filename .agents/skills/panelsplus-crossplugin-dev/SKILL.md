@@ -56,7 +56,8 @@ feature branch. Do not move to another commit just to begin work.
 - Edit the canonical rolling checkout directly. Do not create new target
   worktrees, laboratory copies or retained Git patch files as the normal workflow.
   Use the working diff and per-plugin history for review and handoff.
-- Keep existing stable pins unchanged. Retain former worktrees as frozen source
+- Keep retained stable pins unchanged; remove retired pins only under the stable
+  retention policy below or an explicit user request. Retain former worktrees as frozen source
   backups; do not resume development there. Record historical patch filenames,
   hashes, base revisions and evidence in the plugin history instead of keeping
   generated integration patch archives. Update file links when removing obsolete
@@ -87,7 +88,7 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 - Rolling working sources: `references-repos/plugins/<plugin>/rolling.koplugin/`; Panels+ rolling source is this project itself. KOReader source is `references-repos/koreader/`.
 - Historical experimental stable copies (preserve, do not develop here): `references-repos/plugins/<plugin>/laboratory/v1_7_1/<experiment>/`.
 - Generated builds: `.cache/plugin-compatibility/builds/<plugin>/v1_7_1/<build-id>/<plugin>.koplugin/` (ignored).
-- Stable tests: `tests/plugin-compatibility/<plugin>__v1_7_1/**/*_spec.lua`; multiple pins may coexist.
+- Stable tests: `tests/plugin-compatibility/<plugin>__v1_7_1/**/*_spec.lua`; each suite is tied to that exact stable release.
 - Rolling tests: `tests/plugin-compatibility/<plugin>__rollingrelease/**/*_spec.lua`; one rolling suite per plugin.
 - Plugin-specific Bash build helpers: `tools/plugin-compatibility/builders/<plugin>.sh`; shared tooling lives beside `deploy.sh` in `tools/plugin-compatibility/`.
 - Required per-plugin backlog and restart handoff: `references-repos/plugins/<plugin>/history-changes.md`. Keep a single cumulative file across versions; version every chronological entry.
@@ -95,6 +96,25 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 - Panels+ uses the project root as its source and has no folder under `references-repos/plugins/`; those folders are for other plugins. Do not recreate a Panels+ reference snapshot as part of ordinary cross-plugin work. Laboratory copies and generated builds are ignored; installation backups remain outside `plugins/`.
 
 Canonical directory identifiers: `panels_plus`, `kobo`, `meguru`, `ink-away`, `livelight`. Panels, Panels+, PanelsPlus and panelsplus refer to Panels+ here. Ink Away's metadata identifier is `inkaway`; do not derive its directory identifier from that spelling. LiveLight's rolling repository has a nested `livelight.koplugin/` runtime; its stable ZIP omits metadata version and is verified using the adjacent SHA-256 manifest.
+
+## Stable release retention
+
+Retain and test at most **five stable releases per target plugin**. Rolling is
+separate: its checkout and suite do not count toward this limit and are not
+pruned by this policy. When adding a new stable release would exceed five,
+remove the oldest retained stable version (version order), its exact versioned
+test suite and any pin-specific checksum/provenance sidecars. Keep the newest
+five stable pins and their corresponding suites; do not relabel an older suite
+as a new version or delete shared fixtures still used by retained suites.
+Update active release/license/relationship indexes and record the retirement
+in the plugin history, preserving historical results as historical evidence.
+A requested stable refresh authorizes this scoped retention cleanup; it does
+not authorize deleting rolling sources, laboratory copies or installed builds.
+
+Ink Away stable 4.4.0 has no Panels+ integration compatibility and is retired;
+do not restore its pin or fallback-only suite as compatibility coverage. The
+`ink-away__v4_5_0` suite targets stable 4.5.0 only; future stable releases need
+their own versioned suites, subject to the retention limit above.
 
 ## Updating upstream (only on explicit request)
 
