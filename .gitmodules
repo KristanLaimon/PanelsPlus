@@ -13,3 +13,6 @@
 [submodule "references-repos/plugins/ink-away/Ink-away-documentation"]
 	path = references-repos/plugins/ink-away/Ink-away-documentation
 	url = https://github.com/KristanLaimon/Ink-away-documentation.git
+[submodule "references-repos/plugins/livelight/rolling.koplugin"]
+	path = references-repos/plugins/livelight/rolling.koplugin
+	url = https://github.com/ironicsans/livelight.koplugin.git

@@ -41,7 +41,12 @@ for suite in "${suites[@]}"; do
         reference="${override:-$PLUGIN_PROJECT_ROOT/references-repos/plugins/$plugin/stable/v${selected_version//./_}}"
         commit=''
         [[ -d "$reference" ]] || plugin_error "Missing stable pin: $reference"
-        [[ "$(plugin_meta_version "$reference")" == "$selected_version" ]] || plugin_error 'Stable folder/metadata mismatch'
+        # LiveLight omits metadata versions; its release pin is verified by artifact digest.
+        if [[ "$plugin" == livelight ]]; then
+            (cd -- "$reference" && sha256sum --check --status "../v${selected_version//./_}.sha256") || plugin_error 'LiveLight pin differs from its verified release payload'
+        else
+            [[ "$(plugin_meta_version "$reference")" == "$selected_version" ]] || plugin_error 'Stable folder/metadata mismatch'
+        fi
     fi
     [[ -f "$reference/main.lua" ]] || plugin_error "Missing plugin reference: $reference"
     specs=()

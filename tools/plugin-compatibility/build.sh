@@ -11,6 +11,7 @@ output="$(realpath -e -- "$3")"
 case "$plugin" in
     meguru) files=(_meta.lua main.lua LICENSE libs assets meguru) ;;
     ink-away) files=(_meta.lua main.lua ink README.md NOTICE.md LICENSE) ;;
+    livelight) files=(_meta.lua main.lua) ;;
     kobo)
         files=(_meta.lua main.lua)
         for file in src patches README.md CHANGELOG.md LICENSE.md LICENSE version.txt; do
@@ -28,3 +29,7 @@ for file in "${files[@]}"; do
     [[ -e "$source_dir/$file" ]] || plugin_error "Missing runtime input: $file"
     cp -a -- "$source_dir/$file" "$output/"
 done
+if [[ "$plugin" == livelight ]]; then
+    # The upstream repository keeps its license above the plugin payload.
+    cp -a -- "$source_dir/../LICENSE" "$output/LICENSE"
+fi

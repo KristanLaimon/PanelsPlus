@@ -30,5 +30,7 @@ Run `./run-tests.sh --compatibility-plugin=meguru` and
 Run `./run-tests.sh --compatibility-plugin=ink-away` for stable 4.5.0 surface
 integration and the separate rolling suite. Stable 4.4.0 has no Panels+
 integration compatibility; its pin and fallback-only suite were retired.
-Gestures and LiveLight retain their existing Panels+ unit coverage; this does not
-claim new version-pinned compatibility testing for either plugin.
+Run `./run-tests.sh --compatibility-plugin=livelight` for stable 1.2.0 and
+rolling edge-slide integration using the target's actual registration/handlers.
+Screen, power-device and timer services remain fixtures; physical lighting and
+the level-box rendering are not certified. Gestures retains unit coverage only.

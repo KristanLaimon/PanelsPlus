@@ -8,6 +8,7 @@ plugin_id() {
         meguru|meguru.koplugin) echo meguru ;;
         kobo|kobo.koplugin) echo kobo ;;
         ink-away|inkaway|ink-away.koplugin) echo ink-away ;;
+        livelight|livelight.koplugin) echo livelight ;;
         *) plugin_error "Unknown plugin '$1'; establish its relationship and register its build recipe first." ;;
     esac
 }
@@ -21,7 +22,13 @@ plugin_folder() {
     if [[ "$1" == panels_plus ]]; then echo panelsplus.koplugin; else echo "$1.koplugin"; fi
 }
 plugin_rolling_source() {
-    if [[ "$1" == panels_plus ]]; then echo "$PLUGIN_PROJECT_ROOT"; else echo "$PLUGIN_PROJECT_ROOT/references-repos/plugins/$1/rolling.koplugin"; fi
+    if [[ "$1" == panels_plus ]]; then
+        echo "$PLUGIN_PROJECT_ROOT"
+    elif [[ "$1" == livelight ]]; then
+        echo "$PLUGIN_PROJECT_ROOT/references-repos/plugins/livelight/rolling.koplugin/livelight.koplugin"
+    else
+        echo "$PLUGIN_PROJECT_ROOT/references-repos/plugins/$1/rolling.koplugin"
+    fi
 }
 plugin_meta_version() {
     local version

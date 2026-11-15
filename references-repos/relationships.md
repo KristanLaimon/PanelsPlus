@@ -14,6 +14,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | OneWay Knowledge | Meguru >= v1.7.0 | → | Panels+ >= v1.5.1 | Unspecified | Developer's `promptt.md`; identity clarified in conversation |
 | Unsupported integration | Panels+ 1.6.0 | — | Ink Away stable 4.4.0 | N/A | Developer confirms no Panels+ integration compatibility; pin and versioned fallback suite retired on 2026-11-15. Historical smoke checks do not establish integration. |
 | Unknown Behavior Relationship | Ink Away >= v4.4.0 | ? | Meguru >= v1.7.1 | N/A | Developer explicitly requests coexistence testing; arrow direction is unestablished |
+| OneWay Knowledge | Panels+ 1.6.0 | → | LiveLight 1.2.0 | Not visual (no added Panels+ UI) | Developer reports existing manual gesture-routing support; now reference-tested below. |
 
 ## Implemented relationships (limited to the evidence below)
 
@@ -21,6 +22,7 @@ These ranges reproduce developer knowledge; they are not independently verified 
 | --- | --- | --- | --- | --- | --- |
 | OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Meguru stable 1.7.1, stable 1.8.7 and rolling `7a6e9b8033c228c187855af8fcd4c4580018ac4b` | Not visual (no added UI) | Calls Meguru `spreadPageAt` before panel collection/selection; 14 reference-backed geometry integration tests pass per reference. Together with the declared Meguru → Panels+ awareness above, this adds reciprocal knowledge; the reverse direction's visibility remains unspecified. No future version range claimed. [History](plugins/meguru/history-changes.md). |
 | OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Stable Ink Away 4.5.0 release ZIP and clean rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` | Visual: Draw, Ink-away Settings, navigation and toolbar fitting | Existing runtime compatible without changes: 44 integration cases per 4.5.0 reference. Stable 4.4.0 and its fallback-only suite are retired. Prior native 48 scenarios / 2742 checks were not repeated in this reference-only update. No future-version guarantee; physical Kindle validation pending. [History](plugins/ink-away/history-changes.md). |
+| OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | LiveLight stable 1.2.0 and rolling `af2c6bac7a81a2e175319fb57af70d0cb10c31ed` (tag v1.2.0) | Not visual (existing LiveLight feedback remains its UI) | 18 reference-backed gesture integration cases per reference: actual registration/handlers reach mocked light controls through Panels+, including when zoomed. Host screen, timers, power and gesture-range matching are fixtures; no physical-light or level-box rendering claim. [History](plugins/livelight/history-changes.md). |
 
 ## Historical artifact references
 

@@ -176,6 +176,25 @@ if bash "$repo/run-tests.sh" --compatibility-plugin=kobo --compatibility-plugin-
 grep -q '1 failed' "$fixture/last.log"
 pass 'compatibility assertion failures reach shell status'
 
+new_case livelight
+light_pin="$repo/references-repos/plugins/livelight/stable/v1_2_0"
+mkdir -p "$(dirname -- "$light_pin")" "$repo/tests/plugin-compatibility/livelight__v1_2_0"
+cp -a "$project/references-repos/plugins/livelight/stable/v1_2_0" "$light_pin"
+cp "$project/references-repos/plugins/livelight/stable/v1_2_0.sha256" "${light_pin}.sha256"
+cat > "$repo/tests/plugin-compatibility/livelight__v1_2_0/pin_spec.lua" <<'LUA'
+require("tests.PanelsPlusTestFramework").it("loads unversioned release metadata", function()
+    local reference = assert(os.getenv("PANELSPLUS_COMPATIBILITY_REFERENCE"))
+    local meta = assert(loadfile(reference .. "/_meta.lua"))()
+    assert(meta.name == "livelight" and meta.version == nil)
+end)
+LUA
+bash "$repo/run-tests.sh" --compatibility-plugin=livelight --compatibility-plugin-version=1.2.0 > "$fixture/last.log" 2>&1
+pass 'unversioned LiveLight stable pin is accepted with verified file digests'
+printf '\n-- altered payload\n' >> "$light_pin/main.lua"
+if bash "$repo/run-tests.sh" --compatibility-plugin=livelight --compatibility-plugin-version=1.2.0 > "$fixture/last.log" 2>&1; then exit 1; fi
+grep -q 'LiveLight pin differs from its verified release payload' "$fixture/last.log"
+pass 'altered LiveLight stable payload is rejected before its suite runs'
+
 new_case updater
 cp "$project/run-sync-submodules.sh" "$project/.gitmodules" "$repo/"
 mkdir "$fixture/updater-bin"
@@ -192,7 +211,7 @@ case "$1" in
 esac
 WRAPPER
 chmod +x "$fixture/updater-bin/git"
-for plugin in kobo meguru ink-away; do
+for plugin in kobo meguru ink-away livelight; do
     : > "$fixture/update.log"
     if PATH="$fixture/updater-bin:$PATH" WORKFLOW_UPDATE_LOG="$fixture/update.log" bash "$repo/run-sync-submodules.sh" "--$plugin" > "$fixture/last.log" 2>&1; then exit 1; fi
     grep -Fq -- "references-repos/plugins/$plugin/rolling.koplugin" "$fixture/update.log"

@@ -94,7 +94,7 @@ Use underscores in all version-bearing directory names: `v1_7_1`, never `v1.7.1`
 - Release links and provenance: `references-repos/plugins/<plugin>/releases.md`. Shared attribution: `references-repos/LICENSES.md`.
 - Panels+ uses the project root as its source and has no folder under `references-repos/plugins/`; those folders are for other plugins. Do not recreate a Panels+ reference snapshot as part of ordinary cross-plugin work. Laboratory copies and generated builds are ignored; installation backups remain outside `plugins/`.
 
-Canonical directory identifiers: `panels_plus`, `kobo`, `meguru`, `ink-away`. Panels, Panels+, PanelsPlus and panelsplus refer to Panels+ here. Ink Away's metadata identifier is `inkaway`; do not derive its directory identifier from that spelling.
+Canonical directory identifiers: `panels_plus`, `kobo`, `meguru`, `ink-away`, `livelight`. Panels, Panels+, PanelsPlus and panelsplus refer to Panels+ here. Ink Away's metadata identifier is `inkaway`; do not derive its directory identifier from that spelling. LiveLight's rolling repository has a nested `livelight.koplugin/` runtime; its stable ZIP omits metadata version and is verified using the adjacent SHA-256 manifest.
 
 ## Updating upstream (only on explicit request)
 
