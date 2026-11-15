@@ -1,4 +1,4 @@
-# Testing
+# 🧪 Testing
 
 Panels+ tests the production Lua modules through a small local framework and a
 KOReader mock layer. Detector benchmarks can additionally decode annotated
@@ -9,12 +9,18 @@ commands, baseline policy, and current corpus measurements. See
 [ARCHITECTURE.md](ARCHITECTURE.md) for the modules under test and
 [DETECTION.md](DETECTION.md) for the Deep-mode heuristics those tests exercise.
 
-## Recommended entry points
+**Jump to:** [Commands](#-recommended-entry-points) · [Test architecture](#-test-architecture) ·
+[Plugin compatibility](#-plugin-compatibility-tests) · [Coverage](#-coverage-map) ·
+[Device checks](#-real-device-checks)
+
+---
+
+## 🚀 Recommended entry points
 
 ```sh
-./run-tests.sh                         # lint/style, Python tests, parallel Lua suite
-./run-tests.sh --quick                 # parallel Lua suite without lint/style
-./run-tests.sh --quicker               # Lua suite without lint/style, datasets, or benchmarks
+./run-tests.sh                         # lint/style, available Python/Go tests, parallel Lua suite
+./run-tests.sh --quick                 # same tests without lint/style
+./run-tests.sh --quicker               # also omit dataset/benchmark Lua specs
 ./run-tests.sh --quick -j 1            # serial worker execution
 ./run-tests.sh --quick tests/componentdetector_spec.lua
 ./run-tests.sh --check-only            # StyLua and Luacheck only
@@ -28,6 +34,14 @@ suite can also run sequentially without that scheduler:
 lua tests/run_tests.lua
 lua tests/run_tests.lua tests/componentdetector_spec.lua
 ```
+
+> 💡 **Quick doesn't mean Lua-only.** `--quick` and `--quicker` still run
+> available Python and Go tests.
+
+Use the direct Lua command for a focused check without those toolchains. The default
+graceful mode can omit unavailable tools or an unsynced Python environment;
+`--strict` makes those omissions errors. `--check-only` runs a formatter that
+writes files as well as the linter; review any resulting changes.
 
 Full private datasets may be absent in a clone. Set
 `PANELSPLUS_REQUIRE_DATASETS=1` when missing dataset pages should fail rather
@@ -47,14 +61,16 @@ python3 -m unittest discover -s tests -p test_koreader_launcher.py
 They exercise installation, version-specific profiles, download reuse, failure
 cleanup, and plugin-link conflicts using a small local release archive.
 
-## Test architecture
+---
+
+## 🧩 Test architecture
 
 `tests/PanelsPlusTestFramework.lua` provides `describe`, `it`, assertions, and
 spies. `tests/helper.lua` installs `package.preload` stubs for KOReader
-modules such as widgets, geometry, device services, and the UI manager. Tests
-live directly in `tests/` and are discovered by filename, then `require` the real
-plugin module; detector or viewer logic is not copied into a separate test
-implementation.
+modules such as widgets, geometry, device services, and the UI manager. Ordinary
+specs live directly in `tests/` and are discovered by filename, then `require`
+the real plugin module; detector or viewer logic is not copied into a separate
+test implementation.
 
 Plain Lua has no LuaJIT FFI runtime, so the helper supplies the minimal array
 behavior needed by modules that use `ffi.new`, `ffi.cast`, and zero-based
@@ -62,7 +78,35 @@ indexing. LuaJIT runs can instead use real FFI storage. Maintaining both paths
 is useful: plain Lua keeps the suite portable, while LuaJIT exercises memory
 representations closer to KOReader.
 
-## Coverage map
+---
+
+## 🔌 Plugin compatibility tests
+
+**Working on support for another plugin?** Those tests have their own runner.
+
+Versioned compatibility specs live under `tests/plugin-compatibility/` and run
+separately. The normal runner only discovers specs directly in `tests/`.
+Compatibility selection needs the actual stable pin or rolling reference:
+
+```sh
+./run-tests.sh --compatibility-plugin=kobo --compatibility-plugin-version=0.4.1
+./run-tests.sh --compatibility-plugin=kobo --compatibility-plugin-version=rollingrelease
+```
+
+Omitting the version selects all retained stable suites, then rolling; execution
+stops on a failure. Each suite runs in its own Lua process. These checks use real
+counterpart code with KOReader fixtures, so record which interaction is real and
+which host behavior is mocked. A standalone mocked spec mentioning a plugin is
+still a Panels+ unit test.
+
+See [Plugin compatibility](PLUGIN-COMPATIBILITY.md) for reference initialization,
+suite conventions, environment variables, new-plugin registration, and the
+required evidence/history. Run compatibility checks alongside related unit
+regressions; neither replaces live KOReader/device validation.
+
+---
+
+## 📋 Coverage map
 
 The current specs fall into these groups:
 
@@ -84,7 +128,9 @@ page-level `Segmenter.accept()` validator and benchmark tooling retains the old
 algorithm for historical comparisons. Its presence does not imply a
 reader-selectable detector mode.
 
-## Checking a module split
+---
+
+## 🔧 Checking a module split
 
 Run the existing tests before moving code, then run them again after the split.
 The specs still use the original module imports, so they exercise the
@@ -104,7 +150,9 @@ formatting, lint and dataset checks. Check the reported skips as well as the
 exit code: graceful mode can omit Python tests when its environment is not
 synced, and some reflow datasets still have pending panel mappings.
 
-## Testing computer-vision heuristics
+---
+
+## 🔎 Testing computer-vision heuristics
 
 A detector fix should normally include more than one positive example. At
 minimum, cover:
@@ -122,7 +170,9 @@ union (IoU), and perfect reading-order pages. A higher recall that creates many
 speech-balloon boxes is not a free improvement; inspect the precision tradeoff
 and per-book regressions.
 
-## Real-device checks
+---
+
+## 📱 Real-device checks
 
 The mock suite cannot reproduce renderer ownership, framebuffer effects,
 touch-zone registration, or e-ink memory pressure. Use `./koreader.sh`

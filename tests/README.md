@@ -6,11 +6,14 @@ This directory contains the unit tests, integration specs, real-world datasets, 
 
 ```
 tests/
-├── *_spec.lua                    # All Lua unit, integration, and dataset specs
+├── *_spec.lua                    # Ordinary Lua unit, integration, and dataset specs
+├── plugin-compatibility/         # Separate suites per plugin/stable version or rolling
+├── compatibility_support/       # Shared reference-backed compatibility assertions
 ├── test_*.py                     # Python scheduler, dataset, and annotator tests
 ├── helper.lua                    # KOReader module stubs
 ├── PanelsPlusTestFramework.lua   # Dependency-free Lua assertions and spies
-├── run_tests.lua                 # Discovers every *_spec.lua in filename order
+├── run_tests.lua                 # Discovers top-level *_spec.lua in filename order
+├── run-compatibility.sh          # Selects and isolates versioned compatibility suites
 ├── run_parallel.py               # Schedules Lua jobs and full-volume benchmarks
 ├── helpers/json.lua              # JSON decoder for annotations and manifests
 └── dataset-mangas/               # Dataset assets, evaluators, and reports
@@ -94,8 +97,9 @@ gates, and the limits of both measurements.
 Python tests are discovered together with `python -m unittest discover -s tests -p "test_*.py"`.
 Go worker tests remain beside their Go package in `tools/ocr_worker`.
 
-The shell runner requires Python 3.9+ and defaults to at most four Lua workers.
-Each full-volume production benchmark runs in its own process. Golden-page and
+The parallel scheduler requires Python 3.9+ and defaults to at most four Lua
+workers. The shell runner falls back to sequential Lua when Python is unavailable
+in graceful mode. Each full-volume production benchmark runs in its own process. Golden-page and
 per-manga specs run as separate jobs; ordinary unit tests stay together. All
 pages and accuracy gates are retained. Output is grouped by completed job, with
 elapsed times and a failing exit status if any worker fails. More workers use
@@ -113,6 +117,25 @@ Formats with StyLua and validates with Luacheck:
 ```bash
 ./check.sh
 ```
+
+This command writes formatting changes before linting. Review the diff afterward.
+
+### 3. 🔌 Plugin compatibility
+
+**Changing another plugin's compatibility tests?** Run them separately against
+its actual stable and rolling references:
+
+```bash
+./run-tests.sh --compatibility-plugin=meguru --compatibility-plugin-version=1.8.7
+./run-tests.sh --compatibility-plugin=meguru --compatibility-plugin-version=rollingrelease
+```
+
+> **Separate runner:** the regular suite doesn't discover `plugin-compatibility/`.
+
+See [the compatibility contributor guide](../docs/PLUGIN-COMPATIBILITY.md) for
+setting up references, editing versioned suites, adding another plugin, and
+recording what the tests establish. Ordinary Panels+ regression specs stay at
+the top level, including mocked tests of plugin-related actions.
 
 ---
 

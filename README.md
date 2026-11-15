@@ -326,6 +326,10 @@ Currently supported languages are ***English***, ***Spanish***, ***Simplified Ch
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructions, project documentation, and contribution guidelines.
 
+Working on another KOReader plugin? The [plugin compatibility guide](docs/PLUGIN-COMPATIBILITY.md)
+explains how to use reference repositories, change compatibility tests, and add
+support for your plugin.
+
 ---
 
 ### 🏗️ Building From Source
