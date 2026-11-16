@@ -30,7 +30,14 @@ function Toolbar.caption(id, text)
     if id == "progress_bar" then
         return text == gettext("Show progress") and gettext("Show Bar") or gettext("Hide Bar")
     end
-    return text == gettext("Original size") and gettext("Actual Size") or gettext("Fit")
+    if id == "scale" then
+        if text == gettext("Original size") then
+            return gettext("Original Size Panel")
+        elseif text == gettext("Scale") then
+            return gettext("Fit Panel")
+        end
+    end
+    return text
 end
 
 function Toolbar.controls(actions)
@@ -42,11 +49,13 @@ function Toolbar.controls(actions)
             callback = action.callback,
             hold_callback = action.hold_callback,
             dim = action.dim,
+            restore_zoom = action.restore_zoom,
             icon_file = icon_dir .. (action.icon or icons[id]) .. ".svg",
             width = 0,
         }
         function control:setText(text)
-            self.text = Toolbar.caption(self.id, text)
+            self.text = self.id == "scale" and self.restore_zoom and gettext("Restore zoom")
+                or Toolbar.caption(self.id, text)
         end
         control:setText(action.text)
         controls[id] = control

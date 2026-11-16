@@ -579,3 +579,30 @@ msgstr "This is the first panel of the first page. Continue to KOReader’s begi
 
 msgid "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
 msgstr "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
+
+msgid "Fit Panel"
+msgstr "Fit Panel"
+
+msgid "Original Size Panel"
+msgstr "Original Size Panel"
+
+msgid "Restore zoom"
+msgstr "Restore zoom"
+
+msgid "Spread gesture"
+msgstr "Spread gesture"
+
+msgid "Activated"
+msgstr "Activated"
+
+msgid "Deactivated"
+msgstr "Deactivated"
+
+msgid "Panel gesture zoom"
+msgstr "Panel gesture zoom"
+
+msgid "Enable panel gesture zoom"
+msgstr "Enable panel gesture zoom"
+
+msgid "Zoom gesture"
+msgstr "Zoom gesture"

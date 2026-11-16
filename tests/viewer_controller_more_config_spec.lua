@@ -50,6 +50,22 @@ describe("ViewerController page-turn animation settings", function()
         return UIManager._last_shown[1]
     end
 
+    it("uses the OCR picker layout for zoom settings and refreshes its state after selection", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        controller:showPanelZoomMenu({})
+        local menu = shownOcrMenu()
+        assert.equals(math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)), menu.width)
+        assert.equals(math.floor(Screen:getHeight() * 0.82), menu.height)
+        assert.equals("Deactivated", menu.item_table[1].mandatory_func())
+        assert.equals("◉ Spread gesture", menu.item_table[5].text)
+        menu.item_table[1].callback()
+        menu = shownOcrMenu()
+        assert.equals("Activated", menu.item_table[1].mandatory_func())
+        menu.item_table[3].callback()
+        assert.equals("◉ Long press", shownOcrMenu().item_table[3].text)
+        assert.equals(2, saved:callCount())
+    end)
+
     it("animates pages only when Animated mode and its page option are enabled", function()
         withAnimationEnvironment(function()
             local controller = makeController({})

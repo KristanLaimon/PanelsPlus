@@ -396,8 +396,19 @@ return function(PanelViewer)
             {
                 {
                     id = "scale",
-                    text = self._scale_to_fit and _("Original size") or _("Scale"),
+                    restore_zoom = self._gesture_zoom_restore ~= nil,
+                    text = self._gesture_zoom_restore and _("Restore zoom")
+                        or (self._scale_to_fit and _("Original Size Panel") or _("Fit Panel")),
+                    hold_callback = function()
+                        if self.zoom_config_callback then
+                            self.zoom_config_callback(self)
+                        end
+                    end,
                     callback = function()
+                        if self._gesture_zoom_restore then
+                            self:toggleGestureZoom()
+                            return
+                        end
                         self.scale_factor = self._scale_to_fit and 1 or 0
                         self._scale_to_fit = not self._scale_to_fit
                         self._center_x_ratio = 0.5

@@ -213,16 +213,9 @@ return function(ViewerController)
                 mandatory = self.settings.panel_gesture_zoom == true and _("On") or _("Off"),
                 callback = function()
                     close()
-                    local picker
-                    picker = require("ui/widget/menu"):new({
-                        title = _("Panel gesture zoom"),
-                        item_table = require("src.menu").panelZoomItems(self),
-                        close_callback = function()
-                            UIManager:close(picker)
-                            self:showMoreConfigMenu(viewer, menu.page)
-                        end,
-                    })
-                    UIManager:show(picker)
+                    self:showPanelZoomMenu(viewer, function()
+                        self:showMoreConfigMenu(viewer, menu.page)
+                    end)
                 end,
             },
             {
@@ -252,6 +245,43 @@ return function(ViewerController)
             menu.page = page
             menu:updateItems()
         end
+        UIManager:show(container)
+        return true
+    end
+
+    -- Match the OCR picker, including visible radio choices and centered sizing.
+    function ViewerController:showPanelZoomMenu(viewer, return_callback)
+        local container = CenterContainer:new({
+            dimen = Geom:new({ w = Screen:getWidth(), h = Screen:getHeight() }),
+        })
+        local menu
+        local items = require("src.menu").panelZoomItems(self)
+        for _, item in ipairs(items) do
+            local callback = item.callback
+            if callback then
+                item.callback = function()
+                    callback()
+                    menu.close_callback = nil
+                    UIManager:close(container)
+                    self:showPanelZoomMenu(viewer, return_callback)
+                end
+            end
+        end
+        menu = require("ui/widget/menu"):new({
+            title = require("gettext")("Panel gesture zoom"),
+            item_table = items,
+            width = math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)),
+            height = math.floor(Screen:getHeight() * 0.82),
+            items_per_page = #items,
+            show_parent = container,
+            close_callback = function()
+                UIManager:close(container)
+                if return_callback then
+                    return_callback()
+                end
+            end,
+        })
+        container[1] = menu
         UIManager:show(container)
         return true
     end

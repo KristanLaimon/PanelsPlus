@@ -818,3 +818,30 @@ msgstr "旋转跨页（实际："
 
 msgid "Spread direction (Actual: "
 msgstr "跨页方向（实际："
+
+msgid "Fit Panel"
+msgstr "适应分镜"
+
+msgid "Original Size Panel"
+msgstr "分镜原始大小"
+
+msgid "Restore zoom"
+msgstr "恢复缩放"
+
+msgid "Spread gesture"
+msgstr "双指张开"
+
+msgid "Activated"
+msgstr "已启用"
+
+msgid "Deactivated"
+msgstr "已停用"
+
+msgid "Panel gesture zoom"
+msgstr "分镜手势缩放"
+
+msgid "Enable panel gesture zoom"
+msgstr "启用分镜手势缩放"
+
+msgid "Zoom gesture"
+msgstr "缩放手势"

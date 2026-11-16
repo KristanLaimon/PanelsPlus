@@ -82,3 +82,8 @@ references-repos/plugins/*/laboratory/
 
 # remove this when mergin ink-away-compatibility branch!
 Ink-away-documentation/
+
+# Temporary during PR #18 review: local reference checkouts and pins
+/references-repos/plugins/*/rolling.koplugin/
+/references-repos/plugins/livelight/
+/references-repos/plugins/ink-away/Ink-away-documentation/

@@ -339,7 +339,13 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         page = 1, -- OCR coordinates refer to the extracted image, not a reflow page.
         hold_text_selection = self.settings.hold_text_selection ~= false,
-        panel_zoom_settings = self.settings,
+        panel_zoom_settings = require("src._panelzoom").proxy(self.settings),
+        panel_zoom_save_callback = function()
+            self:saveSettings()
+        end,
+        zoom_config_callback = function(current_viewer)
+            return self:showPanelZoomMenu(current_viewer)
+        end,
         ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,

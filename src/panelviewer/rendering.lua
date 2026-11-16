@@ -340,6 +340,70 @@ return function(PanelViewer)
             end
         end
         self:paintHighlights(bb, x, y)
+        self:paintZoomSlider(bb)
+    end
+
+    -- Painted over the image after its normal layout; this reserves no viewport space.
+    function PanelViewer:paintZoomSlider(bb)
+        self._zoom_slider_rect = nil
+        local image = self._image_wg
+        if not self.buttons_visible or not self.panel_zoom_settings or not image or not image.dimen then
+            return
+        end
+        local d = image.dimen
+        local width = Screen:scaleBySize(48)
+        local height = math.min(Screen:scaleBySize(280), math.floor(d.h * 0.7))
+        local padding = Screen:scaleBySize(28)
+        if height <= padding * 3 or d.w < width * 2 then
+            return
+        end
+        local rect = {
+            x = d.x + d.w - width - Screen:scaleBySize(8),
+            y = d.y + math.floor((d.h - height) / 2),
+            w = width,
+            h = height,
+        }
+        rect.track_y = rect.y + padding
+        rect.track_h = height - padding * 2
+        self._zoom_slider_rect = rect
+        local Blitbuffer = require("ffi/blitbuffer")
+        local PanelZoom = require("src._panelzoom")
+        local factor = PanelZoom.factor(self.panel_zoom_settings.panel_gesture_zoom_factor)
+        local center_x = rect.x + math.floor(width / 2)
+        local border = math.max(1, Screen:scaleBySize(1))
+        bb:paintRect(rect.x, rect.y, width, height, Blitbuffer.COLOR_BLACK)
+        bb:paintRect(rect.x + border, rect.y + border, width - border * 2, height - border * 2, Blitbuffer.COLOR_WHITE)
+        bb:paintRect(center_x - border, rect.track_y, border * 2, rect.track_h, Blitbuffer.COLOR_BLACK)
+        local TextWidget = require("ui/widget/textwidget")
+        local Font = require("ui/font")
+        for _, label in ipairs({
+            { rect.y + padding / 2, "3×" },
+            { rect.track_y + (PanelZoom.maximum - 1) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h, "1×" },
+            { rect.y + height - padding / 2, "0.3×" },
+        }) do
+            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", 12) })
+            local size = text:getSize()
+            local tx = center_x - math.floor(size.w / 2)
+            local ty = math.floor(label[1] - size.h / 2)
+            bb:paintRect(tx - border * 2, ty, size.w + border * 4, size.h, Blitbuffer.COLOR_WHITE)
+            text:paintTo(bb, tx, ty)
+            text:free()
+        end
+        -- Wide cap and horizontal groove echo a mixer fader while remaining legible on e-ink.
+        local cap_w, cap_h = Screen:scaleBySize(36), Screen:scaleBySize(14)
+        local cap_x = center_x - math.floor(cap_w / 2)
+        local cap_y = rect.track_y
+            + math.floor((PanelZoom.maximum - factor) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h)
+            - math.floor(cap_h / 2)
+        bb:paintRect(cap_x, cap_y, cap_w, cap_h, Blitbuffer.COLOR_BLACK)
+        bb:paintRect(cap_x + border, cap_y + border, cap_w - border * 2, cap_h - border * 2, Blitbuffer.COLOR_WHITE)
+        bb:paintRect(
+            cap_x + border * 4,
+            cap_y + math.floor(cap_h / 2),
+            cap_w - border * 8,
+            border,
+            Blitbuffer.COLOR_BLACK
+        )
     end
 
     --- Return the button label for the crop mode currently in use.
