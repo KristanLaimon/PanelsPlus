@@ -1,6 +1,5 @@
 -- Borderless SVG controls for the panel viewer's right-hand action rail.
 local Toolbar = {}
-local gettext = require("gettext")
 local icon_dir = (debug.getinfo(1, "S").source:match("^@(.+/)") or "src/") .. "../assets/icons/"
 
 Toolbar.order =
@@ -16,32 +15,6 @@ local icons = {
     draw_inkaway = "inkaway_settings",
 }
 
-function Toolbar.caption(id, text)
-    if id == "night_mode" or id == "invert_document" or id == "draw_inkaway" then
-        return text
-    end
-    if id == "rotate" then
-        return gettext("Rotate")
-    end
-    if id == "ocr_language" then
-        return gettext("OCR Model")
-    end
-    if id == "screenshot" then
-        return gettext("SShot")
-    end
-    if id == "progress_bar" then
-        return text == gettext("Show progress") and gettext("Show Bar") or gettext("Hide Bar")
-    end
-    if id == "scale" then
-        if text == gettext("Original size") then
-            return gettext("Original Size Panel")
-        elseif text == gettext("Scale") then
-            return gettext("Fit Panel")
-        end
-    end
-    return text
-end
-
 function Toolbar.controls(actions)
     local controls = {}
     for _, id in ipairs(Toolbar.order) do
@@ -52,13 +25,11 @@ function Toolbar.controls(actions)
                 callback = action.callback,
                 hold_callback = action.hold_callback,
                 dim = action.dim,
-                restore_zoom = action.restore_zoom,
                 icon_file = icon_dir .. (action.icon or icons[id]) .. ".svg",
                 width = 0,
             }
             function control:setText(text)
-                self.text = self.id == "scale" and self.restore_zoom and gettext("Restore zoom")
-                    or Toolbar.caption(self.id, text)
+                self.text = action.caption and action.caption() or action.text or text
             end
             control:setText(action.text)
             controls[id] = control

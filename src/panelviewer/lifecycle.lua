@@ -42,9 +42,6 @@ return function(PanelViewer)
 
     --- Redraw the viewer, optionally suppressing the progress bar.
     function PanelViewer:update()
-        if self.quick_controls and self.quick_controls.scale then
-            self.quick_controls.scale.restore_zoom = self._gesture_zoom_restore ~= nil
-        end
         local result
         if not self._hide_progress_for_screenshot and self.progress_bar_visible ~= false then
             result = self:withGuardedImageViewerRefresh(function()
@@ -61,18 +58,6 @@ return function(PanelViewer)
             self._images_list_nb = images_list_nb
             if not ok then
                 error(err)
-            end
-        end
-
-        -- Base ImageViewer:update() always relabels the "rotate" button itself
-        -- (self.rotated and _("No rotation") or _("Rotate")), overwriting the
-        -- static text replaceButtonTable() gave it -- that toggle-style label
-        -- made sense for the base class's tap-to-toggle button, but ours opens
-        -- the rotation picker instead, so its label should never change.
-        if self.buttons_visible and self.button_table then
-            local rotate_btn = self.button_table:getButtonById("rotate")
-            if rotate_btn then
-                rotate_btn:setText(_("Rotate"), rotate_btn.width)
             end
         end
 

@@ -16,4 +16,5 @@ exclude_files = {
     "vendor/**/*.lua",
     "dist/**/*.lua",
     ".luarocks/**/*.lua",
+    "references-repos/**/*.lua",
 }
