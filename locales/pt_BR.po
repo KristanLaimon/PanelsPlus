@@ -835,3 +835,30 @@ msgstr "Direção da página dupla (Atual: "
 
 msgid "Refresh on full page change"
 msgstr "Atualizar ao mudar de página inteira"
+
+msgid "Fit Panel"
+msgstr "Ajustar painel"
+
+msgid "Original Size Panel"
+msgstr "Tamanho original do painel"
+
+msgid "Restore zoom"
+msgstr "Restaurar zoom"
+
+msgid "Spread gesture"
+msgstr "Gesto de afastar os dedos"
+
+msgid "Activated"
+msgstr "Ativado"
+
+msgid "Deactivated"
+msgstr "Desativado"
+
+msgid "Panel gesture zoom"
+msgstr "Zoom do painel por gestos"
+
+msgid "Enable panel gesture zoom"
+msgstr "Ativar zoom do painel por gestos"
+
+msgid "Zoom gesture"
+msgstr "Gesto de zoom"

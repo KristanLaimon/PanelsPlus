@@ -220,7 +220,10 @@ describe("EmbeddedImage native page animation", function()
 
         assert.is_true(EmbeddedImage.showEmbeddedImagePanelsForImage(plugin, image()))
         assert.is_false(arm_animation:called(), "initial opens must not look like page turns")
-        assert.equals(plugin.settings, opened_viewer.panel_zoom_settings)
+        assert.equals(nil, next(opened_viewer.panel_zoom_settings))
+        assert.equals(nil, opened_viewer.panel_zoom_settings.mode)
+        opened_viewer.panel_zoom_settings.panel_gesture_zoom_factor = 2.25
+        assert.equals(2.25, plugin.settings.panel_gesture_zoom_factor)
         local zoom_calls = 0
         opened_viewer.toggleGestureZoom = function()
             zoom_calls = zoom_calls + 1

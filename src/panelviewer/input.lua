@@ -294,6 +294,96 @@ return function(PanelViewer)
         return false
     end
 
+    function PanelViewer:rememberZoomView()
+        if not self._gesture_zoom_restore then
+            self._gesture_zoom_restore = {
+                scale = self.scale_factor,
+                fit = self._scale_to_fit,
+                x = self._center_x_ratio,
+                y = self._center_y_ratio,
+            }
+        end
+    end
+
+    -- A drag changes the live image on each event; persistence happens on release.
+    function PanelViewer:handleZoomSliderGesture(ges)
+        local rect = self.buttons_visible and self._zoom_slider_rect
+        if not rect or not self.panel_zoom_settings then
+            return false
+        end
+        if self._zoom_slider_dragging then
+            if
+                ges.ges == "pan_release"
+                or ges.ges == "hold_pan_release"
+                or ges.ges == "swipe"
+                or ges.ges == "multiswipe"
+            then
+                local end_pos = ges.end_pos or (ges.ges == "pan_release" and ges.pos)
+                if end_pos then
+                    self:handleZoomSliderGesture({ ges = "pan", pos = end_pos })
+                end
+                self._zoom_slider_dragging = nil
+                if self.panel_zoom_save_callback then
+                    self.panel_zoom_save_callback()
+                end
+                return true
+            end
+        end
+        local pos = ges.pos
+        local origin = ges.start_pos or pos
+        local inside = origin
+            and origin.x >= rect.x
+            and origin.x <= rect.x + rect.w
+            and origin.y >= rect.y
+            and origin.y <= rect.y + rect.h
+        if not self._zoom_slider_dragging and not inside then
+            return false
+        end
+        if inside and (ges.ges == "hold" or ges.ges == "hold_release" or ges.ges == "swipe") then
+            return true
+        end
+        if ges.ges ~= "tap" and ges.ges ~= "touch" and ges.ges ~= "pan" and ges.ges ~= "hold_pan" then
+            return false
+        end
+        if
+            not pos
+            or not self._image_wg
+            or self._panels_plus_transition_active
+            or self._panels_plus_boundary_pending
+            or self._panels_plus_smooth_preview
+        then
+            return true
+        end
+        self:rememberZoomView()
+        local saved = self._gesture_zoom_restore
+        -- Retain the pre-zoom scale across redraws so the slider is absolute, not cumulative.
+        if not saved.base_scale then
+            saved.base_scale = saved.scale ~= 0 and saved.scale
+                or self._scale_factor_0
+                or self._image_wg:getScaleFactor()
+        end
+        local PanelZoom = require("src._panelzoom")
+        local track_y, track_h = rect.track_y or rect.y, rect.track_h or rect.h
+        local position = math.max(0, math.min(1, (pos.y - track_y) / track_h))
+        local factor = math.floor((PanelZoom.maximum - position * (PanelZoom.maximum - PanelZoom.minimum)) * 10 + 0.5)
+            / 10
+        self.panel_zoom_settings.panel_gesture_zoom_factor = factor
+        self._scale_to_fit = false
+        local previous_scale = self.scale_factor
+        self:_applyNewScaleFactor(saved.base_scale * factor)
+        if self.scale_factor == previous_scale then
+            self:update()
+        end
+        if ges.ges == "tap" then
+            if self.panel_zoom_save_callback then
+                self.panel_zoom_save_callback()
+            end
+        else
+            self._zoom_slider_dragging = true
+        end
+        return true
+    end
+
     --- Toggle magnification around the touched image position, restoring the prior view.
     function PanelViewer:toggleGestureZoom(pos)
         if
@@ -331,10 +421,7 @@ return function(PanelViewer)
         local dimen = image.dimen or { x = 0, y = 0 }
         self._center_x_ratio = math.max(0, math.min(1, (pos.x - dimen.x + (image._offset_x or 0)) / width))
         self._center_y_ratio = math.max(0, math.min(1, (pos.y - dimen.y + (image._offset_y or 0)) / height))
-        local factor = self.panel_zoom_settings.panel_gesture_zoom_factor
-        if factor ~= 1.25 and factor ~= 1.5 and factor ~= 1.75 and factor ~= 2 then
-            factor = 1.5
-        end
+        local factor = require("src._panelzoom").factor(self.panel_zoom_settings.panel_gesture_zoom_factor)
         self:onZoomIn(factor - 1)
         return true
     end
@@ -344,6 +431,9 @@ return function(PanelViewer)
     --- @param ges table Gesture event.
     --- @return boolean|nil handled Whether the gesture was consumed.
     function PanelViewer:onGesture(ges)
+        if self:handleZoomSliderGesture(ges) then
+            return true
+        end
         if self._gesture_zoom_holding and (ges.ges == "hold_release" or ges.ges == "hold_pan_release") then
             self._gesture_zoom_holding = nil
             return true
@@ -352,7 +442,7 @@ return function(PanelViewer)
             return true
         end
         local settings = self.panel_zoom_settings
-        local zoom_gesture = settings and settings.panel_zoom_gesture == "hold" and "hold" or "two_finger_tap"
+        local zoom_gesture = settings and settings.panel_zoom_gesture or "spread"
         if settings and settings.panel_gesture_zoom == true and ges.ges == zoom_gesture then
             self._gesture_zoom_holding = ges.ges == "hold" or nil
             return self:toggleGestureZoom(ges.pos)
@@ -767,6 +857,7 @@ return function(PanelViewer)
     --- @param inc number|nil Zoom-in increment forwarded to the base implementation.
     --- @return boolean handled Always true after processing the zoom.
     function PanelViewer:onZoomIn(inc)
+        self:rememberZoomView()
         self._scale_to_fit = false
         return ImageViewer.onZoomIn(self, inc)
     end
@@ -778,6 +869,7 @@ return function(PanelViewer)
     --- @param dec number|nil Zoom-out decrement forwarded to the base implementation.
     --- @return boolean handled Always true after processing the zoom.
     function PanelViewer:onZoomOut(dec)
+        self:rememberZoomView()
         self._scale_to_fit = false
         return ImageViewer.onZoomOut(self, dec)
     end

@@ -48,38 +48,10 @@ end
 function Menu.panelZoomItems(self)
     local items = {
         {
-            text = _("Zoom gesture"),
-            mandatory = self.settings.panel_zoom_gesture == "hold" and _("Long press") or _("Two-finger tap"),
-            sub_item_table = {
-                {
-                    text = _("Long press"),
-                    radio = true,
-                    checked_func = function()
-                        return self.settings.panel_zoom_gesture == "hold"
-                    end,
-                    callback = function()
-                        self.settings.panel_zoom_gesture = "hold"
-                        self:saveSettings()
-                    end,
-                },
-                {
-                    text = _("Two-finger tap"),
-                    radio = true,
-                    checked_func = function()
-                        return self.settings.panel_zoom_gesture ~= "hold"
-                    end,
-                    callback = function()
-                        self.settings.panel_zoom_gesture = "two_finger_tap"
-                        self:saveSettings()
-                    end,
-                },
-            },
-        },
-        {
             text = _("Enable panel gesture zoom"),
-            help_text = _(
-                "In panel view, use the selected zoom gesture to zoom at the touched position. Repeat it to restore the view. Long press zoom takes priority over text selection."
-            ),
+            mandatory_func = function()
+                return self.settings.panel_gesture_zoom == true and _("Activated") or _("Deactivated")
+            end,
             checked_func = function()
                 return self.settings.panel_gesture_zoom == true
             end,
@@ -88,16 +60,27 @@ function Menu.panelZoomItems(self)
                 self:saveSettings()
             end,
         },
+        { text = _("Zoom gesture"), bold = true, select_enabled = false },
     }
-    for _, factor in ipairs({ 1.25, 1.5, 1.75, 2 }) do
+    for _, choice in ipairs({
+        { "hold", _("Long press") },
+        { "two_finger_tap", _("Two-finger tap") },
+        { "spread", _("Spread gesture") },
+    }) do
+        local gesture, label = choice[1], choice[2]
+        local selected = (self.settings.panel_zoom_gesture or "spread") == gesture
         items[#items + 1] = {
-            text = tostring(factor) .. "×",
+            text = (selected and "◉ " or "○ ") .. label,
+            text_func = function()
+                return ((self.settings.panel_zoom_gesture or "spread") == gesture and "◉ " or "○ ") .. label
+            end,
             radio = true,
+            bold = selected,
             checked_func = function()
-                return (self.settings.panel_gesture_zoom_factor or 1.5) == factor
+                return (self.settings.panel_zoom_gesture or "spread") == gesture
             end,
             callback = function()
-                self.settings.panel_gesture_zoom_factor = factor
+                self.settings.panel_zoom_gesture = gesture
                 self:saveSettings()
             end,
         }

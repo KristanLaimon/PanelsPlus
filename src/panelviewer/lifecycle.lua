@@ -42,6 +42,9 @@ return function(PanelViewer)
 
     --- Redraw the viewer, optionally suppressing the progress bar.
     function PanelViewer:update()
+        if self.quick_controls and self.quick_controls.scale then
+            self.quick_controls.scale.restore_zoom = self._gesture_zoom_restore ~= nil
+        end
         local result
         if not self._hide_progress_for_screenshot and self.progress_bar_visible ~= false then
             result = self:withGuardedImageViewerRefresh(function()
