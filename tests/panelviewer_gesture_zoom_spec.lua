@@ -113,9 +113,9 @@ describe("Panel gesture zoom", function()
         }
         local items = menu.panelZoomItems(controller)
         assert.equals(5, #items)
-        assert.equals("Deactivated", items[1].mandatory_func())
+        assert.equals("Disabled", items[1].mandatory_func())
         items[1].callback()
-        assert.equals("Activated", menu.panelZoomItems(controller)[1].mandatory_func())
+        assert.equals("Enabled", menu.panelZoomItems(controller)[1].mandatory_func())
         assert.is_true(items[5].checked_func())
         for index, gesture in ipairs({ "hold", "two_finger_tap", "spread" }) do
             items[index + 2].callback()
@@ -162,6 +162,8 @@ describe("Panel gesture zoom", function()
         package.loaded["ui/widget/textwidget"] = {
             new = function(_, options)
                 labels[#labels + 1] = options.text
+                labels.colors = labels.colors or {}
+                labels.colors[#labels.colors + 1] = options.fgcolor
                 return {
                     getSize = function()
                         return { w = 30, h = 12 }
@@ -181,8 +183,8 @@ describe("Panel gesture zoom", function()
                 _image_wg = { dimen = image_rect },
             })
             local bb = {
-                paintRect = function(_, x, y, w, h)
-                    paints[#paints + 1] = { x = x, y = y, w = w, h = h }
+                paintRect = function(_, x, y, w, h, color)
+                    paints[#paints + 1] = { x = x, y = y, w = w, h = h, color = color }
                 end,
             }
             viewer:paintZoomSlider(bb)
@@ -200,10 +202,17 @@ describe("Panel gesture zoom", function()
             assert.is_true(slider.track_y + slider.track_h < slider.y + slider.h)
             assert.equals(3, freed)
             assert.equals(9, #paints)
+            local Blitbuffer = require("ffi/blitbuffer")
+            assert.equals(Blitbuffer.COLOR_DARK_GRAY, paints[1].color)
+            assert.equals(Blitbuffer.COLOR_DARK_GRAY, labels.colors[1])
+            viewer._gesture_zoom_restore = {}
+            viewer:paintZoomSlider(bb)
+            assert.equals(Blitbuffer.COLOR_BLACK, paints[10].color)
+            assert.equals(Blitbuffer.COLOR_BLACK, labels.colors[4])
             viewer.buttons_visible = false
             viewer:paintZoomSlider(bb)
             assert.equals(nil, viewer._zoom_slider_rect)
-            assert.equals(9, #paints)
+            assert.equals(18, #paints)
         end)
         package.loaded["ui/widget/textwidget"] = old_text
         if not ok then
@@ -237,6 +246,20 @@ describe("Panel gesture zoom", function()
             end,
         })
         assert.is_false(viewer:handleZoomSliderGesture({ ges = "tap", pos = { x = 50, y = 200 } }))
+        assert.is_true(viewer:handleZoomSliderGesture({ ges = "touch", pos = { x = 210, y = 200 } }))
+        assert.is_true(viewer:handleZoomSliderGesture({ ges = "tap", pos = { x = 210, y = 200 } }))
+        assert.is_nil(viewer._zoom_slider_dragging)
+        assert.is_false(viewer:handleZoomSliderGesture({ ges = "touch", pos = { x = 50, y = 200 } }))
+        assert.equals(1, saves)
+        viewer:handleZoomSliderGesture({ ges = "touch", pos = { x = 210, y = 200 } })
+        viewer:handleZoomSliderGesture({ ges = "hold", pos = { x = 210, y = 200 } })
+        viewer:handleZoomSliderGesture({ ges = "hold_release", pos = { x = 210, y = 200 } })
+        assert.is_nil(viewer._zoom_slider_dragging)
+        viewer:handleZoomSliderGesture({ ges = "touch", pos = { x = 210, y = 200 } })
+        assert.is_false(viewer:handleZoomSliderGesture({ ges = "touch", pos = { x = 50, y = 200 } }))
+        assert.is_false(viewer:handleZoomSliderGesture({ ges = "hold", pos = { x = 50, y = 200 } }))
+        saves = 0
+        updates = 0
         assert.is_true(viewer:onGesture({ ges = "pan", pos = { x = 210, y = 370 } }))
         assert.equals(0.3, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
         assert.equals(0.6, viewer.scale_factor)
@@ -248,8 +271,8 @@ describe("Panel gesture zoom", function()
         assert.equals(1.4, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
         assert.equals(2.8, viewer.scale_factor)
         viewer:onGesture({ ges = "pan", pos = { x = 100, y = 100 } })
-        assert.equals(3, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
-        assert.equals(6, viewer.scale_factor)
+        assert.equals(1.4, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
+        assert.equals(2.8, viewer.scale_factor)
         viewer:onGesture({ ges = "pan_release" })
         assert.equals(1, saves)
         assert.equals(nil, viewer._zoom_slider_dragging)
@@ -259,7 +282,7 @@ describe("Panel gesture zoom", function()
         assert.equals(1, updates)
         viewer:onGesture({ ges = "pan", start_pos = { x = 210, y = 200 }, pos = { x = 100, y = 100 } })
         viewer:onGesture({ ges = "swipe", pos = { x = 210, y = 200 }, end_pos = { x = 100, y = 370 } })
-        assert.equals(0.3, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
+        assert.equals(1.4, viewer.panel_zoom_settings.panel_gesture_zoom_factor)
         assert.equals(nil, viewer._zoom_slider_dragging)
         assert.equals(2, saves)
     end)

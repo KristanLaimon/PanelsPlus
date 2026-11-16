@@ -309,12 +309,20 @@ return function(PanelViewer)
     function PanelViewer:handleZoomSliderGesture(ges)
         local rect = self.buttons_visible and self._zoom_slider_rect
         if not rect or not self.panel_zoom_settings then
+            self._zoom_slider_dragging = nil
             return false
         end
+        if ges.ges == "touch" then
+            self._zoom_slider_dragging = nil
+        end
         if self._zoom_slider_dragging then
+            if ges.ges == "tap" then
+                self._zoom_slider_dragging = nil
+            end
             if
                 ges.ges == "pan_release"
                 or ges.ges == "hold_pan_release"
+                or ges.ges == "hold_release"
                 or ges.ges == "swipe"
                 or ges.ges == "multiswipe"
             then
@@ -338,6 +346,13 @@ return function(PanelViewer)
             and origin.y <= rect.y + rect.h
         if not self._zoom_slider_dragging and not inside then
             return false
+        end
+        if pos and (pos.x < rect.x or pos.x > rect.x + rect.w
+            or pos.y < rect.y or pos.y > rect.y + rect.h) then
+            if ges.ges == "pan" or ges.ges == "hold_pan" then
+                self._zoom_slider_dragging = true
+            end
+            return true
         end
         if inside and (ges.ges == "hold" or ges.ges == "hold_release" or ges.ges == "swipe") then
             return true

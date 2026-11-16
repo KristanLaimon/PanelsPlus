@@ -50,7 +50,7 @@ function Menu.panelZoomItems(self)
         {
             text = _("Enable panel gesture zoom"),
             mandatory_func = function()
-                return self.settings.panel_gesture_zoom == true and _("Activated") or _("Deactivated")
+                return self.settings.panel_gesture_zoom == true and _("Enabled") or _("Disabled")
             end,
             checked_func = function()
                 return self.settings.panel_gesture_zoom == true
