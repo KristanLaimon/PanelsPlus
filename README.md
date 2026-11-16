@@ -102,7 +102,7 @@ to panels, but still, mangas and comics aren't 100% panels right?.
 To improve your experience, this plugin has tested/garanteed compatibility with the following:
 
 <div align="center">
-    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/0df8d4d8-601a-4e11-8fa9-4a2fbe8f82c0" />
+    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/3d9778ad-f5d7-477c-a279-67a103812c19" />
 </div>
 
 Download/Repos:
