@@ -367,13 +367,14 @@ return function(PanelViewer)
         rect.track_h = height - padding * 2
         self._zoom_slider_rect = rect
         local Blitbuffer = require("ffi/blitbuffer")
+        local foreground = self._gesture_zoom_restore and Blitbuffer.COLOR_BLACK or Blitbuffer.COLOR_DARK_GRAY
         local PanelZoom = require("src._panelzoom")
         local factor = PanelZoom.factor(self.panel_zoom_settings.panel_gesture_zoom_factor)
         local center_x = rect.x + math.floor(width / 2)
         local border = math.max(1, Screen:scaleBySize(1))
-        bb:paintRect(rect.x, rect.y, width, height, Blitbuffer.COLOR_BLACK)
+        bb:paintRect(rect.x, rect.y, width, height, foreground)
         bb:paintRect(rect.x + border, rect.y + border, width - border * 2, height - border * 2, Blitbuffer.COLOR_WHITE)
-        bb:paintRect(center_x - border, rect.track_y, border * 2, rect.track_h, Blitbuffer.COLOR_BLACK)
+        bb:paintRect(center_x - border, rect.track_y, border * 2, rect.track_h, foreground)
         local TextWidget = require("ui/widget/textwidget")
         local Font = require("ui/font")
         for _, label in ipairs({
@@ -381,7 +382,7 @@ return function(PanelViewer)
             { rect.track_y + (PanelZoom.maximum - 1) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h, "1×" },
             { rect.y + height - padding / 2, "0.3×" },
         }) do
-            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", 12) })
+            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", 12), fgcolor = foreground })
             local size = text:getSize()
             local tx = center_x - math.floor(size.w / 2)
             local ty = math.floor(label[1] - size.h / 2)
@@ -395,14 +396,14 @@ return function(PanelViewer)
         local cap_y = rect.track_y
             + math.floor((PanelZoom.maximum - factor) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h)
             - math.floor(cap_h / 2)
-        bb:paintRect(cap_x, cap_y, cap_w, cap_h, Blitbuffer.COLOR_BLACK)
+        bb:paintRect(cap_x, cap_y, cap_w, cap_h, foreground)
         bb:paintRect(cap_x + border, cap_y + border, cap_w - border * 2, cap_h - border * 2, Blitbuffer.COLOR_WHITE)
         bb:paintRect(
             cap_x + border * 4,
             cap_y + math.floor(cap_h / 2),
             cap_w - border * 8,
             border,
-            Blitbuffer.COLOR_BLACK
+            foreground
         )
     end
 

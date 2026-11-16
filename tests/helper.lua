@@ -141,7 +141,7 @@ end)
 -- ffi/blitbuffer: enough surface for `paintHighlights`'s fallback paint path.
 -- Every `invertRect` call lands in the shared log for highlight specs.
 preload("ffi/blitbuffer", function()
-    local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00, _invert_log = {} }
+    local Blitbuffer = { COLOR_WHITE = 0xFF, COLOR_BLACK = 0x00, COLOR_DARK_GRAY = 0x55, _invert_log = {} }
     local BB = {}
     BB.__index = BB
     function BB:getType()
