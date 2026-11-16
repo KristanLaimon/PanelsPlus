@@ -270,12 +270,24 @@ describe("Panel viewer compact controls", function()
         viewer:replaceButtonTable()
         local scale = viewer.button_table:getButtonById("scale")
         assert.equals("Original Size Panel", scale.text)
+        viewer._scale_to_fit = false
         scale:setText("Scale")
+        assert.equals("Fit Panel", scale.text)
+        viewer._gesture_zoom_restore = {}
+        scale:setText("Original size")
+        assert.equals("Restore zoom", scale.text)
+        viewer._gesture_zoom_restore = nil
+        scale:setText("Original size")
         assert.equals("Fit Panel", scale.text)
         local rotate = viewer.button_table:getButtonById("rotate")
         rotate:setText("No rotation")
         assert.equals("Rotate", rotate.text)
+        assert.equals("OCR Model", viewer.quick_controls.ocr_language.text)
+        assert.equals("SShot", viewer.quick_controls.screenshot.text)
         assert.equals("Show Bar", viewer.quick_controls.progress_bar.text)
+        viewer.progress_bar_visible = true
+        viewer:replaceButtonTable()
+        assert.equals("Hide Bar", viewer.quick_controls.progress_bar.text)
     end)
 
     it("toggles KOReader night mode and changes the moon/sun state icon", function()

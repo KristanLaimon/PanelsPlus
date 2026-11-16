@@ -396,9 +396,10 @@ return function(PanelViewer)
             {
                 {
                     id = "scale",
-                    restore_zoom = self._gesture_zoom_restore ~= nil,
-                    text = self._gesture_zoom_restore and _("Restore zoom")
-                        or (self._scale_to_fit and _("Original Size Panel") or _("Fit Panel")),
+                    caption = function()
+                        return self._gesture_zoom_restore and _("Restore zoom")
+                            or (self._scale_to_fit and _("Original Size Panel") or _("Fit Panel"))
+                    end,
                     hold_callback = function()
                         if self.zoom_config_callback then
                             self.zoom_config_callback(self)
@@ -447,14 +448,14 @@ return function(PanelViewer)
             {
                 {
                     id = "screenshot",
-                    text = _("Screenshot"),
+                    text = _("SShot"),
                     callback = function()
                         self:onSaveImageView()
                     end,
                 },
                 {
                     id = "progress_bar",
-                    text = self.progress_bar_visible == false and _("Show progress") or _("Hide progress"),
+                    text = self.progress_bar_visible == false and _("Show Bar") or _("Hide Bar"),
                     callback = function()
                         if self.progress_bar_toggle_callback then
                             self.progress_bar_toggle_callback(self)
@@ -467,7 +468,7 @@ return function(PanelViewer)
                 },
                 {
                     id = "ocr_language",
-                    text = _("OCR Language"),
+                    text = _("OCR Model"),
                     dim = self.hold_text_selection == false,
                     callback = function()
                         if self.hold_text_selection == false then
