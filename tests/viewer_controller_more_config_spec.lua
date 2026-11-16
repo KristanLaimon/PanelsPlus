@@ -335,7 +335,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        assert.equals(9, #menu_items.panels_plus.sub_item_table)
+        assert.equals(10, #menu_items.panels_plus.sub_item_table)
         controller:showOcrLanguageMenu({})
         local choices = shownOcrMenu().item_table
         assert.equals(3, #choices)
@@ -345,7 +345,7 @@ describe("ViewerController page-turn animation settings", function()
         local items = UIManager._last_shown[1].item_table
         WordFinder.availableBundledLanguages = original_available
         WordFinder.availableUserLanguages = original_installed
-        assert.equals(9, #items)
+        assert.equals(10, #items)
     end)
 
     it("allows a user model as the only available OCR choice", function()
@@ -416,7 +416,7 @@ describe("ViewerController page-turn animation settings", function()
         WordFinder.availableUserLanguages = original_installed
     end)
 
-    it("shows eight common settings with SVG icons and a final advanced shortcut", function()
+    it("shows nine common settings with SVG icons and a final advanced shortcut", function()
         local controller = makeController(Settings.withDefaults({ tap_navigation = false }))
         controller:showMoreConfigMenu({})
         local menu = UIManager._last_shown[1]
@@ -429,9 +429,10 @@ describe("ViewerController page-turn animation settings", function()
             "Rotate spreads",
             "Remove spread fold line",
             "Touch & hold text selection",
+            "Panel gesture zoom",
             "Open advanced options",
         }
-        assert.equals(9, #menu.item_table)
+        assert.equals(10, #menu.item_table)
         for index, label in ipairs(labels) do
             assert.equals(label, menu.item_table[index].text)
             local file = io.open(menu.item_table[index].icon_file, "r")
@@ -440,14 +441,14 @@ describe("ViewerController page-turn animation settings", function()
         end
         assert.equals("Off", menu.item_table[1].mandatory)
         assert.equals("On", menu.item_table[2].mandatory)
-        assert.is_true(menu.item_table[9].separator)
+        assert.is_true(menu.item_table[10].separator)
         local opened
         controller.showAdvancedOptions = function(_, viewer)
             opened = viewer
         end
         local viewer = {}
         controller:showMoreConfigMenu(viewer)
-        UIManager._last_shown[1].item_table[9].callback()
+        UIManager._last_shown[1].item_table[10].callback()
         assert.equals(viewer, opened)
     end)
 
@@ -671,7 +672,7 @@ describe("ViewerController page-turn animation settings", function()
         end
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({})
-        assert.equals(9, #UIManager._last_shown[1].item_table)
+        assert.equals(10, #UIManager._last_shown[1].item_table)
         Device.canDoSwipeAnimation = previous
     end)
 

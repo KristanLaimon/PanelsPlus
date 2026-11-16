@@ -339,6 +339,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         page = 1, -- OCR coordinates refer to the extracted image, not a reflow page.
         hold_text_selection = self.settings.hold_text_selection ~= false,
+        panel_zoom_settings = self.settings,
         ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
