@@ -1,8 +1,67 @@
 # 🤝 Contributing to Panels+
 
-Thank you for your interest in contributing to Panels+! Whether you're fixing a
+Thanks for wanting to help. Panels+ currently is a one person project and there
+is more I would like to fix and add than I have time for, so help of any size
+is welcome, and you do not need to write code to help.
+
+- Please read the Code of [Conduct first](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/CODE_OF_CONDUCT.md).
+- Security problems go through [SECURITY.md](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/SECURITY.md), never a public issue.
+
+## How you can contribute?
+- ***Bug Reporting*** -> Any issues with Panels+, first make sure you're using latest release, then [Report a bug](https://github.com/KristanLaimon/PanelsPlus/issues/new/choose) which can be:
+    - Bug
+    - Feature Request
+    - Translattion Submission / Update
+- ***QA & Tester*** -> Test [pre-releases](https://github.com/KristanLaimon/PanelsPlus/releases); Normally I upload pre-releases when:
+    - I cannot test on my own reader/desktop.
+    - I tested on desktop only but not in my e-readers.
+    - So... ***Trying one on your device and saying how it went ***is one of the most useful things you can do**.
+- ***Translator*** -> By just translating Panels+ to your language, for instructions about this, check the [translation guide](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/docs/translations/README.md)
+
+---
+<ul>
+    <li><h2><strong>Pull Request & Code...</strong></h2></li>
+</ul>
+
+
+<h4 align="center">Before you write code</h4>
+
+> For a small fix, go ahead and open a pull request.
+
+> For a small feature rework like:
+>   + Moving settings of place
+>   + Adding a small feature
+
+For anything bigger (a new tool, a change to how something internally works or bigger integrations),
+  please open an [issue](https://github.com/KristanLaimon/PanelsPlus/issues/new/choose) or a [discussion](https://github.com/KristanLaimon/PanelsPlus/discussions)
+  first so we can agree on the idea.
+
+
+<div align="center">
+<img width="40%" height="auto" alt="Sleepy Fox Resting on Paws" src="https://github.com/user-attachments/assets/c0f1cd1d-e0b2-496e-8917-882585f8df4c" />
+</div>
+> I would hate for you to spend a weekend on something I then have to turn it down....
+
+
+Things I am careful about:
+
+- It has to work on a plain grey e-reader device at least (kindle, kobo, etc...) -> Most readers have slow processors and grey screens. A feature can do more in Desktop KOReader or android, but it should never make the e-readers ones worse (top-priority)
+- Refreshes matter. Reader screens are slow to redraw.
+- No new dependencies. Panels+ uses what KOReader already ships and nothing else [(Except the embbeded OCR models as they're not essential for this plugin to work)](https://github.com/KristanLaimon/PanelsPlus/releases#release-v1.5.1).
+- Prefer fewer settings, better defaults. A new setting needs a good reason to exist.
+
+> Now that we've cleared that up...
+
+---
+
+<div align="center">
+    <img width="40%" height="auto" alt="kristanlaimon_oc_thinking" src="https://github.com/user-attachments/assets/c15bc838-baf5-478c-85ae-5a2bcd9aff24"></img>
+
+<em>Thank you for your interest in contributing to Panels+! Whether you're fixing a
 bug, improving panel detection, or making your own KOReader plugin work alongside
-it, your help is welcome.
+it, your help is welcome.</em>
+</div>
+<br></br>
 
 This repo has **three little projects** living together. You can work on one
 without setting up everything else:
@@ -17,15 +76,23 @@ without setting up everything else:
 [Testing](#-testing) · [Reference repos](#-development--reference-repositories) ·
 [Formatting & PRs](#-formatting--pull-requests) · [Documentation](#-documentation)
 
+> I know its a little overwhelming, but you can start by just reading the docs and Panels+ Plugin lua files only. Manga annotator and Panel & OCR testing projects are optional to set.
+
 ---
 
 ## 🧰 Setup
 
 ### First of all: a Linux environment
 
-The development workflow below uses Linux tooling. A Linux distro, a VM, or WSL
-will do. Windows also has PowerShell helpers for formatting and packaging, but
-use a Linux environment for the shell scripts and desktop KOReader launcher.
+The development workflow below uses ***Linux tooling***.
+- A Linux distro
+- a VM
+- or WSL
+will do.
+
+Panels+ has some PowerShell helpers for formatting and packagin only, but ***use***
+a Linux environment to run all the scripts in this repo, as well as testing
+your pull request.
 
 You'll need to be comfortable with the terminal and Git. We're on GitHub at the
 end of the day, so I'll assume you know your way around a branch and a PR.
@@ -56,7 +123,7 @@ Have these available in your system/PATH:
 
 <a id="launching-and-testing-koreader-versions"></a>
 
-### 🌓 KOReader: a little dev trick — OPTIONAL, but recommended
+### 1.5 🌓 KOReader: a little dev trick — OPTIONAL, but recommended
 
 I've included a launcher so you can try different KOReader releases without
 replacing the one you normally use:
@@ -175,7 +242,7 @@ run has a whole volume's worth of words to check.
 | **Go** | OCR worker and its tests |
 | **ImageMagick** (`magick`) | Image decoding and dataset processing |
 | **Tesseract / native libraries** | The OCR backend you're exercising |
-| **Python 3.9+** | Parallel Lua scheduling; no annotator packages needed for the scheduler |
+| **uv (python)** | Parallel Lua scheduling; no annotator packages needed for the scheduler |
 
 The [test-suite README](tests/README.md) explains the backend dependencies and
 benchmark limits. You only need these tools when your change reaches that work.
