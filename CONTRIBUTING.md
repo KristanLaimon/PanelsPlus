@@ -40,6 +40,7 @@ For anything bigger (a new tool, a change to how something internally works or b
 <div align="center">
 <img width="40%" height="auto" alt="Sleepy Fox Resting on Paws" src="https://github.com/user-attachments/assets/c0f1cd1d-e0b2-496e-8917-882585f8df4c" />
 </div>
+
 > I would hate for you to spend a weekend on something I then have to turn it down....
 
 
