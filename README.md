@@ -5,13 +5,15 @@
   <br>
   <span style="display:block;font-size:1.25rem;">Read manga and comics without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
   <br><a href="#what-this-plugin-does">Overview</a> | <a href="#installation">Installation</a> | <a href="#compatibility">Compatibility</a> | <a href="#features">Features</a> | <a href="#prs-and-building">PR's &amp; Building</a><br><br>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?color=blue&style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://flat.badgen.net/github/assets-dl/KristanLaimon/PanelsPlus/total?color=green&label=downloads" alt="Downloads"></a>
-  <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus.svg?style=flat-square&cacheSeconds=300" alt="GitHub Stars"></a>
-  <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=flat-square" alt="Sponsor on GitHub"></a>
-  <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20Package%20Manager-Available-purple?style=flat-square" alt="ZEN Package Manager"></a>
+<p align="center">
+    <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?style=flat-square&logo=kitsu&logoColor=EE6123&label=LATEST%20RELEASE&labelColor=ffffff&color=333333" alt="Latest Release"></a>
+    <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/PanelsPlus/total?style=flat-square&logo=fireship&logoColor=EB844E&label=TOTAL%20DOWNLOADS&labelColor=ffffff&color=333333" alt="Total Downloads"></a>
+    <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-333333?style=flat-square&logo=gitbook&logoColor=179287&labelColor=ffffff" alt="KOReader Compatibility"></a> <br>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-333333?style=flat-square&logo=opensourcehardware&logoColor=black&labelColor=ffffff" alt="MIT License"></a>
+    <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus?style=flat-square&logo=fontawesome&logoColor=FFC233&label=GITHUB%20STARS&labelColor=ffffff&color=333333&cacheSeconds=300" alt="GitHub Stars"></a>
+    <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/static/v1?label=SPONSORS&message=%20&color=ffffff&labelColor=ffffff&style=flat-square&logo=githubsponsors&logoColor=red" alt="Sponsors"></a>
+    <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20PACKAGE%20MANAGER-AVAILABLE-333333?style=flat-square&logo=zend&logoColor=black&labelColor=ffffff" alt="ZEN Package Manager"></a>
+    <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/APPSTORE-AVAILABLE-333333?style=flat-square&logo=nanostores&logoColor=black&labelColor=ffffff" alt="Appstore Package Manager"></a>
 </p>
 
 <div align="center">
