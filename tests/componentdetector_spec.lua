@@ -41,6 +41,33 @@ local function frame(map, x, y, w, h, slope)
 end
 
 describe("Experimental component detector", function()
+    it("keeps connected fully framed neighbours together only in Safe", function()
+        local Safe = require("src._safecomponentdetector")
+        for _, mode in ipairs({ "manga", "comic" }) do
+            local map = page()
+            frame(map, 20, 20, 210, 600)
+            frame(map, 250, 20, 210, 600)
+            map.structural = {}
+            for i = 0, map.w * map.h - 1 do
+                map.structural[i] = map.data[i]
+            end
+            -- A short ink bridge joins otherwise independently framed panels.
+            for y = 300, 302 do
+                for x = 229, 250 do
+                    ink(map, x, y)
+                end
+            end
+            local smart, smart_ok = Detector.detectPage(map, { mode = mode })
+            assert.is_true(smart_ok)
+            assert.equals(2, #smart)
+            local safe, safe_ok = Safe.detectPage(map, { mode = mode })
+            assert.is_true(safe_ok)
+            assert.equals(1, #safe)
+            assert.equals(40, safe[1].x)
+            assert.equals(880, safe[1].w)
+        end
+    end)
+
     it("keeps Safe independent of Smart refinements and applies its own coverage guard", function()
         local Safe = require("src._safecomponentdetector")
         local old_detect = Detector.detectPage

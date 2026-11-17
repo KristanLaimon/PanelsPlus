@@ -215,10 +215,11 @@ function ComponentDetector.detectPage(map, settings)
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "no framed panels"
     end
     -- Safe retains a connected enclosing frame when its proposed children
-    -- have weaker borders, and keeps connected vertical stacks together.
+    -- have weaker borders or form a full-height row, and keeps vertical stacks together.
     -- Independently framed neighbours still benefit from Smart's extraction.
     for _, parent in ipairs(connected) do
         local parts, area, weakest = {}, 0, 4
+        local full_height_row = true
         local first_center, last_center = math.huge, -math.huge
         for i, child in ipairs(panels) do
             local intersection = math.max(
@@ -229,6 +230,7 @@ function ComponentDetector.detectPage(map, settings)
                 parts[i] = true
                 area = area + child.w * child.h
                 weakest = math.min(weakest, child.frame_sides or 0)
+                full_height_row = full_height_row and child.h >= parent.h * 0.90
                 local center = child.x + child.w / 2
                 first_center, last_center = math.min(first_center, center), math.max(last_center, center)
             end
@@ -237,7 +239,7 @@ function ComponentDetector.detectPage(map, settings)
         for _ in pairs(parts) do
             count = count + 1
         end
-        local enclosing_frame = (parent.frame_sides or 0) >= 4 and weakest < 4
+        local enclosing_frame = (parent.frame_sides or 0) >= 4 and (weakest < 4 or full_height_row)
         local vertical_stack = (parent.frame_sides or 0) >= 1
             and last_center - first_center <= parent.w * 0.20
             and ((parent.frame_sides or 0) <= 2 or parent.w <= parent.h * 0.5 or weakest < 4)
