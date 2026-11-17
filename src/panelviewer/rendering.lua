@@ -19,6 +19,17 @@ local _ = require("gettext")
 local logger = require("logger")
 
 return function(PanelViewer)
+    --- Release scaled widget buffers while preserving any alias of the viewer's source image.
+    function PanelViewer:_clean_image_wg()
+        local image_widget = self._image_wg
+        local source_image = self.image
+        if image_widget and source_image and image_widget._bb == source_image then
+            -- KOReader's image widget may reuse the source blitbuffer after a rounded no-op resize.
+            image_widget._bb_disposable = false
+        end
+        return ImageViewer._clean_image_wg(self)
+    end
+
     --- Angle the current bitmap is drawn at.
     ---
     --- `rotated` is a number when Panels+ set it. `true` is ImageViewer's auto-rotation, which picks 90
@@ -341,20 +352,55 @@ return function(PanelViewer)
         end
         self:paintHighlights(bb, x, y)
         self:paintZoomSlider(bb)
+        if self._zoom_slider_positioning then
+            local Blitbuffer = require("ffi/blitbuffer")
+            local TextWidget = require("ui/widget/textwidget")
+            local Font = require("ui/font")
+            local width = Screen:getWidth()
+            local height = Screen:scaleBySize(80)
+            bb:paintRect(0, 0, width, height, Blitbuffer.COLOR_WHITE)
+            bb:paintRect(0, height - 1, width, 1, Blitbuffer.COLOR_BLACK)
+            for _, item in ipairs({
+                { self._zoom_slider_positioning.resize and _("Drag slider edges to resize...") or _("Changing zoom slider position..."), 0.5, 8 },
+                { self._zoom_slider_positioning.resize and _("Save size") or _("Save position"), 0.25, 44 },
+                { _("Cancel, go back"), 0.75, 44 },
+            }) do
+                local text = TextWidget:new({ text = item[1], face = Font:getFace("cfont", 16) })
+                text:paintTo(bb, math.floor(width * item[2] - text:getSize().w / 2), Screen:scaleBySize(item[3]))
+                text:free()
+            end
+        end
     end
 
-    -- Painted over the image after its normal layout; this reserves no viewport space.
+    --- Paint the slider overlay with its configured size, position, and opacity.
+    --- Updates the gesture hitbox without reserving panel viewport space.
+    --- @param bb table KOReader blitbuffer; temporary composition uses local coordinates.
     function PanelViewer:paintZoomSlider(bb)
         self._zoom_slider_rect = nil
         local image = self._image_wg
-        if not self.buttons_visible or not self.panel_zoom_settings or not image or not image.dimen then
+        if (not self.buttons_visible and not self._zoom_slider_positioning) or not self.panel_zoom_settings
+            or (self.panel_zoom_settings.panel_zoom_mode == "in_config" and not self._zoom_slider_positioning)
+            or not image or not image.dimen then
             return
         end
         local d = image.dimen
-        local width = Screen:scaleBySize(48)
-        local height = math.min(Screen:scaleBySize(280), math.floor(d.h * 0.7))
-        local padding = Screen:scaleBySize(28)
-        if height <= padding * 3 or d.w < width * 2 then
+        local position = self._zoom_slider_positioning
+        local vw, vh
+        if position then
+            vw, vh = position.viewport_w, position.viewport_h
+        elseif self.panel_zoom_settings.panel_zoom_slider_width or self.panel_zoom_settings.panel_zoom_slider_height then
+            vw, vh = self:getPanelViewportSize()
+        else
+            vw, vh = d.w, d.h
+        end
+        local settings = self.panel_zoom_settings
+        local width = position and position.width or (settings.panel_zoom_slider_width and settings.panel_zoom_slider_width * vw)
+            or Screen:scaleBySize(48)
+        local height = position and position.height or (settings.panel_zoom_slider_height and settings.panel_zoom_slider_height * vh)
+            or math.min(Screen:scaleBySize(280), d.h * 0.7)
+        width, height = math.floor(math.min(vw, width)), math.floor(math.min(vh, height))
+        local padding = math.max(1, math.floor(math.min(height * 0.17, width * 0.58, Screen:scaleBySize(48))))
+        if height <= padding * 3 or width < 1 then
             return
         end
         local rect = {
@@ -363,13 +409,34 @@ return function(PanelViewer)
             w = width,
             h = height,
         }
+        local sx = position and position.x or self.panel_zoom_settings.panel_zoom_slider_x
+        local sy = position and position.y or self.panel_zoom_settings.panel_zoom_slider_y
+        if sx and sy then
+            local viewport_w, viewport_h
+            if position then
+                viewport_w, viewport_h = position.viewport_w, position.viewport_h
+            else
+                viewport_w, viewport_h = self:getPanelViewportSize()
+            end
+            rect.x = math.floor(math.max(0, math.min(1, sx)) * math.max(0, viewport_w - width))
+            rect.y = math.floor(math.max(0, math.min(1, sy)) * math.max(0, viewport_h - height))
+        end
         rect.track_y = rect.y + padding
         rect.track_h = height - padding * 2
         self._zoom_slider_rect = rect
         local Blitbuffer = require("ffi/blitbuffer")
+        local opacity = math.max(0, math.min(100, tonumber(self.panel_zoom_settings.panel_zoom_slider_opacity) or 100)) / 100
+        local destination, dest_x, dest_y
+        if opacity < 1 then
+            destination, dest_x, dest_y = bb, rect.x, rect.y
+            bb = Blitbuffer.new(width, height, destination:getType())
+            bb:fill(Blitbuffer.COLOR_WHITE)
+            rect = { x = 0, y = 0, w = width, h = height, track_y = padding, track_h = height - padding * 2 }
+        end
         local foreground = self._gesture_zoom_restore and Blitbuffer.COLOR_BLACK or Blitbuffer.COLOR_DARK_GRAY
         local PanelZoom = require("src._panelzoom")
-        local factor = PanelZoom.factor(self.panel_zoom_settings.panel_gesture_zoom_factor)
+        local min, max = PanelZoom.range(self.panel_zoom_settings)
+        local factor = math.max(min, math.min(max, PanelZoom.factor(self.panel_zoom_settings.panel_zoom_factor)))
         local center_x = rect.x + math.floor(width / 2)
         local border = math.max(1, Screen:scaleBySize(1))
         bb:paintRect(rect.x, rect.y, width, height, foreground)
@@ -378,11 +445,12 @@ return function(PanelViewer)
         local TextWidget = require("ui/widget/textwidget")
         local Font = require("ui/font")
         for _, label in ipairs({
-            { rect.y + padding / 2, "3×" },
-            { rect.track_y + (PanelZoom.maximum - 1) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h, "1×" },
-            { rect.y + height - padding / 2, "0.3×" },
+            { rect.y + padding / 2, tostring(max) .. "×" },
+            { rect.track_y + (max - math.max(min, math.min(max, 1))) / (max - min) * rect.track_h, "1×" },
+            { rect.y + height - padding / 2, tostring(min) .. "×" },
         }) do
-            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", 12), fgcolor = foreground })
+            local font_size = math.max(8, math.min(32, math.floor(12 * width / Screen:scaleBySize(48)), math.floor(height / Screen:scaleBySize(18))))
+            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", font_size), fgcolor = foreground })
             local size = text:getSize()
             local tx = center_x - math.floor(size.w / 2)
             local ty = math.floor(label[1] - size.h / 2)
@@ -391,10 +459,10 @@ return function(PanelViewer)
             text:free()
         end
         -- Wide cap and horizontal groove echo a mixer fader while remaining legible on e-ink.
-        local cap_w, cap_h = Screen:scaleBySize(36), Screen:scaleBySize(14)
+        local cap_w, cap_h = math.floor(width * 0.75), math.max(border * 3, math.floor(math.min(height * 0.08, width * 0.3)))
         local cap_x = center_x - math.floor(cap_w / 2)
         local cap_y = rect.track_y
-            + math.floor((PanelZoom.maximum - factor) / (PanelZoom.maximum - PanelZoom.minimum) * rect.track_h)
+            + math.floor((max - factor) / (max - min) * rect.track_h)
             - math.floor(cap_h / 2)
         bb:paintRect(cap_x, cap_y, cap_w, cap_h, foreground)
         bb:paintRect(cap_x + border, cap_y + border, cap_w - border * 2, cap_h - border * 2, Blitbuffer.COLOR_WHITE)
@@ -405,6 +473,10 @@ return function(PanelViewer)
             border,
             foreground
         )
+        if destination then
+            destination:addblitFrom(bb, dest_x, dest_y, 0, 0, width, height, opacity)
+            bb:free()
+        end
     end
 
     --- Return the button label for the crop mode currently in use.

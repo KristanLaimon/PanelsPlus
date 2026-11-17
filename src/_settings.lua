@@ -35,9 +35,13 @@ local Settings = {
         swipe_navigation = true,
         kobo_vertical_gesture = true,
         panel_gesture = "hold",
-        panel_gesture_zoom = false,
-        panel_zoom_gesture = "spread",
-        panel_gesture_zoom_factor = 1.5,
+        panel_zoom_enabled = true,
+        panel_zoom_gesture_type = "spread",
+        panel_zoom_mode = "slider",
+        panel_zoom_factor = 1.5,
+        panel_zoom_slider_min = 0.3,
+        panel_zoom_slider_max = 3,
+        panel_zoom_slider_opacity = 100,
         remember_doc_settings = true,
         doc_settings = {},
         progress_bar_visible = true,
@@ -116,6 +120,16 @@ end
 --- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
+    for old, new in pairs({
+        panel_gesture_zoom = "panel_zoom_enabled",
+        panel_zoom_gesture = "panel_zoom_gesture_type",
+        panel_gesture_zoom_factor = "panel_zoom_factor",
+    }) do
+        if settings[new] == nil then
+            settings[new] = settings[old]
+        end
+        settings[old] = nil
+    end
     settings.doc_settings = settings.doc_settings or {}
     if settings.nav_transition_frames == nil then
         settings.nav_transition_frames = NavCapabilities.defaultFrames()

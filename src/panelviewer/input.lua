@@ -19,6 +19,17 @@ local logger = require("logger")
 
 local Constants = require("src.panelviewer.constants")
 local FLOW_WARNING_TIMEOUT = Constants.FLOW_WARNING_TIMEOUT
+local SLIDER_UPDATE_INTERVAL = 0.08
+
+--- Apply the latest queued slider value immediately, removing its scheduled duplicate.
+--- @param viewer PanelViewer
+local function flushZoomSlider(viewer)
+    local pending = viewer._zoom_slider_pending
+    if pending then
+        UIManager:unschedule(pending)
+        pending()
+    end
+end
 
 return function(PanelViewer)
     --- Return whether the current image overflows its viewport and can be panned.
@@ -278,6 +289,7 @@ return function(PanelViewer)
         return false
     end
 
+    --- Capture the view once so manual zoom and slider zoom share the same restore target.
     function PanelViewer:rememberZoomView()
         if not self._gesture_zoom_restore then
             self._gesture_zoom_restore = {
@@ -289,14 +301,50 @@ return function(PanelViewer)
         end
     end
 
-    -- A drag changes the live image on each event; persistence happens on release.
+    --- Finish queued slider work before switching to pinch, spread, or wheel zoom.
+    --- @param viewer PanelViewer
+    local function prepareManualZoom(viewer)
+        flushZoomSlider(viewer)
+        viewer._zoom_slider_dragging = nil
+        viewer:rememberZoomView()
+        --- @type PPZoomViewSnapshot
+        local saved = viewer._gesture_zoom_restore
+        if not saved.base_scale then
+            local image_widget = viewer._image_wg
+            saved.base_scale = (saved.scale and saved.scale > 0 and saved.scale)
+                or viewer._scale_factor_0
+                or (image_widget and image_widget.getScaleFactor and image_widget:getScaleFactor())
+        end
+        viewer._scale_to_fit = false
+    end
+
+    --- Persist the actual manual zoom ratio for Slider mode; In-config keeps its preset.
+    --- @param viewer PanelViewer
+    local function syncManualZoom(viewer)
+        local settings = viewer.panel_zoom_settings
+        local saved = viewer._gesture_zoom_restore
+        if settings and settings.panel_zoom_mode ~= "in_config" and saved and saved.base_scale
+            and saved.base_scale > 0 and viewer.scale_factor and viewer.scale_factor > 0 then
+            local factor = require("src._panelzoom").factor(viewer.scale_factor / saved.base_scale)
+            if settings.panel_zoom_factor ~= factor then
+                settings.panel_zoom_factor = factor
+                if viewer.panel_zoom_save_callback then viewer.panel_zoom_save_callback() end
+                UIManager:setDirty(viewer, "ui")
+            end
+        end
+    end
+
+    --- Consume slider contacts and coalesce live zoom updates; persist on release.
+    --- @param ges table KOReader gesture with name, position, and optional start/end positions.
+    --- @return boolean handled False when the gesture belongs to another control.
     function PanelViewer:handleZoomSliderGesture(ges)
         local rect = self.buttons_visible and self._zoom_slider_rect
-        if not rect or not self.panel_zoom_settings then
+        if not rect or not self.panel_zoom_settings or self.panel_zoom_settings.panel_zoom_mode == "in_config" then
             self._zoom_slider_dragging = nil
             return false
         end
         if ges.ges == "touch" then
+            flushZoomSlider(self)
             self._zoom_slider_dragging = nil
         end
         if self._zoom_slider_dragging then
@@ -314,6 +362,7 @@ return function(PanelViewer)
                 if end_pos then
                     self:handleZoomSliderGesture({ ges = "pan", pos = end_pos })
                 end
+                flushZoomSlider(self)
                 self._zoom_slider_dragging = nil
                 if self.panel_zoom_save_callback then
                     self.panel_zoom_save_callback()
@@ -353,6 +402,7 @@ return function(PanelViewer)
         then
             return true
         end
+        local was_zoomed = self._gesture_zoom_restore ~= nil
         self:rememberZoomView()
         local saved = self._gesture_zoom_restore
         -- Retain the pre-zoom scale across redraws so the slider is absolute, not cumulative.
@@ -364,14 +414,31 @@ return function(PanelViewer)
         local PanelZoom = require("src._panelzoom")
         local track_y, track_h = rect.track_y or rect.y, rect.track_h or rect.h
         local position = math.max(0, math.min(1, (pos.y - track_y) / track_h))
-        local factor = math.floor((PanelZoom.maximum - position * (PanelZoom.maximum - PanelZoom.minimum)) * 10 + 0.5)
+        local min, max = PanelZoom.range(self.panel_zoom_settings)
+        local factor = math.floor((max - position * (max - min)) * 10 + 0.5)
             / 10
-        self.panel_zoom_settings.panel_gesture_zoom_factor = factor
+        local changed = self.panel_zoom_settings.panel_zoom_factor ~= factor
+        self.panel_zoom_settings.panel_zoom_factor = factor
         self._scale_to_fit = false
-        local previous_scale = self.scale_factor
-        self:_applyNewScaleFactor(saved.base_scale * factor)
-        if self.scale_factor == previous_scale then
-            self:update()
+        local function apply()
+            if self._zoom_slider_pending and self._zoom_slider_pending ~= apply then return end
+            self._zoom_slider_pending = nil
+            if self._panels_plus_closed or self._gesture_zoom_restore ~= saved then return end
+            local previous_scale = self.scale_factor
+            self:_applyNewScaleFactor(saved.base_scale * self.panel_zoom_settings.panel_zoom_factor)
+            if self.scale_factor == previous_scale then self:update() end
+        end
+        if changed or not was_zoomed or not self._zoom_slider_dragging then
+            if self._zoom_slider_dragging and ges.ges ~= "tap" then
+                if not self._zoom_slider_pending then
+                    self._zoom_slider_pending = apply
+                    UIManager:scheduleIn(SLIDER_UPDATE_INTERVAL, apply)
+                end
+                UIManager:setDirty(self, "ui")
+            else
+                flushZoomSlider(self)
+                apply()
+            end
         end
         if ges.ges == "tap" then
             if self.panel_zoom_save_callback then
@@ -420,7 +487,7 @@ return function(PanelViewer)
         local dimen = image.dimen or { x = 0, y = 0 }
         self._center_x_ratio = math.max(0, math.min(1, (pos.x - dimen.x + (image._offset_x or 0)) / width))
         self._center_y_ratio = math.max(0, math.min(1, (pos.y - dimen.y + (image._offset_y or 0)) / height))
-        local factor = require("src._panelzoom").factor(self.panel_zoom_settings.panel_gesture_zoom_factor)
+        local factor = require("src._panelzoom").factor(self.panel_zoom_settings.panel_zoom_factor)
         self:onZoomIn(factor - 1)
         return true
     end
@@ -430,20 +497,100 @@ return function(PanelViewer)
     --- @param ges table Gesture event.
     --- @return boolean|nil handled Whether the gesture was consumed.
     function PanelViewer:onGesture(ges)
+        local positioning = self._zoom_slider_positioning
+        if positioning then
+            local pos = ges.ges == "swipe" and (ges.end_pos or ges.pos) or ges.pos
+            if ges.ges == "tap" and pos and pos.y >= Screen:scaleBySize(35) and pos.y < Screen:scaleBySize(80) then
+                self:finishZoomSliderPositioning(pos.x < Screen:getWidth() / 2)
+            elseif (ges.ges == "pan" or ges.ges == "hold_pan" or ges.ges == "swipe") and pos then
+                local rect = self._zoom_slider_rect
+                if rect then
+                    if positioning.resize then
+                        if not positioning.edge then
+                            local start = ges.start_pos or pos
+                            local margin = Screen:scaleBySize(24)
+                            if start.y >= rect.y - margin and start.y <= rect.y + rect.h + margin
+                                and math.abs(start.x - rect.x) <= margin then
+                                positioning.edge = "left"
+                            elseif start.y >= rect.y - margin and start.y <= rect.y + rect.h + margin
+                                and math.abs(start.x - rect.x - rect.w) <= margin then
+                                positioning.edge = "right"
+                            elseif start.x >= rect.x - margin and start.x <= rect.x + rect.w + margin
+                                and math.abs(start.y - rect.y) <= margin then
+                                positioning.edge = "top"
+                            elseif start.x >= rect.x - margin and start.x <= rect.x + rect.w + margin
+                                and math.abs(start.y - rect.y - rect.h) <= margin then
+                                positioning.edge = "bottom"
+                            end
+                            if positioning.edge then
+                                positioning.resize_rect = { x = rect.x, y = rect.y, w = rect.w, h = rect.h }
+                            end
+                        end
+                        local initial, edge = positioning.resize_rect, positioning.edge
+                        if initial then
+                            local x, y, w, h = initial.x, initial.y, initial.w, initial.h
+                            if edge == "left" then
+                                x = math.max(0, math.min(initial.x + initial.w - Screen:scaleBySize(40), pos.x))
+                                w = initial.x + initial.w - x
+                            elseif edge == "right" then
+                                w = math.max(Screen:scaleBySize(40), math.min(positioning.viewport_w - x, pos.x - x))
+                            elseif edge == "top" then
+                                y = math.max(0, math.min(initial.y + initial.h - Screen:scaleBySize(120), pos.y))
+                                h = initial.y + initial.h - y
+                            elseif edge == "bottom" then
+                                h = math.max(Screen:scaleBySize(120), math.min(positioning.viewport_h - y, pos.y - y))
+                            end
+                            positioning.width, positioning.height = w, h
+                            positioning.x = x / math.max(1, positioning.viewport_w - w)
+                            positioning.y = y / math.max(1, positioning.viewport_h - h)
+                        end
+                    else
+                        positioning.x = math.max(0, math.min(1, (pos.x - rect.w / 2) / math.max(1, positioning.viewport_w - rect.w)))
+                        positioning.y = math.max(0, math.min(1, (pos.y - rect.h / 2) / math.max(1, positioning.viewport_h - rect.h)))
+                    end
+                    UIManager:setDirty(self, "ui")
+                end
+                if ges.ges == "swipe" then
+                    positioning.edge, positioning.resize_rect = nil, nil
+                end
+            elseif ges.ges == "pan_release" or ges.ges == "hold_pan_release" then
+                positioning.edge, positioning.resize_rect = nil, nil
+            end
+            return true
+        end
         if self:handleZoomSliderGesture(ges) then
             return true
         end
-        if self._gesture_zoom_holding and (ges.ges == "hold_release" or ges.ges == "hold_pan_release") then
-            self._gesture_zoom_holding = nil
-            return true
-        end
-        if self._gesture_zoom_holding and ges.ges == "hold_pan" then
-            return true
+        local hold = self._gesture_zoom_holding
+        if hold then
+            if ges.ges == "hold_pan" then
+                if not hold.dragging then
+                    hold.dragging = true
+                    self:onHold(nil, hold.gesture)
+                    -- This drag activates word lookup; it must not extend the selection.
+                    self:_cancelPhraseHold()
+                    local highlight = self.reader_ui and self.reader_ui.highlight
+                    if highlight and highlight._resetHoldTimer then
+                        highlight:_resetHoldTimer(true)
+                    end
+                end
+                return true
+            elseif ges.ges == "hold_release" or ges.ges == "hold_pan_release" then
+                self._gesture_zoom_holding = nil
+                if hold.dragging then
+                    self:onHoldRelease(nil, ges)
+                    return true
+                end
+                return self:toggleGestureZoom(hold.gesture.pos)
+            end
         end
         local settings = self.panel_zoom_settings
-        local zoom_gesture = settings and settings.panel_zoom_gesture or "spread"
-        if settings and settings.panel_gesture_zoom == true and ges.ges == zoom_gesture then
-            self._gesture_zoom_holding = ges.ges == "hold" or nil
+        local zoom_gesture = settings and settings.panel_zoom_gesture_type or "spread"
+        if settings and settings.panel_zoom_enabled == true and ges.ges == zoom_gesture then
+            if ges.ges == "hold" then
+                self._gesture_zoom_holding = { gesture = ges }
+                return true
+            end
             return self:toggleGestureZoom(ges.pos)
         end
         if self:dispatchReaderGesture(ges) then
@@ -755,6 +902,7 @@ return function(PanelViewer)
     --- @param key string|table Key name or KOReader Key event object.
     --- @return boolean|nil handled
     function PanelViewer:onKeyPress(key)
+        if self._zoom_slider_positioning then return true end
         local key_name
         local has_modifier = false
         if type(key) == "string" then
@@ -803,6 +951,13 @@ return function(PanelViewer)
             return ImageViewer.onKeyPress(self, key)
         end
         return true
+    end
+
+    --- Keep the editor modal until its Save or Cancel action is selected.
+    --- @return boolean handled
+    function PanelViewer:onClose()
+        if self._zoom_slider_positioning then return true end
+        return ImageViewer.onClose(self)
     end
 
     --- Forward key repeat events identically to key press.
@@ -856,9 +1011,10 @@ return function(PanelViewer)
     --- @param inc number|nil Zoom-in increment forwarded to the base implementation.
     --- @return boolean handled Always true after processing the zoom.
     function PanelViewer:onZoomIn(inc)
-        self:rememberZoomView()
-        self._scale_to_fit = false
-        return ImageViewer.onZoomIn(self, inc)
+        prepareManualZoom(self)
+        local result = ImageViewer.onZoomIn(self, inc)
+        syncManualZoom(self)
+        return result
     end
 
     --- Zoom out (pinch/spread, mousewheel, or left-edge swipe) and leave "scale to fit".
@@ -868,9 +1024,10 @@ return function(PanelViewer)
     --- @param dec number|nil Zoom-out decrement forwarded to the base implementation.
     --- @return boolean handled Always true after processing the zoom.
     function PanelViewer:onZoomOut(dec)
-        self:rememberZoomView()
-        self._scale_to_fit = false
-        return ImageViewer.onZoomOut(self, dec)
+        prepareManualZoom(self)
+        local result = ImageViewer.onZoomOut(self, dec)
+        syncManualZoom(self)
+        return result
     end
 
     --- Toggle controls on inside taps, navigate on edge taps when enabled, and

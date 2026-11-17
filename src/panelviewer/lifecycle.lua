@@ -209,6 +209,10 @@ return function(PanelViewer)
 
     --- Close ImageViewer resources while guarding its final dirty-region callback.
     function PanelViewer:onCloseWidget()
+        if self._zoom_slider_pending then
+            UIManager:unschedule(self._zoom_slider_pending)
+            self._zoom_slider_pending = nil
+        end
         self:_cancelPhraseHold()
         self._phrase_selected = nil
         self._panels_plus_closed = true
