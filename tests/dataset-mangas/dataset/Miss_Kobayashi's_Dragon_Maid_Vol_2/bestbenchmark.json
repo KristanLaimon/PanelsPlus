@@ -23,6 +23,30 @@
         "true_positives": 560
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-16",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9665,
+        "false_positives": 11,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9667,
+        "pages_evaluated": 143,
+        "precision": 0.9808,
+        "reading_order_accuracy": 0.8042,
+        "reading_order_pages": 143,
+        "reading_order_pages_correct": 115,
+        "reading_order_pair_accuracy": 0.9957,
+        "reading_order_pairs": 1159,
+        "reading_order_pairs_correct": 1154,
+        "recall": 0.9526,
+        "total_detected": 574,
+        "total_ground_truth": 591,
+        "true_positives": 563
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Miss_Kobayashi's_Dragon_Maid_Vol_2",
@@ -91,23 +115,23 @@
     "true_positives": 533
   },
   "safe_full_volume": {
-    "f1": 0.9665,
+    "f1": 0.9663,
     "false_positives": 11,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
     "mean_iou": 0.9667,
     "pages_evaluated": 143,
-    "precision": 0.9808,
+    "precision": 0.9807,
     "reading_order_accuracy": 0.8042,
     "reading_order_pages": 143,
     "reading_order_pages_correct": 115,
-    "reading_order_pair_accuracy": 0.9957,
-    "reading_order_pairs": 1159,
-    "reading_order_pairs_correct": 1154,
-    "recall": 0.9526,
-    "total_detected": 574,
-    "total_ground_truth": 591,
-    "true_positives": 563
+    "reading_order_pair_accuracy": 0.9956,
+    "reading_order_pairs": 1139,
+    "reading_order_pairs_correct": 1134,
+    "recall": 0.9523,
+    "total_detected": 570,
+    "total_ground_truth": 587,
+    "true_positives": 559
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
@@ -142,5 +166,5 @@
     "total_ground_truth": 586,
     "true_positives": 367
   },
-  "updated_at": "2026-10-16"
+  "updated_at": "2026-11-16"
 }
