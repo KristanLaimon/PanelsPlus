@@ -395,17 +395,17 @@ return function(PanelViewer)
         end
         local settings = self.panel_zoom_settings
         local width = position and position.width or (settings.panel_zoom_slider_width and settings.panel_zoom_slider_width * vw)
-            or Screen:scaleBySize(48)
+            or Screen:scaleBySize(64)
         local height = position and position.height or (settings.panel_zoom_slider_height and settings.panel_zoom_slider_height * vh)
-            or math.min(Screen:scaleBySize(280), d.h * 0.7)
+            or math.min(Screen:scaleBySize(320), d.h * 0.7)
         width, height = math.floor(math.min(vw, width)), math.floor(math.min(vh, height))
         local padding = math.max(1, math.floor(math.min(height * 0.17, width * 0.58, Screen:scaleBySize(48))))
         if height <= padding * 3 or width < 1 then
             return
         end
         local rect = {
-            x = d.x + d.w - width - Screen:scaleBySize(8),
-            y = d.y + math.floor((d.h - height) / 2),
+            x = d.x + math.max(0, d.w - width - Screen:scaleBySize(12)),
+            y = d.y + math.max(0, d.h - height - Screen:scaleBySize(12)),
             w = width,
             h = height,
         }
