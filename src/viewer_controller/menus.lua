@@ -84,6 +84,18 @@ return function(ViewerController)
                 end,
             }
         end
+        items[#items + 1] = {
+            text = (self.settings.panel_refresh_on_page_change ~= false and "☑ " or "☐ ")
+                .. _("Refresh on full page change"),
+            callback = function()
+                self.settings.panel_refresh_on_page_change = self.settings.panel_refresh_on_page_change == false
+                viewer.panel_refresh_settings = self.settings
+                self:saveSettings()
+                menu.close_callback = nil
+                UIManager:close(menu)
+                self:showPanelRefreshSettings(viewer, parent_page)
+            end,
+        }
         menu = require("ui/widget/menu"):new({
             title = _("Panel refresh"),
             item_table = items,

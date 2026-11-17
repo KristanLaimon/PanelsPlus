@@ -602,3 +602,6 @@ msgstr "Seguir los ajustes de KOReader"
 
 msgid "Full refresh every N panels"
 msgstr "Actualización completa cada N viñetas"
+
+msgid "Refresh on full page change"
+msgstr "Refrescar al cambiar de página completa"

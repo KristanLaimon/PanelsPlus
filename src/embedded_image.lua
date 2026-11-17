@@ -475,6 +475,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         if options.boundary_direction then
             self:armPageTurnAnimation(options.boundary_direction, options.replace_viewer)
         end
+        options.replace_viewer._panels_plus_replacing = true
         UIManager:close(options.replace_viewer)
     end
     UIManager:show(viewer)

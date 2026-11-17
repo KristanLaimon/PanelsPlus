@@ -84,6 +84,15 @@ return function(PanelViewer)
             if widget == self and mode == "partial" then
                 mode = "ui"
             end
+            -- A page replacement must also honor the preference on the outgoing viewer.
+            if
+                widget == nil
+                and self._panels_plus_replacing
+                and (self.panel_refresh_settings or {}).panel_refresh_on_page_change == false
+                and mode == "flashui"
+            then
+                mode = "ui"
+            end
             return mode, region, dither
         end
     end

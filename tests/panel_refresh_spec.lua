@@ -9,6 +9,8 @@ describe("Panel refresh cadence", function()
     it("defaults new installations to KOReader while preserving saved choices", function()
         assert.equals("koreader", Settings.withDefaults({}).panel_refresh_mode)
         assert.equals("interval", Settings.withDefaults({ panel_refresh_mode = "interval" }).panel_refresh_mode)
+        assert.is_true(Settings.withDefaults({}).panel_refresh_on_page_change)
+        assert.is_false(Settings.withDefaults({ panel_refresh_on_page_change = false }).panel_refresh_on_page_change)
     end)
 
     it("persists a refresh choice and applies it to the open viewer", function()
@@ -28,12 +30,74 @@ describe("Panel refresh cadence", function()
             end
         end
         local menu = UIManager._last_shown
-        assert.equals(4, #menu.item_table)
+        assert.equals(5, #menu.item_table)
         menu.item_table[2].callback()
         assert.equals("every", controller.settings.panel_refresh_mode)
         assert.equals(controller.settings, viewer.panel_refresh_settings)
         assert.equals(0, viewer._panel_refresh_count)
         assert.equals(1, saves)
+    end)
+
+    it("toggles page refresh independently of the panel cadence and persists both states", function()
+        local saves = 0
+        local controller = setmetatable({
+            settings = Settings.withDefaults({ panel_refresh_mode = "never" }),
+            saveSettings = function()
+                saves = saves + 1
+            end,
+        }, { __index = ViewerController })
+        local viewer = {}
+        controller:showPanelRefreshSettings(viewer)
+        assert.equals("☑ Refresh on full page change", UIManager._last_shown.item_table[5].text)
+        UIManager._last_shown.item_table[5].callback()
+        assert.is_false(controller.settings.panel_refresh_on_page_change)
+        assert.equals("☐ Refresh on full page change", UIManager._last_shown.item_table[5].text)
+        assert.equals(controller.settings, viewer.panel_refresh_settings)
+        UIManager._last_shown.item_table[5].callback()
+        assert.is_true(controller.settings.panel_refresh_on_page_change)
+        assert.equals("never", controller.settings.panel_refresh_mode)
+        assert.equals(2, saves)
+    end)
+
+    it("uses the page refresh preference when the viewer is shown", function()
+        local original_dirty = UIManager.setDirty
+        local repaint
+        UIManager.setDirty = function(_, _, callback)
+            repaint = callback
+        end
+        local viewer = setmetatable({
+            main_frame = { dimen = {} },
+            isOpen = function()
+                return true
+            end,
+            requestPanelPrerender = function() end,
+        }, { __index = PanelViewer })
+        viewer:onShow()
+        assert.equals("full", repaint())
+        viewer.panel_refresh_settings = { panel_refresh_on_page_change = false }
+        viewer:onShow()
+        assert.equals("ui", repaint())
+        viewer.panel_refresh_settings.panel_refresh_on_page_change = true
+        viewer:onShow()
+        assert.equals("full", repaint())
+        UIManager.setDirty = original_dirty
+    end)
+
+    it("suppresses the outgoing flash only when replacing a page with page refresh disabled", function()
+        local viewer = setmetatable({
+            main_frame = { dimen = {} },
+            panel_refresh_settings = { panel_refresh_on_page_change = false },
+            _panels_plus_replacing = true,
+        }, { __index = PanelViewer })
+        local repaint = viewer:guardRefreshFunc(nil, function()
+            return "flashui"
+        end)
+        assert.equals("ui", repaint())
+        viewer._panels_plus_replacing = nil
+        assert.equals("flashui", repaint())
+        viewer._panels_plus_replacing = true
+        viewer.panel_refresh_settings.panel_refresh_on_page_change = true
+        assert.equals("flashui", repaint())
     end)
 
     it("defers the interval picker and updates the current interval label", function()

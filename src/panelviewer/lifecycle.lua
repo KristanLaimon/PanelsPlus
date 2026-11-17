@@ -25,7 +25,7 @@ local NAV_TRANSITION_MIN_FREE_BYTES = Constants.NAV_TRANSITION_MIN_FREE_BYTES
 
 --- @param PanelViewer PanelViewer
 return function(PanelViewer)
-    --- Schedule the initial full repaint without assuming layout already happened.
+    --- Schedule the page repaint without assuming layout already happened.
     function PanelViewer:onShow()
         self._panels_plus_closed = nil
         self.dithered = true
@@ -33,7 +33,8 @@ return function(PanelViewer)
             if not self:isOpen() or not self.main_frame or not self.main_frame.dimen then
                 return nil
             end
-            return "full", self.main_frame.dimen, true
+            local settings = self.panel_refresh_settings or {}
+            return settings.panel_refresh_on_page_change ~= false and "full" or "ui", self.main_frame.dimen, true
         end)
         self:requestPanelPrerender()
         return true

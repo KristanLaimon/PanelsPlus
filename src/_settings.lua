@@ -71,6 +71,7 @@ local Settings = {
         panel_cache_pages = 12,
         panel_refresh_mode = "koreader",
         panel_refresh_interval = 6,
+        panel_refresh_on_page_change = true,
         panel_prerender = true,
         panel_prerender_delay = 0.25,
         prefetch_min_free_bytes = 15 * 1024 * 1024,

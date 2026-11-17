@@ -841,3 +841,6 @@ msgstr "旋转跨页（实际："
 
 msgid "Spread direction (Actual: "
 msgstr "跨页方向（实际："
+
+msgid "Refresh on full page change"
+msgstr "切换整页时刷新"

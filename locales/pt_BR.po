@@ -832,3 +832,6 @@ msgstr "Girar páginas duplas (Atual: "
 
 msgid "Spread direction (Actual: "
 msgstr "Direção da página dupla (Atual: "
+
+msgid "Refresh on full page change"
+msgstr "Atualizar ao mudar de página inteira"

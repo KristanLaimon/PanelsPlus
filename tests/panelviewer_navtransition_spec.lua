@@ -315,6 +315,50 @@ describe("PanelViewer smooth pan and zoom navigation", function()
         end
     end
 
+    it("counts one refresh after Smooth lands and none during its frames", function()
+        for _, style in ipairs({ "linear", "classic" }) do
+            withTransition({
+                style = style,
+                rects = {
+                    { x = 0, y = 0, w = 300, h = 400 },
+                    { x = 300, y = 0, w = 300, h = 400 },
+                },
+            }, function(viewer)
+                local original_dirty = UIManager.setDirty
+                local refreshes = 0
+                UIManager.setDirty = function(_, _, mode)
+                    assert.equals("full", mode)
+                    refreshes = refreshes + 1
+                end
+                local ok, err = pcall(function()
+                    viewer.panel_refresh_settings = { panel_refresh_mode = "every" }
+                    viewer.switchToImageNum = PanelViewer.switchToImageNum
+                    viewer._images_list = { viewer.image, {} }
+                    viewer.applyImageRotation = function() end
+                    viewer:animateSwitchToImageNum(2)
+                    assert.equals(0, refreshes)
+                    assert.is_nil(viewer._panel_refresh_count)
+                    if style == "classic" then
+                        viewer.canvas_pan.done()
+                    else
+                        for _ = 1, 4 do
+                            assert.equals(0, refreshes)
+                            UIManager._last_scheduled()
+                        end
+                    end
+                    assert.equals(2, viewer._images_list_cur)
+                    assert.equals(1, refreshes)
+                    viewer:completeNavTransition(2)
+                    assert.equals(1, refreshes)
+                end)
+                UIManager.setDirty = original_dirty
+                if not ok then
+                    error(err)
+                end
+            end)
+        end
+    end)
+
     it("keeps Smooth padding dark when document colors are preserved in night mode", function()
         for _, style in ipairs({ "linear", "classic", "boundary" }) do
             for _, night_mode in ipairs({ false, true }) do

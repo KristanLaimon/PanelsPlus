@@ -109,6 +109,7 @@ SPDX-License-Identifier: MIT
 --- @class PPSettings
 --- @field panel_refresh_mode PPPanelRefreshMode Full refresh policy for panel switches.
 --- @field panel_refresh_interval integer Completed panel switches between full refreshes.
+--- @field panel_refresh_on_page_change boolean Full refresh when opening a page's panel viewer.
 --- @field profiles PPSettingsProfile[] Global user-editable profiles.
 --- @field profiles_initialized boolean Whether the bundled profiles have been seeded.
 --- @field profile_next_id integer|nil Next user profile identifier.

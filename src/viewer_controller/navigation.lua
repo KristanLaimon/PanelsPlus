@@ -198,6 +198,7 @@ return function(ViewerController)
 
         if options.replace_viewer then
             self:armPageTurnAnimation(options.boundary_direction, options.replace_viewer)
+            options.replace_viewer._panels_plus_replacing = true
             UIManager:close(options.replace_viewer)
         end
         UIManager:show(viewer)
