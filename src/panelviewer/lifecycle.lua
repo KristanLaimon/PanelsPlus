@@ -239,6 +239,10 @@ return function(PanelViewer)
                 ui.inkAwayPendingIntegrations = nil
             end
         end
+        if self._zoom_slider_pending then
+            UIManager:unschedule(self._zoom_slider_pending)
+            self._zoom_slider_pending = nil
+        end
         self:_cancelPhraseHold()
         self._phrase_selected = nil
         self._panels_plus_closed = true

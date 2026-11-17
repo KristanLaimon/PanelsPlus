@@ -45,50 +45,111 @@ function Menu:getModeText()
 end
 
 --- Shared optional panel zoom choices for the reader and viewer menus.
+--- @param self PanelsPlus Host plugin; both menu entry points share its settings and persistence.
+--- @return table[] items Gesture/mode choices plus multipliers when In-config is selected.
 function Menu.panelZoomItems(self)
     local items = {
         {
             text = _("Enable panel gesture zoom"),
             mandatory_func = function()
-                return self.settings.panel_gesture_zoom == true and _("Enabled") or _("Disabled")
+                return self.settings.panel_zoom_enabled == true and _("Enabled") or _("Disabled")
             end,
             checked_func = function()
-                return self.settings.panel_gesture_zoom == true
+                return self.settings.panel_zoom_enabled == true
             end,
             callback = function()
-                self.settings.panel_gesture_zoom = not self.settings.panel_gesture_zoom
+                self.settings.panel_zoom_enabled = not self.settings.panel_zoom_enabled
                 self:saveSettings()
             end,
         },
         { text = _("Zoom gesture"), bold = true, select_enabled = false },
     }
+    local hold_help = _("Important Note: Now long press is used for zoom-in and zoom-out, but OCR Text dictionary look up was using that shortcut, now, to select a word, try with long press + dragging (in any direction). This shortcut override only applies while using long press as zoom-gesture")
     for _, choice in ipairs({
         { "hold", _("Long press") },
         { "two_finger_tap", _("Two-finger tap") },
         { "spread", _("Spread gesture") },
     }) do
         local gesture, label = choice[1], choice[2]
-        local selected = (self.settings.panel_zoom_gesture or "spread") == gesture
+        local selected = (self.settings.panel_zoom_gesture_type or "spread") == gesture
         items[#items + 1] = {
             text = (selected and "◉ " or "○ ") .. label,
             text_func = function()
-                return ((self.settings.panel_zoom_gesture or "spread") == gesture and "◉ " or "○ ") .. label
+                return ((self.settings.panel_zoom_gesture_type or "spread") == gesture and "◉ " or "○ ") .. label
             end,
             radio = true,
             bold = selected,
             checked_func = function()
-                return (self.settings.panel_zoom_gesture or "spread") == gesture
+                return (self.settings.panel_zoom_gesture_type or "spread") == gesture
             end,
             callback = function()
-                self.settings.panel_zoom_gesture = gesture
+                self.settings.panel_zoom_gesture_type = gesture
                 self:saveSettings()
+                if gesture == "hold" then
+                    local UIManager = require("ui/uimanager")
+                    UIManager:nextTick(function()
+                        UIManager:show(require("ui/widget/infomessage"):new({
+                            text = hold_help,
+                        }))
+                    end)
+                end
             end,
         }
     end
+    items[#items + 1] = { text = _("Zooming mode"), bold = true, select_enabled = false }
+    local updateZoomAmounts
+    for _, choice in ipairs({ { "slider", _("Slider (Long press to config)") }, { "in_config", _("In-config") } }) do
+        local mode, label = choice[1], choice[2]
+        items[#items + 1] = {
+            text_func = function()
+                return ((self.settings.panel_zoom_mode or "slider") == mode and "◉ " or "○ ") .. label
+            end,
+            text = ((self.settings.panel_zoom_mode or "slider") == mode and "◉ " or "○ ") .. label,
+            radio = true,
+            hold_callback = mode == "slider" and function()
+                if self.showZoomSliderOptions then self:showZoomSliderOptions() end
+            end or nil,
+            checked_func = function() return (self.settings.panel_zoom_mode or "slider") == mode end,
+            callback = function()
+                self.settings.panel_zoom_mode = mode
+                if mode == "slider" then
+                    local zoom = require("src._panelzoom")
+                    local min, max = zoom.range(self.settings)
+                    self.settings.panel_zoom_factor = math.max(min, math.min(max, zoom.factor(self.settings.panel_zoom_factor)))
+                end
+                self:saveSettings()
+                updateZoomAmounts()
+            end,
+        }
+    end
+    local base_item_count = #items
+    updateZoomAmounts = function()
+        while #items > base_item_count do
+            table.remove(items)
+        end
+        if self.settings.panel_zoom_mode ~= "in_config" then
+            return
+        end
+        items[#items + 1] = { text = _("Zoom amount"), bold = true, select_enabled = false }
+        for _, factor in ipairs({ 1.25, 1.5, 1.75, 2, 3, 4, 5 }) do
+            items[#items + 1] = {
+                text = tostring(factor) .. "×",
+                radio = true,
+                checked_func = function() return (self.settings.panel_zoom_factor or 1.5) == factor end,
+                callback = function()
+                    self.settings.panel_zoom_factor = factor
+                    self:saveSettings()
+                end,
+            }
+        end
+    end
+    updateZoomAmounts()
     return items
 end
 
 --- Shared gesture choices remain accessible before opening any panel viewer.
+--- @param self PanelsPlus
+--- @return table[] items
 function Menu.panelGestureItems(self)
     return {
         {
@@ -132,6 +193,9 @@ function Menu:applyAdvancedSetting(setter, value, key)
     end
 end
 
+--- Build advanced animation controls for either menu entry point.
+--- @param self PanelsPlus
+--- @return table[] items
 function Menu.animationItems(self)
     local items = {}
     local function currentPage(menu)
@@ -379,7 +443,7 @@ function Menu:addToMainMenu(menu_items)
                 separator = true,
             },
             {
-                text = _("Panel gesture zoom"),
+                text = _("Zoom settings"),
                 sub_item_table = Menu.panelZoomItems(self),
             },
             {

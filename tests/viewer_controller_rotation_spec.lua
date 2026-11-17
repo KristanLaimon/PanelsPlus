@@ -136,10 +136,10 @@ describe("PanelViewer Android screen resize", function()
         controller:showPanelViewerForPage(7, { { x = 0, y = 0, w = 800, h = 250 } }, 1)
         local portrait_viewer = UIManager._last_shown
         assert.equals(nil, portrait_viewer.panel_zoom_settings.crop_mode)
-        controller.settings.panel_zoom_gesture = "hold"
-        assert.equals("hold", portrait_viewer.panel_zoom_settings.panel_zoom_gesture)
-        portrait_viewer.panel_zoom_settings.panel_gesture_zoom_factor = 2.15
-        assert.equals(2.15, controller.settings.panel_gesture_zoom_factor)
+        controller.settings.panel_zoom_gesture_type = "hold"
+        assert.equals("hold", portrait_viewer.panel_zoom_settings.panel_zoom_gesture_type)
+        portrait_viewer.panel_zoom_settings.panel_zoom_factor = 2.15
+        assert.equals(2.15, controller.settings.panel_zoom_factor)
         portrait_viewer.region = { w = screen_w, h = screen_h }
         assert.equals(824, portrait_viewer.image[1]():getWidth())
 

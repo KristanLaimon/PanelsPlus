@@ -113,14 +113,78 @@ describe("ViewerController page-turn animation settings", function()
         local menu = shownOcrMenu()
         assert.equals(math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)), menu.width)
         assert.equals(math.floor(Screen:getHeight() * 0.82), menu.height)
-        assert.equals("Disabled", menu.item_table[1].mandatory_func())
+        assert.equals("Enabled", menu.item_table[1].mandatory_func())
         assert.equals("◉ Spread gesture", menu.item_table[5].text)
         menu.item_table[1].callback()
         menu = shownOcrMenu()
-        assert.equals("Enabled", menu.item_table[1].mandatory_func())
+        assert.equals("Disabled", menu.item_table[1].mandatory_func())
         menu.item_table[3].callback()
         assert.equals("◉ Long press", shownOcrMenu().item_table[3].text)
         assert.equals(2, saved:callCount())
+    end)
+
+    it("previews transparency and restores it when dismissed", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        local old_spin = package.loaded["ui/widget/spinwidget"]
+        local old_tick = UIManager.nextTick
+        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
+        package.loaded["ui/widget/spinwidget"] = { new = function(_, options)
+            options.update = function() end
+            return options
+        end }
+        UIManager.nextTick = function() end
+        local ok, err = pcall(function()
+            controller:showZoomSliderOptions({}, function() end)
+            UIManager._last_shown.buttons[3][1].callback()
+            local spin = UIManager._last_shown
+            spin:update(40)
+            assert.equals(60, controller.settings.panel_zoom_slider_opacity)
+            spin.close_callback()
+            assert.equals(100, controller.settings.panel_zoom_slider_opacity)
+            assert.equals(0, saved:callCount())
+            controller:showZoomSliderOptions({}, function() end)
+            UIManager._last_shown.buttons[3][1].callback()
+            spin = UIManager._last_shown
+            spin:update(40)
+            spin.callback({ value = 40 })
+            spin.close_callback()
+            assert.equals(60, controller.settings.panel_zoom_slider_opacity)
+            assert.equals(1, saved:callCount())
+        end)
+        package.loaded["ui/widget/buttondialog"], package.loaded["ui/widget/spinwidget"] = old_dialog, old_spin
+        UIManager.nextTick = old_tick
+        if not ok then error(err) end
+    end)
+
+    it("restores slider defaults and keeps unrelated zoom settings", function()
+        local controller, saved = makeController(Settings.withDefaults({
+            panel_zoom_slider_min = 0.1, panel_zoom_slider_max = 8, panel_zoom_slider_opacity = 50,
+            panel_zoom_slider_x = 0.2, panel_zoom_slider_y = 0.3,
+            panel_zoom_slider_width = 0.4, panel_zoom_slider_height = 0.5,
+            panel_zoom_factor = 5, panel_zoom_gesture_type = "hold",
+        }))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
+        local ok, err = pcall(function()
+            local updates = 0
+            controller:showZoomSliderOptions({ update = function() updates = updates + 1 end }, function() end)
+            UIManager._last_shown.buttons[5][1].callback()
+            local s = controller.settings
+            assert.equals(0.3, s.panel_zoom_slider_min)
+            assert.equals(3, s.panel_zoom_slider_max)
+            assert.equals(100, s.panel_zoom_slider_opacity)
+            assert.is_nil(s.panel_zoom_slider_x)
+            assert.is_nil(s.panel_zoom_slider_y)
+            assert.is_nil(s.panel_zoom_slider_width)
+            assert.is_nil(s.panel_zoom_slider_height)
+            assert.equals(3, s.panel_zoom_factor)
+            assert.equals("hold", s.panel_zoom_gesture_type)
+            assert.equals(1, saved:callCount())
+            assert.equals(1, updates)
+        end)
+        package.loaded["ui/widget/buttondialog"] = old_dialog
+        if not ok then error(err) end
     end)
 
     it("animates pages only when Animated mode and its page option are enabled", function()
@@ -446,7 +510,7 @@ describe("ViewerController page-turn animation settings", function()
             "Remove spread fold line",
             "Touch & hold text selection",
             "Panel refresh…",
-            "Panel gesture zoom",
+            "Zoom settings",
             "Open advanced options",
         }
         assert.equals(#labels, #menu.item_table)

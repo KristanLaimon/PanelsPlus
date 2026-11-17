@@ -71,6 +71,16 @@ local NAV_TRANSITION_STEPS_DEFAULT = require("src.panelviewer.constants").NAV_TR
 --- @field with_title_bar boolean Whether ImageViewer title bar is shown.
 --- @field fullscreen boolean Whether the viewer is fullscreen.
 --- @field images_keep_pan_and_zoom boolean Whether ImageViewer preserves pan/zoom.
+--- @field panel_zoom_settings PPPanelZoomSettings|nil Live proxy to global zoom preferences.
+--- @field panel_zoom_save_callback fun()|nil Persists edits to zoom preferences.
+--- @field zoom_config_callback fun(viewer:PanelViewer):boolean|nil Opens Zoom settings.
+--- @field _gesture_zoom_restore PPZoomViewSnapshot|nil Original view retained throughout a zoom session.
+--- @field _gesture_zoom_holding {gesture:table, dragging:boolean|nil}|nil Deferred hold: release toggles zoom; drag starts OCR.
+--- @field _zoom_slider_rect PPZoomSliderRect|nil Bounds from the most recent slider paint.
+--- @field _zoom_slider_dragging boolean|nil Whether the current contact belongs to the slider.
+--- @field _zoom_slider_pending fun()|nil Scheduled application of the latest slider factor.
+--- @field _zoom_slider_positioning PPZoomSliderEditor|nil Temporary move/resize session.
+--- @field rememberZoomView fun(self:PanelViewer) Capture the original view once per zoom session.
 local PanelViewer = ImageViewer:extend({
     name = "panels_plus_panel_viewer",
     reading_mode = "manga",
