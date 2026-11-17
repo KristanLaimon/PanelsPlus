@@ -19,6 +19,10 @@ SPDX-License-Identifier: MIT
 
 --- KOReader ImageViewer widget base class stub for LuaLS.
 --- @class ImageViewer
+--- @field scale_factor number Zero means fit to the viewport.
+--- @field _scale_to_fit boolean
+--- @field _scale_factor_0 number|nil Resolved fit scale for scalable image sources.
+--- @field _image_wg table|nil KOReader image widget containing the rendered pixel buffer.
 
 --- KOReader InputContainer widget base class stub for LuaLS.
 --- @class InputContainer
@@ -34,6 +38,10 @@ SPDX-License-Identifier: MIT
 --- @field panel_cache_order string[] LRU cache key order.
 --- @field panel_prefetch_actions table<string, function> Scheduled prefetch jobs, by cache key.
 --- @field panel_prerender_action function|nil Scheduled next-panel warm-up, if any.
+--- @field getOpenPanelViewer fun(self:PanelsPlus):PanelViewer|nil Find the active fixed-page or embedded-image viewer.
+--- @field showPanelZoomMenu fun(self:PanelsPlus, viewer:PanelViewer, return_callback:fun()|nil):boolean
+--- @field showZoomSliderOptions fun(self:PanelsPlus, viewer:PanelViewer|nil, return_callback:fun()|nil)
+--- @field previewSmoothSettings fun(self:PanelsPlus, viewer:PanelViewer|nil, page:number|nil, skip_preview:boolean|nil):boolean|nil
 
 --- Reading order used to sort panels and interpret horizontal swipes.
 --- @alias PPReadingMode '"manga"'|'"comic"'
@@ -59,6 +67,7 @@ SPDX-License-Identifier: MIT
 --- @field nav_animated_panels boolean|nil
 --- @field nav_animated_pages boolean|nil
 --- @field nav_smooth_style string CSS timing function name or "classic" for the earlier pan.
+--- @field nav_smooth_preview boolean Preview smooth navigation changes in the open viewer.
 --- @field nav_smooth_preview boolean Preview Smooth settings changes and reopen their menu.
 --- @field nav_transition_duration number|nil
 --- @field nav_transition_cross_page boolean|nil
@@ -102,8 +111,57 @@ SPDX-License-Identifier: MIT
 --- Panel-to-panel navigation transition style.
 --- @alias PPNavTransitionMode '"classic"'|'"smooth"'|'"animated"'
 
+--- @alias PPZoomGesture '"hold"'|'"two_finger_tap"'|'"spread"'
+--- @alias PPZoomMode '"slider"'|'"in_config"'
+
+--- Global zoom preferences; optional fields also support live proxies and older saved settings.
+--- @class PPPanelZoomSettings
+--- @field panel_zoom_enabled boolean|nil Enable the configured panel zoom gesture; default true.
+--- @field panel_zoom_gesture_type PPZoomGesture|nil Default spread; hold toggles on release and selects text on drag.
+--- @field panel_zoom_mode PPZoomMode|nil Slider by default; in_config uses fixed menu multipliers.
+--- @field panel_zoom_factor number|nil Zoom multiplier relative to the saved pre-zoom view; default 1.5.
+--- @field panel_zoom_slider_min number|nil Minimum multiplier; default 0.3, absolute lower limit 0.1.
+--- @field panel_zoom_slider_max number|nil Maximum multiplier; default 3, absolute upper limit 8.
+--- @field panel_zoom_slider_opacity number|nil Opacity in percent (0–100); default 100.
+--- @field panel_zoom_slider_x number|nil Horizontal fraction (0–1) of available travel; nil uses default placement.
+--- @field panel_zoom_slider_y number|nil Vertical fraction (0–1) of available travel; nil uses default placement.
+--- @field panel_zoom_slider_width number|nil Width as a fraction of the panel viewport; nil uses the default width.
+--- @field panel_zoom_slider_height number|nil Height as a fraction of the panel viewport; nil uses the default height.
+
+--- View restored when gesture zoom is toggled off.
+--- @class PPZoomViewSnapshot
+--- @field scale number KOReader scale factor, where zero means fit to viewport.
+--- @field fit boolean
+--- @field x number|nil Horizontal image center ratio.
+--- @field y number|nil Vertical image center ratio.
+--- @field base_scale number|nil Resolved positive pre-zoom scale, retained across redraws.
+
+--- Slider bounds in screen pixels, including its usable track.
+--- @class PPZoomSliderRect : PPRect
+--- @field track_y number
+--- @field track_h number
+
+--- Temporary slider editor state; dimensions are pixels until Save normalizes them.
+--- @class PPZoomSliderEditor
+--- @field x number Horizontal fraction of available slider travel.
+--- @field y number Vertical fraction of available slider travel.
+--- @field viewport_w number Panel viewport width excluding config controls.
+--- @field viewport_h number Panel viewport height excluding config controls.
+--- @field width number|nil
+--- @field height number|nil
+--- @field resize boolean|nil False/nil means move the widget; true means drag its edges.
+--- @field edge 'left'|'right'|'top'|'bottom'|nil Edge captured for the current drag.
+--- @field resize_rect PPRect|nil Bounds captured at the start of an edge drag.
+--- @field buttons_visible boolean
+--- @field with_title_bar boolean
+--- @field fullscreen boolean
+--- @field progress_bar_visible boolean|nil
+--- @field key_events table|nil Key bindings restored when editing ends.
+--- @field return_callback fun()|nil Reopens settings after Save or Cancel.
+
 --- Persisted plugin settings.
---- @class PPSettings
+--- @class PPSettings : PPPanelZoomSettings
+--- @field nav_smooth_preview boolean Preview smooth navigation changes in the open viewer.
 --- @field profiles PPSettingsProfile[] Global user-editable profiles.
 --- @field profiles_initialized boolean Whether the bundled profiles have been seeded.
 --- @field profile_next_id integer|nil Next user profile identifier.
@@ -242,7 +300,7 @@ SPDX-License-Identifier: MIT
 --- @class PPNativePanelZoomMethods
 
 --- Main-menu methods mixed into `PanelsPlus`.
---- @class PPMenuMethods
+--- @class PPMenuMethods : PanelsPlus
 
 --- Panel cache and prefetch methods mixed into `PanelsPlus`.
 --- @class PPCacheMethods
