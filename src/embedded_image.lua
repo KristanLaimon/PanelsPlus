@@ -318,6 +318,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         image_rects = image_rects,
         panel_is_full_page = full_page_flags,
         reader_ui = self.ui,
+        panel_refresh_settings = self.settings,
         embedded_source_image = image,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,

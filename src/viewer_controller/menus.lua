@@ -17,7 +17,84 @@ local PanelViewer = require("src._panelviewer")
 local UIManager = require("ui/uimanager")
 local Screen = Device.screen
 
+--- @param ViewerController PanelsPlus|PPViewerControllerMethods
 return function(ViewerController)
+    --- @param viewer PanelViewer
+    --- @param parent_page integer|nil Page to restore in More Config.
+    function ViewerController:showPanelRefreshSettings(viewer, parent_page)
+        local _ = require("gettext")
+        local menu
+        local items = {}
+        --- @type { [1]: PPPanelRefreshMode, [2]: string }[]
+        local choices = {
+            {
+                "interval",
+                _("Every N panels (current: %1) | Tap here to config"):gsub(
+                    "%%1",
+                    tostring(self.settings.panel_refresh_interval or 6)
+                ),
+            },
+            { "every", _("Every panel") },
+            { "never", _("Never") },
+            { "koreader", _("Follow KOReader settings") },
+        }
+        for choice_index, choice in ipairs(choices) do
+            local mode = choice[1]
+            items[choice_index] = {
+                text = (self.settings.panel_refresh_mode == mode and "◉ " or "○ ") .. choice[2],
+                callback = function()
+                    --- @param interval integer|nil New custom interval, if changed.
+                    local function save(interval)
+                        self.settings.panel_refresh_mode = mode
+                        if interval then
+                            self.settings.panel_refresh_interval = interval
+                        end
+                        viewer.panel_refresh_settings = self.settings
+                        viewer._panel_refresh_count = 0
+                        self:saveSettings()
+                        menu.close_callback = nil
+                        UIManager:close(menu)
+                        self:showPanelRefreshSettings(viewer, parent_page)
+                    end
+                    if mode == "interval" then
+                        menu.close_callback = nil
+                        UIManager:close(menu)
+                        UIManager:nextTick(function()
+                            UIManager:show(require("ui/widget/spinwidget"):new({
+                                title_text = _("Full refresh every N panels"),
+                                value = self.settings.panel_refresh_interval or 6,
+                                value_min = 1,
+                                value_max = 200,
+                                value_step = 1,
+                                value_hold_step = 10,
+                                default_value = 6,
+                                precision = "%d",
+                                ok_always_enabled = true,
+                                callback = function(spin)
+                                    save(spin.value)
+                                end,
+                                cancel_callback = function()
+                                    self:showPanelRefreshSettings(viewer, parent_page)
+                                end,
+                            }))
+                        end)
+                    else
+                        save()
+                    end
+                end,
+            }
+        end
+        menu = require("ui/widget/menu"):new({
+            title = _("Panel refresh"),
+            item_table = items,
+            close_callback = function()
+                UIManager:close(menu)
+                self:showMoreConfigMenu(viewer, parent_page)
+            end,
+        })
+        UIManager:show(menu)
+    end
+
     function ViewerController:showInkAwaySettings(viewer, parent_page)
         local _ = require("gettext")
         local menu
@@ -261,6 +338,14 @@ return function(ViewerController)
                 viewer:replaceButtonTable()
                 viewer:update()
             end),
+            {
+                id = "panel_refresh",
+                text = _("Panel refresh…"),
+                callback = function()
+                    close()
+                    self:showPanelRefreshSettings(viewer, menu.page)
+                end,
+            },
             {
                 id = "advanced",
                 text = _("Open advanced options"),

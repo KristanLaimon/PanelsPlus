@@ -584,6 +584,29 @@ msgstr "Este é o último painel da última página. Continuar com a ação de f
 # The following msgids have no entries in the current English catalog.
 # Existing translations are retained here, outside the active screen groups.
 
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "Atualização da tela…"
+
+msgid "Panel refresh"
+msgstr "Atualização da tela"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "A cada N painéis (atual: %1) | Toque aqui para configurar"
+
+msgid "Every panel"
+msgstr "A cada painel"
+
+msgid "Never"
+msgstr "Nunca"
+
+msgid "Follow KOReader settings"
+msgstr "Seguir as configurações do KOReader"
+
+msgid "Full refresh every N panels"
+msgstr "Atualização completa a cada N painéis"
+
 # Legacy: Shared actions and status values
 # Related screen: Shared dialog buttons, language names and enabled/disabled values.
 # Related path (context only; these entries are unused): Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.

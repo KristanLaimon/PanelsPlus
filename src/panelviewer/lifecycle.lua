@@ -23,6 +23,7 @@ local logger = require("logger")
 local Constants = require("src.panelviewer.constants")
 local NAV_TRANSITION_MIN_FREE_BYTES = Constants.NAV_TRANSITION_MIN_FREE_BYTES
 
+--- @param PanelViewer PanelViewer
 return function(PanelViewer)
     --- Schedule the initial full repaint without assuming layout already happened.
     function PanelViewer:onShow()
@@ -433,6 +434,25 @@ return function(PanelViewer)
         if self.image_disposable then
             self:releasePreviousPanelImage(old_image)
         end
+        self:refreshAfterPanelChange()
         self:requestPanelPrerender()
+    end
+
+    --- Count completed panel switches, never prerenders or animation frames.
+    --- @return nil
+    function PanelViewer:refreshAfterPanelChange()
+        local settings = self.panel_refresh_settings or {}
+        local mode = settings.panel_refresh_mode or "koreader"
+        local interval = mode == "koreader" and UIManager.FULL_REFRESH_COUNT
+            or (mode == "every" and 1 or settings.panel_refresh_interval or 6)
+        if mode == "never" or not interval or interval <= 0 then
+            self._panel_refresh_count = 0
+            return
+        end
+        self._panel_refresh_count = (self._panel_refresh_count or 0) + 1
+        if self._panel_refresh_count >= interval then
+            self._panel_refresh_count = 0
+            UIManager:setDirty(self, "full", nil, true)
+        end
     end
 end

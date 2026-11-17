@@ -579,3 +579,26 @@ msgstr "This is the first panel of the first page. Continue to KOReader’s begi
 
 msgid "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
 msgstr "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
+
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "Actualización de pantalla…"
+
+msgid "Panel refresh"
+msgstr "Actualización de pantalla"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "Cada N viñetas (actual: %1) | Toca aquí para configurar"
+
+msgid "Every panel"
+msgstr "Cada viñeta"
+
+msgid "Never"
+msgstr "Nunca"
+
+msgid "Follow KOReader settings"
+msgstr "Seguir los ajustes de KOReader"
+
+msgid "Full refresh every N panels"
+msgstr "Actualización completa cada N viñetas"

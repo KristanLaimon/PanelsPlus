@@ -579,3 +579,26 @@ msgstr "This is the first panel of the first page. Continue to KOReader’s begi
 
 msgid "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
 msgstr "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
+
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "Panel refresh…"
+
+msgid "Panel refresh"
+msgstr "Panel refresh"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "Every N panels (current: %1) | Tap here to config"
+
+msgid "Every panel"
+msgstr "Every panel"
+
+msgid "Never"
+msgstr "Never"
+
+msgid "Follow KOReader settings"
+msgstr "Follow KOReader settings"
+
+msgid "Full refresh every N panels"
+msgstr "Full refresh every N panels"

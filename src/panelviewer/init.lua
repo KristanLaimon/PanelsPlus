@@ -22,6 +22,8 @@ local NAV_TRANSITION_STEPS_DEFAULT = require("src.panelviewer.constants").NAV_TR
 --- @field margin_ratio number Zoom-out fraction "margin" crop mode applies to non-full-page panels.
 --- @field bleed_ratio number Fraction of extra page area "loose" crop mode reveals around each panel.
 --- @field panel_is_full_page boolean[]|nil Per-panel flag matching `_images_list`, true when a panel spans nearly the whole page.
+--- @field panel_refresh_settings PPSettings|nil Live plugin refresh preferences.
+--- @field _panel_refresh_count integer|nil Completed switches since the last automatic full refresh.
 --- @field initial_image_num integer|nil Image list entry to render during initialization instead of rendering entry 1 first.
 --- @field auto_rotate_double_pages boolean Whether wide full-page images rotate inside a portrait viewer.
 --- @field detector PPDetector Detector the displayed panels came from.

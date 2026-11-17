@@ -9,13 +9,14 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
+local NavCapabilities = require("src._navcapabilities")
+
 --- Settings persistence and default normalization.
 ---
 --- @class PPSettingsModule
 --- @field key string Current KOReader settings key.
 --- @field legacy_keys string[] Previous settings keys used for migration.
 --- @field defaults PPSettings Default setting values.
-local NavCapabilities = require("src._navcapabilities")
 local Settings = {
     key = "panels_plus",
     legacy_keys = {
@@ -23,6 +24,7 @@ local Settings = {
         "mangacomicsmoother",
         "manga_smooth_reading",
     },
+    --- @type PPSettings
     defaults = {
         enabled = true,
         mode = "manga",
@@ -67,6 +69,8 @@ local Settings = {
         panel_bleed_min = 8,
         panel_prefetch_delay = 0.75,
         panel_cache_pages = 12,
+        panel_refresh_mode = "koreader",
+        panel_refresh_interval = 6,
         panel_prerender = true,
         panel_prerender_delay = 0.25,
         prefetch_min_free_bytes = 15 * 1024 * 1024,

@@ -19,6 +19,7 @@ local Timing = require("src._timing")
 local UIManager = require("ui/uimanager")
 local Screen = Device.screen
 
+--- @param ViewerController PanelsPlus|PPViewerControllerMethods
 return function(ViewerController)
     --- Start panel sequence viewing from a native panel-zoom hold gesture.
     ---
@@ -80,6 +81,7 @@ return function(ViewerController)
             image_rects = image_rects,
             panel_is_full_page = full_page_flags,
             reader_ui = self.ui,
+            panel_refresh_settings = self.settings,
             join_spread_fold = self.settings.join_spread_fold ~= false,
             inkaway_join_spread_fold = self.settings.inkaway_join_spread_fold ~= false,
             inkaway_fit_viewport = self.settings.inkaway_fit_viewport ~= false,

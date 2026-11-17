@@ -20,6 +20,7 @@ local logger = require("logger")
 local Constants = require("src.panelviewer.constants")
 local FLOW_WARNING_TIMEOUT = Constants.FLOW_WARNING_TIMEOUT
 
+--- @param PanelViewer PanelViewer
 return function(PanelViewer)
     --- Return whether the current image overflows its viewport and can be panned.
     ---
@@ -77,7 +78,13 @@ return function(PanelViewer)
             if not self.main_frame or not self.main_frame.dimen then
                 return nil
             end
-            return refreshfunc()
+            local mode, region, dither = refreshfunc()
+            -- Panel progression owns its cadence; Kaleido's partial updates
+            -- would otherwise also advance KOReader's global refresh counter.
+            if widget == self and mode == "partial" then
+                mode = "ui"
+            end
+            return mode, region, dither
         end
     end
 

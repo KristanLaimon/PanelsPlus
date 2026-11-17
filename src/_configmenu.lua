@@ -8,13 +8,43 @@ function ConfigMenu.new(options)
     local Screen = require("device").screen
     local icon_size = Screen:scaleBySize(28)
     options.is_enable_shortcut = true
-    options.item_shortcuts = { "Q", "W", "E", "R", "T", "Y", "U", "I", "O" }
+    options.item_shortcuts = {
+        "Q",
+        "W",
+        "E",
+        "R",
+        "T",
+        "Y",
+        "U",
+        "I",
+        "O",
+        "P",
+        "A",
+        "S",
+        "D",
+        "F",
+        "G",
+        "H",
+        "J",
+        "K",
+        "L",
+        "Z",
+        "X",
+        "C",
+        "V",
+        "B",
+        "N",
+        "M",
+    }
     options.width = math.floor(Screen:getWidth() * 0.9)
     options.height = math.floor(Screen:getHeight() * 0.9)
     options.items_per_page = math.min(
         #options.item_table,
         math.max(4, math.floor((options.height - Screen:scaleBySize(120)) / Screen:scaleBySize(52)))
     )
+    while #options.item_shortcuts > options.items_per_page do
+        table.remove(options.item_shortcuts)
+    end
     options.items_font_size = 18
     for _, item in ipairs(options.item_table) do
         item.shortcut_icon_width = icon_size

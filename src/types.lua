@@ -102,8 +102,13 @@ SPDX-License-Identifier: MIT
 --- Panel-to-panel navigation transition style.
 --- @alias PPNavTransitionMode '"classic"'|'"smooth"'|'"animated"'
 
+--- Full-screen refresh policy for completed panel switches.
+--- @alias PPPanelRefreshMode "interval"|"every"|"never"|"koreader"
+
 --- Persisted plugin settings.
 --- @class PPSettings
+--- @field panel_refresh_mode PPPanelRefreshMode Full refresh policy for panel switches.
+--- @field panel_refresh_interval integer Completed panel switches between full refreshes.
 --- @field profiles PPSettingsProfile[] Global user-editable profiles.
 --- @field profiles_initialized boolean Whether the bundled profiles have been seeded.
 --- @field profile_next_id integer|nil Next user profile identifier.

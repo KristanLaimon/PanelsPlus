@@ -593,6 +593,29 @@ msgstr "This is the last panel of the last page. Continue to KOReader’s end-of
 # The following msgids have no entries in the current English catalog.
 # Existing translations are retained here, outside the active screen groups.
 
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "分镜刷新…"
+
+msgid "Panel refresh"
+msgstr "分镜刷新"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "每 N 个分镜（当前：%1）| 点击此处设置"
+
+msgid "Every panel"
+msgstr "每个分镜"
+
+msgid "Never"
+msgstr "从不"
+
+msgid "Follow KOReader settings"
+msgstr "跟随 KOReader 设置"
+
+msgid "Full refresh every N panels"
+msgstr "每 N 个分镜全屏刷新"
+
 # Legacy: Shared actions and status values
 # Related screen: Shared dialog buttons, language names and enabled/disabled values.
 # Related path (context only; these entries are unused): Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.
