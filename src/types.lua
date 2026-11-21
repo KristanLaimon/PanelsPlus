@@ -118,7 +118,7 @@ SPDX-License-Identifier: MIT
 
 --- Global zoom preferences; optional fields also support live proxies and older saved settings.
 --- @class PPPanelZoomSettings
---- @field panel_zoom_enabled boolean|nil Enable the configured panel zoom gesture; default true.
+--- @field panel_zoom_enabled boolean|nil Enable the configured panel zoom gesture; default false.
 --- @field panel_zoom_gesture_type PPZoomGesture|nil Default spread; hold toggles on release and selects text on drag.
 --- @field panel_zoom_mode PPZoomMode|nil Slider by default; in_config uses fixed menu multipliers.
 --- @field panel_zoom_factor number|nil Zoom multiplier relative to the saved pre-zoom view; default 1.5.

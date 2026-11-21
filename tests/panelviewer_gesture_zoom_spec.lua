@@ -220,6 +220,37 @@ describe("Panel gesture zoom", function()
         if not ok then error(err) end
     end)
 
+    it("restores the center from before a manual spread recentered the image", function()
+        local image_viewer = require("ui/widget/imageviewer")
+        local old_spread, old_zoom = image_viewer.onSpread, image_viewer.onZoomIn
+        image_viewer.onSpread = function(viewer)
+            viewer._center_x_ratio, viewer._center_y_ratio = 0.7, 0.8
+            return viewer:onZoomIn(0.5)
+        end
+        image_viewer.onZoomIn = function(viewer)
+            viewer.scale_factor = 3
+            return true
+        end
+        local ok, err = pcall(function()
+            local viewer = PanelViewer:new({
+                scale_factor = 2,
+                _center_x_ratio = 0.2,
+                _center_y_ratio = 0.4,
+                _image_wg = {},
+                update = function() end,
+            })
+            assert.is_true(viewer:onSpread(nil, {}))
+            assert.equals(0.7, viewer._center_x_ratio)
+            assert.equals(0.8, viewer._center_y_ratio)
+            viewer:toggleGestureZoom()
+            assert.equals(2, viewer.scale_factor)
+            assert.equals(0.2, viewer._center_x_ratio)
+            assert.equals(0.4, viewer._center_y_ratio)
+        end)
+        image_viewer.onSpread, image_viewer.onZoomIn = old_spread, old_zoom
+        if not ok then error(err) end
+    end)
+
     it("resizes from an edge and persists the dimensions only on save", function()
         local settings = {}
         local viewer = PanelViewer:new({
@@ -269,7 +300,10 @@ describe("Panel gesture zoom", function()
         if not ok then error(err) end
     end)
     it("migrates saved zoom settings without overwriting new names", function()
-        local settings = require("src._settings").withDefaults({
+        local defaults = require("src._settings").withDefaults
+        assert.is_true(defaults({ panel_gesture_zoom = true }).panel_zoom_enabled)
+        assert.is_true(defaults({ panel_zoom_enabled = true, panel_gesture_zoom = false }).panel_zoom_enabled)
+        local settings = defaults({
             panel_gesture_zoom = false,
             panel_zoom_gesture = "hold",
             panel_gesture_zoom_factor = 2,
@@ -580,5 +614,30 @@ describe("Panel gesture zoom", function()
         assert.equals(1.4, viewer.panel_zoom_settings.panel_zoom_factor)
         assert.equals(nil, viewer._zoom_slider_dragging)
         assert.equals(2, saves)
+    end)
+
+    it("saves the effective slider multiplier when ImageViewer clamps the requested scale", function()
+        local settings = {}
+        local saved_factor
+        local viewer = PanelViewer:new({
+            buttons_visible = true,
+            scale_factor = 0.7,
+            panel_zoom_settings = settings,
+            panel_zoom_save_callback = function()
+                saved_factor = settings.panel_zoom_factor
+            end,
+            _zoom_slider_rect = { x = 200, y = 100, w = 48, h = 270 },
+            _image_wg = {},
+            _applyNewScaleFactor = function(self, scale)
+                self.scale_factor = math.min(1.4, scale)
+            end,
+            update = function() end,
+        })
+        viewer:handleZoomSliderGesture({ ges = "tap", pos = { x = 210, y = 100 } })
+        assert.equals(1.4, viewer.scale_factor)
+        assert.equals(2, saved_factor)
+        viewer:handleZoomSliderGesture({ ges = "tap", pos = { x = 210, y = 247 } })
+        assert.equals(1.5, saved_factor)
+        assert.equals(0.7, viewer._gesture_zoom_restore.scale)
     end)
 end)

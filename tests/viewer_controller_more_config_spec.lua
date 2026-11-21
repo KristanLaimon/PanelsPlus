@@ -113,11 +113,11 @@ describe("ViewerController page-turn animation settings", function()
         local menu = shownOcrMenu()
         assert.equals(math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)), menu.width)
         assert.equals(math.floor(Screen:getHeight() * 0.82), menu.height)
-        assert.equals("Enabled", menu.item_table[1].mandatory_func())
+        assert.equals("Disabled", menu.item_table[1].mandatory_func())
         assert.equals("◉ Spread gesture", menu.item_table[5].text)
         menu.item_table[1].callback()
         menu = shownOcrMenu()
-        assert.equals("Disabled", menu.item_table[1].mandatory_func())
+        assert.equals("Enabled", menu.item_table[1].mandatory_func())
         menu.item_table[3].callback()
         assert.equals("◉ Long press", shownOcrMenu().item_table[3].text)
         assert.equals(2, saved:callCount())
@@ -143,8 +143,13 @@ describe("ViewerController page-turn animation settings", function()
             spin.close_callback()
             assert.equals(100, controller.settings.panel_zoom_slider_opacity)
             assert.equals(0, saved:callCount())
-            controller:showZoomSliderOptions({}, function() end)
-            UIManager._last_shown.buttons[3][1].callback()
+            controller:showZoomSliderOptions(nil, function() end)
+            local buttons = UIManager._last_shown.buttons
+            assert.is_false(buttons[2][1].enabled)
+            assert.is_nil(buttons[2][1].callback)
+            assert.is_false(buttons[4][1].enabled)
+            assert.is_nil(buttons[4][1].callback)
+            buttons[3][1].callback()
             spin = UIManager._last_shown
             spin:update(40)
             spin.callback({ value = 40 })
@@ -168,7 +173,16 @@ describe("ViewerController page-turn animation settings", function()
         package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
         local ok, err = pcall(function()
             local updates = 0
-            controller:showZoomSliderOptions({ update = function() updates = updates + 1 end }, function() end)
+            local snapshot = { scale = 0, fit = true, x = 0.3, y = 0.6, base_scale = 2 }
+            local viewer = {
+                _gesture_zoom_restore = snapshot,
+                scale_factor = 10,
+                update = function(self)
+                    assert.equals(6, self.scale_factor)
+                    updates = updates + 1
+                end,
+            }
+            controller:showZoomSliderOptions(viewer, function() end)
             UIManager._last_shown.buttons[5][1].callback()
             local s = controller.settings
             assert.equals(0.3, s.panel_zoom_slider_min)
@@ -182,8 +196,52 @@ describe("ViewerController page-turn animation settings", function()
             assert.equals("hold", s.panel_zoom_gesture_type)
             assert.equals(1, saved:callCount())
             assert.equals(1, updates)
+            assert.equals(snapshot, viewer._gesture_zoom_restore)
+            assert.equals(0, snapshot.scale)
+            assert.is_true(snapshot.fit)
+            assert.equals(0.3, snapshot.x)
+            assert.equals(0.6, snapshot.y)
+            assert.equals(2, snapshot.base_scale)
         end)
         package.loaded["ui/widget/buttondialog"] = old_dialog
+        if not ok then error(err) end
+    end)
+
+    it("clamps the slider range with or without an active zoom session", function()
+        local controller, saved = makeController(Settings.withDefaults({ panel_zoom_factor = 3 }))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        local old_spin = package.loaded["ui/widget/doublespinwidget"]
+        local old_tick = UIManager.nextTick
+        local widget = { new = function(_, options) return options end }
+        package.loaded["ui/widget/buttondialog"] = widget
+        package.loaded["ui/widget/doublespinwidget"] = widget
+        UIManager.nextTick = function() end
+        local ok, err = pcall(function()
+            local function changeRange(viewer, low, high)
+                controller:showZoomSliderOptions(viewer)
+                UIManager._last_shown.buttons[1][1].callback()
+                UIManager._last_shown.callback(low, high)
+            end
+            changeRange(nil, 0.5, 2)
+            assert.equals(2, controller.settings.panel_zoom_factor)
+
+            local viewer = { scale_factor = 4, update = spy() }
+            changeRange(viewer, 0.5, 1.5)
+            assert.equals(1.5, controller.settings.panel_zoom_factor)
+            assert.equals(4, viewer.scale_factor)
+            assert.equals(0, viewer.update:callCount())
+
+            viewer._gesture_zoom_restore = { scale = 0, base_scale = 2 }
+            changeRange(viewer, 0.5, 1)
+            assert.equals(1, controller.settings.panel_zoom_factor)
+            assert.equals(2, viewer.scale_factor)
+            assert.equals(1, viewer.update:callCount())
+            assert.equals(0, viewer._gesture_zoom_restore.scale)
+            assert.equals(3, saved:callCount())
+        end)
+        package.loaded["ui/widget/buttondialog"] = old_dialog
+        package.loaded["ui/widget/doublespinwidget"] = old_spin
+        UIManager.nextTick = old_tick
         if not ok then error(err) end
     end)
 

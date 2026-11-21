@@ -441,7 +441,11 @@ return function(PanelViewer)
             self._zoom_slider_pending = nil
             if self._panels_plus_closed or self._gesture_zoom_restore ~= saved then return end
             local previous_scale = self.scale_factor
-            self:_applyNewScaleFactor(saved.base_scale * self.panel_zoom_settings.panel_zoom_factor)
+            local requested_scale = saved.base_scale * self.panel_zoom_settings.panel_zoom_factor
+            self:_applyNewScaleFactor(requested_scale)
+            if self.scale_factor ~= requested_scale then
+                self.panel_zoom_settings.panel_zoom_factor = self.scale_factor / saved.base_scale
+            end
             if self.scale_factor == previous_scale then self:update() end
         end
         if changed or not was_zoomed or not self._zoom_slider_dragging then
@@ -1031,6 +1035,14 @@ return function(PanelViewer)
         local result = ImageViewer.onZoomIn(self, inc)
         syncManualZoom(self)
         return result
+    end
+
+    --- Capture the original center before ImageViewer recenters on the spread gesture.
+    function PanelViewer:onSpread(arg, ges)
+        if self._image_wg then
+            self:rememberZoomView()
+        end
+        return ImageViewer.onSpread(self, arg, ges)
     end
 
     --- Zoom out (pinch/spread, mousewheel, or left-edge swipe) and leave "scale to fit".
