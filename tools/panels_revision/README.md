@@ -24,8 +24,9 @@ Keep it on localhost: the API can write this project's panel mappings.
   Page numbers start at 1; the source image filename is displayed separately.
 - Compare the original mapping, Before, and After. Choose the correct result, or
   edit a copy. Drawing order is reading order; use Move earlier / Move later to reorder.
-- Draw rectangles, move them, resize with corner handles, or type coordinates.
-  Zoom, deletion, full-page rectangles, and undo are available.
+- Click a rectangle to select it, then drag a corner to resize it in either mode.
+  Use **Move / resize** to move the whole rectangle. Coordinate inputs, zoom,
+  deletion, full-page rectangles, and undo are available.
 - Add optional notes. Choices and notes automatically save to disk and localStorage.
 - **Save this page to dataset** writes only that page. **Save reviewed pages** writes
   completed decisions for the current book and algorithm. Pending/incomplete/stale

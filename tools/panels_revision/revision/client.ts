@@ -3,7 +3,10 @@ import type { Run } from "./runs";
 
 type Data = { id: string; diagnostics: Diagnostics; hashes: Record<string, string>; reviews: Record<string, Review>; session?: Session | null };
 type Item = { group: string; page: Page };
-type Drag = { start: [number, number]; initial: Box[]; index: number; handle: string; before: Review; pointer: number };
+type Drag = {
+	item: Item; start: [number, number]; initial: Box[]; preview?: Box[];
+	index: number; targetIndex: number; handle: string; pointer: number;
+};
 function Element<T extends HTMLElement | SVGSVGElement = HTMLElement>(id: string): T {
 	const element = document.getElementById(id);
 	if (!element) throw new Error(`Missing ${id}`);
@@ -81,6 +84,7 @@ function PushUndo(): void {
 }
 function EditorBoxes(): Box[] {
 	if (!active) return [];
+	if (drag?.item === active && drag.preview) return drag.preview;
 	const review = CurrentReview();
 	return review.choice === "pending" ? active.page.detected : SelectedBoxes(active.page, review);
 }
@@ -226,55 +230,66 @@ async function CopyFeedback(): Promise<void> {
 		Element<HTMLTextAreaElement>("export-text").select(); Status("Clipboard unavailable. Press Ctrl+C in the export dialog.");
 	}
 }
-function Point(event: PointerEvent): [number, number] {
+function Point(event: PointerEvent, clamp: boolean): [number, number] {
 	const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(canvas.getScreenCTM()!.inverse());
+	if (!clamp) return [point.x, point.y];
 	return [Math.max(0, Math.min(active!.page.width, point.x)), Math.max(0, Math.min(active!.page.height, point.y))];
 }
 canvas.addEventListener("pointerdown", event => {
-	if (!active || event.button !== 0) return;
+	if (!active || drag || event.button !== 0) return;
 	FlushNotes(); const target = event.target as SVGElement;
-	const index = Number(target.dataset.index ?? -1);
-	if (!drawMode && index < 0) { selected = -1; RenderEditor(); return; }
-	drag = { start: Point(event), initial: structuredClone(EditorBoxes()), index: drawMode ? -1 : index, handle: target.dataset.handle || "", before: structuredClone(CurrentReview()), pointer: event.pointerId };
-	selected = drawMode ? -1 : index;
+	const targetIndex = Number(target.dataset.index ?? -1);
+	const handle = target.dataset.handle || "";
+	if (!drawMode && targetIndex < 0) { selected = -1; RenderEditor(); return; }
+	const index = drawMode && !handle ? -1 : targetIndex;
+	drag = { item: active, start: Point(event, !handle), initial: EditorBoxes(), index, targetIndex, handle, pointer: event.pointerId };
+	selected = index;
 	canvas.setPointerCapture(event.pointerId); event.preventDefault();
 });
-canvas.addEventListener("pointermove", event => {
-	if (!drag || !active) return;
-	const [px, py] = Point(event); const [sx, sy] = drag.start; const boxes = structuredClone(drag.initial);
-	if (drag.index < 0) {
-		boxes.push([Math.min(sx, px), Math.min(sy, py), Math.max(1, Math.abs(px - sx)), Math.max(1, Math.abs(py - sy))]); selected = boxes.length - 1;
+function DragBoxes(current: Drag, event: PointerEvent): Box[] {
+	const [px, py] = Point(event, !current.handle);
+	const [sx, sy] = current.start;
+	const dx = px - sx, dy = py - sy;
+	if (!dx && !dy) return current.initial;
+	const boxes = current.initial.slice();
+	const { width, height } = current.item.page;
+	if (current.index < 0) {
+		if (Math.abs(dx) >= 3 && Math.abs(dy) >= 3) boxes.push([Math.min(sx, px), Math.min(sy, py), Math.abs(dx), Math.abs(dy)]);
 	} else {
-		const [x, y, w, h] = drag.initial[drag.index]!;
-		if (!drag.handle) boxes[drag.index] = [Math.max(0, Math.min(active.page.width - w, x + px - sx)), Math.max(0, Math.min(active.page.height - h, y + py - sy)), w, h];
+		const [x, y, w, h] = current.initial[current.index]!;
+		if (!current.handle) boxes[current.index] = [Math.max(0, Math.min(width - w, x + dx)), Math.max(0, Math.min(height - h, y + dy)), w, h];
 		else {
 			let left = x, top = y, right = x + w, bottom = y + h;
-			if (drag.handle.includes("w")) left = Math.min(px, right - 1);
-			if (drag.handle.includes("e")) right = Math.max(px, left + 1);
-			if (drag.handle.includes("n")) top = Math.min(py, bottom - 1);
-			if (drag.handle.includes("s")) bottom = Math.max(py, top + 1);
-			boxes[drag.index] = [left, top, right - left, bottom - top];
+			if (current.handle.includes("w")) left = Math.max(0, Math.min(x + dx, right - 1));
+			if (current.handle.includes("e")) right = Math.min(width, Math.max(right + dx, left + 1));
+			if (current.handle.includes("n")) top = Math.max(0, Math.min(y + dy, bottom - 1));
+			if (current.handle.includes("s")) bottom = Math.min(height, Math.max(bottom + dy, top + 1));
+			boxes[current.index] = [left, top, right - left, bottom - top];
 		}
 	}
-	reviews[ReviewKey(active.group, active.page.page)] = { ...drag.before, choice: "custom", boxes }; RenderEditor();
-});
-canvas.addEventListener("pointerup", event => {
-	if (!drag || !active) return;
-	const current = drag; drag = undefined;
-	if (canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-	const [px, py] = Point(event);
-	if (current.index < 0 && (Math.abs(px - current.start[0]) < 3 || Math.abs(py - current.start[1]) < 3)) {
-		reviews[ReviewKey(active.group, active.page.page)] = current.before; RenderEditor(); return;
-	}
-	const changed = CurrentReview();
-	if (JSON.stringify(changed) !== JSON.stringify(current.before)) {
-		const key = ReviewKey(active.group, active.page.page); const stack = history.get(key) || []; stack.push(current.before); history.set(key, stack);
-		changed.boxes = changed.boxes.map(box => box.map(n => Math.round(n * 1000) / 1000) as Box);
-		Commit(changed);
-	}
+	return boxes;
+}
+canvas.addEventListener("pointermove", event => {
+	if (!drag || drag.item !== active || drag.pointer !== event.pointerId) return;
+	drag.preview = DragBoxes(drag, event);
+	selected = drag.preview.length > drag.initial.length ? drag.preview.length - 1 : drag.targetIndex;
 	RenderEditor();
 });
-canvas.addEventListener("pointercancel", () => { if (drag && active) { reviews[ReviewKey(active.group, active.page.page)] = drag.before; drag = undefined; RenderEditor(); } });
+canvas.addEventListener("pointerup", event => {
+	if (!drag || drag.pointer !== event.pointerId) return;
+	const current = drag; drag = undefined;
+	if (current.item !== active) return;
+	const boxes = DragBoxes(current, event);
+	selected = boxes.length > current.initial.length ? boxes.length - 1 : current.targetIndex;
+	if (JSON.stringify(boxes) !== JSON.stringify(current.initial)) {
+		SetCustom(boxes.map((box, index) => box === current.initial[index] ? box : box.map(n => Math.round(n * 1000) / 1000) as Box));
+	} else RenderEditor();
+});
+canvas.addEventListener("lostpointercapture", event => {
+	if (drag?.pointer !== event.pointerId) return;
+	drag = undefined;
+	RenderEditor();
+});
 function Action(id: string, action: () => void | Promise<void>): void { Element(id).addEventListener("click", () => { Promise.resolve().then(action).catch(error => Status(error.message, true)); }); }
 Action("prev", () => MovePage(-1)); Action("next", () => MovePage(1));
 Action("copy", CopyFeedback);
