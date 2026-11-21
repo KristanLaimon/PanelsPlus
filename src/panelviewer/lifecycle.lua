@@ -61,18 +61,6 @@ return function(PanelViewer)
             end
         end
 
-        -- Base ImageViewer:update() always relabels the "rotate" button itself
-        -- (self.rotated and _("No rotation") or _("Rotate")), overwriting the
-        -- static text replaceButtonTable() gave it -- that toggle-style label
-        -- made sense for the base class's tap-to-toggle button, but ours opens
-        -- the rotation picker instead, so its label should never change.
-        if self.buttons_visible and self.button_table then
-            local rotate_btn = self.button_table:getButtonById("rotate")
-            if rotate_btn then
-                rotate_btn:setText(_("Rotate"), rotate_btn.width)
-            end
-        end
-
         self:notifyAnnotationNavigationFrame()
         return result
     end
@@ -251,6 +239,10 @@ return function(PanelViewer)
                 ui.inkAwayPendingIntegrations = nil
             end
         end
+        if self._zoom_slider_pending then
+            UIManager:unschedule(self._zoom_slider_pending)
+            self._zoom_slider_pending = nil
+        end
         self:_cancelPhraseHold()
         self._phrase_selected = nil
         self._panels_plus_closed = true
@@ -419,6 +411,7 @@ return function(PanelViewer)
             return
         end
 
+        self._gesture_zoom_restore = nil
         local old_image = self.image
         self.image = self._images_list[image_num]
         if type(self.image) == "function" then

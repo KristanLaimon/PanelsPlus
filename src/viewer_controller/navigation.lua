@@ -107,6 +107,13 @@ return function(ViewerController)
             kobo_vertical_gesture = self.settings.kobo_vertical_gesture ~= false,
             progress_bar_visible = self.settings.progress_bar_visible ~= false,
             hold_text_selection = self.settings.hold_text_selection ~= false,
+            panel_zoom_settings = require("src._panelzoom").proxy(self.settings),
+            panel_zoom_save_callback = function()
+                self:saveSettings()
+            end,
+            zoom_config_callback = function(current_viewer)
+                return self:showPanelZoomMenu(current_viewer)
+            end,
             prefer_native_text_layer = self.settings.prefer_native_text_layer ~= false,
             ocr_bundled_language = self:getSelectedOcrModel(),
             image_rotation = self.settings.image_rotation,

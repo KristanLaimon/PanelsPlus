@@ -107,6 +107,144 @@ describe("ViewerController page-turn animation settings", function()
         assert.equals(2, saved:callCount())
     end)
 
+    it("uses the OCR picker layout for zoom settings and refreshes its state after selection", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        controller:showPanelZoomMenu({})
+        local menu = shownOcrMenu()
+        assert.equals(math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)), menu.width)
+        assert.equals(math.floor(Screen:getHeight() * 0.82), menu.height)
+        assert.equals("Disabled", menu.item_table[1].mandatory_func())
+        assert.equals("◉ Spread gesture", menu.item_table[5].text)
+        menu.item_table[1].callback()
+        menu = shownOcrMenu()
+        assert.equals("Enabled", menu.item_table[1].mandatory_func())
+        menu.item_table[3].callback()
+        assert.equals("◉ Long press", shownOcrMenu().item_table[3].text)
+        assert.equals(2, saved:callCount())
+    end)
+
+    it("previews transparency and restores it when dismissed", function()
+        local controller, saved = makeController(Settings.withDefaults({}))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        local old_spin = package.loaded["ui/widget/spinwidget"]
+        local old_tick = UIManager.nextTick
+        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
+        package.loaded["ui/widget/spinwidget"] = { new = function(_, options)
+            options.update = function() end
+            return options
+        end }
+        UIManager.nextTick = function() end
+        local ok, err = pcall(function()
+            controller:showZoomSliderOptions({}, function() end)
+            UIManager._last_shown.buttons[3][1].callback()
+            local spin = UIManager._last_shown
+            spin:update(40)
+            assert.equals(60, controller.settings.panel_zoom_slider_opacity)
+            spin.close_callback()
+            assert.equals(100, controller.settings.panel_zoom_slider_opacity)
+            assert.equals(0, saved:callCount())
+            controller:showZoomSliderOptions(nil, function() end)
+            local buttons = UIManager._last_shown.buttons
+            assert.is_false(buttons[2][1].enabled)
+            assert.is_nil(buttons[2][1].callback)
+            assert.is_false(buttons[4][1].enabled)
+            assert.is_nil(buttons[4][1].callback)
+            buttons[3][1].callback()
+            spin = UIManager._last_shown
+            spin:update(40)
+            spin.callback({ value = 40 })
+            spin.close_callback()
+            assert.equals(60, controller.settings.panel_zoom_slider_opacity)
+            assert.equals(1, saved:callCount())
+        end)
+        package.loaded["ui/widget/buttondialog"], package.loaded["ui/widget/spinwidget"] = old_dialog, old_spin
+        UIManager.nextTick = old_tick
+        if not ok then error(err) end
+    end)
+
+    it("restores slider defaults and keeps unrelated zoom settings", function()
+        local controller, saved = makeController(Settings.withDefaults({
+            panel_zoom_slider_min = 0.1, panel_zoom_slider_max = 8, panel_zoom_slider_opacity = 50,
+            panel_zoom_slider_x = 0.2, panel_zoom_slider_y = 0.3,
+            panel_zoom_slider_width = 0.4, panel_zoom_slider_height = 0.5,
+            panel_zoom_factor = 5, panel_zoom_gesture_type = "hold",
+        }))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
+        local ok, err = pcall(function()
+            local updates = 0
+            local snapshot = { scale = 0, fit = true, x = 0.3, y = 0.6, base_scale = 2 }
+            local viewer = {
+                _gesture_zoom_restore = snapshot,
+                scale_factor = 10,
+                update = function(self)
+                    assert.equals(6, self.scale_factor)
+                    updates = updates + 1
+                end,
+            }
+            controller:showZoomSliderOptions(viewer, function() end)
+            UIManager._last_shown.buttons[5][1].callback()
+            local s = controller.settings
+            assert.equals(0.3, s.panel_zoom_slider_min)
+            assert.equals(3, s.panel_zoom_slider_max)
+            assert.equals(100, s.panel_zoom_slider_opacity)
+            assert.is_nil(s.panel_zoom_slider_x)
+            assert.is_nil(s.panel_zoom_slider_y)
+            assert.is_nil(s.panel_zoom_slider_width)
+            assert.is_nil(s.panel_zoom_slider_height)
+            assert.equals(3, s.panel_zoom_factor)
+            assert.equals("hold", s.panel_zoom_gesture_type)
+            assert.equals(1, saved:callCount())
+            assert.equals(1, updates)
+            assert.equals(snapshot, viewer._gesture_zoom_restore)
+            assert.equals(0, snapshot.scale)
+            assert.is_true(snapshot.fit)
+            assert.equals(0.3, snapshot.x)
+            assert.equals(0.6, snapshot.y)
+            assert.equals(2, snapshot.base_scale)
+        end)
+        package.loaded["ui/widget/buttondialog"] = old_dialog
+        if not ok then error(err) end
+    end)
+
+    it("clamps the slider range with or without an active zoom session", function()
+        local controller, saved = makeController(Settings.withDefaults({ panel_zoom_factor = 3 }))
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        local old_spin = package.loaded["ui/widget/doublespinwidget"]
+        local old_tick = UIManager.nextTick
+        local widget = { new = function(_, options) return options end }
+        package.loaded["ui/widget/buttondialog"] = widget
+        package.loaded["ui/widget/doublespinwidget"] = widget
+        UIManager.nextTick = function() end
+        local ok, err = pcall(function()
+            local function changeRange(viewer, low, high)
+                controller:showZoomSliderOptions(viewer)
+                UIManager._last_shown.buttons[1][1].callback()
+                UIManager._last_shown.callback(low, high)
+            end
+            changeRange(nil, 0.5, 2)
+            assert.equals(2, controller.settings.panel_zoom_factor)
+
+            local viewer = { scale_factor = 4, update = spy() }
+            changeRange(viewer, 0.5, 1.5)
+            assert.equals(1.5, controller.settings.panel_zoom_factor)
+            assert.equals(4, viewer.scale_factor)
+            assert.equals(0, viewer.update:callCount())
+
+            viewer._gesture_zoom_restore = { scale = 0, base_scale = 2 }
+            changeRange(viewer, 0.5, 1)
+            assert.equals(1, controller.settings.panel_zoom_factor)
+            assert.equals(2, viewer.scale_factor)
+            assert.equals(1, viewer.update:callCount())
+            assert.equals(0, viewer._gesture_zoom_restore.scale)
+            assert.equals(3, saved:callCount())
+        end)
+        package.loaded["ui/widget/buttondialog"] = old_dialog
+        package.loaded["ui/widget/doublespinwidget"] = old_spin
+        UIManager.nextTick = old_tick
+        if not ok then error(err) end
+    end)
+
     it("animates pages only when Animated mode and its page option are enabled", function()
         withAnimationEnvironment(function()
             local controller = makeController({})
@@ -335,7 +473,7 @@ describe("ViewerController page-turn animation settings", function()
         local controller = makeController(Settings.withDefaults({}))
         local menu_items = {}
         MainMenu.addToMainMenu(controller, menu_items)
-        assert.equals(9, #menu_items.panels_plus.sub_item_table)
+        assert.equals(10, #menu_items.panels_plus.sub_item_table)
         controller:showOcrLanguageMenu({})
         local choices = shownOcrMenu().item_table
         assert.equals(3, #choices)
@@ -345,7 +483,7 @@ describe("ViewerController page-turn animation settings", function()
         local items = UIManager._last_shown[1].item_table
         WordFinder.availableBundledLanguages = original_available
         WordFinder.availableUserLanguages = original_installed
-        assert.equals(10, #items)
+        assert.equals(11, #items)
     end)
 
     it("allows a user model as the only available OCR choice", function()
@@ -416,7 +554,7 @@ describe("ViewerController page-turn animation settings", function()
         WordFinder.availableUserLanguages = original_installed
     end)
 
-    it("shows eight common settings with SVG icons and a final advanced shortcut", function()
+    it("shows ten common settings with SVG icons and a final advanced shortcut", function()
         local controller = makeController(Settings.withDefaults({ tap_navigation = false }))
         controller:showMoreConfigMenu({})
         local menu = UIManager._last_shown[1]
@@ -430,9 +568,10 @@ describe("ViewerController page-turn animation settings", function()
             "Remove spread fold line",
             "Touch & hold text selection",
             "Panel refresh…",
+            "Zoom settings",
             "Open advanced options",
         }
-        assert.equals(10, #menu.item_table)
+        assert.equals(#labels, #menu.item_table)
         for index, label in ipairs(labels) do
             assert.equals(label, menu.item_table[index].text)
             local file = io.open(menu.item_table[index].icon_file, "r")
@@ -441,14 +580,14 @@ describe("ViewerController page-turn animation settings", function()
         end
         assert.equals("Off", menu.item_table[1].mandatory)
         assert.equals("On", menu.item_table[2].mandatory)
-        assert.is_true(menu.item_table[10].separator)
+        assert.is_true(menu.item_table[#labels].separator)
         local opened
         controller.showAdvancedOptions = function(_, viewer)
             opened = viewer
         end
         local viewer = {}
         controller:showMoreConfigMenu(viewer)
-        UIManager._last_shown[1].item_table[10].callback()
+        UIManager._last_shown[1].item_table[#labels].callback()
         assert.equals(viewer, opened)
     end)
 
@@ -672,7 +811,7 @@ describe("ViewerController page-turn animation settings", function()
         end
         local controller = makeController(Settings.withDefaults({}))
         controller:showMoreConfigMenu({})
-        assert.equals(10, #UIManager._last_shown[1].item_table)
+        assert.equals(11, #UIManager._last_shown[1].item_table)
         Device.canDoSwipeAnimation = previous
     end)
 

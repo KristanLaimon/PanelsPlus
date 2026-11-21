@@ -189,7 +189,10 @@ describe("EmbeddedImage native page animation", function()
             return { { x = 0, y = 0, w = 600, h = 800 } }
         end
         UIManager.close = function() end
-        UIManager.show = function() end
+        local opened_viewer
+        UIManager.show = function(_, viewer)
+            opened_viewer = viewer
+        end
 
         local arm_animation = spy()
         local plugin = {
@@ -217,6 +220,19 @@ describe("EmbeddedImage native page animation", function()
 
         assert.is_true(EmbeddedImage.showEmbeddedImagePanelsForImage(plugin, image()))
         assert.is_false(arm_animation:called(), "initial opens must not look like page turns")
+        assert.equals(nil, next(opened_viewer.panel_zoom_settings))
+        assert.equals(nil, opened_viewer.panel_zoom_settings.mode)
+        opened_viewer.panel_zoom_settings.panel_zoom_factor = 2.25
+        assert.equals(2.25, plugin.settings.panel_zoom_factor)
+        local zoom_calls = 0
+        opened_viewer.toggleGestureZoom = function()
+            zoom_calls = zoom_calls + 1
+            return true
+        end
+        plugin.settings.panel_zoom_enabled = true
+        plugin.settings.panel_zoom_gesture_type = "two_finger_tap"
+        assert.is_true(opened_viewer:onGesture({ ges = "two_finger_tap", pos = { x = 100, y = 100 } }))
+        assert.equals(1, zoom_calls)
 
         local source_viewer = {}
         assert.is_true(EmbeddedImage.showEmbeddedImagePanelsForImage(plugin, image(), {

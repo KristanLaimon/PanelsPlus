@@ -1,6 +1,5 @@
 -- Borderless SVG controls for the panel viewer's right-hand action rail.
 local Toolbar = {}
-local gettext = require("gettext")
 local icon_dir = (debug.getinfo(1, "S").source:match("^@(.+/)") or "src/") .. "../assets/icons/"
 
 Toolbar.order =
@@ -16,25 +15,6 @@ local icons = {
     draw_inkaway = "inkaway_settings",
 }
 
-function Toolbar.caption(id, text)
-    if id == "night_mode" or id == "invert_document" or id == "draw_inkaway" then
-        return text
-    end
-    if id == "rotate" then
-        return gettext("Rotate")
-    end
-    if id == "ocr_language" then
-        return gettext("OCR Model")
-    end
-    if id == "screenshot" then
-        return gettext("SShot")
-    end
-    if id == "progress_bar" then
-        return text == gettext("Show progress") and gettext("Show Bar") or gettext("Hide Bar")
-    end
-    return text == gettext("Original size") and gettext("Actual Size") or gettext("Fit")
-end
-
 function Toolbar.controls(actions)
     local controls = {}
     for _, id in ipairs(Toolbar.order) do
@@ -49,7 +29,7 @@ function Toolbar.controls(actions)
                 width = 0,
             }
             function control:setText(text)
-                self.text = Toolbar.caption(self.id, text)
+                self.text = action.caption and action.caption() or action.text or text
             end
             control:setText(action.text)
             controls[id] = control
