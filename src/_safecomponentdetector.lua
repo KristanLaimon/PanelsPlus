@@ -330,6 +330,11 @@ local function refineGrayConnections(map, panels, settings)
     alternate.data = map.structural
     local candidates = ComponentDetector.segment(alternate, settings)
     if #candidates == 0 then
+        -- On dark pages with no high-contrast frames, isolated bright objects
+        -- are poor evidence for panels.
+        if map.inverted and #panels > 1 then
+            return {}
+        end
         return panels
     end
     local parents = panels
@@ -338,22 +343,50 @@ local function refineGrayConnections(map, panels, settings)
     end
     local refined = {}
     for _, parent in ipairs(parents) do
-        local parts, area, strong = {}, 0, 0
+        local parent_area = parent.w * parent.h
+        local parts, area, strong, enclosing = {}, 0, 0, false
         for _, child in ipairs(candidates) do
             local size = child.w * child.h
-            if intersectionArea(parent, child) >= size * 0.95 and size < parent.w * parent.h * 0.85 then
+            local overlap = intersectionArea(parent, child)
+            if overlap >= size * 0.95 and size < parent_area * 0.85 then
                 parts[#parts + 1] = child
                 area = area + size
                 if (child.frame_sides or 0) >= 2 then
                     strong = strong + 1
                 end
+            elseif overlap >= parent_area * 0.85 then
+                enclosing = true
+            end
+        end
+        local separated_frames = #parts >= 2
+            and strong == #parts
+            and not enclosing
+            and #panels > 0
+            and area >= parent_area * 0.93
+        -- Parallel frames must span nearly all of the parent to distinguish a
+        -- gray gutter from inset artwork or a staggered crop.
+        if separated_frames then
+            local top_tolerance = map.scale_y * 3
+            local bottom_tolerance = math.max(top_tolerance, parent.h * 0.035)
+            local bottom = parent.y + parent.h
+            if bottom >= map.native_h - map.scale_y then
+                top_tolerance = bottom_tolerance
+            end
+            for _, part in ipairs(parts) do
+                if
+                    math.abs(part.y - parent.y) > top_tolerance
+                    or math.abs(part.y + part.h - bottom) > bottom_tolerance
+                then
+                    separated_frames = false
+                    break
+                end
             end
         end
         local reliable = #parts >= 2
-            and area >= parent.w * parent.h * 0.80
+            and area >= parent_area * 0.80
             and strong >= math.ceil(#parts * 0.40)
             and (#panels > 0 or strong >= 2)
-            and hasConservativeLayout(parent, parts, map, #panels)
+            and (separated_frames or hasConservativeLayout(parent, parts, map, #panels))
         for i, a in ipairs(parts) do
             for j = i + 1, #parts do
                 local b = parts[j]
@@ -363,11 +396,11 @@ local function refineGrayConnections(map, panels, settings)
             end
         end
         local replacement
-        -- An enclosing frame is stronger evidence than any proposed internal cut.
-        if (parent.frame_sides or 0) < 4 then
+        -- Keep enclosing frames unless structural ink resolves them into separate aligned frames.
+        if (parent.frame_sides or 0) < 4 or separated_frames then
             if reliable then
                 replacement = parts
-            else
+            elseif (parent.frame_sides or 0) < 4 then
                 replacement = recoverFrameBand(parent, parts, map, settings.mode)
             end
         end

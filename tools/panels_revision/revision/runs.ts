@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 import { join } from "node:path";
-import type { Diagnostics, Page } from "./model";
+import type { Diagnostics } from "./model";
+import { AppendDiagnosticRow, type DiagnosticRow } from "./report";
 export type Run = {
 	id: string; phase: "idle" | "tests" | "diagnostics" | "complete" | "error";
 	algorithm?: "safe" | "smart" | "all"; started_at?: string; finished_at?: string; test_exit?: number; diagnostic_exit?: number;
@@ -45,18 +46,7 @@ export class Runs {
 			let pending = "";
 			const consume = (line: string) => {
 				if (!line.trim()) return;
-				const row = JSON.parse(line) as Page & { book: string; algorithm: "safe" | "smart"; directory?: "dataset" | "dataset-textbasedformats" };
-				const group = `${row.algorithm}::${row.book}`;
-				const old = previous.books[group]?.find(p => p.page === row.page && p.image === row.image && p.width === row.width && p.height === row.height);
-				const unchanged = old && JSON.stringify(old.detected) === JSON.stringify(row.detected);
-				const page: Page = { ...row,
-					previous: unchanged ? old.previous : old?.detected ?? row.detected,
-					previous_correct: unchanged ? old.previous_correct : old?.correct ?? row.correct,
-					previous_tp: unchanged ? old.previous_tp : old?.tp ?? row.tp,
-					previous_sequence: unchanged ? old.previous_sequence : old?.sequence ?? row.sequence,
-				};
-				(diagnostics.books[group] ??= []).push(page);
-				diagnostics.groups[group] = { book: row.book, algorithm: row.algorithm, directory: row.directory };
+				AppendDiagnosticRow(diagnostics, previous, JSON.parse(line) as DiagnosticRow);
 				this.Current.pages++;
 			};
 			try {

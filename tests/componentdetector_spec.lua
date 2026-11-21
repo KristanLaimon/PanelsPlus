@@ -128,6 +128,35 @@ describe("Experimental component detector", function()
         assert.is_true(ok, tostring(err))
     end)
 
+    it("recovers aligned frames across a gray gutter within a multi-row page", function()
+        local Safe = require("src._safecomponentdetector")
+        for _, mode in ipairs({ "manga", "comic" }) do
+            for _, dark_bridge in ipairs({ false, true }) do
+                local map = page()
+                frame(map, 20, 20, 440, 280)
+                frame(map, 20, 340, 210, 280)
+                frame(map, 233, 340, 227, 280)
+                map.structural, map.dark = {}, {}
+                for index = 0, map.w * map.h - 1 do
+                    map.structural[index], map.dark[index] = map.data[index], map.data[index]
+                end
+                for x = 230, 232 do
+                    ink(map, x, 450)
+                    if dark_bridge then
+                        map.dark[450 * map.w + x] = 1
+                    end
+                end
+                local panels, accepted = Safe.detectPage(map, { mode = mode })
+                assert.is_true(accepted)
+                assert.equals(dark_bridge and 2 or 3, #panels)
+                assert.equals(40, panels[1].y)
+                if not dark_bridge then
+                    assert.equals(mode == "manga" and 466 or 40, panels[2].x)
+                end
+            end
+        end
+    end)
+
     it("does not group a genuine row of compact panels above a wide panel", function()
         local Safe = require("src._safecomponentdetector")
         local map = page()

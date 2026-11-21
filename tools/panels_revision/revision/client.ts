@@ -1,4 +1,4 @@
-import { CHOICES, EmptyReview, ParseReview, ReviewKey, SelectedBoxes, PageBasis, ParseSession, type Session, type Box, type Choice, type Diagnostics, type Page, type Review, type ReviewEntry } from "./model";
+import { BuildFeedback, CHOICES, EmptyReview, ParseReview, ReviewKey, ReviewIsReady, ReviewIsStale, RestoreFeedbackSession, SelectedBoxes, PageBasis, ParseSession, type FeedbackSession, type Session, type Box, type Choice, type Diagnostics, type Page, type Review, type ReviewEntry } from "./model";
 import type { Run } from "./runs";
 
 type Data = { id: string; diagnostics: Diagnostics; hashes: Record<string, string>; reviews: Record<string, Review>; session?: Session | null };
@@ -15,6 +15,7 @@ function Element<T extends HTMLElement | SVGSVGElement = HTMLElement>(id: string
 function Escape(value: string): string { return value.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!); }
 const Basis = PageBasis;
 const STORAGE_KEY = "panels_revision.reviews.v1";
+const FEEDBACK_KEY = "panels_revision.feedback.v1";
 let data: Data;
 let reviews: Record<string, Review> = {};
 let active: Item | undefined;
@@ -26,7 +27,7 @@ let serverQueue: Promise<unknown> = Promise.resolve();
 let notesTimer: ReturnType<typeof setTimeout> | undefined;
 const history = new Map<string, Review[]>();
 const canvas = Element<SVGSVGElement>("canvas");
-const applied = new Map<string, string>();
+let feedback: FeedbackSession;
 let polling = false;
 let runActive = false;
 let handledRun = "";
@@ -55,8 +56,12 @@ async function Request<T>(url: string, body?: unknown): Promise<T> {
 	return value;
 }
 function CurrentReview(): Review { return active ? reviews[ReviewKey(active.group, active.page.page)] || EmptyReview() : EmptyReview(); }
-function Stale(item: Item, review: Review): boolean { return !!review.basis && review.basis !== Basis(item.page); }
-function Ready(item: Item, review: Review): boolean { return review.choice !== "pending" && !(review.choice === "custom" && review.boxes.length === 0) && !Stale(item, review); }
+function Stale(item: Item, review: Review): boolean { return ReviewIsStale(item.page, review); }
+function Ready(item: Item, review: Review): boolean { return ReviewIsReady(item.page, review); }
+function RememberFeedback(): void {
+	try { sessionStorage.setItem(FEEDBACK_KEY, JSON.stringify(feedback)); }
+	catch { /* The current tab still tracks edits in memory. */ }
+}
 function RememberLocal(): void {
 	try { localStorage.setItem(STORAGE_KEY, JSON.stringify(reviews)); }
 	catch { Status("Local storage is full or unavailable. Keep this tab open and export your feedback.", true); }
@@ -71,7 +76,10 @@ function Sync(item: Item, review: Review): void {
 function Commit(review: Review, sync = true): void {
 	if (!active) return;
 	review.updated_at = new Date().toISOString(); review.basis ??= Basis(active.page);
-	reviews[ReviewKey(active.group, active.page.page)] = review;
+	const key = ReviewKey(active.group, active.page.page);
+	reviews[key] = review;
+	feedback.edited[key] = review.updated_at;
+	RememberFeedback();
 	RememberLocal();
 	if (sync) Sync(active, review);
 	RenderList(); RenderDecision();
@@ -105,7 +113,7 @@ function RenderDecision(): void {
 	Element("dirty").textContent = stale ? "Saved decision is from an older report; choose again to confirm." : review.choice === "custom" && !review.boxes.length ? "Draw at least one rectangle" : CHOICES[review.choice];
 	Element<HTMLButtonElement>("save-page").disabled = !Ready(active, review) || runActive;
 	Element<HTMLButtonElement>("save-book").disabled = runActive;
-	Element("saved-info").textContent = applied.get(ReviewKey(active.group, active.page.page)) === JSON.stringify(SelectedBoxes(active.page, review)) ? "Applied to dataset this session" : "";
+	Element("saved-info").textContent = feedback.applied[ReviewKey(active.group, active.page.page)] === JSON.stringify(SelectedBoxes(active.page, review)) ? "Applied to dataset this session" : "";
 }
 function RenderList(): void {
 	const algorithm = Element<HTMLSelectElement>("algorithm").value;
@@ -201,30 +209,25 @@ async function SaveMapping(all: boolean): Promise<void> {
 		return Ready({ group, page }, review) ? [{ book: group, page: page.page, review }] : [];
 	});
 	if (!entries.length) throw new Error("No completed decisions to save in this book / algorithm.");
+	const feedbackAtSave = feedback;
 	const result = await Request<{ hash: string; backup: string; pages: number[] }>("/api/mapping", { book: group, hash: data.hashes[group], entries });
 	data.hashes[group] = result.hash;
 	for (const entry of entries) {
 		const page = pages.find(p => p.page === entry.page)!;
-		applied.set(ReviewKey(group, entry.page), JSON.stringify(SelectedBoxes(page, entry.review)));
+		feedbackAtSave.applied[ReviewKey(group, entry.page)] = JSON.stringify(SelectedBoxes(page, entry.review));
 	}
+	RememberFeedback();
 	RenderDecision(); Status(`Updated ${result.pages.length} pages in ${group}. Backup: ${result.backup}`);
 }
 function ExportFeedback(): string {
 	FlushNotes();
-	const entries = Object.entries(data.diagnostics.books).flatMap(([group, pages]) => pages.flatMap(page => {
-		const review = reviews[ReviewKey(group, page.page)];
-		if (!review || review.choice === "pending" && !review.notes && !review.boxes.length) return [];
-		const info = data.diagnostics.groups[group]!;
-		return [{ group, book: info.book, algorithm: info.algorithm, page: page.page, image: page.image, width: page.width, height: page.height,
-			review, stale: Stale({ group, page }, review), complete: Ready({ group, page }, review),
-			expected: page.expected, before: page.previous, after: page.detected, chosen: SelectedBoxes(page, review),
-			applied_this_session: applied.get(ReviewKey(group, page.page)) === JSON.stringify(SelectedBoxes(page, review)) }];
-	}));
-	return JSON.stringify({ format: "panels_revision_feedback", version: 1, report_id: data.id, exported_at: new Date().toISOString(), entries }, null, 2);
+	const exported = BuildFeedback(data.diagnostics, reviews, feedback);
+	if (!exported.entries.length) throw new Error("No feedback edits in this session.");
+	return JSON.stringify(exported, null, 2);
 }
 async function CopyFeedback(): Promise<void> {
 	const text = ExportFeedback();
-	try { await navigator.clipboard.writeText(text); Status("All feedback copied. Paste it in the conversation."); }
+	try { await navigator.clipboard.writeText(text); Status("Session feedback copied. Paste it in the conversation."); }
 	catch {
 		Element<HTMLTextAreaElement>("export-text").value = text; Element<HTMLDialogElement>("export-dialog").showModal();
 		Element<HTMLTextAreaElement>("export-text").select(); Status("Clipboard unavailable. Press Ctrl+C in the export dialog.");
@@ -342,8 +345,12 @@ Element<HTMLInputElement>("import").addEventListener("change", async event => {
 			return { item: { group: entry.group, page }, review: ParseReview(entry.review, page) };
 		});
 		FlushNotes();
-		for (const { item, review } of validated) { reviews[ReviewKey(item.group, item.page.page)] = review; Sync(item, review); }
-		RememberLocal(); RenderList(); if (active) Open(active); Status(`Imported ${validated.length} reviews.`);
+		for (const { item, review } of validated) {
+			const key = ReviewKey(item.group, item.page.page);
+			if (JSON.stringify(reviews[key]) !== JSON.stringify(review)) feedback.edited[key] = review.updated_at;
+			reviews[key] = review; Sync(item, review);
+		}
+		RememberFeedback(); RememberLocal(); RenderList(); if (active) Open(active); Status(`Imported ${validated.length} reviews.`);
 	} catch (error) { Status((error as Error).message, true); }
 });
 async function PollRun(): Promise<void> {
@@ -359,8 +366,10 @@ async function PollRun(): Promise<void> {
 			const latest = await Request<Data>("/api/data");
 			handledRun = run.id;
 			if (latest.id !== data.id) {
-				FlushNotes(); data = latest; SetupBooks(); RenderList(); if (items[0]) Open(items[0]); else { active = undefined; Element("main").classList.add("hidden"); }
-				Status(`Diagnosis refreshed. Tests ${run.test_exit === 0 ? "passed" : "reported failures"}; existing reviews are retained. Older decisions need confirmation.`);
+				FlushNotes(); data = latest;
+				feedback = RestoreFeedbackSession(data.id, null); RememberFeedback();
+				SetupBooks(); RenderList(); if (items[0]) Open(items[0]); else { active = undefined; Element("main").classList.add("hidden"); }
+				Status(`Diagnosis refreshed. Tests ${run.test_exit === 0 ? "passed" : "reported failures"}. A new feedback session started. Existing reviews are retained.`);
 			}
 		}
 	} catch (error) { Status(`Runner: ${(error as Error).message}`, true); }
@@ -376,6 +385,10 @@ function SetupBooks(): void {
 }
 async function Start(): Promise<void> {
 	data = await Request<Data>("/api/data"); reviews = data.reviews;
+	let savedFeedback: Partial<FeedbackSession> | null = null;
+	try { savedFeedback = JSON.parse(sessionStorage.getItem(FEEDBACK_KEY) || "null"); } catch { /* Start a fresh session. */ }
+	feedback = RestoreFeedbackSession(data.id, savedFeedback);
+	RememberFeedback();
 	let local: Record<string, Review> = {};
 	try { local = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}"); } catch { Status("Could not restore local drafts; disk reviews are still loaded.", true); }
 	for (const [group, pages] of Object.entries(data.diagnostics.books)) for (const page of pages) {

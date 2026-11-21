@@ -33,9 +33,12 @@ Keep it on localhost: the API can write this project's panel mappings.
   decisions are excluded. Unreviewed pages and unrelated metadata remain unchanged.
 - Writes validate bounds, reject stale file hashes, create an exact original-file
   backup, and replace the mapping atomically. Baselines are never updated automatically.
-- **Copy all feedback** exports notes, choices, expected/before/after/chosen rectangles
-  and page identity as JSON for the conversation. Download/import restores feedback.
-  If clipboard permission is unavailable, the app displays selectable JSON.
+- **Copy session feedback** and **Download session feedback** export the pages
+  edited or imported in this tab for the current report. Feedback survives a
+  reload of the same tab. A changed report starts a new export session and keeps
+  saved reviews available. Export before publishing a changed report if you want
+  to share the current session. Import restores saved feedback. If clipboard
+  permission is unavailable, the app displays selectable JSON.
 
 ## Tests and automatic diagnostics
 
@@ -62,6 +65,18 @@ when present; its Before column retains the historical detector comparison.
 
 The diagnostic CLI `revision/diagnose.lua` accepts the algorithm as its first
 argument and an optional exact book title as its second for scoped JSONL output.
+
+To refresh a single book after applying panel feedback, stop the reviewer and run:
+
+```sh
+bun tools/panels_revision/refresh.ts safe Chainsmoker_Cat_Vol_1
+```
+
+Pass `safe` or `smart` and the exact title of a book in the saved report. Use the
+same `REVISION_PORT` as the reviewer if you run on a custom port. The command
+runs the scoped diagnostic, checks the current mapping, and updates that group's
+saved report. It retains the historical comparison, other groups, reviews and
+session. Start the reviewer again to load the result.
 
 A scan of one algorithm preserves the other algorithm's report and reviews. Startup
 loads the saved reports without running tests or scanning images. The last algorithm,

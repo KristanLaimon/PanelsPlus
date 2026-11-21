@@ -62,6 +62,44 @@ export function ApplyReviews(mapping: Mapping, pages: Page[], entries: ReviewEnt
 
 export function PageBasis(page: Page): string { return JSON.stringify([page.image, page.expected, page.previous, page.detected]); }
 
+export function ReviewIsStale(page: Page, review: Review): boolean {
+	return !!review.basis && review.basis !== PageBasis(page);
+}
+
+export function ReviewIsReady(page: Page, review: Review): boolean {
+	return review.choice !== "pending" && !(review.choice === "custom" && !review.boxes.length) && !ReviewIsStale(page, review);
+}
+
+export type FeedbackSession = {
+	report_id: string;
+	edited: Record<string, string>;
+	applied: Record<string, string>;
+};
+
+export function RestoreFeedbackSession(reportId: string, saved: Partial<FeedbackSession> | null): FeedbackSession {
+	if (saved?.report_id === reportId && saved.edited && saved.applied) {
+		return { report_id: reportId, edited: { ...saved.edited }, applied: { ...saved.applied } };
+	}
+	return { report_id: reportId, edited: {}, applied: {} };
+}
+
+export function BuildFeedback(diagnostics: Diagnostics, reviews: Record<string, Review>, session: FeedbackSession) {
+	const entries = Object.entries(diagnostics.books).flatMap(([group, pages]) => pages.flatMap(page => {
+		const key = ReviewKey(group, page.page);
+		const review = reviews[key];
+		if (!review || session.edited[key] !== review.updated_at) return [];
+		const info = diagnostics.groups[group]!;
+		const chosen = SelectedBoxes(page, review);
+		return [{
+			group, book: info.book, algorithm: info.algorithm, page: page.page, image: page.image, width: page.width, height: page.height,
+			review, stale: ReviewIsStale(page, review), complete: ReviewIsReady(page, review),
+			expected: page.expected, before: page.previous, after: page.detected, chosen,
+			applied_this_session: session.applied[key] === JSON.stringify(chosen),
+		}];
+	}));
+	return { format: "panels_revision_feedback", version: 1, report_id: session.report_id, exported_at: new Date().toISOString(), entries };
+}
+
 export type Session = {
 	algorithm: "safe" | "smart" | "all"; book: string;
 	filter: "different" | "pending" | "new" | "reviewed" | "all";

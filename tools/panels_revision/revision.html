@@ -11,7 +11,7 @@
 <script type="module" src="./revision/client.ts"></script>
 </head>
 <body>
-<header><h1>Panels revision</h1><label>Algorithm <select id="algorithm"><option value="safe">Safe only</option><option value="smart">Smart only</option><option value="all">Safe + Smart</option></select></label><button id="run">Run panel tests + diagnose</button><button id="copy">Copy all feedback</button><button id="download">Download feedback</button><label>Import feedback <input id="import" type="file" accept="application/json" style="width:185px"></label></header>
+<header><h1>Panels revision</h1><label>Algorithm <select id="algorithm"><option value="safe">Safe only</option><option value="smart">Smart only</option><option value="all">Safe + Smart</option></select></label><button id="run">Run panel tests + diagnose</button><button id="copy">Copy session feedback</button><button id="download">Download session feedback</button><label>Import feedback <input id="import" type="file" accept="application/json" style="width:185px"></label></header>
 <p class="muted">Choose the correct result, add optional notes, or edit your own rectangles. Choices and notes save automatically; dataset files change only when you click Save.</p>
 <div id="status" role="status" aria-live="polite">Loading…</div>
 <details id="run-details"><summary id="run-summary">Test runner</summary><pre id="run-info">No run yet.</pre></details>

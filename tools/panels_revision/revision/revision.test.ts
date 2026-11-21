@@ -3,8 +3,9 @@ import * as fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { RevisionService } from "./service";
-import { ApplyReviews, PageBasis, type Diagnostics, type Page, type Review } from "./model";
+import { ApplyReviews, BuildFeedback, PageBasis, RestoreFeedbackSession, ReviewKey, type Diagnostics, type Page, type Review } from "./model";
 import { CreateRevisionServer } from "../revision";
+import { RefreshDiagnostic } from "../refresh";
 const roots: string[] = [];
 afterEach(async () => { for (const root of roots.splice(0)) await fs.rm(root, { recursive: true, force: true }); });
 const book = "Don't_Bully_Me_Nagatoro_Vol_1";
@@ -61,6 +62,36 @@ test("custom panels keep reading order, restore single-page metadata, and do not
 	const result = ApplyReviews(original, [page], [{ book: group, page: 1, review }]);
 	expect(result.pages[0]!.frame).toEqual([{ x: 20, y: 30, w: 50, h: 60 }]);
 	expect(result.pages[0]!.illustration_type).toBe("single_page"); expect(original.pages[0]!.frame[0]!.x).toBe(0);
+});
+test("feedback exports tab edits only and starts clean when the report changes", () => {
+	const olderGroup = "safe::Older_Book";
+	const otherPage = { ...page, page: 2 };
+	const report: Diagnostics = {
+		...diagnostics,
+		books: { [group]: [page, otherPage], [olderGroup]: [page] },
+		groups: { ...diagnostics.groups, [olderGroup]: { book: "Older_Book", algorithm: "safe" } },
+	};
+	const key = ReviewKey(group, page.page);
+	const otherKey = ReviewKey(group, otherPage.page);
+	const olderKey = ReviewKey(olderGroup, page.page);
+	const decision = Review();
+	const cleared = { ...Review("pending"), notes: "", basis: PageBasis(otherPage) };
+	const reviews = { [key]: decision, [otherKey]: cleared, [olderKey]: Review() };
+	const session = RestoreFeedbackSession("current", null);
+	expect(BuildFeedback(report, reviews, session).entries).toEqual([]);
+	session.edited[key] = decision.updated_at;
+	session.edited[otherKey] = cleared.updated_at;
+	session.applied[key] = JSON.stringify(page.previous);
+	const reloaded = RestoreFeedbackSession("current", JSON.parse(JSON.stringify(session)));
+	const exported = BuildFeedback(report, reviews, reloaded);
+	expect(exported.report_id).toBe("current");
+	expect(exported.entries.map(entry => [entry.group, entry.page, entry.complete, entry.applied_this_session]))
+		.toEqual([[group, 1, true, true], [group, 2, false, false]]);
+	const refreshed = RestoreFeedbackSession("refreshed", reloaded);
+	expect(BuildFeedback(report, reviews, refreshed)).toMatchObject({ report_id: "refreshed", entries: [] });
+	expect(reviews[olderKey]).toBeDefined();
+	const newerReviews = { ...reviews, [key]: { ...decision, updated_at: "newer edit from a different tab" } };
+	expect(BuildFeedback(report, newerReviews, reloaded).entries.map(entry => entry.page)).toEqual([2]);
 });
 test("HTTP saves reviews across restarts; rejects cross-origin writes, arbitrary images and changed reports", async () => {
 	const { root, path } = await Fixture();
@@ -145,4 +176,36 @@ test("Safe and Smart keep different pages and reviews; startup resumes the sessi
 		const index = JSON.parse(await fs.readFile(join(persistence, "diagnostics.json"), "utf8"));
 		expect(index.files.safe).toStartWith("safe/"); expect(index.files.smart).toStartWith("smart/");
 	} finally { server.stop(true); }
+});
+
+test("scoped refresh persists one complete diagnostic and retains the previous comparison", async () => {
+	const { root, persistence } = await Fixture();
+	const indexPath = join(persistence, "diagnostics.json");
+	const server = await CreateRevisionServer(root, 0);
+	const port = server.port!;
+	try {
+		await expect(RefreshDiagnostic(root, "safe", book, port)).rejects.toThrow("Stop the reviewer");
+	} finally { server.stop(true); }
+	const oldIndex = await fs.readFile(indexPath, "utf8");
+	const smartFile = JSON.parse(oldIndex).files.smart;
+	const smartBytes = await fs.readFile(join(persistence, smartFile), "utf8");
+	const reviewsPath = join(persistence, "safe/reviews.json");
+	const reviews = await fs.readFile(reviewsPath, "utf8");
+	const diagnosePath = join(persistence, "../diagnose.lua");
+	const first = { ...page, book, algorithm: "safe", directory: "dataset", detected: page.previous, correct: false, sequence: [1, 0] };
+	const second = { ...first, page: 2, image: first.image.replace("00.png", "01.png"), expected: [[10, 20, 30, 40]], detected: [[10, 20, 30, 40]], correct: true, sequence: [1] };
+	await fs.writeFile(diagnosePath, `print([=[${JSON.stringify(first)}]=])`);
+	await expect(RefreshDiagnostic(root, "safe", book, port)).rejects.toThrow("Incomplete diagnostic");
+	expect(await fs.readFile(indexPath, "utf8")).toBe(oldIndex);
+	await fs.writeFile(diagnosePath, `print([=[${JSON.stringify(first)}]=])\nprint([=[${JSON.stringify(second)}]=])`);
+	expect(await RefreshDiagnostic(root, "safe", book, port)).toEqual({ pages: 2, differences: 1, changed: true });
+	const index = JSON.parse(await fs.readFile(indexPath, "utf8"));
+	const saved = JSON.parse(await fs.readFile(join(persistence, index.files.safe), "utf8")) as Diagnostics;
+	expect(saved.books[group]![0]!.previous).toEqual(page.detected);
+	expect(saved.books[group]![0]!.detected).toEqual(page.previous);
+	expect(index.files.smart).toBe(smartFile);
+	expect(await fs.readFile(join(persistence, smartFile), "utf8")).toBe(smartBytes);
+	expect(await fs.readFile(reviewsPath, "utf8")).toBe(reviews);
+	expect(await RefreshDiagnostic(root, "safe", book, port)).toEqual({ pages: 2, differences: 1, changed: false });
+	expect((await fs.readdir(persistence)).filter(name => name.startsWith("diagnostics-before-"))).toHaveLength(1);
 });

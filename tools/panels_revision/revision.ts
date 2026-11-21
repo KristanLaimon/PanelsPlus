@@ -12,6 +12,7 @@ import {
     type ReviewEntry,
 } from "./revision/model";
 import { Runs } from "./revision/runs";
+import { PersistJson, PersistReportPartition, ReadReportPartition, type ReportIndex } from "./revision/report";
 
 export async function CreateRevisionServer(
     root = resolve(import.meta.dir, "../.."),
@@ -30,24 +31,11 @@ export async function CreateRevisionServer(
             throw e;
         }
     }
-    async function persist(name: string, value: unknown): Promise<void> {
-        const path = join(directory, name);
-        await fs.mkdir(resolve(path, ".."), { recursive: true });
-        const temporary = `${path}.${crypto.randomUUID()}.tmp`;
-        try {
-            await fs.writeFile(temporary, JSON.stringify(value, null, 2) + "\n");
-            await fs.rename(temporary, path);
-        } finally { await fs.unlink(temporary).catch(() => {}); }
-    }
-    type ReportIndex = { format: "panels_revision_index"; files: Record<"safe" | "smart", string> };
+    const persist = (name: string, value: unknown) => PersistJson(join(directory, name), value);
     const stored = await readJson<Diagnostics | ReportIndex | null>(join(directory, "diagnostics.json"), null);
     let diagnostics: Diagnostics | null = null;
     if (stored && "format" in stored && stored.format === "panels_revision_index") {
-        const parts = await Promise.all(["safe", "smart"].map(algorithm => {
-            const file = stored.files[algorithm as "safe" | "smart"];
-            if (!/^(safe|smart)\/diagnostics-[a-f0-9]+\.json$/.test(file)) throw new Error("Invalid stored report path");
-            return fs.readFile(join(directory, file), "utf8").then(text => JSON.parse(text) as Diagnostics);
-        }));
+        const parts = await Promise.all((["safe", "smart"] as const).map(algorithm => ReadReportPartition(directory, stored, algorithm)));
         diagnostics = { description: parts[0]!.description, books: {}, groups: {} };
         for (const part of parts) { Object.assign(diagnostics.books, part.books); Object.assign(diagnostics.groups, part.groups); }
     } else diagnostics = stored as Diagnostics | null;
@@ -56,10 +44,7 @@ export async function CreateRevisionServer(
         value.groups = Object.fromEntries(Object.entries(value.groups).sort(([a], [b]) => a.localeCompare(b)));
         const files = {} as Record<"safe" | "smart", string>;
         for (const algorithm of ["safe", "smart"] as const) {
-            const groups = Object.fromEntries(Object.entries(value.groups).filter(([, info]) => info.algorithm === algorithm));
-            const partition: Diagnostics = { description: value.description, groups, books: Object.fromEntries(Object.keys(groups).map(key => [key, value.books[key]!])) };
-            const file = `${algorithm}/diagnostics-${Digest(JSON.stringify(partition)).slice(0, 20)}.json`;
-            await persist(file, partition); files[algorithm] = file;
+            files[algorithm] = await PersistReportPartition(directory, value, algorithm);
         }
         // Commit the index last so a crash cannot publish half a report.
         await persist("diagnostics.json", { format: "panels_revision_index", files });
