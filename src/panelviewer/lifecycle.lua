@@ -334,6 +334,7 @@ return function(PanelViewer)
         self._embedded_selection = nil
         self.image_union_renderer = nil
         if discard_navigation then
+            self.page = nil -- OCR's synthetic image page is gone with the source
             self._images_list = nil
             self.image_rects = nil
             self.panels = nil

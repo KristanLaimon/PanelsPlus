@@ -498,6 +498,86 @@ return function(PanelViewer)
         UIManager:scheduleIn(step_delay, walkStep)
     end
 
+    --- Pan from the visible crop to the image found by the reflow-page search.
+    --- The outgoing full image has already been freed. Fit the two crops
+    --- independently because their source sizes and margins can differ.
+    function PanelViewer:animateEmbeddedBoundaryTransition(
+        direction,
+        render_target,
+        target_rect,
+        target_full_page,
+        on_complete
+    )
+        local outgoing = self.image
+        if not outgoing or not self._image_wg or self.rotated or (self.scale_factor or 0) ~= 0 then
+            return false
+        end
+        local viewport_w, viewport_h = self:getPanelViewportSize()
+        local padding = (self.buttons_visible or self.with_title_bar) and 2 * self.image_padding or 0
+        local width, height = math.floor(viewport_w - padding), math.floor(viewport_h - padding)
+        -- Two canvas slots, a resized tile, the landing crop and its No crop viewport.
+        local bytes = (4 * width * height + target_rect.w * target_rect.h) * 4
+        if width < 1 or height < 1 or not Memory.hasAllocationHeadroom(NAV_TRANSITION_MIN_FREE_BYTES, bytes) then
+            return false
+        end
+
+        local travel_west = (direction == "next") == (self.reading_mode ~= "comic")
+        local outgoing_x = travel_west and width or 0
+        local target_x = width - outgoing_x
+        local canvas, target, scaled
+        local function paste(tile, x, fit_w, fit_h)
+            local w, h = tile:getWidth(), tile:getHeight()
+            local fit = math.min(fit_w / w, fit_h / h)
+            local scaled_w, scaled_h = math.max(1, math.floor(w * fit)), math.max(1, math.floor(h * fit))
+            scaled = RenderImage:scaleBlitBuffer(tile, scaled_w, scaled_h, false)
+            canvas:blitFrom(scaled, x + math.floor((width - scaled_w) / 2), math.floor((height - scaled_h) / 2))
+            if scaled ~= tile then
+                scaled:free()
+            end
+            scaled = nil
+        end
+
+        local ok, err = pcall(function()
+            target = render_target()
+            if not target then
+                return
+            end
+            canvas = Blitbuffer.new(2 * width, height, target:getType())
+            canvas:fill(PageRender.getBackground(self.reader_ui))
+            paste(outgoing, outgoing_x, self._image_wg.width, self._image_wg.height)
+            local margin = self:getMarginShrinkFactorForPanel(nil, target_full_page) or 1
+            paste(target, target_x, viewport_w * margin - padding, viewport_h * margin - padding)
+        end)
+        if scaled and scaled ~= outgoing and scaled ~= target then
+            scaled:free()
+        end
+        if target then
+            target:free()
+        end
+        if not ok or not canvas then
+            if canvas then
+                canvas:free()
+            end
+            if not ok then
+                logger.warn("[Panels+] embedded boundary render failed, falling back:", tostring(err))
+            end
+            return false
+        end
+
+        self._panels_plus_transition_active = true
+        self._panels_plus_transition_margin_factor = 1 -- margins are already in the canvas
+        self._images_list = {} -- keep the progress bar after releasing the crop closures
+        self.image = canvas
+        self.scale_factor = 1
+        self._center_x_ratio, self._center_y_ratio = travel_west and 0.75 or 0.25, 0.5
+        self:update()
+        if self.image_disposable then
+            self:releasePreviousPanelImage(outgoing)
+        end
+        self:runNavPanAnimation(travel_west and 0.25 or 0.75, 0.5, on_complete)
+        return true
+    end
+
     --- Dispatch a first/last-panel boundary crossing, animating it when smooth
     --- navigation and cross-page transitions are both enabled.
     ---

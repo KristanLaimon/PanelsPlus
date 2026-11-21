@@ -295,8 +295,8 @@ msgstr "(Long press config)"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "Adjust how long the camera pan between panels takes in milliseconds."
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animate page-to-page transitions (Actual: "

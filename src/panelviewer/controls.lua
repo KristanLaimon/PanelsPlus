@@ -268,7 +268,7 @@ return function(PanelViewer)
                         viewer:onShowNavTransitionOptionsMenu()
                     end,
                     help_text = _(
-                        "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+                        "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
                     ),
                 },
                 {

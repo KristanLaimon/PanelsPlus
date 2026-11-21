@@ -42,9 +42,16 @@ describe("EmbeddedImage panel finding selection", function()
     end)
 end)
 
-describe("EmbeddedImage KEPUB compatibility", function()
-    it("opens image panels for direct and Kobo-synced KEPUB filenames", function()
-        for _, filename in ipairs({ "/books/manga.kepub", "/books/manga.kepub.epub", "/books/MANGA.KEPUB" }) do
+describe("EmbeddedImage reflow format compatibility", function()
+    it("opens image panels for EPUB, MOBI, and direct and Kobo-synced KEPUB filenames", function()
+        local filenames = {
+            "/books/manga.epub",
+            "/books/manga.mobi",
+            "/books/manga.kepub",
+            "/books/manga.kepub.epub",
+            "/books/MANGA.KEPUB",
+        }
+        for _, filename in ipairs(filenames) do
             local opened = spy()
             opened.return_value = true
             local image = {
@@ -250,23 +257,150 @@ describe("EmbeddedImage native page animation", function()
 end)
 
 describe("EmbeddedImage smooth boundaries", function()
-    it("keeps a cross-image boundary classic while same-image smooth rendering is available", function()
-        local boundary = spy()
-        boundary.return_value = true
-        local animated = spy()
-        local viewer = PanelViewer:new({
-            nav_transition_mode = "smooth",
-            nav_transition_cross_page = true,
-            image_union_renderer = function()
-                return nil
+    local function crossBoundary(direction, enabled, finish)
+        local Blitbuffer = require("ffi/blitbuffer")
+        local Memory = require("src._memory")
+        local RenderImage = require("ui/renderimage")
+        local new_buffer, scale = Blitbuffer.new, RenderImage.scaleBlitBuffer
+        local memory_check = Memory.hasAllocationHeadroom
+        local close, tick = UIManager.close, UIManager.tickAfterNext
+        Blitbuffer.new = function(w, h, kind)
+            local bb = new_buffer(w, h, kind)
+            bb.getWidth = function()
+                return w
+            end
+            bb.getHeight = function()
+                return h
+            end
+            bb.free = spy()
+            return bb
+        end
+        Memory.hasAllocationHeadroom = function()
+            return finish ~= "low memory"
+        end
+        RenderImage.scaleBlitBuffer = function(_, _, w, h)
+            return Blitbuffer.new(w, h, 0)
+        end
+        UIManager.close = function(_, viewer)
+            viewer:onCloseWidget()
+        end
+        UIManager.tickAfterNext = spy()
+
+        local source = Blitbuffer.new(600, 800, 0)
+        local outgoing = Blitbuffer.new(400, 800, 0)
+        local target = Blitbuffer.new(800, 1200, 0)
+        local page = 4
+        local plugin = setmetatable({
+            settings = {
+                mode = "manga",
+                crop_mode = "strict",
+                embedded_nav_transition_mode = "smooth",
+                nav_transition_cross_page = enabled,
+            },
+            ui = {
+                document = {
+                    getCurrentPage = function()
+                        return page
+                    end,
+                    getNextPage = function(_, current)
+                        return current + 1
+                    end,
+                    getPrevPage = function(_, current)
+                        return current - 1
+                    end,
+                },
+                handleEvent = function(_, event)
+                    page = event.args[1]
+                end,
+            },
+            getSelectedOcrModel = function()
+                return "eng"
             end,
-            boundary_callback = boundary,
-            animateBoundaryTransition = animated,
+            armPageTurnAnimation = function() end,
+            findEmbeddedImageOnCurrentPage = function()
+                if page == 2 or page == 6 then
+                    return target
+                end
+            end,
+            showEmbeddedImagePanelsForImage = function(self, image, options)
+                options.panels = { { x = 0, y = 0, w = 800, h = 600 }, { x = 0, y = 600, w = 800, h = 600 } }
+                return EmbeddedImage.showEmbeddedImagePanelsForImage(self, image, options)
+            end,
+        }, { __index = EmbeddedImage })
+        local pan = spy()
+        local viewer = PanelViewer:new({
+            page = 1,
+            image = outgoing,
+            image_disposable = true,
+            embedded_source_image = source,
+            nav_transition_mode = "smooth",
+            nav_transition_cross_page = enabled,
+            image_union_renderer = function() end,
+            _image_wg = { width = 600, height = 800 },
+            _images_list_nb = 1,
+            _images_list_cur = 1,
+            boundary_callback = function(next_direction, current)
+                return plugin:onEmbeddedImageBoundary(next_direction, current)
+            end,
+            runNavPanAnimation = pan,
         })
 
-        assert.is_true(viewer:onPanelBoundary("next"))
-        assert.is_true(boundary:called())
-        assert.is_false(animated:called())
+        UIManager:show(viewer)
+        local handled = direction == "next" and viewer:onShowNextImage() or viewer:onShowPrevImage()
+        local released_before_search = source.free:called()
+        UIManager.tickAfterNext:lastCall()[2]()
+        local stayed_on_text_page = UIManager._last_shown == viewer and not pan:called()
+        UIManager.tickAfterNext:lastCall()[2]()
+        local still_visible = UIManager._last_shown == viewer
+        local canvas = viewer.image
+        local starting_ratio = viewer._center_x_ratio
+        if finish == "close" then
+            UIManager:close(viewer)
+        elseif pan:called() then
+            pan:lastCall()[4]()
+        end
+        local shown = UIManager._last_shown
+        Blitbuffer.new, RenderImage.scaleBlitBuffer = new_buffer, scale
+        Memory.hasAllocationHeadroom = memory_check
+        UIManager.close, UIManager.tickAfterNext = close, tick
+
+        assert.is_true(handled)
+        assert.is_true(released_before_search)
+        assert.is_true(stayed_on_text_page)
+        assert.equals(direction == "next" and 6 or 2, page)
+        assert.equals(enabled ~= false and finish ~= "low memory", pan:called())
+        if pan:called() then
+            assert.is_true(still_visible)
+            assert.equals(1200, canvas.w)
+            assert.equals(800, canvas.h)
+            assert.equals(direction == "next" and 0.75 or 0.25, starting_ratio)
+            assert.equals(1 - starting_ratio, pan:lastCall()[2])
+            assert.equals(1, canvas.free:callCount())
+            assert.equals(1, outgoing.free:callCount())
+        end
+        if finish == "close" then
+            assert.equals(viewer, shown)
+            assert.equals(1, target.free:callCount())
+        else
+            assert.equals(direction == "next" and 1 or 2, shown.initial_image_num)
+            assert.equals(enabled ~= false, shown.nav_transition_cross_page)
+            assert.equals(target, shown.embedded_source_image)
+            assert.is_false(target.free:called())
+        end
+    end
+
+    it("pans forward and backward after skipping text, then opens the correct landing panel", function()
+        crossBoundary("next", nil, "land")
+        crossBoundary("previous", true, "land")
+    end)
+
+    it("releases the destination when the viewer closes during the pan", function()
+        crossBoundary("next", true, "close")
+    end)
+
+    it("opens the destination immediately with the option off or the animation over budget", function()
+        crossBoundary("next", false, "land")
+        crossBoundary("previous", true, "low memory")
     end)
 end)
 
@@ -274,6 +408,7 @@ describe("EmbeddedImage source lifetime", function()
     it("releases the full source and lazy navigation closures during a boundary search", function()
         local free = spy()
         local viewer = PanelViewer:new({
+            page = 1,
             embedded_source_image = { free = free },
             image_union_renderer = function() end,
             _images_list = { function() end },
@@ -285,6 +420,7 @@ describe("EmbeddedImage source lifetime", function()
         viewer:releaseEmbeddedSource(true)
 
         assert.is_true(free:called())
+        assert.is_nil(viewer.page)
         assert.equals(nil, viewer.embedded_source_image)
         assert.equals(nil, viewer.image_union_renderer)
         assert.equals(nil, viewer._images_list)

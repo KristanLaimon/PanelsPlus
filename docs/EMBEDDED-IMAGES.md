@@ -82,13 +82,16 @@ the same embedded image. The mode preference is separate from fixed-layout
 documents, and Smooth's source-union cap falls back to an instant panel switch
 before making a large temporary bitmap.
 
-Smooth animation **between images** is a separate, more expensive problem:
-the images may be on different reflow pages, have unrelated sizes, and require
-a page turn plus an asynchronous search before the next image is known. The
-camera-pan scope therefore remains limited to panels of the same image.
-In Animated mode, image-to-image boundaries use the framebuffer effect when
-**Animate between pages** is enabled; otherwise they use the classic instant
-handoff.
+In **Nav. Smooth**, **Animate page-to-page transitions** also pans between
+embedded images. Panels+ keeps the outgoing crop visible while searching,
+skips pages without an image, and pans once the landing panel is ready.
+Forward navigation opens the first panel of the next image, and backward
+navigation opens the last panel of the previous image. The transition falls
+back to an instant switch if memory is too low, the current crop is zoomed,
+or either crop is rotated.
+
+In **Nav. Animated**, **Animate between pages** controls the framebuffer
+effect for image-to-image boundaries.
 
 ## What remains available
 

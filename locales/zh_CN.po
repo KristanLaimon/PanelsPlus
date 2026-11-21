@@ -304,8 +304,8 @@ msgstr "（长按设置）"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "调整分镜间镜头平移的耗时，单位毫秒。"
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "翻页时，从当前页最后分镜平移至下页第一分镜，而非瞬间切换。仅当相邻页已在后台完成检测时才执行动画，否则仍为瞬间切换。"
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "从一页或一张图像的最后一个分镜平移至下一页或下一张图像的第一个分镜。固定版式页面需要预先缓存分镜。对于可重排版式的电子书，Panels+ 找到下一张图像后开始平移。"
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "翻页动画（实际："

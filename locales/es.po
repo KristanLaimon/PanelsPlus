@@ -295,8 +295,8 @@ msgstr "(Mantén pulsado para config.)"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "Ajusta cuánto dura el desplazamiento de la cámara entre paneles, en milisegundos."
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "También se desplaza entre el último panel de una página y el primero de la siguiente, en lugar de hacer un corte instantáneo. Solo se anima cuando la página siguiente ya se ha detectado en segundo plano; de lo contrario, el cambio sigue siendo instantáneo."
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "Desplaza la vista entre el último panel de una página o imagen y el primero de la siguiente. En las páginas de diseño fijo, los paneles deben estar en caché. En los libros de texto adaptable, el desplazamiento empieza cuando Panels+ encuentra la siguiente imagen."
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animar las transiciones entre páginas (Actual: "
