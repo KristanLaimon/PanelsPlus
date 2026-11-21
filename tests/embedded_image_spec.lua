@@ -141,11 +141,13 @@ describe("EmbeddedImage boundary flow", function()
         Screen.setSwipeAnimations = old_set_swipe_animations
     end)
 
-    it("cancels every hidden search turn, including pages without an image", function()
+    it("suppresses refresh requests and hardware swipes on hidden search turns", function()
         local handle = spy()
         local cancel_animation = spy()
-        local old_tick = UIManager.tickAfterNext
+        local repaint = spy()
+        local old_tick, old_dirty = UIManager.tickAfterNext, UIManager.setDirty
         local old_set_swipe_animations = Screen.setSwipeAnimations
+        UIManager.setDirty = repaint
         UIManager.tickAfterNext = function(_, callback)
             UIManager._embedded_image_test_callback = callback
             return true
@@ -161,7 +163,13 @@ describe("EmbeddedImage boundary flow", function()
                         return page + 1
                     end,
                 },
-                handleEvent = handle,
+                handleEvent = function(ui, event)
+                    handle(ui, event)
+                    UIManager:setDirty(ui, "partial") -- ReaderView:recalculate()
+                    UIManager:setDirty(nil, function()
+                        return "ui"
+                    end)
+                end,
             },
             findEmbeddedImageOnCurrentPage = function()
                 return nil
@@ -171,14 +179,19 @@ describe("EmbeddedImage boundary flow", function()
         local viewer = {}
         plugin._embedded_search_viewer = viewer
 
-        assert.is_true(EmbeddedImage.openNextEmbeddedImagePage(plugin, 5, "next", viewer, 7))
+        local handled = EmbeddedImage.openNextEmbeddedImagePage(plugin, 5, "next", viewer, 7)
+        local dirty_restored = UIManager.setDirty == repaint
+        UIManager.tickAfterNext, UIManager.setDirty = old_tick, old_dirty
+        Screen.setSwipeAnimations = old_set_swipe_animations
+
+        assert.is_true(handled)
         assert.equals("GotoPage", handle:lastCall()[2].name)
         assert.equals(6, handle:lastCall()[2].args[1])
         assert.equals(1, cancel_animation:callCount())
         assert.equals(false, cancel_animation:lastCall()[2])
 
-        UIManager.tickAfterNext = old_tick
-        Screen.setSwipeAnimations = old_set_swipe_animations
+        assert.is_false(repaint:called())
+        assert.is_true(dirty_restored)
     end)
 end)
 

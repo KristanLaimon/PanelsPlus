@@ -206,16 +206,22 @@ local function extractImage(document, pos)
     return nil
 end
 
---- Move ReaderRolling while an embedded-image boundary search is hidden by
---- the still-open panel viewer. ReaderRolling emits `PageChangeAnimation` for
---- every `GotoPage`; on supported e-ink devices that arms a one-shot hardware
---- swipe for the next refresh. Cancel that one-shot after the synchronous
---- event dispatch so intervening text pages do not each animate underneath
---- the overlay. The successful replacement explicitly arms one final swipe.
+--- Keep ReaderRolling's page state and events while scanning under the viewer.
+--- ReaderView's partial refresh request reaches the framebuffer even when its
+--- widget is hidden, and KOReader can promote it to a full flash. Drop refresh
+--- requests during this synchronous turn and cancel any armed hardware swipe.
 local function gotoSearchPage(ui, page)
-    ui:handleEvent(Event:new("GotoPage", page))
+    local set_dirty = UIManager.setDirty
+    UIManager.setDirty = function() end
+    local ok, err = pcall(function()
+        ui:handleEvent(Event:new("GotoPage", page))
+    end)
+    UIManager.setDirty = set_dirty
     if type(Screen.setSwipeAnimations) == "function" then
         Screen:setSwipeAnimations(false)
+    end
+    if not ok then
+        error(err, 0)
     end
 end
 
