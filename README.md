@@ -1,5 +1,8 @@
 <p align="center">
-  <img width="99%" height="auto" alt="PanelsPlus_Cover" src="https://github.com/user-attachments/assets/16887793-0bd2-4712-9b1e-75d832152b55" />
+  <img width="99%" height="auto" alt="PanelsPlus_Cover" src="https://github.com/user-attachments/assets/06bda505-6c5f-4110-8b47-380e686d8e33" />
+
+
+
   <br>
   <strong>Panels+</strong>
   <br>
