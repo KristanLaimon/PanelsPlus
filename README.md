@@ -39,6 +39,8 @@
 
 > Want to know what's coming for the next release v1.7.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly)
 
+> Panels+ has an official website!. Here: https://www.panelsplus.site/ | Warning: This is the only official page, any other page aren't from official Panels+ devs and could be malicious.
+
 <a id="what-this-plugin-does"></a>
 
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup, external scripts, JSON files required, install Panels+ and *it just works*.
@@ -394,7 +396,7 @@ Check "LICENSE" file in this repository.
 
 <p align="center">Thanks for all the sponsors. This helps me a lot to continue with this project, and motivates me to release faster releases.</p>
 
-<!-- 
+<!--
 ![sponsors_tier_gold_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part1.png)
 ![sponsors_bakers_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part2.png)
 ![past_sponsors_not actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.past.png)
