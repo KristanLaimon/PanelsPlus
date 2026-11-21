@@ -68,6 +68,122 @@ describe("Experimental component detector", function()
         end
     end)
 
+    it("separates gray-only joins but preserves a one-pixel dark bridge in Safe", function()
+        local Safe = require("src._safecomponentdetector")
+        for _, mode in ipairs({ "manga", "comic" }) do
+            for _, dark_bridge in ipairs({ false, true }) do
+                local map = page()
+                frame(map, 20, 20, 440, 280)
+                frame(map, 40, 340, 400, 280)
+                map.structural, map.dark = {}, {}
+                for index = 0, map.w * map.h - 1 do
+                    map.structural[index], map.dark[index] = map.data[index], map.data[index]
+                end
+                for y = 299, 340 do
+                    ink(map, 180, y)
+                    if dark_bridge then
+                        map.dark[y * map.w + 180] = 1
+                    end
+                end
+                local panels, accepted = Safe.detectPage(map, { mode = mode })
+                assert.is_true(accepted)
+                assert.equals(dark_bridge and 1 or 2, #panels)
+            end
+        end
+    end)
+
+    it("preserves dark connections between a recovered frame band and floating artwork", function()
+        local Safe = require("src._safecomponentdetector")
+        local original_segment = Safe.segment
+        local ok, err = pcall(function()
+            for _, dark_bridge in ipairs({ false, true }) do
+                local map = page()
+                frame(map, 20, 0, 200, 180)
+                frame(map, 240, 0, 200, 180)
+                map.structural, map.dark = {}, {}
+                for index = 0, map.w * map.h - 1 do
+                    map.structural[index], map.dark[index] = map.data[index], map.data[index]
+                end
+                for y = 179, map.h - 1 do
+                    ink(map, 180, y)
+                    if dark_bridge then
+                        map.dark[y * map.w + 180] = 1
+                    end
+                end
+                Safe.segment = function(source)
+                    if source.data == map.structural then
+                        return {
+                            { x = 40, y = 0, w = 400, h = 360, frame_sides = 4 },
+                            { x = 480, y = 0, w = 400, h = 360, frame_sides = 4 },
+                        }
+                    end
+                    return { { x = 40, y = 0, w = 840, h = 1280, frame_sides = 1 } }
+                end
+                local panels, accepted = Safe.detectPage(map, { mode = "manga", segment_coverage_min = 0.3 })
+                assert.is_true(accepted)
+                assert.equals(dark_bridge and 1 or 3, #panels)
+            end
+        end)
+        Safe.segment = original_segment
+        assert.is_true(ok, tostring(err))
+    end)
+
+    it("does not group a genuine row of compact panels above a wide panel", function()
+        local Safe = require("src._safecomponentdetector")
+        local map = page()
+        frame(map, 20, 20, 100, 100)
+        frame(map, 180, 20, 100, 100)
+        frame(map, 340, 20, 100, 100)
+        frame(map, 20, 400, 440, 200)
+        local panels, accepted = Safe.detectPage(map, { mode = "manga", segment_coverage_min = 0.3 })
+        assert.is_true(accepted)
+        assert.equals(4, #panels)
+    end)
+
+    it("preserves tiny bridges, diagonal contacts and shared borders in Safe", function()
+        local Safe = require("src._safecomponentdetector")
+        for _, mode in ipairs({ "manga", "comic" }) do
+            for _, connection in ipairs({ "bridge", "diagonal", "border", "separate" }) do
+                local map = page()
+                frame(map, 20, 20, 200, 280)
+                local x, y = 250, 340
+                if connection == "diagonal" then
+                    x, y = 220, 300
+                elseif connection == "border" then
+                    x, y = 219, 299
+                end
+                frame(map, x, y, 200, 280)
+                map.structural = {}
+                for i = 0, map.w * map.h - 1 do
+                    map.structural[i] = map.data[i]
+                end
+                if connection == "bridge" then
+                    for bx = 219, 250 do
+                        ink(map, bx, 299)
+                    end
+                    for by = 299, 340 do
+                        ink(map, 250, by)
+                    end
+                end
+                local panels, accepted = Safe.detectPage(map, { mode = mode, segment_coverage_min = 0.3 })
+                assert.equals(connection == "separate" and 2 or 1, #panels)
+                if connection == "separate" then
+                    assert.is_true(accepted)
+                elseif not accepted then
+                    assert.equals(0, panels[1].x)
+                    assert.equals(0, panels[1].y)
+                    assert.equals(map.native_w, panels[1].w)
+                    assert.equals(map.native_h, panels[1].h)
+                else
+                    assert.equals(40, panels[1].x)
+                    assert.equals(40, panels[1].y)
+                    assert.equals((x + 200 - 20) * 2, panels[1].w)
+                    assert.equals((y + 280 - 20) * 2, panels[1].h)
+                end
+            end
+        end
+    end)
+
     it("keeps Safe independent of Smart refinements and applies its own coverage guard", function()
         local Safe = require("src._safecomponentdetector")
         local old_detect = Detector.detectPage
@@ -391,7 +507,7 @@ describe("Experimental component detector", function()
         local ok, err = pcall(function()
             for _, detector in ipairs({ Detector, Safe }) do
                 for _, warm in ipairs({ false, true }) do
-                    for failed_allocation = 1, detector == Safe and 8 or 7 do
+                    for failed_allocation = 1, 7 do
                         detector.clearScratch()
                         local small
                         if warm then

@@ -3,9 +3,10 @@
 Panels+ offers **Panels Finding: Safe** (the default) and **Panels Finding:
 Smart**. Both use the map built by `_pagebitmap.lua`. Smart uses
 `_smartcomponentdetector.lua` and the current reading-order sorter. Safe uses
-`_safecomponentdetector.lua` and its sorter in `_safegeometry.lua`. Each creates
-an independent frame-extraction instance from `_componentpipeline.lua`; Safe
-then conservatively retains enclosing frames and connected vertical stacks. The panel viewer's bottom-row button cycles between them
+`_safecomponentdetector.lua` and its sorter in `_safegeometry.lua`. Smart uses an independent instance of `_componentpipeline.lua`. Safe extracts
+connected components directly and retains complete enclosing frames. It can
+recover independently supported frame bands joined only by gray shading, while
+preserving dark-stroke connections and grouping sparse illustration fragments. The panel viewer's bottom-row button cycles between them
 and redetects the open page.
 
 This document describes the image-processing problem, the data flowing through

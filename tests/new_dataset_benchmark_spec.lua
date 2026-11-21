@@ -17,6 +17,15 @@ local describe, it, assert = framework.describe, framework.it, framework.assert
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local BenchmarkTracker = require("tests.dataset-mangas.benchmark_tracker")
 local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
+local selected_algorithm = os.getenv("PANELSPLUS_TEST_ALGORITHM")
+assert.is_true(
+    not selected_algorithm
+        or selected_algorithm == "all"
+        or selected_algorithm == "safe"
+        or selected_algorithm == "smart",
+    "Unknown panel algorithm: " .. tostring(selected_algorithm)
+)
+local ALGORITHMS = selected_algorithm and selected_algorithm ~= "all" and { selected_algorithm } or { "safe", "smart" }
 
 local DATASETS = require("tests.dataset-mangas.production_datasets")
 local selected_dataset = os.getenv("PANELSPLUS_TEST_DATASET")
@@ -75,7 +84,7 @@ describe("Manga and comic full-volume production benchmarks", function()
             assert.equals(expected.panels, panel_count)
         end)
 
-        for _, algorithm in ipairs({ "safe", "smart" }) do
+        for _, algorithm in ipairs(ALGORITHMS) do
             it("preserves " .. expected.title .. " " .. algorithm .. " production accuracy", function()
                 local book = findBook(expected.title)
                 local mapped = Manifest.getMappedPages(book, algorithm)

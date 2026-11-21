@@ -21,6 +21,15 @@ local JSON = require("tests.helpers.json")
 local Loader = require("tests.dataset-mangas.dataset_loader")
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
+local selected_algorithm = os.getenv("PANELSPLUS_TEST_ALGORITHM")
+assert.is_true(
+    not selected_algorithm
+        or selected_algorithm == "all"
+        or selected_algorithm == "safe"
+        or selected_algorithm == "smart",
+    "Unknown panel algorithm: " .. tostring(selected_algorithm)
+)
+local ALGORITHMS = selected_algorithm and selected_algorithm ~= "all" and { selected_algorithm } or { "safe", "smart" }
 
 local DATASET_DIR = "tests/dataset-mangas/dataset-textbasedformats"
 local EXPECTED_COUNTS = { 2, 3, 6 }
@@ -84,7 +93,7 @@ describe("EPUB, KEPUB, and MOBI embedded manga compatibility", function()
 
     for _, format in ipairs(FORMATS) do
         local title = "Bloom_Into_You_Vol_8_" .. format.name
-        for _, algorithm in ipairs({ "safe", "smart" }) do
+        for _, algorithm in ipairs(ALGORITHMS) do
             it("preserves " .. algorithm .. " baseline for " .. format.name, function()
                 local book = findBook(books, title)
                 if #Manifest.getMappedPages(book, algorithm) == 0 then

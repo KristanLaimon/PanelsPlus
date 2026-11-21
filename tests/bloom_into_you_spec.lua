@@ -43,6 +43,87 @@ local function countAvailableImages(book_dir, max_pages)
 end
 
 describe("Bloom Into You human-annotated dataset validation", function()
+    it("preserves reviewed Safe decisions and enclosing-frame guards from 2026-11-21", function()
+        if os.getenv("PANELSPLUS_TEST_ALGORITHM") == "smart" then
+            framework.skip("Safe-only review regression")
+        end
+        local Safe = require("src._safecomponentdetector")
+        -- Includes retained merges, accepted splits, illustration pages and the corrected page 158 order.
+        local reviewed = {
+            6,
+            16,
+            30,
+            34,
+            36,
+            45,
+            67,
+            69,
+            73,
+            76,
+            88,
+            94,
+            96,
+            112,
+            116,
+            119,
+            121,
+            122,
+            127,
+            149,
+            158,
+            160,
+            161,
+            162,
+            163,
+            164,
+            165,
+            170,
+            183,
+            196,
+            205,
+            208,
+            209,
+            210,
+            212,
+            213,
+        }
+        for _, index in ipairs(reviewed) do
+            local image = io.open(string.format("%s/%02d.png", BOOK_DIR, index - 1), "rb")
+            if not image then
+                framework.skip("Reviewed Safe pages unavailable in this dataset clone")
+            end
+            image:close()
+        end
+        local checked = 0
+        for _, book in ipairs(Manifest.loadManga()) do
+            if book.book_title == BOOK_TITLE then
+                local selected = {}
+                for _, index in ipairs(reviewed) do
+                    selected[index] = true
+                end
+                for _, page in ipairs(Manifest.getMappedPages(book, "safe")) do
+                    if selected[page.page_index] then
+                        local map = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
+                        local panels = Safe.detectPage(map, { mode = page.reading_order })
+                        local result = Evaluator.evaluate(page.frames, panels, 0.50, 35)
+                        assert.is_true(
+                            result.reading_order_correct,
+                            string.format(
+                                "Reviewed Safe page %d: expected %d panels, detected %d, matched %d",
+                                page.page_index,
+                                #page.frames,
+                                #panels,
+                                result.true_positives
+                            )
+                        )
+                        checked = checked + 1
+                    end
+                end
+            end
+        end
+        assert.equals(#reviewed, checked)
+    end)
+
     local available_images = countAvailableImages(BOOK_DIR, 213)
     local is_full_volume = (available_images == 213)
 

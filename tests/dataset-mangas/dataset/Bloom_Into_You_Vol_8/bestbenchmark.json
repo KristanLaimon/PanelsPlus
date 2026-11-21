@@ -23,6 +23,30 @@
         "true_positives": 697
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-21",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9577,
+        "false_positives": 36,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9563,
+        "pages_evaluated": 213,
+        "precision": 0.9505,
+        "reading_order_accuracy": 0.8357,
+        "reading_order_pages": 213,
+        "reading_order_pages_correct": 178,
+        "reading_order_pair_accuracy": 0.9932,
+        "reading_order_pairs": 1029,
+        "reading_order_pairs_correct": 1022,
+        "recall": 0.9651,
+        "total_detected": 727,
+        "total_ground_truth": 716,
+        "true_positives": 691
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Bloom_Into_You_Vol_8",
@@ -141,23 +165,23 @@
     "true_positives": 3
   },
   "safe_full_volume": {
-    "f1": 0.9577,
-    "false_positives": 36,
+    "f1": 1.0000,
+    "false_positives": 0,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9563,
+    "mean_iou": 0.9803,
     "pages_evaluated": 213,
-    "precision": 0.9505,
-    "reading_order_accuracy": 0.8357,
+    "precision": 1.0000,
+    "reading_order_accuracy": 1.0000,
     "reading_order_pages": 213,
-    "reading_order_pages_correct": 178,
-    "reading_order_pair_accuracy": 0.9932,
-    "reading_order_pairs": 1029,
-    "reading_order_pairs_correct": 1022,
-    "recall": 0.9651,
-    "total_detected": 727,
-    "total_ground_truth": 716,
-    "true_positives": 691
+    "reading_order_pages_correct": 213,
+    "reading_order_pair_accuracy": 1.0000,
+    "reading_order_pairs": 989,
+    "reading_order_pairs_correct": 989,
+    "recall": 1.0000,
+    "total_detected": 684,
+    "total_ground_truth": 684,
+    "true_positives": 684
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
@@ -205,5 +229,5 @@
     "total_ground_truth": 3,
     "true_positives": 3
   },
-  "updated_at": "2026-10-16"
+  "updated_at": "2026-11-21"
 }

@@ -1,12 +1,11 @@
 local ffi = require("ffi")
--- Safe: conservative grouping over independently extracted framed panels.
+-- Safe: preserve real ink connections; gray shading alone is not a panel bridge.
 local Geometry = require("src._safegeometry")
 local Settings = require("src._settings")
 
---- Safe owns its extraction pipeline and preserves enclosing-frame grouping.
---- The traversal workspace is shared; acceptance and grouping stay conservative.
+--- Safe keeps real strokes connected and conservatively resolves gray-only joins.
 local ComponentDetector = {}
-local Pipeline = require("src._componentpipeline")()
+local Segmenter = require("src._segmenter")
 
 local Scanner = require("src._componentscan")
 local scratch_white_capacity = 0
@@ -19,7 +18,7 @@ local function ensureWhiteScratch(size)
 end
 
 function ComponentDetector.clearScratch()
-    Pipeline.clearScratch()
+    Scanner.clearScratch()
     scratch_white_capacity = 0
     scratch_white = nil
 end
@@ -192,67 +191,283 @@ function ComponentDetector.segment(map, settings)
     return panels
 end
 
-function ComponentDetector.detectPage(map, settings)
-    settings = settings or Settings.defaults
-    local panels, accepted, reason = Pipeline.detectPage(map, settings)
-    if not accepted then
-        return panels, accepted, reason
-    end
-    local connected = ComponentDetector.segment(map, settings)
-    local independent_frames, substantial = 0, 0
-    local small_area = (map.native_w or 0) * (map.native_h or 0) * 0.008
-    for _, panel in ipairs(panels) do
-        if panel.w * panel.h >= small_area then
-            substantial = substantial + 1
-            if (panel.frame_sides or 0) >= 2 then
-                independent_frames = independent_frames + 1
+local function intersectionArea(a, b)
+    return math.max(0, math.min(a.x + a.w, b.x + b.w) - math.max(a.x, b.x))
+        * math.max(0, math.min(a.y + a.h, b.y + b.h) - math.max(a.y, b.y))
+end
+
+--- A gray wash may connect frames, but a dark stroke must keep them together.
+local function hasDarkBridge(map, panels)
+    local joined = false
+    Scanner.collect({ w = map.w, h = map.h, data = map.dark }, 0, 1, function(box, pixels, count)
+        local bounds =
+            { x = box.x * map.scale_x, y = box.y * map.scale_y, w = box.w * map.scale_x, h = box.h * map.scale_y }
+        local possible = 0
+        for _, panel in ipairs(panels) do
+            if intersectionArea(bounds, panel) > 0 then
+                possible = possible + 1
             end
         end
-    end
-    -- A sketch or a small credit beside one illustration is not sufficient
-    -- frame evidence for Safe. Keep the page intact in that uncertain case.
-    if #connected == 0 and substantial <= 2 and independent_frames < 2 then
-        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "no framed panels"
-    end
-    -- Safe retains a connected enclosing frame when its proposed children
-    -- have weaker borders or form a full-height row, and keeps vertical stacks together.
-    -- Independently framed neighbours still benefit from Smart's extraction.
-    for _, parent in ipairs(connected) do
-        local parts, area, weakest = {}, 0, 4
-        local full_height_row = true
-        local first_center, last_center = math.huge, -math.huge
-        for i, child in ipairs(panels) do
-            local intersection = math.max(
-                0,
-                math.min(parent.x + parent.w, child.x + child.w) - math.max(parent.x, child.x)
-            ) * math.max(0, math.min(parent.y + parent.h, child.y + child.h) - math.max(parent.y, child.y))
-            if intersection >= child.w * child.h * 0.95 and child.w * child.h < parent.w * parent.h * 0.85 then
-                parts[i] = true
-                area = area + child.w * child.h
-                weakest = math.min(weakest, child.frame_sides or 0)
-                full_height_row = full_height_row and child.h >= parent.h * 0.90
-                local center = child.x + child.w / 2
-                first_center, last_center = math.min(first_center, center), math.max(last_center, center)
-            end
+        if possible < 2 then
+            return
         end
-        local count = 0
-        for _ in pairs(parts) do
-            count = count + 1
-        end
-        local enclosing_frame = (parent.frame_sides or 0) >= 4 and (weakest < 4 or full_height_row)
-        local vertical_stack = (parent.frame_sides or 0) >= 1
-            and last_center - first_center <= parent.w * 0.20
-            and ((parent.frame_sides or 0) <= 2 or parent.w <= parent.h * 0.5 or weakest < 4)
-        if count >= 2 and area >= parent.w * parent.h * 0.90 and (enclosing_frame or vertical_stack) then
-            local merged = {}
-            for i, child in ipairs(panels) do
-                if not parts[i] then
-                    merged[#merged + 1] = child
+        local touched = {}
+        for i = 0, count - 1 do
+            local index = pixels[i]
+            local y = math.floor(index / map.w) * map.scale_y
+            local x = (index % map.w) * map.scale_x
+            local owner, overlap
+            for j, panel in ipairs(panels) do
+                if x >= panel.x and y >= panel.y and x < panel.x + panel.w and y < panel.y + panel.h then
+                    if owner then
+                        overlap = true
+                        break
+                    end
+                    owner = j
                 end
             end
-            merged[#merged + 1] = parent
-            panels = merged
+            if owner and not overlap then
+                touched[owner] = (touched[owner] or 0) + 1
+            end
         end
+        local shared = 0
+        for _, hits in pairs(touched) do
+            -- Boundary rounding alone can place one or two cells in a neighbour.
+            if hits >= 3 then
+                shared = shared + 1
+            end
+        end
+        if shared >= 2 then
+            joined = true
+            return true
+        end
+    end)
+    return joined
+end
+
+local function hasConservativeLayout(parent, parts, map, parent_count)
+    if parent_count <= 1 and parent.w * parent.h >= map.native_w * map.native_h * 0.90 then
+        return true
+    end
+    if #parts == 2 then
+        local a, b = parts[1], parts[2]
+        return a.w >= parent.w * 0.80
+            and b.w >= parent.w * 0.80
+            and (a.y + a.h <= b.y + map.scale_y or b.y + b.h <= a.y + map.scale_y)
+    end
+    if #parts == 3 then
+        for _, panel in ipairs(parts) do
+            if panel.h >= parent.h * 0.90 and panel.w <= parent.w * 0.50 then
+                return true
+            end
+        end
+    end
+    return false
+end
+
+--- Recover a complete framed band while keeping the unframed remainder intact.
+local function recoverFrameBand(parent, parts, map, mode)
+    local tolerance = math.max(map.scale_x, map.scale_y) * 2
+    local minimum = parent.w * parent.h * 0.10
+    for i, a in ipairs(parts) do
+        if (a.frame_sides or 0) >= 2 and a.w * a.h >= minimum then
+            for j = i + 1, #parts do
+                local b = parts[j]
+                if (b.frame_sides or 0) >= 2 and b.w * b.h >= minimum then
+                    local left, right = math.min(a.x, b.x), math.max(a.x + a.w, b.x + b.w)
+                    local top, bottom = math.min(a.y, b.y), math.max(a.y + a.h, b.y + b.h)
+                    if
+                        math.abs(a.y - b.y) <= tolerance
+                        and math.abs(a.h - b.h) <= tolerance
+                        and top <= parent.y + tolerance
+                        and right - left >= parent.w * 0.97
+                        and bottom < parent.y + parent.h * 0.80
+                    then
+                        return {
+                            a,
+                            b,
+                            {
+                                x = parent.x,
+                                y = bottom - map.scale_y,
+                                w = parent.w,
+                                h = parent.y + parent.h - bottom + map.scale_y,
+                                frame_sides = 0,
+                            },
+                        }
+                    end
+                    local leading_edge = mode == "comic" and left <= parent.x + tolerance
+                        or mode ~= "comic" and right >= parent.x + parent.w - tolerance
+                    local remainder = mode == "comic" and parent.x + parent.w - right or left - parent.x
+                    if
+                        math.abs(a.x - b.x) <= tolerance
+                        and math.abs(a.w - b.w) <= tolerance
+                        and leading_edge
+                        and bottom - top >= parent.h * 0.97
+                        and remainder > parent.w * 0.15
+                    then
+                        -- Keep the shared edge in both crops so a floating figure is not clipped.
+                        local x = mode == "comic" and right - map.scale_x or parent.x
+                        return {
+                            a,
+                            b,
+                            { x = x, y = parent.y, w = remainder + map.scale_x, h = parent.h, frame_sides = 0 },
+                        }
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function refineGrayConnections(map, panels, settings)
+    if not map.structural or not map.dark then
+        return panels
+    end
+    local alternate = {}
+    for key, value in pairs(map) do
+        alternate[key] = value
+    end
+    alternate.data = map.structural
+    local candidates = ComponentDetector.segment(alternate, settings)
+    if #candidates == 0 then
+        return panels
+    end
+    local parents = panels
+    if #parents == 0 then
+        parents = { { x = 0, y = 0, w = map.native_w, h = map.native_h } }
+    end
+    local refined = {}
+    for _, parent in ipairs(parents) do
+        local parts, area, strong = {}, 0, 0
+        for _, child in ipairs(candidates) do
+            local size = child.w * child.h
+            if intersectionArea(parent, child) >= size * 0.95 and size < parent.w * parent.h * 0.85 then
+                parts[#parts + 1] = child
+                area = area + size
+                if (child.frame_sides or 0) >= 2 then
+                    strong = strong + 1
+                end
+            end
+        end
+        local reliable = #parts >= 2
+            and area >= parent.w * parent.h * 0.80
+            and strong >= math.ceil(#parts * 0.40)
+            and (#panels > 0 or strong >= 2)
+            and hasConservativeLayout(parent, parts, map, #panels)
+        for i, a in ipairs(parts) do
+            for j = i + 1, #parts do
+                local b = parts[j]
+                if intersectionArea(a, b) > math.min(a.w * a.h, b.w * b.h) * 0.10 then
+                    reliable = false
+                end
+            end
+        end
+        local replacement
+        -- An enclosing frame is stronger evidence than any proposed internal cut.
+        if (parent.frame_sides or 0) < 4 then
+            if reliable then
+                replacement = parts
+            else
+                replacement = recoverFrameBand(parent, parts, map, settings.mode)
+            end
+        end
+        if replacement and hasDarkBridge(map, replacement) then
+            replacement = nil
+        end
+        if replacement then
+            for _, panel in ipairs(replacement) do
+                refined[#refined + 1] = panel
+            end
+        elseif #panels > 0 then
+            refined[#refined + 1] = parent
+        end
+    end
+    if #refined > (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
+        return panels
+    end
+    return refined
+end
+
+--- Window frames and caption boxes must not divide an otherwise floating illustration.
+local function groupSparseIllustration(map, panels)
+    local first
+    for _, panel in ipairs(panels) do
+        if
+            panel.w >= map.native_w * 0.70
+            and panel.h >= map.native_h * 0.10
+            and (panel.frame_sides or 0) >= 3
+            and panel.y >= map.native_h * 0.35
+        then
+            if not first or panel.y < first.y then
+                first = panel
+            end
+        end
+    end
+    if not first then
+        return panels
+    end
+    local upper, tiny, rest = {}, true, {}
+    for _, panel in ipairs(panels) do
+        if panel.y + panel.h <= first.y + map.scale_y then
+            upper[#upper + 1] = panel
+            tiny = tiny and panel.w * panel.h <= map.native_w * map.native_h * 0.06 and panel.w <= map.native_w * 0.40
+        else
+            rest[#rest + 1] = panel
+        end
+    end
+    if #upper < 3 or not tiny then
+        return panels
+    end
+    local inside, outside = 0, 0
+    for y = 0, math.min(map.h, math.floor(first.y / map.scale_y)) - 1 do
+        for x = 0, map.w - 1 do
+            if map.data[y * map.w + x] == 1 then
+                local contained = false
+                for _, panel in ipairs(upper) do
+                    if
+                        x * map.scale_x >= panel.x
+                        and x * map.scale_x < panel.x + panel.w
+                        and y * map.scale_y >= panel.y
+                        and y * map.scale_y < panel.y + panel.h
+                    then
+                        contained = true
+                        break
+                    end
+                end
+                if contained then
+                    inside = inside + 1
+                else
+                    outside = outside + 1
+                end
+            end
+        end
+    end
+    -- Real compact panels contain their artwork; an illustration extends beyond its windows/captions.
+    if outside <= inside then
+        return panels
+    end
+    rest[#rest + 1] = { x = 0, y = 0, w = map.native_w, h = first.y }
+    return rest
+end
+
+function ComponentDetector.detectPage(map, settings)
+    settings = settings or Settings.defaults
+    local panels = ComponentDetector.segment(map, settings)
+    local strong, maximum_sides = 0, 0
+    for _, panel in ipairs(panels) do
+        local sides = panel.frame_sides or 0
+        maximum_sides = math.max(maximum_sides, sides)
+        if sides >= 2 then
+            strong = strong + 1
+        end
+    end
+    if #panels >= 2 and (strong == 0 or (#panels >= 3 and strong == 1 and maximum_sides < 3)) then
+        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "insufficient frame evidence"
+    end
+    panels = groupSparseIllustration(map, refineGrayConnections(map, panels, settings))
+    local accepted, reason = Segmenter.accept(panels, map, settings)
+    if not accepted then
+        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
     end
     return Geometry.sortReadingOrder(panels, settings.mode or "manga"), true
 end
