@@ -155,7 +155,12 @@ local function sortTopAlignedRows(panels, mode)
                             local rect_right = (rect.x or 0) + math.max(1, rect.w or 0)
                             local is_in_leading_stack = mode == "comic" and later_right <= (rect.x or 0)
                                 or mode ~= "comic" and (later_rect.x or 0) >= rect_right
-                            if item_index == 1 then
+                            if mode == "comic" then
+                                -- A tilted panel can extend a few pixels past the next tier.
+                                local overlap = math.min(bottom, later_rect.y + later_rect.h) - later_rect.y
+                                is_in_leading_stack = is_in_leading_stack
+                                    and overlap >= math.min(rect.h, later_rect.h) * 0.50
+                            elseif item_index == 1 then
                                 local overlap = math.min(bottom, later_rect.y + later_rect.h) - later_rect.y
                                 is_in_leading_stack = is_in_leading_stack and overlap >= later_rect.h * 0.50
                             end

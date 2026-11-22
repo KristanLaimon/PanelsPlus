@@ -23,6 +23,30 @@
         "true_positives": 818
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-22",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9716,
+        "false_positives": 28,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9660,
+        "pages_evaluated": 218,
+        "precision": 0.9670,
+        "reading_order_accuracy": 0.8991,
+        "reading_order_pages": 218,
+        "reading_order_pages_correct": 196,
+        "reading_order_pair_accuracy": 0.9946,
+        "reading_order_pairs": 1666,
+        "reading_order_pairs_correct": 1657,
+        "recall": 0.9762,
+        "total_detected": 848,
+        "total_ground_truth": 840,
+        "true_positives": 820
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Scott_Pilgrim_Vol_5",
@@ -91,23 +115,23 @@
     "true_positives": 819
   },
   "safe_full_volume": {
-    "f1": 0.9716,
-    "false_positives": 28,
+    "f1": 0.9922,
+    "false_positives": 8,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9660,
+    "mean_iou": 0.9707,
     "pages_evaluated": 218,
-    "precision": 0.9670,
-    "reading_order_accuracy": 0.8991,
+    "precision": 0.9905,
+    "reading_order_accuracy": 0.9817,
     "reading_order_pages": 218,
-    "reading_order_pages_correct": 196,
-    "reading_order_pair_accuracy": 0.9946,
-    "reading_order_pairs": 1666,
-    "reading_order_pairs_correct": 1657,
-    "recall": 0.9762,
-    "total_detected": 848,
-    "total_ground_truth": 840,
-    "true_positives": 820
+    "reading_order_pages_correct": 214,
+    "reading_order_pair_accuracy": 0.9988,
+    "reading_order_pairs": 1679,
+    "reading_order_pairs_correct": 1677,
+    "recall": 0.9940,
+    "total_detected": 840,
+    "total_ground_truth": 837,
+    "true_positives": 832
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
@@ -142,5 +166,5 @@
     "total_ground_truth": 838,
     "true_positives": 702
   },
-  "updated_at": "2026-10-16"
+  "updated_at": "2026-11-22"
 }

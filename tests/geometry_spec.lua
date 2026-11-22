@@ -262,3 +262,16 @@ describe("Safe manga reading order", function()
         end
     end)
 end)
+
+describe("Safe comic reading order", function()
+    it("finishes a row when the next panel overlaps only its crop edge", function()
+        local panels = {
+            panel("top-left", 10, 0, 400, 615),
+            panel("top-right", 420, 0, 400, 640),
+            panel("bottom-left", 10, 610, 400, 450),
+            panel("bottom-right", 420, 635, 400, 425),
+        }
+        require("src._safegeometry").sortReadingOrder(panels, "comic")
+        assert.equals("top-left,top-right,bottom-left,bottom-right", orderedIDs(panels))
+    end)
+end)

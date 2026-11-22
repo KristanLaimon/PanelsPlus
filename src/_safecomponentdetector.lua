@@ -88,7 +88,12 @@ function ComponentDetector.segment(map, settings)
             end
         end
         if keep and (box.w < map.w * 0.10 or box.h < map.h * 0.10 or box.w * box.h < map.w * map.h * 0.01) then
-            keep = box.frame_sides == 4 or hasFrame(map, box)
+            -- A full-width strip can have one slanted or open edge.
+            local wide_strip = settings.mode == "comic"
+                and box.frame_sides >= 3
+                and box.w >= map.w * 0.75
+                and box.h >= map.h * 0.07
+            keep = wide_strip or box.frame_sides == 4 or hasFrame(map, box)
         end
         if keep then
             cells[#cells + 1] = box
@@ -355,6 +360,29 @@ local function refineGrayConnections(map, panels, settings)
     end
     alternate.data = map.structural
     local candidates = ComponentDetector.segment(alternate, settings)
+    if map.inverted and settings.mode == "comic" and #panels >= 3 then
+        local complete_frames = 0
+        for _, panel in ipairs(panels) do
+            if (panel.frame_sides or 0) >= 3 and panel.w * panel.h >= map.native_w * map.native_h * 0.10 then
+                complete_frames = complete_frames + 1
+            end
+        end
+        local framed_artwork = false
+        for _, candidate in ipairs(candidates) do
+            if
+                (candidate.frame_sides or 0) >= 2
+                and candidate.w * candidate.h >= map.native_w * map.native_h * 0.10
+            then
+                framed_artwork = true
+                break
+            end
+        end
+        -- Lettering and bright shapes can form boxes on a dark illustration
+        -- even when there is no strong frame around the artwork.
+        if complete_frames < 2 and not framed_artwork then
+            return {}
+        end
+    end
     if #candidates == 0 then
         -- On dark pages with no high-contrast frames, isolated bright objects
         -- are poor evidence for panels.
@@ -628,19 +656,82 @@ local function recoverDetachedFooter(map, panels)
     return panels
 end
 
-local function isTitleIllustration(map, panels)
-    if #panels < 3 then
+local function isTitleIllustration(map, panels, mode)
+    local comic = mode == "comic"
+    if #panels < (comic and 2 or 3) then
         return false
     end
     local illustration_count = 0
     for _, panel in ipairs(panels) do
-        if panel.w >= map.native_w * 0.85 and panel.h >= map.native_h * 0.75 and (panel.frame_sides or 0) < 2 then
+        if
+            panel.w >= map.native_w * (comic and 0.65 or 0.85)
+            and panel.h >= map.native_h * 0.75
+            and (panel.frame_sides or 0) < 2
+        then
             illustration_count = illustration_count + 1
-        elseif panel.y + panel.h > map.native_h * 0.10 or panel.h > map.native_h * 0.05 then
-            return false
+        else
+            local top_label = panel.y + panel.h <= map.native_h * 0.10
+            local bottom_label = comic and panel.y >= map.native_h * 0.90
+            if not (top_label or bottom_label) or panel.h > map.native_h * (comic and 0.06 or 0.05) then
+                return false
+            end
         end
     end
     return illustration_count == 1
+end
+
+-- On faded scans, a tall panel can retain straight edges in the ink
+-- projection even when its printed frame is too faint to remain connected.
+local function recoverFadedColumns(map)
+    local columns, start = {}, nil
+    for x = 0, map.w do
+        local ink = 0
+        if x < map.w then
+            for y = 0, map.h - 1 do
+                ink = ink + map.data[y * map.w + x]
+            end
+        end
+        if ink >= map.h * 0.01 then
+            start = start or x
+        elseif start then
+            if x - start >= map.w * 0.15 then
+                columns[#columns + 1] = { left = start, right = x }
+            end
+            start = nil
+        end
+    end
+    if #columns ~= 2 or columns[2].left - columns[1].right < 2 then
+        return
+    end
+    local first_width = columns[1].right - columns[1].left
+    local second_width = columns[2].right - columns[2].left
+    if math.min(first_width, second_width) < math.max(first_width, second_width) / 2 then
+        return
+    end
+    local panels = {}
+    for _, column in ipairs(columns) do
+        local top, bottom
+        local w = column.right - column.left
+        for y = 0, map.h - 1 do
+            local ink = 0
+            for x = column.left, column.right - 1 do
+                ink = ink + map.data[y * map.w + x]
+            end
+            if ink >= w * 0.03 then
+                top, bottom = top or y, y + 1
+            end
+        end
+        if not top or bottom - top < map.h * 0.60 then
+            return
+        end
+        panels[#panels + 1] = {
+            x = column.left * map.scale_x,
+            y = top * map.scale_y,
+            w = w * map.scale_x,
+            h = (bottom - top) * map.scale_y,
+        }
+    end
+    return panels
 end
 
 function ComponentDetector.detectPage(map, settings)
@@ -655,16 +746,28 @@ function ComponentDetector.detectPage(map, settings)
         end
     end
     if #panels >= 2 and (strong == 0 or (#panels >= 3 and strong == 1 and maximum_sides < 3)) then
+        if settings.mode == "comic" and not map.inverted and #panels == 2 then
+            local columns = recoverFadedColumns(map)
+            if columns and Segmenter.accept(columns, map, settings) then
+                return columns, true
+            end
+        end
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "insufficient frame evidence"
     end
     panels = groupSparseIllustration(map, refineGrayConnections(map, panels, settings))
-    if isTitleIllustration(map, panels) then
+    if isTitleIllustration(map, panels, settings.mode) then
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "title illustration"
     end
     if settings.mode ~= "comic" and #panels < (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
         panels = recoverDetachedFooter(map, panels)
     end
     local accepted, reason = Segmenter.accept(panels, map, settings)
+    if not accepted and settings.mode == "comic" and not map.inverted and #panels <= 1 then
+        local columns = recoverFadedColumns(map)
+        if columns and Segmenter.accept(columns, map, settings) then
+            return columns, true
+        end
+    end
     if not accepted then
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason
     end
