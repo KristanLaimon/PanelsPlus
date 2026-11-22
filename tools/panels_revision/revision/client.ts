@@ -15,6 +15,9 @@ function Element<T extends HTMLElement | SVGSVGElement = HTMLElement>(id: string
 function Escape(value: string): string { return value.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]!); }
 const Basis = PageBasis;
 const STORAGE_KEY = "panels_revision.reviews.v1";
+const REVIEW_CHOICE_LABELS: Record<Choice, string> = {
+	pending: "Pending", expected: "Original Panels", previous: "Before", detected: "After", custom: "Custom Panels",
+};
 const FEEDBACK_KEY = "panels_revision.feedback.v1";
 let data: Data;
 let reviews: Record<string, Review> = {};
@@ -108,6 +111,9 @@ function Rectangles(boxes: Box[], color: string, interactive = false): string {
 function RenderDecision(): void {
 	if (!active) return;
 	const review = CurrentReview();
+	const banner = Element("review-choice");
+	banner.dataset.choice = review.choice;
+	if (banner.textContent !== REVIEW_CHOICE_LABELS[review.choice]) banner.textContent = REVIEW_CHOICE_LABELS[review.choice];
 	Element("choices").innerHTML = (Object.keys(CHOICES) as Choice[]).map(choice => `<button data-choice="${choice}" aria-pressed="${review.choice === choice}">${Escape(CHOICES[choice])}</button>`).join("");
 	const stale = Stale(active, review);
 	Element("dirty").textContent = stale ? "Saved decision is from an older report; choose again to confirm." : review.choice === "custom" && !review.boxes.length ? "Draw at least one rectangle" : CHOICES[review.choice];

@@ -12,6 +12,12 @@
 #canvas [data-handle="e"],#canvas [data-handle="w"]{cursor:ew-resize}
 
 header #theme-toggle{margin-left:auto}
+body:has(#main:not(.hidden)) header{padding-right:140px}
+#review-choice{position:fixed;top:12px;right:16px;z-index:10;padding:6px 10px;border-radius:4px;background:#515860;color:#fff;font-weight:700;pointer-events:none}
+#review-choice[data-choice="expected"]{background:#08783e}
+#review-choice[data-choice="previous"]{background:#7953aa}
+#review-choice[data-choice="detected"]{background:#b84304}
+#review-choice[data-choice="custom"]{background:#165bb3}
 #layout.sidebar-hidden{grid-template-columns:minmax(0,1fr)}
 html[data-theme="dark"] .comparison svg{background:#303438}html[data-theme="dark"] .comparison svg image,html[data-theme="dark"] #canvas image{filter:invert(1)}
 html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] body{background:#181a1b;color:#eee}html[data-theme="dark"] small,html[data-theme="dark"] .muted{color:#bbb}html[data-theme="dark"] aside,html[data-theme="dark"] .comparison{border-color:#555}html[data-theme="dark"] pre,html[data-theme="dark"] #canvas-scroll{background:#303438}html[data-theme="dark"] a{color:#91bfff}html[data-theme="dark"] #status.error{color:#ff9999}
@@ -37,6 +43,7 @@ html[data-theme="dark"] #magnifier image{filter:invert(1)}
 <div id="page-list"></div>
 </aside>
 <main id="main" class="hidden">
+<div id="review-choice" role="status" aria-label="Review choice"></div>
 <div class="toolbar"><button id="prev">← Previous (A)</button><button id="next">Next (D) →</button><strong id="page-title"></strong><span id="dirty"></span></div>
 <p id="page-info"></p>
 <div id="comparisons" class="comparisons"></div>
