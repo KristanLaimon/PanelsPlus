@@ -169,10 +169,11 @@ function RenderEditor(): void {
 	const { width, height } = active.page;
 	canvas.setAttribute("viewBox", `0 0 ${width} ${height}`);
 	canvas.innerHTML = `<image href="${Escape(ImageUrl(active.page))}" width="${width}" height="${height}"/>${Rectangles(boxes, "#d04e00", true)}`;
-	if (selected >= 0) {
+	if (selected >= 0 && !drag) {
 		const [x, y, w, h] = boxes[selected]!;
 		const size = Math.max(width / 60, 12);
-		canvas.innerHTML += [[x, y, "nw"], [x + w, y, "ne"], [x, y + h, "sw"], [x + w, y + h, "se"]].map(([cx, cy, name]) => `<rect class="handle" data-handle="${name}" data-index="${selected}" x="${Number(cx) - size / 2}" y="${Number(cy) - size / 2}" width="${size}" height="${size}"/>`).join("");
+		canvas.innerHTML += [[x, y, x + w, y, "n"], [x, y + h, x + w, y + h, "s"], [x, y, x, y + h, "w"], [x + w, y, x + w, y + h, "e"]].map(([x1, y1, x2, y2, name]) => `<line class="edge-handle" data-handle="${name}" data-index="${selected}" x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}"/>`).join("");
+		canvas.innerHTML += [[x, y, "nw"], [x + w, y, "ne"], [x, y + h, "sw"], [x + w, y + h, "se"], [x + w / 2, y, "n"], [x + w / 2, y + h, "s"], [x, y + h / 2, "w"], [x + w, y + h / 2, "e"]].map(([cx, cy, name]) => `<rect class="handle" data-handle="${name}" data-index="${selected}" x="${Number(cx) - size / 2}" y="${Number(cy) - size / 2}" width="${size}" height="${size}"/>`).join("");
 	}
 	canvas.style.width = `${Element<HTMLInputElement>("zoom").value}%`;
 	canvas.style.cursor = drawMode ? "crosshair" : "move";
@@ -247,7 +248,7 @@ canvas.addEventListener("pointerdown", event => {
 	const index = drawMode && !handle ? -1 : targetIndex;
 	drag = { item: active, start: Point(event, !handle), initial: EditorBoxes(), index, targetIndex, handle, pointer: event.pointerId };
 	selected = index;
-	canvas.setPointerCapture(event.pointerId); event.preventDefault();
+	canvas.setPointerCapture(event.pointerId); ShowMagnifier(event); event.preventDefault();
 });
 function DragBoxes(current: Drag, event: PointerEvent): Box[] {
 	const [px, py] = Point(event, !current.handle);
@@ -272,15 +273,51 @@ function DragBoxes(current: Drag, event: PointerEvent): Box[] {
 	}
 	return boxes;
 }
+function ShowMagnifier(event: PointerEvent, source: SVGSVGElement = canvas): void {
+ if (!active) return;
+ const point = new DOMPoint(event.clientX, event.clientY).matrixTransform(source.getScreenCTM()!.inverse());
+ const x = Math.max(0, Math.min(active.page.width, point.x));
+ const y = Math.max(0, Math.min(active.page.height, point.y));
+ const magnifier = Element<SVGSVGElement>("magnifier");
+ const size = 80;
+ magnifier.setAttribute("viewBox", `${x - size / 2} ${y - size / 2} ${size} ${size}`);
+ magnifier.innerHTML = `<image href="${Escape(ImageUrl(active.page))}" width="${active.page.width}" height="${active.page.height}"/><line x1="${x - size / 2}" y1="${y}" x2="${x + size / 2}" y2="${y}"/><line x1="${x}" y1="${y - size / 2}" x2="${x}" y2="${y + size / 2}"/>`;
+ magnifier.classList.remove("hidden");
+}
+document.addEventListener("contextmenu", event => {
+ const target = event.target as globalThis.Element;
+ if (target.closest("#comparisons svg, #canvas")) event.preventDefault();
+}, true);
+for (const container of [Element("comparisons"), canvas]) {
+ container.addEventListener("pointerdown", event => {
+  const pointer = event as PointerEvent;
+  if (pointer.button !== 2) return;
+  const source = (pointer.target as SVGElement).closest<SVGSVGElement>("svg");
+  if (!source || !active) return;
+  pointer.preventDefault();
+  ShowMagnifier(pointer, source);
+  source.setPointerCapture(pointer.pointerId);
+ });
+ container.addEventListener("pointermove", event => {
+  const pointer = event as PointerEvent;
+  if (!(pointer.buttons & 2)) return;
+  const source = (pointer.target as SVGElement).closest<SVGSVGElement>("svg");
+  if (source) ShowMagnifier(pointer, source);
+ });
+ for (const name of ["pointerup", "pointercancel", "lostpointercapture"]) container.addEventListener(name, event => {
+  if (name !== "pointerup" || (event as PointerEvent).button === 2) Element("magnifier").classList.add("hidden");
+ });
+}
 canvas.addEventListener("pointermove", event => {
 	if (!drag || drag.item !== active || drag.pointer !== event.pointerId) return;
+	ShowMagnifier(event);
 	drag.preview = DragBoxes(drag, event);
 	selected = drag.preview.length > drag.initial.length ? drag.preview.length - 1 : drag.targetIndex;
 	RenderEditor();
 });
 canvas.addEventListener("pointerup", event => {
 	if (!drag || drag.pointer !== event.pointerId) return;
-	const current = drag; drag = undefined;
+	const current = drag; drag = undefined; Element("magnifier").classList.add("hidden");
 	if (current.item !== active) return;
 	const boxes = DragBoxes(current, event);
 	selected = boxes.length > current.initial.length ? boxes.length - 1 : current.targetIndex;
@@ -290,10 +327,54 @@ canvas.addEventListener("pointerup", event => {
 });
 canvas.addEventListener("lostpointercapture", event => {
 	if (drag?.pointer !== event.pointerId) return;
-	drag = undefined;
+	drag = undefined; Element("magnifier").classList.add("hidden");
 	RenderEditor();
 });
 function Action(id: string, action: () => void | Promise<void>): void { Element(id).addEventListener("click", () => { Promise.resolve().then(action).catch(error => Status(error.message, true)); }); }
+const themeToggle = Element<HTMLButtonElement>("theme-toggle");
+function SetTheme(dark: boolean): void {
+ document.documentElement.dataset.theme = dark ? "dark" : "light";
+ themeToggle.setAttribute("aria-pressed", String(dark));
+ themeToggle.textContent = dark ? "Light mode" : "Dark mode";
+ try { localStorage.setItem("panels_revision.theme", dark ? "dark" : "light"); } catch { /* Theme still applies for this visit. */ }
+}
+try { SetTheme(localStorage.getItem("panels_revision.theme") === "dark"); } catch { SetTheme(false); }
+Action("theme-toggle", () => SetTheme(document.documentElement.dataset.theme !== "dark"));
+function SetSidebarHidden(hidden: boolean): void {
+ Element("sidebar").classList.toggle("hidden", hidden);
+ Element("layout").classList.toggle("sidebar-hidden", hidden);
+ Element("sidebar-toggle").setAttribute("aria-expanded", String(!hidden));
+ Element("sidebar-toggle").textContent = hidden ? "Show sidebar" : "Hide sidebar";
+ try { localStorage.setItem("panels_revision.sidebar_hidden", String(hidden)); } catch { /* State remains available for this visit. */ }
+}
+try { SetSidebarHidden(localStorage.getItem("panels_revision.sidebar_hidden") === "true"); } catch { SetSidebarHidden(false); }
+Action("sidebar-toggle", () => SetSidebarHidden(!Element("sidebar").classList.contains("hidden")));
+window.addEventListener("keydown", event => {
+ if (event.altKey || event.metaKey || event.isComposing || event.repeat || document.querySelector("dialog[open]")) return;
+ const target = event.target as HTMLElement;
+ if (event.ctrlKey && event.key.toLowerCase() === "s") {
+  event.preventDefault();
+  if (active) Element<HTMLButtonElement>(event.shiftKey ? "save-book" : "save-page").click();
+  return;
+ }
+ if (target.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName)) return;
+ if (event.ctrlKey) {
+  if (event.key.toLowerCase() === "z" && !event.shiftKey && active) { event.preventDefault(); Element<HTMLButtonElement>("undo").click(); }
+  return;
+ }
+ switch (event.key.toLowerCase()) {
+  case "backspace": case "delete": case "x": if (!active) return; Element<HTMLButtonElement>("delete").click(); break;
+  case "z": if (!active) return; Element<HTMLButtonElement>("up").click(); break;
+  case "c": if (!active) return; Element<HTMLButtonElement>("down").click(); break;
+  case "a": MovePage(-1); break;
+  case "d": MovePage(1); break;
+  case "q": Choose("expected"); break;
+  case "w": Choose("previous"); break;
+  case "e": Choose("detected"); break;
+  default: return;
+ }
+ event.preventDefault();
+});
 Action("prev", () => MovePage(-1)); Action("next", () => MovePage(1));
 Action("copy", CopyFeedback);
 Action("download", () => {
@@ -426,8 +507,26 @@ async function Start(): Promise<void> {
 		Open({ group: group!, page: savedPage });
 	} else if (items[0]) Open(items[0]);
 
-	Status("Ready. Reviews save automatically. Dataset changes require the Save buttons.");
-	await PollRun(); setInterval(() => { void PollRun(); }, 2500);
+	let scrollPosition = 0;
+ try { scrollPosition = Number(localStorage.getItem("panels_revision.scroll")) || 0; } catch { /* Start at the top. */ }
+ Status("Ready. Reviews save automatically. Dataset changes require the Save buttons.");
+ await PollRun();
+ if (active) {
+  const image = new Image(); image.src = ImageUrl(active.page);
+  try { await image.decode(); } catch { /* Restore even if the image cannot load. */ }
+ }
+ requestAnimationFrame(() => requestAnimationFrame(() => {
+  window.scrollTo(0, scrollPosition);
+  scrollRestored = true;
+ }));
+ setInterval(() => { void PollRun(); }, 2500);
 }
-window.addEventListener("beforeunload", () => { FlushNotes(); RememberLocal(); RememberSession(); });
+window.history.scrollRestoration = "manual";
+let scrollRestored = false;
+function RememberScroll(): void {
+ if (!scrollRestored) return;
+ try { localStorage.setItem("panels_revision.scroll", String(window.scrollY)); } catch { /* Scrolling still works without storage. */ }
+}
+window.addEventListener("scroll", RememberScroll, { passive: true });
+window.addEventListener("beforeunload", () => { RememberScroll(); FlushNotes(); RememberLocal(); RememberSession(); });
 void Start().catch(error => Status(error.message, true));
