@@ -230,3 +230,35 @@ describe("Geometry.sortReadingOrder manga mode", function()
         assert.equals("1,2,3,5,6,7,4", orderedIDs(panels))
     end)
 end)
+
+describe("Safe manga reading order", function()
+    local safe_geometry = require("src._safegeometry")
+
+    it("reads a right-hand stack before an earlier-starting tall left panel", function()
+        local panels = {
+            panel("left", 34, 0, 540, 1696),
+            panel("right3", 588, 900, 408, 310),
+            panel("right1", 588, 139, 408, 370),
+            panel("right4", 588, 1239, 408, 338),
+            panel("right2", 588, 537, 408, 340),
+        }
+        safe_geometry.sortReadingOrder(panels, "manga")
+        assert.equals("right1,right2,right3,right4,left", orderedIDs(panels))
+    end)
+
+    it("finishes staggered columns and still reads aligned gutters as rows", function()
+        for _, staggered in ipairs({ true, false }) do
+            local panels = {
+                panel("left2", 0, 300, 390, 300),
+                panel("right2", 410, staggered and 410 or 300, 390, staggered and 190 or 300),
+                panel("left1", 0, 0, 390, 290),
+                panel("right1", 410, 0, 390, staggered and 400 or 290),
+                panel("following", 0, 620, 800, 300),
+            }
+            safe_geometry.sortReadingOrder(panels, "manga")
+            local expected = staggered and "right1,right2,left1,left2,following"
+                or "right1,left1,right2,left2,following"
+            assert.equals(expected, orderedIDs(panels))
+        end
+    end)
+end)

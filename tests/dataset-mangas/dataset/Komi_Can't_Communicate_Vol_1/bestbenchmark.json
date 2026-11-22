@@ -23,6 +23,30 @@
         "true_positives": 724
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-22",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9588,
+        "false_positives": 30,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9762,
+        "pages_evaluated": 190,
+        "precision": 0.9607,
+        "reading_order_accuracy": 0.8105,
+        "reading_order_pages": 190,
+        "reading_order_pages_correct": 154,
+        "reading_order_pair_accuracy": 1,
+        "reading_order_pairs": 1307,
+        "reading_order_pairs_correct": 1307,
+        "recall": 0.9569,
+        "total_detected": 763,
+        "total_ground_truth": 766,
+        "true_positives": 733
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Komi_Can't_Communicate_Vol_1",
@@ -91,23 +115,23 @@
     "true_positives": 714
   },
   "safe_full_volume": {
-    "f1": 0.9588,
-    "false_positives": 30,
+    "f1": 0.9941,
+    "false_positives": 1,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9762,
+    "mean_iou": 0.9833,
     "pages_evaluated": 190,
-    "precision": 0.9607,
-    "reading_order_accuracy": 0.8105,
+    "precision": 0.9987,
+    "reading_order_accuracy": 0.9684,
     "reading_order_pages": 190,
-    "reading_order_pages_correct": 154,
+    "reading_order_pages_correct": 184,
     "reading_order_pair_accuracy": 1,
-    "reading_order_pairs": 1307,
-    "reading_order_pairs_correct": 1307,
-    "recall": 0.9569,
-    "total_detected": 763,
-    "total_ground_truth": 766,
-    "true_positives": 733
+    "reading_order_pairs": 1437,
+    "reading_order_pairs_correct": 1437,
+    "recall": 0.9896,
+    "total_detected": 764,
+    "total_ground_truth": 771,
+    "true_positives": 763
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
@@ -142,5 +166,5 @@
     "total_ground_truth": 747,
     "true_positives": 639
   },
-  "updated_at": "2026-10-16"
+  "updated_at": "2026-11-22"
 }

@@ -10,7 +10,21 @@ describe("Chainsmoker Cat Volume 1", function()
         if os.getenv("PANELSPLUS_TEST_ALGORITHM") == "smart" then
             framework.skip("Safe-only review regression")
         end
-        local reviewed = { [3] = true, [51] = true, [64] = true, [65] = true, [74] = true, [89] = true, [129] = true }
+        local reviewed = {
+            [3] = true,
+            [4] = true,
+            [41] = true,
+            [47] = true,
+            [51] = true,
+            [59] = true,
+            [64] = true,
+            [65] = true,
+            [74] = true,
+            [84] = true,
+            [89] = true,
+            [129] = true,
+            [156] = true,
+        }
         local mapped
         for _, book in ipairs(Manifest.loadManga()) do
             if book.book_title == "Chainsmoker_Cat_Vol_1" then
@@ -44,6 +58,6 @@ describe("Chainsmoker Cat Volume 1", function()
                 checked = checked + 1
             end
         end
-        assert.equals(7, checked)
+        assert.equals(13, checked)
     end)
 end)

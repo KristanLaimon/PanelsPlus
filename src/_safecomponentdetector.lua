@@ -256,13 +256,39 @@ local function hasConservativeLayout(parent, parts, map, parent_count)
             and (a.y + a.h <= b.y + map.scale_y or b.y + b.h <= a.y + map.scale_y)
     end
     if #parts == 3 then
-        for _, panel in ipairs(parts) do
+        for i, panel in ipairs(parts) do
             if panel.h >= parent.h * 0.90 and panel.w <= parent.w * 0.50 then
                 return true
+            end
+            if
+                parent_count >= 3
+                and (panel.frame_sides or 0) >= 2
+                and panel.h >= parent.h * 0.90
+                and panel.y <= parent.y + map.scale_y * 2
+            then
+                local a, b = parts[i % 3 + 1], parts[(i + 1) % 3 + 1]
+                local same_side = (a.x >= panel.x and b.x >= panel.x) or (a.x <= panel.x and b.x <= panel.x)
+                local stacked = a.y + a.h <= b.y + map.scale_y or b.y + b.h <= a.y + map.scale_y
+                if same_side and stacked and (a.frame_sides or 0) >= 2 and (b.frame_sides or 0) >= 2 then
+                    return true
+                end
             end
         end
     end
     return false
+end
+
+local function hasStackedFrames(parent, parts)
+    local wide_frames = 0
+    for _, part in ipairs(parts) do
+        if part.frame_sides ~= 4 then
+            return false
+        end
+        if part.w >= parent.w * 0.80 then
+            wide_frames = wide_frames + 1
+        end
+    end
+    return wide_frames >= 3
 end
 
 --- Recover a complete framed band while keeping the unframed remainder intact.
@@ -382,22 +408,26 @@ local function refineGrayConnections(map, panels, settings)
                 end
             end
         end
+        local stacked_frames = #panels == 1 and hasStackedFrames(parent, parts)
         local reliable = #parts >= 2
-            and area >= parent_area * 0.80
+            and area >= parent_area * (stacked_frames and 0.75 or 0.80)
             and strong >= math.ceil(#parts * 0.40)
             and (#panels > 0 or strong >= 2)
-            and (separated_frames or hasConservativeLayout(parent, parts, map, #panels))
+            and (separated_frames or stacked_frames or hasConservativeLayout(parent, parts, map, #panels))
         for i, a in ipairs(parts) do
             for j = i + 1, #parts do
                 local b = parts[j]
-                if intersectionArea(a, b) > math.min(a.w * a.h, b.w * b.h) * 0.10 then
+                -- The bounds of side-by-side frames can overlap when one
+                -- leans into the gutter. The pixel bridge check still applies.
+                local overlap_limit = separated_frames and 0.20 or 0.10
+                if intersectionArea(a, b) > math.min(a.w * a.h, b.w * b.h) * overlap_limit then
                     reliable = false
                 end
             end
         end
         local replacement
         -- Keep enclosing frames unless structural ink resolves them into separate aligned frames.
-        if (parent.frame_sides or 0) < 4 or separated_frames then
+        if (parent.frame_sides or 0) < 4 or separated_frames or stacked_frames then
             if reliable then
                 replacement = parts
             elseif (parent.frame_sides or 0) < 4 then
@@ -483,6 +513,136 @@ local function groupSparseIllustration(map, panels)
     return rest
 end
 
+-- Stop at a gap wider than a word space to exclude the running page number.
+local function footerBox(map, left, right, top, bottom)
+    local h = bottom - top + 1
+    local last_ink, count = left, 0
+    for x = left, right do
+        local ink = 0
+        for y = top, bottom do
+            ink = ink + map.dark[y * map.w + x]
+        end
+        if ink > 0 then
+            last_ink = x
+            count = count + ink
+        elseif x - last_ink > h * 1.5 then
+            break
+        end
+    end
+    local w = last_ink - left + 1
+    if w >= map.w * 0.10 and w >= h * 3 and count >= w * h * 0.08 and count <= w * h * 0.70 then
+        return { x = left * map.scale_x, y = top * map.scale_y, w = w * map.scale_x, h = h * map.scale_y }
+    end
+end
+
+-- A short line of detached ink below the frames is readable on its own.
+-- Scan within the artwork margins so a scan mark in the corner stays out.
+local function recoverDetachedFooter(map, panels)
+    if not map.dark or map.inverted then
+        return panels
+    end
+    local left, right, bottom = map.native_w, 0, 0
+    local framed_count = 0
+    for _, panel in ipairs(panels) do
+        if (panel.frame_sides or 0) >= 2 and panel.h >= map.native_h * 0.08 then
+            framed_count = framed_count + 1
+            left = math.min(left, panel.x)
+            right = math.max(right, panel.x + panel.w)
+            bottom = math.max(bottom, panel.y + panel.h)
+        end
+    end
+    if
+        framed_count < 2
+        or right - left < map.native_w * 0.60
+        or bottom < map.native_h * 0.75
+        or bottom >= map.native_h
+    then
+        return panels
+    end
+    for i = #panels, 1, -1 do
+        local panel = panels[i]
+        if
+            ((panel.frame_sides or 0) <= 1 or panel.x >= right and (panel.frame_sides or 0) <= 2)
+            and panel.y >= bottom
+            and panel.y >= map.native_h * 0.94
+            and panel.h <= map.native_h * 0.05
+            and panel.w <= map.native_w * 0.12
+            and panel.x + panel.w > right
+            and panel.x >= right - map.native_w * 0.09
+        then
+            table.remove(panels, i)
+        end
+    end
+    local first_x = math.ceil(left / map.scale_x)
+    local last_x = math.floor((right - (right - left) * 0.17) / map.scale_x) - 1
+    local first_y = math.ceil(bottom / map.scale_y)
+    local last_y = math.min(map.h - 1, first_y + math.floor(map.h * 0.10))
+    local run_left, run_top, run_bottom = last_x, nil, nil
+    for y = first_y, last_y + 1 do
+        if run_bottom and (y - run_bottom > 2 or y > last_y) then
+            local h = run_bottom - run_top + 1
+            if run_top >= first_y + 2 and h >= map.h * 0.009 and h <= map.h * 0.04 then
+                local footer = footerBox(map, run_left, math.floor(right / map.scale_x) - 1, run_top, run_bottom)
+                local left_aligned = run_left <= first_x + map.w * 0.07
+                local centered = footer
+                    and math.abs(footer.x + footer.w / 2 - (left + right) / 2) <= map.native_w * 0.07
+                if footer and (left_aligned or centered) then
+                    local fragments = {}
+                    for i, panel in ipairs(panels) do
+                        local overlap = intersectionArea(footer, panel)
+                        if overlap > 0 then
+                            if
+                                panel.y < bottom
+                                or panel.h > map.native_h * 0.04
+                                or overlap < panel.w * panel.h * 0.80
+                            then
+                                return panels
+                            end
+                            fragments[#fragments + 1] = i
+                        end
+                    end
+                    for i = #fragments, 1, -1 do
+                        table.remove(panels, fragments[i])
+                    end
+                    panels[#panels + 1] = footer
+                    return panels
+                end
+            end
+            run_left, run_top, run_bottom = last_x, nil, nil
+        end
+        if y <= last_y then
+            local row_left, count = last_x, 0
+            for x = first_x, last_x do
+                if map.dark[y * map.w + x] == 1 then
+                    row_left = math.min(row_left, x)
+                    count = count + 1
+                end
+            end
+            -- A rule under the caption is often continuous across the page.
+            if count > 0 and count < (last_x - first_x + 1) * 0.75 then
+                run_left = math.min(run_left, row_left)
+                run_top, run_bottom = run_top or y, y
+            end
+        end
+    end
+    return panels
+end
+
+local function isTitleIllustration(map, panels)
+    if #panels < 3 then
+        return false
+    end
+    local illustration_count = 0
+    for _, panel in ipairs(panels) do
+        if panel.w >= map.native_w * 0.85 and panel.h >= map.native_h * 0.75 and (panel.frame_sides or 0) < 2 then
+            illustration_count = illustration_count + 1
+        elseif panel.y + panel.h > map.native_h * 0.10 or panel.h > map.native_h * 0.05 then
+            return false
+        end
+    end
+    return illustration_count == 1
+end
+
 function ComponentDetector.detectPage(map, settings)
     settings = settings or Settings.defaults
     local panels = ComponentDetector.segment(map, settings)
@@ -498,6 +658,12 @@ function ComponentDetector.detectPage(map, settings)
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "insufficient frame evidence"
     end
     panels = groupSparseIllustration(map, refineGrayConnections(map, panels, settings))
+    if isTitleIllustration(map, panels) then
+        return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, "title illustration"
+    end
+    if settings.mode ~= "comic" and #panels < (settings.segment_max_panels or Settings.defaults.segment_max_panels) then
+        panels = recoverDetachedFooter(map, panels)
+    end
     local accepted, reason = Segmenter.accept(panels, map, settings)
     if not accepted then
         return { { x = 0, y = 0, w = map.native_w, h = map.native_h } }, false, reason

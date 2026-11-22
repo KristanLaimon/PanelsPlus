@@ -47,6 +47,30 @@
         "true_positives": 563
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-22",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9663,
+        "false_positives": 11,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9667,
+        "pages_evaluated": 143,
+        "precision": 0.9807,
+        "reading_order_accuracy": 0.8042,
+        "reading_order_pages": 143,
+        "reading_order_pages_correct": 115,
+        "reading_order_pair_accuracy": 0.9956,
+        "reading_order_pairs": 1139,
+        "reading_order_pairs_correct": 1134,
+        "recall": 0.9523,
+        "total_detected": 570,
+        "total_ground_truth": 587,
+        "true_positives": 559
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Miss_Kobayashi's_Dragon_Maid_Vol_2",
@@ -115,23 +139,23 @@
     "true_positives": 533
   },
   "safe_full_volume": {
-    "f1": 0.9663,
-    "false_positives": 11,
+    "f1": 0.9675,
+    "false_positives": 13,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9667,
+    "mean_iou": 0.9724,
     "pages_evaluated": 143,
-    "precision": 0.9807,
-    "reading_order_accuracy": 0.8042,
+    "precision": 0.9769,
+    "reading_order_accuracy": 0.8392,
     "reading_order_pages": 143,
-    "reading_order_pages_correct": 115,
-    "reading_order_pair_accuracy": 0.9956,
-    "reading_order_pairs": 1139,
-    "reading_order_pairs_correct": 1134,
-    "recall": 0.9523,
-    "total_detected": 570,
-    "total_ground_truth": 587,
-    "true_positives": 559
+    "reading_order_pages_correct": 120,
+    "reading_order_pair_accuracy": 0.9892,
+    "reading_order_pairs": 1106,
+    "reading_order_pairs_correct": 1094,
+    "recall": 0.9582,
+    "total_detected": 563,
+    "total_ground_truth": 574,
+    "true_positives": 550
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
@@ -166,5 +190,5 @@
     "total_ground_truth": 586,
     "true_positives": 367
   },
-  "updated_at": "2026-11-16"
+  "updated_at": "2026-11-22"
 }

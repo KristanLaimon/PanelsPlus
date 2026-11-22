@@ -57,6 +57,30 @@ describe("Miss Kobayashi's Dragon Maid human-annotated dataset validation", func
         print("  [WARNING] Skipping full-volume page-by-page tests. To run 100% validation, extract complete volume.\n")
     end
 
+    it("keeps centered chapter labels whole and preserves the title illustration in Safe", function()
+        if not is_full_volume or os.getenv("PANELSPLUS_TEST_ALGORITHM") == "smart" then
+            framework.skip("Requires Safe and the reviewed images")
+        end
+        local detector = require("src._safecomponentdetector")
+        local reviewed = { [29] = true, [43] = true, [59] = true, [110] = true, [139] = true }
+        for _, book in ipairs(Manifest.loadManga()) do
+            if book.book_title == BOOK_TITLE then
+                for _, page in ipairs(Manifest.getMappedPages(book, "safe")) do
+                    if reviewed[page.page_index] then
+                        local map, load_error = Loader.loadPageMap(page.image_path, { mode = page.reading_order })
+                        assert.is_not_nil(map, load_error)
+                        local panels = detector.detectPage(map, { mode = page.reading_order })
+                        local result = Evaluator.evaluate(page.frames, panels, 0.50, 35)
+                        assert.is_true(result.reading_order_correct, "Safe review page " .. page.page_index)
+                        reviewed[page.page_index] = nil
+                    end
+                end
+                break
+            end
+        end
+        assert.is_nil(next(reviewed))
+    end)
+
     it("loads book metadata correctly", function()
         local meta_path = BOOK_DIR .. "/metadata.json"
         local f = io.open(meta_path, "r")

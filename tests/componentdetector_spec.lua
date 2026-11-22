@@ -169,6 +169,49 @@ describe("Experimental component detector", function()
         assert.equals(4, #panels)
     end)
 
+    it("recovers a stack of complete frames inside a gray enclosing outline", function()
+        local Safe = require("src._safecomponentdetector")
+        for _, dark_bridge in ipairs({ false, true }) do
+            local map, contrast = page(), page()
+            for _, y in ipairs({ 20, 220, 420 }) do
+                frame(map, 20, y, 440, 180)
+                frame(contrast, 20, y, 440, 180)
+            end
+            frame(map, 18, 18, 444, 584)
+            for y = 18, 601 do
+                ink(map, 19, y)
+            end
+            if dark_bridge then
+                for y = 199, 220 do
+                    ink(contrast, 50, y)
+                    ink(map, 50, y)
+                end
+            end
+            map.structural, map.dark = contrast.data, contrast.data
+            local panels = Safe.detectPage(map, { mode = "manga" })
+            assert.equals(dark_bridge and 1 or 3, #panels)
+        end
+    end)
+
+    it("keeps detached chapter text without including a separate page number", function()
+        local Safe = require("src._safecomponentdetector")
+        local map = page()
+        frame(map, 20, 20, 420, 260)
+        frame(map, 20, 300, 420, 280)
+        for _, x in ipairs({ 23, 32, 40, 50, 62, 72, 80, 294, 305 }) do
+            for y = 601, 610 do
+                ink(map, x, y)
+                ink(map, x + 1, y)
+            end
+        end
+        map.structural, map.dark = map.data, map.data
+        local panels = Safe.detectPage(map, { mode = "manga" })
+        assert.equals(3, #panels)
+        assert.equals(46, panels[3].x)
+        assert.equals(118, panels[3].w)
+        assert.equals(1202, panels[3].y)
+    end)
+
     it("preserves tiny bridges, diagonal contacts and shared borders in Safe", function()
         local Safe = require("src._safecomponentdetector")
         for _, mode in ipairs({ "manga", "comic" }) do

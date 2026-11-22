@@ -7,7 +7,7 @@
         "f1": 0.9397,
         "false_positives": 63,
         "gap_tolerance": 35,
-        "iou_threshold": 0.5,
+        "iou_threshold": 0.5000,
         "mean_iou": 0.9395,
         "pages_evaluated": 214,
         "precision": 0.9359,
@@ -23,6 +23,30 @@
         "true_positives": 920
       },
       "reason": "User-approved current Smart baseline; compare future results against these measurements instead of fixed accuracy targets"
+    },
+    {
+      "archived_at": "2026-11-22",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9437,
+        "false_positives": 48,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9713,
+        "pages_evaluated": 214,
+        "precision": 0.9464,
+        "reading_order_accuracy": 0.8318,
+        "reading_order_pages": 214,
+        "reading_order_pages_correct": 178,
+        "reading_order_pair_accuracy": 0.9985,
+        "reading_order_pairs": 1942,
+        "reading_order_pairs_correct": 1939,
+        "recall": 0.9411,
+        "total_detected": 895,
+        "total_ground_truth": 900,
+        "true_positives": 847
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Chainsmoker_Cat_Vol_1",
@@ -30,7 +54,7 @@
     "f1": 0.9397,
     "false_positives": 63,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9395,
     "pages_evaluated": 214,
     "precision": 0.9359,
@@ -49,7 +73,7 @@
     "f1": 0.9161,
     "false_positives": 72,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9429,
     "pages_evaluated": 214,
     "precision": 0.9248,
@@ -62,7 +86,7 @@
     "f1": 0.8411,
     "false_positives": 75,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9221,
     "pages_evaluated": 214,
     "precision": 0.9104,
@@ -77,15 +101,34 @@
     "total_ground_truth": 975,
     "true_positives": 762
   },
-  "safe_mapping_status": "pending",
+  "safe_full_volume": {
+    "f1": 0.9412,
+    "false_positives": 46,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9733,
+    "pages_evaluated": 214,
+    "precision": 0.9486,
+    "reading_order_accuracy": 0.8411,
+    "reading_order_pages": 214,
+    "reading_order_pages_correct": 180,
+    "reading_order_pair_accuracy": 0.9985,
+    "reading_order_pairs": 1947,
+    "reading_order_pairs_correct": 1944,
+    "recall": 0.9340,
+    "total_detected": 895,
+    "total_ground_truth": 909,
+    "true_positives": 849
+  },
+  "safe_mapping_status": "mapped",
   "smart_full_volume": {
     "f1": 0.9378,
     "false_positives": 72,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9533,
     "pages_evaluated": 214,
-    "precision": 0.928,
+    "precision": 0.9280,
     "reading_order_accuracy": 0.6822,
     "reading_order_pages": 214,
     "reading_order_pages_correct": 146,
@@ -97,5 +140,5 @@
     "total_ground_truth": 979,
     "true_positives": 928
   },
-  "updated_at": "2026-11-07"
+  "updated_at": "2026-11-22"
 }
