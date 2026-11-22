@@ -7,6 +7,15 @@ export type Page = {
 	tp: number; previous_tp: number; accepted: boolean; reason: string;
 };
 export type Diagnostics = { description: string; books: Record<string, Page[]>; groups: Record<string, { book: string; algorithm: "safe" | "smart"; directory?: "dataset" | "dataset-textbasedformats" }> };
+export type F1Baseline = { f1: number; pages_evaluated: number; total_ground_truth: number; iou_threshold: number; gap_tolerance: number };
+export function BookF1(pages: Page[], baseline?: F1Baseline): { score: number; minimum?: number; state: "unknown" | "pass" | "regression" | "perfect" } {
+	const expected = pages.reduce((sum, page) => sum + page.expected.length, 0);
+	const detected = pages.reduce((sum, page) => sum + page.detected.length, 0);
+	const matches = pages.reduce((sum, page) => sum + page.tp, 0);
+	const score = expected + detected ? 2 * matches / (expected + detected) : 0;
+	if (!baseline || baseline.pages_evaluated !== pages.length || baseline.total_ground_truth !== expected || baseline.iou_threshold !== 0.5 || baseline.gap_tolerance !== 35) return { score, state: "unknown" };
+	return { score, minimum: baseline.f1, state: score < baseline.f1 - 0.000050000001 ? "regression" : score === 1 ? "perfect" : "pass" };
+}
 export type Review = { choice: Choice; notes: string; boxes: Box[]; updated_at: string; basis?: string };
 export type ReviewEntry = { book: string; page: number; review: Review };
 export type MappingPage = {

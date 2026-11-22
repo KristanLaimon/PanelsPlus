@@ -1,7 +1,7 @@
-import { BuildFeedback, CHOICES, EmptyReview, ParseReview, ReviewKey, ReviewIsReady, ReviewIsStale, RestoreFeedbackSession, SelectedBoxes, PageBasis, ParseSession, type FeedbackSession, type Session, type Box, type Choice, type Diagnostics, type Page, type Review, type ReviewEntry } from "./model";
+import { BookF1, BuildFeedback, CHOICES, EmptyReview, ParseReview, ReviewKey, ReviewIsReady, ReviewIsStale, RestoreFeedbackSession, SelectedBoxes, PageBasis, ParseSession, type F1Baseline, type FeedbackSession, type Session, type Box, type Choice, type Diagnostics, type Page, type Review, type ReviewEntry } from "./model";
 import type { Run } from "./runs";
 
-type Data = { id: string; diagnostics: Diagnostics; hashes: Record<string, string>; reviews: Record<string, Review>; session?: Session | null };
+type Data = { id: string; diagnostics: Diagnostics; hashes: Record<string, string>; baselines: Record<string, F1Baseline>; reviews: Record<string, Review>; session?: Session | null };
 type Item = { group: string; page: Page };
 type Drag = {
 	item: Item; start: [number, number]; initial: Box[]; preview?: Box[];
@@ -138,11 +138,22 @@ function RenderList(): void {
 		}
 	}
 	const listScroll = Element("page-list").scrollTop;
-	Element("page-list").innerHTML = items.map((item, i) => {
+	const groups = Object.entries(data.diagnostics.books).filter(([group]) => {
+		const info = data.diagnostics.groups[group]!;
+		return (algorithm === "all" || info.algorithm === algorithm) && (!book || book === info.book);
+	});
+	Element("page-list").innerHTML = groups.map(([group, pages]) => {
+		const info = data.diagnostics.groups[group]!;
+		const result = BookF1(pages, data.baselines[group]);
+		const labels = { pass: "F1 meets baseline", regression: "F1 below baseline", perfect: "F1 100% · review for bias", unknown: "F1 baseline unavailable or stale" };
+		const summary = `${labels[result.state]} · ${(result.score * 100).toFixed(2)}%${result.minimum === undefined ? "" : ` / ${(result.minimum * 100).toFixed(2)}% baseline`}`;
+		const buttons = items.map((item, i) => {
+		if (item.group !== group) return "";
 		const review = reviews[ReviewKey(item.group, item.page.page)] || EmptyReview();
-		const info = data.diagnostics.groups[item.group]!;
 		const isActive = active?.group === item.group && active.page.page === item.page.page;
-		return `<button data-item="${i}" class="${isActive ? "active" : ""}">P. ${item.page.page}: ${item.page.expected.length} → ${item.page.detected.length} · ${Escape(CHOICES[review.choice])}${Stale(item, review) ? " ⚠" : ""}<small>${Escape(info.book)} · ${info.algorithm}${review.notes ? " · notes" : ""}</small></button>`;
+		return `<button data-item="${i}" class="${isActive ? "active" : ""}">P. ${item.page.page}: ${item.page.expected.length} → ${item.page.detected.length} · ${Escape(CHOICES[review.choice])}${Stale(item, review) ? " ⚠" : ""}${review.notes ? " · notes" : ""}</button>`;
+		}).join("");
+		return `<section class="book-group"><h3>${Escape(info.book)} · ${info.algorithm}</h3><p class="book-status ${result.state}">${Escape(summary)}</p><small>${pages.filter(page => !page.correct).length} differences / ${pages.length} pages</small><div class="book-pages">${buttons || "<small>No pages match this filter.</small>"}</div></section>`;
 	}).join("");
 	Element("page-list").scrollTop = listScroll;
 	const all = Object.entries(data.diagnostics.books).filter(([group]) => {
@@ -219,6 +230,8 @@ async function SaveMapping(all: boolean): Promise<void> {
 	const feedbackAtSave = feedback;
 	const result = await Request<{ hash: string; backup: string; pages: number[] }>("/api/mapping", { book: group, hash: data.hashes[group], entries });
 	data.hashes[group] = result.hash;
+	delete data.baselines[group];
+	RenderList();
 	for (const entry of entries) {
 		const page = pages.find(p => p.page === entry.page)!;
 		feedbackAtSave.applied[ReviewKey(group, entry.page)] = JSON.stringify(SelectedBoxes(page, entry.review));

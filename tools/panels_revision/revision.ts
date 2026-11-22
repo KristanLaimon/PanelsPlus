@@ -1,6 +1,7 @@
 import * as fs from "node:fs/promises";
 import { resolve, join } from "node:path";
 import html from "./revision.html";
+import performanceHtml from "./performance.html";
 import { RevisionService, Digest } from "./revision/service";
 import {
     ParseReview,
@@ -10,6 +11,7 @@ import {
     type Diagnostics,
     type Review,
     type ReviewEntry,
+    type F1Baseline,
 } from "./revision/model";
 import { Runs } from "./revision/runs";
 import { PersistJson, PersistReportPartition, ReadReportPartition, type ReportIndex } from "./revision/report";
@@ -96,7 +98,7 @@ export async function CreateRevisionServer(
         port,
         maxRequestBodySize: 4 * 1024 * 1024,
         development: false,
-        routes: { "/": html, "/revision.html": html },
+        routes: { "/": html, "/revision.html": html, "/books-performance": performanceHtml, "/books-performance/*": performanceHtml },
         async fetch(request) {
             const url = new URL(request.url);
             if (
@@ -111,9 +113,23 @@ export async function CreateRevisionServer(
             try {
                 if (request.method === "GET" && url.pathname === "/api/data") {
                     const hashes: Record<string, string> = {};
-                    for (const group of Object.keys(diagnostics!.books))
-                        hashes[group] = (await service.ReadMapping(group)).hash;
-                    return json({ id, diagnostics, hashes, reviews, session });
+                    const baselines: Record<string, F1Baseline> = {};
+                    for (const group of Object.keys(diagnostics!.books)) {
+                        const { hash, mapping } = await service.ReadMapping(group);
+                        hashes[group] = hash;
+                        const info = diagnostics!.groups[group]!;
+                        const pages = diagnostics!.books[group]!;
+                        const current = mapping.pages.length === pages.length && pages.every(page => {
+                            const mapped = mapping.pages.find(p => p.page_index === page.page);
+                            return mapped && JSON.stringify(mapped.frame.map(b => [b.x, b.y, b.w, b.h])) === JSON.stringify(page.expected);
+                        });
+                        if (!current) continue;
+                        const dataset = info.directory || (pages[0]?.image.includes("/dataset-textbasedformats/") ? "dataset-textbasedformats" : "dataset");
+                        const records = await readJson<Record<string, F1Baseline>>(join(root, "tests/dataset-mangas", dataset, info.book, "bestbenchmark.json"), {});
+                        const baseline = records[`${info.algorithm}_full_volume`] || (info.algorithm === "smart" ? records.components_conservative_full_volume : undefined);
+                        if (baseline && typeof baseline.f1 === "number") baselines[group] = baseline;
+                    }
+                    return json({ id, diagnostics, hashes, baselines, reviews, session });
                 }
                 if (request.method === "GET" && url.pathname === "/api/run")
                     return json(runs.Current);

@@ -2,6 +2,17 @@ import { afterEach, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { BookF1 } from "./model";
+import type { Page } from "./model";
+
+test("book F1 distinguishes baseline regressions, perfect scores and unavailable baselines", () => {
+	const pages = [{ expected: [[0, 0, 1, 1], [1, 1, 1, 1]], detected: [[0, 0, 1, 1]], tp: 1 }] as Page[];
+	const baseline = { f1: 0.6, pages_evaluated: 1, total_ground_truth: 2, iou_threshold: 0.5, gap_tolerance: 35 };
+	expect(BookF1(pages, baseline).state).toBe("pass");
+	expect(BookF1(pages, { ...baseline, f1: 0.8 }).state).toBe("regression");
+	expect(BookF1(pages, { ...baseline, total_ground_truth: 3 }).state).toBe("unknown");
+	expect(BookF1([{ ...pages[0]!, detected: pages[0]!.expected, tp: 2 }], baseline).state).toBe("perfect");
+});
 import { RevisionService } from "./service";
 import { ApplyReviews, BuildFeedback, PageBasis, RestoreFeedbackSession, ReviewKey, type Diagnostics, type Page, type Review } from "./model";
 import { CreateRevisionServer } from "../revision";
@@ -98,6 +109,11 @@ test("HTTP saves reviews across restarts; rejects cross-origin writes, arbitrary
 	let server = await CreateRevisionServer(root, 0);
 	try {
 		const initial = await fetch(new URL("api/data", server.url)).then(r => r.json()) as { id: string };
+		for (const route of ["books-performance", `books-performance/${encodeURIComponent(book)}`]) {
+			const result = await fetch(new URL(route, server.url));
+			expect(result.status).toBe(200);
+			expect(await result.text()).toContain("Books performance");
+		}
 		const post = (url: string, body: unknown, headers = {}) => fetch(new URL(url, server.url), { method: "POST", headers: { "content-type": "application/json", "x-revision-id": initial.id, ...headers }, body: JSON.stringify(body) });
 		expect((await post("api/review", { book: group, page: 1, review: Review() })).status).toBe(200);
 		expect((await post("api/review", {}, { origin: "https://example.com" })).status).toBe(403);
