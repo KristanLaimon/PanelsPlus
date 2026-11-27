@@ -2,6 +2,8 @@
 
 ## Current state — 2026-11-27
 
+Stable 1.8.10 is now installed in Linux KOReader. The local fork is disabled. See the deployment entry below.
+
 Stable 1.8.10 replaces 1.8.7. The older 1.7.1 baseline is retained.
 Canonical rolling is clean detached HEAD at
 `4d5f5fc2fa0ffa69160b4cc21e1b85ab16904e55` (metadata 1.8.10).
@@ -144,3 +146,20 @@ the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
 references and staged only the three changed parent pointers. The target
 working trees and indexes are clean. No plugin runtime edits, installation,
 commit, or push.
+
+
+## 2026-11-27 — Install stable 1.8.10
+
+Installed the unmodified stable 1.8.10 reference into
+`~/.config/koreader/plugins/meguru.koplugin` with KOReader closed.
+The generated artifact is `build.E5xtBL2i`. With the user's approval, renamed
+the local Git fork to `meguru-fork.koplugin.disabled` and the previously
+disabled stable 1.7.1 copy to `meguru__v1_7_1.koplugin.disabled`. Verified
+the fork still has HEAD `510e5556370ced6c72ebbae7ea9c88a60e17a58d` and the
+untracked `.foxnvim/` directory. Verified the complete set of 65 installed
+files against both the pinned payload and the deployment manifest.
+
+Ran `./tools/plugin-compatibility/deploy.sh --plugin=meguru --mode=stable --version=1.8.10 --install`
+from the Panels+ root. The source and reference revisions are the same as
+in the preceding refresh entry. KOReader has one discoverable directory for
+this plugin under the install root. No live launch or device check was performed.

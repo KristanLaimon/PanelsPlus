@@ -1,5 +1,7 @@
 ## Current state — 2026-11-27
 
+Stable 4.5.4 is now installed in Linux KOReader. See the deployment entry below.
+
 Stable 4.5.4 replaces 4.5.0. Canonical rolling is clean detached HEAD at
 `9c3574fbad5f18853f5bd37f63d5c7e5cc070f1b` (4.5.4, exact stable tag). Both
 pass 44 integration cases and 48 headless KOReader scenarios. The only Lua
@@ -2133,3 +2135,18 @@ the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
 references and staged only the three changed parent pointers. The target
 working trees and indexes are clean. No plugin runtime edits, installation,
 commit, or push.
+
+
+## 2026-11-27 — Install stable 4.5.4
+
+Installed the unmodified stable 4.5.4 reference into
+`~/.config/koreader/plugins/ink-away.koplugin` with KOReader closed.
+The generated artifact is `build.MIeA8Sdq`. The previous managed 4.5.0
+installation is in `~/.config/koreader/.panelsplus-plugin-backups/ink-away.bFkKN3AI/`.
+Verified the complete set of 343 installed files against both the pinned
+payload and the deployment manifest.
+
+Ran `./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=stable --version=4.5.4 --install`
+from the Panels+ root. The source and reference revisions are the same as
+in the preceding refresh entry. KOReader has one discoverable directory for
+this plugin under the install root. No live launch or device check was performed.
