@@ -209,7 +209,7 @@ class TestManhwa(unittest.TestCase):
         canvas = win.canvas
         half = canvas.height() / 2
         QTest.keyClick(canvas, Qt.Key.Key_D)
-        QTest.qWait(400)
+        self._wait_for_pan(canvas)
         self.assertEqual(canvas._mode, "drawing")
         self.assertEqual(canvas._current_image_box[:2], (20, 300))
         self.assertEqual(canvas._current_image_box[2:], (160, round(500 + half)))
@@ -218,7 +218,7 @@ class TestManhwa(unittest.TestCase):
         QTest.qWait(400)
         self.assertEqual(canvas._current_image_box[3], round(500 + half * 2))
         QTest.keyClick(canvas, Qt.Key.Key_A)
-        QTest.qWait(400)
+        self._wait_for_pan(canvas)
         self.assertEqual(canvas._current_image_box[3], round(500 + half))
         self.assertEqual(canvas.get_panels(), [])  # commit only on release
         QTest.mouseRelease(canvas, Qt.MouseButton.LeftButton, pos=QPoint(160, 500))
@@ -268,7 +268,7 @@ class TestManhwa(unittest.TestCase):
         self.assertEqual(canvas._mode, "resizing")
         half = canvas.height() / 2
         QTest.keyClick(canvas, Qt.Key.Key_D)
-        QTest.qWait(400)
+        self._wait_for_pan(canvas)
         rect = canvas.get_panels()[0]
         self.assertEqual((rect.x, rect.y, rect.w, rect.h), (20, 300, 140, round(500 + half) - 300))
         QTest.keyClick(canvas, Qt.Key.Key_A)
@@ -297,7 +297,7 @@ class TestManhwa(unittest.TestCase):
         QTest.mousePress(canvas, Qt.MouseButton.LeftButton, pos=QPoint(90, 100))
         self.assertEqual(canvas._mode, "resizing")
         QTest.keyClick(canvas, Qt.Key.Key_A)
-        QTest.qWait(400)
+        self._wait_for_pan(canvas)
         rect = canvas.get_panels()[0]
         self.assertEqual((rect.y, rect.h), (100, 400))
         QTest.keyClick(canvas, Qt.Key.Key_Escape)

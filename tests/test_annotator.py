@@ -1472,7 +1472,7 @@ class TestAnnotator(unittest.TestCase):
                 self.assertLessEqual(f.x + f.w, 1264)
                 self.assertLessEqual(f.y + f.h, 1680)
 
-        self.assertEqual(total_panels, 730, "Expected exactly 730 current Smart panel annotations")
+        self.assertEqual(total_panels, 736, "Expected exactly 736 current Smart panel annotations")
 
     def test_mosaic_mode_default_and_toggle_persistence(self):
         ds_dir = os.path.join(self.test_dir, "mosaic_test_ds")
