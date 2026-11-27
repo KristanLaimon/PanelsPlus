@@ -47,6 +47,30 @@
         "true_positives": 610
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-27",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9588,
+        "false_positives": 22,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9610,
+        "pages_evaluated": 161,
+        "precision": 0.9662,
+        "reading_order_accuracy": 0.8075,
+        "reading_order_pages": 161,
+        "reading_order_pages_correct": 130,
+        "reading_order_pair_accuracy": 0.9991,
+        "reading_order_pairs": 1130,
+        "reading_order_pairs_correct": 1129,
+        "recall": 0.9516,
+        "total_detected": 651,
+        "total_ground_truth": 661,
+        "true_positives": 629
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Don't_Bully_Me_Nagatoro_Vol_1",
@@ -122,23 +146,23 @@
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
-    "f1": 0.9588,
-    "false_positives": 22,
+    "f1": 0.9748,
+    "false_positives": 11,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9610,
+    "mean_iou": 0.9739,
     "pages_evaluated": 161,
-    "precision": 0.9662,
-    "reading_order_accuracy": 0.8075,
+    "precision": 0.9831,
+    "reading_order_accuracy": 0.9255,
     "reading_order_pages": 161,
-    "reading_order_pages_correct": 130,
-    "reading_order_pair_accuracy": 0.9991,
-    "reading_order_pairs": 1130,
-    "reading_order_pairs_correct": 1129,
-    "recall": 0.9516,
-    "total_detected": 651,
-    "total_ground_truth": 661,
-    "true_positives": 629
+    "reading_order_pages_correct": 149,
+    "reading_order_pair_accuracy": 1.0000,
+    "reading_order_pairs": 1161,
+    "reading_order_pairs_correct": 1161,
+    "recall": 0.9667,
+    "total_detected": 649,
+    "total_ground_truth": 660,
+    "true_positives": 638
   },
-  "updated_at": "2026-11-22"
+  "updated_at": "2026-11-27"
 }

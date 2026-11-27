@@ -1,9 +1,9 @@
 import { afterEach, expect, test } from "bun:test";
 import * as fs from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { BookF1 } from "./model";
-import type { Page } from "./model";
+import type { F1Baseline } from "./model";
 
 test("book F1 distinguishes baseline regressions, perfect scores and unavailable baselines", () => {
 	const pages = [{ expected: [[0, 0, 1, 1], [1, 1, 1, 1]], detected: [[0, 0, 1, 1]], tp: 1 }] as Page[];
@@ -124,6 +124,35 @@ test("HTTP saves reviews across restarts; rejects cross-origin writes, arbitrary
 		server.stop(true); server = await CreateRevisionServer(root, 0);
 		const resumed = await fetch(new URL("api/data", server.url)).then(r => r.json()) as { reviews: Record<string, Review> };
 		expect(Object.values(resumed.reviews)[0]!.notes).toBe("Keep touching frames together");
+	} finally { server.stop(true); }
+});
+
+test("Smart baseline counts only pages with panel annotations", async () => {
+	const { root, path, persistence } = await Fixture();
+	const smartGroup = `smart::${book}`;
+	const report: Diagnostics = {
+		...diagnostics,
+		books: { ...diagnostics.books, [smartGroup]: [page] },
+		groups: { ...diagnostics.groups, [smartGroup]: { book, algorithm: "smart" } },
+	};
+	const smartPath = path.replace("panels_safe.json", "panels_smart.json");
+	const mapping = { ...original, algorithm: "smart", pages: [original.pages[0]!, { page_index: 2, frame: [] }] };
+	const baseline: F1Baseline = { f1: 1, pages_evaluated: 1, total_ground_truth: 1, iou_threshold: 0.5, gap_tolerance: 35 };
+	const baselinePath = join(dirname(path), "bestbenchmark.json");
+	await fs.writeFile(join(persistence, "diagnostics.json"), JSON.stringify(report));
+	await fs.writeFile(smartPath, JSON.stringify(mapping));
+	await fs.writeFile(path, JSON.stringify({ ...mapping, algorithm: "safe" }));
+	await fs.writeFile(baselinePath, JSON.stringify({ smart_full_volume: baseline, safe_full_volume: baseline }));
+	const server = await CreateRevisionServer(root, 0);
+	try {
+		const get = async () => {
+			const response = await fetch(new URL("api/data", server.url));
+			expect(response.status).toBe(200);
+			return await response.json() as { baselines: Record<string, F1Baseline> };
+		};
+		expect((await get()).baselines).toEqual({ [smartGroup]: baseline });
+		await fs.writeFile(smartPath, JSON.stringify({ ...mapping, pages: original.pages }));
+		expect((await get()).baselines).toEqual({});
 	} finally { server.stop(true); }
 });
 

@@ -306,6 +306,215 @@ describe("Experimental component detector", function()
         assert.is_true(ok, tostring(err))
     end)
 
+    it("recovers a full-bleed tier next to a framed tier in Smart", function()
+        for _, inset in ipairs({ 0, 10 }) do
+            local map, contrast = page(), page()
+            for x = inset, 479 - inset do
+                ink(contrast, x, 399)
+            end
+            -- The curved artwork has a lower edge without straight side borders.
+            for y = 0, 398 do
+                local offset = math.floor(25 * math.sin(y / 10))
+                for x = 180 + offset, 299 + offset do
+                    ink(contrast, x, y)
+                end
+            end
+            frame(contrast, 20, 410, 440, 230)
+            map.structural = contrast.data
+            for y = 0, map.h - 1 do
+                for x = 0, map.w - 1 do
+                    ink(map, x, y)
+                end
+            end
+            local panels = Detector.detectPage(map, { mode = "manga" })
+            if inset == 0 then
+                assert.equals(2, #panels)
+                assert.equals(960, panels[1].w)
+                assert.equals(800, panels[1].h)
+                assert.equals(40, panels[2].x)
+                assert.equals(820, panels[2].y)
+            else
+                assert.equals(1, #panels)
+                assert.equals(1280, panels[1].h)
+            end
+        end
+    end)
+
+    it("trims an overlapping crop only at a framed neighbor's gutter", function()
+        local map = page()
+        local detector = require("src._componentpipeline")()
+        local framed = { x = 40, y = 40, w = 320, h = 800, frame_sides = 4 }
+        local open = { x = 220, y = 20, w = 560, h = 820, frame_sides = 2 }
+        detector.segment = function()
+            return { framed, open }
+        end
+        frame(map, 20, 20, 160, 400)
+        for y = 10, 419 do
+            for x = 192, 387 do
+                ink(map, x, y)
+            end
+        end
+        local panels, accepted = detector.detectPage(map, { mode = "manga" })
+        assert.is_true(accepted)
+        assert.equals(2, #panels)
+        assert.equals(360, panels[1].x)
+        assert.equals(420, panels[1].w)
+
+        for y = 20, 419 do
+            ink(map, 180, y)
+        end
+        panels = detector.detectPage(map, { mode = "manga" })
+        assert.equals(1, #panels)
+    end)
+
+    it("keeps a detached caption with its sole unframed illustration", function()
+        for _, has_structural_frame in ipairs({ false, true }) do
+            local map = page()
+            for y = 35, 549 do
+                for x = 30, 450 do
+                    if ((x - 240) / 210) ^ 2 + ((y - 292) / 257) ^ 2 <= 1 then
+                        ink(map, x, y)
+                    end
+                end
+            end
+            for x = 150, 306, 12 do
+                for dx = 0, 5 do
+                    for y = 580, 590 do
+                        ink(map, x + dx, y)
+                    end
+                end
+            end
+            map.structural = page().data
+            if has_structural_frame then
+                local structural = { w = map.w, data = map.structural, ink = 0 }
+                frame(structural, 100, 100, 280, 240)
+            end
+            local panels = Detector.detectPage(map, { mode = "manga" })
+            if has_structural_frame then
+                assert.equals(2, #panels, "A real frame can have its own detached caption")
+                assert.equals(1160, panels[2].y)
+            else
+                assert.equals(1, #panels)
+                assert.equals(map.native_w, panels[1].w)
+                assert.equals(map.native_h, panels[1].h)
+            end
+        end
+    end)
+
+    it("recovers framed rows and a footer through gray screening while keeping dark bridges", function()
+        for _, dark_bridge in ipairs({ false, true }) do
+            local map = page()
+            for row = 0, 3 do
+                local top = row * 144
+                frame(map, 28, top, 385, 133)
+                if dark_bridge and row < 3 then
+                    for y = top + 133, top + 143 do
+                        ink(map, 210, y)
+                    end
+                end
+            end
+            for glyph = 32, 245, 8 do
+                for y = 585, 596 do
+                    for x = glyph, glyph + 3 do
+                        ink(map, x, y)
+                    end
+                end
+            end
+            map.structural, map.dark = {}, {}
+            for index = 0, map.w * map.h - 1 do
+                map.structural[index], map.dark[index] = map.data[index], map.data[index]
+            end
+            for y = 0, map.h - 1 do
+                for x = 20, 439 do
+                    ink(map, x, y)
+                end
+            end
+            local panels, accepted = Detector.detectPage(map, { mode = "manga" })
+            assert.is_true(accepted)
+            assert.equals(dark_bridge and 1 or 5, #panels)
+            if not dark_bridge then
+                assert.equals(0, panels[1].y)
+                assert.equals(864, panels[4].y)
+                assert.equals(1170, panels[5].y)
+            end
+        end
+    end)
+
+    it("keeps a solid caption intact while splitting a framed shared rule", function()
+        for _, solid_caption in ipairs({ true, false }) do
+            local map = page()
+            local function fill(left, top, right, bottom, value)
+                for y = top, bottom do
+                    for x = left, right do
+                        local index = y * map.w + x
+                        map.ink = map.ink + value - map.data[index]
+                        map.data[index] = value
+                    end
+                end
+            end
+
+            frame(map, 24, 30, 417, 241)
+            frame(map, 145, 300, 296, 306)
+            frame(map, 20, 300, 123, 331)
+            fill(142, 440, 145, 440, 1)
+            if solid_caption then
+                fill(21, 301, 141, 629, 1)
+                -- Pale lettering leaves narrow black rules between its lines.
+                for _, y in ipairs({ 365, 408, 421, 492, 545 }) do
+                    fill(40, y, 124, y + 9, 0)
+                end
+            else
+                fill(21, 419, 141, 419, 1)
+            end
+            map.dark = map.data
+
+            local panels, accepted = Detector.detectPage(map, { mode = "manga" })
+            assert.is_true(accepted)
+            assert.equals(solid_caption and 3 or 4, #panels)
+        end
+    end)
+
+    it("separates tiers along a partly gray rail with a continuous dark core", function()
+        for _, continuous in ipairs({ true, false }) do
+            local map = page()
+            map.dark = {}
+            for index = 0, map.w * map.h - 1 do
+                map.dark[index] = 0
+            end
+            local function mark(x, y, dark)
+                ink(map, x, y)
+                map.dark[y * map.w + x] = dark and 1 or 0
+            end
+
+            -- The upper tier bleeds off the page, so the joined outline is open.
+            for y = 0, 480 do
+                mark(y < 130 and 30 or 42, y, true)
+            end
+            for x = 30, 42 do
+                mark(x, 120, true)
+            end
+            for y = 10, 452 do
+                for x = 40, 68 do
+                    mark(x, y, false)
+                end
+            end
+            -- Both patterns have equal high dark coverage. A dashed pattern
+            -- represents texture and cannot supply a continuous frame edge.
+            for x = 30, 440 do
+                mark(x, 244, continuous and x < 340 or not continuous and (x - 30) % 40 < 30)
+                mark(x, 480, true)
+            end
+            for y = 245, 479 do
+                mark(440, y, true)
+            end
+            local panels = Detector.segment(map, { mode = "manga" })
+            assert.equals(continuous and 2 or 1, #panels)
+            if continuous then
+                assert.equals(488, panels[2].y)
+            end
+        end
+    end)
+
     it("groups detached footnote letters while ignoring a narrow page number", function()
         local map = page()
         frame(map, 20, 20, 210, 520)

@@ -121,6 +121,7 @@ return function()
             cols[x] = 0
             bcols[x] = 0
         end
+        local dark_ink = 0
         for y = box.y, box.y + box.h - 1 do
             local count, bcount = 0, 0
             for x = box.x, box.x + box.w - 1 do
@@ -133,15 +134,19 @@ return function()
             end
             rows[y] = count
             brows[y] = bcount
+            dark_ink = dark_ink + bcount
         end
+        -- Solid captions can have nearly black rows between lines of text.
+        -- White gutters can still separate two intentionally dark panels.
+        local shared_rule = shared_borders and dark_ink < box.w * box.h * 0.8
         local best
         local function search(projection, border, first, span, length, minimum, axis)
             local last = first + length - 1
             local i = first + minimum
             while i <= last - minimum do
                 local white = projection[i] <= span * (depth == 0 and 0.035 or 0.025)
-                local black = false
-                if shared_borders and border and depth <= 3 then
+                local black, soft_border = false, false
+                if shared_rule and border and depth <= 3 then
                     local b_val = border[i]
                     local cutoff = depth == 0 and 0.88 or 0.90
                     if b_val >= span * cutoff then
@@ -153,6 +158,13 @@ return function()
                         if (b_val - b_prev >= span * step) and (b_val - b_next >= span * step) then
                             black = true
                         end
+                    end
+                    -- Antialiasing can leave a solid horizontal rail only partly dark.
+                    if not black and axis == "y" and b_val >= span * 0.70 and projection[i] >= span * 0.90 then
+                        local b_prev = math.max(border[i - 2] or 0, border[i - 3] or 0)
+                        local b_next = math.max(border[i + 2] or 0, border[i + 3] or 0)
+                        soft_border = b_prev <= span * 0.20 and b_next <= span * 0.20
+                        black = soft_border
                     end
                     if depth == 0 and box.frame_sides == 3 and b_val < span * 0.82 then
                         black = false
@@ -184,9 +196,9 @@ return function()
                             peak = math.max(peak, border[k] or 0)
                         end
                         local weak_unframed = depth == 0 and (box.frame_sides or 0) == 0 and peak < span * 0.88
-                        if valid and (width >= 3 or weak_unframed) then
+                        if valid and (width >= 3 or weak_unframed or soft_border) then
                             -- Dense text/hair can add up to a high projection without
-                            -- forming a separator. Require a continuous half-span too.
+                            -- forming a separator. Require a continuous dark core too.
                             local run, longest, gap = 0, 0, 0
                             local max_gap = math.ceil(span * 0.01)
                             local cross_first = axis == "y" and box.x or box.y
@@ -205,7 +217,7 @@ return function()
                                     longest = math.max(longest, run)
                                 end
                             end
-                            valid = longest >= span * 0.50
+                            valid = longest >= span * (soft_border and 0.70 or 0.50)
                         end
                     end
                     if valid then
@@ -649,15 +661,15 @@ return function()
 
     -- Detached notes below the artwork are readable content too. Individual
     -- letters are below the component size floor; combine their horizontal band.
-    local function addFootnotes(map, panels, settings)
-        if settings.mode == "comic" or not map.data or #panels == 0 then
+    local function addFootnotes(map, panels, settings, footnote_ink, has_structural_frame)
+        if settings.mode == "comic" or not footnote_ink or #panels == 0 then
             return
         end
         local bands, band = {}, nil
         for y = math.floor(map.h * 0.85), map.h - 1 do
             local left, right, count = map.w, -1, 0
             for x = 0, map.w - 1 do
-                if map.data[y * map.w + x] == 1 then
+                if footnote_ink[y * map.w + x] == 1 then
                     local covered = false
                     local nx, ny = (x + 0.5) * map.scale_x, (y + 0.5) * map.scale_y
                     for _, p in ipairs(panels) do
@@ -708,15 +720,66 @@ return function()
                     end
                 end
                 if not overlaps then
+                    if #panels == 1 and (panels[1].frame_sides or 0) == 0 and not has_structural_frame then
+                        -- A caption belongs to the sole unframed illustration.
+                        panels[1] = { x = 0, y = 0, w = map.native_w, h = map.native_h }
+                        return
+                    end
                     panels[#panels + 1] = note
                 end
             end
         end
     end
 
+    local function trimNeighborOverlap(map, panel, neighbor, overlap_w, overlap_h)
+        if
+            not map.data
+            or panel.frame_sides ~= 2
+            or (neighbor.frame_sides or 0) < 3
+            or overlap_h < math.max(panel.h, neighbor.h) * 0.90
+            or overlap_w >= math.min(panel.w, neighbor.w) * 0.50
+        then
+            return nil
+        end
+
+        -- A continuous frame edge followed by a gutter indicates adjacent
+        -- artwork even when the weaker crop extends into the stronger frame.
+        local neighbor_on_left = neighbor.x < panel.x
+        local edge = neighbor_on_left and neighbor.x + neighbor.w or neighbor.x
+        local column = math.floor(edge / map.scale_x + 0.5)
+        local exterior = neighbor_on_left and column or column - 1
+        local border = neighbor_on_left and column - 1 or column
+        local inward = neighbor_on_left and -1 or 1
+        if exterior < 0 or exterior >= map.w or border + inward < 0 or border + inward >= map.w then
+            return nil
+        end
+        local top = math.floor(math.max(panel.y, neighbor.y) / map.scale_y + 0.5)
+        local bottom = math.floor(math.min(panel.y + panel.h, neighbor.y + neighbor.h) / map.scale_y + 0.5)
+        local separated = 0
+        for y = top, bottom - 1 do
+            local row = y * map.w
+            if
+                map.data[row + exterior] == 0
+                and (map.data[row + border] == 1 or map.data[row + border + inward] == 1)
+            then
+                separated = separated + 1
+            end
+        end
+        if bottom <= top or separated < (bottom - top) * 0.90 then
+            return nil
+        end
+        return {
+            x = neighbor_on_left and edge or panel.x,
+            y = panel.y,
+            w = neighbor_on_left and panel.x + panel.w - edge or edge - panel.x,
+            h = panel.h,
+            frame_sides = panel.frame_sides,
+        }
+    end
+
     -- Resolve overlaps in ranked order so two candidates cannot discard each
     -- other. Stronger frame evidence wins; ties retain the wider artwork.
-    local function removeOverlaps(panels)
+    local function removeOverlaps(panels, map)
         local ranked, kept = {}, {}
         for _, panel in ipairs(panels) do
             ranked[#ranked + 1] = panel
@@ -740,12 +803,17 @@ return function()
         for _, a in ipairs(ranked) do
             local drop = false
             for _, b in ipairs(kept) do
-                local inter = math.max(0, math.min(a.x + a.w, b.x + b.w) - math.max(a.x, b.x))
-                    * math.max(0, math.min(a.y + a.h, b.y + b.h) - math.max(a.y, b.y))
+                local overlap_w = math.max(0, math.min(a.x + a.w, b.x + b.w) - math.max(a.x, b.x))
+                local overlap_h = math.max(0, math.min(a.y + a.h, b.y + b.h) - math.max(a.y, b.y))
+                local inter = overlap_w * overlap_h
                 local union = a.w * a.h + b.w * b.h - inter
                 if inter >= math.min(a.w * a.h, b.w * b.h) * 0.30 or inter >= union * 0.50 then
-                    drop = true
-                    break
+                    local trimmed = trimNeighborOverlap(map, a, b, overlap_w, overlap_h)
+                    if not trimmed then
+                        drop = true
+                        break
+                    end
+                    a = trimmed
                 end
             end
             if not drop then
@@ -759,13 +827,21 @@ return function()
         settings = settings or Settings.defaults
         local panels = ComponentDetector.segment(map, settings)
 
+        local candidates
+        local has_structural_frame = false
         if map.structural then
             local alternate = {}
             for k, v in pairs(map) do
                 alternate[k] = v
             end
             alternate.data = map.structural
-            local candidates = removeOverlaps(ComponentDetector.segment(alternate, settings))
+            candidates = removeOverlaps(ComponentDetector.segment(alternate, settings), alternate)
+            for _, candidate in ipairs(candidates) do
+                if (candidate.frame_sides or 0) >= 3 then
+                    has_structural_frame = true
+                    break
+                end
+            end
 
             local refined = {}
             if #panels == 0 then
@@ -788,9 +864,35 @@ return function()
                         strong = strong + 1
                     end
                 end
+                local framed_with_bleed = false
+                if settings.mode ~= "comic" and #parts == 2 and strong == 1 then
+                    local frame, bleed = parts[1], parts[2]
+                    if (frame.frame_sides or 0) < 3 then
+                        frame, bleed = bleed, frame
+                    end
+                    -- A full-bleed tier can lack side borders. Require it to
+                    -- reach the page edge and the framed tier to fill the other end.
+                    local tolerance = map.scale_y
+                    local bleed_top, bleed_bottom = bleed.y, bleed.y + bleed.h
+                    local frame_top, frame_bottom = frame.y, frame.y + frame.h
+                    framed_with_bleed = bleed.x <= map.scale_x
+                        and bleed.x + bleed.w >= map.native_w - map.scale_x
+                        and (
+                            (
+                                bleed_top <= tolerance
+                                and bleed_bottom <= frame_top
+                                and frame_bottom >= p.y + p.h - tolerance
+                            )
+                            or (
+                                bleed_bottom >= map.native_h - tolerance
+                                and frame_bottom <= bleed_top
+                                and frame_top <= p.y + tolerance
+                            )
+                        )
+                end
                 local reliable = #parts >= 2
                     and area >= p.w * p.h * 0.85
-                    and strong >= math.ceil(#parts * 0.6)
+                    and (strong >= math.ceil(#parts * 0.6) or framed_with_bleed)
                     and sides >= #parts * 2
                 for i, q in ipairs(parts) do
                     for j = i + 1, #parts do
@@ -827,12 +929,34 @@ return function()
             end
         end
 
-        panels = removeOverlaps(panels)
+        panels = removeOverlaps(panels, map)
 
         if #panels > 1 and map.data then
             panels = sharedBalloon(map, panels, true)
         end
-        addFootnotes(map, panels, settings)
+        local footnote_ink = map.data
+        -- Screened gutters can leave one dominant crop in the artwork plane.
+        -- Recover only independently enclosed frames from the high-contrast plane.
+        if #panels == 1 and candidates and #candidates >= 4 and settings.mode ~= "comic" then
+            local parent = panels[1]
+            local parent_area = parent.w * parent.h
+            local area = 0
+            local reliable = parent_area >= map.native_w * map.native_h * 0.70
+            for _, part in ipairs(candidates) do
+                local overlap = math.max(0, math.min(parent.x + parent.w, part.x + part.w) - math.max(parent.x, part.x))
+                    * math.max(0, math.min(parent.y + parent.h, part.y + part.h) - math.max(parent.y, part.y))
+                if part.frame_sides ~= 4 or overlap < part.w * part.h * 0.95 then
+                    reliable = false
+                    break
+                end
+                area = area + part.w * part.h
+            end
+            if reliable and area >= parent_area * 0.75 and not sharedBalloon(map, candidates) then
+                panels = candidates
+                footnote_ink = map.structural
+            end
+        end
+        addFootnotes(map, panels, settings, footnote_ink, has_structural_frame)
 
         local acceptance = {}
         for key, value in pairs(settings) do

@@ -78,3 +78,6 @@ references-repos/plugins/*/laboratory/
 
 SAT-Website
 tsconfig.json
+
+
+panels-sdk*.md

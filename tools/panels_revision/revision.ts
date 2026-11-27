@@ -119,8 +119,11 @@ export async function CreateRevisionServer(
                         hashes[group] = hash;
                         const info = diagnostics!.groups[group]!;
                         const pages = diagnostics!.books[group]!;
-                        const current = mapping.pages.length === pages.length && pages.every(page => {
-                            const mapped = mapping.pages.find(p => p.page_index === page.page);
+                        const mappedPages = info.algorithm === "smart"
+                            ? mapping.pages.filter(page => page.frame.length > 0)
+                            : mapping.pages;
+                        const current = mappedPages.length === pages.length && pages.every(page => {
+                            const mapped = mappedPages.find(p => p.page_index === page.page);
                             return mapped && JSON.stringify(mapped.frame.map(b => [b.x, b.y, b.w, b.h])) === JSON.stringify(page.expected);
                         });
                         if (!current) continue;

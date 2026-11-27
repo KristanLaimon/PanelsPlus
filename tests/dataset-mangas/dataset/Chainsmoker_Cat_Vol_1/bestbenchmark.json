@@ -47,6 +47,30 @@
         "true_positives": 847
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-27",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9378,
+        "false_positives": 72,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9533,
+        "pages_evaluated": 214,
+        "precision": 0.9280,
+        "reading_order_accuracy": 0.6822,
+        "reading_order_pages": 214,
+        "reading_order_pages_correct": 146,
+        "reading_order_pair_accuracy": 0.9973,
+        "reading_order_pairs": 2196,
+        "reading_order_pairs_correct": 2190,
+        "recall": 0.9479,
+        "total_detected": 1000,
+        "total_ground_truth": 979,
+        "true_positives": 928
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Chainsmoker_Cat_Vol_1",
@@ -122,23 +146,23 @@
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
-    "f1": 0.9378,
-    "false_positives": 72,
+    "f1": 0.9805,
+    "false_positives": 16,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9533,
+    "mean_iou": 0.9673,
     "pages_evaluated": 214,
-    "precision": 0.9280,
-    "reading_order_accuracy": 0.6822,
+    "precision": 0.9840,
+    "reading_order_accuracy": 0.8879,
     "reading_order_pages": 214,
-    "reading_order_pages_correct": 146,
-    "reading_order_pair_accuracy": 0.9973,
-    "reading_order_pairs": 2196,
-    "reading_order_pairs_correct": 2190,
-    "recall": 0.9479,
-    "total_detected": 1000,
-    "total_ground_truth": 979,
-    "true_positives": 928
+    "reading_order_pages_correct": 190,
+    "reading_order_pair_accuracy": 0.9984,
+    "reading_order_pairs": 2467,
+    "reading_order_pairs_correct": 2463,
+    "recall": 0.9771,
+    "total_detected": 999,
+    "total_ground_truth": 1006,
+    "true_positives": 983
   },
-  "updated_at": "2026-11-22"
+  "updated_at": "2026-11-27"
 }
