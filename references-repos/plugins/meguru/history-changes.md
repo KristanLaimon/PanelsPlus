@@ -1,6 +1,16 @@
 # Meguru compatibility history
 
-## Current state
+## Current state — 2026-11-27
+
+Stable 1.8.10 replaces 1.8.7. The older 1.7.1 baseline is retained.
+Canonical rolling is clean detached HEAD at
+`4d5f5fc2fa0ffa69160b4cc21e1b85ab16904e55` (metadata 1.8.10).
+All three references pass 14 spread geometry integration cases each.
+
+The refresh changed no plugin runtime. See the latest dated entry below
+for provenance, test scope, and device coverage.
+
+## Previous state
 
 2026-11-15 test rerun: all retained stable and current local rolling suites passed; see the test-suite rerun entry below. No runtime changes or installation.
 
@@ -111,3 +121,26 @@ Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
 Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
 Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
 warnings/errors in 150 files. Workflow shell checks: 26 passed.
+
+
+## 2026-11-27 — Refresh stable and rolling compatibility
+
+Panels+ 1.6.0, clean `main-nightly` at
+`da9619b36d735d9cdc215561fbedc440fbe089e5`; KOReader source pin
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. GitHub's release API reports
+[1.8.10](https://github.com/Craftwork2720/meguru/releases/tag/v1.8.10), published 2026-11-27T20:58:42Z.
+
+Before the sync, rolling was clean detached HEAD
+`7a6e9b8033c228c187855af8fcd4c4580018ac4b` (1.8.7). Release ZIP SHA-256 and
+tag commit are in [releases.md](releases.md). The superseded active 1.8.7 pin
+and suite were removed after its 14 cases passed. The final run tested
+stable 1.7.1, stable 1.8.10 and rolling, 14 passed per reference. The tests
+use actual Meguru spread and document geometry with host rendering and
+detection fixtures. Physical reader geometry remains unverified.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=meguru`
+ran stable first and rolling last with zero failures and zero skips after
+the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
+references and staged only the three changed parent pointers. The target
+working trees and indexes are clean. No plugin runtime edits, installation,
+commit, or push.

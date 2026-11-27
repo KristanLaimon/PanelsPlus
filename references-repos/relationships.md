@@ -20,9 +20,10 @@ These ranges reproduce developer knowledge; they are not independently verified 
 
 | Relationship | Left plugin / scope | Direction | Right plugin / scope | Visibility | Evidence |
 | --- | --- | --- | --- | --- | --- |
-| OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Meguru stable 1.7.1, stable 1.8.7 and rolling `7a6e9b8033c228c187855af8fcd4c4580018ac4b` | Not visual (no added UI) | Calls Meguru `spreadPageAt` before panel collection/selection; 14 reference-backed geometry integration tests pass per reference. Together with the declared Meguru → Panels+ awareness above, this adds reciprocal knowledge; the reverse direction's visibility remains unspecified. No future version range claimed. [History](plugins/meguru/history-changes.md). |
-| OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | Stable Ink Away 4.5.0 release ZIP and clean rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` | Visual: Draw, Ink-away Settings, navigation and toolbar fitting | Existing runtime compatible without changes: 44 integration cases per 4.5.0 reference. Stable 4.4.0 and its fallback-only suite are retired. Prior native 48 scenarios / 2742 checks were not repeated in this reference-only update. No future-version guarantee; physical Kindle validation pending. [History](plugins/ink-away/history-changes.md). |
-| OneWay Knowledge | Panels+ 1.6.0 at `38022f41209497efcd1ac4e58e456c7d45c1f7e0`, `main-nightly` | → | LiveLight stable 1.2.0 and rolling `af2c6bac7a81a2e175319fb57af70d0cb10c31ed` (tag v1.2.0) | Not visual (existing LiveLight feedback remains its UI) | 18 reference-backed gesture integration cases per reference: actual registration/handlers reach mocked light controls through Panels+, including when zoomed. Host screen, timers, power and gesture-range matching are fixtures; no physical-light or level-box rendering claim. [History](plugins/livelight/history-changes.md). |
+| OneWay Knowledge | Panels+ 1.6.0 | → | Ink Away stable 4.5.4 and rolling `9c3574fbad5f18853f5bd37f63d5c7e5cc070f1b` | Visual | Draw, toolbar fitting, navigation and ink placement, 44 integration cases plus 48 headless KOReader scenarios per reference. [History](plugins/ink-away/history-changes.md). |
+| OneWay Knowledge | Panels+ 1.6.0 | → | Meguru stable 1.7.1, stable 1.8.10 and rolling `4d5f5fc2fa0ffa69160b4cc21e1b85ab16904e55` | Not visual (no added UI) | Uses Meguru `spreadPageAt` for panel collection and selection, 14 geometry integration cases per reference. Meguru → Panels+ awareness remains developer-declared above. [History](plugins/meguru/history-changes.md). |
+| OneWay Knowledge | Panels+ 1.6.0 | → | Kobo stable 0.4.1 and rolling `607691b84f93831111980f1537c84d4ca695e643` | Not visual (no added UI) | Routes the selected Kobo Bluetooth page-turn actions to panel navigation, 2 cases per reference. [History](plugins/kobo/history-changes.md). |
+| OneWay Knowledge | Panels+ 1.6.0 | → | LiveLight stable 1.2.0 and rolling `af2c6bac7a81a2e175319fb57af70d0cb10c31ed` | Not visual (existing LiveLight feedback remains its UI) | Routes actual LiveLight gestures while reading panels, 18 cases per reference. [History](plugins/livelight/history-changes.md). |
 
 ## Historical artifact references
 
@@ -315,3 +316,21 @@ Same Visual Panels+ → Ink Away relationship, exact source/target bases ec66734
 ### 2026-11-15 — Upstream Ink Away 4.5.0 facade audit
 
 Panels+ 1.6.0 `898635a70b26831994b158f75da99a1d9a5ed484` (`feat/ink-away-compatibility`) → clean canonical Ink Away 4.5.0 `0015691669e74baeb4b0d3e13f61f3e629279fb7` (`main`, exact local `v4.5.0` tag). No runtime changes needed on either side. Test fixtures now compose the injected registry and restricted public facade and explicitly register viewers, as required by upstream. Stable 4.4.0 fallback **5**, rolling feature integration **44**, focused units **39**, native KOReader v2026.07.1 **48 scenarios / 2742 checks** pass. Host source pin `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; real modules/widgets/loader/blitter with synthetic documents, timers, device/storage fixtures. Exact scope, initial failures and commands: [history](plugins/ink-away/history-changes.md#2026-11-15--audit-merged-pr-80-against-upstream-ink-away-450). OneWay Knowledge, Visual; no new range claimed. No stable 4.5.0 artifact pin, deployment or physical Kindle validation.
+
+
+### 2026-11-27 — Stable and rolling reference refresh
+
+Panels+ 1.6.0 at `da9619b36d735d9cdc215561fbedc440fbe089e5` (`main-nightly`).
+The KOReader source pin is `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+Exact targets and results are in the implemented matrix above and linked histories.
+Stable tests ran first. The Lua suites load actual counterpart modules with
+KOReader services and hardware mocked. Ink Away additionally passed 48 scenarios
+and 2742 checks per reference using the KOReader v2026.07.1 Linux SDL runtime,
+real widgets, loader and blitter with synthetic documents and timers. All runs
+were pairwise. Device testing remains pending.
+
+The broader `./run-tests.sh --quick` run passed 11 of 13 Lua jobs, including
+661 unit tests (3 skipped). The Go OCR tests also passed. Two unchanged
+dataset specs (Bloom Into You and Miss Kobayashi) failed when Lua 5.5.1 tried
+to format fractional annotation coordinates with `%d`. Python tests were
+skipped because the uv environment was unsynced.

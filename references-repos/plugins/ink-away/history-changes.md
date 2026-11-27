@@ -1,4 +1,14 @@
-## Current state — Retire unsupported stable 4.4.0, 2026-11-15
+## Current state — 2026-11-27
+
+Stable 4.5.4 replaces 4.5.0. Canonical rolling is clean detached HEAD at
+`9c3574fbad5f18853f5bd37f63d5c7e5cc070f1b` (4.5.4, exact stable tag). Both
+pass 44 integration cases and 48 headless KOReader scenarios. The only Lua
+change supplies the missing alternate-sidecar check in the storage fixture.
+
+The refresh changed no plugin runtime. See the latest dated entry below
+for provenance, test scope, and device coverage.
+
+## Previous state — Retire unsupported stable 4.4.0, 2026-11-15
 
 At the developer's explicit request, removed stable `v4_4_0/` and its exact
 `ink-away__v4_4_0/` suite. That release has no Panels+ integration compatibility;
@@ -2089,3 +2099,37 @@ Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
 Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
 Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
 warnings/errors in 150 files. Workflow shell checks: 26 passed.
+
+
+## 2026-11-27 — Refresh stable and rolling compatibility
+
+Panels+ 1.6.0, clean `main-nightly` at
+`da9619b36d735d9cdc215561fbedc440fbe089e5`; KOReader source pin
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. GitHub's release API reports
+[4.5.4](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.4), published 2026-11-26T16:30:28Z.
+
+Before the sync, rolling was clean on `main` at
+`0015691669e74baeb4b0d3e13f61f3e629279fb7` (4.5.0). The new release ZIP
+matches GitHub's SHA-256, recorded in [releases.md](releases.md). The
+superseded active 4.5.0 pin and its suite were removed after both passed.
+
+The first 4.5.4 suite failed all 44 cases because its mocked storage omitted
+`BookInk.hasAside`, which the new release calls when the fixture has no
+saved ink. The headless native run with real BookInk passed independently.
+The fixture now returns false for both storage-existence checks. The
+versioned 4.5.4 suite and rolling then passed 44 cases each, including both
+loading orders, Draw, ink placement, toolbar fit, navigation and cleanup.
+
+From `/usr/lib/koreader` (v2026.07.1), ran
+`./luajit <Panels+>/tests/compatibility_support/inkaway_native_viewport.lua <Panels+> <reference>`
+once for each reference with isolated `KO_HOME` under /tmp, dummy SDL video
+and audio, and software SDL rendering. Each passed 48 scenarios and 2742
+checks using real KOReader widgets, loader and blitter, synthetic documents
+and timers. Physical Kindle input and refresh remain unverified.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=ink-away`
+ran stable first and rolling last with zero failures and zero skips after
+the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
+references and staged only the three changed parent pointers. The target
+working trees and indexes are clean. No plugin runtime edits, installation,
+commit, or push.

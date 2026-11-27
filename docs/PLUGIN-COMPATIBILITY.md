@@ -118,10 +118,10 @@ Shared assertions can live in `tests/compatibility_support/` when they apply to
 multiple references; each wrapper must still exercise its selected reference.
 Do not relabel an old suite as coverage for a new release.
 
-Run the corresponding stable suite first, then rolling. For Meguru 1.8.7:
+Run the corresponding stable suite first, then rolling. For Meguru 1.8.10:
 
 ```bash
-./run-tests.sh --compatibility-plugin=meguru --compatibility-plugin-version=1.8.7
+./run-tests.sh --compatibility-plugin=meguru --compatibility-plugin-version=1.8.10
 ./run-tests.sh --compatibility-plugin=meguru --compatibility-plugin-version=rollingrelease
 ./run-tests.sh --compatibility-plugin=meguru
 ```

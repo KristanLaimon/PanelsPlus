@@ -9,13 +9,13 @@ This index supplements those files; it does not replace them.
 
 | Directory | Project / upstream | License and notices |
 | --- | --- | --- |
-| `plugins/ink-away/stable/v4_5_0/` | [Ink Away](https://github.com/EmirErtorer/ink-away.koplugin), Emir Devlet Ertörer | [MIT](plugins/ink-away/stable/v4_5_0/LICENSE); additional asset and third-party notices in [NOTICE.md](plugins/ink-away/stable/v4_5_0/NOTICE.md) |
+| `plugins/ink-away/stable/v4_5_4/` | [Ink Away](https://github.com/EmirErtorer/ink-away.koplugin), Emir Devlet Ertörer | [MIT](plugins/ink-away/stable/v4_5_4/LICENSE); additional asset and third-party notices in [NOTICE.md](plugins/ink-away/stable/v4_5_4/NOTICE.md) |
 | `plugins/livelight/stable/v1_2_0/` | [LiveLight](https://github.com/ironicsans/livelight.koplugin), David Friedman | AGPL-3.0-only per upstream package.json; [full license](plugins/livelight/LICENSE), retained separately because the release ZIP omits it |
 | `plugins/kobo/stable/v0_4_1/` | [kobo.koplugin](https://github.com/OGKevin/kobo.koplugin), OGKevin | GNU General Public License, version 3; [full license](plugins/kobo/stable/v0_4_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later, as declared in its source headers; [full license](plugins/meguru/stable/v1_7_1/LICENSE) |
 | `plugins/meguru/stable/v1_7_1/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_7_1/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_7_1/libs/README.md) |
-| `plugins/meguru/stable/v1_8_7/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later; [full license](plugins/meguru/stable/v1_8_7/LICENSE) |
-| `plugins/meguru/stable/v1_8_7/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_8_7/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_8_7/libs/README.md) |
+| `plugins/meguru/stable/v1_8_10/` | [Meguru](https://github.com/Craftwork2720/meguru), Craftwork2720 | AGPL-3.0-or-later; [full license](plugins/meguru/stable/v1_8_10/LICENSE) |
+| `plugins/meguru/stable/v1_8_10/libs/` | [derainbowify.koplugin](https://github.com/Euphoriyy/derainbowify.koplugin), version 0.0.12, per the bundled README | GPL-3.0; [full license](plugins/meguru/stable/v1_8_10/libs/LICENSE) and [provenance](plugins/meguru/stable/v1_8_10/libs/README.md) |
 
 
 ## Redistribution notes

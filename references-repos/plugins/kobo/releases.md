@@ -6,12 +6,11 @@
 
 The pinned release URL was reachable during initial setup.
 
-On 2026-11-15, GitHub still reports v0.4.1 as latest stable (2026-02-20).
-Upstream HEAD is `cd2f75d9da57c2a4e4cfa6bbe8ab569e4ba29318` (2026-11-14),
-`fix(bluetooth): detach spawned daemons from onboard storage (#244)`;
-local rolling remains `baa133794c8567a68068c7337d68d2fbf05631c7`.
-This was an availability check only; newer rolling code was not downloaded
-or tested. [History](history-changes.md).
+On 2026-11-27, GitHub still reports v0.4.1 as latest stable (2026-02-20).
+Canonical rolling now follows `origin/main` at
+`607691b84f93831111980f1537c84d4ca695e643`, including Bluetooth connection
+handling changes. Each reference passed both Bluetooth page-turn action
+integration cases. See [history](history-changes.md).
 
 `rolling.koplugin/` is the local development Git submodule, pinned by the parent repository. It is not automatically today's upstream HEAD.
 

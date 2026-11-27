@@ -9,6 +9,8 @@
 
 Canonical rolling submodule: [`rolling.koplugin/`](rolling.koplugin/), clean
 `main` at `af2c6bac7a81a2e175319fb57af70d0cb10c31ed`, exactly tag v1.2.0.
+GitHub still reports 1.2.0 as latest stable and rolling was already current
+on 2026-11-27. Both references passed 18 gesture integration cases.
 Its plugin runtime lives in the nested `livelight.koplugin/` directory.
 Stable and rolling runtime files are byte identical.
 

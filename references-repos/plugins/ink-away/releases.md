@@ -2,7 +2,7 @@
 
 - [GitHub repository](https://github.com/EmirErtorer/ink-away.koplugin)
 - [Latest upstream release](https://github.com/EmirErtorer/ink-away.koplugin/releases/latest) — moving discovery link.
-- [Pinned release v4.5.0](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.0) — local reference: [`stable/v4_5_0/`](stable/v4_5_0/).
+- [Pinned release v4.5.4](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.4) — local reference: [`stable/v4_5_4/`](stable/v4_5_4/).
 
 Stable 4.4.0 and its versioned fallback-only suite were removed on 2026-11-15
 at the developer's request: it has no Panels+ integration compatibility.
@@ -17,21 +17,16 @@ See [relationships](../../relationships.md) for declarations and exact tested tu
 Development backlog and restart handoff: [history-changes.md](history-changes.md).
 It records exact modified versions, test methods/results, installation and open live checks.
 
-## Current local reference — verified 2026-11-15
+## Current local reference — verified 2026-11-27
 
-Canonical `rolling.koplugin/` is clean upstream `main` at
-`0015691669e74baeb4b0d3e13f61f3e629279fb7`, metadata 4.5.0, exactly local tag
-`v4.5.0`. It includes PR #80's upstream merge `0e63969` and integration rework
-`4a8568a5dd0413442588aa095a502e106a7ef0f2`. No fetch/update was performed in this
-audit. [Upstream v4.5.0](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.0)
-was additionally pinned from its release ZIP on 2026-11-15.
-Asset `ink-away.koplugin-v4.5.0.zip` SHA-256:
-`c9b0f707d9e93aa6cea0f01b22f21e8d72f98e714449bb9dca954e5459203f92`,
-verified against the GitHub release API digest. Stable 4.5.0 and rolling each
-pass 44 public surface integration cases each.
-Panels+'s current runtime works
-with the public facade without adaptation; exact tests and limits are in the
-[2026-11-15 history](history-changes.md#2026-11-15--audit-merged-pr-80-against-upstream-ink-away-450).
+Stable 4.5.4 replaces 4.5.0. The unchanged
+[release ZIP](https://github.com/EmirErtorer/ink-away.koplugin/releases/download/v4.5.4/ink-away.koplugin-v4.5.4.zip)
+matches GitHub's published SHA-256
+`fedff788f6b66e90f30875901f49879bbd90827d948bb37d6a5f34f6cd7c5b87`.
+Canonical rolling follows `origin/main`, checked out at
+`9c3574fbad5f18853f5bd37f63d5c7e5cc070f1b` (exact `v4.5.4` tag).
+Both references passed 44 integration cases and 48 native headless KOReader
+scenarios. See [history](history-changes.md).
 
 ## Historical local development — superseded by the reference above
 

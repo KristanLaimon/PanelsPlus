@@ -1,6 +1,15 @@
 # LiveLight compatibility history
 
-## Current state
+## Current state — 2026-11-27
+
+Stable 1.2.0 remains the latest. Canonical rolling was already current,
+clean on `main` at `af2c6bac7a81a2e175319fb57af70d0cb10c31ed` (v1.2.0).
+Each passed 18 gesture integration cases.
+
+The refresh changed no plugin runtime. See the latest dated entry below
+for provenance, test scope, and device coverage.
+
+## Previous state
 
 2026-11-15 test rerun: all retained stable and current local rolling suites passed; see the test-suite rerun entry below. No runtime changes or installation.
 
@@ -112,3 +121,25 @@ Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
 Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
 Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
 warnings/errors in 150 files. Workflow shell checks: 26 passed.
+
+
+## 2026-11-27 — Refresh stable and rolling compatibility
+
+Panels+ 1.6.0, clean `main-nightly` at
+`da9619b36d735d9cdc215561fbedc440fbe089e5`; KOReader source pin
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. GitHub's release API reports
+[1.2.0](https://github.com/ironicsans/livelight.koplugin/releases/tag/v1.2.0), published 2026-10-18T21:35:35Z.
+
+Rolling started and ended clean on `main` at the SHA above. The metadata
+has no version field and the stable suite verifies the pinned payload
+using its existing SHA-256 manifest. Each reference passed all 18 real
+gesture registration/routing cases. Screen, timers, and power controls
+are fixtures. Physical light changes and level-box rendering remain
+unverified.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=livelight`
+ran stable first and rolling last with zero failures and zero skips after
+the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
+references and staged only the three changed parent pointers. The target
+working trees and indexes are clean. No plugin runtime edits, installation,
+commit, or push.

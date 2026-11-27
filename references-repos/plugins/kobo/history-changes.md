@@ -1,6 +1,15 @@
 # Kobo compatibility history
 
-## Current state
+## Current state — 2026-11-27
+
+Stable 0.4.1 remains the latest. Canonical rolling is clean detached HEAD
+at `607691b84f93831111980f1537c84d4ca695e643` (metadata 0.4.1). Each passed
+both Bluetooth page-turn action cases.
+
+The refresh changed no plugin runtime. See the latest dated entry below
+for provenance, test scope, and device coverage.
+
+## Previous state
 
 2026-11-15 test rerun: all retained stable and current local rolling suites passed; see the test-suite rerun entry below. No runtime changes or installation.
 
@@ -60,3 +69,24 @@ Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
 Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
 Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
 warnings/errors in 150 files. Workflow shell checks: 26 passed.
+
+
+## 2026-11-27 — Refresh stable and rolling compatibility
+
+Panels+ 1.6.0, clean `main-nightly` at
+`da9619b36d735d9cdc215561fbedc440fbe089e5`; KOReader source pin
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. GitHub's release API reports
+[0.4.1](https://github.com/OGKevin/kobo.koplugin/releases/tag/v0.4.1), published 2026-02-20T10:58:00Z.
+
+Before the sync, rolling was clean detached HEAD
+`baa133794c8567a68068c7337d68d2fbf05631c7` (metadata 0.4.1). The stable
+and updated rolling references each passed both actual next/previous
+action routes into Panels+. KOReader Dispatcher and Bluetooth hardware
+are fixtures. Pairing and physical input remain unverified.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=kobo`
+ran stable first and rolling last with zero failures and zero skips after
+the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
+references and staged only the three changed parent pointers. The target
+working trees and indexes are clean. No plugin runtime edits, installation,
+commit, or push.

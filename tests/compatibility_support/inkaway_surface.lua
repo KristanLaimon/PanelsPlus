@@ -68,6 +68,9 @@ return function(reference, expect_integration)
             return setmetatable({}, BB)
         end,
     }
+    local function no_saved_ink()
+        return false
+    end
     local fixtures = {
         ["bit"] = {}, -- Raster's grain functions are outside these geometry tests.
         ["device"] = { screen = setmetatable({ bb = setmetatable({}, BB) }, { __index = Screen }) },
@@ -83,9 +86,8 @@ return function(reference, expect_integration)
             locate = function()
                 return { dir = "/tmp/inkaway-surface-fixture", dirs = {} }
             end,
-            exists = function()
-                return false
-            end,
+            exists = no_saved_ink,
+            hasAside = no_saved_ink,
             new = function()
                 return { items = {} }
             end,
