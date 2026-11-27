@@ -7,7 +7,7 @@
   <strong>Panels+</strong>
   <br>
   <span style="display:block;font-size:1.25rem;">Read manga and comics without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
-  <br><a href="#what-this-plugin-does">Overview</a> | <a href="#installation">Installation</a> | <a href="#compatibility">Compatibility</a> | <a href="#features">Features</a> | <a href="#prs-and-building">PR's &amp; Building</a><br><br>
+  <br><a href="#what-this-plugin-does">Overview</a> | <a href="#installation">Installation</a> | <a href="#compatibility">Compatibility</a> | <a href="#features">Features</a> | <a href="#prs-and-building">PR's &amp; Building</a> | <a href="https://panelsplus.site">Website</a><br><br>
 <p align="center">
     <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?style=flat-square&logo=kitsu&logoColor=EE6123&label=LATEST%20RELEASE&labelColor=ffffff&color=333333" alt="Latest Release"></a>
     <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/PanelsPlus/total?style=flat-square&logo=fireship&logoColor=EB844E&label=TOTAL%20DOWNLOADS&labelColor=ffffff&color=333333" alt="Total Downloads"></a>
