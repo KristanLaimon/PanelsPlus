@@ -542,6 +542,32 @@ describe("Panel gesture zoom", function()
         end
     end)
 
+    it("waits for the Kindle refresh before painting a slider drag frame", function()
+        local device = require("device")
+        local manager = require("ui/uimanager")
+        local image_viewer = require("ui/widget/imageviewer")
+        local old_is_kindle, old_wait, old_paint = device.isKindle, manager.waitForVSync, image_viewer.paintTo
+        local viewer = PanelViewer:new()
+        local ok, err = pcall(function()
+            local kindle, waited = true, false
+            device.isKindle = function() return kindle end
+            manager.waitForVSync = function() waited = true end
+            image_viewer.paintTo = function()
+                assert.equals(kindle and viewer._zoom_slider_dragging, waited)
+                waited = false
+            end
+            viewer._zoom_slider_dragging = true
+            viewer:paintTo({}, 0, 0)
+            kindle = false
+            viewer:paintTo({}, 0, 0)
+            kindle = true
+            viewer._zoom_slider_dragging = false
+            viewer:paintTo({}, 0, 0)
+        end)
+        device.isKindle, manager.waitForVSync, image_viewer.paintTo = old_is_kindle, old_wait, old_paint
+        if not ok then error(err) end
+    end)
+
     it("drags over the image from 0.3 to 3 without compounding zoom and saves on release", function()
         local saves, updates = 0, 0
         local viewer = PanelViewer:new({

@@ -10,11 +10,13 @@ License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
 local CenterContainer = require("ui/widget/container/centercontainer")
+local Device = require("device")
 local FoldJoin = require("src._foldjoin")
 local Geom = require("ui/geometry")
 local ImageViewer = require("ui/widget/imageviewer")
-local Screen = require("device").screen
+local Screen = Device.screen
 local QuickToolbar = require("src._quicktoolbar")
+local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 local logger = require("logger")
 
@@ -332,6 +334,10 @@ return function(PanelViewer)
 
     --- Apply document inversion only to image pixels, leaving letterboxing to night mode.
     function PanelViewer:paintTo(bb, x, y)
+        if self._zoom_slider_dragging and Device:isKindle() then
+            -- The e-ink controller may still be reading the previous drag frame.
+            UIManager:waitForVSync()
+        end
         if self._image_wg then
             self._image_wg.original_in_nightmode = false
         end

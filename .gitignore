@@ -62,22 +62,34 @@ tests/dataset-mangas/.cache/
 # Local Manga Annotator preferences
 manga-annotator.config.json
 
-- # Git worktrees work
+# Git worktrees work (Little experiment with sub-agents + worktrees, didn't go well ....) Atte:KL
 worktree-*/
 panelsplus_super_stable_fast_but_without_all_new_features.koplugin
 panelsplus_1_4_0_stable.koplugin
 panelsplus_OCR_stable_kindaold.koplugin
 
-
+# Instructions, and some mds I've created. Atte: KL
 INSTRUCTION*.md
 /PLAN.md
 /FEATURES_SINCE_v1.4.0.md
+
+# Tests I did between nightly and stable 1.4.0, this is a special
+# version. It was the most stable version I've released, but lacking
+# a lot of features, its internal algorithm panel finding is the
+# father of current smart/safe algorithms.   Atte: KL
 panels_plus_v1_4_0_old/
 
 references-repos/plugins/*/laboratory/
 
-SAT-Website
 tsconfig.json
 
-
+# My planning mds for a future tooling refactor, I plan to create a Panels+ SDK
+# without using many different languages, compress them in one GUI tool for easy
+# selection. This would help new contributors to easily use these tools,
+# currently my tools in /tools are like tape, hammer, {otherTools} a little messed
+# up in that folder, but they work very well but requires to understand too much of
+# this codebase to use them. I'd like to improve that.  Atte: KL
 panels-sdk*.md
+
+# Temp ignore, remove when releasing v1.7.0
+v1.7.0-release-notes.md
