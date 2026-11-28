@@ -128,12 +128,20 @@ describe("ViewerController page-turn animation settings", function()
         local old_dialog = package.loaded["ui/widget/buttondialog"]
         local old_spin = package.loaded["ui/widget/spinwidget"]
         local old_tick = UIManager.nextTick
-        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
-        package.loaded["ui/widget/spinwidget"] = { new = function(_, options)
-            options.update = function() end
-            return options
-        end }
-        UIManager.nextTick = function() end
+        package.loaded["ui/widget/buttondialog"] = {
+            new = function(_, options)
+                return options
+            end,
+        }
+        package.loaded["ui/widget/spinwidget"] = {
+            new = function(_, options)
+                options.update = function() end
+                return options
+            end,
+        }
+        UIManager.nextTick = function(_, callback)
+            callback()
+        end
         local ok, err = pcall(function()
             controller:showZoomSliderOptions({}, function() end)
             UIManager._last_shown.buttons[3][1].callback()
@@ -141,6 +149,7 @@ describe("ViewerController page-turn animation settings", function()
             spin:update(40)
             assert.equals(60, controller.settings.panel_zoom_slider_opacity)
             spin.close_callback()
+            assert.equals("Slider settings", UIManager._last_shown.title)
             assert.equals(100, controller.settings.panel_zoom_slider_opacity)
             assert.equals(0, saved:callCount())
             controller:showZoomSliderOptions(nil, function() end)
@@ -154,23 +163,35 @@ describe("ViewerController page-turn animation settings", function()
             spin:update(40)
             spin.callback({ value = 40 })
             spin.close_callback()
+            assert.equals("Slider settings", UIManager._last_shown.title)
             assert.equals(60, controller.settings.panel_zoom_slider_opacity)
             assert.equals(1, saved:callCount())
         end)
         package.loaded["ui/widget/buttondialog"], package.loaded["ui/widget/spinwidget"] = old_dialog, old_spin
         UIManager.nextTick = old_tick
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("restores slider defaults and keeps unrelated zoom settings", function()
         local controller, saved = makeController(Settings.withDefaults({
-            panel_zoom_slider_min = 0.1, panel_zoom_slider_max = 8, panel_zoom_slider_opacity = 50,
-            panel_zoom_slider_x = 0.2, panel_zoom_slider_y = 0.3,
-            panel_zoom_slider_width = 0.4, panel_zoom_slider_height = 0.5,
-            panel_zoom_factor = 5, panel_zoom_gesture_type = "hold",
+            panel_zoom_slider_min = 0.1,
+            panel_zoom_slider_max = 8,
+            panel_zoom_slider_opacity = 50,
+            panel_zoom_slider_x = 0.2,
+            panel_zoom_slider_y = 0.3,
+            panel_zoom_slider_width = 0.4,
+            panel_zoom_slider_height = 0.5,
+            panel_zoom_factor = 5,
+            panel_zoom_gesture_type = "hold",
         }))
         local old_dialog = package.loaded["ui/widget/buttondialog"]
-        package.loaded["ui/widget/buttondialog"] = { new = function(_, options) return options end }
+        package.loaded["ui/widget/buttondialog"] = {
+            new = function(_, options)
+                return options
+            end,
+        }
         local ok, err = pcall(function()
             local updates = 0
             local snapshot = { scale = 0, fit = true, x = 0.3, y = 0.6, base_scale = 2 }
@@ -184,6 +205,7 @@ describe("ViewerController page-turn animation settings", function()
             }
             controller:showZoomSliderOptions(viewer, function() end)
             UIManager._last_shown.buttons[5][1].callback()
+            assert.equals("Slider settings", UIManager._last_shown.title)
             local s = controller.settings
             assert.equals(0.3, s.panel_zoom_slider_min)
             assert.equals(3, s.panel_zoom_slider_max)
@@ -204,7 +226,50 @@ describe("ViewerController page-turn animation settings", function()
             assert.equals(2, snapshot.base_scale)
         end)
         package.loaded["ui/widget/buttondialog"] = old_dialog
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
+    end)
+
+    it("returns from moving and resizing to Slider settings and keeps the parent navigation", function()
+        local controller = makeController(Settings.withDefaults({}))
+        local parent = spy()
+        local positioning = spy()
+        local viewer = {
+            startZoomSliderPositioning = function(...)
+                positioning(...)
+            end,
+        }
+        local old_dialog = package.loaded["ui/widget/buttondialog"]
+        package.loaded["ui/widget/buttondialog"] = {
+            new = function(_, options)
+                return options
+            end,
+        }
+        local ok, err = pcall(function()
+            controller:showZoomSliderOptions(viewer, parent)
+            UIManager._last_shown.buttons[2][1].callback()
+            local move = positioning:lastCall()
+            assert.is_nil(move[3])
+            move[2]()
+            assert.equals("Slider settings", UIManager._last_shown.title)
+
+            UIManager._last_shown.buttons[4][1].callback()
+            local resize = positioning:lastCall()
+            assert.is_true(resize[3])
+            resize[2]()
+            assert.equals("Slider settings", UIManager._last_shown.title)
+            assert.equals(0, parent:callCount())
+
+            UIManager._last_shown.buttons[6][1].callback()
+            assert.equals("Zoom settings", shownOcrMenu().title)
+            shownOcrMenu().close_callback()
+            assert.equals(1, parent:callCount())
+        end)
+        package.loaded["ui/widget/buttondialog"] = old_dialog
+        if not ok then
+            error(err)
+        end
     end)
 
     it("clamps the slider range with or without an active zoom session", function()
@@ -212,15 +277,22 @@ describe("ViewerController page-turn animation settings", function()
         local old_dialog = package.loaded["ui/widget/buttondialog"]
         local old_spin = package.loaded["ui/widget/doublespinwidget"]
         local old_tick = UIManager.nextTick
-        local widget = { new = function(_, options) return options end }
+        local widget = {
+            new = function(_, options)
+                return options
+            end,
+        }
         package.loaded["ui/widget/buttondialog"] = widget
         package.loaded["ui/widget/doublespinwidget"] = widget
-        UIManager.nextTick = function() end
+        UIManager.nextTick = function(_, callback)
+            callback()
+        end
         local ok, err = pcall(function()
             local function changeRange(viewer, low, high)
                 controller:showZoomSliderOptions(viewer)
                 UIManager._last_shown.buttons[1][1].callback()
                 UIManager._last_shown.callback(low, high)
+                assert.equals("Slider settings", UIManager._last_shown.title)
             end
             changeRange(nil, 0.5, 2)
             assert.equals(2, controller.settings.panel_zoom_factor)
@@ -242,7 +314,9 @@ describe("ViewerController page-turn animation settings", function()
         package.loaded["ui/widget/buttondialog"] = old_dialog
         package.loaded["ui/widget/doublespinwidget"] = old_spin
         UIManager.nextTick = old_tick
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("animates pages only when Animated mode and its page option are enabled", function()

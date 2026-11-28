@@ -339,12 +339,21 @@ return function(PanelViewer)
     local function syncManualZoom(viewer)
         local settings = viewer.panel_zoom_settings
         local saved = viewer._gesture_zoom_restore
-        if settings and settings.panel_zoom_mode ~= "in_config" and saved and saved.base_scale
-            and saved.base_scale > 0 and viewer.scale_factor and viewer.scale_factor > 0 then
+        if
+            settings
+            and settings.panel_zoom_mode ~= "in_config"
+            and saved
+            and saved.base_scale
+            and saved.base_scale > 0
+            and viewer.scale_factor
+            and viewer.scale_factor > 0
+        then
             local factor = require("src._panelzoom").factor(viewer.scale_factor / saved.base_scale)
             if settings.panel_zoom_factor ~= factor then
                 settings.panel_zoom_factor = factor
-                if viewer.panel_zoom_save_callback then viewer.panel_zoom_save_callback() end
+                if viewer.panel_zoom_save_callback then
+                    viewer.panel_zoom_save_callback()
+                end
                 UIManager:setDirty(viewer, "ui")
             end
         end
@@ -396,8 +405,7 @@ return function(PanelViewer)
         if not self._zoom_slider_dragging and not inside then
             return false
         end
-        if pos and (pos.x < rect.x or pos.x > rect.x + rect.w
-            or pos.y < rect.y or pos.y > rect.y + rect.h) then
+        if pos and (pos.x < rect.x or pos.x > rect.x + rect.w or pos.y < rect.y or pos.y > rect.y + rect.h) then
             if ges.ges == "pan" or ges.ges == "hold_pan" then
                 self._zoom_slider_dragging = true
             end
@@ -431,22 +439,27 @@ return function(PanelViewer)
         local track_y, track_h = rect.track_y or rect.y, rect.track_h or rect.h
         local position = math.max(0, math.min(1, (pos.y - track_y) / track_h))
         local min, max = PanelZoom.range(self.panel_zoom_settings)
-        local factor = math.floor((max - position * (max - min)) * 10 + 0.5)
-            / 10
+        local factor = math.floor((max - position * (max - min)) * 10 + 0.5) / 10
         local changed = self.panel_zoom_settings.panel_zoom_factor ~= factor
         self.panel_zoom_settings.panel_zoom_factor = factor
         self._scale_to_fit = false
         local function apply()
-            if self._zoom_slider_pending and self._zoom_slider_pending ~= apply then return end
+            if self._zoom_slider_pending and self._zoom_slider_pending ~= apply then
+                return
+            end
             self._zoom_slider_pending = nil
-            if self._panels_plus_closed or self._gesture_zoom_restore ~= saved then return end
+            if self._panels_plus_closed or self._gesture_zoom_restore ~= saved then
+                return
+            end
             local previous_scale = self.scale_factor
             local requested_scale = saved.base_scale * self.panel_zoom_settings.panel_zoom_factor
             self:_applyNewScaleFactor(requested_scale)
             if self.scale_factor ~= requested_scale then
                 self.panel_zoom_settings.panel_zoom_factor = self.scale_factor / saved.base_scale
             end
-            if self.scale_factor == previous_scale then self:update() end
+            if self.scale_factor == previous_scale then
+                self:update()
+            end
         end
         if changed or not was_zoomed or not self._zoom_slider_dragging then
             if self._zoom_slider_dragging and ges.ges ~= "tap" then
@@ -529,17 +542,29 @@ return function(PanelViewer)
                         if not positioning.edge then
                             local start = ges.start_pos or pos
                             local margin = Screen:scaleBySize(24)
-                            if start.y >= rect.y - margin and start.y <= rect.y + rect.h + margin
-                                and math.abs(start.x - rect.x) <= margin then
+                            if
+                                start.y >= rect.y - margin
+                                and start.y <= rect.y + rect.h + margin
+                                and math.abs(start.x - rect.x) <= margin
+                            then
                                 positioning.edge = "left"
-                            elseif start.y >= rect.y - margin and start.y <= rect.y + rect.h + margin
-                                and math.abs(start.x - rect.x - rect.w) <= margin then
+                            elseif
+                                start.y >= rect.y - margin
+                                and start.y <= rect.y + rect.h + margin
+                                and math.abs(start.x - rect.x - rect.w) <= margin
+                            then
                                 positioning.edge = "right"
-                            elseif start.x >= rect.x - margin and start.x <= rect.x + rect.w + margin
-                                and math.abs(start.y - rect.y) <= margin then
+                            elseif
+                                start.x >= rect.x - margin
+                                and start.x <= rect.x + rect.w + margin
+                                and math.abs(start.y - rect.y) <= margin
+                            then
                                 positioning.edge = "top"
-                            elseif start.x >= rect.x - margin and start.x <= rect.x + rect.w + margin
-                                and math.abs(start.y - rect.y - rect.h) <= margin then
+                            elseif
+                                start.x >= rect.x - margin
+                                and start.x <= rect.x + rect.w + margin
+                                and math.abs(start.y - rect.y - rect.h) <= margin
+                            then
                                 positioning.edge = "bottom"
                             end
                             if positioning.edge then
@@ -565,8 +590,14 @@ return function(PanelViewer)
                             positioning.y = y / math.max(1, positioning.viewport_h - h)
                         end
                     else
-                        positioning.x = math.max(0, math.min(1, (pos.x - rect.w / 2) / math.max(1, positioning.viewport_w - rect.w)))
-                        positioning.y = math.max(0, math.min(1, (pos.y - rect.h / 2) / math.max(1, positioning.viewport_h - rect.h)))
+                        positioning.x = math.max(
+                            0,
+                            math.min(1, (pos.x - rect.w / 2) / math.max(1, positioning.viewport_w - rect.w))
+                        )
+                        positioning.y = math.max(
+                            0,
+                            math.min(1, (pos.y - rect.h / 2) / math.max(1, positioning.viewport_h - rect.h))
+                        )
                     end
                     UIManager:setDirty(self, "ui")
                 end
@@ -922,7 +953,9 @@ return function(PanelViewer)
     --- @param key string|table Key name or KOReader Key event object.
     --- @return boolean|nil handled
     function PanelViewer:onKeyPress(key)
-        if self._zoom_slider_positioning then return true end
+        if self._zoom_slider_positioning then
+            return true
+        end
         local key_name
         local has_modifier = false
         if type(key) == "string" then
@@ -976,7 +1009,9 @@ return function(PanelViewer)
     --- Keep the editor modal until its Save or Cancel action is selected.
     --- @return boolean handled
     function PanelViewer:onClose()
-        if self._zoom_slider_positioning then return true end
+        if self._zoom_slider_positioning then
+            return true
+        end
         return ImageViewer.onClose(self)
     end
 

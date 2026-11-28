@@ -334,7 +334,7 @@ return function(PanelViewer)
 
     --- Apply document inversion only to image pixels, leaving letterboxing to night mode.
     function PanelViewer:paintTo(bb, x, y)
-        if self._zoom_slider_dragging and Device:isKindle() then
+        if (self._zoom_slider_dragging or self._zoom_slider_positioning) and Device:isKindle() then
             -- The e-ink controller may still be reading the previous drag frame.
             UIManager:waitForVSync()
         end
@@ -383,7 +383,12 @@ return function(PanelViewer)
             bb:paintRect(0, 0, width, height, Blitbuffer.COLOR_WHITE)
             bb:paintRect(0, height - 1, width, 1, Blitbuffer.COLOR_BLACK)
             for _, item in ipairs({
-                { self._zoom_slider_positioning.resize and _("Drag slider edges to resize...") or _("Changing zoom slider position..."), 0.5, 8 },
+                {
+                    self._zoom_slider_positioning.resize and _("Drag slider edges to resize...")
+                        or _("Changing zoom slider position..."),
+                    0.5,
+                    8,
+                },
                 { self._zoom_slider_positioning.resize and _("Save size") or _("Save position"), 0.25, 44 },
                 { _("Cancel, go back"), 0.75, 44 },
             }) do
@@ -400,9 +405,13 @@ return function(PanelViewer)
     function PanelViewer:paintZoomSlider(bb)
         self._zoom_slider_rect = nil
         local image = self._image_wg
-        if (not self.buttons_visible and not self._zoom_slider_positioning) or not self.panel_zoom_settings
+        if
+            (not self.buttons_visible and not self._zoom_slider_positioning)
+            or not self.panel_zoom_settings
             or (self.panel_zoom_settings.panel_zoom_mode == "in_config" and not self._zoom_slider_positioning)
-            or not image or not image.dimen then
+            or not image
+            or not image.dimen
+        then
             return
         end
         local d = image.dimen
@@ -410,15 +419,19 @@ return function(PanelViewer)
         local vw, vh
         if position then
             vw, vh = position.viewport_w, position.viewport_h
-        elseif self.panel_zoom_settings.panel_zoom_slider_width or self.panel_zoom_settings.panel_zoom_slider_height then
+        elseif
+            self.panel_zoom_settings.panel_zoom_slider_width or self.panel_zoom_settings.panel_zoom_slider_height
+        then
             vw, vh = self:getPanelViewportSize()
         else
             vw, vh = d.w, d.h
         end
         local settings = self.panel_zoom_settings
-        local width = position and position.width or (settings.panel_zoom_slider_width and settings.panel_zoom_slider_width * vw)
+        local width = position and position.width
+            or (settings.panel_zoom_slider_width and settings.panel_zoom_slider_width * vw)
             or Screen:scaleBySize(64)
-        local height = position and position.height or (settings.panel_zoom_slider_height and settings.panel_zoom_slider_height * vh)
+        local height = position and position.height
+            or (settings.panel_zoom_slider_height and settings.panel_zoom_slider_height * vh)
             or math.min(Screen:scaleBySize(320), d.h * 0.7)
         width, height = math.floor(math.min(vw, width)), math.floor(math.min(vh, height))
         local padding = math.max(1, math.floor(math.min(height * 0.17, width * 0.58, Screen:scaleBySize(48))))
@@ -447,7 +460,8 @@ return function(PanelViewer)
         rect.track_h = height - padding * 2
         self._zoom_slider_rect = rect
         local Blitbuffer = require("ffi/blitbuffer")
-        local opacity = math.max(0, math.min(100, tonumber(self.panel_zoom_settings.panel_zoom_slider_opacity) or 100)) / 100
+        local opacity = math.max(0, math.min(100, tonumber(self.panel_zoom_settings.panel_zoom_slider_opacity) or 100))
+            / 100
         local destination, dest_x, dest_y
         if opacity < 1 then
             destination, dest_x, dest_y = bb, rect.x, rect.y
@@ -471,8 +485,16 @@ return function(PanelViewer)
             { rect.track_y + (max - math.max(min, math.min(max, 1))) / (max - min) * rect.track_h, "1×" },
             { rect.y + height - padding / 2, tostring(min) .. "×" },
         }) do
-            local font_size = math.max(8, math.min(32, math.floor(12 * width / Screen:scaleBySize(48)), math.floor(height / Screen:scaleBySize(18))))
-            local text = TextWidget:new({ text = label[2], face = Font:getFace("cfont", font_size), fgcolor = foreground })
+            local font_size = math.max(
+                8,
+                math.min(
+                    32,
+                    math.floor(12 * width / Screen:scaleBySize(48)),
+                    math.floor(height / Screen:scaleBySize(18))
+                )
+            )
+            local text =
+                TextWidget:new({ text = label[2], face = Font:getFace("cfont", font_size), fgcolor = foreground })
             local size = text:getSize()
             local tx = center_x - math.floor(size.w / 2)
             local ty = math.floor(label[1] - size.h / 2)
@@ -481,20 +503,13 @@ return function(PanelViewer)
             text:free()
         end
         -- Wide cap and horizontal groove echo a mixer fader while remaining legible on e-ink.
-        local cap_w, cap_h = math.floor(width * 0.75), math.max(border * 3, math.floor(math.min(height * 0.08, width * 0.3)))
+        local cap_w, cap_h =
+            math.floor(width * 0.75), math.max(border * 3, math.floor(math.min(height * 0.08, width * 0.3)))
         local cap_x = center_x - math.floor(cap_w / 2)
-        local cap_y = rect.track_y
-            + math.floor((max - factor) / (max - min) * rect.track_h)
-            - math.floor(cap_h / 2)
+        local cap_y = rect.track_y + math.floor((max - factor) / (max - min) * rect.track_h) - math.floor(cap_h / 2)
         bb:paintRect(cap_x, cap_y, cap_w, cap_h, foreground)
         bb:paintRect(cap_x + border, cap_y + border, cap_w - border * 2, cap_h - border * 2, Blitbuffer.COLOR_WHITE)
-        bb:paintRect(
-            cap_x + border * 4,
-            cap_y + math.floor(cap_h / 2),
-            cap_w - border * 8,
-            border,
-            foreground
-        )
+        bb:paintRect(cap_x + border * 4, cap_y + math.floor(cap_h / 2), cap_w - border * 8, border, foreground)
         if destination then
             destination:addblitFrom(bb, dest_x, dest_y, 0, 0, width, height, opacity)
             bb:free()

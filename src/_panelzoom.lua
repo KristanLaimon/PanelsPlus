@@ -4,9 +4,19 @@
 --- @field maximum number Default slider maximum (3×).
 local PanelZoom = { minimum = 0.3, maximum = 3 }
 --- @type table<string, boolean>
-local allowed = { panel_zoom_enabled = true, panel_zoom_gesture_type = true, panel_zoom_mode = true, panel_zoom_factor = true,
-    panel_zoom_slider_min = true, panel_zoom_slider_max = true, panel_zoom_slider_x = true, panel_zoom_slider_y = true,
-    panel_zoom_slider_width = true, panel_zoom_slider_height = true, panel_zoom_slider_opacity = true }
+local allowed = {
+    panel_zoom_enabled = true,
+    panel_zoom_gesture_type = true,
+    panel_zoom_mode = true,
+    panel_zoom_factor = true,
+    panel_zoom_slider_min = true,
+    panel_zoom_slider_max = true,
+    panel_zoom_slider_x = true,
+    panel_zoom_slider_y = true,
+    panel_zoom_slider_width = true,
+    panel_zoom_slider_height = true,
+    panel_zoom_slider_opacity = true,
+}
 
 --- Normalize a slider range, preserving at least 0.1× between its endpoints.
 --- @param settings PPPanelZoomSettings Persisted preferences or a live viewer proxy.

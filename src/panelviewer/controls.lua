@@ -26,7 +26,7 @@ local FLOW_WARNING_TIMEOUT = Constants.FLOW_WARNING_TIMEOUT
 
 return function(PanelViewer)
     --- Hide controls and edit slider geometry without changing the panel's zoom state.
-    --- @param return_callback fun()|nil Reopens the settings menu after Save or Cancel.
+    --- @param return_callback fun()|nil Reopens the slider settings after Save or Cancel.
     --- @param resize boolean|nil True edits edges; false/nil moves the entire widget.
     function PanelViewer:startZoomSliderPositioning(return_callback, resize)
         local width, height = self:getPanelViewportSize()
@@ -35,16 +35,22 @@ return function(PanelViewer)
         self._zoom_slider_positioning = {
             x = settings.panel_zoom_slider_x or (rect and rect.x / math.max(1, width - rect.w)) or 1,
             y = settings.panel_zoom_slider_y or (rect and rect.y / math.max(1, height - rect.h)) or 0.5,
-            viewport_w = width, viewport_h = height,
-            resize = resize, width = rect and rect.w, height = rect and rect.h,
-            buttons_visible = self.buttons_visible, with_title_bar = self.with_title_bar,
-            fullscreen = self.fullscreen, progress_bar_visible = self.progress_bar_visible,
+            viewport_w = width,
+            viewport_h = height,
+            resize = resize,
+            width = rect and rect.w,
+            height = rect and rect.h,
+            buttons_visible = self.buttons_visible,
+            with_title_bar = self.with_title_bar,
+            fullscreen = self.fullscreen,
+            progress_bar_visible = self.progress_bar_visible,
             key_events = self.key_events,
             return_callback = return_callback,
         }
         self._zoom_slider_dragging = nil
         self.key_events = {}
-        self.buttons_visible, self.with_title_bar, self.fullscreen, self.progress_bar_visible = false, false, true, false
+        self.buttons_visible, self.with_title_bar, self.fullscreen, self.progress_bar_visible =
+            false, false, true, false
         self:update()
     end
 
@@ -52,7 +58,9 @@ return function(PanelViewer)
     --- @param save boolean True commits the preview; false discards it.
     function PanelViewer:finishZoomSliderPositioning(save)
         local position = self._zoom_slider_positioning
-        if not position then return end
+        if not position then
+            return
+        end
         if save then
             self.panel_zoom_settings.panel_zoom_slider_x = position.x
             self.panel_zoom_settings.panel_zoom_slider_y = position.y
@@ -60,14 +68,18 @@ return function(PanelViewer)
                 self.panel_zoom_settings.panel_zoom_slider_width = position.width / position.viewport_w
                 self.panel_zoom_settings.panel_zoom_slider_height = position.height / position.viewport_h
             end
-            if self.panel_zoom_save_callback then self.panel_zoom_save_callback() end
+            if self.panel_zoom_save_callback then
+                self.panel_zoom_save_callback()
+            end
         end
         self._zoom_slider_positioning = nil
         self.buttons_visible, self.with_title_bar = position.buttons_visible, position.with_title_bar
         self.fullscreen, self.progress_bar_visible = position.fullscreen, position.progress_bar_visible
         self.key_events = position.key_events
         self:update()
-        if position.return_callback then position.return_callback() end
+        if position.return_callback then
+            position.return_callback()
+        end
     end
     --- Show a slider dialog to adjust how much "margin" crop mode zooms out.
     ---

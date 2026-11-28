@@ -456,7 +456,7 @@ return function(ViewerController)
                 end
             end,
         })
-        function menu:onMenuHold(item)
+        function menu.onMenuHold(_, item)
             if item.hold_callback then
                 item.hold_callback()
             end
@@ -475,8 +475,8 @@ return function(ViewerController)
         local zoom = require("src._panelzoom")
         local can_position = viewer ~= nil and type(viewer.startZoomSliderPositioning) == "function"
         local dialog
-        local function back()
-            self:showPanelZoomMenu(viewer, return_callback)
+        local function reopenSliderOptions()
+            self:showZoomSliderOptions(viewer, return_callback)
         end
         local function repaintViewer()
             if viewer then
@@ -500,84 +500,136 @@ return function(ViewerController)
         dialog = require("ui/widget/buttondialog"):new({
             title = _("Slider settings"),
             buttons = {
-                {{ text = _("Change Max & Min values"), callback = function()
-                    UIManager:close(dialog)
-                    local min, max = zoom.range(self.settings)
-                    UIManager:show(require("ui/widget/doublespinwidget"):new({
-                        title_text = _("Zoom slider range"),
-                        left_text = _("Minimum"), right_text = _("Maximum"),
-                        left_min = 0.1, left_max = 7.9, left_value = min, left_step = 0.1, left_precision = "%.1f",
-                        right_min = 0.2, right_max = 8, right_value = max, right_step = 0.1, right_precision = "%.1f",
-                        unit = "×", ok_always_enabled = true,
-                        callback = function(low, high)
-                            if low < high then
-                                low, high = math.floor(low * 10 + 0.5) / 10, math.floor(high * 10 + 0.5) / 10
-                                self.settings.panel_zoom_slider_min = low
-                                self.settings.panel_zoom_slider_max = high
-                                saveSliderRange()
-                            else
-                                UIManager:show(require("ui/widget/infomessage"):new({ text = _("Minimum must be less than maximum.") }))
+                {
+                    {
+                        text = _("Change Max & Min values"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            local min, max = zoom.range(self.settings)
+                            UIManager:show(require("ui/widget/doublespinwidget"):new({
+                                title_text = _("Zoom slider range"),
+                                left_text = _("Minimum"),
+                                right_text = _("Maximum"),
+                                left_min = 0.1,
+                                left_max = 7.9,
+                                left_value = min,
+                                left_step = 0.1,
+                                left_precision = "%.1f",
+                                right_min = 0.2,
+                                right_max = 8,
+                                right_value = max,
+                                right_step = 0.1,
+                                right_precision = "%.1f",
+                                unit = "×",
+                                ok_always_enabled = true,
+                                callback = function(low, high)
+                                    if low < high then
+                                        low, high = math.floor(low * 10 + 0.5) / 10, math.floor(high * 10 + 0.5) / 10
+                                        self.settings.panel_zoom_slider_min = low
+                                        self.settings.panel_zoom_slider_max = high
+                                        saveSliderRange()
+                                    else
+                                        UIManager:show(require("ui/widget/infomessage"):new({
+                                            text = _("Minimum must be less than maximum."),
+                                        }))
+                                    end
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                                cancel_callback = function()
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                            }))
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Change positioning"),
+                        enabled = can_position,
+                        callback = can_position and function()
+                            UIManager:close(dialog)
+                            viewer:startZoomSliderPositioning(reopenSliderOptions)
+                        end or nil,
+                    },
+                },
+                {
+                    {
+                        text = _("Transparency"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            local original_opacity = self.settings.panel_zoom_slider_opacity
+                            local settings = self.settings
+                            local applied = false
+                            local spin = require("ui/widget/spinwidget"):new({
+                                title_text = _("Transparency"),
+                                value = 100 - (self.settings.panel_zoom_slider_opacity or 100),
+                                value_min = 0,
+                                value_max = 100,
+                                value_step = 5,
+                                unit = "%",
+                                default_value = 0,
+                                callback = function(spin)
+                                    self.settings.panel_zoom_slider_opacity = 100 - spin.value
+                                    applied = true
+                                    self:saveSettings()
+                                end,
+                                close_callback = function()
+                                    if not applied then
+                                        self.settings.panel_zoom_slider_opacity = original_opacity
+                                    end
+                                    repaintViewer()
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                            })
+                            local update = spin.update
+                            function spin.update(widget, value, index)
+                                if value ~= nil then
+                                    settings.panel_zoom_slider_opacity = 100 - value
+                                    repaintViewer()
+                                end
+                                return update(widget, value, index)
                             end
-                            UIManager:nextTick(back)
+                            UIManager:show(spin)
                         end,
-                        cancel_callback = function() UIManager:nextTick(back) end,
-                    }))
-                end }},
-                {{ text = _("Change positioning"), enabled = can_position, callback = can_position and function()
-                    UIManager:close(dialog)
-                    viewer:startZoomSliderPositioning(back)
-                end or nil }},
-                {{ text = _("Transparency"), callback = function()
-                    UIManager:close(dialog)
-                    local original_opacity = self.settings.panel_zoom_slider_opacity
-                    local settings = self.settings
-                    local applied = false
-                    local spin = require("ui/widget/spinwidget"):new({
-                        title_text = _("Transparency"),
-                        value = 100 - (self.settings.panel_zoom_slider_opacity or 100),
-                        value_min = 0, value_max = 100, value_step = 5, unit = "%",
-                        default_value = 0,
-                        callback = function(spin)
-                            self.settings.panel_zoom_slider_opacity = 100 - spin.value
-                            applied = true
-                            self:saveSettings()
+                    },
+                },
+                {
+                    {
+                        text = _("Size"),
+                        enabled = can_position,
+                        callback = can_position and function()
+                            UIManager:close(dialog)
+                            viewer:startZoomSliderPositioning(reopenSliderOptions, true)
+                        end or nil,
+                    },
+                },
+                {
+                    {
+                        text = _("Restore defaults"),
+                        callback = function()
+                            local defaults = require("src._settings").defaults
+                            self.settings.panel_zoom_slider_min = defaults.panel_zoom_slider_min
+                            self.settings.panel_zoom_slider_max = defaults.panel_zoom_slider_max
+                            self.settings.panel_zoom_slider_opacity = defaults.panel_zoom_slider_opacity
+                            self.settings.panel_zoom_slider_x = nil
+                            self.settings.panel_zoom_slider_y = nil
+                            self.settings.panel_zoom_slider_width = nil
+                            self.settings.panel_zoom_slider_height = nil
+                            saveSliderRange()
+                            UIManager:close(dialog)
+                            reopenSliderOptions()
                         end,
-                        close_callback = function()
-                            if not applied then
-                                self.settings.panel_zoom_slider_opacity = original_opacity
-                            end
-                            repaintViewer()
-                            UIManager:nextTick(back)
+                    },
+                },
+                {
+                    {
+                        text = _("Back"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            self:showPanelZoomMenu(viewer, return_callback)
                         end,
-                    })
-                    local update = spin.update
-                    function spin:update(value, index)
-                        if value ~= nil then
-                            settings.panel_zoom_slider_opacity = 100 - value
-                            repaintViewer()
-                        end
-                        return update(self, value, index)
-                    end
-                    UIManager:show(spin)
-                end }},
-                {{ text = _("Size"), enabled = can_position, callback = can_position and function()
-                    UIManager:close(dialog)
-                    viewer:startZoomSliderPositioning(back, true)
-                end or nil }},
-                {{ text = _("Restore defaults"), callback = function()
-                    local defaults = require("src._settings").defaults
-                    self.settings.panel_zoom_slider_min = defaults.panel_zoom_slider_min
-                    self.settings.panel_zoom_slider_max = defaults.panel_zoom_slider_max
-                    self.settings.panel_zoom_slider_opacity = defaults.panel_zoom_slider_opacity
-                    self.settings.panel_zoom_slider_x = nil
-                    self.settings.panel_zoom_slider_y = nil
-                    self.settings.panel_zoom_slider_width = nil
-                    self.settings.panel_zoom_slider_height = nil
-                    saveSliderRange()
-                    UIManager:close(dialog)
-                    back()
-                end }},
-                {{ text = _("Back"), callback = function() UIManager:close(dialog); back() end }},
+                    },
+                },
             },
         })
         UIManager:show(dialog)

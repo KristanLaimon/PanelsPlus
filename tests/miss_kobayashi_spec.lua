@@ -137,16 +137,16 @@ describe("Miss Kobayashi's Dragon Maid human-annotated dataset validation", func
                 assert.is_not_nil(frame.h, string.format("p.%d f.%d: h must not be nil", p_idx, f_idx))
 
                 -- Panel geometry validation
-                assert.is_true(frame.x >= 0, string.format("p.%d f.%d: x must be >= 0 (got %d)", p_idx, f_idx, frame.x))
-                assert.is_true(frame.y >= 0, string.format("p.%d f.%d: y must be >= 0 (got %d)", p_idx, f_idx, frame.y))
-                assert.is_true(frame.w > 0, string.format("p.%d f.%d: w must be > 0 (got %d)", p_idx, f_idx, frame.w))
-                assert.is_true(frame.h > 0, string.format("p.%d f.%d: h must be > 0 (got %d)", p_idx, f_idx, frame.h))
+                assert.is_true(frame.x >= 0, string.format("p.%d f.%d: x must be >= 0 (got %g)", p_idx, f_idx, frame.x))
+                assert.is_true(frame.y >= 0, string.format("p.%d f.%d: y must be >= 0 (got %g)", p_idx, f_idx, frame.y))
+                assert.is_true(frame.w > 0, string.format("p.%d f.%d: w must be > 0 (got %g)", p_idx, f_idx, frame.w))
+                assert.is_true(frame.h > 0, string.format("p.%d f.%d: h must be > 0 (got %g)", p_idx, f_idx, frame.h))
 
                 -- Must fit within native page bounds (1264x1680)
                 assert.is_true(
                     frame.x + frame.w <= 1264,
                     string.format(
-                        "p.%d f.%d: panel right (%d) exceeds native width 1264",
+                        "p.%d f.%d: panel right (%g) exceeds native width 1264",
                         p_idx,
                         f_idx,
                         frame.x + frame.w
@@ -155,7 +155,7 @@ describe("Miss Kobayashi's Dragon Maid human-annotated dataset validation", func
                 assert.is_true(
                     frame.y + frame.h <= 1680,
                     string.format(
-                        "p.%d f.%d: panel bottom (%d) exceeds native height 1680",
+                        "p.%d f.%d: panel bottom (%g) exceeds native height 1680",
                         p_idx,
                         f_idx,
                         frame.y + frame.h

@@ -64,7 +64,9 @@ function Menu.panelZoomItems(self)
         },
         { text = _("Zoom gesture"), bold = true, select_enabled = false },
     }
-    local hold_help = _("Important Note: Now long press is used for zoom-in and zoom-out, but OCR Text dictionary look up was using that shortcut, now, to select a word, try with long press + dragging (in any direction). This shortcut override only applies while using long press as zoom-gesture")
+    local hold_help = _(
+        "Important Note: Now long press is used for zoom-in and zoom-out, but OCR Text dictionary look up was using that shortcut, now, to select a word, try with long press + dragging (in any direction). This shortcut override only applies while using long press as zoom-gesture"
+    )
     for _, choice in ipairs({
         { "hold", _("Long press") },
         { "two_finger_tap", _("Two-finger tap") },
@@ -107,15 +109,20 @@ function Menu.panelZoomItems(self)
             text = ((self.settings.panel_zoom_mode or "slider") == mode and "◉ " or "○ ") .. label,
             radio = true,
             hold_callback = mode == "slider" and function()
-                if self.showZoomSliderOptions then self:showZoomSliderOptions() end
+                if self.showZoomSliderOptions then
+                    self:showZoomSliderOptions()
+                end
             end or nil,
-            checked_func = function() return (self.settings.panel_zoom_mode or "slider") == mode end,
+            checked_func = function()
+                return (self.settings.panel_zoom_mode or "slider") == mode
+            end,
             callback = function()
                 self.settings.panel_zoom_mode = mode
                 if mode == "slider" then
                     local zoom = require("src._panelzoom")
                     local min, max = zoom.range(self.settings)
-                    self.settings.panel_zoom_factor = math.max(min, math.min(max, zoom.factor(self.settings.panel_zoom_factor)))
+                    self.settings.panel_zoom_factor =
+                        math.max(min, math.min(max, zoom.factor(self.settings.panel_zoom_factor)))
                 end
                 self:saveSettings()
                 updateZoomAmounts()
@@ -135,7 +142,9 @@ function Menu.panelZoomItems(self)
             items[#items + 1] = {
                 text = tostring(factor) .. "×",
                 radio = true,
-                checked_func = function() return (self.settings.panel_zoom_factor or 1.5) == factor end,
+                checked_func = function()
+                    return (self.settings.panel_zoom_factor or 1.5) == factor
+                end,
                 callback = function()
                     self.settings.panel_zoom_factor = factor
                     self:saveSettings()

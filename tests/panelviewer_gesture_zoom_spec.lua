@@ -23,21 +23,33 @@ describe("Panel gesture zoom", function()
                 detected = { page = page, x = x, y = y }
                 return { x = 40, y = 50, w = 30, h = 20 }
             end
-            finder.readWord = function() return "Hello" end
+            finder.readWord = function()
+                return "Hello"
+            end
             local highlight = {
-                onHold = function() return false end,
-                onHoldPan = function(self) self.selected_text = nil; self.is_word_selection = false end,
+                onHold = function()
+                    return false
+                end,
+                onHoldPan = function(self)
+                    self.selected_text = nil
+                    self.is_word_selection = false
+                end,
                 _resetHoldTimer = function() end,
                 onHoldRelease = function(self)
-                    if self.is_word_selection and self.selected_text then looked_up = self.selected_text.text end
+                    if self.is_word_selection and self.selected_text then
+                        looked_up = self.selected_text.text
+                    end
                 end,
             }
             local viewer = PanelViewer:new({
                 panel_zoom_settings = { panel_zoom_enabled = true, panel_zoom_gesture_type = "hold" },
-                screenToPageTransform = function(_, pos) return { page = 1, x = pos.x, y = pos.y } end,
+                screenToPageTransform = function(_, pos)
+                    return { page = 1, x = pos.x, y = pos.y }
+                end,
                 reader_ui = {
                     document = { configurable = { text_wrap = 0 } },
-                    highlight = highlight, view = { highlight = { temp = {} } },
+                    highlight = highlight,
+                    view = { highlight = { temp = {} } },
                 },
             })
             viewer:onGesture({ ges = "hold", pos = { x = 50, y = 60 } })
@@ -51,16 +63,27 @@ describe("Panel gesture zoom", function()
             assert.is_nil(viewer._gesture_zoom_restore)
         end)
         finder.findWordBox, finder.readWord = old_find, old_read
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
     it("uses a hold and drag for text selection instead of toggling zoom", function()
         local start, moved, released, zoomed = nil, 0, 0, 0
         local viewer = PanelViewer:new({
             panel_zoom_settings = { panel_zoom_enabled = true, panel_zoom_gesture_type = "hold" },
-            onHold = function(_, _, ges) start = ges.pos end,
-            onHoldPan = function() moved = moved + 1 end,
-            onHoldRelease = function() released = released + 1 end,
-            toggleGestureZoom = function() zoomed = zoomed + 1; return true end,
+            onHold = function(_, _, ges)
+                start = ges.pos
+            end,
+            onHoldPan = function()
+                moved = moved + 1
+            end,
+            onHoldRelease = function()
+                released = released + 1
+            end,
+            toggleGestureZoom = function()
+                zoomed = zoomed + 1
+                return true
+            end,
         })
         local original = { x = 50, y = 60 }
         assert.is_true(viewer:onGesture({ ges = "hold", pos = original }))
@@ -80,18 +103,29 @@ describe("Panel gesture zoom", function()
         local manager = require("ui/uimanager")
         local old_tick, old_info = manager.nextTick, package.loaded["ui/widget/infomessage"]
         local scheduled
-        manager.nextTick = function(_, callback) scheduled = callback end
-        package.loaded["ui/widget/infomessage"] = { new = function(_, options) return options end }
+        manager.nextTick = function(_, callback)
+            scheduled = callback
+        end
+        package.loaded["ui/widget/infomessage"] = {
+            new = function(_, options)
+                return options
+            end,
+        }
         local ok, err = pcall(function()
             local controller = { settings = {}, saveSettings = function() end }
             require("src.menu").panelZoomItems(controller)[3].callback()
             assert.equals("hold", controller.settings.panel_zoom_gesture_type)
             assert.equals("function", type(scheduled))
             scheduled()
-            assert.equals("Important Note: Now long press is used for zoom-in and zoom-out, but OCR Text dictionary look up was using that shortcut, now, to select a word, try with long press + dragging (in any direction). This shortcut override only applies while using long press as zoom-gesture", manager._last_shown.text)
+            assert.equals(
+                "Important Note: Now long press is used for zoom-in and zoom-out, but OCR Text dictionary look up was using that shortcut, now, to select a word, try with long press + dragging (in any direction). This shortcut override only applies while using long press as zoom-gesture",
+                manager._last_shown.text
+            )
         end)
         manager.nextTick, package.loaded["ui/widget/infomessage"] = old_tick, old_info
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
     it("keeps the source buffer alive when a resize reuses it", function()
         local image_viewer = require("ui/widget/imageviewer")
@@ -102,38 +136,66 @@ describe("Panel gesture zoom", function()
                 self._image_wg = nil
             end
             local freed = 0
-            local source = { free = function() freed = freed + 1 end }
+            local source = {
+                free = function()
+                    freed = freed + 1
+                end,
+            }
             local widget = {
-                _bb = source, _bb_disposable = true,
-                free = function(self) if self._bb_disposable then self._bb:free() end end,
+                _bb = source,
+                _bb_disposable = true,
+                free = function(self)
+                    if self._bb_disposable then
+                        self._bb:free()
+                    end
+                end,
             }
             local viewer = PanelViewer:new({ image = source, _image_wg = widget })
             viewer:_clean_image_wg()
             assert.equals(0, freed)
             assert.is_nil(viewer._image_wg)
-            local scaled = { free = function() freed = freed + 1 end }
+            local scaled = {
+                free = function()
+                    freed = freed + 1
+                end,
+            }
             viewer._image_wg = {
-                _bb = scaled, _bb_disposable = true,
-                free = function(self) if self._bb_disposable then self._bb:free() end end,
+                _bb = scaled,
+                _bb_disposable = true,
+                free = function(self)
+                    if self._bb_disposable then
+                        self._bb:free()
+                    end
+                end,
             }
             viewer:_clean_image_wg()
             assert.equals(1, freed)
         end)
         image_viewer._clean_image_wg = previous_clean
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
     it("moves the slider without zooming and saves or cancels its position", function()
         local saves, returns = 0, 0
         local settings = { panel_zoom_slider_x = 0.4, panel_zoom_slider_y = 0.5 }
         local viewer = PanelViewer:new({
-            buttons_visible = true, fullscreen = true, progress_bar_visible = true,
+            buttons_visible = true,
+            fullscreen = true,
+            progress_bar_visible = true,
             panel_zoom_settings = settings,
-            panel_zoom_save_callback = function() saves = saves + 1 end,
+            panel_zoom_save_callback = function()
+                saves = saves + 1
+            end,
             _zoom_slider_rect = { x = 80, y = 100, w = 40, h = 100 },
-            getPanelViewportSize = function() return 400, 600 end,
+            getPanelViewportSize = function()
+                return 400, 600
+            end,
             update = function() end,
         })
-        local function returned() returns = returns + 1 end
+        local function returned()
+            returns = returns + 1
+        end
         viewer:startZoomSliderPositioning(returned)
         assert.is_false(viewer.buttons_visible)
         viewer:onGesture({ ges = "pan", pos = { x = 380, y = 550 } })
@@ -163,14 +225,25 @@ describe("Panel gesture zoom", function()
         local image_viewer = require("ui/widget/imageviewer")
         local previous_zoom = image_viewer.onZoomIn
         local ok, err = pcall(function()
-            image_viewer.onZoomIn = function(self) self.scale_factor = 3 end
+            image_viewer.onZoomIn = function(self)
+                self.scale_factor = 3
+            end
             local renders = 0
             local viewer = PanelViewer:new({
-                buttons_visible = true, scale_factor = 0, _scale_factor_0 = 2,
+                buttons_visible = true,
+                scale_factor = 0,
+                _scale_factor_0 = 2,
                 panel_zoom_settings = { panel_zoom_factor = 1.5 },
                 _zoom_slider_rect = { x = 200, y = 100, w = 48, h = 270 },
-                _image_wg = { getScaleFactor = function() return 2 end },
-                _applyNewScaleFactor = function(self, value) self.scale_factor = value; renders = renders + 1 end,
+                _image_wg = {
+                    getScaleFactor = function()
+                        return 2
+                    end,
+                },
+                _applyNewScaleFactor = function(self, value)
+                    self.scale_factor = value
+                    renders = renders + 1
+                end,
                 update = function() end,
             })
             viewer:onPan(nil, { mousewheel_direction = 1 })
@@ -186,21 +259,33 @@ describe("Panel gesture zoom", function()
             assert.equals(2 * viewer.panel_zoom_settings.panel_zoom_factor, viewer.scale_factor)
         end)
         image_viewer.onZoomIn = previous_zoom
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("synchronizes manual zoom with the slider relative to the original view", function()
         local image_viewer = require("ui/widget/imageviewer")
         local old_in, old_out = image_viewer.onZoomIn, image_viewer.onZoomOut
         local ok, err = pcall(function()
-            image_viewer.onZoomIn = function(self, inc) self.scale_factor = self.scale_factor * (1 + inc); return true end
-            image_viewer.onZoomOut = function(self, dec) self.scale_factor = self.scale_factor * (1 - dec); return true end
+            image_viewer.onZoomIn = function(self, inc)
+                self.scale_factor = self.scale_factor * (1 + inc)
+                return true
+            end
+            image_viewer.onZoomOut = function(self, dec)
+                self.scale_factor = self.scale_factor * (1 - dec)
+                return true
+            end
             local saves = 0
             local viewer = PanelViewer:new({
-                scale_factor = 2, _scale_to_fit = true,
+                scale_factor = 2,
+                _scale_to_fit = true,
                 panel_zoom_settings = { panel_zoom_factor = 1.5 },
-                panel_zoom_save_callback = function() saves = saves + 1 end,
-                _image_wg = {}, update = function() end,
+                panel_zoom_save_callback = function()
+                    saves = saves + 1
+                end,
+                _image_wg = {},
+                update = function() end,
             })
             viewer:onZoomIn(0.5)
             assert.equals(1.5, viewer.panel_zoom_settings.panel_zoom_factor)
@@ -217,7 +302,9 @@ describe("Panel gesture zoom", function()
             assert.equals(1.5, viewer.panel_zoom_settings.panel_zoom_factor)
         end)
         image_viewer.onZoomIn, image_viewer.onZoomOut = old_in, old_out
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("restores the center from before a manual spread recentered the image", function()
@@ -248,15 +335,20 @@ describe("Panel gesture zoom", function()
             assert.equals(0.4, viewer._center_y_ratio)
         end)
         image_viewer.onSpread, image_viewer.onZoomIn = old_spread, old_zoom
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("resizes from an edge and persists the dimensions only on save", function()
         local settings = {}
         local viewer = PanelViewer:new({
-            buttons_visible = true, panel_zoom_settings = settings,
+            buttons_visible = true,
+            panel_zoom_settings = settings,
             _zoom_slider_rect = { x = 100, y = 100, w = 50, h = 200 },
-            getPanelViewportSize = function() return 400, 600 end,
+            getPanelViewportSize = function()
+                return 400, 600
+            end,
             update = function() end,
         })
         viewer:startZoomSliderPositioning(nil, true)
@@ -276,11 +368,23 @@ describe("Panel gesture zoom", function()
         local old_new, old_text = blit.new, package.loaded["ui/widget/textwidget"]
         local opacity, freed
         blit.new = function()
-            return { fill = function() end, paintRect = function() end, free = function() freed = true end }
+            return {
+                fill = function() end,
+                paintRect = function() end,
+                free = function()
+                    freed = true
+                end,
+            }
         end
         package.loaded["ui/widget/textwidget"] = {
             new = function()
-                return { getSize = function() return { w = 20, h = 12 } end, paintTo = function() end, free = function() end }
+                return {
+                    getSize = function()
+                        return { w = 20, h = 12 }
+                    end,
+                    paintTo = function() end,
+                    free = function() end,
+                }
             end,
         }
         local ok, err = pcall(function()
@@ -290,14 +394,20 @@ describe("Panel gesture zoom", function()
                 _image_wg = { dimen = { x = 0, y = 0, w = 500, h = 600 } },
             })
             viewer:paintZoomSlider({
-                getType = function() return 0 end,
-                addblitFrom = function(_, _, _, _, _, _, _, _, alpha) opacity = alpha end,
+                getType = function()
+                    return 0
+                end,
+                addblitFrom = function(_, _, _, _, _, _, _, _, alpha)
+                    opacity = alpha
+                end,
             })
             assert.equals(0.4, opacity)
             assert.is_true(freed)
         end)
         blit.new, package.loaded["ui/widget/textwidget"] = old_new, old_text
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
     it("migrates saved zoom settings without overwriting new names", function()
         local defaults = require("src._settings").withDefaults
@@ -542,30 +652,56 @@ describe("Panel gesture zoom", function()
         end
     end)
 
-    it("waits for the Kindle refresh before painting a slider drag frame", function()
+    it("waits for the Kindle refresh before painting slider zoom, move, and resize previews", function()
         local device = require("device")
         local manager = require("ui/uimanager")
         local image_viewer = require("ui/widget/imageviewer")
         local old_is_kindle, old_wait, old_paint = device.isKindle, manager.waitForVSync, image_viewer.paintTo
+        local old_text = package.loaded["ui/widget/textwidget"]
         local viewer = PanelViewer:new()
         local ok, err = pcall(function()
-            local kindle, waited = true, false
-            device.isKindle = function() return kindle end
-            manager.waitForVSync = function() waited = true end
+            local kindle, waited, should_wait = true, false, true
+            local bb = { paintRect = function() end }
+            package.loaded["ui/widget/textwidget"] = {
+                new = function()
+                    return {
+                        getSize = function()
+                            return { w = 20 }
+                        end,
+                        paintTo = function() end,
+                        free = function() end,
+                    }
+                end,
+            }
+            device.isKindle = function()
+                return kindle
+            end
+            manager.waitForVSync = function()
+                waited = true
+            end
             image_viewer.paintTo = function()
-                assert.equals(kindle and viewer._zoom_slider_dragging, waited)
+                assert.equals(should_wait, waited)
                 waited = false
             end
             viewer._zoom_slider_dragging = true
-            viewer:paintTo({}, 0, 0)
+            viewer:paintTo(bb, 0, 0)
+            viewer._zoom_slider_dragging = nil
+            viewer._zoom_slider_positioning = { resize = false }
+            viewer:paintTo(bb, 0, 0)
+            viewer._zoom_slider_positioning.resize = true
+            viewer:paintTo(bb, 0, 0)
             kindle = false
-            viewer:paintTo({}, 0, 0)
+            should_wait = false
+            viewer:paintTo(bb, 0, 0)
             kindle = true
-            viewer._zoom_slider_dragging = false
-            viewer:paintTo({}, 0, 0)
+            viewer._zoom_slider_positioning = nil
+            viewer:paintTo(bb, 0, 0)
         end)
+        package.loaded["ui/widget/textwidget"] = old_text
         device.isKindle, manager.waitForVSync, image_viewer.paintTo = old_is_kindle, old_wait, old_paint
-        if not ok then error(err) end
+        if not ok then
+            error(err)
+        end
     end)
 
     it("drags over the image from 0.3 to 3 without compounding zoom and saves on release", function()
