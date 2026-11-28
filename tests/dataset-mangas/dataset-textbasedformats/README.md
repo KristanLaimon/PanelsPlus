@@ -20,7 +20,7 @@ embedded-image path from returning to the whole-page grouping failure.
 Run the focused checks with:
 
 ```sh
-lua tests/run_tests.lua tests/spec/textbasedformats_dataset_spec.lua
+lua tests/run_tests.lua tests/textbasedformats_dataset_spec.lua
 python3 -m unittest tests/test_textbasedformats_dataset.py
 ```
 

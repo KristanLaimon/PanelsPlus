@@ -95,9 +95,11 @@ end
 --- @param page number Document page number.
 --- @param rect PPPanel Native panel rectangle.
 --- @param page_size PPPageSize Page dimensions.
+--- @param images PPImageList Lazy images and their per-image canvas geometry.
+--- @param index integer Image index receiving the canvas geometry.
 --- @return function image_func Lazy function returning the composite Blitbuffer image.
 --- @return PPPanel image_rect Bounding rectangle used for transition math.
-local function buildNoCropImage(ui, page, rect, page_size, images)
+local function buildNoCropImage(ui, page, rect, page_size, images, index)
     local screen_w = Screen:getWidth()
     local screen_h = Screen:getHeight()
     local viewport = PanelViewport.noCrop(rect, page_size)
@@ -122,6 +124,7 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
     }
 
     local image_func = function()
+        images.canvas_rects[index] = nil
         if viewport.union_w <= 0 or viewport.union_h <= 0 then
             local canvas = Blitbuffer.new(screen_w, screen_h, Blitbuffer.TYPE_BWRGB_8888)
             canvas:fill(PageRender.getBackground(ui))
@@ -151,6 +154,15 @@ local function buildNoCropImage(ui, page, rect, page_size, images)
             if blit_w > 0 and blit_h > 0 then
                 canvas:blitFrom(content_image, paste_x, paste_y, 0, 0, blit_w, blit_h)
             end
+            images.canvas_rects[index] = PanelViewport.canvasRect(
+                image_rect,
+                content_image:getWidth(),
+                content_image:getHeight(),
+                canvas_w,
+                canvas_h,
+                paste_x,
+                paste_y
+            )
         end)
 
         if ok then
@@ -287,10 +299,13 @@ end
 --- @return boolean[] full_page_flags Per-panel flag matching `images`, for margin-mode gating.
 function PanelCollector.buildImages(ui, page, panels, settings)
     local document = ui.document
-    local page_size = document:getPageDimensions(page, 1, 0)
+    -- Panel rectangles are in native single-page coordinates. A provider can
+    -- report a cropped two-page layout through getPageDimensions (Meguru).
+    local page_size = Document.getNativePageDimensions(document, page) or document:getPageDimensions(page, 1, 0)
     settings = settings or Settings.defaults
     local images = {
         image_disposable = true,
+        canvas_rects = {},
     }
     local image_rects = {}
     local full_page_flags = {}
@@ -306,7 +321,7 @@ function PanelCollector.buildImages(ui, page, panels, settings)
             and settings.image_rotation == nil
             and DoubleSpread.shouldRotate(rect, is_full_page, #panels == 1)
         if settings.crop_mode == "none" and not direct_spread then
-            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images)
+            local image_func, image_rect = buildNoCropImage(ui, page, rect, page_size, images, index)
             table.insert(image_rects, image_rect)
             table.insert(images, image_func)
         else
@@ -322,7 +337,14 @@ function PanelCollector.buildImages(ui, page, panels, settings)
                     image, rotate = PageRender.drawPagePart(ui, page, image_rect, 0)
                 end
                 images.rotated = rotate
-                local fold_opts = join_fold and image and foldSearch(image, image_rect, page_size)
+                local join_annotation_fold = images.annotation_join_spread_fold
+                if join_annotation_fold == nil then
+                    join_annotation_fold = join_fold
+                end
+                local fold_opts = join_annotation_fold
+                    and DoubleSpread.isSpreadRect(page_size)
+                    and image
+                    and foldSearch(image, image_rect, page_size)
                 if fold_opts then
                     fold_opts.background = PageRender.getBackground(ui)
                     -- The joined bitmap is a new buffer, so it replaces the copy. A

@@ -1,13 +1,20 @@
 # Panel finding modes
 
-Panels+ offers **Panels Finding: Legacy** and **Panels Finding: Normal** from the
+Panels+ offers **Panels Finding: Safe** and **Panels Finding: Smart** from the
 middle button in the panel viewer's bottom row. Tap to cycle between them. The
 current choice is saved with the document when document settings are enabled.
-Legacy is the default when no panel finding choice is saved. An explicitly
-saved Normal choice is preserved.
+Safe is the default when no panel finding choice is saved. An explicitly
+saved Smart choice is preserved.
 
-Normal uses the current component detector and reading-order rules. Legacy
-uses the conservative v1.4.0 component detector and reading-order rules. The
+Smart uses the current component detector and reading-order rules. Safe
+uses the conservative v1.4.0 component extraction and reading-order rules.
+Safe keeps touching panels in one connected component, including diagonal
+contacts and single-pixel dark-ink bridges in the reduced binary map. Gray
+shading alone may be ignored when independent frame evidence establishes a
+conservative layout; complete enclosing frames remain grouped. Sparse windows
+and caption boxes do not divide a floating illustration. Safe does not run
+Smart's extraction or refinements. If the connected shape lacks
+sufficient frame or coverage evidence, Safe falls back to the whole page. The
 button redetects the open page and opens the panel nearest the one being read.
 Stored legacy detector preferences still migrate to the component pipeline;
 this selection is a separate setting.
@@ -107,7 +114,7 @@ per-document persistence, pre-rendering, PDF native-text preference, and debuggi
 live in the KOReader Panels+ submenu. Animation tuning is in its **Animation**
 section, also opened by holding the viewer's Smooth/Animated navigation button.
 
-The panel finding button cycles between Legacy and Normal on the current page.
+The panel finding button cycles between Safe and Smart on the current page.
 
 ## Diagnosing detection
 

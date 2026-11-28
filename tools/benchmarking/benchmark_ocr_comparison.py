@@ -35,7 +35,7 @@ require("ffi/blitbuffer")
 local lfs = require("libs/libkoreader-lfs")
 assert(lfs.chdir(root))
 package.path = root .. "/?.lua;" .. root .. "/?/init.lua;" .. package.path
-require("tests.spec.helper")
+require("tests.helper")
 package.loaded["src._wordfinder"] = assert(loadfile(historical_wordfinder))()
 local framework = require("tests.PanelsPlusTestFramework")
 local original_it = framework.it
@@ -44,7 +44,7 @@ framework.it = function(name, fn)
         original_it(name, fn)
     end
 end
-require("tests.dataset-mangas.dataset.Bloom_Into_You_Vol_8.bloom_ocr_spec")
+require("tests.bloom_ocr_spec")
 os.exit(framework.summary() and 0 or 1)
 """
 BOX_PATTERN = re.compile(r"^\s*OCR boxes: (\d+)/(\d+) matched", re.MULTILINE)

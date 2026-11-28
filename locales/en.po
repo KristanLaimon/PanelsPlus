@@ -295,8 +295,8 @@ msgstr "(Long press config)"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "Adjust how long the camera pan between panels takes in milliseconds."
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animate page-to-page transitions (Actual: "
@@ -579,3 +579,56 @@ msgstr "This is the first panel of the first page. Continue to KOReader’s begi
 
 msgid "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
 msgstr "This is the last panel of the last page. Continue to KOReader’s end-of-book action?"
+
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "Panel refresh…"
+
+msgid "Panel refresh"
+msgstr "Panel refresh"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "Every N panels (current: %1) | Tap here to config"
+
+msgid "Every panel"
+msgstr "Every panel"
+
+msgid "Never"
+msgstr "Never"
+
+msgid "Follow KOReader settings"
+msgstr "Follow KOReader settings"
+
+msgid "Full refresh every N panels"
+msgstr "Full refresh every N panels"
+
+msgid "Refresh on full page change"
+msgstr "Refresh on full page change"
+
+msgid "Fit Panel"
+msgstr "Fit Panel"
+
+msgid "Original Size Panel"
+msgstr "Original Size Panel"
+
+msgid "Restore zoom"
+msgstr "Restore zoom"
+
+msgid "Spread gesture"
+msgstr "Spread gesture"
+
+msgid "Activated"
+msgstr "Activated"
+
+msgid "Deactivated"
+msgstr "Deactivated"
+
+msgid "Panel gesture zoom"
+msgstr "Panel gesture zoom"
+
+msgid "Enable panel gesture zoom"
+msgstr "Enable panel gesture zoom"
+
+msgid "Zoom gesture"
+msgstr "Zoom gesture"

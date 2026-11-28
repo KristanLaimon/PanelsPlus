@@ -1,0 +1,6161 @@
+# Ink Away: Simplified Chinese translation.
+msgid ""
+msgstr ""
+"Project-Id-Version: Ink Away\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: zh_CN\n"
+"Language-Team: Simplified Chinese\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ink/view/menus.lua
+#: ink/view/settings.lua
+msgid " px"
+msgstr " 像素"
+
+#: ink/view/search.lua
+msgid " · names and text inside pages"
+msgstr " · 名称及页面内文字"
+
+#: ink/view/search.lua
+msgid " · names only"
+msgstr " · 仅名称"
+
+#: ink/view/links.lua
+msgid " · this page"
+msgstr " · 当前页面"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 (%2)"
+msgstr "%1（%2）"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 and %2"
+msgstr "%1 和 %2"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "%1 and everything on it are deleted. Undo brings them back."
+msgstr "%1 及其上面所有内容已删除。撤销可以恢复。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 changed in both places: both versions are kept"
+msgstr "%1 在两处都发生修改：两个版本都会保留"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 code"
+msgstr "%1 验证码"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 combined from two readers"
+msgstr "%1 由两台阅读器内容合并"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 h ago"
+msgstr "%1 小时前"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: %2 already do something else."
+msgstr "%1 无法设置手势：%2 已经绑定了其他功能。"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "%1 has no gesture: its gestures are taken."
+msgstr "%1 无法设置手势：该手势已被占用。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "%1 is installed. Restart KOReader to use it."
+msgstr "%1 已安装。重启 KOReader 即可生效。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 is not set up here"
+msgstr "%1 尚未在此配置"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 kept in two versions"
+msgstr "%1 保留两个版本"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 min ago"
+msgstr "%1 分钟前"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 of %2: %3"
+msgstr "%2 的 %1：%3"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 received"
+msgstr "已收到 %1"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 removed"
+msgstr "已删除 %1"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 removed, with a safety copy"
+msgstr "%1 已删除，已保留安全备份"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 sent to the cloud"
+msgstr "%1 已上传至云端"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 to download to this reader"
+msgstr "待下载到本机的 %1"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 to send to the cloud"
+msgstr "待上传云端的 %1"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1 will wait until closed"
+msgstr "%1 将等到关闭后再同步"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "%1, %2"
+msgstr "%1，%2"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files received"
+msgstr "收到 %d 个文件"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d files sent"
+msgstr "发送 %d 个文件"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "%d item(s) can't be kept editable. You'll choose what to do when you export."
+msgstr "有 %d 项内容无法保持可编辑状态，导出时你可以选择处理方式。"
+
+#: ink/reader/roomsui.lua
+#, lua-format
+msgid "%d item(s) in it"
+msgstr "内含 %d 项内容"
+
+#: ink/view/lasso.lua
+#, lua-format
+msgid "%d item(s) on the clipboard"
+msgstr "剪贴板内有 %d 项内容"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d more after it"
+msgstr "其后还有 %d 项"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks and drawings"
+msgstr "%d 个笔记本与绘图"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks arrived in %s. Open one now?"
+msgstr "收到 %d 个笔记本，保存在 %s。是否现在打开其中一个？"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d notebooks from PDFs"
+msgstr "源自 PDF 的 %d 个笔记本"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "%d of %d pages"
+msgstr "第 %d / %d 页"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%d pictures"
+msgstr "%d 张图片"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%d results"
+msgstr "找到 %d 条结果"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "%d strokes"
+msgstr "%d 条笔迹"
+
+#: ink/view/gestures.lua
+#, lua-format
+msgid "%s already does \"%s\". Use it only for %s, or for both?"
+msgstr "%s 已经绑定「%s」。仅用于 %s，还是两者都绑定？"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s arrived in %s. Open it now?"
+msgstr "%s 已保存到 %s，是否现在打开？"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s in %s"
+msgstr "%s，位于 %s"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s isn't there any more"
+msgstr "%s 已经不存在了"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "%s opens once the rest have arrived"
+msgstr "等其余文件全部接收完成后打开 %s"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "%s · page %d"
+msgstr "%s · 第 %d 页"
+
+#: ink/reader/book.lua
+msgid "(Handwritten note)"
+msgstr "（手写笔记）"
+
+#: ink/guide.lua
+msgid "+ in the pen menu asks for its kind (Fineliner, Ballpoint, Fountain, Pencil, Marker, Highlighter, Watercolor...), then its size and colour."
+msgstr "画笔菜单里的加号，可以选择笔类型（针管笔、圆珠笔、钢笔、铅笔、马克笔、荧光笔、水彩笔……），再设置粗细和颜色。"
+
+#: ink/view/share.lua
+msgid "1 file received"
+msgstr "收到 1 个文件"
+
+#: ink/view/share.lua
+msgid "1 file sent"
+msgstr "发送 1 个文件"
+
+#: ink/view/sync.lua
+msgid "1 min"
+msgstr "1 分钟"
+
+#: ink/view/share.lua
+msgid "1 more after it"
+msgstr "其后还有 1 项"
+
+#: ink/view/receive.lua
+msgid "1 notebook from a PDF"
+msgstr "1 个来自 PDF 的笔记本"
+
+#: ink/view/receive.lua
+msgid "1 notebook or drawing"
+msgstr "1 个笔记本或绘图"
+
+#: ink/view/receive.lua
+msgid "1 picture"
+msgstr "1 张图片"
+
+#: ink/view/search.lua
+msgid "1 result"
+msgstr "1 条结果"
+
+#: ink/view/sync.lua
+msgid "1. Scan this with your phone's camera."
+msgstr "1. 用手机相机扫描此二维码。"
+
+#: ink/view/sync.lua
+msgid "1. Scan this with your phone's camera. The phone must be on the same Wi-Fi as the reader."
+msgstr "1. 用手机相机扫描此二维码。手机和阅读器必须连接同一个 Wi-Fi。"
+
+#: ink/view/sync.lua
+msgid "12h"
+msgstr "12 小时"
+
+#: ink/view/sync.lua
+msgid "15m"
+msgstr "15 分钟"
+
+#: ink/view/sync.lua
+msgid "1h"
+msgstr "1 小时"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "2 columns"
+msgstr "两栏"
+
+#: ink/view/sync.lua
+msgid "2 min"
+msgstr "2 分钟"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "2. On the page, tap Open %1, tap Allow, then paste the code there. This screen carries on by itself."
+msgstr "2. 在页面上点打开 %1，选择允许，然后粘贴验证码。本页面会自动继续。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "2. Sign in to %1 and tap Allow."
+msgstr "2. 登录 %1 并点击允许。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "2. Sign in to %1 and type this code:"
+msgstr "2. 登录 %1，输入下面验证码："
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "3. %1 shows a code. Type it here."
+msgstr "3. %1 会给出验证码，在此输入。"
+
+#: ink/view/sync.lua
+msgid "3. Tap Allow. This screen carries on by itself."
+msgstr "3. 点击允许，本页面自动继续。"
+
+#: ink/view/sync.lua
+msgid "30 s"
+msgstr "30 秒"
+
+#: ink/view/sync.lua
+msgid "30m"
+msgstr "30 分钟"
+
+#: ink/view/sync.lua
+msgid "3h"
+msgstr "3 小时"
+
+#: ink/view/sync.lua
+msgid "5 min"
+msgstr "5 分钟"
+
+#: ink/view/selection.lua
+msgid "90°"
+msgstr "90°"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A PNG holds the page shown, page %d."
+msgstr "PNG 保存当前显示页面：第 %d 页。"
+
+#: ink/reader/roomtool.lua
+msgid "A band across the page, before the paragraph nearest the box's top."
+msgstr "横跨页面的分隔栏，放在选区顶部最近段落之前。"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "A blank page. Hold to start from a picture."
+msgstr "空白页。长按可从图片新建。"
+
+#: ink/view/library.lua
+msgid "A clip you paste or add to a page is copied into it first, so it stays. Only the clips left in this folder are removed."
+msgstr "粘贴或添加到页面的剪贴内容会先复制进页面内，不会丢失。只有保存在此文件夹里的剪贴素材才会被删除。"
+
+#: ink/guide.lua
+msgid "A contents page"
+msgstr "目录页"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "A drawing can have up to %1 layers."
+msgstr "一幅绘图最多支持 %1 个图层。"
+
+#: ink/view/layers.lua
+msgid "A drawing with layers keeps at least one. To stop using layers, turn them off in File."
+msgstr "带图层的绘图至少保留一个图层。如需关闭图层功能，在文件菜单里关闭。"
+
+#: ink/sync/errors.lua
+msgid "A file on this reader could not be read."
+msgstr "本机上一个文件无法读取。"
+
+#: ink/sync/errors.lua
+msgid "A file on this reader could not be written, so nothing was replaced."
+msgstr "本机文件无法写入，本次没有覆盖任何内容。"
+
+#: ink/sync/errors.lua
+msgid "A file used by a notebook is not on this reader and could not be found."
+msgstr "笔记本依赖的一个文件不在本机，无法找到。"
+
+#: ink/guide.lua
+msgid "A folder's notebooks are tabs beside their pages. Hold a tab to rename, colour or reorder it; hold a page to star, move or copy it."
+msgstr "文件夹内的笔记本以标签形式放在页面侧边。长按标签可重命名、改颜色、调整顺序；长按页面可加星标、移动、复制。"
+
+#: ink/reader/inkview.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight of it, in the pen's colour: in your highlights list, and with the text at any font size. Over empty space it stays ink."
+msgstr "在文字上画荧光笔，会转为阅读器原生高亮，使用画笔颜色，在高亮列表里可见，字体缩放后依然跟随文字；画在空白处则保留手绘笔迹。"
+
+#: ink/guide.lua
+msgid "A highlighter stroke over text becomes the reader's own highlight, from the first word it touches to the last. Over empty space it stays ink."
+msgstr "在文字上画荧光笔，会转为原生高亮，覆盖划过的全部文字；画在空白处保留手绘笔迹。"
+
+#: ink/view/sync.lua
+msgid "A large part of your notebooks will be removed in the cloud or on this reader. A safety copy is kept on this reader for 30 days."
+msgstr "云端或本机将删除大量笔记本内容，本机已生成安全备份，保留30天。"
+
+#: ink/guide.lua
+msgid "A new pen"
+msgstr "新建画笔"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A newer release, %1 to download."
+msgstr "发现新版本，%1 可下载。"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "A notebook keeps at least one page."
+msgstr "笔记本至少保留一页。"
+
+#: ink/guide.lua
+msgid "A notebook or some of its pages, with bookmarks for titled pages and links that work."
+msgstr "笔记本或部分页面，带标题页书签和可跳转链接。"
+
+#: ink/sync/errors.lua
+msgid "A notebook was being written, so it is skipped for now."
+msgstr "该笔记本正在编辑，本次同步跳过。"
+
+#: ink/view/images.lua
+msgid "A picture file on this reader."
+msgstr "本机上的图片文件。"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "A picture of each page takes about 0.3 MB, so this PDF will be around %d MB."
+msgstr "每页图片大约 0.3 MB，此 PDF 预计大小约 %d MB。"
+
+#: ink/view/updates.lua
+msgid "A prerelease is a test build. You can go back to the latest release from Settings, Updates."
+msgstr "预发布版是测试版本，你可以在设置-更新里切回正式版。"
+
+#: ink/reader/roomtool.lua
+msgid "A room can only start where a paragraph lets it on this page, so the box moved to the nearest such place."
+msgstr "文本占位区域只能从段落起始位置创建，选区已自动移动到最近的段落起点。"
+
+#: ink/guide.lua
+msgid "A strip of your first four pens, one tap away: Pen and input, Your pens on the page."
+msgstr "前4支常用画笔快捷栏，一键切换：画笔与输入设置，页面常用画笔。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "A test build before the next release: newer things, maybe rough edges. You can go back to the release here any time. %1."
+msgstr "下一正式版前的测试版：包含新功能，但可能存在不稳定问题。你随时可以切回正式版。%1。"
+
+#: ink/guide.lua
+msgid "A whole folder"
+msgstr "整个文件夹"
+
+#: ink/view/textformat.lua
+msgid "Across"
+msgstr "横向"
+
+#: ink/penset.lua
+msgid "Acrylic"
+msgstr "丙烯笔"
+
+#: ink/view/imagebrowser.lua
+msgid "Add"
+msgstr "添加"
+
+#: ink/reader/hlcolour.lua
+msgid "Add a label"
+msgstr "添加标签"
+
+#: ink/view/library.lua
+msgid "Add an icon…"
+msgstr "添加图标…"
+
+#: ink/view/images.lua
+msgid "Add image"
+msgstr "添加图片"
+
+#: ink/view/imagebrowser.lua
+msgid "Add this image?"
+msgstr "添加这张图片？"
+
+#: ink/view/exportbook.lua
+msgid "Adding your annotations to the PDF"
+msgstr "正在将批注写入PDF"
+
+#: ink/view/ocrapi.lua
+msgid "Address"
+msgstr "地址"
+
+#: ink/view/export.lua
+msgid "Adds your ink and highlights to a copy of the original PDF. The text stays real, the file stays small, and any PDF viewer can edit or remove them."
+msgstr "将笔迹和高亮写入原PDF副本，文字保持可选中，文件体积更小，任意PDF阅读器都可以编辑或删除批注。"
+
+#: ink/view/sync.lua
+msgid "After I stop drawing"
+msgstr "停止绘图后"
+
+#: ink/view/sync.lua
+msgid "After closing a notebook"
+msgstr "关闭笔记本后"
+
+#: ink/view/textformat.lua
+msgid "Alignment"
+msgstr "对齐方式"
+
+#: ink/view/export.lua
+msgid "All"
+msgstr "全部"
+
+#: ink/reader/inkview.lua
+msgid "All of this book's annotations will be deleted now. They wait in Ink Away's trash for 30 days in case you want them back."
+msgstr "本书所有批注将被删除，会放在 Ink Away 回收站保留30天，可恢复。"
+
+#: ink/view/layers.lua
+msgid "All the layers are merged into one drawing, hidden ones too. Undo brings the layers back."
+msgstr "所有图层（含隐藏图层）合并为一层，撤销可以恢复图层。"
+
+#: ink/launcher.lua
+msgid "All your notebooks and drawings"
+msgstr "你的全部笔记本与绘图"
+
+#: ink/view/share.lua
+msgid "Allow adding files"
+msgstr "允许接收文件"
+
+#: ink/view/sync.lua
+msgid "Allow turning on Wi-Fi"
+msgstr "允许自动开启 Wi-Fi"
+
+#: ink/view/gestures.lua
+msgid "Already in use"
+msgstr "已占用"
+
+#: ink/view/sync.lua
+msgid "Also every"
+msgstr "同时每隔"
+
+#: ink/view/search.lua
+msgid "Also look inside pages (slower)"
+msgstr "同时检索页面内容（速度较慢）"
+
+#: main.lua
+msgid "Always"
+msgstr "始终"
+
+#: ink/view/exportbook.lua
+msgid "An editable PDF can't hold these as annotations:"
+msgstr "这些内容无法作为批注保存在可编辑PDF中："
+
+#: ink/guide.lua
+#: ink/launcher.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Annotate the book"
+msgstr "批注书籍"
+
+#: ink/guide.lua
+msgid "Annotations and book notes"
+msgstr "批注与书本笔记"
+
+#: ink/view/trash.lua
+msgid "Annotations of a deleted book"
+msgstr "已删除书籍的批注"
+
+#: ink/view/trash.lua
+msgid "Annotations on this book"
+msgstr "本书批注"
+
+#: ink/view/links.lua
+msgid "Another notebook…"
+msgstr "其他笔记本…"
+
+#: ink/framecover.lua
+msgid "Antique gold"
+msgstr "古金色"
+
+#: ink/sync/config.lua
+msgid "App key"
+msgstr "应用密钥"
+
+#: ink/view/settings.lua
+msgid "Appearance"
+msgstr "外观"
+
+#: ink/sync/config.lua
+msgid "Application (client) ID"
+msgstr "应用（客户端）ID"
+
+#: ink/view/textformat.lua
+msgid "Applies to the selected word or text"
+msgstr "作用于选中文字"
+
+#: ink/view/textformat.lua
+msgid "Applies to what you type next"
+msgstr "作用于接下来输入的文字"
+
+#: ink/reader/inkview.lua
+msgid "Are you sure?"
+msgstr "确定吗？"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Area: %d×%d (tap for the whole page)"
+msgstr "选区：%d×%d（点击选择整页）"
+
+#: ink/view/export.lua
+msgid "Area: the whole page (tap to choose)"
+msgstr "选区：整页（点击切换）"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Arrived: %s"
+msgstr "已收到：%s"
+
+#: ink/view/menus.lua
+msgid "Arrowhead size"
+msgstr "箭头大小"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Arrowhead size: %d px"
+msgstr "箭头大小：%d 像素"
+
+#: ink/framecover.lua
+msgid "Art Deco"
+msgstr "装饰艺术风"
+
+#: ink/framecover.lua
+msgid "Arts and Crafts"
+msgstr "工艺美术风"
+
+#: ink/view/share.lua
+msgid "Ask to open notebooks that arrive"
+msgstr "收到笔记本时询问是否打开"
+
+#: ink/view/updates.lua
+msgid "Asking GitHub what there is…"
+msgstr "正在查询 GitHub 更新…"
+
+#: ink/view/sync.lua
+msgid "Asking the cloud…"
+msgstr "正在访问云端…"
+
+#: ink/view/images.lua
+msgid "At save time you can include the picture or export just your drawing. The grid is always left out."
+msgstr "保存时可以选择是否包含背景图，也可以只导出手绘内容；网格线不会导出。"
+
+#: ink/coverpicker.lua
+msgid "Automatic"
+msgstr "自动"
+
+#: ink/view/sync.lua
+msgid "Automatic sync can slow the reader and use battery. \"Sync now\" runs only when you ask."
+msgstr "自动同步会占用阅读器性能、耗电。「立即同步」仅在你手动触发时运行。"
+
+#: ink/reader/roomtool.lua
+#: ink/view/gestures.lua
+#: ink/view/guide.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/sync.lua
+#: ink/view/toolbar.lua
+#: ink/view/updates.lua
+msgid "Back"
+msgstr "返回"
+
+#: ink/reader/roomsui.lua
+msgid "Back to the original book"
+msgstr "回到原书"
+
+#: ink/view/gestures.lua
+msgid "Back to the usual"
+msgstr "恢复默认"
+
+#: ink/view/images.lua
+msgid "Background image"
+msgstr "背景图片"
+
+#: ink/view/images.lua
+msgid "Background…"
+msgstr "背景…"
+
+#: ink/penset.lua
+msgid "Ballpoint"
+msgstr "圆珠笔"
+
+#: ink/guide.lua
+msgid "Ballpoint, Fountain, Calligraphy and Pencil can follow how hard you press: Pen and input, Pen pressure (Beta), with Palm rejection on."
+msgstr "圆珠笔、钢笔、书法笔、铅笔支持压感：画笔与输入设置，压感（测试版），需开启掌压识别。"
+
+#: ink/reader/roomsui.lua
+msgid "Band across the page"
+msgstr "页面横栏"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Black"
+msgstr "黑色"
+
+#: ink/framecover.lua
+msgid "Black and gold"
+msgstr "黑金"
+
+#: ink/framecover.lua
+msgid "Black sides"
+msgstr "黑侧边"
+
+#: ink/view/notebook.lua
+msgid "Blank"
+msgstr "空白"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Blue"
+msgstr "蓝色"
+
+#: ink/palette.lua
+msgid "Blueprint"
+msgstr "蓝图"
+
+#: ink/palette.lua
+msgid "Blush"
+msgstr "浅粉"
+
+#: ink/view/textformat.lua
+msgid "Bold"
+msgstr "粗体"
+
+#: ink/reader/inkview.lua
+msgid "Book ink"
+msgstr "书本批注笔迹"
+
+#: ink/guide.lua
+msgid "Book ink, Delete all annotations on this book. They wait in the trash for 30 days."
+msgstr "书本笔迹：删除本书全部批注，批注在回收站保留30天。"
+
+#: ink/guide.lua
+msgid "Book ink, Show ink while reading: off shows the plain book. Your ink stays."
+msgstr "书本笔迹：阅读时显示笔迹；关闭后只显示干净原文，笔迹不会丢失。"
+
+#: ink/guide.lua
+msgid "Book ink, Toolbar: on the left, right, top or bottom."
+msgstr "书本笔迹：工具栏位置，左侧、右侧、顶部、底部。"
+
+#: ink/guide.lua
+#: ink/launcher.lua
+#: ink/reader/inkview.lua
+#: ink/sync/areas.lua
+#: ink/welcome.lua
+#: main.lua
+msgid "Book notes"
+msgstr "书本笔记"
+
+#: ink/reader/inkview.lua
+msgid "Bookmark added"
+msgstr "已添加书签"
+
+#: ink/reader/inkview.lua
+msgid "Bookmark removed"
+msgstr "已移除书签"
+
+#: ink/guide.lua
+msgid "Books"
+msgstr "书籍"
+
+#: ink/guide.lua
+msgid "Bookshelf"
+msgstr "Bookshelf"
+
+#: ink/view/gestures.lua
+msgid "Both"
+msgstr "两者"
+
+#: ink/view/welcome.lua
+msgid "Both are also in the reader menu: Tools, Ink Away."
+msgstr "这两项也可以在阅读器菜单找到：工具 → Ink Away。"
+
+#: ink/reader/inkview.lua
+msgid "Bottom"
+msgstr "底部"
+
+#: ink/framecover.lua
+msgid "Brass"
+msgstr "黄铜色"
+
+#: ink/view/sync.lua
+msgid "Bring back this version?"
+msgstr "恢复为此版本？"
+
+#: ink/view/sync.lua
+msgid "Bring it back"
+msgstr "恢复"
+
+#: ink/folderlook.lua
+msgid "Brown"
+msgstr "棕色"
+
+#: ink/guide.lua
+msgid "Browse"
+msgstr "浏览"
+
+#: ink/view/imagebrowser.lua
+msgid "Browse images"
+msgstr "浏览图片"
+
+#: ink/actions.lua
+msgid "Browse notebooks"
+msgstr "浏览笔记本"
+
+#: ink/view/stickers.lua
+msgid "Bubbles"
+msgstr "气泡贴纸"
+
+#: ink/sync/errors.lua
+msgid "Busy"
+msgstr "繁忙"
+
+#: ink/view/library.lua
+msgid "By name"
+msgstr "按名称排序"
+
+#: ink/guide.lua
+msgid "By name, or tick look inside pages to search typed and converted text too."
+msgstr "按名称检索；勾选检索页面内容，可同时搜索文字和OCR识别文本。"
+
+#: ink/penset.lua
+msgid "Calligraphy"
+msgstr "书法笔"
+
+#: ink/reader/capture.lua
+#: ink/reader/roomtool.lua
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/dialogs.lua
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+#: ink/view/images.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+#: ink/view/sync.lua
+msgid "Cancel"
+msgstr "取消"
+
+#: ink/sync/errors.lua
+msgid "Cannot read a file"
+msgstr "无法读取文件"
+
+#: ink/sync/errors.lua
+msgid "Cannot write a file"
+msgstr "无法写入文件"
+
+#: ink/framecover.lua
+msgid "Canvas Wrap"
+msgstr "帆布包边"
+
+#: ink/framecover.lua
+msgid "Carved Victorian"
+msgstr "维多利亚雕花"
+
+#: ink/view/textformat.lua
+msgid "Centre"
+msgstr "居中"
+
+#: ink/palette.lua
+msgid "Chalkboard"
+msgstr "黑板色"
+
+#: ink/view/selection.lua
+msgid "Change link…"
+msgstr "修改链接…"
+
+#: ink/sync/errors.lua
+msgid "Changed meanwhile"
+msgstr "已被其他地方修改"
+
+#: ink/view/sync.lua
+msgid "Changes are waiting to be sent."
+msgstr "有修改待上传。"
+
+#: ink/coverpicker.lua
+msgid "Charcoal"
+msgstr "炭笔"
+
+#: ink/view/updates.lua
+msgid "Check now"
+msgstr "立即检查"
+
+#: ink/view/updates.lua
+msgid "Check once a day"
+msgstr "每日检查一次"
+
+#: ink/sync/errors.lua
+msgid "Check that the reader's storage and the library folder are in place. Nothing was deleted."
+msgstr "确认阅读器存储和库文件夹正常，本次没有删除任何内容。"
+
+#: ink/sync/errors.lua
+msgid "Check that the reader's storage is not full or damaged."
+msgstr "检查存储空间是否已满或损坏。"
+
+#: ink/view/ocrapi.lua
+msgid "Check the address in the Text sheet: it has to be a full address starting with https://."
+msgstr "检查文本设置页里的接口地址，必须是以 https:// 开头的完整网址。"
+
+#: ink/sync/errors.lua
+msgid "Check the date and time on this reader, then try again."
+msgstr "检查阅读器系统时间，然后重试。"
+
+#: ink/view/sync.lua
+msgid "Checking the cloud…"
+msgstr "正在校验云端…"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Checklist"
+msgstr "待办清单"
+
+#: ink/guide.lua
+msgid "Checklists"
+msgstr "清单"
+
+#: ink/framecover.lua
+msgid "Cherry"
+msgstr "樱桃木"
+
+#: ink/view/links.lua
+msgid "Choose a notebook"
+msgstr "选择笔记本"
+
+#: ink/view/pencase.lua
+msgid "Choose its kind. You can then set its size and colour."
+msgstr "选择笔类型，之后可以设置粗细和颜色。"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Choose its paper, a PDF or a template"
+msgstr "选择纸张、PDF或模板"
+
+#: ink/sync/errors.lua
+msgid "Choose the old folder again, or start syncing this folder as a new library."
+msgstr "重新选择旧文件夹，或者将此文件夹作为新库同步。"
+
+#: ink/sync/config.lua
+msgid "Client ID"
+msgstr "客户端ID"
+
+#: ink/sync/config.lua
+msgid "Client secret"
+msgstr "客户端密钥"
+
+#: ink/view/images.lua
+msgid "Clip the page"
+msgstr "截取页面"
+
+#: ink/view/library.lua
+msgid "Clips already on a page stay there."
+msgstr "已经粘贴到页面里的剪贴素材会保留。"
+
+#: ink/launcher.lua
+#: ink/reader/roomsui.lua
+#: ink/reader/roomtool.lua
+#: ink/ui/pentestscreen.lua
+#: ink/ui/thumbgrid.lua
+#: ink/view/dialogs.lua
+#: ink/view/guide.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/search.lua
+#: ink/view/sheetkit.lua
+#: ink/view/sync.lua
+#: ink/view/trash.lua
+msgid "Close"
+msgstr "关闭"
+
+#: ink/view/library.lua
+#: ink/view/sync.lua
+msgid "Cloud sync"
+msgstr "云端同步"
+
+#: ink/view/library.lua
+msgid "Cloud sync…"
+msgstr "云端同步…"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Code %1"
+msgstr "验证码 %1"
+
+#: ink/coverpicker.lua
+#: ink/guide.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Colour"
+msgstr "颜色"
+
+#: ink/view/library.lua
+msgid "Colour and icon…"
+msgstr "颜色与图标…"
+
+#: ink/reader/hlcolour.lua
+msgid "Colour labels"
+msgstr "颜色标签"
+
+#: ink/coverpicker.lua
+msgid "Colour wheel"
+msgstr "色轮"
+
+#: ink/view/settings.lua
+msgid "Colour while drawing"
+msgstr "绘图时实时上色"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Colour: %s"
+msgstr "颜色：%s"
+
+#: ink/view/overview.lua
+msgid "Colour…"
+msgstr "颜色…"
+
+#: ink/notebookcover.lua
+msgid "Composition book"
+msgstr "作文本"
+
+#: ink/view/sync.lua
+msgid "Conflicts"
+msgstr "冲突"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Conflicts (%1)"
+msgstr "冲突（%1）"
+
+#: ink/view/sync.lua
+msgid "Connect"
+msgstr "连接"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Connect %1"
+msgstr "连接 %1"
+
+#: ink/view/sync.lua
+msgid "Connect again"
+msgstr "重新连接"
+
+#: ink/sync/errors.lua
+msgid "Connect to Wi-Fi, or allow Ink Away to turn it on in the sync settings."
+msgstr "连接 Wi-Fi，或者在同步设置里允许 Ink Away 开启 Wi-Fi。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Connecting to %1…"
+msgstr "正在连接 %1…"
+
+#: ink/view/links.lua
+msgid "Contents"
+msgstr "目录"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Contents: %d page(s) listed"
+msgstr "目录：共列出 %d 页"
+
+#: ink/reader/inkview.lua
+msgid "Continue"
+msgstr "继续"
+
+#: ink/view/handwriting.lua
+msgid "Convert"
+msgstr "转换"
+
+#: ink/guide.lua
+#: ink/view/handwriting.lua
+#: ink/view/selection.lua
+msgid "Convert to text"
+msgstr "转为文字"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online"
+msgstr "在线识别文字"
+
+#: ink/view/ocrapi.lua
+msgid "Convert to text online needs your service's address, key and model. Set them in the Text sheet, or switch it off there to read on the reader."
+msgstr "在线文字识别需要接口地址、密钥、模型，在文本设置页填写；也可以关闭，使用本机识别。"
+
+#: ink/view/textformat.lua
+msgid "Copied"
+msgstr "已复制"
+
+#: ink/reader/capture.lua
+#: ink/view/selection.lua
+#, lua-format
+msgid "Copied %d item(s). Tap with the lasso to paste."
+msgstr "已复制 %d 项。使用套索点击位置粘贴。"
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Copied to “%s”"
+msgstr "已复制到「%s」"
+
+#: ink/reader/capture.lua
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Copy"
+msgstr "复制"
+
+#: ink/launcher.lua
+msgid "Copy part of the page as a picture"
+msgstr "截取页面局部为图片"
+
+#: ink/launcher.lua
+#: main.lua
+msgid "Copy part of the screen"
+msgstr "截取屏幕局部"
+
+#: ink/view/overview.lua
+msgid "Copy the page to"
+msgstr "将页面复制到"
+
+#: ink/reader/capture.lua
+msgid "Copy this area?"
+msgstr "复制该选区？"
+
+#: ink/view/overview.lua
+msgid "Copy to…"
+msgstr "复制到…"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Cornell"
+msgstr "康奈尔笔记"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Could not check: %1."
+msgstr "检查失败：%1。"
+
+#: ink/view/export.lua
+msgid "Could not create the bookshelf ornaments folder."
+msgstr "无法创建Bookshelf装饰文件夹。"
+
+#: ink/view/library.lua
+msgid "Could not create the folder."
+msgstr "无法创建文件夹。"
+
+#: ink/view/trash.lua
+msgid "Could not delete it.\n"
+msgstr "无法删除。\n"
+
+#: ink/reader/inkview.lua
+msgid "Could not delete the annotations.\n"
+msgstr "批注删除失败。\n"
+
+#: ink/view/trash.lua
+msgid "Could not delete the page.\n"
+msgstr "页面删除失败。\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+msgid "Could not duplicate.\n"
+msgstr "复制失败。\n"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Could not export PDF.\n"
+msgstr "PDF导出失败。\n"
+
+#: ink/view/export.lua
+msgid "Could not export.\n"
+msgstr "导出失败。\n"
+
+#: ink/view/exportbook.lua
+msgid "Could not make the folder.\n"
+msgstr "文件夹创建失败。\n"
+
+#: ink/view/library.lua
+msgid "Could not move it.\n"
+msgstr "移动失败。\n"
+
+#: ink/view/notebook.lua
+msgid "Could not open that PDF."
+msgstr "无法打开该PDF。"
+
+#: ink/view/document.lua
+msgid "Could not open that file.\n"
+msgstr "无法打开该文件。\n"
+
+#: ink/view/images.lua
+msgid "Could not open that image."
+msgstr "无法打开该图片。"
+
+#: ink/view/notebook.lua
+msgid "Could not open that template."
+msgstr "无法打开该模板。"
+
+#: ink/view/trash.lua
+msgid "Could not put it back.\n"
+msgstr "恢复失败。\n"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Could not rename.\n"
+msgstr "重命名失败。\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the image.\n"
+"%s"
+msgstr ""
+"图片保存失败。\n"
+"%s"
+
+#: ink/view/exportbook.lua
+msgid "Could not save the images.\n"
+msgstr "图片保存失败。\n"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Could not save the ornament.\n"
+"%s"
+msgstr ""
+"装饰图保存失败。\n"
+"%s"
+
+#: ink/view/notebook.lua
+msgid "Could not save the template.\n"
+msgstr "模板保存失败。\n"
+
+#: ink/view/overview.lua
+msgid "Could not save.\n"
+msgstr "保存失败。\n"
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"Could not save:\n"
+"%s\n"
+"\n"
+"%s"
+msgstr ""
+"保存失败：\n"
+"%s\n"
+"\n"
+"%s"
+
+#: ink/view/stickers.lua
+msgid "Couldn't add that sticker."
+msgstr "贴纸添加失败。"
+
+#: ink/view/imagebrowser.lua
+msgid "Couldn't download that image."
+msgstr "图片下载失败。"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Couldn't open %s as a notebook"
+msgstr "无法将 %s 作为笔记本打开"
+
+#: ink/reader/capture.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't prepare a folder for the image."
+msgstr "无法为图片创建文件夹。"
+
+#: ink/view/images.lua
+msgid "Couldn't process that image."
+msgstr "图片处理失败。"
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"Couldn't reach the image service.\n"
+"Check your Wi-Fi, or try the other source above."
+msgstr ""
+"图片服务连接失败。\n"
+"检查Wi-Fi，或者切换上方其他图源。"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+msgid "Couldn't read that image."
+msgstr "图片读取失败。"
+
+#: ink/reader/capture.lua
+#: ink/view/imagebrowser.lua
+msgid "Couldn't save the image."
+msgstr "图片保存失败。"
+
+#: ink/view/images.lua
+msgid "Couldn't save the processed image."
+msgstr "处理后的图片保存失败。"
+
+#: ink/view/share.lua
+msgid "Couldn't start sharing: no free port on this reader."
+msgstr "共享启动失败：阅读器没有可用端口。"
+
+#: ink/coverpicker.lua
+msgid "Cover colour"
+msgstr "封面颜色"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Cover on the shelf…"
+msgstr "书架封面…"
+
+#: ink/coverpicker.lua
+msgid "Covers on Bookshelf"
+msgstr "Bookshelf封面显示"
+
+#: ink/palette.lua
+msgid "Cream"
+msgstr "米白"
+
+#: ink/view/library.lua
+msgid "Create"
+msgstr "新建"
+
+#: ink/ui/brushmaker.lua
+msgid "Create brush"
+msgstr "新建画笔"
+
+#: ink/palette.lua
+msgid "Custom"
+msgstr "自定义"
+
+#: ink/ui/colorpicker.lua
+msgid "Custom colour"
+msgstr "自定义颜色"
+
+#: ink/view/selection.lua
+#: ink/view/textformat.lua
+msgid "Cut"
+msgstr "剪切"
+
+#: ink/view/selection.lua
+#, lua-format
+msgid "Cut %d item(s). Tap with the lasso to paste."
+msgstr "剪切 %d 项。使用套索点击位置粘贴。"
+
+#: ink/guide.lua
+msgid "Cut or copy, then on any page of any notebook: the page menu, Paste."
+msgstr "剪切或复制后，在任意笔记本页面，打开页面菜单选择粘贴。"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Daily"
+msgstr "每日计划"
+
+#: ink/sync/errors.lua
+msgid "Damaged download"
+msgstr "下载文件损坏"
+
+#: ink/view/settings.lua
+msgid "Dark"
+msgstr "深色"
+
+#: ink/palette.lua
+msgid "Dark grey"
+msgstr "深灰"
+
+#: ink/guide.lua
+msgid "Dark mode"
+msgstr "深色模式"
+
+#: ink/view/settings.lua
+msgid "Dark turns Ink Away's toolbars and menus dark; the page stays as it is. System follows KOReader's night mode."
+msgstr "深色模式：Ink Away工具栏和菜单变为深色，页面底色不变；系统模式跟随KOReader夜间模式。"
+
+#: ink/view/textformat.lua
+msgid "Date"
+msgstr "日期"
+
+#: ink/view/sync.lua
+msgid "Day"
+msgstr "天"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Default"
+msgstr "默认"
+
+#: ink/view/textformat.lua
+msgid "Default (content font)"
+msgstr "默认（正文字体）"
+
+#: ink/reader/inkview.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+#: ink/view/stickers.lua
+#: ink/view/sync.lua
+#: ink/view/trash.lua
+msgid "Delete"
+msgstr "删除"
+
+#: ink/view/notebook.lua
+msgid "Delete a template…"
+msgstr "删除模板…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations on this book…"
+msgstr "删除本书全部批注…"
+
+#: ink/reader/inkview.lua
+msgid "Delete all annotations?"
+msgstr "删除全部批注？"
+
+#: ink/view/library.lua
+msgid "Delete all clips now…"
+msgstr "立即删除所有剪贴素材…"
+
+#: ink/view/library.lua
+msgid "Delete all clips?"
+msgstr "删除全部剪贴素材？"
+
+#: ink/view/sync.lua
+msgid "Delete anyway?"
+msgstr "仍然删除？"
+
+#: ink/view/sync.lua
+msgid "Delete anyway…"
+msgstr "仍然删除…"
+
+#: ink/view/trash.lua
+msgid "Delete for good"
+msgstr "永久删除"
+
+#: ink/reader/roomtool.lua
+msgid "Delete it"
+msgstr "删除此项"
+
+#: ink/view/library.lua
+msgid "Delete old clips"
+msgstr "清理旧剪贴素材"
+
+#: ink/view/notebook.lua
+msgid "Delete page"
+msgstr "删除页面"
+
+#: ink/view/menus.lua
+#, lua-format
+msgid "Delete the brush “%s”?"
+msgstr "删除画笔「%s」？"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Delete the template “%s”?"
+msgstr "删除模板「%s」？"
+
+#: ink/view/layers.lua
+msgid "Delete this layer?"
+msgstr "删除该图层？"
+
+#: ink/view/library.lua
+msgid "Delete this page?"
+msgstr "删除该页面？"
+
+#: ink/view/stickers.lua
+msgid "Delete this sticker?"
+msgstr "删除该贴纸？"
+
+#: ink/view/notebook.lua
+msgid "Delete which template?"
+msgstr "选择要删除的模板"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Delete “%s” for good?"
+msgstr "永久删除「%s」？"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Delete “%s”?"
+msgstr "删除「%s」？"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted %s · gone for good in %d days"
+msgstr "已删除 %s · %d 天后永久清除"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Deleted notebooks, drawings, pictures and folders wait here for %d days."
+msgstr "删除的笔记本、绘图、图片、文件夹在此保留 %d 天。"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Deleted things stay here for %d days."
+msgstr "删除内容在此保留 %d 天。"
+
+#: ink/guide.lua
+msgid "Deleted things, a book's annotations too, wait 30 days and go back where they were."
+msgstr "删除内容（包括书本批注）保留30天，可恢复。"
+
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Delete…"
+msgstr "删除…"
+
+#: ink/view/sync.lua
+msgid "Details"
+msgstr "详情"
+
+#: ink/view/textformat.lua
+msgid "Direction"
+msgstr "方向"
+
+#: ink/view/sync.lua
+msgid "Disconnect"
+msgstr "断开连接"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Disconnect %1?"
+msgstr "断开 %1 的连接？"
+
+#: ink/sync/errors.lua
+msgid "Disconnect and connect again, and tap Allow when asked."
+msgstr "断开重连，弹窗时点击允许。"
+
+#: ink/view/receive.lua
+msgid "Don't ask again"
+msgstr "不再询问"
+
+#: ink/view/settings.lua
+msgid "Don't show this again"
+msgstr "不再提示"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/reader/hlcolour.lua
+#: ink/reader/inkview.lua
+#: ink/reader/roomsui.lua
+#: ink/view/dialogs.lua
+#: ink/view/document.lua
+#: ink/view/gestures.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/images.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/menus.lua
+#: ink/view/overview.lua
+#: ink/view/paper.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+#: ink/view/sheetkit.lua
+#: ink/view/stickers.lua
+#: ink/view/sync.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+#: ink/view/updates.lua
+msgid "Done"
+msgstr "完成"
+
+#: ink/view/settings.lua
+msgid "Dots"
+msgstr "点阵"
+
+#: ink/ui/pentestscreen.lua
+msgid "Dots show where each contact lands: black for the pen, grey for fingers, light grey for the eraser end and resting hands."
+msgstr "触点标记：黑色=笔，灰色=手指，浅灰=笔尾橡皮、手掌误触。"
+
+#: ink/view/notebook.lua
+msgid "Dotted"
+msgstr "点线"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Double tap: %1"
+msgstr "双击：%1"
+
+#: ink/view/share.lua
+msgid "Download"
+msgstr "下载"
+
+#: ink/view/updates.lua
+msgid "Downloading and checking the update…"
+msgstr "正在下载并校验更新…"
+
+#: ink/view/imagebrowser.lua
+msgid "Downloading image…"
+msgstr "正在下载图片…"
+
+#: ink/view/export.lua
+msgid "Drag a box around the part to export. A single tap keeps the whole page."
+msgstr "拖动框选导出区域，单击直接选择整页。"
+
+#: ink/guide.lua
+msgid "Drag the ring above an open text box to turn it to any angle, or pick Reads down or Reads up in Format, Paragraph, for a book's margins."
+msgstr "拖动文本框上方旋转环调整角度；也可以在格式-段落里设置从上到下/从下到上阅读，适配书页边距。"
+
+#: ink/reader/roomsui.lua
+msgid "Draw a bigger box."
+msgstr "绘制更大的选区。"
+
+#: ink/reader/roomsui.lua
+msgid "Draw a box and the text moves out of it"
+msgstr "绘制选区，文字自动避让"
+
+#: ink/reader/roomtool.lua
+msgid "Draw a box where the text should move away, or tap a room to change it."
+msgstr "绘制文字避让区域，或点击已有区域修改。"
+
+#: ink/reader/roomtool.lua
+msgid "Draw a box where the text should move away."
+msgstr "绘制文字避让区域。"
+
+#: ink/reader/roomtool.lua
+msgid "Draw again"
+msgstr "重新绘制"
+
+#: ink/view/images.lua
+msgid "Draw over a photo or screenshot; your drawing sits on top. To write on a PDF, start a notebook from it: File, New, From PDF."
+msgstr "在照片、截图上绘图，笔迹在上层；想要在PDF上批注，新建笔记本：文件 → 新建 → 从PDF创建。"
+
+#: ink/view/pencase.lua
+msgid "Draw with Boox's pen layer"
+msgstr "使用Boox原生笔迹层绘制"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/share.lua
+msgid "Drawing"
+msgstr "绘图"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Drawing in %s"
+msgstr "正在 %s 内绘图"
+
+#: ink/pentest.lua
+msgid ""
+"Drawing on a Boox\n"
+"\n"
+"Ink Away asks your Boox for its fast refresh while you write, and ink settles into grey and colour when the pen rests.\n"
+"\n"
+"KOReader leaves every other refresh to the Boox's own mode for KOReader. If the page flashes or ink lags behind the pen: E-Ink Center, App optimisation, KOReader, Refresh mode: Balanced (Regal on older Boox), or Fast.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"在文石Boox上绘图\n"
+"\n"
+"Ink Away会在你书写时调用Boox的快速刷新，笔停下后墨迹会渲染出灰度与彩色效果。\n"
+"\n"
+"KOReader其余的刷新均交由Boox自身针对KOReader的刷新模式处理。如果页面闪烁、墨迹跟不上笔触：进入墨水中心 → 应用优化 → KOReader，刷新模式选择均衡（旧款Boox为Regal）或快速。\n"
+"\n"
+"设置 → 指南 → 你的阅读器，可再次查看本提示。"
+
+#: ink/drawingshelf.lua
+msgid "Drawings"
+msgstr "绘图作品"
+
+#: ink/view/document.lua
+msgid "Drawings and notebooks from the old “drawing projects” and “notebook projects” folders are now in the library."
+msgstr "原「绘图项目」和「笔记本项目」文件夹里的绘图与笔记本现已移入资料库。"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/selection.lua
+msgid "Duplicate"
+msgstr "复制一份"
+
+#: ink/framecover.lua
+msgid "Dutch Ripple"
+msgstr "荷兰波纹"
+
+#: ink/view/paper.lua
+msgid "Each document keeps its paper; a new one starts on the last you picked. On a dark paper black ink and text show white. Dark mode never changes the paper."
+msgstr "每份文档独立保留纸张样式；新建文档默认沿用你上次选择的纸张。深色纸张上，黑色墨迹和文字会显示为白色。暗色模式不会更改纸张样式。"
+
+#: ink/view/sync.lua
+msgid "Each notebook is copied to your own cloud account. Nothing is replaced or removed without a safety copy, and when two readers change the same notebook, both versions are kept."
+msgstr "每本笔记本都会同步备份到你的云账号。覆盖或删除前都会留存安全副本；两台设备修改同一本笔记本时，两个版本都会保留。"
+
+#: ink/view/sync.lua
+msgid "Each one is tried again at the next sync. Tap Details on the sync sheet for what to do."
+msgstr "这些条目会在下一次同步时重试。点击同步面板上的详情查看处理方案。"
+
+#: ink/view/sync.lua
+msgid "Earlier versions"
+msgstr "历史版本"
+
+#: ink/view/sync.lua
+msgid "Earlier versions of this notebook"
+msgstr "此笔记本的历史版本"
+
+#: ink/framecover.lua
+msgid "Ebonised"
+msgstr "乌木做旧"
+
+#: ink/framecover.lua
+msgid "Ebony"
+msgstr "乌木"
+
+#: ink/view/textformat.lua
+msgid "Edit"
+msgstr "编辑"
+
+#: ink/view/export.lua
+msgid "Editable"
+msgstr "可编辑"
+
+#: ink/view/sync.lua
+msgid "Edited on this reader and on another reader since the last sync, so there are two versions. Nothing was lost."
+msgstr "自上次同步后，此设备和另一台设备都修改了该笔记本，因此存在两个版本，数据没有丢失。"
+
+#: ink/view/receive.lua
+msgid "Either way they stay in Library › Imported. To be asked again, turn on \"Ask to open notebooks that arrive\" in Phone or computer (Wi-Fi)."
+msgstr "无论哪种方式，文件都会保存在资料库 → 已导入。如需接收文件时弹窗询问，在「手机或电脑（Wi-Fi）」中开启「收到笔记本时询问是否打开」。"
+
+#: ink/framecover.lua
+msgid "Emerald and gold"
+msgstr "翡翠鎏金"
+
+#: ink/view/trash.lua
+msgid "Empty"
+msgstr "清空"
+
+#: ink/view/trash.lua
+msgid "Empty the trash"
+msgstr "清空回收站"
+
+#: ink/view/trash.lua
+msgid "Empty the trash?"
+msgstr "确定清空回收站？"
+
+#: ink/view/sync.lua
+msgid "Enter details"
+msgstr "填写信息"
+
+#: ink/sync/errors.lua
+msgid "Enter the code on your phone and tap Allow. This screen carries on by itself."
+msgstr "在手机上输入验证码并点击允许，本页面会自动继续。"
+
+#: ink/view/toolbar.lua
+msgid "Erase"
+msgstr "擦除"
+
+#: ink/view/menus.lua
+msgid "Erase pictures"
+msgstr "擦除图片"
+
+#: ink/view/menus.lua
+msgid "Erase whole strokes"
+msgstr "擦除完整笔触"
+
+#: main.lua
+msgid "Erase with the pen's eraser end"
+msgstr "使用笔尾橡皮擦擦除"
+
+#: ink/actions.lua
+#: ink/view/menus.lua
+msgid "Eraser"
+msgstr "橡皮擦"
+
+#: ink/actions.lua
+msgid "Eraser end"
+msgstr "橡皮擦端头"
+
+#: ink/guide.lua
+msgid "Erasing"
+msgstr "擦除操作"
+
+#: ink/guide.lua
+msgid "Every drawing and notebook is a file that saves as you go. File has Rename, Duplicate, Export and New."
+msgstr "所有绘图和笔记本都是实时自动保存的文件。文件菜单提供重命名、复制、导出、新建功能。"
+
+#: ink/guide.lua
+msgid "Everything besides ink"
+msgstr "墨迹以外全部内容"
+
+#: ink/sync/errors.lua
+msgid "Everything else works as usual."
+msgstr "其余功能均可正常使用。"
+
+#: ink/view/trash.lua
+msgid "Everything in it is deleted for good."
+msgstr "里面所有内容都会被永久删除。"
+
+#: ink/sync/areas.lua
+msgid "Everything in your library except the notes kept for books."
+msgstr "资料库内全部内容，书籍批注除外。"
+
+#: ink/view/sync.lua
+msgid "Everything is already in sync."
+msgstr "所有内容已是最新同步状态。"
+
+#: ink/view/sync.lua
+msgid "Everything is already the same here and in the cloud."
+msgstr "本地与云端内容完全一致。"
+
+#: ink/reader/inkview.lua
+msgid "Everything you drew, wrote and placed on this book goes, on every page. Highlights the highlighter turned into the reader's own stay, and so do the book's notes."
+msgstr "你在本书每页绘制、书写、插入的墨迹都会被移除。使用阅读器原生高亮功能添加的高亮和书籍自带批注会保留。"
+
+#: ink/reader/roomsui.lua
+msgid "Exact lines"
+msgstr "精准行定位"
+
+#: ink/reader/roomsui.lua
+msgid "Exact lines is on. A room can then start on any line of the text: Ink Away wraps one word of that line in an invisible mark, in a private copy of the book that it keeps in its own cache. The book's file is never changed, moved or sent, and the copy can always be made again from it. \"Back to the original book\" in this menu takes the marks away."
+msgstr "精准行定位已开启。分区可以从文本任意一行开始：Ink Away会在缓存内生成一份书籍私有副本，用隐形标记标记该行一个单词。原始书籍文件不会被修改、移动或上传，副本随时可以重新生成。本菜单里的「恢复原始书籍」会清除这些标记。"
+
+#: ink/reader/roomsui.lua
+msgid "Exact lines needs an EPUB shown in the Book or Web render mode."
+msgstr "精准行定位需要EPUB书籍使用书籍渲染或网页渲染模式。"
+
+#: ink/view/toolbar.lua
+msgid "Exit"
+msgstr "退出"
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to the service below and puts back the text it reads. Wi-Fi has to be on."
+msgstr "实验性功能。转为文字会把套索选中的笔迹截图发送至下方服务，返回识别后的文本，需要开启Wi-Fi。"
+
+#: ink/view/ocrapi.lua
+msgid "Experimental. Convert to text sends a picture of the lassoed writing to your AI service and puts back the text it reads. Set the three below from your service's account and documentation, then lasso some writing and choose Convert to text, with Wi-Fi on."
+msgstr "实验性功能。转为文字会把套索选中的笔迹截图发送至你的AI服务，返回识别文本。根据服务商账号文档填写下方三项配置，开启Wi-Fi后，套索框选手写内容并选择转为文字即可。"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Export"
+msgstr "导出"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) as PNGs"
+msgstr "导出 %d 页为PNG图片"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Export %d page(s) to PDF"
+msgstr "导出 %d 页为PDF"
+
+#: ink/view/export.lua
+msgid "Export PDF"
+msgstr "导出PDF"
+
+#: ink/view/export.lua
+msgid "Export PNG"
+msgstr "导出PNG"
+
+#: ink/view/export.lua
+msgid "Export as PDF"
+msgstr "导出为PDF"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export as PDF…"
+msgstr "导出为PDF…"
+
+#: ink/view/export.lua
+msgid "Export as PNG"
+msgstr "导出为PNG"
+
+#: ink/view/export.lua
+msgid "Export as images"
+msgstr "导出为图片"
+
+#: ink/view/export.lua
+msgid "Export editable PDF"
+msgstr "导出可编辑PDF"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Export folder: %s"
+msgstr "导出文件夹：%s"
+
+#: ink/view/export.lua
+msgid "Export stopped."
+msgstr "导出已停止。"
+
+#: main.lua
+msgid "Export the book with its annotations…"
+msgstr "导出带批注的本书…"
+
+#: ink/view/export.lua
+msgid "Export the folder as PDF"
+msgstr "将文件夹导出为PDF"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Exporting %d page(s) to PDF"
+msgstr "正在导出 %d 页为PDF"
+
+#: ink/sync/areas.lua
+msgid "Exports"
+msgstr "导出文件"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Exports: %s"
+msgstr "导出目录：%s"
+
+#: ink/reader/inkview.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Export…"
+msgstr "导出…"
+
+#: ink/view/ocrapi.lua
+msgid "External OCR. Stop discards the result; the request may still finish at the provider."
+msgstr "外部OCR。停止操作会丢弃识别结果，但服务端的请求仍可能继续完成。"
+
+#: ink/guide.lua
+msgid "Fast refresh on a Boox"
+msgstr "Boox快速刷新"
+
+#: ink/view/pencase.lua
+msgid "Fast refresh while drawing"
+msgstr "绘图时启用快速刷新"
+
+#: ink/view/settings.lua
+msgid "Fast strokes leave faint marks; a full refresh clears them this often."
+msgstr "快速笔触会留下残影，按此频率执行全局刷新清除残影。"
+
+#: ink/guide.lua
+msgid "Faster drawing"
+msgstr "提升绘图速度"
+
+#: ink/pentest.lua
+msgid ""
+"Faster drawing on this reader\n"
+"\n"
+"KOReader can't choose the fast e-ink refresh on this device, so its own refresh mode for KOReader decides how quickly ink appears.\n"
+"\n"
+"Look for a per-app refresh or speed mode for KOReader in the device's settings, and choose the fastest.\n"
+"\n"
+"Settings, Guide, Your reader shows this again."
+msgstr ""
+"在本阅读器上加快绘图\n"
+"\n"
+"KOReader无法控制该设备的墨水屏快速刷新，墨迹显示速度由系统分配给KOReader的刷新模式决定。\n"
+"\n"
+"前往设备设置，找到KOReader的应用独立刷新/速度模式，选择最快档位。\n"
+"\n"
+"设置 → 指南 → 你的阅读器，可再次查看本提示。"
+
+#: ink/view/toolbar.lua
+msgid "File"
+msgstr "文件"
+
+#: ink/guide.lua
+msgid "File, Export: transparent or white, the whole page or an area you pick, with or without the grid."
+msgstr "文件 → 导出：支持透明底/白底、整页/选区导出，可选择是否包含网格。"
+
+#: ink/guide.lua
+msgid "File, Layers splits a drawing into layers. The strip at the right adds one or picks where you draw; tap that one for its menu."
+msgstr "文件 → 图层：将绘图分层。右侧栏可新建图层、选中绘图图层，点击图层调出菜单。"
+
+#: ink/view/settings.lua
+msgid "Files"
+msgstr "文件"
+
+#: ink/view/share.lua
+msgid "Files arrive in Library › Imported. Reload the page if it was open."
+msgstr "文件保存至资料库 → 已导入。如果页面已打开，请刷新页面。"
+
+#: ink/view/menus.lua
+msgid "Fill"
+msgstr "填充"
+
+#: ink/view/menus.lua
+msgid "Fill colour"
+msgstr "填充颜色"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Filled shapes and fills: %d"
+msgstr "填充图形数量：%d"
+
+#: ink/penset.lua
+msgid "Fineliner"
+msgstr "勾线笔"
+
+#: ink/view/pencase.lua
+msgid "Finger on the page"
+msgstr "手指触屏操作"
+
+#: ink/framepicker.lua
+msgid "Finish"
+msgstr "完成"
+
+#: ink/view/sync.lua
+msgid "Finishing…"
+msgstr "正在完成…"
+
+#: ink/view/pencase.lua
+msgid "Firm"
+msgstr "扎实"
+
+#: ink/guide.lua
+msgid "First or last page"
+msgstr "首页或末页"
+
+#: ink/view/notebook.lua
+msgid "First page"
+msgstr "首页"
+
+#: main.lua
+msgid "First page on its own"
+msgstr "单独首页"
+
+#: ink/actions.lua
+msgid "Fit the page"
+msgstr "适配页面"
+
+#: ink/reader/inkview.lua
+msgid "Fit the toolbar in the margin"
+msgstr "工具栏收纳到页边"
+
+#: ink/view/handwriting.lua
+msgid "Fix anything misread, then convert."
+msgstr "修正识别错误内容后再转换。"
+
+#: ink/view/selection.lua
+msgid "Flip"
+msgstr "翻转"
+
+#: ink/framecover.lua
+msgid "Floating Frame"
+msgstr "悬浮边框"
+
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+msgid "Folder"
+msgstr "文件夹"
+
+#: ink/view/library.lua
+msgid "Folder icon"
+msgstr "文件夹图标"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Folder in %s"
+msgstr "%s内的文件夹"
+
+#: ink/view/library.lua
+msgid "Folder name"
+msgstr "文件夹名称"
+
+#: ink/view/search.lua
+msgid "Folder, notebook or page name"
+msgstr "文件夹、笔记本或页面名称"
+
+#: ink/guide.lua
+msgid "Folders, search and the trash"
+msgstr "文件夹、搜索与回收站"
+
+#: ink/view/export.lua
+msgid "Folder…"
+msgstr "文件夹…"
+
+#: ink/view/menus.lua
+msgid "Font size"
+msgstr "字体大小"
+
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Font: %s"
+msgstr "字体：%s"
+
+#: main.lua
+msgid "For a book with a cover: the pairs then start from its second page."
+msgstr "带封面的书籍，分页配对从第二页开始。"
+
+#: ink/guide.lua
+msgid "For pen readers: rest your hand while you write. Finger on the page sets what a finger does then."
+msgstr "手写阅读器：书写时可将手掌放在屏幕上。「手指触屏操作」用来设置手指的行为。"
+
+#: ink/coverpicker.lua
+msgid "Forest"
+msgstr "森系"
+
+#: ink/view/export.lua
+#: ink/view/textedit.lua
+#: ink/view/textformat.lua
+msgid "Format"
+msgstr "格式"
+
+#: ink/guide.lua
+msgid "Format, Paragraph, Checklist puts a box before each line. Tap a box to tick it, with the text open or closed."
+msgstr "格式 → 段落 → 待办清单：在每行前面添加复选框。点击方框打勾，文字可折叠/展开。"
+
+#: ink/penset.lua
+msgid "Fountain"
+msgstr "钢笔"
+
+#: ink/view/settings.lua
+msgid "Four-way"
+msgstr "四向"
+
+#: ink/view/library.lua
+msgid "Frame on the shelf…"
+msgstr "书架边框样式…"
+
+#: ink/view/images.lua
+msgid "Free pictures from Wikimedia and Openverse. Needs Wi-Fi."
+msgstr "从维基共享资源与Openverse获取免费图片，需要Wi-Fi。"
+
+#: ink/sync/errors.lua
+msgid "Free some space in your account or buy more. Nothing was lost on this reader."
+msgstr "请清理云账号存储空间或扩容，本机数据不会丢失。"
+
+#: ink/sync/errors.lua
+msgid "Free some space on the reader and try again."
+msgstr "清理阅读器存储空间后重试。"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "From %s"
+msgstr "来自 %s"
+
+#: ink/view/images.lua
+msgid "From Library › Imported › Pictures."
+msgstr "来自资料库 → 已导入 → 图片。"
+
+#: ink/view/notebook.lua
+msgid "From a PDF…"
+msgstr "从PDF新建…"
+
+#: ink/view/notebook.lua
+msgid "From a template…"
+msgstr "从模板新建…"
+
+#: ink/view/notebook.lua
+msgid "From template…"
+msgstr "从模板…"
+
+#: ink/view/images.lua
+msgid "From this reader"
+msgstr "来自本机"
+
+#: ink/view/receive.lua
+msgid "From your phone or computer"
+msgstr "来自手机或电脑"
+
+#: ink/notebookcover.lua
+msgid "Front page"
+msgstr "封面"
+
+#: ink/view/imagebrowser.lua
+msgid "Full resolution"
+msgstr "原始分辨率"
+
+#: ink/framecover.lua
+msgid "Fumed oak"
+msgstr "熏橡木"
+
+#: ink/view/stickers.lua
+msgid "Fun"
+msgstr "趣味"
+
+#: ink/guide.lua
+#: ink/reader/inkview.lua
+#: ink/view/gestures.lua
+#: ink/view/settings.lua
+msgid "Gestures and pen buttons"
+msgstr "手势与笔按键"
+
+#: ink/guide.lua
+msgid "Gestures and pen buttons gives each one an action, and the page turn buttons too: undo, lasso, a saved pen, hiding the toolbar and more."
+msgstr "手势和手写笔按键可以绑定功能，翻页键同样支持：撤销、套索、切换预设笔、隐藏工具栏等。"
+
+#: ink/view/images.lua
+msgid "Get from your phone or computer"
+msgstr "从手机或电脑获取"
+
+#: ink/view/sync.lua
+msgid "Get the latest when opening one"
+msgstr "打开时自动拉取最新版本"
+
+#: ink/guide.lua
+msgid "Getting around"
+msgstr "页面导航"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Ghosting"
+msgstr "残影"
+
+#: ink/framecover.lua
+msgid "Gilded Baroque"
+msgstr "鎏金巴洛克"
+
+#: ink/view/notebook.lua
+msgid "Go"
+msgstr "前往"
+
+#: ink/view/updates.lua
+msgid "Go back"
+msgstr "返回"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back from this version to the latest release (%1)."
+msgstr "从当前版本回退到正式版（%1）。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Go back to %1?"
+msgstr "确定回退到 %1？"
+
+#: ink/view/updates.lua
+msgid "Go back to it"
+msgstr "回退到此版本"
+
+#: ink/view/library.lua
+msgid "Go to folder"
+msgstr "进入文件夹"
+
+#: ink/view/selection.lua
+msgid "Go to link"
+msgstr "跳转链接"
+
+#: ink/view/notebook.lua
+msgid "Go to page"
+msgstr "跳转页面"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Go to page (1–%d)"
+msgstr "跳转页面（1–%d）"
+
+#: ink/view/notebook.lua
+msgid "Go to page…"
+msgstr "跳转页面…"
+
+#: ink/actions.lua
+#: ink/view/notebook.lua
+msgid "Go to the contents page"
+msgstr "跳转目录页"
+
+#: ink/framecover.lua
+msgid "Gold"
+msgstr "鎏金"
+
+#: ink/view/welcome.lua
+msgid "Got it"
+msgstr "知道了"
+
+#: ink/brushes.lua
+msgid "Grain"
+msgstr "颗粒质感"
+
+#: ink/folderlook.lua
+msgid "Graphite"
+msgstr "石墨"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Green"
+msgstr "绿色"
+
+#: ink/palette.lua
+msgid "Grey"
+msgstr "灰色"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Grid"
+msgstr "方格"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Grid: %s"
+msgstr "网格样式：%s"
+
+#: ink/reader/inkview.lua
+#: ink/view/guide.lua
+#: ink/view/settings.lua
+msgid "Guide"
+msgstr "指南"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Habit tracker"
+msgstr "习惯打卡表"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Handwriting"
+msgstr "手写"
+
+#: ink/reader/hlcolour.lua
+#: ink/reader/hlnotes.lua
+msgid "Handwritten note"
+msgstr "手写批注"
+
+#: ink/notebookcover.lua
+msgid "Hardcover"
+msgstr "硬壳封面"
+
+#: ink/penset.lua
+msgid "Hatch"
+msgstr "阴影排线笔"
+
+#: ink/reader/roomsui.lua
+#: ink/view/settings.lua
+msgid "Hidden"
+msgstr "隐藏"
+
+#: ink/reader/roomsui.lua
+msgid "Hidden, the book reads as it was made, and what is in the rooms hides with them."
+msgstr "隐藏模式下，书籍原样展示，分区内的内容一并隐藏。"
+
+#: ink/view/layers.lua
+#: ink/view/stickers.lua
+msgid "Hide"
+msgstr "隐藏"
+
+#: ink/actions.lua
+msgid "Hide or show the toolbar"
+msgstr "显示/隐藏工具栏"
+
+#: ink/view/stickers.lua
+msgid "Hide this sticker?"
+msgstr "隐藏该贴纸？"
+
+#: ink/view/textformat.lua
+msgid "Highlight"
+msgstr "高亮"
+
+#: ink/reader/hlcolour.lua
+msgid "Highlight colour"
+msgstr "高亮颜色"
+
+#: ink/reader/notesview.lua
+msgid "Highlight menu"
+msgstr "高亮菜单"
+
+#: ink/guide.lua
+msgid "Highlight while reading"
+msgstr "阅读时高亮标注"
+
+#: main.lua
+msgid "Highlight with the pen's button"
+msgstr "用笔侧键高亮"
+
+#: ink/actions.lua
+#: ink/penset.lua
+msgid "Highlighter"
+msgstr "荧光笔"
+
+#: ink/reader/inkview.lua
+msgid "Highlighter snaps to the text"
+msgstr "荧光笔自动贴合文字边缘"
+
+#: ink/reader/hlcolour.lua
+msgid "Hold a colour to take it off this list. The wheel adds colours of your own."
+msgstr "长按颜色可从列表移除，调色盘可以自定义添加颜色。"
+
+#: ink/view/textformat.lua
+msgid "Hold a colour you added to remove it."
+msgstr "长按你添加的颜色进行删除。"
+
+#: ink/guide.lua
+msgid "Hold a folder in the Library, Export as PDF."
+msgstr "在资料库长按文件夹，可导出为PDF。"
+
+#: ink/guide.lua
+msgid "Hold a saved pen."
+msgstr "长按预设画笔。"
+
+#: ink/guide.lua
+msgid "Hold inside the text box you are writing in."
+msgstr "在输入文本框内长按。"
+
+#: ink/view/pencase.lua
+msgid "Hold still to straighten"
+msgstr "停笔自动规整图形"
+
+#: ink/guide.lua
+msgid "Hold the pen still at the end of a stroke: a rough line, box, ellipse or triangle snaps clean. Writing is left alone."
+msgstr "一笔画完后保持笔静止：手绘线条、矩形、椭圆、三角形会自动规整；手写文字不会改动。"
+
+#: main.lua
+msgid "Hold the pen's side button and run the pen over a line of text: it becomes a highlight, without opening the annotation mode. The button is the one set to Highlighter in Gestures and pen buttons."
+msgstr "按住笔侧键划过文字即可高亮，无需进入批注模式；该按键需要在「手势与笔按键」里绑定荧光笔功能。"
+
+#: ink/guide.lua
+msgid "Hold the pen's side button while drawing."
+msgstr "绘图时按住笔侧键。"
+
+#: ink/guide.lua
+msgid "Hold the previous or next arrow."
+msgstr "长按上一页/下一页箭头。"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Hold: %1"
+msgstr "长按：%1"
+
+#: ink/view/settings.lua
+msgid "Horizontal"
+msgstr "横向"
+
+#: ink/view/menus.lua
+msgid "How big the arrowheads are, in canvas pixels."
+msgstr "箭头大小，单位为画布像素。"
+
+#: ink/view/settings.lua
+msgid "Icon in KOReader's top menu bar"
+msgstr "在KOReader顶部菜单栏显示图标"
+
+#: main.lua
+msgid "Icon in the top menu bar"
+msgstr "顶部菜单栏图标"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Icon: %s"
+msgstr "图标：%s"
+
+#: ink/view/settings.lua
+#: ink/view/toolbar.lua
+msgid "Image"
+msgstr "图片"
+
+#: ink/guide.lua
+msgid "Image adds one from a file or from the web. Move, resize or turn it; Remove background cuts it out."
+msgstr "图片：从本地文件或网络添加。支持移动、缩放、旋转；抠图功能可以去除背景。"
+
+#: ink/guide.lua
+msgid "Image, Background puts a picture behind the page. Hold New drawing to start a drawing from one."
+msgstr "图片 → 背景：将图片置于页面底层。长按新建绘图，可以以该图片为底图绘图。"
+
+#: ink/guide.lua
+msgid "Import a PDF to write on its pages, then export it back to PDF."
+msgstr "导入PDF，在页面上手写批注，之后可以重新导出PDF。"
+
+#: ink/reader/hlcolour.lua
+msgid "Important, a word to look up, a question…"
+msgstr "重点、待查单词、疑问标记…"
+
+#: ink/sync/areas.lua
+msgid "Imported PDFs and pictures"
+msgstr "已导入PDF与图片"
+
+#: ink/view/settings.lua
+msgid "In KOReader's night mode, ink keeps its colour: blue stays blue, and dark ink turns light so it reads on the dark page."
+msgstr "KOReader夜间模式下墨迹保留色彩：蓝色保持蓝色；深色墨迹自动变浅，方便在深色页面阅读。"
+
+#: main.lua
+msgid "In landscape"
+msgstr "横屏模式"
+
+#: ink/reader/roomtool.lua
+msgid "In this render mode, rooms are made of whole paragraphs. The Book and Web modes make them exact."
+msgstr "该渲染模式下分区以整段为单位；书籍、网页渲染模式支持精准行分区。"
+
+#: ink/view/export.lua
+msgid "Include the PDF page"
+msgstr "包含PDF原页面"
+
+#: ink/view/export.lua
+msgid "Include the background"
+msgstr "包含背景"
+
+#: ink/view/export.lua
+msgid "Include the book's pages"
+msgstr "包含书籍页面"
+
+#: ink/view/export.lua
+msgid "Include the grid"
+msgstr "包含网格"
+
+#: ink/view/export.lua
+msgid "Include the paper"
+msgstr "包含纸张底纹"
+
+#: ink/brushes.lua
+msgid "Ink"
+msgstr "墨水笔"
+
+#: ink/launcher.lua
+#: main.lua
+msgid "Ink Away"
+msgstr "Ink Away"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1"
+msgstr "Ink Away %1"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is available: Settings, Updates."
+msgstr "发现新版本 Ink Away %1：前往设置 → 更新。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away %1 is installed. Restart KOReader to use it."
+msgstr "Ink Away %1 已安装，重启KOReader生效。"
+
+#: main.lua
+msgid "Ink Away (drawing canvas)"
+msgstr "Ink Away（绘图画布）"
+
+#: ink/reader/book.lua
+msgid "Ink Away could not save this book's ink: its folder can't be written to."
+msgstr "Ink Away无法保存本书墨迹：目标文件夹无写入权限。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Ink Away downloads it from GitHub (%1) and checks it before it replaces this version; then KOReader restarts to use it. Your drawings, notebooks and settings stay as they are."
+msgstr "Ink Away从GitHub（%1）下载安装包并校验，校验通过后替换当前版本，随后重启KOReader。你的绘图、笔记本和设置不会丢失。"
+
+#: ink/drawingshelf.lua
+msgid "Ink Away drawings"
+msgstr "Ink Away绘图作品"
+
+#: ink/view/share.lua
+msgid "Ink Away file"
+msgstr "Ink Away文件"
+
+#: ink/view/welcome.lua
+msgid "Ink Away in your books"
+msgstr "在书籍内使用Ink Away"
+
+#: ink/view/settings.lua
+msgid "Ink Away is free and made by one person. If it makes your writing better, a coffee helps keep it going."
+msgstr "Ink Away是独立开发者免费制作的项目。如果你觉得好用，可以请作者喝杯咖啡支持开发。"
+
+#: main.lua
+msgid "Ink Away library"
+msgstr "Ink Away资料库"
+
+#: ink/bookshelf.lua
+msgid "Ink Away notebooks"
+msgstr "Ink Away笔记本"
+
+#: ink/view/sync.lua
+msgid "Ink Away only uses its own folder in your account and cannot see anything else in it. Syncing stays off until you connect."
+msgstr "Ink Away仅访问云账号内专属文件夹，无法读取账号其他文件。未登录前同步功能保持关闭。"
+
+#: main.lua
+msgid "Ink Away's icon in this bar opens a quick menu from any screen. It shows the next time the menu is opened."
+msgstr "该栏上的Ink Away图标，可在任意页面调出快捷菜单，下次打开菜单时生效。"
+
+#: main.lua
+msgid "Ink Away: annotate the book"
+msgstr "Ink Away：给书籍批注"
+
+#: main.lua
+msgid "Ink Away: book notes (Ink Away outside a book)"
+msgstr "Ink Away：书籍笔记（不在书籍内打开Ink Away）"
+
+#: main.lua
+msgid "Ink Away: copy part of the screen"
+msgstr "Ink Away：截取屏幕区域"
+
+#: main.lua
+msgid "Ink Away: quick menu"
+msgstr "Ink Away：快捷菜单"
+
+#: ink/sync/areas.lua
+msgid "Ink on book pages"
+msgstr "书籍页面墨迹批注"
+
+#: ink/view/pencase.lua
+msgid "Ink shows with the Boox's fast black-and-white refresh as you write, and settles into grey and colour when the pen rests."
+msgstr "书写时Boox黑白快速刷新显示墨迹，笔停下后渲染灰度与彩色。"
+
+#: ink/guide.lua
+msgid "Ink stays with the words when the font changes. Also in the reader menu: Tools, Ink Away."
+msgstr "更改字体时，墨迹会跟随文字位置。阅读器菜单：工具 → Ink Away。"
+
+#: ink/view/notebook.lua
+msgid "Insert before"
+msgstr "在前面插入"
+
+#: ink/view/updates.lua
+msgid "Install"
+msgstr "安装"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Install %1?"
+msgstr "确定安装 %1？"
+
+#: ink/framecover.lua
+msgid "Instant Photo"
+msgstr "拍立得"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Into %s"
+msgstr "保存至 %s"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Isometric"
+msgstr "等轴测"
+
+#: ink/view/trash.lua
+msgid "It can't be brought back."
+msgstr "删除后无法恢复。"
+
+#: ink/view/sync.lua
+msgid "It replaces the other reader's version, here and on the other reader at the next sync. The version it replaces is kept in the backup folder."
+msgstr "该版本将覆盖另一台设备版本，本地和另一台设备下次同步都会更新；被覆盖版本存入备份文件夹。"
+
+#: ink/guide.lua
+msgid "It saves itself"
+msgstr "自动保存"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "It stays in the trash for %d days."
+msgstr "文件在回收站保留 %d 天。"
+
+#: ink/sync/errors.lua
+msgid "It will be checked again on the next sync."
+msgstr "将在下次同步时重新校验。"
+
+#: ink/sync/errors.lua
+msgid "It will be downloaded again on the next sync."
+msgstr "将在下次同步时重新下载。"
+
+#: ink/sync/errors.lua
+msgid "It will be sent again on the next sync."
+msgstr "将在下次同步时重新上传。"
+
+#: ink/sync/errors.lua
+msgid "It will be synced next time."
+msgstr "下次同步时处理。"
+
+#: ink/view/textformat.lua
+msgid "Italic"
+msgstr "斜体"
+
+#: ink/reader/roomsui.lua
+msgid "Items pinned to later pages may now sit over other text."
+msgstr "固定到靠后页面的内容，现在可能叠在其他文字上方。"
+
+#: ink/framecover.lua
+msgid "Ivory and silver"
+msgstr "象牙银饰"
+
+#: ink/welcome.lua
+msgid "KOReader's gesture manager is off, so Ink Away couldn't give these a gesture."
+msgstr "KOReader手势管理器未开启，Ink Away无法为这些功能分配手势。"
+
+#: ink/view/settings.lua
+msgid "KOReader's input.lua has been replaced, most likely by another pen plugin, so the pen may act oddly in Ink Away. Updating or reinstalling KOReader puts its own back, or copy frontend/device/input.lua from the KOReader download for your version. Use Ink Away and other pen plugins one at a time."
+msgstr "KOReader的input.lua已被替换（大概率是其他手写插件），Ink Away里手写笔行为可能异常。更新或重装KOReader可恢复原版文件，也可以从对应版本安装包复制frontend/device/input.lua。不要同时启用Ink Away和其他手写插件。"
+
+#: ink/view/exportbook.lua
+msgid "Keep as pictures"
+msgstr "保留为图片"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Keep as pictures puts a picture of your ink over the %d page(s) that have them, so they look as you drew them. Their ink there can't be edited stroke by stroke; every other page stays editable. Leave them out writes the PDF without them."
+msgstr "保留为图片：在有墨迹的 %d 页上叠加墨迹图片，和你绘制效果一致；该页面墨迹无法逐笔触编辑，其余页面仍可编辑。选择不包含则导出PDF不带这些墨迹。"
+
+#: ink/view/sync.lua
+msgid "Keep both"
+msgstr "保留两个版本"
+
+#: ink/view/settings.lua
+msgid "Keep colours in night mode"
+msgstr "夜间模式保留颜色"
+
+#: ink/view/library.lua
+msgid "Keep for (days)"
+msgstr "保留时长（天）"
+
+#: ink/view/dialogs.lua
+msgid "Keep going"
+msgstr "继续"
+
+#: ink/view/sync.lua
+msgid "Keep the other reader's version"
+msgstr "保留另一台设备版本"
+
+#: ink/view/sync.lua
+msgid "Keep this reader's version"
+msgstr "保留本机版本"
+
+#: ink/view/sync.lua
+msgid "Keep your notebooks and drawings the same on all your readers."
+msgstr "让多台阅读器上的笔记本、绘图保持一致。"
+
+#: ink/view/sync.lua
+msgid "Keep your notebooks the same on all your readers, through your own cloud account."
+msgstr "通过你的云账号，在多台阅读器同步笔记本。"
+
+#: ink/view/ocrapi.lua
+msgid "Key"
+msgstr "密钥"
+
+#: ink/view/pencase.lua
+msgid "Kind of pen"
+msgstr "画笔类型"
+
+#: ink/palette.lua
+msgid "Kraft"
+msgstr "牛皮纸色"
+
+#: ink/notebookcover.lua
+msgid "Kraft with window"
+msgstr "开窗牛皮纸"
+
+#: ink/reader/hlcolour.lua
+msgid "Label for this colour"
+msgstr "该颜色备注名"
+
+#: ink/reader/hlcolour.lua
+msgid "Labels"
+msgstr "标签"
+
+#: ink/view/settings.lua
+msgid "Landscape"
+msgstr "横向"
+
+#: ink/actions.lua
+#: ink/guide.lua
+#: ink/reader/roomsui.lua
+#: ink/view/toolbar.lua
+msgid "Lasso"
+msgstr "套索"
+
+#: ink/guide.lua
+msgid "Lasso printed handwriting and Convert to text makes it a text box. One undo brings the writing back."
+msgstr "套索选中手写笔迹，选择转为文字，生成文本框；撤销一次即可恢复原始笔迹。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Last checked %1."
+msgstr "上次检查：%1。"
+
+#: ink/view/settings.lua
+msgid "Last document"
+msgstr "上次文档"
+
+#: ink/view/notebook.lua
+msgid "Last page"
+msgstr "末页"
+
+#: ink/view/receive.lua
+msgid "Later"
+msgstr "稍后"
+
+#: ink/palette.lua
+msgid "Lavender"
+msgstr "薰衣草紫"
+
+#: ink/view/layers.lua
+#, lua-format
+msgid "Layer %1 of %2. New drawing goes on this layer."
+msgstr "图层 %1 / %2。新绘制内容放在此图层。"
+
+#: ink/guide.lua
+#: ink/view/document.lua
+msgid "Layers"
+msgstr "图层"
+
+#: ink/view/exportbook.lua
+msgid "Leave them out"
+msgstr "不包含"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Left"
+msgstr "左对齐"
+
+#: ink/notebookcover.lua
+#: ink/palette.lua
+msgid "Legal pad"
+msgstr "便笺本"
+
+#: ink/reader/roomtool.lua
+#: ink/view/selection.lua
+msgid "Let it follow the text"
+msgstr "跟随文本流动"
+
+#: ink/reader/roomsui.lua
+msgid "Lets a room start on any line, not only at a paragraph. Works on a private copy of the book; the book's file is never changed."
+msgstr "允许分区从任意一行开始，不限于段落开头。基于书籍私有副本工作，原始文件不会被修改。"
+
+#: ink/actions.lua
+#: ink/launcher.lua
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+#: ink/view/search.lua
+#: ink/view/settings.lua
+#: ink/view/share.lua
+#: ink/view/toolbar.lua
+msgid "Library"
+msgstr "资料库"
+
+#: ink/guide.lua
+msgid "Library and Browse"
+msgstr "资料库与浏览"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library folder: %s"
+msgstr "资料库目录：%s"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Library: %s"
+msgstr "资料库：%s"
+
+#: ink/view/settings.lua
+msgid "Light"
+msgstr "浅色"
+
+#: ink/palette.lua
+msgid "Light grey"
+msgstr "浅灰"
+
+#: ink/framecover.lua
+msgid "Light oak"
+msgstr "浅橡木"
+
+#: ink/view/pencase.lua
+msgid "Light touch"
+msgstr "轻触"
+
+#: ink/view/pencase.lua
+msgid "Lighter screen updates"
+msgstr "轻度屏幕刷新"
+
+#: ink/folderlook.lua
+msgid "Lime"
+msgstr "青柠色"
+
+#: ink/view/menus.lua
+msgid "Line / arrow / curve"
+msgstr "直线/箭头/曲线"
+
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Line spacing"
+msgstr "行间距"
+
+#: ink/view/settings.lua
+msgid "Line strength"
+msgstr "线条粗细"
+
+#: ink/view/notebook.lua
+msgid "Lined"
+msgstr "横线本"
+
+#: ink/guide.lua
+msgid "Lined, grid, dotted, Cornell, daily, weekly, monthly, a habit tracker and more, for each page."
+msgstr "每页可选：横线、方格、点线、康奈尔、日记、周计划、月计划、习惯打卡等多种模板。"
+
+#: ink/view/settings.lua
+msgid "Lines"
+msgstr "线条"
+
+#: ink/guide.lua
+msgid "Lines, curves, arrows, boxes, ellipses and triangles, filled or outlined."
+msgstr "直线、曲线、箭头、矩形、椭圆、三角形，支持填充或描边。"
+
+#: ink/view/links.lua
+msgid "Link to a page"
+msgstr "页面跳转链接"
+
+#: ink/guide.lua
+msgid "Link to page in the lasso's menu makes it a link: tap it with Pan, or a finger with palm rejection on, to jump there; Back returns."
+msgstr "套索菜单里设置页面链接：平移模式下点击，或开启掌拒后手指点击即可跳转；返回键回到原页。"
+
+#: ink/view/selection.lua
+msgid "Link to page…"
+msgstr "链接到页面…"
+
+#: ink/view/links.lua
+#, lua-format
+msgid "Linked to %s"
+msgstr "链接至 %s"
+
+#: ink/guide.lua
+msgid "Links"
+msgstr "链接"
+
+#: ink/view/textformat.lua
+msgid "List"
+msgstr "列表"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Loading images… %d/%d"
+msgstr "加载图片… %d/%d"
+
+#: ink/actions.lua
+msgid "Long two-finger swipe down"
+msgstr "双指长距离向下滑动"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe down."
+msgstr "双指长距离向下滑动。"
+
+#: ink/actions.lua
+msgid "Long two-finger swipe up"
+msgstr "双指长距离向上滑动"
+
+#: ink/guide.lua
+msgid "Long two-finger swipe up."
+msgstr "双指长距离向上滑动。"
+
+#: ink/view/imagebrowser.lua
+msgid "Long-press an image to add it."
+msgstr "长按图片添加。"
+
+#: ink/view/sync.lua
+msgid "Look at the conflicts"
+msgstr "查看冲突项"
+
+#: ink/view/search.lua
+msgid "Look inside pages too"
+msgstr "同时搜索页面内内容"
+
+#: ink/view/sync.lua
+msgid "Looking at this reader…"
+msgstr "正在读取本机内容…"
+
+#: ink/view/sync.lua
+msgid "Looking at what there is to sync…"
+msgstr "正在检索待同步内容…"
+
+#: ink/view/sync.lua
+msgid "Looking for a newer version…"
+msgstr "正在查找新版本…"
+
+#: ink/view/sync.lua
+msgid "Looking for changes…"
+msgstr "正在检查变更…"
+
+#: ink/reader/roomsui.lua
+msgid "Loop ink, shapes or pictures to move, copy or change them"
+msgstr "圈选墨迹、图形或图片，进行移动、复制、修改"
+
+#: ink/guide.lua
+msgid "Loop writing, shapes, pictures or text for its menu: cut, copy, duplicate, turn, flip, colour, size, opacity, to front, delete."
+msgstr "圈选手写内容、图形、图片或文字调出菜单：剪切、复制、复制一份、旋转、翻转、改色、缩放、透明度、置顶、删除。"
+
+#: ink/view/textformat.lua
+msgid "Loose"
+msgstr "宽松"
+
+#: ink/framecover.lua
+msgid "Louis XVI"
+msgstr "路易十六风格"
+
+#: ink/framecover.lua
+msgid "Mahogany"
+msgstr "桃花心木"
+
+#: ink/view/pencase.lua
+msgid "Make a brush"
+msgstr "新建画笔"
+
+#: ink/guide.lua
+msgid "Make a brush in the list of kinds; hold it there to delete it."
+msgstr "在画笔列表新建画笔；长按画笔可删除。"
+
+#: ink/view/notebook.lua
+msgid "Make a contents page"
+msgstr "生成目录页"
+
+#: ink/view/pencase.lua
+msgid "Make a copy"
+msgstr "复制画笔"
+
+#: ink/reader/roomsui.lua
+#: ink/reader/roomtool.lua
+#: ink/view/selection.lua
+msgid "Make room"
+msgstr "腾出空间"
+
+#: ink/reader/roomsui.lua
+msgid "Make room works in books whose text reflows, shown one page at a time."
+msgstr "腾出空间功能适用于文字可重排、单页显示的书籍。"
+
+#: ink/sync/errors.lua
+msgid "Make the notebook smaller, for example by splitting it. It stays on this reader."
+msgstr "缩小笔记本体积（例如拆分笔记本），文件保留在本机。"
+
+#: ink/guide.lua
+msgid "Make them yours"
+msgstr "自定义"
+
+#: ink/view/share.lua
+msgid "Making a notebook in Library › Imported › PDFs…"
+msgstr "正在从资料库 → 已导入 → PDF生成笔记本…"
+
+#: ink/view/sync.lua
+msgid "Manual only"
+msgstr "仅手动同步"
+
+#: ink/sync/errors.lua
+msgid "Many files seem to be missing"
+msgstr "大量文件缺失"
+
+#: ink/view/settings.lua
+msgid "Map while panning"
+msgstr "平移时同步定位"
+
+#: ink/view/notebook.lua
+msgid "Margin ruled"
+msgstr "窄线边栏纸"
+
+#: ink/penset.lua
+msgid "Mark"
+msgstr "标记笔"
+
+#: ink/penset.lua
+msgid "Marker"
+msgstr "荧光马克笔"
+
+#: ink/view/stickers.lua
+msgid "Marks"
+msgstr "标记贴纸"
+
+#: ink/view/pencase.lua
+msgid "Medium"
+msgstr "中等粗细"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Meeting notes"
+msgstr "会议笔记"
+
+#: ink/view/layers.lua
+msgid "Merge"
+msgstr "合并图层"
+
+#: ink/view/layers.lua
+msgid "Merge down"
+msgstr "向下合并"
+
+#: ink/view/stickers.lua
+msgid "Mine"
+msgstr "我的贴纸"
+
+#: ink/framecover.lua
+msgid "Minimal Metal"
+msgstr "简约金属"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Mint"
+msgstr "薄荷绿"
+
+#: ink/view/ocrapi.lua
+msgid "Model"
+msgstr "模型"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Monthly"
+msgstr "月度计划"
+
+#: ink/ui/thumbgrid.lua
+msgid "More"
+msgstr "更多"
+
+#: ink/view/receive.lua
+msgid "More are still coming."
+msgstr "还有文件正在传输。"
+
+#: ink/guide.lua
+msgid "More room"
+msgstr "扩大编辑区域"
+
+#: ink/view/notebook.lua
+msgid "Move"
+msgstr "移动"
+
+#: ink/guide.lua
+msgid "Move around"
+msgstr "平移视图"
+
+#: ink/sync/errors.lua
+msgid "Move closer to the router and try again. Syncing carries on where it stopped."
+msgstr "靠近路由器重试，同步会从断点继续。"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move down"
+msgstr "下移"
+
+#: ink/view/library.lua
+msgid "Move here"
+msgstr "移到此处"
+
+#: ink/view/pencase.lua
+msgid "Move left"
+msgstr "左移"
+
+#: ink/view/pencase.lua
+msgid "Move right"
+msgstr "右移"
+
+#: ink/actions.lua
+msgid "Move the page (Pan)"
+msgstr "平移页面"
+
+#: ink/view/overview.lua
+msgid "Move the page to"
+msgstr "将页面移至"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Move this page to (1–%d)"
+msgstr "将本页移至（1–%d）"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "Move to %s"
+msgstr "移至 %s"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+msgid "Move to…"
+msgstr "移动到…"
+
+#: ink/view/layers.lua
+#: ink/view/overview.lua
+msgid "Move up"
+msgstr "上移"
+
+#: ink/guide.lua
+msgid "Move, copy or remove"
+msgstr "移动、复制或删除"
+
+#: ink/reader/inkview.lua
+#: ink/view/trash.lua
+msgid "Moved to the trash"
+msgstr "已移至回收站"
+
+#: ink/view/overview.lua
+#, lua-format
+msgid "Moved to “%s”"
+msgstr "已移至“%s”"
+
+#: ink/view/notebook.lua
+msgid "Move…"
+msgstr "移动…"
+
+#: ink/framecover.lua
+msgid "Museum Mat"
+msgstr "博物馆衬纸"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Music"
+msgstr "音乐笔记"
+
+#: ink/framecover.lua
+msgid "Mustard"
+msgstr "芥末黄"
+
+#: ink/view/sync.lua
+msgid "Name of this reader"
+msgstr "本机设备名称"
+
+#: ink/ui/brushmaker.lua
+msgid "Name this brush"
+msgstr "命名这支笔刷"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Name: %1"
+msgstr "名称：%1"
+
+#: ink/view/pencase.lua
+msgid "Navigate"
+msgstr "导航"
+
+#: ink/coverpicker.lua
+msgid "Navy"
+msgstr "藏青"
+
+#: ink/view/library.lua
+msgid "New"
+msgstr "新建"
+
+#: main.lua
+msgid "New PDFs open with this choice. A PDF you set yourself keeps its own."
+msgstr "新PDF默认使用该设置；单独配置过的PDF保留自身设置。"
+
+#: ink/view/document.lua
+msgid "New drawing"
+msgstr "新建涂鸦"
+
+#: ink/view/library.lua
+msgid "New folder"
+msgstr "新建文件夹"
+
+#: ink/view/library.lua
+#, lua-format
+msgid "New in %s"
+msgstr "在 %s 内新建"
+
+#: ink/view/document.lua
+#: ink/view/notebook.lua
+msgid "New notebook"
+msgstr "新建笔记本"
+
+#: ink/view/notebook.lua
+msgid "New notebook from template"
+msgstr "从模板新建笔记本"
+
+#: ink/view/notebook.lua
+msgid "New page from template"
+msgstr "从模板新建页面"
+
+#: ink/view/pencase.lua
+msgid "New pen"
+msgstr "新建笔刷"
+
+#: ink/view/search.lua
+msgid "New search"
+msgstr "新建搜索"
+
+#: ink/bookshelf.lua
+#: ink/drawingshelf.lua
+msgid "New shelf"
+msgstr "新建书架"
+
+#: ink/sync/errors.lua
+msgid "Newer version needed"
+msgstr "需要更新版本"
+
+#: ink/view/library.lua
+msgid "Newest first"
+msgstr "最新优先"
+
+#: ink/view/imagebrowser.lua
+#: ink/view/stickers.lua
+#: ink/view/sync.lua
+msgid "Next"
+msgstr "下一个"
+
+#: ink/actions.lua
+msgid "Next page"
+msgstr "下一页"
+
+#: ink/view/pencase.lua
+msgid "Nib angle"
+msgstr "笔尖角度"
+
+#: ink/view/notebook.lua
+msgid "No PDFs or folders here."
+msgstr "这里没有PDF或文件夹。"
+
+#: ink/view/sync.lua
+msgid "No camera? Open this address in any browser:"
+msgstr "没有摄像头？在浏览器打开该地址："
+
+#: ink/view/overview.lua
+msgid "No colour"
+msgstr "无颜色"
+
+#: ink/view/sync.lua
+msgid "No conflicts."
+msgstr "无冲突。"
+
+#: ink/sync/errors.lua
+msgid "No connection"
+msgstr "无网络连接"
+
+#: ink/view/dialogs.lua
+msgid "No files or folders here."
+msgstr "这里没有文件或文件夹。"
+
+#: ink/view/library.lua
+msgid "No folders here."
+msgstr "这里没有文件夹。"
+
+#: ink/view/dialogs.lua
+msgid "No folders in here."
+msgstr "里面没有文件夹。"
+
+#: ink/view/library.lua
+msgid "No icon"
+msgstr "无图标"
+
+#: ink/view/library.lua
+msgid "No icons found."
+msgstr "未找到图标。"
+
+#: ink/view/imagebrowser.lua
+msgid ""
+"No images found here.\n"
+"Try another search, or the other source above."
+msgstr ""
+"未找到图片。\n"
+"换关键词，或切换上方图源试试。"
+
+#: ink/guide.lua
+msgid "No need to annotate: hold the pen's side button (the one set to Highlighter) and run the pen over a line while reading."
+msgstr "无需进入批注模式：阅读时按住笔侧键（设为荧光笔功能）划过文字即可高亮。"
+
+#: ink/view/overview.lua
+msgid "No notebooks here yet."
+msgstr "暂无笔记本。"
+
+#: ink/view/links.lua
+msgid "No notebooks here."
+msgstr "这里没有笔记本。"
+
+#: ink/view/updates.lua
+msgid "No notes for this version."
+msgstr "该版本暂无更新说明。"
+
+#: ink/view/overview.lua
+msgid "No other notebook here"
+msgstr "没有其他笔记本"
+
+#: ink/view/export.lua
+msgid "No pages match the chosen range."
+msgstr "没有页面匹配所选范围。"
+
+#: ink/reader/roomsui.lua
+msgid "No paragraph starts on this page below the box's top, so the room has nowhere to start."
+msgstr "选框下方本页没有段落开头，无法创建文本分区。"
+
+#: ink/reader/roomtool.lua
+msgid "No paragraph starts on this page, so there is nowhere to put a band."
+msgstr "本页没有段落开头，无法放置文本分区。"
+
+#: ink/pentest.lua
+msgid ""
+"No pen has been seen since Ink Away opened, so with palm rejection on your finger moves the page.\n"
+"\n"
+"If you are drawing with a pen, this reader reports it as a finger: turn off Palm rejection in the pen menu to draw. Settings, Help, Test pen and touch shows how your pen arrives."
+msgstr ""
+"Ink Away启动后未检测到手写笔，开启防误触时手指只能平移页面。\n"
+"\n"
+"如果你在用手写笔却被识别成手指，请在笔刷菜单关闭防误触再绘图。设置-帮助-测试笔触可以查看识别情况。"
+
+#: ink/view/images.lua
+msgid "No pictures or folders here."
+msgstr "这里没有图片或文件夹。"
+
+#: ink/view/updates.lua
+msgid "No release found on GitHub."
+msgstr "在GitHub未找到发布包。"
+
+#: ink/view/overview.lua
+msgid "No starred pages here."
+msgstr "暂无收藏页面。"
+
+#: ink/view/notebook.lua
+msgid "No templates yet. Save a page as one from this menu: Save as template."
+msgstr "暂无模板。可通过菜单将页面另存为模板。"
+
+#: ink/view/handwriting.lua
+msgid "No writing could be read there."
+msgstr "无法识别该处手写文字。"
+
+#: ink/sync/errors.lua
+msgid "Nobody allowed the sign-in in time, or it was refused."
+msgstr "登录超时或被拒绝。"
+
+#: ink/view/export.lua
+msgid "None of the pages has ink."
+msgstr "所有页面都没有笔迹。"
+
+#: ink/view/textformat.lua
+msgid "Normal"
+msgstr "常规"
+
+#: ink/sync/errors.lua
+msgid "Not allowed"
+msgstr "权限被拒绝"
+
+#: ink/sync/errors.lua
+msgid "Not available here"
+msgstr "当前不可用"
+
+#: ink/view/updates.lua
+msgid "Not checked yet."
+msgstr "尚未检查。"
+
+#: ink/sync/errors.lua
+msgid "Not found in the cloud"
+msgstr "云端未找到"
+
+#: ink/view/updates.lua
+msgid "Not installed"
+msgstr "未安装"
+
+#: ink/view/sync.lua
+msgid "Not now"
+msgstr "稍后再说"
+
+#: ink/view/welcome.lua
+msgid "Not set up"
+msgstr "尚未配置"
+
+#: ink/sync/errors.lua
+msgid "Not signed in"
+msgstr "未登录"
+
+#: ink/view/sync.lua
+msgid "Not synced yet."
+msgstr "尚未同步。"
+
+#: ink/view/textformat.lua
+msgid "Note font"
+msgstr "笔记字体"
+
+#: ink/view/document.lua
+#: ink/view/library.lua
+#: ink/view/links.lua
+#: ink/view/overview.lua
+#: ink/view/share.lua
+msgid "Notebook"
+msgstr "笔记本"
+
+#: ink/view/search.lua
+#, lua-format
+msgid "Notebook in %s"
+msgstr "位于 %s 的笔记本"
+
+#: ink/view/settings.lua
+msgid "Notebook paper"
+msgstr "笔记本内页纸"
+
+#: ink/bookshelf.lua
+#: ink/guide.lua
+#: ink/view/overview.lua
+#: ink/view/settings.lua
+msgid "Notebooks"
+msgstr "笔记本"
+
+#: ink/sync/areas.lua
+msgid "Notebooks and drawings"
+msgstr "笔记本与涂鸦"
+
+#: ink/view/sync.lua
+msgid "Notebooks changed on two readers. Both versions are kept."
+msgstr "两台设备都修改了笔记本，两个版本都会保留。"
+
+#: ink/view/sync.lua
+msgid "Notebooks on this reader and in the cloud stay as they are. This reader stops syncing. You can connect again at any time."
+msgstr "本机和云端的笔记本维持现状，同步暂停。你可以随时重新连接。"
+
+#: ink/view/stickers.lua
+msgid "Notes"
+msgstr "便签贴纸"
+
+#: ink/view/images.lua
+msgid "Notes, speech bubbles, marks and your own."
+msgstr "便签、对话框、标记和自定义贴纸。"
+
+#: ink/actions.lua
+#: ink/view/pencase.lua
+msgid "Nothing"
+msgstr "无"
+
+#: ink/view/search.lua
+msgid "Nothing found."
+msgstr "未找到结果。"
+
+#: ink/view/library.lua
+msgid "Nothing here yet. Make a drawing, a notebook or a folder with + New."
+msgstr "这里还是空的。点「+新建」创建涂鸦、笔记本或文件夹。"
+
+#: ink/view/stickers.lua
+msgid "Nothing here. Hidden stickers come back in the sticker options."
+msgstr "暂无内容。隐藏的贴纸可以在贴纸选项里恢复。"
+
+#: ink/reader/roomsui.lua
+msgid "Nothing in it yet"
+msgstr "里面暂无内容"
+
+#: ink/view/lasso.lua
+msgid "Nothing inside the loop."
+msgstr "圈选区域为空。"
+
+#: ink/view/sync.lua
+msgid "Nothing is removed. Both stay as separate notebooks, here and on the other reader."
+msgstr "不会删除任何内容，两份笔记本分别保留在两台设备。"
+
+#: ink/view/sync.lua
+msgid "Nothing on this reader is replaced or removed without a safety copy first."
+msgstr "本机文件在被覆盖或删除前都会先备份。"
+
+#: ink/view/images.lua
+msgid "Nothing sent yet."
+msgstr "尚未发送文件。"
+
+#: ink/view.lua
+msgid "Nothing to redo."
+msgstr "没有可重做操作。"
+
+#: ink/view.lua
+msgid "Nothing to undo."
+msgstr "没有可撤销操作。"
+
+#: ink/view/sync.lua
+msgid "Nothing yet."
+msgstr "暂无内容。"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Now in the copy, “%s”"
+msgstr "现在位于副本「%s」中"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Now page %d"
+msgstr "当前第 %d 页"
+
+#: ink/view/dialogs.lua
+msgid "OK"
+msgstr "确定"
+
+#: ink/framecover.lua
+msgid "Oak"
+msgstr "橡木"
+
+#: ink/view/settings.lua
+#: ink/view/sync.lua
+#: main.lua
+msgid "Off"
+msgstr "关闭"
+
+#: ink/view/stickers.lua
+msgid "Off keeps the toolbar shorter: stickers are then under Image."
+msgstr "关闭可精简工具栏，贴纸入口放到图片菜单下。"
+
+#: ink/view/settings.lua
+msgid "Off: colour ink shows black until the pen rests, which reads more clearly on some colour e-ink screens."
+msgstr "关闭：彩色笔迹落笔时先显示黑色，笔尖停稳后再上色，适配部分彩墨屏提升可读性。"
+
+#: ink/view/pencase.lua
+msgid "On Android, palm rejection needs a KOReader newer than 2026.07.1 (a nightly build from August 2026 or later). Earlier versions report the pen as a finger, so Ink Away can't tell it from your hand. Your pen draws as it is."
+msgstr "Android端防误触需要 KOReader 2026.07.1 之后版本（2026年8月及以后的开发版）。旧版本会把笔识别成手指，Ink Away无法区分，直接按手指处理。"
+
+#: ink/view/updates.lua
+msgid "On its own Ink Away looks once a day, when it opens on Wi-Fi; it never turns Wi-Fi on."
+msgstr "Ink Away仅在连接Wi-Fi打开时每日自动检查一次更新，不会主动开启Wi-Fi。"
+
+#: ink/view/export.lua
+msgid "One PNG per page, in a folder of its own."
+msgstr "每页单独导出PNG，存放在独立文件夹。"
+
+#: ink/guide.lua
+msgid "One shape or picture"
+msgstr "单个图形或图片"
+
+#: ink/view/ocrapi.lua
+msgid "Only the lassoed writing is sent. The key is kept unencrypted in KOReader's settings."
+msgstr "仅上传圈选内的手写内容，API密钥明文保存在KOReader设置中。"
+
+#: ink/view/gestures.lua
+msgid "Only this one"
+msgstr "仅当前项"
+
+#: ink/view/export.lua
+msgid "Only your ink, on white pages."
+msgstr "仅导出笔迹，白底。"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Opacity"
+msgstr "不透明度"
+
+#: ink/coverpicker.lua
+#: ink/framepicker.lua
+#: ink/view/export.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/receive.lua
+msgid "Open"
+msgstr "打开"
+
+#: ink/view/receive.lua
+#, lua-format
+msgid "Open %s"
+msgstr "打开 %s"
+
+#: ink/sync/errors.lua
+msgid "Open Cloud sync and connect again. Your notebooks stay as they are."
+msgstr "开启云同步并重新连接，笔记本内容保持不变。"
+
+#: ink/sync/errors.lua
+msgid "Open Cloud sync and connect your account."
+msgstr "开启云同步并登录账号。"
+
+#: ink/launcher.lua
+#: main.lua
+msgid "Open Ink Away"
+msgstr "打开 Ink Away"
+
+#: main.lua
+msgid "Open as Ink Away notebook"
+msgstr "作为 Ink Away 笔记本打开"
+
+#: main.lua
+msgid "Open every PDF this way"
+msgstr "所有PDF都以此方式打开"
+
+#: ink/view/images.lua
+msgid "Open image as background"
+msgstr "设为页面背景图"
+
+#: ink/view/export.lua
+msgid "Open the PDF now?"
+msgstr "现在打开导出的PDF？"
+
+#: ink/view/sync.lua
+msgid "Open the sign-in page"
+msgstr "打开登录页面"
+
+#: ink/welcome.lua
+msgid "Open them from the reader menu: Tools, Ink Away. Or give them a gesture in Settings, Taps and gestures, Gesture manager: the actions are “Ink Away: annotate the book” and “Ink Away: book notes”."
+msgstr "在阅读器菜单：工具 → Ink Away 打开。也可以在设置-点击与手势-手势管理器分配手势，动作名称为“Ink Away：书籍批注”、“Ink Away：书籍笔记”。"
+
+#: ink/view/sync.lua
+msgid "Opening a notebook or book can wait up to 6 seconds for the cloud."
+msgstr "打开笔记本或书籍时，最多等待6秒云端响应。"
+
+#: ink/view/settings.lua
+msgid "Opens Ink Away's quick menu from any screen. It shows the next time KOReader's menu is opened."
+msgstr "任意界面唤起Ink Away快捷菜单，下次打开KOReader菜单时生效。"
+
+#: ink/view/imagebrowser.lua
+msgid "Openverse"
+msgstr "Openverse图库"
+
+#: ink/view/textformat.lua
+msgid "Or turn the box to any angle with the ring above it."
+msgstr "也可以拖动上方圆环旋转选框。"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Orange"
+msgstr "橙色"
+
+#: ink/view/library.lua
+msgid "Order"
+msgstr "排序"
+
+#: ink/view/settings.lua
+msgid "Orientation"
+msgstr "方向"
+
+#: ink/view/export.lua
+msgid "Ornament name"
+msgstr "装饰名称"
+
+#: ink/view/images.lua
+msgid "Outline part of the page and copy it. Paste it with the lasso."
+msgstr "圈选页面区域复制，使用套索工具粘贴。"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "Outside a book, %1 opens Ink Away."
+msgstr "未打开书籍时，%1 唤起 Ink Away。"
+
+#: ink/welcome.lua
+msgid "Outside a book, it opens Ink Away."
+msgstr "未打开书籍时，唤起 Ink Away。"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "PDF"
+msgstr "PDF"
+
+#: ink/view/export.lua
+msgid "PDF saved"
+msgstr "PDF已保存"
+
+#: ink/view/export.lua
+msgid "PDF type"
+msgstr "PDF类型"
+
+#: ink/guide.lua
+msgid "PDFs"
+msgstr "PDF文档"
+
+#: ink/sync/areas.lua
+msgid "PDFs and pictures made from your notebooks."
+msgstr "由笔记本导出的PDF和图片。"
+
+#: ink/guide.lua
+msgid "PNG"
+msgstr "PNG"
+
+#: ink/view/export.lua
+msgid "PNG images"
+msgstr "PNG图片"
+
+#: ink/guide.lua
+msgid "PNG, PDF and more"
+msgstr "PNG、PDF等格式"
+
+#: ink/view/settings.lua
+msgid "Page"
+msgstr "页面"
+
+#: ink/reader/roomsui.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/links.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d"
+msgstr "第 %d 页"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Page %d of %d"
+msgstr "第 %d / %d 页"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Page %d of %s"
+msgstr "第 %d 页，%s"
+
+#: ink/view/export.lua
+msgid "Page numbers"
+msgstr "页码"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Page range (1–%d), e.g. 3-8"
+msgstr "页面范围（1–%d），例如 3-8"
+
+#: ink/view/notebook.lua
+msgid "Page starred"
+msgstr "页面已收藏"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Page title"
+msgstr "页面标题"
+
+#: ink/actions.lua
+msgid "Page turn button back"
+msgstr "上一页按钮"
+
+#: ink/actions.lua
+msgid "Page turn button forward"
+msgstr "下一页按钮"
+
+#: ink/view/gestures.lua
+msgid "Page turn buttons"
+msgstr "翻页按钮"
+
+#: ink/view/export.lua
+msgid "Pages"
+msgstr "页面"
+
+#: ink/view/export.lua
+#, lua-format
+msgid "Pages %d–%d (tap to change)"
+msgstr "页面 %d–%d（点击修改）"
+
+#: ink/view/stickers.lua
+msgid "Pages that already use it keep their copy."
+msgstr "已经使用该贴纸的页面保留原有副本。"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pages you added to the notebook aren't in the original PDF, so their ink is left out either way: %d"
+msgstr "你在笔记本新增的页面不属于原PDF，导出时笔迹不会一并导出：%d"
+
+#: ink/guide.lua
+msgid "Pages, papers and PDFs"
+msgstr "页面、纸张模板与PDF"
+
+#: ink/penset.lua
+msgid "Paint"
+msgstr "画笔"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+msgid "Paint bucket"
+msgstr "油漆桶填充"
+
+#: ink/framecover.lua
+msgid "Painted Box"
+msgstr "彩绘方框"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Palm rejection"
+msgstr "防误触"
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger does nothing on the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"防误触已开启：手写笔可绘图，手指在页面无操作。\n"
+"\n"
+"想用手指绘图，请在笔刷菜单「笔触与输入」关闭防误触。"
+
+#: ink/view/input.lua
+msgid ""
+"Palm rejection is on, so the pen draws and a finger moves the page.\n"
+"\n"
+"To draw with a finger, turn off Palm rejection in the pen menu, Pen and input."
+msgstr ""
+"防误触已开启：手写笔绘图，手指用来平移页面。\n"
+"\n"
+"想用手指绘图，请在笔刷菜单「笔触与输入」关闭防误触。"
+
+#: ink/view/pencase.lua
+msgid "Palm rejection needs KOReader 2026.07 or newer (that release added the pen input support). Please update KOReader and it will start working. On a reader without a pen it does nothing."
+msgstr "防误触需要 KOReader 2026.07 及以上版本（该版本新增手写笔支持），请升级。无手写笔设备该功能无效。"
+
+#: ink/guide.lua
+msgid "Pan, above the zoom, moves the page; tap it again to go back to your tool. Two fingers move the page with any tool."
+msgstr "缩放上方的平移按钮用来移动页面，再次点击切回当前工具；任意工具下都可以双指平移。"
+
+#: ink/view/export.lua
+msgid "Paper"
+msgstr "纸张"
+
+#: ink/guide.lua
+#: ink/view/paper.lua
+msgid "Paper colour"
+msgstr "纸张底色"
+
+#: ink/view/notebook.lua
+msgid "Paper for this page"
+msgstr "本页纸张模板"
+
+#: ink/view/settings.lua
+#, lua-format
+msgid "Paper: %s"
+msgstr "纸张：%s"
+
+#: ink/guide.lua
+msgid "Papers and planners"
+msgstr "纸张模板与计划页"
+
+#: ink/view/notebook.lua
+msgid "Paper…"
+msgstr "纸张…"
+
+#: ink/view/textformat.lua
+msgid "Paragraph"
+msgstr "段落"
+
+#: ink/guide.lua
+msgid "Part of a stroke, or all of it"
+msgstr "部分或全部笔迹"
+
+#: ink/guide.lua
+msgid "Part or whole"
+msgstr "局部或整体"
+
+#: ink/view/lasso.lua
+#: ink/view/notebook.lua
+#: ink/view/textformat.lua
+msgid "Paste"
+msgstr "粘贴"
+
+#: ink/guide.lua
+msgid "Paste anywhere"
+msgstr "任意位置粘贴"
+
+#: ink/view/lasso.lua
+msgid "Paste here"
+msgstr "粘贴到此处"
+
+#: ink/guide.lua
+msgid "Paste into text"
+msgstr "粘贴进文本框"
+
+#: ink/view/lasso.lua
+msgid "Paste where it was"
+msgstr "原位粘贴"
+
+#: ink/view/textformat.lua
+#, lua-format
+msgid "Pasted the first %d characters."
+msgstr "已粘贴前 %d 个字符。"
+
+#: ink/view/pencase.lua
+#: ink/view/toolbar.lua
+msgid "Pen"
+msgstr "笔刷"
+
+#: ink/view/pencase.lua
+msgid "Pen and input"
+msgstr "笔触与输入"
+
+#: ink/view/pencase.lua
+msgid "Pen and input settings"
+msgstr "笔触与输入设置"
+
+#: ink/guide.lua
+msgid "Pen and input, Fast refresh while drawing: ink shows with the Boox's fast refresh as you write."
+msgstr "笔触与输入 - 绘图快速刷新：书写时使用Boox快刷模式实时显示笔迹。"
+
+#: ink/guide.lua
+msgid "Pen and input, Pen taps menus and buttons: work the toolbar and menus with the pen too."
+msgstr "笔触与输入 - 笔点击控件：手写笔可以直接点击菜单和按钮。"
+
+#: ink/view/gestures.lua
+msgid "Pen buttons, while held"
+msgstr "笔侧键（长按）"
+
+#: ink/guide.lua
+msgid "Pen pressure"
+msgstr "压感"
+
+#: ink/view/pencase.lua
+msgid "Pen pressure (Beta)"
+msgstr "压感（测试版）"
+
+#: ink/view/pencase.lua
+msgid "Pen taps menus and buttons"
+msgstr "笔点击菜单和按钮"
+
+#: ink/guide.lua
+msgid "Pen, screen and refresh"
+msgstr "笔、屏幕与刷新"
+
+#: ink/penset.lua
+msgid "Pencil"
+msgstr "铅笔"
+
+#: ink/guide.lua
+msgid "Pens"
+msgstr "笔刷"
+
+#: ink/sync/areas.lua
+msgid "Pens, colours and preferences"
+msgstr "笔刷、颜色与偏好设置"
+
+#: ink/view/share.lua
+msgid "Phone or computer (Wi-Fi)"
+msgstr "手机或电脑（Wi-Fi）"
+
+#: ink/view/library.lua
+msgid "Phone or computer (Wi-Fi)…"
+msgstr "手机或电脑（Wi-Fi）…"
+
+#: ink/view/share.lua
+msgid "Phone or computer sharing stopped: Wi-Fi is off"
+msgstr "Wi-Fi传输已停止：Wi-Fi已关闭"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Phone or computer sharing stopped: nothing happened for %d minutes"
+msgstr "Wi-Fi传输已停止：%d分钟无操作"
+
+#: ink/view/library.lua
+msgid "Pick a PDF that is already on this reader. It becomes a notebook in this folder."
+msgstr "选择本机上的PDF，它会生成本文件夹内的笔记本。"
+
+#: ink/launcher.lua
+msgid "Pick up where you left off"
+msgstr "继续上次笔记"
+
+#: ink/view/share.lua
+msgid "Picture"
+msgstr "图片"
+
+#: ink/framecover.lua
+msgid "Picture on the sides"
+msgstr "侧边配图"
+
+#: ink/sync/errors.lua
+msgid "Picture or PDF is missing"
+msgstr "图片或PDF缺失"
+
+#: ink/guide.lua
+#: ink/view/export.lua
+msgid "Pictures"
+msgstr "图片"
+
+#: ink/sync/areas.lua
+msgid "Pictures taken of part of a page."
+msgstr "页面截图。"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Pictures: %d"
+msgstr "图片：%d"
+
+#: ink/view/selection.lua
+msgid "Pin to this page"
+msgstr "固定在本页"
+
+#: ink/view/settings.lua
+msgid "Pinch to zoom, and drag with two fingers to move around the page."
+msgstr "双指捏合缩放，双指拖动平移页面。"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Pink"
+msgstr "粉色"
+
+#: ink/view/textformat.lua
+msgid "Plain"
+msgstr "纯色"
+
+#: ink/view/library.lua
+msgid "Plain folder"
+msgstr "普通文件夹"
+
+#: ink/view/notebook.lua
+msgid "Planner"
+msgstr "计划本"
+
+#: ink/coverpicker.lua
+msgid "Plum"
+msgstr "梅子紫"
+
+#: ink/view/settings.lua
+msgid "Portrait"
+msgstr "纵向"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Preparing %s"
+msgstr "正在准备 %s"
+
+#: ink/reader/book.lua
+msgid "Preparing this book for rooms…"
+msgstr "正在为本书创建文本分区…"
+
+#: ink/view/updates.lua
+msgid "Prerelease"
+msgstr "预发布版"
+
+#: ink/ui/thumbgrid.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/stickers.lua
+msgid "Prev"
+msgstr "上一个"
+
+#: ink/actions.lua
+msgid "Previous page"
+msgstr "上一页"
+
+#: ink/actions.lua
+msgid "Previous pen"
+msgstr "上一支笔刷"
+
+#: ink/view/sync.lua
+msgid "Problems"
+msgstr "异常"
+
+#: ink/view/menus.lua
+msgid "Protect text from eraser"
+msgstr "文字防擦除"
+
+#: ink/guide.lua
+msgid "Protect text from eraser and Erase pictures, in the eraser's menu, decide what it may take."
+msgstr "橡皮擦菜单里的文字防擦除、擦除图片选项，用来控制擦除对象。"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Purple"
+msgstr "紫色"
+
+#: ink/view/trash.lua
+msgid "Put back"
+msgstr "恢复"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back in %s"
+msgstr "恢复到 %s"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "Put back on %s"
+msgstr "恢复到 %s"
+
+#: ink/launcher.lua
+msgid "Quick notes for the book you're reading"
+msgstr "读书速记"
+
+#: ink/welcome.lua
+msgid "Quick notes for the book you're reading, in a window over the page, with a page for each chapter."
+msgstr "悬浮窗口为当前书籍快速记笔记，每章独立一页。"
+
+#: ink/guide.lua
+msgid "Quick notes for the book, in a window over the page, a page for each chapter. Fullscreen gives more room."
+msgstr "悬浮窗读书速记，每章一页；全屏模式获得更大编辑空间。"
+
+#: ink/view/export.lua
+msgid "Range"
+msgstr "范围"
+
+#: ink/view/ocrapi.lua
+msgid "Read handwriting with an AI service you have an account with, instead of on the reader."
+msgstr "调用第三方AI服务识别手写，而非本机识别。"
+
+#: ink/view/ocrapi.lua
+msgid "Reading the writing"
+msgstr "识别手写文字"
+
+#: ink/view/handwriting.lua
+msgid "Reading the writing…"
+msgstr "正在识别手写文字…"
+
+#: ink/guide.lua
+msgid "Reading without ink"
+msgstr "纯阅读模式（关闭笔迹）"
+
+#: ink/view/textformat.lua
+msgid "Reads down"
+msgstr "从上到下阅读"
+
+#: ink/view/textformat.lua
+msgid "Reads up"
+msgstr "从下到上阅读"
+
+#: ink/view/sync.lua
+msgid "Ready to sync"
+msgstr "准备同步"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %d files: %s of %s"
+msgstr "接收 %d 个文件：%s / %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Receiving %s: %s of %s"
+msgstr "接收 %s：%s / %s"
+
+#: ink/view/document.lua
+msgid "Recovered"
+msgstr "已恢复"
+
+#: ink/folderlook.lua
+#: ink/framecover.lua
+#: ink/palette.lua
+msgid "Red"
+msgstr "红色"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Redo"
+msgstr "重做"
+
+#: ink/actions.lua
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Refresh the screen"
+msgstr "刷新屏幕"
+
+#: ink/view/updates.lua
+msgid "Release"
+msgstr "正式版"
+
+#: ink/reader/inkview.lua
+#: ink/view/pencase.lua
+msgid "Remove"
+msgstr "删除"
+
+#: ink/view/selection.lua
+msgid "Remove background"
+msgstr "移除背景"
+
+#: ink/reader/hlcolour.lua
+msgid "Remove highlight"
+msgstr "取消高亮"
+
+#: ink/view/selection.lua
+msgid "Remove link"
+msgstr "移除链接"
+
+#: ink/reader/roomtool.lua
+msgid "Remove room"
+msgstr "删除文本分区"
+
+#: ink/view/images.lua
+msgid "Remove the background picture"
+msgstr "移除背景图"
+
+#: ink/reader/roomsui.lua
+msgid "Remove the rooms made on exact lines first (Rooms in this book), then go back to the original book."
+msgstr "先删除本书内基于文本行创建的分区，再回到原书籍。"
+
+#: ink/reader/inkview.lua
+msgid "Remove these highlights?"
+msgstr "确定删除这些高亮？"
+
+#: ink/reader/inkview.lua
+msgid "Remove this highlight?"
+msgstr "确定删除该高亮？"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename"
+msgstr "重命名"
+
+#: ink/view/layers.lua
+msgid "Rename layer"
+msgstr "重命名图层"
+
+#: ink/sync/errors.lua
+msgid "Rename one of them."
+msgstr "将其中一个重命名。"
+
+#: ink/view/document.lua
+#: ink/view/layers.lua
+#: ink/view/library.lua
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Rename…"
+msgstr "重命名…"
+
+#: ink/view/dialogs.lua
+msgid "Replace"
+msgstr "替换"
+
+#: ink/view/dialogs.lua
+msgid "Replace it?"
+msgstr "是否替换？"
+
+#: ink/notebookcover.lua
+msgid "Reporter pad"
+msgstr "记者稿纸"
+
+#: ink/reader/hlcolour.lua
+msgid "Reset colours"
+msgstr "重置颜色"
+
+#: ink/view/updates.lua
+msgid "Restart KOReader"
+msgstr "重启 KOReader"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Restart KOReader to use %1"
+msgstr "重启 KOReader 以启用 %1"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+#: ink/view/textformat.lua
+msgid "Right"
+msgstr "右侧"
+
+#: ink/reader/roomtool.lua
+msgid "Room"
+msgstr "文本分区"
+
+#: ink/reader/roomsui.lua
+msgid "Rooms can't overlap. Draw this one beside the other room or away from it."
+msgstr "分区不能重叠，请在旁边空白区域绘制。"
+
+#: ink/reader/roomsui.lua
+msgid "Rooms in this book"
+msgstr "本书文本分区"
+
+#: ink/reader/roomsui.lua
+#, lua-format
+msgid "Rooms in this book (%d)"
+msgstr "本书文本分区（%d）"
+
+#: main.lua
+msgid "Run the pen's eraser end over a highlight or over Ink Away's ink on the page: it goes, without opening the annotation mode. The eraser settings of the annotation mode apply. The part of the pen is the one set to Eraser in Gestures and pen buttons."
+msgstr "用笔尾橡皮擦划过高亮或Ink Away笔迹即可擦除，无需进入批注模式，遵循批注模式橡皮擦配置；笔尾功能在「手势与笔侧键」里设为橡皮擦。"
+
+#: ink/framecover.lua
+msgid "Sage"
+msgstr "鼠尾草绿"
+
+#: ink/view/notebook.lua
+msgid "Same as the notebook"
+msgstr "跟随笔记本设置"
+
+#: ink/palette.lua
+msgid "Sandpaper"
+msgstr "砂色"
+
+#: ink/reader/hlcolour.lua
+#: ink/ui/brushmaker.lua
+#: ink/ui/colorpicker.lua
+#: ink/view/export.lua
+#: ink/view/notebook.lua
+#: ink/view/ocrapi.lua
+#: ink/view/sync.lua
+msgid "Save"
+msgstr "保存"
+
+#: ink/view/export.lua
+msgid "Save as bookshelf ornament"
+msgstr "存为Bookshelf装饰图"
+
+#: ink/view/notebook.lua
+msgid "Save as template…"
+msgstr "另存为模板…"
+
+#: ink/ui/brushmaker.lua
+msgid "Save brush"
+msgstr "保存笔刷"
+
+#: ink/reader/roomtool.lua
+msgid "Save changes"
+msgstr "保存修改"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d page(s) as images:\n"
+"%s"
+msgstr ""
+"已保存 %d 页图片：\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved %d × %d image:\n"
+"%s"
+msgstr ""
+"已保存 %d × %d 图片：\n"
+"%s"
+
+#: ink/view/export.lua
+msgid ""
+"Saved as a transparent PNG in the bookshelf ornaments folder.\n"
+"End the name with .invert for a dark-mode version."
+msgstr ""
+"已保存透明PNG到Bookshelf装饰目录。\n"
+"文件名后缀加 .invert 可生成深色模式版本。"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved automatically in %s"
+msgstr "自动保存至 %s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved bookshelf ornament:\n"
+"%s"
+msgstr ""
+"已保存Bookshelf装饰图：\n"
+"%s"
+
+#: ink/view/export.lua
+#, lua-format
+msgid ""
+"Saved image:\n"
+"%s"
+msgstr ""
+"已保存图片：\n"
+"%s"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "Saved in %s once there is something in it"
+msgstr "有内容后自动保存到 %s"
+
+#: ink/view/pencase.lua
+msgid "Saved pen"
+msgstr "已保存笔刷"
+
+#: ink/actions.lua
+msgid "Saved pen 1"
+msgstr "笔刷预设1"
+
+#: ink/actions.lua
+msgid "Saved pen 2"
+msgstr "笔刷预设2"
+
+#: ink/actions.lua
+msgid "Saved pen 3"
+msgstr "笔刷预设3"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid "Saved the template “%s”"
+msgstr "模板「%s」保存成功"
+
+#: ink/view/export.lua
+msgid "Saved. Open it from your library."
+msgstr "保存完成，可以在库中打开。"
+
+#: ink/view/export.lua
+msgid "Saves each page as a picture with your ink on it. It looks the same everywhere, but the file is bigger and its text can't be selected."
+msgstr "每页导出为带笔迹图片，跨设备显示一致；缺点是文件更大，文字不可选中。"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Saving %d page(s) as images"
+msgstr "正在导出 %d 页图片"
+
+#: ink/view/images.lua
+msgid "Scan a QR code to send pictures over Wi-Fi."
+msgstr "扫描 QR 码，通过 Wi-Fi 传输图片。"
+
+#: ink/view/share.lua
+msgid "Scan with a phone or computer on the same Wi-Fi, or open:"
+msgstr "同Wi-Fi下用手机/电脑扫码，或访问地址："
+
+#: ink/view/settings.lua
+msgid "Scan with your phone"
+msgstr "手机扫码"
+
+#: ink/view/settings.lua
+msgid "Screen"
+msgstr "屏幕"
+
+#: ink/sync/areas.lua
+#: ink/view/library.lua
+msgid "Screen clips"
+msgstr "屏幕截图"
+
+#: ink/guide.lua
+#: ink/view/imagebrowser.lua
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#: ink/view/search.lua
+msgid "Search"
+msgstr "搜索"
+
+#: ink/view/imagebrowser.lua
+msgid "Search images"
+msgstr "搜索图片"
+
+#: ink/view/images.lua
+msgid "Search online"
+msgstr "在线搜图"
+
+#: ink/view/search.lua
+msgid "Search stopped."
+msgstr "搜索已停止。"
+
+#: ink/view/search.lua
+msgid "Searching"
+msgstr "正在搜索"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching images…"
+msgstr "正在搜图…"
+
+#: ink/view/search.lua
+msgid "Searching inside pages"
+msgstr "正在页面内检索"
+
+#: ink/view/imagebrowser.lua
+msgid "Searching…"
+msgstr "正在搜索…"
+
+#: ink/view/imagebrowser.lua
+msgid "Search…"
+msgstr "搜索…"
+
+#: ink/actions.lua
+msgid "Second side button"
+msgstr "笔第二侧键"
+
+#: ink/sync/errors.lua
+msgid "Secure connection failed"
+msgstr "安全连接失败"
+
+#: ink/guide.lua
+msgid "Select a word"
+msgstr "选中单词"
+
+#: ink/reader/capture.lua
+msgid "Select again"
+msgstr "重新选择"
+
+#: ink/view/textformat.lua
+msgid "Select all"
+msgstr "全选"
+
+#: ink/guide.lua
+msgid "Select and edit"
+msgstr "选中并编辑"
+
+#: ink/view/export.lua
+msgid "Send to phone or computer (Wi-Fi)…"
+msgstr "发送到手机或电脑（Wi-Fi）…"
+
+#: ink/view/library.lua
+msgid "Send your notebooks and drawings to a phone or computer, or add PDFs and pictures from one, with a QR code."
+msgstr "扫描 QR 码，将笔记本、涂鸦传到手机电脑，也可以从电脑手机上传PDF、图片。"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %d files: %s of %s"
+msgstr "发送 %d 个文件：%s / %s"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Sending %s: %s of %s"
+msgstr "发送 %s：%s / %s"
+
+#: ink/view/pencase.lua
+msgid "Sends only the part of the screen that changed, not the whole screen, each time ink is drawn. Turn it off if parts of the screen show old content."
+msgstr "绘图时只刷新变化区域而非整屏；如果出现残影可以关闭该选项。"
+
+#: ink/view/images.lua
+msgid "Sent from your phone"
+msgstr "来自手机"
+
+#: ink/view/images.lua
+#, lua-format
+msgid "Sent from your phone (%d)"
+msgstr "来自手机（%d）"
+
+#: ink/view/share.lua
+msgid "Served by your reader over your Wi-Fi. When you're done, close Phone or computer (Wi-Fi) on the reader."
+msgstr "由阅读器在局域网提供服务。传输完成后，请在阅读器上关闭「手机或电脑（Wi-Fi）」。"
+
+#: ink/view/export.lua
+msgid "Set"
+msgstr "设置"
+
+#: ink/view/ocrapi.lua
+msgid "Set the address"
+msgstr "设置地址"
+
+#: ink/view/ocrapi.lua
+msgid "Set the key"
+msgstr "设置密钥"
+
+#: ink/view/ocrapi.lua
+msgid "Set the model"
+msgstr "设置模型"
+
+#: ink/view/settings.lua
+msgid "Settings"
+msgstr "设置"
+
+#: ink/guide.lua
+msgid "Settings, Ghosting: a full refresh every few strokes clears the faint marks fast drawing leaves. The Refresh the screen button below it does one now."
+msgstr "设置 - 残影清除：每画几笔就全屏刷新，快速消除快速绘图留下的淡痕。下方的刷新屏幕按钮可以立即执行一次刷新。"
+
+#: ink/guide.lua
+msgid "Settings, Updates: the latest release, and prereleases apart. Once a day, opening on Wi-Fi, Ink Away looks; a dot on Settings means news."
+msgstr "设置 - 更新：区分正式版和预发布版。在Wi-Fi环境下打开时，Ink Away每日自动检查一次；设置上出现圆点代表有更新。"
+
+#: ink/guide.lua
+msgid "Settings, When Ink Away opens: the last document, the Library or your Notebooks."
+msgstr "设置 - Ink Away启动时：打开上次文档、资料库或笔记本。"
+
+#: ink/guide.lua
+msgid "Settings, beside the paper or the grid: cream, sandpaper, kraft, chalkboard and more (white or black on grey). On a dark one black ink shows white."
+msgstr "设置 - 纸张/网格样式：米白、砂纸纹、牛皮纸、黑板等多种（灰底白字/黑字）。深色底上黑色笔迹会显示为白色。"
+
+#: ink/guide.lua
+msgid "Settings, the round button by Guide: light, dark, or as KOReader's night mode. The page keeps its colours."
+msgstr "设置 - 指南旁圆形按钮：浅色、深色，或跟随KOReader夜间模式。页面原有色彩保持不变。"
+
+#: ink/guide.lua
+msgid "Settings: the theme colour, and Colour while drawing."
+msgstr "设置：主题色，以及绘图时色彩设置。"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/toolbar.lua
+msgid "Shapes"
+msgstr "形状"
+
+#: ink/guide.lua
+msgid "Shapes, text and pictures"
+msgstr "形状、文字与图片"
+
+#: ink/view/layers.lua
+msgid "Show"
+msgstr "显示"
+
+#: ink/view/stickers.lua
+#, lua-format
+msgid "Show all stickers (%d hidden)"
+msgstr "显示所有贴纸（%d 个已隐藏）"
+
+#: ink/reader/inkview.lua
+msgid "Show ink while reading"
+msgstr "阅读时显示笔迹"
+
+#: ink/view/guide.lua
+msgid "Show me"
+msgstr "查看指引"
+
+#: ink/view/menus.lua
+msgid "Show the eraser while erasing"
+msgstr "擦除时显示橡皮擦图标"
+
+#: ink/reader/roomsui.lua
+msgid "Show the rooms"
+msgstr "显示文本框区域"
+
+#: ink/view/receive.lua
+msgid "Show them in the library"
+msgstr "在资料库中显示"
+
+#: ink/view/sync.lua
+msgid "Shown in the names of conflict copies, so you can tell which reader a version came from."
+msgstr "冲突副本名称会带上该标识，方便区分版本来自哪台设备。"
+
+#: ink/guide.lua
+msgid "Shows how your pen, its buttons and your hand arrive. Handy in a bug report."
+msgstr "查看手写笔、侧键和手掌触控输入情况，方便提交问题反馈。"
+
+#: main.lua
+msgid "Shows two pages next to each other, as a printed book falls open, also for a PDF whose pages are all single ones. Your ink stays on the page you drew it on. A page wider than tall is shown alone. This uses the page view, and switches to it."
+msgstr "双页并排显示，如同实体书翻开；也适用于单页PDF。笔迹保留在对应页面。横向宽页单独显示。该功能会切换到页面视图。"
+
+#: ink/actions.lua
+msgid "Side button"
+msgstr "侧键"
+
+#: ink/sync/errors.lua
+msgid "Sign in again"
+msgstr "重新登录"
+
+#: ink/framecover.lua
+msgid "Silver"
+msgstr "银色"
+
+#: ink/framecover.lua
+msgid "Silver gilt"
+msgstr "鎏银"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#: ink/view/selection.lua
+#: ink/view/settings.lua
+msgid "Size"
+msgstr "大小"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+msgid "Sky"
+msgstr "天蓝色"
+
+#: ink/reader/roomsui.lua
+msgid "Slower than ordinary rooms: when a room needs a line without a mark yet, the book is loaded again, which takes a while in a big book."
+msgstr "比普通文本框慢：当文本框需要获取尚未渲染的行时会重新加载书籍，大文件会比较耗时。"
+
+#: ink/view/pencase.lua
+msgid "Smooths shaky lines. Higher values steady the stroke but trail your finger slightly."
+msgstr "平滑抖动线条。数值越高线条越稳，但会轻微滞后于手指。"
+
+#: ink/penset.lua
+msgid "Smudge"
+msgstr "涂抹"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Smudges: %d"
+msgstr "涂抹笔触：%d"
+
+#: ink/view/menus.lua
+msgid "Snap lines to ruling"
+msgstr "线条对齐横线"
+
+#: ink/view/menus.lua
+msgid "Snap to 45°"
+msgstr "吸附到45°角"
+
+#: ink/view/menus.lua
+msgid "Snap to grid"
+msgstr "吸附到网格"
+
+#: ink/brushes.lua
+msgid "Soft edge"
+msgstr "柔边"
+
+#: ink/view/exportbook.lua
+msgid "Some items can't stay editable"
+msgstr "部分元素无法保持可编辑状态"
+
+#: ink/view/exportbook.lua
+msgid "Some pages could not be kept as pictures in this PDF, so the items on them were left out."
+msgstr "部分页面无法在PDF中保存为图片，页面上的元素已被省略。"
+
+#: ink/view/imagebrowser.lua
+msgid "Something went wrong adding that image. Please try another."
+msgstr "添加图片失败，请换一张重试。"
+
+#: ink/sync/errors.lua
+msgid "Something went wrong inside Ink Away. Nothing was overwritten."
+msgstr "Ink Away内部出错，文件没有被覆盖。"
+
+#: ink/view/toolbar.lua
+msgid "Something went wrong opening that tool. Please report this."
+msgstr "打开工具失败，请反馈该问题。"
+
+#: ink/view/handwriting.lua
+msgid "Something went wrong reading the writing."
+msgstr "识别手写文字失败。"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "Source: %s"
+msgstr "来源：%s"
+
+#: ink/reader/roomsui.lua
+msgid "Space on the left"
+msgstr "左侧留白"
+
+#: ink/reader/roomtool.lua
+msgid "Space on the left, beside the paragraphs the box covers."
+msgstr "在文本框覆盖段落的左侧留出空白。"
+
+#: ink/reader/roomsui.lua
+msgid "Space on the right"
+msgstr "右侧留白"
+
+#: ink/reader/roomtool.lua
+msgid "Space on the right, beside the paragraphs the box covers."
+msgstr "在文本框覆盖段落的右侧留出空白。"
+
+#: ink/brushes.lua
+msgid "Spread"
+msgstr "扩散"
+
+#: ink/view/settings.lua
+msgid "Square"
+msgstr "正方形"
+
+#: ink/view/pencase.lua
+msgid "Stabilizer"
+msgstr "线条稳定器"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Star"
+msgstr "标星"
+
+#: ink/view/notebook.lua
+msgid "Star removed"
+msgstr "已取消标星"
+
+#: ink/view/overview.lua
+msgid "Starred pages"
+msgstr "已标星页面"
+
+#: ink/guide.lua
+#: ink/view/sync.lua
+msgid "Start again"
+msgstr "重新开始"
+
+#: ink/sync/errors.lua
+msgid "Start again to get a new code, and type it exactly as shown."
+msgstr "重新获取新验证码，并原样输入。"
+
+#: ink/sync/errors.lua
+msgid "Start again to get a new code."
+msgstr "重新获取新验证码。"
+
+#: ink/sync/errors.lua
+msgid "Start it again whenever you like."
+msgstr "你可以随时重新启动。"
+
+#: ink/view/sync.lua
+msgid "Start syncing"
+msgstr "开始同步"
+
+#: ink/view/sync.lua
+msgid "Starting…"
+msgstr "正在启动…"
+
+#: ink/view/sync.lua
+msgid "Starts a sync in the background each time you close a notebook that changed."
+msgstr "每次关闭有修改的笔记本时，后台自动触发同步。"
+
+#: ink/view/stickers.lua
+msgid "Sticker options"
+msgstr "贴纸选项"
+
+#: ink/view/images.lua
+#: ink/view/stickers.lua
+#: ink/view/toolbar.lua
+msgid "Stickers"
+msgstr "贴纸"
+
+#: ink/view/settings.lua
+msgid "Stickers button"
+msgstr "贴纸按钮"
+
+#: ink/view/stickers.lua
+msgid "Stickers button in the toolbar"
+msgstr "工具栏显示贴纸按钮"
+
+#: ink/view/stickers.lua
+msgid "Stickers per page"
+msgstr "每页贴纸数量"
+
+#: ink/reader/inkview.lua
+msgid "Stickers…"
+msgstr "贴纸…"
+
+#: ink/view/pencase.lua
+msgid "Still being tested. With Palm rejection on, Ballpoint, Fountain, Calligraphy and Pencil get wider the harder you press. If it misbehaves on your reader, I'd love to hear about it on GitHub."
+msgstr "尚在测试。开启掌擦时，圆珠笔、钢笔、书法笔、铅笔支持压感，用力越大笔迹越粗。如果在你的设备上异常，欢迎在GitHub反馈。"
+
+#: ink/penset.lua
+msgid "Stipple"
+msgstr "点画"
+
+#: ink/view/dialogs.lua
+#: ink/view/share.lua
+#: ink/view/sync.lua
+msgid "Stop"
+msgstr "停止"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The PDF will not be saved."
+msgstr "停止导出？PDF不会保存。"
+
+#: ink/view/exportbook.lua
+msgid "Stop exporting? The images saved so far will be deleted."
+msgstr "停止导出？已保存的图片将会被删除。"
+
+#: ink/view/dialogs.lua
+msgid "Stop now?"
+msgstr "立即停止？"
+
+#: ink/sync/errors.lua
+msgid "Stopped"
+msgstr "已停止"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Stopped: %1"
+msgstr "已停止：%1"
+
+#: ink/view/share.lua
+#, lua-format
+msgid "Stops when closed or after %d idle minutes. Use a Wi-Fi you trust."
+msgstr "关闭后或闲置%d分钟自动停止，请使用可信Wi-Fi。"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Storyboard"
+msgstr "故事板"
+
+#: ink/guide.lua
+msgid "Straight lines"
+msgstr "直线"
+
+#: ink/view/pencase.lua
+msgid "Strength"
+msgstr "力度"
+
+#: ink/view/textformat.lua
+msgid "Strike"
+msgstr "删除线"
+
+#: ink/view/settings.lua
+msgid "Support"
+msgstr "支持/帮助"
+
+#: ink/welcome.lua
+msgid "Swipe down along the right edge"
+msgstr "沿右边缘向下滑动"
+
+#: ink/welcome.lua
+msgid "Swipe up along the right edge"
+msgstr "沿右边缘向上滑动"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Swipe: %1"
+msgstr "滑动：%1"
+
+#: ink/view/settings.lua
+msgid "Symmetry"
+msgstr "对称绘图"
+
+#: ink/view/sync.lua
+msgid "Sync automatically"
+msgstr "自动同步"
+
+#: ink/view/sync.lua
+msgid "Sync log"
+msgstr "同步日志"
+
+#: ink/view/sync.lua
+msgid "Sync now"
+msgstr "立即同步"
+
+#: ink/view/sync.lua
+msgid "Sync this folder as a new library"
+msgstr "将此文件夹同步为新资料库"
+
+#: ink/view/sync.lua
+msgid "Synced"
+msgstr "已同步"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Synced %1"
+msgstr "已同步 %1"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Synced %1, with %2 problem(s)"
+msgstr "已同步 %1，存在 %2 个问题"
+
+#: ink/view/sync.lua
+msgid "Synced, with problems"
+msgstr "已同步，但存在问题"
+
+#: ink/view/sync.lua
+msgid "Syncing by itself can slow the reader and use battery. You choose when it runs, and \"Sync now\" runs only when you ask."
+msgstr "自动同步会拖慢设备、消耗电量。你可以自行控制同步时机，“立即同步”仅在手动触发时执行。"
+
+#: ink/view/sync.lua
+msgid "Syncing by itself runs in the background but uses the processor, Wi-Fi and battery, and can slow the reader. If it does, tap Manual only and use Sync now."
+msgstr "后台自动同步会占用处理器、Wi-Fi和电量，可能造成卡顿。如有卡顿，改为仅手动同步，使用立即同步。"
+
+#: ink/view/sync.lua
+msgid "Syncing by itself uses Wi-Fi only when it is already on, unless you allow this. \"Sync now\" may always turn it on."
+msgstr "自动同步仅在Wi-Fi已开启时使用网络（除非你另行授权）；立即同步可以自动开启Wi-Fi。"
+
+#: ink/sync/errors.lua
+msgid "Syncing waits for Wi-Fi, and Ink Away is set not to turn it on by itself."
+msgstr "同步需要Wi-Fi，Ink Away设置为不会自动打开Wi-Fi。"
+
+#: ink/sync/errors.lua
+msgid "Syncing was stopped."
+msgstr "同步已终止。"
+
+#: ink/sync/errors.lua
+msgid "Syncing would delete a large part of your notebooks in the cloud, so it stopped before deleting anything."
+msgstr "本次同步会删除云端大量笔记，已中止，未执行删除。"
+
+#: ink/view/sync.lua
+msgid "Syncs just before the reader sleeps, which uses Wi-Fi and battery."
+msgstr "设备休眠前同步，会消耗Wi-Fi和电量。"
+
+#: ink/view/settings.lua
+msgid "System"
+msgstr "系统"
+
+#: ink/coverpicker.lua
+#: ink/view/overview.lua
+msgid "Tab colour"
+msgstr "标签颜色"
+
+#: ink/guide.lua
+msgid "Take up a pen"
+msgstr "拿起笔"
+
+#: ink/guide.lua
+msgid "Tap a tool to use it, and tap it again for its settings."
+msgstr "点击工具启用，再次点击打开该工具设置。"
+
+#: ink/guide.lua
+msgid "Tap a word twice in the text you are writing in; drag across text to select more."
+msgstr "在文字内双击单词；拖动可多选文本。"
+
+#: ink/guide.lua
+msgid "Tap an area to fill it; hold the bucket in the shapes menu to pick its colour."
+msgstr "点击区域填充；在形状菜单长按颜料桶拾取颜色。"
+
+#: ink/guide.lua
+msgid "Tap one of your saved pens in the pen menu. Changing its size or colour changes that pen."
+msgstr "在笔刷菜单点击已保存笔刷；修改大小、颜色会直接更新该笔刷。"
+
+#: ink/reader/roomsui.lua
+msgid "Tap one to go to it and change it."
+msgstr "点击跳转并编辑。"
+
+#: ink/guide.lua
+msgid "Tap the page number: go to a page, rename, star, insert, duplicate, move, paper, templates, paste or delete."
+msgstr "点击页码：跳转页面、重命名、标星、插入、复制、移动、纸张、模板、粘贴或删除。"
+
+#: ink/guide.lua
+msgid "Tap to open, hold for rename, move, duplicate, export or delete. + makes a drawing, a notebook or a folder."
+msgstr "点击打开；长按可重命名、移动、复制、导出或删除。加号新建绘图、笔记本或文件夹。"
+
+#: ink/guide.lua
+msgid "Tap where it should go. Format stays open while you pick styles, colours, highlights, lists, spacing and the font; on lined paper text sits on the lines."
+msgstr "点击放置位置。格式面板保持打开，可设置样式、颜色、高亮、列表、间距、字体；横线纸模式文字会对齐横线。"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Tap: %1"
+msgstr "点击：%1"
+
+#: ink/view/stickers.lua
+msgid "Tape"
+msgstr "胶带"
+
+#: ink/coverpicker.lua
+#: ink/folderlook.lua
+msgid "Teal"
+msgstr "青绿色"
+
+#: ink/view/updates.lua
+msgid "Tell me about prereleases"
+msgstr "接收预发布版更新通知"
+
+#: ink/view/notebook.lua
+msgid "Template name"
+msgstr "模板名称"
+
+#: ink/guide.lua
+#: ink/ui/pentestscreen.lua
+#: ink/view/pencase.lua
+msgid "Test pen and touch"
+msgstr "测试手写笔与触控"
+
+#: ink/guide.lua
+#: ink/view/menus.lua
+#: ink/view/textformat.lua
+#: ink/view/toolbar.lua
+msgid "Text"
+msgstr "文字"
+
+#: ink/guide.lua
+msgid "Text and pictures"
+msgstr "文字与图片"
+
+#: ink/view/exportbook.lua
+#, lua-format
+msgid "Text boxes: %d"
+msgstr "文本框：%d"
+
+#: ink/view/search.lua
+msgid "That document is no longer there."
+msgstr "该文档已不存在。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "That does not look right. Copy it exactly as the %1 developer site shows it."
+msgstr "格式不正确，请严格按照 %1 开发者页面上的内容复制。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "The %1 of your %2 app."
+msgstr "你的 %2 应用的 %1"
+
+#: ink/guide.lua
+msgid "The + and − in the corner zoom in and out, and so does a pinch."
+msgstr "角落加减号缩放；也可以双指捏合缩放。"
+
+#: ink/view/ocrapi.lua
+msgid "The API key from your account on the service, usually under API keys. It is only sent to the address above."
+msgstr "该服务账号的API密钥，一般在API密钥页面。密钥仅发送至上方填写的地址。"
+
+#: ink/view/pencase.lua
+msgid "The Boox draws the pen's ink itself as you write, as its own notes app does, and Ink Away puts your pen's real colour and texture in place when the pen lifts. Turn it off if ink stays behind where it shouldn't."
+msgstr "Boox设备自带底层笔迹渲染，和原厂笔记APP一样；抬笔后Ink Away替换为真实颜色与纹理。如果出现异常残影，可关闭该选项。"
+
+#: ink/guide.lua
+msgid "The Library"
+msgstr "资料库"
+
+#: ink/sync/areas.lua
+msgid "The PDFs and pictures you brought into Ink Away."
+msgstr "导入Ink Away的PDF和图片。"
+
+#: ink/view/trash.lua
+#, lua-format
+msgid "The annotations of %s are back where the book was. They show again when the book is back in that place."
+msgstr "%s 的批注已放回原位置，书籍放回原处后批注会重新显示。"
+
+#: ink/guide.lua
+msgid "The arrows in the bar at the bottom, or swipe two fingers sideways."
+msgstr "使用底部箭头翻页，或双指左右滑动。"
+
+#: ink/view/document.lua
+#, lua-format
+msgid ""
+"The background picture could not be found:\n"
+"%s"
+msgstr ""
+"找不到背景图片：\n"
+"%s"
+
+#: ink/reader/roomsui.lua
+msgid "The book could not be put back."
+msgstr "无法恢复书籍。"
+
+#: ink/reader/roomsui.lua
+msgid "The button keeps the one you pick. Hold it to switch again."
+msgstr "按钮会记住你的选择；长按再次切换。"
+
+#: ink/view/textformat.lua
+msgid "The clipboard is empty."
+msgstr "剪贴板为空。"
+
+#: ink/sync/errors.lua
+msgid "The cloud answered in a way Ink Away does not understand."
+msgstr "云端返回的格式 Ink Away 无法识别。"
+
+#: ink/sync/errors.lua
+msgid "The cloud asked Ink Away to slow down."
+msgstr "云端要求 Ink Away 降低请求频率，请稍后再同步。"
+
+#: ink/sync/errors.lua
+msgid "The cloud did not answer in time."
+msgstr "云端响应超时。"
+
+#: ink/sync/errors.lua
+msgid "The cloud had a problem"
+msgstr "云端服务异常"
+
+#: ink/view/sync.lua
+msgid "The cloud has no other versions."
+msgstr "云端没有其他版本。"
+
+#: ink/sync/errors.lua
+msgid "The cloud holds notebooks saved by a newer Ink Away."
+msgstr "云端笔记由更高版本Ink Away保存。"
+
+#: ink/sync/errors.lua
+msgid "The cloud is full"
+msgstr "云端存储空间已满"
+
+#: ink/sync/errors.lua
+msgid "The cloud no longer accepts this reader's sign-in. It was removed or has expired."
+msgstr "该设备的登录凭证已失效或被删除，无法登录云端。"
+
+#: ink/sync/errors.lua
+msgid "The cloud refused this request. Ink Away may be missing a permission."
+msgstr "云端拒绝了请求，Ink Away 可能缺少某项权限。"
+
+#: ink/sync/errors.lua
+msgid "The cloud service reported an error on its side."
+msgstr "云端服务返回内部错误。"
+
+#: ink/view/sync.lua
+msgid "The code is copied: paste it on the sign-in page."
+msgstr "验证码已复制，去登录页面粘贴。"
+
+#: ink/sync/errors.lua
+msgid "The code was not accepted"
+msgstr "验证码校验失败"
+
+#: ink/sync/errors.lua
+msgid "The code you typed is wrong or has already been used."
+msgstr "验证码错误或已过期。"
+
+#: ink/sync/errors.lua
+msgid "The connection timed out"
+msgstr "连接超时"
+
+#: ink/view/links.lua
+msgid "The contents lists the pages that have a title. Give pages a title first: tap the page number, then Rename."
+msgstr "目录只列出设置了标题的页面。先点击页码，选择重命名给页面设置标题。"
+
+#: ink/view/document.lua
+msgid "The copy is in Library: Imported only holds what you sent"
+msgstr "副本保存在资料库：导入文件夹仅存放你刚发送的文件"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "The copy, “%s”, is in Library: Imported only holds what you sent"
+msgstr "副本“%s”保存在资料库：导入文件夹仅存放你刚发送的文件"
+
+#: ink/guide.lua
+msgid "The eraser rubs out what it touches; Erase whole strokes takes each stroke it crosses."
+msgstr "橡皮擦擦除接触区域；清除整笔会擦除所有被划过的线条。"
+
+#: ink/sync/errors.lua
+msgid "The file is no longer in the cloud."
+msgstr "该文件在云端已不存在。"
+
+#: ink/sync/errors.lua
+msgid "The file was changed in the cloud while it was being sent, so nothing was overwritten."
+msgstr "上传期间云端文件发生变更，本次未覆盖。"
+
+#: ink/view/layers.lua
+msgid "The first layer has erasing from before layers were on, so it stays at the bottom."
+msgstr "第一层包含图层功能开启前的擦除记录，固定在最底层。"
+
+#: ink/reader/roomtool.lua
+msgid "The first room in a book loads it again, once."
+msgstr "书籍内第一个文本框会触发一次重新加载。"
+
+#: ink/view/sync.lua
+msgid "The first sync of ink on book pages, imports, exports and screen clips can be large and slow."
+msgstr "首次同步书籍笔迹、导入、导出、截图文件体积较大，速度较慢。"
+
+#: ink/view/library.lua
+msgid "The folder and everything in it go."
+msgstr "文件夹及其内部所有内容都会被删除。"
+
+#: ink/view/handwriting.lua
+msgid "The handwriting model could not be loaded."
+msgstr "手写识别模型加载失败。"
+
+#: ink/guide.lua
+msgid "The highlighter"
+msgstr "荧光笔"
+
+#: ink/guide.lua
+msgid "The lasso, links and text"
+msgstr "套索、链接与文字"
+
+#: ink/sync/errors.lua
+msgid "The library folder changed"
+msgstr "资料库文件夹已变更"
+
+#: ink/sync/errors.lua
+msgid "The library folder is not the one that was last synced."
+msgstr "当前资料库文件夹和上次同步的文件夹不一致。"
+
+#: ink/view/ocrapi.lua
+msgid "The name of one of the service's models that can read pictures, as its model list writes it, for example gpt-4o-mini or paddleocr-vl."
+msgstr "该服务支持图像识别的模型名称，和模型列表一致，例如 gpt-4o-mini、paddleocr-vl。"
+
+#: ink/view/document.lua
+msgid "The new document is in Library: Imported only holds what you sent"
+msgstr "新文档保存在资料库：导入文件夹仅存放本次发送文件"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "The notebook becomes the version from %1. What is on this reader now is saved in the backup folder first."
+msgstr "笔记本将替换为来自 %1 的版本，本机当前版本先存入备份文件夹。"
+
+#: ink/sync/errors.lua
+msgid "The notebook is synced anyway. The picture shows when its file arrives."
+msgstr "笔记本照常同步，图片文件到达后才会显示。"
+
+#: ink/sync/areas.lua
+msgid "The notebook kept for each book you read."
+msgstr "为每本阅读书籍独立保存的笔记。"
+
+#: ink/view/links.lua
+msgid "The notebook this leads to is no longer there."
+msgstr "链接指向的笔记本不存在。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "The other reader's version: %1, %2"
+msgstr "其他设备版本：%1，%2"
+
+#: ink/view/handwriting.lua
+msgid "The page changed. Please read the writing again."
+msgstr "页面已变更，请重新识别手写内容。"
+
+#: ink/guide.lua
+msgid "The page menu"
+msgstr "页面菜单"
+
+#: ink/guide.lua
+msgid "The page menu, Make a contents page: every titled page becomes a link to it. Go to the contents page is there too, and can be a gesture."
+msgstr "页面菜单 - 生成目录页：所有带标题的页面自动生成跳转链接。也可以设置手势直达目录页。"
+
+#: ink/view/links.lua
+msgid "The page this leads to is no longer there."
+msgstr "链接指向的页面不存在。"
+
+#: ink/view/export.lua
+msgid "The pages are saved as pictures with their text under them, so it can be searched and selected. They are laid out as you read them now: your font, margins and page size."
+msgstr "页面保存为图片+底层文本，支持搜索、选字。排版和当前阅读一致：字体、边距、页面大小不变。"
+
+#: ink/reader/roomtool.lua
+msgid "The paragraph at its top began on the page before, so the room starts where the next one does."
+msgstr "顶部段落起始于上一页，因此文本框从下一段开始。"
+
+#: ink/view/pencase.lua
+msgid "The pen in hand is not one of your pens: + keeps it as a new one."
+msgstr "当前笔不是已保存笔刷：点加号保存为新笔刷。"
+
+#: ink/guide.lua
+msgid "The pen on menus"
+msgstr "菜单上的笔刷"
+
+#: ink/guide.lua
+msgid "The pen's eraser end, for as long as it touches."
+msgstr "笔尾橡皮擦，持续接触时生效。"
+
+#: ink/guide.lua
+msgid "The pen's eraser end."
+msgstr "笔尾橡皮擦。"
+
+#: ink/sync/errors.lua
+msgid "The reader could not make a secure connection to the cloud. Its clock may be wrong."
+msgstr "设备无法建立安全连接，系统时间可能有误。"
+
+#: ink/sync/errors.lua
+msgid "The reader could not reach the cloud."
+msgstr "设备无法连接云端。"
+
+#: ink/view/ocrapi.lua
+msgid "The recognition preview could not be opened. Your handwriting was kept."
+msgstr "识别预览窗口无法打开，你的手写内容已保留。"
+
+#: ink/reader/roomsui.lua
+msgid "The rooms are hidden: tap one to show them and go to it."
+msgstr "文本框已隐藏：点击即可显示并跳转。"
+
+#: ink/view/search.lua
+msgid "The search could not finish."
+msgstr "搜索未能完成。"
+
+#: ink/view/handwriting.lua
+msgid "The selection changed. Please read the writing again."
+msgstr "选中区域已变更，请重新识别手写。"
+
+#: ink/sync/errors.lua
+msgid "The sign-in has not been allowed yet."
+msgstr "登录尚未授权。"
+
+#: ink/sync/errors.lua
+msgid "The sign-in timed out"
+msgstr "登录超时"
+
+#: ink/guide.lua
+msgid "The small tab at the end of the toolbar folds it away, and brings it back."
+msgstr "工具栏末端小标签，用于收起/展开工具栏。"
+
+#: ink/view/notebook.lua
+#, lua-format
+msgid ""
+"The source PDF could not be opened:\n"
+"%s\n"
+"\n"
+"Your notes are intact, but the page images will be blank until the PDF is back in that location."
+msgstr ""
+"无法打开源PDF：\n"
+"%s\n"
+"\n"
+"你的笔记完好，但PDF放回原位置前页面图片会空白。"
+
+#: ink/welcome.lua
+#, lua-format
+msgid "The swipes along the right edge already do something on your reader (%1), so Ink Away uses two-finger swipes."
+msgstr "你设备的右边缘滑动已有功能（%1），Ink Away改用双指滑动。"
+
+#: ink/welcome.lua
+msgid "The swipes along the right edge already do something on your reader, so Ink Away uses two-finger swipes."
+msgstr "你设备的右边缘滑动已有功能，Ink Away改用双指滑动。"
+
+#: ink/reader/roomtool.lua
+msgid "The text moves above and below the box."
+msgstr "文字排布在文本框上下方。"
+
+#: ink/reader/roomtool.lua
+msgid "The text moves to the left of the box."
+msgstr "文字排布在文本框左侧。"
+
+#: ink/reader/roomtool.lua
+msgid "The text moves to the right of the box."
+msgstr "文字排布在文本框右侧。"
+
+#: ink/reader/inkview.lua
+msgid "The toolbar takes the width of the book's margin on its side, with its icons sized to it, so it stays clear of the text. Widen the margins in the reader's settings to give it more room. PDFs and comics keep the usual size."
+msgstr "工具栏占用书籍侧边边距，图标自适应大小，避开正文。在阅读器设置加宽边距可以给工具栏更多空间；PDF、漫画保持原有大小。"
+
+#: ink/view/trash.lua
+msgid "The trash is empty."
+msgstr "回收站为空。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid ""
+"The update was not installed: %1.\n"
+"\n"
+"Nothing was changed."
+msgstr ""
+"更新安装失败：%1。\n"
+"\n"
+"没有任何改动。"
+
+#: ink/view/handwriting.lua
+msgid "The word list could not be loaded."
+msgstr "词库加载失败。"
+
+#: ink/view/settings.lua
+msgid "Theme Color"
+msgstr "主题色"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "There is already a file called “%s” here."
+msgstr "此处已有名为“%s”的文件。"
+
+#: ink/view/library.lua
+#: ink/view/overview.lua
+#, lua-format
+msgid "There is already something called “%s” here."
+msgstr "此处已有名为“%s”的项目。"
+
+#: ink/view/handwriting.lua
+msgid "There is no handwriting in the selection."
+msgstr "选中区域没有手写内容。"
+
+#: ink/view/layers.lua
+msgid "There is no layer under this one."
+msgstr "该图层下方没有图层。"
+
+#: ink/sync/errors.lua
+msgid "There is no room left in the cloud account."
+msgstr "云端账号存储空间已满。"
+
+#: ink/reader/roomsui.lua
+msgid "There is no text here to move."
+msgstr "此处没有可移动文字。"
+
+#: ink/view/document.lua
+msgid "There is nothing to copy yet."
+msgstr "暂无内容可复制。"
+
+#: ink/view/export.lua
+msgid "There is nothing to export in this folder."
+msgstr "该文件夹内没有可导出内容。"
+
+#: ink/view/export.lua
+#: ink/view/exportbook.lua
+msgid "There is nothing to export yet."
+msgstr "暂无内容可导出。"
+
+#: ink/view/sync.lua
+msgid "These notebooks were changed on two readers. Both versions were kept: the one already in the cloud under its own name, and the one from this reader as a copy."
+msgstr "该笔记本在两台设备上都有修改，两个版本均保留：云端原版，以及本机版本作为副本。"
+
+#: ink/view/settings.lua
+msgid "Thirds"
+msgstr "三等分"
+
+#: ink/reader/inkview.lua
+msgid "This book's annotations wait in Ink Away's trash for 30 days. To put them back: Ink Away's library, its menu, Trash."
+msgstr "本书批注在Ink Away回收站保留30天。恢复路径：Ink Away资料库 → 菜单 → 回收站。"
+
+#: ink/reader/roomsui.lua
+msgid "This book's annotations were saved by a newer Ink Away, so they can't be changed here."
+msgstr "本书批注由更高版本Ink Away保存，当前版本无法编辑。"
+
+#: ink/reader/book.lua
+msgid "This book's ink was saved by a newer Ink Away. Update Ink Away to change it."
+msgstr "本书笔迹由更高版本Ink Away保存，请升级Ink Away再编辑。"
+
+#: ink/reader/roomsui.lua
+msgid "This book's layout could not make room there. Try a box at another paragraph."
+msgstr "本书排版无法在该位置留出空间，请在其他段落新建文本框。"
+
+#: ink/sync/errors.lua
+msgid "This cloud service does not offer that."
+msgstr "该云服务不支持此功能。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "This copy of Ink Away is not registered with %1 yet. If you made an app of your own at the %1 developer site, enter its details to continue."
+msgstr "此Ink Away尚未在 %1 注册。如果你在 %1 开发者平台自建应用，请填入信息继续。"
+
+#: ink/sync/errors.lua
+msgid "This file is larger than the cloud sync can send."
+msgstr "文件大小超出同步上限。"
+
+#: ink/view/sync.lua
+msgid "This is the version you have."
+msgstr "这是你当前版本。"
+
+#: ink/view/layers.lua
+msgid "This layer is already at the bottom."
+msgstr "该图层已经在最底层。"
+
+#: ink/view/layers.lua
+msgid "This layer is already at the top."
+msgstr "该图层已经在最顶层。"
+
+#: ink/view/links.lua
+msgid "This notebook has no contents page yet: the page menu makes one."
+msgstr "该笔记本暂无目录页，可在页面菜单生成。"
+
+#: ink/view/export.lua
+msgid "This page"
+msgstr "本页"
+
+#: ink/reader/roomsui.lua
+msgid "This paragraph already holds a room. Draw this one where another paragraph begins, or change that room."
+msgstr "该段落已有文本框，请在其他段落起始位置新建，或修改已有文本框。"
+
+#: ink/view/share.lua
+msgid "This reader can't share over Wi-Fi."
+msgstr "该设备不支持Wi-Fi分享。"
+
+#: ink/view/share.lua
+msgid "This reader has no address on a network yet. Connect it to Wi-Fi and try again."
+msgstr "设备暂无网络地址，连接Wi-Fi后重试。"
+
+#: ink/sync/errors.lua
+msgid "This reader is not connected to a cloud account."
+msgstr "该设备未绑定云端账号。"
+
+#: ink/view/settings.lua
+msgid "This reader needs no special settings for Ink Away."
+msgstr "该设备不需要额外适配Ink Away。"
+
+#: ink/view/sync.lua
+msgid "This reader's version is removed, here and on the other reader at the next sync. It is kept in the backup folder."
+msgstr "本机版本将在下次同步时在本机和其他设备上移除，备份文件夹保留副本。"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "This reader's version: %1, %2"
+msgstr "本机版本：%1，%2"
+
+#: ink/reader/hlcolour.lua
+msgid "This version of KOReader can't keep colours of your own on a highlight."
+msgstr "当前KOReader版本不支持自定义高亮颜色。"
+
+#: ink/view/pencase.lua
+msgid "This works with Palm rejection on."
+msgstr "掌擦开启时该功能依然可用。"
+
+#: ink/view/textformat.lua
+msgid "Tight"
+msgstr "紧凑"
+
+#: ink/view/imagebrowser.lua
+msgid "Tip"
+msgstr "提示"
+
+#: ink/view/selection.lua
+msgid "To front"
+msgstr "置于顶层"
+
+#: ink/view/library.lua
+msgid "To keep notebooks and drawings together"
+msgstr "用来统一管理笔记本和绘图"
+
+#: ink/sync/errors.lua
+msgid "Too large"
+msgstr "文件过大"
+
+#: ink/sync/errors.lua
+msgid "Too many requests"
+msgstr "请求过于频繁"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Toolbar"
+msgstr "工具栏"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+msgid "Toolbar side"
+msgstr "工具栏位置"
+
+#: ink/guide.lua
+msgid "Tools and their settings"
+msgstr "工具及其设置"
+
+#: ink/guide.lua
+msgid "Tools, zoom and saving"
+msgstr "工具、缩放与保存"
+
+#: ink/brushes.lua
+msgid "Tooth"
+msgstr "颗粒纹理"
+
+#: ink/reader/inkview.lua
+#: ink/view/settings.lua
+msgid "Top"
+msgstr "顶部"
+
+#: ink/framecover.lua
+msgid "Tortoiseshell"
+msgstr "玳瑁纹"
+
+#: ink/guide.lua
+msgid "Trace over a picture"
+msgstr "描摹图片"
+
+#: ink/view/export.lua
+msgid "Transparent"
+msgstr "透明"
+
+#: ink/view/imagebrowser.lua
+msgid "Transparent PNG only"
+msgstr "仅支持透明PNG"
+
+#: ink/guide.lua
+#: ink/view/trash.lua
+msgid "Trash"
+msgstr "回收站"
+
+#: ink/view/library.lua
+msgid "Trash…"
+msgstr "回收站…"
+
+#: ink/view/imagebrowser.lua
+msgid "Truly transparent pictures are scarce here. Add any image, then switch on Erase pictures in the Eraser settings to wipe its background away."
+msgstr "透明素材较少。先添加图片，再在橡皮擦设置开启擦除图片背景来抠图。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Try %1?"
+msgstr "尝试 %1？"
+
+#: ink/view/sync.lua
+msgid "Try again"
+msgstr "重试"
+
+#: ink/sync/errors.lua
+msgid "Try again later. Your notebooks are safe."
+msgstr "稍后重试，你的笔记安全。"
+
+#: ink/sync/errors.lua
+msgid "Try again. If it keeps happening, report the code and the sync log."
+msgstr "重试。如果反复报错，请提供错误码和同步日志反馈。"
+
+#: ink/sync/errors.lua
+msgid "Try again. If it keeps happening, update Ink Away."
+msgstr "重试。如果反复报错，请升级Ink Away。"
+
+#: ink/view/updates.lua
+msgid "Try it"
+msgstr "试用"
+
+#: ink/view/layers.lua
+msgid "Turn layers off?"
+msgstr "关闭图层？"
+
+#: ink/sync/errors.lua
+msgid "Turn on Wi-Fi and try again. Your notebooks are safe and nothing was lost."
+msgstr "打开Wi-Fi重试，笔记安全，无丢失。"
+
+#: ink/view/ocrapi.lua
+msgid "Turn on Wi-Fi to convert online."
+msgstr "开启Wi-Fi进行在线识别。"
+
+#: ink/view/share.lua
+msgid "Turn on to send PDFs and pictures here."
+msgstr "开启后可接收PDF和图片。"
+
+#: ink/guide.lua
+msgid "Turn pages"
+msgstr "翻页"
+
+#: ink/guide.lua
+msgid "Turn text"
+msgstr "旋转文字"
+
+#: ink/sync/errors.lua
+msgid "Two files differ only in capital letters, which the cloud treats as one."
+msgstr "两个文件名仅大小写不同，云端视为同一个文件。"
+
+#: ink/sync/errors.lua
+msgid "Two names look the same"
+msgstr "两个名称看起来相同"
+
+#: main.lua
+msgid "Two pages side by side"
+msgstr "双页并排"
+
+#: ink/actions.lua
+msgid "Two-finger double tap"
+msgstr "双指双击"
+
+#: ink/guide.lua
+msgid "Two-finger double tap."
+msgstr "双指双击。"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Two-finger swipe %1"
+msgstr "双指滑动 %1"
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the bottom right to the top left"
+msgstr "双指从右下往左上滑动"
+
+#: ink/welcome.lua
+msgid "Two-finger swipe from the top right to the bottom left"
+msgstr "双指从右上往左下滑动"
+
+#: ink/actions.lua
+msgid "Two-finger swipe left"
+msgstr "双指左滑"
+
+#: ink/guide.lua
+msgid "Two-finger swipe left."
+msgstr "双指左滑。"
+
+#: ink/actions.lua
+msgid "Two-finger swipe right"
+msgstr "双指右滑"
+
+#: ink/guide.lua
+msgid "Two-finger swipe right."
+msgstr "双指右滑。"
+
+#: ink/actions.lua
+msgid "Two-finger tap"
+msgstr "双指单击"
+
+#: ink/guide.lua
+msgid "Two-finger tap."
+msgstr "双指单击。"
+
+#: ink/launcher.lua
+#, lua-format
+msgid "Two-finger tap: %1"
+msgstr "双指单击：%1"
+
+#: ink/view/notebook.lua
+msgid "Type a page number…"
+msgstr "输入页码…"
+
+#: ink/view/sync.lua
+msgid "Type the code"
+msgstr "输入验证码"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "Type the code %1 showed after you tapped Allow."
+msgstr "输入点击允许后 %1 展示的验证码。"
+
+#: ink/view/sync.lua
+msgid "Type the code instead"
+msgstr "改用手动输入验证码"
+
+#: ink/view/textformat.lua
+msgid "Underline"
+msgstr "下划线"
+
+#: ink/actions.lua
+#: ink/view/toolbar.lua
+msgid "Undo"
+msgstr "撤销"
+
+#: ink/sync/errors.lua
+msgid "Unexpected answer"
+msgstr "返回内容异常"
+
+#: ink/sync/errors.lua
+msgid "Unexpected problem"
+msgstr "意外错误"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Unstar"
+msgstr "取消标星"
+
+#: ink/view/notebook.lua
+#: ink/view/overview.lua
+msgid "Untitled"
+msgstr "无标题"
+
+#: ink/view/links.lua
+msgid "Up"
+msgstr "上一级"
+
+#: ink/sync/errors.lua
+msgid "Update Ink Away on this reader, then sync again. Nothing was changed."
+msgstr "在本机升级Ink Away后重新同步，本次没有改动。"
+
+#: ink/view/updates.lua
+#, lua-format
+msgid "Update available: %1"
+msgstr "有更新：%1"
+
+#: ink/view/notebook.lua
+msgid "Update the contents page"
+msgstr "更新目录页"
+
+#: ink/guide.lua
+#: ink/view/settings.lua
+#: ink/view/updates.lua
+msgid "Updates"
+msgstr "更新"
+
+#: ink/ui/colorpicker.lua
+msgid "Use"
+msgstr "使用"
+
+#: ink/coverpicker.lua
+msgid "Use for new notebooks"
+msgstr "用作新笔记本默认样式"
+
+#: ink/view/dialogs.lua
+msgid "Use this folder"
+msgstr "使用该文件夹"
+
+#: ink/view/settings.lua
+msgid "Vertical"
+msgstr "纵向"
+
+#: ink/view/library.lua
+msgid "View"
+msgstr "查看"
+
+#: ink/sync/errors.lua
+msgid "Wait a few minutes. Syncing will carry on by itself."
+msgstr "等待几分钟，同步会自动继续。"
+
+#: ink/sync/errors.lua
+msgid "Waiting for you"
+msgstr "等待你的操作"
+
+#: ink/view/share.lua
+msgid "Waiting for your phone or computer…"
+msgstr "等待手机或电脑接入…"
+
+#: ink/framecover.lua
+msgid "Walnut"
+msgstr "胡桃木色"
+
+#: ink/penset.lua
+msgid "Watercolor"
+msgstr "水彩"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Week columns"
+msgstr "周列表"
+
+#: ink/view/notebook.lua
+#: ink/view/settings.lua
+msgid "Weekly"
+msgstr "周计划"
+
+#: ink/view/guide.lua
+msgid "What Ink Away can do that a glance doesn't show."
+msgstr "Ink Away那些不容易一眼发现的功能。"
+
+#: ink/sync/errors.lua
+msgid "What arrived was incomplete or damaged, so it was thrown away."
+msgstr "接收文件不完整或损坏，已丢弃。"
+
+#: ink/reader/hlcolour.lua
+msgid "What each colour means to you. It shows with the colour when you change a highlight's colour."
+msgstr "你自定义的颜色备注，修改高亮颜色时一同显示。"
+
+#: ink/reader/roomtool.lua
+msgid "What is in this room: delete it, or keep it where it is and let it follow the text?"
+msgstr "对这个文本框：删除，还是保留并跟随正文流动？"
+
+#: ink/view/sync.lua
+msgid "What to do"
+msgstr "处理方案"
+
+#: ink/guide.lua
+msgid "What to set on this reader for quicker ink."
+msgstr "本机加速笔迹的设置项。"
+
+#: ink/view/sync.lua
+msgid "What to sync"
+msgstr "同步内容"
+
+#: ink/sync/areas.lua
+msgid "What you draw or write on the pages of a book. KOReader's own highlights are not included."
+msgstr "你在书籍页面上书写绘制的笔迹，不含KOReader原生高亮。"
+
+#: ink/view/updates.lua
+msgid "What's new"
+msgstr "更新日志"
+
+#: ink/view/settings.lua
+msgid "When Ink Away opens"
+msgstr "Ink Away启动时"
+
+#: ink/actions.lua
+msgid "When the page is zoomed in wider than the screen, sideways swipes move the page instead."
+msgstr "页面放大超出屏幕时，左右滑动改为平移页面。"
+
+#: ink/view/sync.lua
+msgid "When the reader goes to sleep"
+msgstr "设备休眠时"
+
+#: ink/guide.lua
+msgid "Where to start"
+msgstr "入门指引"
+
+#: ink/view/settings.lua
+msgid "While you move around a zoomed-in page, a small map shows where you are and the page is drawn when you stop. Smoother on a slow screen."
+msgstr "放大平移时显示小地图，停下后再渲染页面，低速屏幕更流畅。"
+
+#: ink/framecover.lua
+#: ink/palette.lua
+#: ink/view/export.lua
+msgid "White"
+msgstr "白色"
+
+#: ink/framecover.lua
+msgid "White and gold"
+msgstr "白金"
+
+#: ink/framecover.lua
+msgid "White sides"
+msgstr "白边"
+
+#: ink/sync/errors.lua
+msgid "Wi-Fi is off"
+msgstr "Wi-Fi已关闭"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia"
+msgstr "维基媒体图库"
+
+#: ink/view/imagebrowser.lua
+msgid "Wikimedia is faster. Openverse has a wider variety."
+msgstr "维基媒体图库速度更快；Openverse素材种类更多。"
+
+#: ink/coverpicker.lua
+msgid "Wine"
+msgstr "酒红色"
+
+#: ink/actions.lua
+msgid "With a double tap also set, a single two-finger tap waits a moment for a second one."
+msgstr "如果同时设置了双指双击，单次双指单击会短暂等待，判断是否为双击。"
+
+#: ink/view/export.lua
+msgid "With ink"
+msgstr "包含笔迹"
+
+#: ink/guide.lua
+msgid "With the Bookshelf plugin installed, save a drawing as one of its ornaments."
+msgstr "安装Bookshelf插件后，可以将绘图保存为书架装饰。"
+
+#: ink/guide.lua
+msgid "With the lasso, tap a shape or picture to pick it out: move, resize, turn or delete it. On a drawing, a hold with Pan does it too."
+msgstr "套索工具：点击形状/图片选中，移动、缩放、旋转、删除；绘图模式下长按平移也可以唤起选择。"
+
+#: ink/penset.lua
+msgid "Write"
+msgstr "书写笔"
+
+#: ink/welcome.lua
+msgid "Write and draw on the book's pages. Your ink stays with the words when the font changes."
+msgstr "在书页上书写绘图；更换字体时笔迹跟着文字位置保持不变。"
+
+#: ink/launcher.lua
+msgid "Write and draw on this page"
+msgstr "在本页书写绘图"
+
+#: ink/view/library.lua
+msgid "Write on a PDF from this reader…"
+msgstr "在本机PDF上书写…"
+
+#: ink/view/stickers.lua
+msgid "Write on a note with the pen or the Text tool, and it moves with the note."
+msgstr "用手写笔或文字工具在便签上书写，文字会跟随便签移动。"
+
+#: ink/folderlook.lua
+#: ink/palette.lua
+#: ink/view/textformat.lua
+msgid "Yellow"
+msgstr "黄色"
+
+#: ink/view/stickers.lua
+msgid "You can bring hidden stickers back in the sticker options."
+msgstr "你可以在贴纸选项里恢复已隐藏贴纸。"
+
+#: ink/view/pencase.lua
+#, lua-format
+msgid "You have %d pens, as many as the menu holds. Hold one and Remove it to make room."
+msgstr "你已有 %d 支笔，已达到菜单上限。长按一支并移除，腾出位置。"
+
+#: ink/view/updates.lua
+msgid "You have this version."
+msgstr "当前已是该版本。"
+
+#: ink/view/pencase.lua
+msgid "Your brushes"
+msgstr "你的画笔"
+
+#: ink/view/pencase.lua
+msgid "Your first four saved pens in a small strip at the bottom of the page, one tap away."
+msgstr "页面底部小栏展示你保存的前四支笔，轻点即可选用。"
+
+#: ink/guide.lua
+msgid "Your own brushes"
+msgstr "自定义画笔"
+
+#: ink/guide.lua
+#: ink/view/pencase.lua
+msgid "Your pens on the page"
+msgstr "页面上的笔"
+
+#: ink/sync/areas.lua
+msgid "Your pens, colours, paper, text and snapping choices. Not the folders, screen or pen settings that belong to one reader."
+msgstr "包含你的笔、颜色、纸张、文字和吸附设置。不包含专属阅读器的文件夹、屏幕和笔参数。"
+
+#: ink/guide.lua
+msgid "Your pens, kinds and pressure"
+msgstr "笔、笔型与压感"
+
+#: ink/guide.lua
+msgid "Your reader"
+msgstr "阅读器"
+
+#: ink/view/ocrapi.lua
+msgid "Your service's API address, from its documentation. It has to start with https://, for example https://api.openai.com/v1 or https://openrouter.ai/api/v1."
+msgstr "服务的API地址，查阅对应文档获取。必须以 https:// 开头，例如 https://api.openai.com/v1 或 https://openrouter.ai/api/v1。"
+
+#: ink/guide.lua
+msgid "Your shortcuts"
+msgstr "快捷键"
+
+#: ink/guide.lua
+msgid "Zoom"
+msgstr "缩放"
+
+#: ink/view/settings.lua
+msgid "Zoom and Pan buttons"
+msgstr "缩放与平移按钮"
+
+#: ink/view/updates.lua
+msgid "a check could not start"
+msgstr "无法开始检查"
+
+#: ink/view/updates.lua
+msgid "a prerelease"
+msgstr "预发布版"
+
+#: ink/view/updates.lua
+msgid "a release"
+msgstr "正式版"
+
+#: ink/view/updates.lua
+msgid "a test build"
+msgstr "测试构建版"
+
+#: ink/view/sync.lua
+#, lua-format
+msgid "and %1 more, see the sync log"
+msgstr "还有 %1 项，查看同步日志"
+
+#: ink/view/settings.lua
+msgid "blank"
+msgstr "空白"
+
+#: ink/view/settings.lua
+msgid "checklist"
+msgstr "清单"
+
+#: ink/view/settings.lua
+msgid "daily"
+msgstr "每日"
+
+#: ink/view/settings.lua
+msgid "dotted"
+msgstr "点格"
+
+#: ink/view/imagebrowser.lua
+msgid "e.g. cat, tree, arrow"
+msgstr "例如：猫、树、箭头"
+
+#: ink/view/settings.lua
+msgid "grid"
+msgstr "方格"
+
+#: ink/view/settings.lua
+msgid "habit tracker"
+msgstr "习惯追踪"
+
+#: ink/view/settings.lua
+msgid "handwriting"
+msgstr "手写"
+
+#: ink/view/menus.lua
+msgid "hold to pick colour"
+msgstr "长按取色"
+
+#: ink/view/settings.lua
+msgid "isometric"
+msgstr "等轴测"
+
+#: ink/view/sync.lua
+msgid "just now"
+msgstr "刚刚"
+
+#: ink/view/settings.lua
+msgid "lined"
+msgstr "横线"
+
+#: ink/view/settings.lua
+msgid "margin"
+msgstr "页边距"
+
+#: ink/view/settings.lua
+msgid "meeting notes"
+msgstr "会议笔记"
+
+#: ink/view/settings.lua
+msgid "monthly"
+msgstr "每月"
+
+#: ink/view/settings.lua
+msgid "music"
+msgstr "乐谱"
+
+#: ink/view/sync.lua
+msgid "now"
+msgstr "现在"
+
+#: ink/view/settings.lua
+msgid "off"
+msgstr "关闭"
+
+#: ink/view/menus.lua
+msgid "px"
+msgstr "px"
+
+#: ink/view/menus.lua
+#: ink/view/pencase.lua
+#, lua-format
+msgid "shown at %d%%"
+msgstr "显示比例：%d%%"
+
+#: ink/view/settings.lua
+msgid "storyboard"
+msgstr "分镜脚本"
+
+#: ink/view/imagebrowser.lua
+#, lua-format
+msgid "via %s"
+msgstr "通过 %s"
+
+#: ink/view/settings.lua
+msgid "week columns"
+msgstr "周分列"
+
+#: ink/view/settings.lua
+msgid "weekly"
+msgstr "每周"
+
+#: ink/view/dialogs.lua
+#, lua-format
+msgid "“%s” already exists. Replace it?"
+msgstr "“%s”已存在，是否覆盖？"
+
+#: ink/view/document.lua
+#, lua-format
+msgid "“%s” is in Library: Imported only holds what you sent"
+msgstr "“%s”在资料库中：导入文件夹仅保存你主动导入的内容"

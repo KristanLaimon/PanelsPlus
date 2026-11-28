@@ -1,10 +1,60 @@
 {
+  "annotation_baseline_history": [
+    {
+      "archived_at": "2026-11-07",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9235,
+        "false_positives": 63,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9354,
+        "pages_evaluated": 181,
+        "precision": 0.9168,
+        "reading_order_accuracy": 0.6851,
+        "reading_order_pages": 181,
+        "reading_order_pages_correct": 124,
+        "reading_order_pair_accuracy": 0.9992,
+        "reading_order_pairs": 1223,
+        "reading_order_pairs_correct": 1222,
+        "recall": 0.9303,
+        "total_detected": 757,
+        "total_ground_truth": 746,
+        "true_positives": 694
+      },
+      "reason": "User-approved current Smart baseline; compare future results against these measurements instead of fixed accuracy targets"
+    },
+    {
+      "archived_at": "2026-11-27",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9244,
+        "false_positives": 58,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9476,
+        "pages_evaluated": 181,
+        "precision": 0.9226,
+        "reading_order_accuracy": 0.7017,
+        "reading_order_pages": 181,
+        "reading_order_pages_correct": 127,
+        "reading_order_pair_accuracy": 1.0000,
+        "reading_order_pairs": 1220,
+        "reading_order_pairs_correct": 1220,
+        "recall": 0.9263,
+        "total_detected": 749,
+        "total_ground_truth": 746,
+        "true_positives": 691
+      },
+      "reason": "Reviewed panel annotation coverage changed"
+    }
+  ],
   "book_title": "Horimiya_Vol1",
   "components_conservative_full_volume": {
     "f1": 0.9235,
     "false_positives": 63,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9354,
     "pages_evaluated": 181,
     "precision": 0.9168,
@@ -23,7 +73,7 @@
     "f1": 0.8868,
     "false_positives": 41,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9224,
     "pages_evaluated": 181,
     "precision": 0.9386,
@@ -32,31 +82,11 @@
     "total_ground_truth": 746,
     "true_positives": 627
   },
-  "smart_full_volume": {
-    "f1": 0.9235,
-    "false_positives": 63,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "mean_iou": 0.9354,
-    "pages_evaluated": 181,
-    "precision": 0.9168,
-    "reading_order_accuracy": 0.6851,
-    "reading_order_pages": 181,
-    "reading_order_pages_correct": 124,
-    "reading_order_pair_accuracy": 0.9992,
-    "reading_order_pairs": 1223,
-    "reading_order_pairs_correct": 1222,
-    "recall": 0.9303,
-    "total_detected": 757,
-    "total_ground_truth": 746,
-    "true_positives": 694
-  },
-  "updated_at": "2026-10-12",
   "legacy_safe_against_smart_full_volume": {
     "f1": 0.5425,
     "false_positives": 103,
     "gap_tolerance": 35,
-    "iou_threshold": 0.5,
+    "iou_threshold": 0.5000,
     "mean_iou": 0.9043,
     "pages_evaluated": 181,
     "precision": 0.7542,
@@ -71,5 +101,25 @@
     "total_ground_truth": 746,
     "true_positives": 316
   },
-  "safe_mapping_status": "pending"
+  "safe_mapping_status": "pending",
+  "smart_full_volume": {
+    "f1": 0.9496,
+    "false_positives": 34,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5000,
+    "mean_iou": 0.9634,
+    "pages_evaluated": 181,
+    "precision": 0.9547,
+    "reading_order_accuracy": 0.8453,
+    "reading_order_pages": 181,
+    "reading_order_pages_correct": 153,
+    "reading_order_pair_accuracy": 1.0000,
+    "reading_order_pairs": 1312,
+    "reading_order_pairs_correct": 1312,
+    "recall": 0.9446,
+    "total_detected": 750,
+    "total_ground_truth": 758,
+    "true_positives": 716
+  },
+  "updated_at": "2026-11-27"
 }

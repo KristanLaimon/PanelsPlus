@@ -20,7 +20,7 @@ KOReader already has a word-box finder, tuned for prose: fairly uniform line
 height, consistent inter-word gaps, one font. Comic lettering breaks all
 three assumptions at once — hand-lettering, sound effects, speech-bubble
 text set at odd angles or sizes, panel art bleeding into the crop around the
-word. `src/_wordfinder.lua` is a from-scratch replacement built around that:
+word. `src/wordfinder/detection.lua` handles word-box detection around that:
 it estimates background and polarity locally (75th-percentile luminance over
 a small band around the tap, so it works on inverted white-on-dark lettering
 too), scopes line-height detection to a narrow column band around the tap
@@ -28,6 +28,14 @@ point instead of the whole render crop (so one line of a multi-line bubble
 doesn't merge into its neighbors), and calibrates its word-gap threshold from
 that specific line's own median inter-letter gap rather than a fixed
 constant.
+
+The code follows the lookup flow: `src/panelviewer/selection.lua` handles the
+hold gesture and reader selection, `src/wordfinder/detection.lua` finds the box,
+and `src/wordfinder/ocr.lua` reads it and applies retry and candidate checks.
+Model discovery lives in `src/wordfinder/models.lua`; it resolves bundled data
+relative to the installed plugin, so lookup also works when KOReader starts
+from another directory. `src/wordfinder/init.lua` composes the public table,
+and the original `src/_wordfinder.lua` import still returns that table.
 
 ## Pipeline: hold → word box → dictionary
 

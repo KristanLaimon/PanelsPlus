@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panels revision</title>
+<style>
+*{box-sizing:border-box}body{font:14px system-ui;margin:16px;color:#222}button,input,select,textarea{font:inherit}button{cursor:pointer;padding:5px 9px}button:disabled{cursor:default}button[aria-pressed=true]{outline:2px solid #1764b0}header,.toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}h1{font-size:21px;margin:0 12px 0 0}h2{font-size:18px}h3{font-size:15px}small,.muted{color:#555}#status{min-height:24px;white-space:pre-wrap}#status.error{color:#a11}#layout{display:grid;grid-template-columns:260px minmax(0,1fr);gap:18px}aside{border-right:1px solid #ccc;padding-right:12px}aside label{display:block;margin-bottom:8px}aside select,aside input{width:100%}#page-list{max-height:70vh;overflow:auto;display:grid;gap:4px}#page-list button{text-align:left}#page-list button.active{border:2px solid #1764b0}#page-list small{display:block}.comparisons{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.comparison{border:1px solid #ccc;padding:8px}.comparison svg{width:100%;height:auto;display:block;background:#eee}.comparison .toolbar{margin-top:7px}svg text{font:bold 27px system-ui;paint-order:stroke;stroke:white;stroke-width:2px}svg rect.panel{fill:transparent;stroke-width:2;vector-effect:non-scaling-stroke}#editor-layout{display:grid;grid-template-columns:minmax(0,1fr) 235px;gap:14px}#canvas-scroll{overflow:visible;background:#ddd;border:1px solid #999;min-width:0}#canvas{display:block;touch-action:none;user-select:none;max-width:none}#canvas rect.handle{fill:white;stroke:#165bb3;stroke-width:2}#canvas rect.selected{stroke:#165bb3;stroke-width:2}#rect-list{max-height:45vh;overflow:auto;padding-left:28px}#rect-list li{margin:6px 0}#rect-list button.selected{border:2px solid #1764b0}.numbers{display:grid;grid-template-columns:1fr 1fr;gap:5px}.numbers input{width:100%}textarea{width:100%;min-height:85px}pre{max-height:240px;overflow:auto;background:#eee;padding:10px;white-space:pre-wrap}dialog{width:min(900px,95vw)}dialog textarea{height:50vh}.hidden{display:none!important}#progress{margin:8px 0}#run-info{margin:8px 0}#dirty{font-weight:bold}a{color:#165bb3}@media(max-width:950px){#layout{grid-template-columns:200px minmax(0,1fr)}#editor-layout{grid-template-columns:1fr}.comparisons{grid-template-columns:1fr}}@media(max-width:650px){body{margin:8px}#layout{grid-template-columns:1fr}aside{border:0}#page-list{max-height:200px}}
+#canvas .edge-handle{stroke:transparent;stroke-width:14;vector-effect:non-scaling-stroke;pointer-events:stroke}
+.book-group{border:1px solid #aaa;border-radius:5px;padding:8px;margin-bottom:6px}.book-group h3{overflow-wrap:anywhere;margin:0 0 5px}.book-status{font-weight:700;margin:0 0 4px}.book-status.pass{color:#08783e}.book-status.regression{color:#b32318}.book-status.perfect,.book-status.unknown{color:#906000}.book-pages{display:grid;gap:4px;margin-top:8px}html[data-theme="dark"] .book-status.pass{color:#6cdb9a}html[data-theme="dark"] .book-status.regression{color:#ff9999}html[data-theme="dark"] .book-status.perfect,html[data-theme="dark"] .book-status.unknown{color:#ffd175}
+#canvas [data-handle="nw"],#canvas [data-handle="se"]{cursor:nwse-resize}
+#canvas [data-handle="ne"],#canvas [data-handle="sw"]{cursor:nesw-resize}
+#canvas [data-handle="n"],#canvas [data-handle="s"]{cursor:ns-resize}
+#canvas [data-handle="e"],#canvas [data-handle="w"]{cursor:ew-resize}
+
+header #theme-toggle{margin-left:auto}
+body:has(#main:not(.hidden)) header{padding-right:140px}
+#review-choice{position:fixed;top:12px;right:16px;z-index:10;padding:6px 10px;border-radius:4px;background:#515860;color:#fff;font-weight:700;pointer-events:none}
+#review-choice[data-choice="expected"]{background:#08783e}
+#review-choice[data-choice="previous"]{background:#7953aa}
+#review-choice[data-choice="detected"]{background:#b84304}
+#review-choice[data-choice="custom"]{background:#165bb3}
+#layout.sidebar-hidden{grid-template-columns:minmax(0,1fr)}
+html[data-theme="dark"] .comparison svg{background:#303438}html[data-theme="dark"] .comparison svg image,html[data-theme="dark"] #canvas image{filter:invert(1)}
+html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] body{background:#181a1b;color:#eee}html[data-theme="dark"] small,html[data-theme="dark"] .muted{color:#bbb}html[data-theme="dark"] aside,html[data-theme="dark"] .comparison{border-color:#555}html[data-theme="dark"] pre,html[data-theme="dark"] #canvas-scroll{background:#303438}html[data-theme="dark"] a{color:#91bfff}html[data-theme="dark"] #status.error{color:#ff9999}
+#magnifier{position:fixed;right:16px;bottom:16px;width:180px;height:180px;border:2px solid #888;background:#eee;z-index:10;pointer-events:none;box-shadow:0 2px 12px #0008}
+#magnifier line{stroke:#e33;stroke-width:1;vector-effect:non-scaling-stroke}
+html[data-theme="dark"] #magnifier image{filter:invert(1)}
+</style>
+<script type="module" src="./revision/client.ts"></script>
+</head>
+<body>
+<header><h1>Panels revision</h1><a href="/books-performance">Books performance</a><label>Algorithm <select id="algorithm"><option value="safe">Safe only</option><option value="smart">Smart only</option><option value="all">Safe + Smart</option></select></label><button id="run">Run panel tests + diagnose</button><button id="copy">Copy session feedback</button><button id="download">Download session feedback</button><label>Import feedback <input id="import" type="file" accept="application/json" style="width:185px"></label><button id="theme-toggle" type="button" aria-pressed="false">Dark mode</button></header>
+<p class="muted">Choose the correct result, add optional notes, or edit your own rectangles. Choices and notes save automatically; dataset files change only when you click Save.</p>
+<div id="status" role="status" aria-live="polite">Loading…</div>
+<details id="run-details"><summary id="run-summary">Test runner</summary><pre id="run-info">No run yet.</pre></details>
+<div id="progress"></div>
+<button id="sidebar-toggle" type="button" aria-expanded="true" aria-controls="sidebar">Hide sidebar</button>
+<div id="layout">
+<aside id="sidebar">
+<label>Book <select id="book"></select></label>
+<label>Show <select id="filter"><option value="different">All differences</option><option value="pending">Pending differences</option><option value="new">Previously correct</option><option value="reviewed">Reviewed / notes</option><option value="all">Every mapped page</option></select></label>
+<label>Page number <input id="search" type="number" min="1" placeholder="All pages"></label>
+<p class="muted">F1 compares this saved diagnostic with its book baseline. Other benchmark checks still apply; run panel tests for the full result.</p>
+<p id="empty-list" class="hidden">No pages match this algorithm and filter.</p>
+<div id="page-list"></div>
+</aside>
+<main id="main" class="hidden">
+<div id="review-choice" role="status" aria-label="Review choice"></div>
+<div class="toolbar"><button id="prev">← Previous (A)</button><button id="next">Next (D) →</button><strong id="page-title"></strong><span id="dirty"></span></div>
+<p id="page-info"></p>
+<div id="comparisons" class="comparisons"></div>
+<h2>Your review</h2><p class="muted">Shortcuts: Q original, W before, E after.</p>
+<div id="choices" class="toolbar"></div>
+<label>Optional observations<textarea id="notes" maxlength="10000" placeholder="What should Safe / Smart do on this page?"></textarea></label>
+<div class="toolbar"><button id="save-page">Save this page to dataset (Ctrl+S)</button><button id="save-book">Save reviewed pages in this book / algorithm (Ctrl+Shift+S)</button><span id="saved-info"></span></div>
+<details id="editor" open><summary>Edit rectangles and reading order</summary>
+<p>Click a panel to select it, then drag a corner or edge to resize it in either mode. Drag on the image in Draw mode to add a panel. Use Move / resize to move a panel. Panel numbers define reading order. Shortcuts: Backspace / Delete / X removes the selected panel, Ctrl+Z undoes an edit, and Z / C moves it earlier / later.</p>
+<div class="toolbar"><button id="mode-draw" aria-pressed="true">Draw</button><button id="mode-move" aria-pressed="false">Move / resize</button><button id="undo">Undo edit</button><button id="full-page">Full-page panel</button><button id="clear">Clear rectangles</button><label>Zoom <input id="zoom" type="range" min="50" max="250" value="100" step="25"></label><span id="zoom-label">100%</span></div>
+<div id="editor-layout"><div id="canvas-scroll"><svg id="canvas" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Panel rectangle editor"></svg></div><section><h3>Reading order</h3><ol id="rect-list"></ol><div class="toolbar"><button id="up">Move earlier</button><button id="down">Move later</button><button id="delete">Delete panel</button></div><div class="numbers"><label>X<input id="x" type="number" min="0"></label><label>Y<input id="y" type="number" min="0"></label><label>Width<input id="w" type="number" min="1"></label><label>Height<input id="h" type="number" min="1"></label></div><button id="apply-coordinates">Apply coordinates</button></section></div>
+</details>
+</main>
+</div>
+<svg id="magnifier" class="hidden" aria-hidden="true"></svg>
+<dialog id="export-dialog"><h2>Feedback JSON</h2><p>Copy this text and paste it in the conversation. Downloads contain the same data.</p><textarea id="export-text" readonly></textarea><button id="close-export">Close</button></dialog>
+</body></html>

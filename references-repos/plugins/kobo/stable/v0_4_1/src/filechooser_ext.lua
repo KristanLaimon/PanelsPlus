@@ -1,0 +1,305 @@
+---
+--- FileChooser extensions for Kobo virtual library.
+--- Monkey patches FileChooser to show virtual Kobo library.
+
+local Device = require("device")
+local PatternUtils = require("src/lib/pattern_utils")
+local logger = require("logger")
+
+local FileChooserExt = {}
+
+---
+--- Checks if a path matches the kepub directory or cache directory.
+--- @param path string: Path to check.
+--- @param kepub_dir string: Kepub directory path.
+--- @param cache_dir string|nil: Cache directory path.
+--- @return boolean: True if path is within kepub or cache directory.
+local function isKepubOrCacheDirectoryPath(path, kepub_dir, cache_dir)
+    if not path then
+        return false
+    end
+
+    if kepub_dir then
+        local escaped_kepub_dir = PatternUtils.escape(kepub_dir)
+        if path:match("^" .. escaped_kepub_dir) then
+            return true
+        end
+    end
+
+    if cache_dir then
+        local escaped_cache_dir = PatternUtils.escape(cache_dir)
+        if path:match("^" .. escaped_cache_dir) then
+            return true
+        end
+    end
+
+    return false
+end
+
+---
+--- Finds the insertion position for virtual folder in item table.
+--- Skips past "go up" and "long-press" navigation entries.
+--- @param item_table table: File chooser item table.
+--- @return number: Position to insert virtual folder.
+local function findVirtualFolderInsertPosition(item_table)
+    for i, item in ipairs(item_table) do
+        if not item.is_go_up and not item.path:match("/%.$") then
+            return i
+        end
+    end
+
+    return #item_table + 1
+end
+
+---
+--- Checks if we should add the virtual folder at this path.
+--- Only adds at root or home directory.
+--- @param path string: Current path.
+--- @return boolean: True if virtual folder should be added.
+local function shouldAddVirtualFolder(path)
+    if path == "/" then
+        return true
+    end
+
+    local home_dir = G_reader_settings:readSetting("home_dir") or Device.home_dir
+
+    return home_dir and path == home_dir
+end
+
+---
+--- Performs automatic reading state sync on first virtual library open.
+--- Uses session flag to prevent duplicate syncs.
+--- @param reading_state_sync table: Reading state sync instance.
+local function performAutomaticSync(reading_state_sync)
+    if not reading_state_sync or not reading_state_sync:isEnabled() then
+        return
+    end
+
+    if not reading_state_sync:isAutomaticSyncEnabled() then
+        return
+    end
+
+    local SessionFlags = require("src/session_flags")
+    if SessionFlags:isFlagSet("virtual_library_synced") then
+        return
+    end
+
+    SessionFlags:setFlag("virtual_library_synced")
+    logger.info("KoboPlugin: Performing automatic sync on virtual library open")
+
+    local Trapper = require("ui/trapper")
+    Trapper:wrap(function()
+        reading_state_sync:syncAllBooks()
+    end)
+end
+
+---
+--- Shows error message when no books are found in virtual library.
+local function showNoBookMessage()
+    local InfoMessage = require("ui/widget/infomessage")
+    local UIManager = require("ui/uimanager")
+    UIManager:show(InfoMessage:new({
+        text = "No accessible books found in Kobo library.\n\n"
+            .. "Books may be encrypted or the library may be empty.",
+        timeout = 3,
+    }))
+end
+
+---
+--- Creates a "back" navigation entry for the virtual library.
+--- @param virtual_library table: Virtual library instance for path checking.
+--- @return table: Navigation entry that returns to safe directory.
+local function createBackEntry(virtual_library)
+    local home_dir = G_reader_settings:readSetting("home_dir")
+    local kepub_path = virtual_library.parser:getKepubPath()
+    local virtual_prefix = virtual_library.VIRTUAL_PATH_PREFIX
+    local escaped_virtual_prefix = PatternUtils.escape(virtual_prefix)
+    local escaped_kepub_path = PatternUtils.escape(kepub_path)
+
+    if
+        home_dir
+        and (
+            home_dir == kepub_path
+            -- check if it's a subpath of kepub dir
+            or home_dir:match("^" .. escaped_kepub_path .. "/?")
+            -- check if home_dir is set to virtual path prefix
+            or home_dir == virtual_prefix
+            or home_dir == virtual_prefix .. "/"
+            -- check if home_dir is a subpath of virtual path prefix
+            or home_dir:match("^" .. escaped_virtual_prefix)
+        )
+    then
+        logger.dbg("KoboPlugin: home_dir points to kepub or virtual directory, using Device.home_dir for back entry")
+        home_dir = Device.home_dir or "/"
+    end
+
+    home_dir = home_dir or Device.home_dir or "/"
+
+    return {
+        text = "⬆ ../",
+        path = home_dir,
+        is_go_up = true,
+    }
+end
+
+---
+--- Initializes the FileChooserExt module.
+--- @param virtual_library table: Virtual library instance.
+--- @param reading_state_sync table: Reading state sync instance.
+function FileChooserExt:init(virtual_library, reading_state_sync)
+    self.virtual_library = virtual_library
+    self.reading_state_sync = reading_state_sync
+    self.original_methods = {}
+end
+
+---
+--- Applies monkey patches to FileChooser.
+--- Patches init, changeToPath, refreshPath, genItemTable, and onMenuSelect.
+--- @param FileChooser table: FileChooser module to patch.
+function FileChooserExt:apply(FileChooser)
+    if not self.virtual_library:isActive() then
+        logger.info("KoboPlugin: Kobo plugin not active, skipping FileChooser patches")
+        return
+    end
+
+    logger.info("KoboPlugin: Applying FileChooser monkey patches for Kobo virtual library")
+
+    self.original_methods.init = FileChooser.init
+    FileChooser.init = function(fc_self)
+        self.original_methods.init(fc_self)
+
+        if self.virtual_library._file_chooser_bypass_active then
+            return
+        end
+
+        local kepub_dir = self.virtual_library.parser:getKepubPath()
+        local cache_dir = self.virtual_library.parser:getDrmCacheDir()
+        if not isKepubOrCacheDirectoryPath(fc_self.path, kepub_dir, cache_dir) then
+            return
+        end
+
+        logger.info("KoboPlugin: FileChooser initialized with kepub/cache path, showing virtual library instead")
+        fc_self:showKoboVirtualLibrary()
+    end
+
+    self.original_methods.changeToPath = FileChooser.changeToPath
+    FileChooser.changeToPath = function(fc_self, new_path, ...)
+        if self.virtual_library._file_chooser_bypass_active then
+            return self.original_methods.changeToPath(fc_self, new_path, ...)
+        end
+
+        if new_path and new_path:match("^KOBO_VIRTUAL://") then
+            logger.info("KoboPlugin: Intercepting navigation to virtual path:", new_path, "-> virtual library")
+
+            fc_self:showKoboVirtualLibrary()
+
+            return
+        end
+
+        local kepub_dir = self.virtual_library.parser:getKepubPath()
+        local cache_dir = self.virtual_library.parser:getDrmCacheDir()
+        if not isKepubOrCacheDirectoryPath(new_path, kepub_dir, cache_dir) then
+            return self.original_methods.changeToPath(fc_self, new_path, ...)
+        end
+
+        logger.info("KoboPlugin: Intercepting navigation to kepub/cache directory:", new_path, "-> virtual library")
+
+        fc_self:showKoboVirtualLibrary()
+    end
+
+    self.original_methods.refreshPath = FileChooser.refreshPath
+    FileChooser.refreshPath = function(fc_self)
+        if not fc_self.path or not fc_self.path:lower():match("^kobo_virtual://") then
+            return self.original_methods.refreshPath(fc_self)
+        end
+
+        logger.info("KoboPlugin: Refreshing virtual library via refreshPath")
+        fc_self:showKoboVirtualLibrary()
+    end
+
+    self.original_methods.genItemTable = FileChooser.genItemTable
+    FileChooser.genItemTable = function(fc_self, dirs, files, path)
+        local item_table = self.original_methods.genItemTable(fc_self, dirs, files, path)
+
+        if self.virtual_library._file_chooser_bypass_active then
+            return item_table
+        end
+
+        if not shouldAddVirtualFolder(path) then
+            return item_table
+        end
+
+        local insert_pos = findVirtualFolderInsertPosition(item_table)
+        local virtual_folder = self.virtual_library:createVirtualFolderEntry(path)
+        table.insert(item_table, insert_pos, virtual_folder)
+
+        return item_table
+    end
+
+    self.original_methods.onMenuSelect = FileChooser.onMenuSelect
+    FileChooser.onMenuSelect = function(fc_self, item)
+        if item.is_kobo_virtual_folder then
+            fc_self:showKoboVirtualLibrary()
+            return true
+        end
+
+        if fc_self.path and fc_self.path:lower():match("^kobo_virtual://") and item.is_go_up then
+            logger.dbg("KoboPlugin: Going back from virtual library to:", item.path)
+            fc_self:changeToPath(item.path)
+            return true
+        end
+
+        return self.original_methods.onMenuSelect(fc_self, item)
+    end
+
+    FileChooser.showKoboVirtualLibrary = function(fc_self)
+        fc_self.path = "KOBO_VIRTUAL://"
+        logger.info("KoboPlugin: Switching FileChooser to virtual library path")
+
+        --- Lazy patch BookInfoManager on first virtual library open
+        --- to avoid issues with early loading.
+        if not self.bookinfomanager_patched then
+            local BookInfoManager = package.loaded["bookinfomanager"]
+
+            if BookInfoManager then
+                local BookInfoManagerExt = require("src/bookinfomanager_ext")
+                local bim_ext = BookInfoManagerExt
+
+                bim_ext:init(self.virtual_library)
+                bim_ext:apply(BookInfoManager)
+
+                logger.info("KoboPlugin: BookInfoManager patches applied (lazy)")
+
+                self.bookinfomanager_patched = true
+            end
+        end
+
+        self.virtual_library:buildPathMappings()
+        performAutomaticSync(self.reading_state_sync)
+
+        local book_entries = self.virtual_library:getBookEntries()
+        if #book_entries == 0 then
+            showNoBookMessage()
+            return
+        end
+
+        table.insert(book_entries, 1, createBackEntry(self.virtual_library))
+        fc_self:switchItemTable(nil, book_entries, 1, nil, "Kobo Library")
+    end
+end
+
+---
+--- Removes all monkey patches and restores original methods.
+--- @param FileChooser table: FileChooser module to restore.
+function FileChooserExt:unapply(FileChooser)
+    logger.info("KoboPlugin: Removing FileChooser monkey patches")
+
+    for method_name, original_method in pairs(self.original_methods) do
+        FileChooser[method_name] = original_method
+    end
+
+    FileChooser.showKoboVirtualLibrary = nil
+    self.original_methods = {}
+end
+
+return FileChooserExt

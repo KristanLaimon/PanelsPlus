@@ -9,10 +9,12 @@ ignore = { "212" } -- Ignore unused argument warnings (common in callbacks)
 max_line_length = false
 
 exclude_files = {
+    "references-repos/**/*.lua",
     "koreader/**/*.lua",
     "kobo.koplugin/**/*.lua",
     "zen_ui.koplugin/**/*.lua",
     "vendor/**/*.lua",
     "dist/**/*.lua",
     ".luarocks/**/*.lua",
+    "references-repos/**/*.lua",
 }

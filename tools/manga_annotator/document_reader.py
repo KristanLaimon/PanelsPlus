@@ -1,5 +1,5 @@
 """
-Document reader engine supporting .cbz, .cbr, .pdf, .mobi, .epub, .kepub.epub, and image directories.
+Document reader for comic archives (CBZ/ZIP, CBR/RAR, 7z), documents, and image folders.
 """
 
 import io
@@ -127,13 +127,18 @@ class DocumentReader:
     def __init__(self, file_or_dir_path: str, render_dpi: int = 150):
         self.source_path = os.path.abspath(file_or_dir_path)
         self.render_dpi = render_dpi
-        self.book_title = os.path.splitext(os.path.basename(self.source_path))[0]
+        basename = os.path.basename(self.source_path)
+        self.book_title = basename if os.path.isdir(self.source_path) else os.path.splitext(basename)[0]
         self.book_title = re.sub(r'[\s_]+', '_', self.book_title.strip())
         self.pages: List[DocumentPage] = []
         self._temp_dirs: List[str] = []
         self._fitz_doc = None
 
-        self._load()
+        try:
+            self._load()
+        except Exception:
+            self.close()
+            raise
 
     def _load(self):
         if os.path.isdir(self.source_path):
@@ -144,9 +149,9 @@ class DocumentReader:
         if self.source_path.lower().endswith('.kepub.epub'):
             ext = '.kepub.epub'
 
-        if ext == '.cbz':
+        if ext in ('.cbz', '.zip'):
             self._load_cbz(self.source_path)
-        elif ext == '.cbr':
+        elif ext in ('.cbr', '.rar', '.7z'):
             self._load_cbr(self.source_path)
         elif ext in ('.pdf', '.epub', '.kepub.epub', '.mobi'):
             self._load_fitz(self.source_path)
@@ -184,16 +189,21 @@ class DocumentReader:
                 self.pages.append(ArchiveImagePage(page_index=idx, image_bytes=data))
 
     def _load_cbr(self, cbr_path: str):
-        """Extract CBR (RAR or ZIP) into a temp directory."""
+        """Read ZIP comics directly or extract RAR/7z into an owned temporary directory."""
         temp_dir = tempfile.mkdtemp(prefix="panelsplus_cbr_")
         self._temp_dirs.append(temp_dir)
+
+        # ZIP-disguised CBRs do not need an external extractor.
+        if zipfile.is_zipfile(cbr_path):
+            self._load_cbz(cbr_path)
+            return
 
         # 1. Try unrar if available
         unrar_bin = shutil.which("unrar")
         extracted = False
         if unrar_bin:
             try:
-                res = subprocess.run([unrar_bin, "x", "-y", "-inul", cbr_path, temp_dir], capture_output=True)
+                res = subprocess.run([unrar_bin, "x", "-y", "-inul", cbr_path, temp_dir], capture_output=True, stdin=subprocess.DEVNULL)
                 if res.returncode == 0:
                     extracted = True
             except Exception:
@@ -204,23 +214,24 @@ class DocumentReader:
             bsdtar_bin = shutil.which("bsdtar")
             if bsdtar_bin:
                 try:
-                    res = subprocess.run([bsdtar_bin, "-xf", cbr_path, "-C", temp_dir], capture_output=True)
+                    res = subprocess.run([bsdtar_bin, "-xf", cbr_path, "-C", temp_dir], capture_output=True, stdin=subprocess.DEVNULL)
                     if res.returncode == 0:
                         extracted = True
                 except Exception:
                     pass
 
-        # 3. Fallback: might actually be a zip file with .cbr extension
-        if not extracted and zipfile.is_zipfile(cbr_path):
-            try:
-                with zipfile.ZipFile(cbr_path, 'r') as zf:
-                    zf.extractall(temp_dir)
-                extracted = True
-            except Exception:
-                pass
+        # 3. 7-Zip supports both RAR comics and native .7z archives.
+        if not extracted:
+            sevenzip = shutil.which("7zz") or shutil.which("7z")
+            if sevenzip:
+                res = subprocess.run(
+                    [sevenzip, "x", "-y", "-p", f"-o{temp_dir}", cbr_path],
+                    capture_output=True, stdin=subprocess.DEVNULL,
+                )
+                extracted = res.returncode == 0
 
         if not extracted:
-            raise RuntimeError(f"Could not extract CBR archive: {cbr_path}. Ensure 'unrar' or 'bsdtar' is installed.")
+            raise RuntimeError(f"Could not extract archive: {cbr_path}. Ensure '7zz', '7z', 'unrar', or 'bsdtar' is installed.")
 
         self._load_directory(temp_dir)
 
@@ -276,6 +287,7 @@ class DocumentReader:
             out_path = os.path.join(target_dir, filename)
             if not os.path.exists(out_path):
                 page.save_image(out_path, format="PNG")
+            page._cached_pil = None
             extracted_paths.append(out_path)
             if progress_callback:
                 if progress_callback(i + 1, total) is False:

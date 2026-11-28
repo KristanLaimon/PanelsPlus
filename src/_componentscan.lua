@@ -26,16 +26,18 @@ local scratch_bottom = nil
 
 local function ensureScratch(size, max_dim)
     if scratch_capacity < size then
+        local seen = ffi.new("uint8_t[?]", size)
+        local queue = ffi.new("int32_t[?]", size)
+        scratch_seen, scratch_queue = seen, queue
         scratch_capacity = size
-        scratch_seen = ffi.new("uint8_t[?]", size)
-        scratch_queue = ffi.new("int32_t[?]", size)
     end
     if scratch_dim_capacity < max_dim then
+        local left = ffi.new("int32_t[?]", max_dim)
+        local right = ffi.new("int32_t[?]", max_dim)
+        local top = ffi.new("int32_t[?]", max_dim)
+        local bottom = ffi.new("int32_t[?]", max_dim)
+        scratch_left, scratch_right, scratch_top, scratch_bottom = left, right, top, bottom
         scratch_dim_capacity = max_dim
-        scratch_left = ffi.new("int32_t[?]", max_dim)
-        scratch_right = ffi.new("int32_t[?]", max_dim)
-        scratch_top = ffi.new("int32_t[?]", max_dim)
-        scratch_bottom = ffi.new("int32_t[?]", max_dim)
     end
 end
 

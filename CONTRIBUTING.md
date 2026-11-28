@@ -1,226 +1,355 @@
-# Contributing to Panels+
+# 🤝 Contributing to Panels+
 
-Thank you for your interest in contributing to Panels+! Whether you are fixing bugs, improving performance, or adding new features, your help is welcome!
+Thanks for wanting to help. Panels+ currently is a one person project and there
+is more I would like to fix and add than I have time for, so help of any size
+is welcome, and you do not need to write code to help.
 
-### First of all, you need a LINUX ENVIRONMENT. You can't develop KOReader plugins in windows (unless you use WSL).
-<em>This is because there are no ports of KOReader for windows (or at least, none that I'm aware of) and this project
-uses tooling available only in linux</em>
-With linux environment could be:
+- Please read the Code of [Conduct first](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/CODE_OF_CONDUCT.md).
+- Security problems go through [SECURITY.md](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/SECURITY.md), never a public issue.
 
-1. A virtual machine (Oracle Virtual box, QUEMU, etc...).
-2. WSL "Windows Subsytem For linux".
-3. A distro linux. (If you're newbie you can try with debian, fedora, linux mint or arch-linux\[pre-riced\])
+## How you can contribute?
+- ***Bug Reporting*** -> Any issues with Panels+, first make sure you're using latest release, then [Report a bug](https://github.com/KristanLaimon/PanelsPlus/issues/new/choose) which can be:
+    - Bug
+    - Feature Request
+    - Translattion Submission / Update
+- ***QA & Tester*** -> Test [pre-releases](https://github.com/KristanLaimon/PanelsPlus/releases); Normally I upload pre-releases when:
+    - I cannot test on my own reader/desktop.
+    - I tested on desktop only but not in my e-readers.
+    - So... ***Trying one on your device and saying how it went ***is one of the most useful things you can do**.
+- ***Translator*** -> By just translating Panels+ to your language, for instructions about this, check the [translation guide](https://github.com/KristanLaimon/PanelsPlus/blob/main-nightly/docs/translations/README.md)
 
-You need to be comfortable using the terminal. I assume git knowledge, we're on github at the end of the day.
-
-# 🧰 Setup
-Panels+ is the combination of 3 little proyects here in same repo:
-
-1. Plugin itself (Lua)
-2. Manga/commic annotator (Python)
-3. OCR Testing (golang)
-
-You would need the following to start developing a PR in Panels+:
-
-### 1. Panels+: Plugin itself (Lua) (NEEDED)
-In case you're messing only with Lua code and the plugin itself, this is far enough to install. (Not python or golang)
-The following needs to be installed in your path/system:
-
-1. [KOReader](https://github.com/koreader/koreader). Can be obvious, but needed.
-My recommendation is to use a WSL environment or directly use linux while
-developing in Panels+ (VM, Dualboot, etc...).
-
-2. [LuaJIT](https://luajit.org/install.html) or [Lua 5.1](https://www.lua.org/download.html). It's the main language of this plugin. So your PR code must run without errors in both of them (Compatibility with KOReader emmbeded lua runtime)
-
-3. [Stylua](https://github.com/JohnnyMorganz/StyLua) (Codebase's Formatter). Used to have a consistent code style (indentation, tabs, etc...)
-
-4. [Luacheck](https://github.com/mpeterv/luacheck) (Codebase's Linter). Used to have consistent code patterns (Which globals are available in intelissense, function declaration styles, etc...)
+---
+<ul>
+    <li><h2><strong>Pull Request & Code...</strong></h2></li>
+</ul>
 
 
-KOReader (A little dev trick) (OPTIONAL, but recommended)
+<h4 align="center">Before you write code</h4>
 
-I've created a little script to manage easily multiple KOReaders installed in system
-so you can test the you're installed version along with others like 2025.04 "Moon flake".
+> For a small fix, go ahead and open a pull request.
+
+> For a small feature rework like:
+>   + Moving settings of place
+>   + Adding a small feature
+
+For anything bigger (a new tool, a change to how something internally works or bigger integrations),
+  please open an [issue](https://github.com/KristanLaimon/PanelsPlus/issues/new/choose) or a [discussion](https://github.com/KristanLaimon/PanelsPlus/discussions)
+  first so we can agree on the idea.
+
+
+<div align="center">
+<img width="40%" height="auto" alt="Sleepy Fox Resting on Paws" src="https://github.com/user-attachments/assets/c0f1cd1d-e0b2-496e-8917-882585f8df4c" />
+</div>
+
+> I would hate for you to spend a weekend on something I then have to turn it down....
+
+
+Things I am careful about:
+
+- It has to work on a plain grey e-reader device at least (kindle, kobo, etc...) -> Most readers have slow processors and grey screens. A feature can do more in Desktop KOReader or android, but it should never make the e-readers ones worse (top-priority)
+- Refreshes matter. Reader screens are slow to redraw.
+- No new dependencies. Panels+ uses what KOReader already ships and nothing else [(Except the embbeded OCR models as they're not essential for this plugin to work)](https://github.com/KristanLaimon/PanelsPlus/releases#release-v1.5.1).
+- Prefer fewer settings, better defaults. A new setting needs a good reason to exist.
+
+> Now that we've cleared that up...
+
+---
+
+<div align="center">
+    <img width="40%" height="auto" alt="kristanlaimon_oc_thinking" src="https://github.com/user-attachments/assets/c15bc838-baf5-478c-85ae-5a2bcd9aff24"></img>
+
+<em>Thank you for your interest in contributing to Panels+! Whether you're fixing a
+bug, improving panel detection, or making your own KOReader plugin work alongside
+it, your help is welcome.</em>
+</div>
+<br></br>
+
+This repo has **three little projects** living together. You can work on one
+without setting up everything else:
+
+| Project | What you'll be working on | Needed? |
+| --- | --- | --- |
+| 📖 **Panels+ plugin** · Lua | Panel reading, gestures, settings, and plugin support | **Start here** |
+| 🖍️ **Manga Annotator** · Python/uv | Mapping panels and words for our datasets | Optional |
+| 🔎 **Panel & OCR testing** · Lua/Go | Checking detection and recognition against those mappings | For dataset/OCR work |
+
+**Jump to:** [Setup](#-setup) · [KOReader launcher](#launching-and-testing-koreader-versions) ·
+[Testing](#-testing) · [Reference repos](#-development--reference-repositories) ·
+[Formatting & PRs](#-formatting--pull-requests) · [Documentation](#-documentation)
+
+> I know its a little overwhelming, but you can start by just reading the docs and Panels+ Plugin lua files only. Manga annotator and Panel & OCR testing projects are optional to set.
+
+---
+
+## 🧰 Setup
+
+### First of all: a Linux environment
+
+The development workflow below uses ***Linux tooling***.
+- A Linux distro
+- a VM
+- or WSL
+will do.
+
+Panels+ has some PowerShell helpers for formatting and packagin only, but ***use***
+a Linux environment to run all the scripts in this repo, as well as testing
+your pull request.
+
+You'll need to be comfortable with the terminal and Git. We're on GitHub at the
+end of the day, so I'll assume you know your way around a branch and a PR.
+
+```bash
+git clone https://github.com/KristanLaimon/PanelsPlus.git
+cd PanelsPlus
+```
+
+### 1. 📖 Panels+: the Lua plugin — REQUIRED
+
+**Only changing the plugin? This is enough to get started.** You don't need the
+Python annotator or Go OCR worker for a focused Lua test.
+
+Have these available in your system/PATH:
+
+1. **Lua** (`lua`) for the local tests, and **LuaJIT** for checks against
+   KOReader's runtime. Production code needs to stay compatible with LuaJIT;
+   passing on your desktop Lua alone doesn't tell us it works in the reader.
+2. **StyLua** for formatting and **Luacheck** for linting. The repo includes
+   their settings, so you don't need to invent a new code style.
+3. **KOReader** for trying the actual behavior. The script below can install an
+   isolated desktop release if you don't want to use your everyday setup.
+
+> 💡 **A little test detail:** plain Lua uses a small FFI substitute in the test
+> helper. LuaJIT can use real FFI arrays, closer to what KOReader runs. Both
+> checks are useful, but they exercise different memory representations.
+
+<a id="launching-and-testing-koreader-versions"></a>
+
+### 1.5 🌓 KOReader: a little dev trick — OPTIONAL, but recommended
+
+I've included a launcher so you can try different KOReader releases without
+replacing the one you normally use:
 
 ```bash
 ./koreader.sh                         # your system KOReader
-./koreader.sh menu                    # install or launch a test release
-./koreader.sh install 2025.04          # Full Moon; download once
+./koreader.sh menu                    # choose, install, or launch a release
+./koreader.sh install 2025.04          # download once
 ./koreader.sh run 2025.04              # run with this checkout linked
-./koreader.sh run 2025.04 /path/to/test.cbz
+./koreader.sh run 2025.04 /absolute/path/to/test.cbz
 ```
 
-Panels+ ensures compatibility starting from version 2025.04 to newest in all releases.
+<details>
+<summary><strong>Why 2025.04, you may ask?</strong></summary>
 
----
-Why 2025.04? you may ask
-I bought my first e-reader and installed this KOReader version at that time, and never update it.
-Panels+ started to grow popular in stars and downloads and I had to give support for my old KOReader installation
-as well. I realised this is useful for users that can't update their KOReader for x reason, and it gives better compatibility
-for older devices. It's great that a plugin can guarantee it *works* for your 1 year old device right?.
+That's the version I installed on my first e-reader. As Panels+ grew, keeping it
+working there also helped people who couldn't update their own installation.
+An older reader shouldn't lose panel reading just because newer host APIs exist.
+It's great when a plugin still works on your older setup, right?
 
-In later 2026 I had to upgrade the version so I can install other plugins that *sadly* don't share this same
-philosophy as I do...I was forced to. But I don't want to loose this valuable compatibility. Eventually I'll
-try to make backwards compatibility PR's to the plugins (Meguru, Ink-away, kobo.koplugin and other plugins
-officially supported, which you can read from README.md details) I use alongside with Panels+. So i'll really
-appreciate if you test your changes against this version as well, for that, you only need to execute:
+I eventually had to update KOReader to use other plugins, but I still want to
+keep that backward compatibility in Panels+. So I'd appreciate it if you check
+your changes against **2025.04 as well as your current version**, especially
+when touching KOReader APIs.
 
-```bash
-#Install
-./koreader.sh install 2025.04
+</details>
 
-#Run
-./koreader.sh run 2025.04
-```
+> **Your global KOReader stays separate.** Downloaded releases have their own
+> runtime and profile, and the profile links directly to this checkout. Edit
+> here, launch there; no need to copy the plugin after every change.
 
-***This won't mess with your globally installed koreader, its installed along side and runnable only from this script***
-
----
-
-The script downloads the official Linux archive for x86_64, aarch64, or armv7l
-when that release provides it. It needs Bash, curl, tar, and xz and python installed, normally packaged
-already in any decent linux distro.
-
-It will install itself in the following path ~/.config/koreader-_<version/
+So you can try your changes on an older KOReader without messing with your
+everyday installation. That's good, right?
 
 ```text
 ~/.config/koreader-_2025.04/
 ├── runtime/                         # downloaded KOReader
-└── profile/                         # version-specific KO_HOME
+└── profile/                         # isolated KO_HOME
     └── plugins/panelsplus.koplugin   # symlink to this checkout
 ```
 
-Panels+ will install from this repo to the plugins from that version symlinked, so all
-changes made here are reflected there without "copying" the plugin twice.
+The launcher needs **Bash, curl, tar, and xz**; the desktop runtime needs **SDL2**.
+Listing available releases also uses **Python 3** and internet access. It picks
+an official Linux archive for x86_64, aarch64, or armv7l when the release provides
+one. Set `KOREADER_INSTALL_ROOT` if you want a parent directory other than
+`~/.config`.
 
-```bash
-./koreader.sh               # This runs your globally installed KOReader (any version)
-./koreader.sh 2025.04       # This runs KOReader 2025.04, completely aislated.
-```
+If that profile already contains a different Panels+ copy, the launcher stops
+so you can inspect it first. Other plugins aren't installed into these isolated
+profiles automatically; add the ones you need for your live check.
 
-###  2. Panels+: Manga Annotator (Python/uv) (OPTIONAL but PREFFERED)
-In case you're only interested in Panels+ Manga Annotator GUI app. It's made in python (is easier to make GUI apps here for this kind of purposes) but this repo uses `uv` instead of plain python3, for best practices.
-The following needs to be installed in your system/path:
+### 2. 🖍️ Manga Annotator — OPTIONAL
 
-1. [uv](https://docs.astral.sh/uv/getting-started/installation/) (not python3). Is the python manager used in this repo and used for dataset tools extraction. Not essential for the plugin to work, used for the Panels+ internal manga annotator GUI app, to get datasets and improve the internal panel finding and OCR algorythm.
-
-2. Datasets.... For obvious copyright reasons, full volume mangas can't be uploaded to this repo for easy share testing (also to avoid DMCA takedown of this repo). You would need to download them manually. I can't give you instructions about how to have locally your legal bought mangas. If only you [could know where to find them](./tests/dataset-mangas/dataset/mangas_datasets_reference.md) and [download them somehow](https://hakuneko.download/) , [package them in CBZ file](https://github.com/ciromattia/kcc), and import them from the Manga-annotator tool, maybe you would be able to create yourself your datasets or have the current tested datasets, but, who-knows.
-
-From the repository root, create the development environment and install the Python dependencies using the following command:
+Want to help improve panel detection or OCR? This is where the hand-mapped
+panels and words come from. The annotator is a Python GUI, managed with **uv**:
 
 ```bash
 uv sync
+./start-manga-annotator.sh
+
+# Or open a book directly
+./start-manga-annotator.sh /path/to/book.cbz
 ```
 
-Then you can start the annotator tool with:
+You'll need **Python 3.9+** for the development environment. See the
+[annotator README](tools/manga_annotator/README.md) and
+[dataset guide](tests/dataset-mangas/USAGE.md) for the actual mapping workflow.
 
-```bash
-./start-manga-annotator.sh &
-```
+**About the books:** For obvious copyright reasons, full volume mangas can't be uploaded to this repo for easy share testing (also to avoid DMCA takedown of this repo). You would need to download them manually. I can't give you instructions about how to have locally your legal bought mangas. If only you [could know where to find them](./tests/dataset-mangas/dataset/mangas_datasets_reference.md) and [download them somehow](https://hakuneko.download/) , [package them in CBZ file](https://github.com/ciromattia/kcc), and import them from the Manga-annotator tool, maybe you would be able to create yourself your datasets or have the current tested datasets, but, who-knows.
 
-#### Some screenshots
+Use copies you have permission to use; public fixtures only include part of the image corpus.
+A fresh clone won't reproduce every full-volume benchmark, so mention missing
+pages when reporting a run.
 
+### Some demos about how it looks/works
+
+
+
+https://github.com/user-attachments/assets/2d6805ba-07f0-4d4d-b470-d0eb41c657e0
+
+<em>This is how Panels+ internal algorithm got tested. Manually mapping over 1500+ panels across many mangas</em>
+
+<em>Manga-Annotator can create datasets of: <strong>Panels</strong>, <strong>Phrases</strong>, <strong>and words!</strong></em>
+
+
+
+https://github.com/user-attachments/assets/13af8304-b0be-40ec-95f4-ca3d15ba76f1
+
+<em>A normal Manga's panel dataset is created like this. (Me working, wuoooh so fun)</em>
+
+***When pressing ctrl + s, datasets are saved in***
 <table>
   <tr>
-    <td width="50%">
-        <img width="auto" height="auto" alt="show-case manga annotator" src="https://github-production-user-asset-6210df.s3.amazonaws.com/114274872/660782069-27b3c9d8-7505-4936-bd77-0b4f24d0616c.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20260929%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260929T004527Z&X-Amz-Expires=300&X-Amz-Signature=5bc1775df4e3f79d9511fd44e1e7fbf3c484f03d0e4c6033845b81ccea56fad1&X-Amz-SignedHeaders=host&response-content-type=image%2Fpng"></img>
+    <td align="center" valign="top" width="49%">
+      <img src="https://github.com/user-attachments/assets/c0baf571-fc92-44b0-8ba3-1987b25243f7"></img>
+      <br>
+      <em>From Panels/, all datasets are stored in their corresponding folder.</em>
     </td>
-    <td width="50%">
-        <img width="auto" height="auto" alt="show-case manga annotator-2" src="https://github-production-user-asset-6210df.s3.amazonaws.com/114274872/660785842-610597fe-8bc6-4ff7-9ede-179571023e04.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=AKIAVCODYLSA53PQK4ZA%2F20260929%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260929T005126Z&X-Amz-Expires=300&X-Amz-Signature=1ad382c7e472290a210e101075a2ef5502431e90d8d0892f8579fc5fc8b20db1&X-Amz-SignedHeaders=host&response-content-type=image%2Fpng"></img>
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-        Main menu, with all the git commited datasets in this repo, and some progress bar as candy-eye feature.
-    </td>
-    <td align="center">
-        Mapping panels, phrases and words, for internal algorythm training and testing. This is how v1.4.0 panels finding was improved! and soon in v1.5.0 OCR will be improved this way.
+    <td align="center" valign="top" width="49%">
+      <img src="https://github.com/user-attachments/assets/78d0fb06-2d9b-4eb0-bcff-c2921ca03431" controls width="420"></img>
+      <em>All annotations are stored in .json.</em>
     </td>
   </tr>
 </table>
 
-### 3. Panels+: Panels & OCR Testing (OPTIONAL but PREFERRED)
-If you used Manga annotator for OCR, then you will need to have installed golang in your system.
-I'm taking advantage of golang's goroutines to make OCR tests run faster, because, due to their nature it would need
-to scrapp all the .pngs pages from the datasets and look for each word and test it against whats expected (thanks to
-the hand-made data from the Manga Annotator).
+> Probably I need to separate this into another github repo and make it generic, it could be used for any generic dataset creation..... (nevermind)
 
-1. Install [golang compiler](https://go.dev/doc/install) in your system.
+### 3. 🔎 Panel & OCR testing — FOR DATASET/OCR WORK
 
-2. Install [ImageMagick CLI](https://github.com/imagemagick/imagemagick), is needed to run all PANELS and OCR
-tests. Its a CLI tool, should be available in your path, and runnable from your terminal with `magick`.
+Those mappings let us compare what Panels+ found against what should be there.
+The Go OCR worker processes the image work concurrently, which helps when a
+run has a whole volume's worth of words to check.
 
+| Tool | Used for |
+| --- | --- |
+| **Go** | OCR worker and its tests |
+| **ImageMagick** (`magick`) | Image decoding and dataset processing |
+| **Tesseract / native libraries** | The OCR backend you're exercising |
+| **uv (python)** | Parallel Lua scheduling; no annotator packages needed for the scheduler |
+
+The [test-suite README](tests/README.md) explains the backend dependencies and
+benchmark limits. You only need these tools when your change reaches that work.
 
 ---
 
-### Testing
-You only need at least the lua dependencies to start developing but you won't have the tooling for OCR and Panels testing.
+## 🧪 Testing
 
-Tests automatically check if you have python or golang dependencies, if not found it won't run them,
-but if you want to run 100% of tests you need to have `uv`, `go`, `magick` installed in your path.
+Start with the test closest to your change, then run the wider checks before
+sending a PR. All commands below run from the project root.
 
-You can run the whole test with:
-
-```bash
-# ==============================================================================
-# run-tests.sh - Test runner for PanelsPlus and manga dataset specifications
-# ==============================================================================
-# Usage:
-#   ./run-tests.sh                  # Runs linters, Lua unit tests, and dataset specs
-#   ./run-tests.sh --graceful       # Gracefully omits tests if compiler/tool/uv not synced (by default)
-#   ./run-tests.sh --strict         # Run all tests but if compilers/tools/uv not found, throws error.
-#   ./run-tests.sh --quick          # Runs Lua test suite directly (skips check.sh)
-#   ./run-tests.sh --quicker        # Skips lint/style checks and dataset Lua tests
-#   ./run-tests.sh --check-only     # Runs only code style and linter checks
-#   ./run-tests.sh <spec-path>      # Runs a specific spec file
-#   ./run-tests.sh --panels         # Runs panel tests only
-#   ./run-tests.sh --ocr            # Runs OCR tests only
-# ==============================================================================
-```
+### A quick Lua check
 
 ```bash
-# Unix environment
-./run-tests.sh
+lua tests/run_tests.lua tests/geometry_spec.lua
 ```
+
+### The project runner
+
+| Command | What it runs |
+| --- | --- |
+| `./run-tests.sh` | Formatting/lint, available Python and Go tests, Lua specs and datasets |
+| `./run-tests.sh --quick` | Same tests, skipping formatting/lint |
+| `./run-tests.sh --quicker` | Also skips dataset/benchmark Lua specs |
+| `./run-tests.sh --quick -j 2` | Limits the Lua scheduler to two workers |
+| `./run-tests.sh --strict` | Fails when required tooling/environment is missing |
+| `./run-tests.sh --check-only` | Formatting and lint only |
+| `./run-tests.sh --python` | Python/annotator tests |
+| `./run-tests.sh --panels` | Panel specs and datasets |
+| `./run-tests.sh --ocr` | OCR specs and datasets |
+
+> 📝 **Check the skips, too.** Default graceful mode can omit unavailable tools
+> or an unsynced Python environment. `--quick` and `--quicker` still run available
+> Python and Go tests. Use the direct Lua command above for a Lua-only check.
+
+For LuaJIT with native FFI arrays, without the dataset specs:
+
+```bash
+PANELSPLUS_LUA="luajit -l ffi" python3 tests/run_parallel.py --skip-datasets
+```
+
+Set `PANELSPLUS_REQUIRE_DATASETS=1` when missing dataset pages should fail.
+
+### Adding or changing a test
+
+- **Panels+ regression?** Add `tests/*_spec.lua`; discovery is automatic. Load
+  the production module and use `tests/helper.lua` for KOReader fixtures.
+- **Another plugin involved?** Use the separate versioned compatibility runner
+  when the test loads that plugin's actual reference. The normal test command
+  doesn't discover these suites. Follow the [compatibility guide](docs/PLUGIN-COMPATIBILITY.md).
+- **Detection or OCR change?** Keep baseline history and report regressions.
+  Lowering a target to get a green run hides the behavior we're trying to catch.
+
+See [Testing](docs/TESTING.md) for test architecture and live checks, and the
+[test-suite README](tests/README.md) for datasets and benchmark metrics.
+
 ---
 
-### 📂 Documentation
+## 🔗 Development & Reference Repositories
 
-- [Introduction](docs/INTRO.md) — a first read: what the plugin replaces, how a page turns into a panel sequence, and the module map.
-- [Architecture](docs/ARCHITECTURE.md) — how the plugin is put together, and what happens between a long hold and a panel on screen.
-- [Panel detection](docs/DETECTION.md) — how Deep mode turns pixels into panels, including heuristics, fallbacks, and tuning.
-- [Deep mode](docs/MODES.md) — the single panel-detection mode and how it differs from reading, crop, and navigation modes.
-- [Embedded EPUB/KEPUB/MOBI images](docs/EMBEDDED-IMAGES.md) — how panel reading works inside reflowable books, including the detector and smooth-navigation limits.
-- [Word lookup](docs/WORD-LOOKUP.md) — touch-and-hold text selection, dictionary lookup, and the OCR debug review mode.
-- [Performance](docs/PERFORMANCE.md) — what each step costs, the memory budget, and how to measure it on your own device.
-- [Known Limitations](docs/KNOWN-LIMITATIONS.md) — current edge cases and known-behaviour (a todo-list to fix at the same time).
-- [Testing](docs/TESTING.md) — running the dependency-free test suite.
+Need to look at KOReader internals or another plugin's API? The references now
+live under **`references-repos/`**. KOReader and rolling plugin sources are Git
+submodules; stable plugin releases are kept as exact version pins. These are
+development inputs, separate from the Panels+ release package.
 
-### 🔗 Development & Reference Repositories
+### Working on an existing plugin
 
-When developing on Panels+, it is recommended to clone the [`koreader`](https://github.com/koreader/koreader) base codebase and `kobo.koplugin` repository directly into your local project root folder:
+Initialize just the recorded references you need. For Kobo work, for example:
 
 ```bash
-git clone https://github.com/koreader/koreader.git
-git clone https://github.com/koreader/kobo.koplugin.git
+git submodule update --init -- references-repos/koreader references-repos/plugins/kobo/rolling.koplugin
 ```
 
-These folders are ignored via `.gitignore` and are not committed into this repository. Keeping them locally is purely for documentation and remaining KOReader internals aware during development; they are not involved in the plugin's final release code though.
-Useful if you use AI agents, so they would have good-quality context for your PR!.
+> **Keep the recorded version.** Leave out `--remote` during setup: moving to
+> upstream HEAD changes what you're testing. Inspect existing submodule edits
+> before initializing or updating anything. Ordinary Panels+ unit tests don't
+> need these checkouts.
 
-### 🧹 Linting & Formatting
+Then read these in order:
 
-This project enforces a standard code style to maintain consistency across developers. We use:
+1. [Relationship index](references-repos/relationships.md): what support is
+   declared and what has actually been tested.
+2. The target's **`releases.md`**: where the stable pin came from.
+3. Its **`history-changes.md`**: current work, results, limits, and where to resume.
 
-- **StyLua**: For automatic code formatting (`.stylua.toml`).
-- **Luacheck**: For static analysis and linting (`.luacheckrc`).
-- **lua_ls**: We also include a `.luarc.json` for developers using the Lua Language Server in their editors so that KOReader global variables are recognized properly.
+### Developing another plugin? Start here
 
-If you don't have these tools integrated directly into your editor, you can run the provided check scripts to automatically format your code and run the linter:
+The [plugin compatibility guide](docs/PLUGIN-COMPATIBILITY.md) walks through
+adding your reference, registering it in the tooling, and writing stable and
+rolling tests. It also explains which checkout to edit and how to record the
+results, so the next contributor doesn't have to reconstruct the whole story.
 
-> Note: In case you have golang dependencies, it will run gofmt as well for golang code!, useful isn't it?
+Using an AI agent? There's a project
+[cross-plugin development skill](.agents/skills/panelsplus-crossplugin-dev/SKILL.md)
+for that workflow as well.
 
-**Linux/macOS:**
+---
+
+## 🧹 Formatting & Pull Requests
+
+### Formatting
+
+The repo already carries the settings for **StyLua**, **Luacheck**, and
+**lua_ls** in `.stylua.toml`, `.luacheckrc`, and `.luarc.json`.
+
+**Linux:**
 
 ```bash
 ./check.sh
@@ -232,6 +361,26 @@ If you don't have these tools integrated directly into your editor, you can run 
 .\check.ps1
 ```
 
+> If Go is installed, `check.sh` also runs **gofmt** for the Go code. Useful,
+> isn't it? These scripts write formatting changes before linting, so have a
+> look at the diff afterward.
+
+Documentation contributions are welcome too. If a step was confusing while you
+were following it, that's a good place to improve the guide.
+
 ---
 
-If you feel this documentation can be improved, go ahead and modify these docs, as long as it makes clearer the information and usage instructions, it's ok.
+## 📂 Documentation
+
+| Guide | What's inside |
+| --- | --- |
+| [Introduction](docs/INTRO.md) | Entry points and module map |
+| [Architecture](docs/ARCHITECTURE.md) | Controller, viewer, and lifecycle |
+| [Panel detection](docs/DETECTION.md) | Heuristics, fallbacks, and tuning |
+| [Detection modes](docs/MODES.md) | Detection and reading-mode choices |
+| [Embedded images](docs/EMBEDDED-IMAGES.md) | EPUB/KEPUB/MOBI behavior |
+| [Word lookup](docs/WORD-LOOKUP.md) | Selection, dictionary, and OCR review |
+| [Performance](docs/PERFORMANCE.md) | Memory and measurement |
+| [Known limitations](docs/KNOWN-LIMITATIONS.md) | Current edge cases |
+| [Testing](docs/TESTING.md) | Automated and live validation |
+| [Plugin compatibility](docs/PLUGIN-COMPATIBILITY.md) | References, versioned tests, and adding your plugin |

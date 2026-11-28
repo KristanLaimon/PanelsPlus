@@ -23,6 +23,54 @@
         "true_positives": 697
       },
       "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-21",
+      "key": "safe_full_volume",
+      "metrics": {
+        "f1": 0.9577,
+        "false_positives": 36,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9563,
+        "pages_evaluated": 213,
+        "precision": 0.9505,
+        "reading_order_accuracy": 0.8357,
+        "reading_order_pages": 213,
+        "reading_order_pages_correct": 178,
+        "reading_order_pair_accuracy": 0.9932,
+        "reading_order_pairs": 1029,
+        "reading_order_pairs_correct": 1022,
+        "recall": 0.9651,
+        "total_detected": 727,
+        "total_ground_truth": 716,
+        "true_positives": 691
+      },
+      "reason": "Reviewed panel annotation coverage changed"
+    },
+    {
+      "archived_at": "2026-11-27",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.9578,
+        "false_positives": 35,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5000,
+        "mean_iou": 0.9535,
+        "pages_evaluated": 213,
+        "precision": 0.9526,
+        "reading_order_accuracy": 0.8451,
+        "reading_order_pages": 213,
+        "reading_order_pages_correct": 180,
+        "reading_order_pair_accuracy": 0.9971,
+        "reading_order_pairs": 1045,
+        "reading_order_pairs_correct": 1042,
+        "recall": 0.9630,
+        "total_detected": 738,
+        "total_ground_truth": 730,
+        "true_positives": 703
+      },
+      "reason": "Reviewed panel annotation coverage changed"
     }
   ],
   "book_title": "Bloom_Into_You_Vol_8",
@@ -92,18 +140,18 @@
   },
   "ocr": {
     "text_cli_bundled_eng": {
-      "accuracy_percent": 95.3593,
-      "correct": 637,
-      "evaluated": 668,
-      "total": 668,
-      "updated_at": "2026-09-26"
+      "accuracy_percent": 95.4610,
+      "correct": 673,
+      "evaluated": 705,
+      "total": 705,
+      "updated_at": "2026-10-31"
     },
     "text_cli_configured": {
-      "accuracy_percent": 81.1377,
-      "correct": 542,
-      "evaluated": 668,
-      "total": 668,
-      "updated_at": "2026-09-26"
+      "accuracy_percent": 81.4184,
+      "correct": 574,
+      "evaluated": 705,
+      "total": 705,
+      "updated_at": "2026-10-31"
     },
     "text_native_bundled_eng": {
       "accuracy_percent": 95.6587,
@@ -141,43 +189,43 @@
     "true_positives": 3
   },
   "safe_full_volume": {
-    "f1": 0.9577,
-    "false_positives": 36,
+    "f1": 1.0000,
+    "false_positives": 0,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9563,
+    "mean_iou": 0.9803,
     "pages_evaluated": 213,
-    "precision": 0.9505,
-    "reading_order_accuracy": 0.8357,
+    "precision": 1.0000,
+    "reading_order_accuracy": 1.0000,
     "reading_order_pages": 213,
-    "reading_order_pages_correct": 178,
-    "reading_order_pair_accuracy": 0.9932,
-    "reading_order_pairs": 1029,
-    "reading_order_pairs_correct": 1022,
-    "recall": 0.9651,
-    "total_detected": 727,
-    "total_ground_truth": 716,
-    "true_positives": 691
+    "reading_order_pages_correct": 213,
+    "reading_order_pair_accuracy": 1.0000,
+    "reading_order_pairs": 989,
+    "reading_order_pairs_correct": 989,
+    "recall": 1.0000,
+    "total_detected": 684,
+    "total_ground_truth": 684,
+    "true_positives": 684
   },
   "safe_mapping_status": "mapped",
   "smart_full_volume": {
-    "f1": 0.9578,
-    "false_positives": 35,
+    "f1": 0.9776,
+    "false_positives": 18,
     "gap_tolerance": 35,
     "iou_threshold": 0.5000,
-    "mean_iou": 0.9535,
+    "mean_iou": 0.9662,
     "pages_evaluated": 213,
-    "precision": 0.9526,
-    "reading_order_accuracy": 0.8451,
+    "precision": 0.9756,
+    "reading_order_accuracy": 0.9249,
     "reading_order_pages": 213,
-    "reading_order_pages_correct": 180,
-    "reading_order_pair_accuracy": 0.9971,
-    "reading_order_pairs": 1045,
-    "reading_order_pairs_correct": 1042,
-    "recall": 0.9630,
-    "total_detected": 738,
-    "total_ground_truth": 730,
-    "true_positives": 703
+    "reading_order_pages_correct": 197,
+    "reading_order_pair_accuracy": 1.0000,
+    "reading_order_pairs": 1086,
+    "reading_order_pairs_correct": 1086,
+    "recall": 0.9796,
+    "total_detected": 739,
+    "total_ground_truth": 736,
+    "true_positives": 721
   },
   "smart_segmenter_full_volume": {
     "f1": 0.7985,
@@ -205,5 +253,5 @@
     "total_ground_truth": 3,
     "true_positives": 3
   },
-  "updated_at": "2026-10-16"
+  "updated_at": "2026-11-27"
 }

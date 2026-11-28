@@ -548,9 +548,8 @@ end
 
 --- Enable or disable animating panel transitions across page boundaries.
 ---
---- Only takes effect when the adjacent page's panels are already cached at the
---- moment of the swipe; otherwise the crossing always falls back to the
---- classic instant cut, so this never blocks a gesture on detection.
+--- Fixed-layout navigation uses cached panels. Embedded-image navigation pans
+--- after the reader finds the next image.
 ---
 --- @param enabled any Truthy value animates page-boundary crossings too.
 function PanelsPlus:setNavTransitionCrossPage(enabled)

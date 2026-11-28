@@ -22,5 +22,9 @@ return {
         [[Panel-focused reading for manga and comics with directional panel navigation, zoom controls, and screenshots.]]
     ),
     author = "KristanLaimon",
+<<<<<<< HEAD
     version = "1.6.0",
+=======
+    version = "1.7.0",
+>>>>>>> main-nightly
 }

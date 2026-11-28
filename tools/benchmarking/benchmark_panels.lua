@@ -26,7 +26,7 @@ local repo_root = script_dir .. "../../"
 package.path = repo_root .. "?.lua;" .. repo_root .. "?/init.lua;" .. package.path
 io.stdout:setvbuf("line")
 
-require("tests.spec.helper")
+require("tests.helper")
 
 local Manifest = require("tests.dataset-mangas.dataset_manifest")
 local Loader = require("tests.dataset-mangas.dataset_loader")
@@ -337,8 +337,9 @@ for _, algorithm in ipairs(algorithms) do
                     if detector_name == "components" and mode == "full_volume" then
                         local AlgorithmBenchmark = require("tests.dataset-mangas.algorithm_benchmark")
                         ok, reason = AlgorithmBenchmark.verifyProductionTargets(
-                            { minimum_f1 = 0.90, strict_metrics = true },
-                            metrics
+                            { title = book.book_title, minimum_f1 = 0.90, strict_metrics = true },
+                            metrics,
+                            algorithm
                         )
                         if ok and establish_baseline then
                             ok, reason = AlgorithmBenchmark.establishBaseline(book, algorithm, metrics)

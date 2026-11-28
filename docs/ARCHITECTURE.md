@@ -20,8 +20,8 @@ the page, orders them for manga or comic reading, and opens a viewer you can
 swipe through — including across page boundaries.
 
 User-facing flow warnings use a seven-second timeout (`FLOW_WARNING_TIMEOUT` in
-`src/_panelviewer.lua`). At the first panel of the first page or the last panel
-of the last page, a confirmation offers **Continue** or **Stay here**. Timeout
+`src/panelviewer/constants.lua`). At the first panel of the first page or the
+last panel of the last page, a confirmation offers **Continue** or **Stay here**. Timeout
 and dismissal keep the current panel open. Continue closes Panels+ and sends
 KOReader its normal `EndOfBook` event at the end, or a backward `GotoViewRel`
 event at the beginning.
@@ -76,7 +76,7 @@ flowchart TD
         MAIN["main.lua<br/><i>settings, lifecycle, teardown</i>"]
         CACHE["cache.lua<br/><i>panel cache, prefetch</i>"]
         EMB["embedded_image.lua<br/><i>reflow-image flow</i>"]
-        VC["viewer_controller.lua<br/><i>open, navigate, prerender</i>"]
+        VC["viewer_controller/init.lua<br/><i>open, navigate, prerender</i>"]
         ACT["actions.lua<br/><i>gesture actions</i>"]
         MENU["menu.lua<br/><i>main menu</i>"]
         NPZ["native_panel_zoom.lua<br/><i>patch and restore</i>"]
@@ -85,12 +85,12 @@ flowchart TD
     subgraph plain ["Plain modules"]
         PC["_panelcollector.lua<br/><i>Deep detection, fallback, crops</i>"]
         CD["_smartcomponentdetector.lua<br/><i>components and frame evidence</i>"]
-        SEG["_segmenter.lua<br/><i>legacy X-Y cut, shared validation</i>"]
+        SEG["segmenter/init.lua<br/><i>legacy X-Y cut, shared validation</i>"]
         PB["_pagebitmap.lua<br/><i>low-res ink map</i>"]
         ND["_nativedetector.lua<br/><i>batched k2pdfopt probes</i>"]
         VP["_panelviewport.lua<br/><i>crop geometry</i>"]
-        PV["_panelviewer.lua<br/><i>ImageViewer subclass</i>"]
-        WF["_wordfinder.lua<br/><i>comic-lettering word boxes</i>"]
+        PV["panelviewer/init.lua<br/><i>ImageViewer subclass</i>"]
+        WF["wordfinder/init.lua<br/><i>comic-lettering word boxes</i>"]
         RP["_rotationpicker.lua<br/><i>rotation dialog</i>"]
         OD["_ocrdebug.lua<br/><i>OCR review loop</i>"]
         GEO["_smartgeometry.lua"]
@@ -146,17 +146,17 @@ flowchart TD
 | `src/cache.lua` | Per-page panel cache, prefetch scheduling and cancellation |
 | `src/_imagedocument.lua` | Bitmap-backed rendering and OCR contexts for extracted images |
 | `src/embedded_image.lua` | Extraction, detection, viewing, and boundary search for reflow-document images |
-| `src/viewer_controller.lua` | Opening viewers, page-boundary crossing, panel prerender |
+| `src/viewer_controller/init.lua` | Opening viewers, page-boundary crossing, panel prerender |
 | `src/actions.lua` | Dispatcher-registered gesture actions |
 | `src/menu.lua` | Main-menu submenu construction |
 | `src/_panelcollector.lua` | Runs ComponentDetector, provides full-page fallback, builds lazy panel images |
 | `src/_smartcomponentdetector.lua` | Primary 8-connected flood fill panel detector with straight-line boundary verification |
 | `src/_pagebitmap.lua` | Renders a page small and binarizes it into an ink map |
-| `src/_segmenter.lua` | Legacy recursive X-Y cut over the ink map, plus its acceptance test |
+| `src/segmenter/init.lua` | Legacy recursive X-Y cut over the ink map, plus its acceptance test |
 | `src/_nativedetector.lua` | KOReader's k2pdfopt detector, batched over one rasterization (fallback) |
-| `src/_panelviewer.lua` | `ImageViewer` subclass: swipes, gestures, controls, screenshots |
+| `src/panelviewer/init.lua` | `ImageViewer` subclass: swipes, gestures, controls, screenshots |
 | `src/_panelviewport.lua` | Shared strict/margin/no-crop viewport geometry |
-| `src/_wordfinder.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup, replacing KOReader's prose-tuned gap detector |
+| `src/wordfinder/init.lua` | Comic-lettering-aware word-box finder for touch-and-hold lookup, replacing KOReader's prose-tuned gap detector |
 | `src/_rotationpicker.lua` | Modal dialog for device rotation vs. plugin-only image rotation |
 | `src/_foldjoin.lua` | Finds and removes the black fold strip of a rendered double-page spread, and maps positions across it |
 | `src/reading_page_fold.lua` | Wraps the open document's `drawPage` to remove the fold strip of a spread from the reading page's tile |
@@ -169,8 +169,36 @@ flowchart TD
 | `src/_memory.lua` | Free-memory headroom check, shared by prerender and native detection |
 | `src/types.lua` | Side-effect-free LuaLS/Sumneko type annotations shared across the plugin (no runtime code — `require`d nowhere) |
 
+PanelViewer had grown to 3,544 lines, with input, rendering, OCR selection and
+animations in one file. WordFinder, ViewerController and Segmenter also exceeded
+1,000 lines each. Each now has a directory split by responsibility, so changing
+one area starts with a smaller file.
+
+Each `init.lua` creates the same class or method table and passes it to the part
+files. They define methods on that table and keep their helpers local. The
+split preserves the existing method names, settings and callbacks.
+
+| Directory | Parts |
+| --- | --- |
+| `src/panelviewer/` | `input.lua`, `rendering.lua`, `selection.lua`, `lifecycle.lua`, `animations.lua`, `controls.lua`; shared limits in `constants.lua` |
+| `src/viewer_controller/` | `prerender.lua`, `settings.lua`, `ocr.lua`, `menus.lua`, `navigation.lua` |
+| `src/wordfinder/` | `models.lua`, `ocr.lua`, `detection.lua`; diagnostics in `init.lua` |
+| `src/segmenter/` | `cut.lua`, `acceptance.lua`; detector orchestration in `init.lua` |
+
+The original files (`_panelviewer.lua`, `_wordfinder.lua`, `_segmenter.lua`, and
+`viewer_controller.lua`) forward to their directory's `init.lua`, preserving
+existing imports. For example, `require("src._panelviewer")` returns the same
+class as `require("src.panelviewer.init")`. Use explicit `.init` imports when
+accessing the new entry points: KOReader adds plugin `?.lua` paths, which do
+not guarantee directory lookup through `?/init.lua`.
+
+For a tap or swipe change, start in `panelviewer/input.lua`. Text selection
+belongs in `panelviewer/selection.lua`; crop-to-screen mapping belongs in
+`panelviewer/rendering.lua`. Keep new behavior in the file that owns it and use
+`init.lua` to compose the module.
+
 See [WORD-LOOKUP.md](WORD-LOOKUP.md) for the touch-and-hold text selection,
-dictionary lookup and OCR debug review pipeline built on `_wordfinder.lua` and
+dictionary lookup and OCR debug review pipeline built on `wordfinder/` and
 `_ocrdebug.lua`, and [TESTING.md](TESTING.md) for the dependency-free test
 suite that exercises this module set.
 
@@ -277,7 +305,7 @@ actions) through the reader UI, while horizontal swipes continue navigating pane
 and zoomed images within the viewer.
 
 Three more gesture-driven controls, all off by default except the swipe
-zoom, live only in `_panelviewer.lua` and don't touch the reader's own touch
+zoom, live in `panelviewer/input.lua` and don't touch the reader's own touch
 zones:
 
 - **Left-edge swipe zoom**, always on: a vertical swipe starting in the left

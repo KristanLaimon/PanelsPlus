@@ -1,0 +1,2152 @@
+## Current state — 2026-11-27
+
+Stable 4.5.4 is now installed in Linux KOReader. See the deployment entry below.
+
+Stable 4.5.4 replaces 4.5.0. Canonical rolling is clean detached HEAD at
+`9c3574fbad5f18853f5bd37f63d5c7e5cc070f1b` (4.5.4, exact stable tag). Both
+pass 44 integration cases and 48 headless KOReader scenarios. The only Lua
+change supplies the missing alternate-sidecar check in the storage fixture.
+
+The refresh changed no plugin runtime. See the latest dated entry below
+for provenance, test scope, and device coverage.
+
+## Previous state — Retire unsupported stable 4.4.0, 2026-11-15
+
+At the developer's explicit request, removed stable `v4_4_0/` and its exact
+`ink-away__v4_4_0/` suite. That release has no Panels+ integration compatibility;
+its five historical fallback/coexistence smoke checks must not be presented as
+integration support. Existing records below are historical, not instructions
+to restore the retired pin. Stable 4.5.0 and its own versioned suite remain;
+rolling and shared fixtures remain unchanged. Active release/license/support
+and relationship indexes were corrected; the MIT notice is retained.
+
+Source: Panels+ metadata 1.6.0, `main-nightly` base
+`38022f41209497efcd1ac4e58e456c7d45c1f7e0`, preserving the ongoing parent
+reference/tooling changes and staging. Target rolling metadata 4.5.0, clean
+`main` at `0015691669e74baeb4b0d3e13f61f3e629279fb7`; stable 4.5.0 release
+payload remains unchanged. Host pin:
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. No target runtime change,
+update, build, installation, commit or push.
+
+Skill retention policy now keeps at most five **stable** releases per plugin,
+each with its corresponding suite; adding a sixth retires the oldest stable
+pin, its suite and pin-specific sidecars. Rolling does not count toward this
+limit and is never removed by that policy. Historical evidence is retained.
+`./run-tests.sh --compatibility-plugin=ink-away` from the Panels+ root now
+selects only stable 4.5.0 and rolling: **44 passed / zero failures / zero skips
+each**, using the same real-target/modules and host-fixture scope as before.
+Checked that the retired pin/suite are absent, all retained stable pins have
+their exact matching suites, and each plugin has at most five stable pins.
+Whitespace checks passed. Skill `quick_validate.py` could not run because
+PyYAML is absent from both available Python interpreters; frontmatter is
+unchanged and the focused Markdown rule was reviewed directly. The full
+general suite was not repeated for this documentation/reference deletion;
+no new physical-device claim is made.
+
+## Previous state — Stable 4.5.0 reference verified, 2026-11-15
+
+User authorized adding the latest upstream stable release pin and testing it.
+GitHub latest is v4.5.0 (published 2026-11-14); canonical rolling remains
+clean `main` at `0015691669e74baeb4b0d3e13f61f3e629279fb7`, metadata 4.5.0.
+Panels+ is now 1.6.0 `main-nightly` at
+`38022f41209497efcd1ac4e58e456c7d45c1f7e0`; ongoing parent formatter/lint,
+Meguru fixture/reference and LiveLight registration work is preserved.
+Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+Existing stable 4.4.0 is retained unchanged. No install or rolling update
+requested in this step; prior installation evidence below is historical
+and was not reverified. New stable 4.5.0 and unchanged rolling each pass 44
+surface integration cases; retained stable 4.4.0 passes 5 fallback cases.
+No runtime changes were needed. Physical Kindle validation remains pending.
+
+Release asset `ink-away.koplugin-v4.5.0.zip` was extracted unchanged to
+`stable/v4_5_0/`. SHA-256
+`c9b0f707d9e93aa6cea0f01b22f21e8d72f98e714449bb9dca954e5459203f92`
+matches GitHub's API digest. New `ink-away__v4_5_0/surface_spec.lua` invokes
+the same required-public-API integration fixture as rolling, not the legacy
+fallback fixture. `./run-tests.sh --compatibility-plugin=ink-away` from the
+Panels+ root passes 5 / 44 / 44 tests in that order. Actual target modules and
+registration/facade run; host UI, documents/storage and timers remain fixtures.
+Prior native 48 scenarios / 2742 checks were not rerun for this pin-only change;
+new stable evidence is the automated Lua integration suite. No install,
+commit, push or target source update. Release/index/license records updated;
+next action is physical reader validation when requested.
+
+Combined final verification: same 5/44/44 selected compatibility counts after
+formatting; Python 101 (one skip), Go worker tests, LuaJIT 645 passed / zero
+failed / five pending-mapping skips in 13 jobs, 26 workflow checks, and lint
+151 owned files all passed. Stable 4.5.0's complete 341-file payload remains
+byte-identical to the release ZIP after `check.sh`. No native/device result
+is added by these host-fixture checks.
+
+## Previous state — Upstream Ink Away 4.5.0 rolling installed, 2026-11-15
+
+Installed canonical clean Ink Away rolling `0015691669e74baeb4b0d3e13f61f3e629279fb7` (`main`, metadata 4.5.0, exact local v4.5.0 tag) to `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin` using `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install`. Artifact `.cache/plugin-compatibility/builds/ink-away/v4_5_0/build.2Plwja9Q/ink-away.koplugin`; previous unchanged installed copy retained at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.W6nytsQ8/ink-away.koplugin`. Independently verified all 340 runtime file SHA256 hashes and complete file set against the installed manifest; provenance matches the requested clean source. No matching KOReader/Lua/LuaJIT process before install. Restart/open KOReader for live validation; grayscale drawing and dragging on physical Kindle remain unverified.
+
+Panels+ metadata remains 1.6.0, branch feat/ink-away-compatibility. During this user turn external Git activity advanced Panels+ from 898635a70b26831994b158f75da99a1d9a5ed484 (six audit files staged at start) to c7d8099916782506adfddff3124fe452cc71e8a7 (index clean at final check). Agent did not stage/commit/rebase or alter those changes; only this deployment history is left unstaged. Target source remains clean and unchanged. Prior 5 stable fallback / 44 rolling / 39 unit / native 48 scenarios and 2742 checks apply to the identical audited runtime; no runtime tests rerun for copy-only deployment. Host runtime previously verified v2026.07.1; no new host/source updates. Stable pin unchanged. No target runtime fixes introduced; no fetch, push or publication.
+
+---
+
+## Current state — Ink Away 4.5.0 API audit completed, 2026-11-15
+
+Panels+ metadata 1.6.0, HEAD `898635a70b26831994b158f75da99a1d9a5ed484`, branch `feat/ink-away-compatibility`, already works with upstream Ink Away 4.5.0's restricted public facade. No runtime change to either plugin is needed for the exercised existing features. Only Panels+ compatibility fixtures/rolling entry point and handoff/index documentation changed, all uncommitted and unstaged; index initially and finally clean. Canonical target `rolling.koplugin/` remains clean on `main`, HEAD `0015691669e74baeb4b0d3e13f61f3e629279fb7`, exactly local tag `v4.5.0`. Local history contains upstream merge `0e63969` of PR #80 and rework `4a8568a5dd0413442588aa095a502e106a7ef0f2`. Historical summaries below describe former development states, not current rolling. No branches/checkouts, upstream updates, target edits, builds, installs, staging, commits or publication in this task. Prior installed artifacts/backups are historical and were not inspected; no current installed Ink Away identity claimed.
+
+Stable v4_4_0 is unchanged; its 5 coexistence/fallback checks pass. No v4_5_0 release-artifact pin exists or was created: the 4.5.0 claim is for the clean rolling checkout at the exact tag, not a downloaded release artifact. Updated rolling integration passes 44 cases; native KOReader v2026.07.1 Linux SDL passes 48 cases / 2742 checks; focused Panels+ units pass 39; scoped StyLua/Luacheck/whitespace pass. Host source pin `035e00b21d0286325ef2e8a7e3b6326f340e2ded` unchanged. Actual selected target modules and native widgets/loader/blitter run; documents, persistence, device services and/or timers remain fixtures as detailed in the final entry. Physical Kindle input/refresh, full target/general suites, and network services were not tested. Next action: live Kindle validation with upstream Ink Away 4.5.0, particularly grayscale drawing/dragging: the follow-up comparison below confirms the PR tip’s two refresh guards are absent upstream. No public-API adaptation currently required; this does not establish preservation of every target-side Kindle fix.
+
+---
+
+## Current state — Atomic Kindle-fix commits, 2026-11-07
+
+Canonical rolling Ink Away metadata 4.4.0, branch feature/plugin-integration, now ends at e9f0eb39e2c744f4438609f095d63e4dd3cdd752. User-authorized atomic commits split prior staged changes into pen grayscale correction (4a6111b), modal picker correction (516475f), text viewport/drag correction (145cb5a), and export translation template (e9f0eb3). Combined HEAD tree exactly equals the original staged tree. Tracked target working tree/index are clean; untracked PR.md is preserved and excluded. Exact intermediate reader tests pass 241 / 241 / 245 checks. No push, fetch, build or deployment performed; previous exported folders have the same runtime bytes, older build provenance. Physical Kindle validation remains pending.
+
+Panels+ remains 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 feat/ink-away-compatibility; parent native-test/history/relationship modifications and the changed submodule pointer remain uncommitted and unstaged. Stable v4_4_0 and host pin 035e00b21d0286325ef2e8a7e3b6326f340e2ded untouched. Next: review/push only on request and validate exported fixes on Kindle. Prior metadata-removal action was interrupted and is not claimed complete.
+
+---
+
+## Current state — Patched folders exported to VMS SHARED, 2026-11-07
+
+Current patched Panels+ 1.6.0 with English/Spanish OCR models and rolling Ink Away 4.4.0-derived 356f40367a032fe5e2808abb8ff4aacb68e4674e plus local fixes were built and copied as folders to `/home/kristanlaimon/VMS SHARED/ZIP_OMG_YEAH/PARCHED/`. SHA256 and relative-path equality verified: panelsplus.koplugin 93 files; ink-away.koplugin 293 files. Target build.CuljImxP, branch feature/plugin-integration; Panels+ base ec6673472a57e1c9fd997fac2324aa0b1517cea3 feat/ink-away-compatibility. All options-sizing, grayscale pen/overlay, child-picker and text-viewport corrections are included. Destination contains folder payloads; no ZIPs copied. Shared filesystem rejected Unix metadata, so used content-only copy and verified bytes. This is an export, not live installation or Kindle validation. Existing staged/unstaged source work preserved; no commits or updates. Prior test evidence below; no runtime suites repeated for packaging. Next: install exported folders on Kindle and validate reported behaviors.
+
+---
+
+## Current state — Text chrome and grayscale drag correction, 2026-11-07
+
+Canonical Ink Away 4.4.0-derived rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e on feature/plugin-integration now has uncommitted text fixes: Format/Done anchor to the toolbar-free reader viewport before panel clipping; their touches route outside the clipped drawing area. Shared liveBox converts fast overlay requests to grayscale-capable ui for ordinary grayscale e-ink reader sessions. This covers text move/resize/turn and other previews using liveBox, retaining existing desktop/colour/driven policies. Panel ink clipping stays unchanged. Prior drawing/picker fixes and all staged/unrelated work remain preserved. Panels+ base 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 feat/ink-away-compatibility; stable v4_4_0 immutable; host pin 035e00b21d0286325ef2e8a7e3b6326f340e2ded.
+
+Regression before: 244 checks / 3 failures (both button positions and grayscale drag). After: 245 checks / 0 failures, including touch outside panel clip. Stable fallback 5 and rolling integration 44 pass. Final broad view suite 1462 checks, scoped Luacheck and whitespace all pass. Host/device fixtures exercise real target logic; physical Paperwhite shading/latency and visual button placement remain pending. No new build/install/commit/update; existing archives predate recent corrections. Next: rebuild/update rolling Ink Away when requested, then validate text placement, dragging and gray artwork on Kindle. Earlier summaries retain deployment provenance.
+
+---
+
+## Current state — Annotator child pickers stacking fix, 2026-11-07
+
+Panels+ 1.6.0 base ec6673472a57e1c9fd997fac2324aa0b1517cea3 (`feat/ink-away-compatibility`) and canonical Ink Away 4.4.0-derived rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e (`feature/plugin-integration`) retain all earlier work. New uncommitted target correction: child image/file/folder/sent-picture browsers, font menu and pen-test screen inherit the annotator's modal flag. Actual KOReader otherwise stacks those nonmodal windows behind the modal editor, making actions appear inert. Native regression reproduces From this reader failure before; afterward all six windows open above the editor, with 48 cases / 2742 checks passing. Stable fallback 5 / rolling integration 44 and target reader 241 pass. Target view suite 1462 checks and scoped lint/whitespace checks pass. Target and parent staged work, translation/editor/log files preserved. Stable v4_4_0 unchanged; host pin 035e00b21d0286325ef2e8a7e3b6326f340e2ded. No build/install/commit/update; existing ZIPs predate the recent fixes. Physical Kindle, online search/network transfer and every annotator option are not certified by these tests. Next: deploy rebuilt rolling target when requested and confirm picker interaction on Kindle.
+
+---
+
+## Current state — Paperwhite live brush shading fix, 2026-11-07
+
+User identifies Kindle Paperwhite 12th generation: moving brush leaves a larger faded rectangle in the panel after lifting their hand. Ink Away's black pen selected fast DU updates over book images; inspected host Kindle framebuffer code forces monochrome across the entire update rectangle. Canonical rolling Ink Away 4.4.0-derived `356f40367a032fe5e2808abb8ff4aacb68e4674e`, `feature/plugin-integration`, now has an uncommitted correction in `ink/view/stroke.lua`: ordinary grayscale e-ink reader-mode drawing uses grayscale-capable ui updates even for opaque black pens. Desktop, standalone notebooks and existing colour/driven-device policies retain their fast path. This applies to native books and external panel surfaces without Panels+-specific target logic. Saved ink/image formats are unchanged. Possible cost: live pen latency; physical Kindle waveform behavior is unverified.
+
+Panels+ 1.6.0 base ec6673472a57e1c9fd997fac2324aa0b1517cea3, feat/ink-away-compatibility, retains the earlier staged options-sizing correction. Target staged PR.md, unrelated modified translation template, untracked editor/log files and parent staging remain preserved. Stable v4_4_0 unchanged. New reader tests fail before (2 failures / 241 checks), pass after (241 / 0), checking actual drawing/refresh calls with host/device fixtures and grey snapshot. Stable fallback 5 and rolling integration 44 pass; target view suite 1462 checks, scoped Luacheck and whitespace checks pass. No rebuild, installation, staging, commit or remote update. Existing Downloads ZIPs and installed build.R1Rcoavc predate this correction. Next: build/install updated rolling Ink Away on the Kindle and test black drawing over gray artwork, during movement and after lift; measure latency. Do not claim physical visual resolution until that check.
+
+---
+
+## Current state — Kindle Draw options sizing fix, 2026-11-07
+
+Panels+ 1.6.0 at `ec6673472a57e1c9fd997fac2324aa0b1517cea3` on `feat/ink-away-compatibility` now has an uncommitted source-only fix in `src/_annotationsurface.lua`: beginning annotation hides and refits visible Panels+ controls before Ink Away snapshots/layouts the panel; finishing restores their previous visibility. Repeated begin/finish calls retain the original state. Ink Away's own toolbar viewport and crop margins still apply. Canonical target remains 4.4.0-derived rolling `356f40367a032fe5e2808abb8ff4aacb68e4674e`, `feature/plugin-integration`, with its staged PR.md, modified translation template and untracked editor/log files preserved. Stable v4_4_0 is unchanged; existing parent staging is preserved.
+
+Native reproduction failed before the fix at “Draw hides Panels+ options before editor layout”; afterward 48 cases / 2736 checks pass with actual KOReader widgets/loader/blitter and both plugins, synthetic document/timer delivery. Stable fallback 5, rolling integration 44, focused units 39 pass; scoped StyLua/Luacheck and whitespace pass. See the final dated entry for commands and limits. No rebuild, installation, staging, commit or upstream operation. Installed target remains the previously recorded build.R1Rcoavc; Downloads ZIPs predate this correction. Kindle KOReader version and physical validation remain unknown/pending. Next: package/update Panels+ on the Kindle, then open its options → Draw and verify reclaimed options space and restoration on editor close.
+
+---
+
+## Current state — rolling deployment without backup, 2026-11-07
+
+User requested replacing stable with canonical local rolling and explicitly directed no backup. Installed `../ink-away.koplugin` from artifact `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.R1Rcoavc/ink-away.koplugin`, metadata 4.4.0, commit `356f40367a032fe5e2808abb8ff4aacb68e4674e`, branch `feature/plugin-integration`. All 289 installed payload checksums pass. No backup created; this supersedes the stable installation summary below. Existing source staged `PR.md` and untracked `.foxnvim/` remain untouched and are excluded from runtime files. Runtime tests not rerun for deployment; restart KOReader and validate live behavior. No running KOReader/LuaJIT process was found before deployment. No source changes, commits or upstream updates performed.
+
+---
+
+## Current state — stable deployment, 2026-11-07
+
+User requested and completed installation of the unchanged pinned Ink Away v4.4.0 to `../ink-away.koplugin`, superseding the older installation summaries below. Artifact: `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.msp8BSpU/ink-away.koplugin`. Installed payload hashes match the full immutable stable pin and its deployment manifest. No existing Ink Away directory was present to replace; the helper created an empty backup directory at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.LDlMfV3D`. No running KOReader/LuaJIT process was found. Start/restart KOReader for live validation; runtime tests were not rerun for this copy-only deployment. Canonical rolling source and its local Git state are unchanged; this installed stable release does not include the rolling integration API. Prior source/refactor provenance remains below.
+
+---
+
+## Current state — atomic refactor commits, 2026-11-07
+
+Ink Away 4.4.0-derived canonical rolling now ends at `9925fd954e30f832fd617c467d19b4ae8ce5195a` on `feature/plugin-integration`. User explicitly authorized splitting/committing the existing staged diff; all 26 allowed files are committed in five focused commits (final entry below). Editor config `.foxnvim/` and `PR.md`/`PR-observations.md` remain untracked and excluded; no .krsnvim files were present. The final HEAD tree exactly matches the original staged tree `8d9925012a07f194f25d28aefddde066b2753489`. All original working-file and excluded-file SHA-256 hashes match; no working bytes or original index contents changed. The author's architecture draft, including its URL placeholder and existing EOF whitespace, is preserved in a separate documentation commit.
+
+Panels+ runtime remains 1.6.0 at `ec6673472a57e1c9fd997fac2324aa0b1517cea3`, `feat/ink-away-compatibility`; its submodule pointer and handoff notes are uncommitted. No parent commit, push, install, fetch or rebase. Installed Ink Away remains build.uCHGAckH, backup ink-away.3nm5FqK3, and does not include this refactor. Previous full static comparison (653 → 631, zero additions), 5 stable / 44 rolling and native 48 cases / 2592 checks remain evidence for the tested code; this commit operation reran exact intermediate snapshot unit/registry/geometry/reader/export checks and lint, not native/device suites. Next step: review or explicitly request push/build/install. Physical reader validation remains pending.
+
+---
+
+## Current state — typed viewer contract and delegates, 2026-11-07
+
+Completed the user's PR review requests in canonical Ink Away rolling: reusable typed `ink/delegate.lua`, explicit LuaLS contracts in `ink/contracts.lua`, PR-scoped annotations on integration/geometry/export/focus boundaries and public Lua examples, and removal of `reader/external.lua`. Book consumes external surfaces directly; KOReaderSurface now implements the same pages/key presentation contract. Public API/surface version 1 and the existing Panels+ consumer remain compatible. Drawing-coordinate conversion stays inside Ink Away, with navigation defaults, cache identity and host repainting owned by Book.
+
+Panels+ 1.6.0, `feat/ink-away-compatibility`, HEAD `ec6673472a57e1c9fd997fac2324aa0b1517cea3` has no new runtime changes. Ink Away 4.4.0-derived rolling, `feature/plugin-integration`, HEAD `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, contains the uncommitted refactor. Existing `.foxnvim/pins.json` staging/worktree changes, author-edited `docs/Arquitecture.md` and untracked `PR.md`/`PR-observations.md` are untouched. Stable v4_4_0 remains unchanged. No staging, commits, remote changes or installation performed. Installed build remains build.uCHGAckH, backup ink-away.3nm5FqK3; this refactor is **not installed**.
+
+Validation: stable fallback **5**, rolling integration **44**, target delegate **10**, registry/editor **36**, loading order **57**, generic surface **49**, viewport **43**, reader **236**, book ink **133**, export **42 / 21**, view/dialog **1462** checks passed. Native KOReader v2026.07.1 on Linux x86_64: **48 cases / 2592 checks**, real widgets/blitter/loader/plugins with synthetic document/timer fixtures. Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`. Luacheck passed 22 files. LuaLS full before/after diagnostics: **653 → 631, zero added**; the repository is not globally type-clean. Focused contracts/delegate static check clean; negative fixture correctly rejects missing surface methods and wrong event payload type. Scoped whitespace check passes; the author's pre-existing Arquitecture.md EOF warning remains untouched.
+
+Full target/Panels+ general suites, physical reader input and PDF pixel/large-archive benchmarks were not repeated; focused integration/native/geometry/editor tests cover the refactor. Next step is review of the uncommitted diff; deployment requires a separate build/install request and then live validation. Exact commands and typing evidence are in the final dated entry.
+
+---
+
+## Current state — Draw handler-wrapper fix, 2026-11-07
+
+Latest correction supersedes earlier summaries: Draw stayed hidden even after the rolling deployment because KOReader wraps onInkAwayAnnotate in a callable HandlerSandbox table. Panels+ now accepts the wrapped action after successful integration. The native test now loads the **actual installed plugin through KOReader PluginLoader**, reproduces the missing button before the fix, and passes 48 scenarios / 2592 checks afterward. Unit control/support 20, stable fallback 5 and rolling integration 44 pass. Full 579-unit run predates this one-condition correction.
+
+Only one active Ink Away exists; no old copy was found to delete. Current install remains build.uCHGAckH from canonical rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2; backup remains outside plugins at ink-away.3nm5FqK3. Panels+ 1.6.0 base d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility. Prior user staging preserved; gate fix/tests/history are unstaged. No target source changes or new installation. **Restart KOReader again to load the corrected Panels+ code**, then verify Draw after Inverted. Earlier history was not inspected. See final dated entry for exact failure and commands.
+
+---
+
+## Current state — installed rolling API, 2026-11-07
+
+Latest user decision supersedes earlier summaries: **install current rolling Ink Away**, keeping the newer-API Draw implementation. Missing Draw was caused by the old installed plugin, which used surface discovery and lacked the registry API. The exploratory legacy fallback was removed. Panels+ task changes remain staged as left by the user; only this follow-up history/index is additionally unstaged. No commits or staging performed by the agent.
+
+Installed canonical Ink Away 4.4.0-derived rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 (feature/plugin-integration), artifact build.uCHGAckH; 288 payload checksums verified. Backup: /home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.3nm5FqK3/. Target's existing staged .foxnvim/pins.json preserved. Panels+ 1.6.0 base d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility. Host source 035e00b21d0286325ef2e8a7e3b6326f340e2ded; native runtime v2026.07.1.
+
+Actual installed payload passes 48 native scenarios / 2592 checks, including opening through Draw. Stable fallback 5, rolling integration 44 and final control/support units 20 pass; preceding full 579-unit run retained. **Restart KOReader** before live validation. No newer remote sources fetched. Earlier large history was not inspected; final dated entry records deployment and exact validation details.
+
+---
+
+## Current state — latest task update, 2026-11-07
+
+This update supersedes older current-state summaries below; historical evidence is preserved verbatim. Latest task: Smooth No crop now matches the padded canvas fit beside Ink Away's toolbar. Conditional **Draw (Ink-away)** follows Inverted and opens the existing Ink Away annotator after successful registration. All runtime changes belong to Panels+.
+
+Panels+ 1.6.0 rolling: `feat/ink-away-compatibility`, base `d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4`, new uncommitted runtime/tests/docs changes. Canonical Ink Away 4.4.0-derived rolling: `references-repos/plugins/ink-away/rolling.koplugin/`, `feature/plugin-integration`, base `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`; only its pre-existing staged `.foxnvim/pins.json` remains dirty. Stable `v4_4_0` unchanged. Host source `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; native runtime v2026.07.1 Linux x86_64.
+
+Latest checks: 579 Lua units, 5 stable fallback, 44 rolling integration, 48 native cases / 2592 checks; Go and targeted style/lint/whitespace checks pass. Native padded No crop reproduction fails with the old animation code and passes with the fix. No build/install/commit/push; prior artifact/backup identity not re-investigated. Restart the live development plugin and validate on the reader; physical input/refresh remains unverified. See the final dated entry for commands, fixtures, failures and next checks. Per user request, earlier history was not inspected during this task.
+
+---
+
+# Panels+ → Ink Away — history and restart handoff
+
+This is the durable development backlog for this integration. Read **Current
+state** and **Test and deployment runbook** after `/clear`, then the relevant
+versioned entries. Paths are relative to the Panels+ root unless stated otherwise.
+The chronology preserves the original investigation prose and KristanLaimon's
+notes; old test counts, builds and pending checks belong to their dated entries.
+The chronology includes documentation-only and runtime changes; their validation
+belongs to the corresponding dated entry. Unknown historical facts are marked
+instead of reconstructed from assumptions.
+
+## Current state — as of 2026-11-07
+
+**Rebase validation:** `feat/ink-away-compatibility` is rebased onto
+`main-nightly` (`cbfe882`), with all tests passing. The 2026-11-07 rebase entry at the end records the
+baseline, merge fixes and final checks. Earlier build/install information below
+is historical; this task changes source only and leaves the target checkout and
+its staged file untouched.
+
+### State carried forward from 2026-11-02
+
+**Documentation site:** new standalone Fumadocs/Bun submodule at
+`references-repos/plugins/ink-away/Ink-away-documentation/`, origin
+`https://github.com/KristanLaimon/Ink-away-documentation.git`. The former template
+code is replaced with Fumadocs integration/API articles and an Ink-away.koplugin
+landing page. Site changes through c19a2a7 (crayon animation) are pushed to
+origin/main. A subsequent readability rewrite is local and uncommitted:
+14 pages, beginner introduction, two guides and one page per public Ink Away
+method/field (entry 31). Static build, Lua snippets and exported links pass.
+Parent submodule registration/staging should be inspected before committing.
+
+**Latest outcome:** the loading-order handshake is complete and validated in
+`references-repos/plugins/ink-away/rolling.koplugin/`, local branch
+`feature/plugin-integration`, now HEAD
+`b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2` with unchanged ancestor base
+`8dda5407e05446dddb20ba5d6fbac263955d0db3`. Four atomic commits were pushed
+to the user fork (entry 25). The ready instance and
+per-consumer method queue (`pending[consumer] = true`, then
+`consumer:configureInkAway(ink)`) supports either loading order (entry 24); composite installs
+are idempotent and return cleanup. Panels+ uses that protocol and preserves
+handoffs. Tests and API/architecture docs are updated in the canonical checkout.
+The former `.cache/.../ink-away-annotation-surfaces/` directory is a **frozen
+backup**. Do not edit/build from it or create new retained patches/worktrees.
+The skill now requires direct rolling development on a local feature branch,
+without commits, staging, remote updates or rebase unless explicitly requested.
+The obsolete generated patch archive has been removed; historical identities
+remain below (entry 21). Stable 4.4.0 remains unchanged. Ink Away changes are committed/pushed; Panels+
+changes remain uncommitted. This work is **not installed**;
+the installed target remains `build.1nDooCiZ`. Next: review the working diffs;
+only build/install or integrate upstream when the user requests those actions.
+
+### Versions, repositories and writable scope
+
+| Component | Version / exact identity | Location and state |
+| --- | --- | --- |
+| Panels+ source | **1.5.1 development**; HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d` | This live plugin project, `/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin`; branch `feat/ink-away-compatibility`; the provider registration, integration/native tests, history and patch-archive removal are uncommitted; no source staging was changed by this task. Inspect status before editing. |
+| Ink Away active source | **4.4.0 patched rolling**, HEAD `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, ancestor base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `feature/plugin-integration` | `references-repos/plugins/ink-away/rolling.koplugin/`; explicitly user-authorized writable checkout. Four commits pushed to kristanlaimonorigin; branch tracks that fork. Only .foxnvim remains untracked. Parent submodule pointer is unstaged. |
+| Ink Away frozen backup | HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10`, plus refactor/docs/loading-order changes at migration | `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`; preserved byte-for-byte, including user staging and `.foxnvim/pins.json`. Do not use for further development. |
+| Original stable target | **4.4.0** | `references-repos/plugins/ink-away/stable/v4_4_0/`; immutable reference, surface feature absent. |
+| Upstream rolling base | **4.4.0 metadata**, commit `8dda5407e05446dddb20ba5d6fbac263955d0db3` | Ancestor base of the now-writable rolling checkout. Historical original-rolling test results refer to this commit without local changes; current default rolling tests use the modified checkout. |
+| KOReader source reference | Commit `035e00b21d0286325ef2e8a7e3b6326f340e2ded` | `references-repos/koreader/`; read-only host reference. |
+| Native test runtime | **v2026.07.1**, Linux x86_64 | `/usr/lib/koreader`; real widgets/blitter/MuPDF tested in isolated scratch homes. This is distinct from the source reference. |
+
+Keep the existing source and target changes. The ownership table above supersedes
+historical worktree/immutable-rolling instructions below. Do not refresh references, recreate
+the working copy, reapply patches to it, or overwrite staged work just to resume.
+No upstream PR/push is recorded; the user fork branch push is recorded in entry 25. Earlier user-authorized atomic commits are in
+entry 04; source viewport commit `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd`
+was observed while preparing this handoff. Target follow-ups remain uncommitted.
+Version strings have not been bumped:
+**4.4.0 patched rolling is not the unmodified 4.4.0 release**.
+
+### Responsibilities and agreed behavior
+
+Panels+ knows about Ink Away; Ink Away exposes a generic surface contract without
+Panels+ identifiers or runtime method replacement. Panels+ owns panel crop,
+centering, fold joining, reading order, animation and native/screen mappings.
+Ink Away owns tools, toolbar, annotation operations, sidecars, export and the
+editor's snapshot/reload lifecycle. KOReader opens/renders the source format.
+
+- Settings: **More Config → Ink-away Settings…** appears when Ink Away is loaded.
+  `inkaway_join_spread_fold = true` defaults to joined while annotating,
+  independently of the reading fold setting. `inkaway_fit_viewport = true`
+  defaults to **Fit beside toolbar**; its menu entry cycles with **Full viewport**.
+- Fit mode follows left/right/top/bottom toolbar placement and collapse. Closing
+  restores normal layout. Existing Panels+ controls and the free viewport are
+  intersected, avoiding double subtraction of overlapping bottom bars.
+- Manga: physical `<` advances and `>` returns; Comic reverses those physical
+  directions. Named next/previous actions retain their logical meanings.
+- No crop allows drawing outside the focused panel and retains surrounding page
+  pixels/ink during motion. Tight/Loose/Margin motion retains only the source and
+  destination crops. Saved annotations remain in original page coordinates.
+- Smooth motion uses live snapshots and stationary opaque toolbar chrome, blocks
+  editing/repeated turns during handoff, then reloads the canvas. A new content
+  widget must be painted **before** its clip is read, even when toolbar geometry
+  is unchanged; see entry 12 and the native regression.
+- CBZ/CBR and other fixed-page books share Ink Away's full-page PDF/PNG exporter.
+  Only actual PDFs qualify for editable-copy export. Compact/Detailed quality
+  is independent of panel zoom; output streams one page at a time. No original
+  archive is rewritten. See entry 07 for measurements and limitations.
+
+Known limits: joined-fold text/pictures/pixel fills use a local affine mapping in
+the editable canvas; original-fold mode avoids ambiguity. Reloading a canvas for
+navigation/reflow replaces its local editing history while preserving saved ink.
+Native reader highlight-erasure boxes are not reused in an external viewport.
+Reflowing embedded-image annotation is outside this implementation. Physical
+reader refresh/input, compressed/solid RAR performance and unusually large source
+scans have not been established by the synthetic/native tests.
+
+### Installed build and next action
+
+- Live target: `../ink-away.koplugin/`.
+- Current artifact: `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.1nDooCiZ/ink-away.koplugin/`.
+- Previous managed copy: `~/.config/koreader/.panelsplus-plugin-backups/ink-away.0MgfotSR/`.
+- Installer provenance and `SHA256SUMS` are in `.panelsplus-deployment/` inside
+  the artifact and installed target. Last installation verified the changed
+  runtime file and all **285** payload hashes; KOReader was closed first.
+- Next live check: restart KOReader; keep Fit beside toolbar enabled; navigate
+  with Ink Away's `<`/`>` on all toolbar sides, then verify hiding/reopening,
+  closing the annotator, both reading flows and page crossings. Record the user's
+  actual result in a new entry. Do not infer confirmation from an unrelated reply.
+
+### Historical change identities (patch files removed)
+
+The generated Git patch archive was removed on 2026-11-02 by user request
+(entry 21). This table preserves the original filenames, ordering and hashes as
+provenance; it is not a list of available files or instructions to reapply them.
+The historical base was `8dda5407e05446dddb20ba5d6fbac263955d0db3`; commit
+`d87e2b097d6345085f9aa3ea0412bef23775ce10` already included the first change.
+The dated chronology below retains the actual apply/reconstruction/test results
+from when those artifacts existed. Current source is the uncommitted canonical
+rolling checkout; the former worktree remains a frozen source backup.
+
+| Order | Patch | SHA-256 |
+| --- | --- | --- |
+| 1 | `annotation-surfaces.patch` | `f0c33b7ed9e98043af5051cd06f3cc2d43d9b42bd2af397fd70027b8650845d0` |
+| 2 | `annotation-navigation.patch` | `0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735` |
+| 3 | `fixed-page-export.patch` | `e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28` |
+| 4 | `prompt-focus.patch` | `906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3` |
+| 5 | `surface-toolbar.patch` | `f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf` |
+| 6 | `surface-viewport.patch` | `024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e` |
+| 7 | `surface-viewport-reload.patch` | `2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3` |
+| 8 | `annotation-extension-api.patch` | `6238cffd35f77e51be8f55e1f93f3a1f408a1bc318f7f252ceff9e08bb0d63d2` |
+
+### Latest recorded validation, with its scope
+
+| Check | Last recorded result | What was actually exercised |
+| --- | --- | --- |
+| Stable fallback / current modified rolling | **5 / 44 passed**, entry 20 | Actual pinned stable fallback; modified canonical rolling integration, including both loading orders and source cleanup. Historical original rolling fallback **5** remains entry 17 evidence. |
+| Local pair integration | **44 passed**, entry 20 | Actual selected target modules and source camera/geometry; host/UI/raster fixtures. |
+| Panels+ general + Go | **546 passed**, entry 17 | Source regression suite and Go checks. Python annotator environment was not synced and those tests were skipped. |
+| Target viewport / reader / generic surface | **43 / 236 / 49 passed**, entry 14 | Real target model/editor logic with host fixtures, including unchanged-rectangle widget replacement. |
+| Native whole-widget navigation | **32 cases / 800 checks**, entry 20 | 128 real toolbar arrow callbacks; actual KOReader layout/widgets/blitter and both runtime modules; synthetic document pixels and timer delivery. Old installed artifact fails. |
+| Native toolbar pixels | **160 passed**, entry 14 | Actual blitter and toolbar paint/theme; widget/provider fixtures. Not a full live-layout claim. |
+| Loading order / API / storage / export | **47 / 30 / 133 / 42 / 21 passed**, entry 20 | Actual Ink Away init/facade/registry/editor with host fixtures. Prior view/dialog **1462**, native toolbar **160** and focus **7** remain entry 14 evidence; not repeated for this handshake. |
+
+## Test and deployment runbook
+
+These commands explain the historical evidence and support the next relevant
+change; they are not a request to rerun everything on every resume. Set paths in
+the shell where commands will run. Baseline pins are never edited to reproduce a
+failure. Use the exact source/target identities listed in the relevant entry.
+
+```sh
+PANELSPLUS_ROOT=/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin
+INKAWAY_SOURCE="$PANELSPLUS_ROOT/references-repos/plugins/ink-away/rolling.koplugin"
+```
+
+### A — Source and version-pinned integration
+
+From `$PANELSPLUS_ROOT`, run stable fallback before the modified canonical
+rolling source. Default rolling selection now loads the current local changes.
+Historical original-rolling/worktree results are separate tuples, not current
+source validation.
+
+```sh
+cd "$PANELSPLUS_ROOT"
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+./run-tests.sh --quicker
+```
+
+Version wrappers load `tests/plugin-compatibility/shared/inkaway_surface.lua`
+against the selected counterpart in isolated module environments. `shared/` is
+not an independently discovered suite. The general suite uses its own KOReader
+fixtures. For selected source specs use `lua tests/run_tests.lua PATH_TO_SPEC`.
+Use targeted `stylua --check`, `luacheck` and `git diff --check`; do not run the
+current global formatter over reference copies. A previous `check.sh` invocation
+did so accidentally; those edits were restored. Runtime lifecycle changes also
+need the real-widget run below: a fixture can supply dimensions too early.
+
+### B — Target portable model/editor tests
+
+```sh
+cd "$INKAWAY_SOURCE"
+luajit tests/readerview.lua
+luajit tests/annotation_surface.lua
+luajit tests/surface_viewport.lua
+luajit tests/integration.lua
+luajit tests/loading_order.lua
+luajit tests/bookexport.lua
+luajit tests/annots.lua
+```
+
+Run other target checks only when relevant: `tests/bookink.lua` covers sidecars;
+`tests/view.lua` covers the wider editor/dialog behavior. Portable fixtures live
+in the target's `tests/mock/`; actual selected runtime modules are still loaded.
+
+### C — Real KOReader widget navigation and toolbar painting
+
+The native script is a standalone cross-project regression, not part of the
+ordinary fixture-based spec discovery. It requires a built runtime. Scratch
+homes prevent changes to real reader settings.
+
+```sh
+mkdir -p /tmp/inkaway-native-viewport/library
+cd /usr/lib/koreader
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/inkaway-native-viewport ./luajit \
+  "$PANELSPLUS_ROOT/tests/plugin-compatibility/shared/inkaway_native_viewport.lua" \
+  "$PANELSPLUS_ROOT" "$INKAWAY_SOURCE"
+./luajit "$INKAWAY_SOURCE/tests/realbb/surface_toolbar.lua" "$INKAWAY_SOURCE"
+./luajit "$INKAWAY_SOURCE/tests/realbb/promptfocus.lua" "$INKAWAY_SOURCE"
+```
+
+For the recorded failing-before navigation run, use a separate scratch home and
+pass `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.7eiLxb4a/ink-away.koplugin`
+as the absolute target instead of the corrected worktree. That artifact is
+historical and buggy; do not install it as the current fix. The exact pre-fix
+trace and successful matrix are preserved in entry 12.
+
+### D — Native export checks and synthetic archive measurement
+
+```sh
+cd /usr/lib/koreader
+./luajit "$INKAWAY_SOURCE/tests/realbb/pdfedit.lua" "$INKAWAY_SOURCE"
+./luajit "$INKAWAY_SOURCE/tests/realbb/pdfexport.lua" "$INKAWAY_SOURCE"
+python3 "$INKAWAY_SOURCE/tests/realbb/comic_fixtures.py" /tmp/inkaway-comic-export-small
+./luajit "$INKAWAY_SOURCE/tests/realbb/comicexport.lua" "$INKAWAY_SOURCE" /tmp/inkaway-comic-export-small
+```
+
+The optional larger measurement adds `--large` to the fixture generator and uses
+another scratch directory. It writes two ~144 MB synthetic archives plus output
+PDFs; it is not a reader-hardware timing claim. Export tests use real native
+libraries with adapted UI/document registry, not the full live toolbar flow.
+
+### E — Build/install and provenance
+
+A rolling build request includes installation unless explicitly artifact-only.
+No build/install is authorized merely by source changes. When requested, check
+KOReader is closed and run the helper against the canonical rolling source:
+
+```sh
+cd "$PANELSPLUS_ROOT"
+./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install
+```
+
+Keep backups outside `plugins/`, preserve installer identity/hash checks, and
+verify installed bytes against the tested source. Do not install another Panels+
+beside this live development copy. Build artifacts and code backups do not replace
+annotation sidecars/settings. Do not publish, merge or push based on this log.
+
+## Versioned chronology
+
+Every entry below identifies both metadata versions and the local patch state.
+Test steps distinguish reproduction, implementation checks and deployment from
+live confirmation. The recorded host source pin is
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`; native-runtime tests explicitly name
+v2026.07.1. Original prose and author notes are retained under their historical
+entry, so a historical sentence saying “current” does not override Current state.
+
+## 2026-10-31 — 01: Generic document annotation surfaces — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `f5903ffaa29f5ce8f1bc223cdeb1d96f236f2264`; Ink Away **4.4.0 patched rolling**, upstream `8dda5407e05446dddb20ba5d6fbac263955d0db3` plus the original surface patch (later committed as `d87e2b097d6345085f9aa3ea0412bef23775ce10`). KOReader source reference `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; host/UI/pixel fixtures, no native runtime verified at this step.
+
+### Investigation, tests and outcome by step
+
+1. Investigated source/target responsibilities and introduced the generic surface contract; no failing-before count was recorded for the initial implementation.
+2. Ran runbook **A** stable first, original rolling second and patched worktree third: **5 / 5 / 18 passed**. The first two cover fallback only; the 18 checks load actual counterpart modules with the fixtures described below.
+3. Ran source general checks (**539**), target reader (**236**), book storage (**133**) and generic canvas (**11**); style/lint passed. Build/install provenance follows below. Live entry/drawing validation was pending at this step.
+
+### Recorded implementation and notes
+
+Implemented on 2026-10-31 at the developer's request against both rolling
+sources. The immutable stable pin and upstream rolling reference are unchanged.
+
+### Working copies
+
+- Panels+: this project, metadata 1.5.1, based on
+  `f5903ffaa29f5ce8f1bc223cdeb1d96f236f2264`, with the annotation-surface changes.
+- Ink Away: upstream checked with `./run-sync-submodules.sh --ink-away`; it was
+  already at latest fetched remote commit
+  `8dda5407e05446dddb20ba5d6fbac263955d0db3` (metadata 4.4.0).
+- Local target branch: `feature/annotation-surfaces`, in
+  `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`.
+  Implementation committed locally as `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
+  No upstream publication; live installation is recorded below.
+- Reproducible target patch: `annotation-surfaces.patch`.
+  SHA-256: `f0c33b7ed9e98043af5051cd06f3cc2d43d9b42bd2af397fd70027b8650845d0`.
+  `git apply --check` passes against the clean upstream reference above. The
+  patch includes new files, the generic interface documentation and its test.
+
+### Responsibilities
+
+Ink Away exposes document-surface API version 1. It discovers a visible widget's
+`getAnnotationSurface()` and uses that surface for the background, page identity,
+coordinate mapping, content clip, placement cache, navigation and repainting.
+Tools, undo, erasing and sidecar persistence remain in Ink Away. There are no
+Panels+ names or detection branches in the target patch and no runtime method
+replacement. The native reader remains the fallback.
+
+Panels+ implements that contract for fixed-page panels, calls the target's public
+ink renderer after its own image paint, and releases the surface before closing.
+Its adapter handles crop, zoom, pan, quarter rotations, removed folds and viewer
+replacement during page crossings. Reading overlays split joined views into
+clipped affine regions. Path vertices are inserted at fold discontinuities so
+drawn strokes keep their native page coordinates.
+
+When Ink Away is loaded, **More Config… → Ink-away Settings…** offers:
+
+- Keep spread fold joined while annotating.
+- Show original fold while annotating.
+
+The preference is saved as `inkaway_join_spread_fold`, defaults to joined and is
+independent of the normal reading fold preference. Closing annotation mode
+restores the reading preference. No entry appears with Ink Away absent/disabled.
+The paired development build is required for annotation-surface support; the
+unmodified stable/rolling target has no such API.
+
+### Verification
+
+Host reference: KOReader `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+Environment: desktop Lua/LuaJIT with KOReader/UI/framebuffer fixtures, not a running
+reader or a physical stylus. No installed KOReader version/device is claimed.
+
+Run from the Panels+ root, stable first:
+
+```sh
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease --compatibility-reference="$PWD/.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces"
+./run-tests.sh --quicker
+```
+
+- Original stable 4.4.0: **5 native fallback/coexistence smoke checks passed**.
+- Original upstream rolling: **5 native fallback/coexistence smoke checks passed**.
+- Patched target worktree: **18 integration checks passed**. Actual counterpart
+  Book, Place, Canvas, Transform, ReaderInkView and plugin entry points are
+  loaded. Canvas initialization, UI/framebuffer painting and persistence are
+  fixtures. Covers native fallback, absence, annotation entry, coordinates at
+  four rotations, crossing folds, existing-ink paint, cache invalidation,
+  unchanged-item preservation, panel navigation, asynchronous page handoff,
+  independent fold choices, clipping regions, release/cleanup, visibility
+  settings and an unrelated generic surface provider.
+- Panels+ general suite: **539 passed**; Go OCR tests also pass.
+- In the target worktree, `luajit tests/readerview.lua`: **236 checks passed**;
+  `luajit tests/bookink.lua`: **133 checks passed**;
+  `luajit tests/annotation_surface.lua`: **11 checks passed**. The last test uses
+  the real Ink Away canvas, touch/pan/release handlers, placement, sidecar save
+  and ink painter with the target's host mocks, against a generic provider.
+- Targeted Panels+ StyLua/Luacheck, target Luacheck and whitespace checks pass.
+
+Stable results establish fallback behavior only, not feature integration. The
+requested feature depends on the patched rolling pair; no future version range
+or full live coexistence claim is made.
+
+### Build
+
+```sh
+./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --source="$PWD/.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces" --install
+```
+
+Built target artifact:
+`.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.FNL0eT8c/ink-away.koplugin/`.
+It includes the new runtime module and normal upstream assets/licenses. The initial build used a dirty local feature branch. This first build was artifact-only.
+
+The developer subsequently authorized installation and established that future
+rolling-release build requests include installation unless explicitly declined.
+The deployment helper rebuilt the same target source with `--install` and installed
+it into `../ink-away.koplugin/` on 2026-10-31. Installed artifact:
+`.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.NdR55rUV/ink-away.koplugin/`.
+The unchanged previous copy was moved to
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.6or3ie4t/ink-away.koplugin/`.
+KOReader was not running during installation. No second Panels+ was installed.
+
+Shared scenarios and target loaders live in `tests/plugin-compatibility/shared/`;
+versioned suite entry points select the reference and invoke those scenarios.
+
+## 2026-10-31 — 02: Reading overlay survives editor closure — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `f5903ffaa29f5ce8f1bc223cdeb1d96f236f2264` plus the runtime-key correction; Ink Away **4.4.0 patched rolling**, original surface implementation later identified by `d87e2b097d6345085f9aa3ea0412bef23775ce10`, unchanged for this fix.
+
+### Investigation, tests and outcome by step
+
+1. Reproduced **2 failing checks** with the actual host registration key.
+2. Added save → close editor → paint coverage using the real selected target placement/paint entry points and host/pixel fixtures. Runbook **A** passed **5 stable / 5 original rolling / 19 patched**.
+3. Target bytes were unchanged, so no target rebuild was required. User confirmation established editor entry/drawing, not a complete live validation of the follow-up.
+
+### Recorded implementation and notes
+
+The user confirmed annotation editor entry and drawing, then reported that ink
+disappeared after closing the editor. KOReader registers the installed plugin
+under its directory name, `ui["ink-away"]`, ignoring the metadata name `inkaway`.
+Panels+ had used only the metadata spelling. The reading-overlay call, viewer
+release hook and conditional settings lookup now use the canonical runtime key,
+with the legacy alias retained. Ink Away's generic interface and installed build
+are unchanged.
+
+The shared fixtures now use the host's actual registration key. A new regression
+saves a stroke, closes the annotation canvas and repaints the focused panel.
+That check and the existing-ink paint check both failed before the correction;
+the feature-worktree suite now passes **19 checks**. Original stable/upstream
+rolling fallback suites pass **5 each**. Live validation of post-editor visibility
+still requires restarting KOReader with the changed Panels+ source.
+
+## 2026-10-31 — 03: No crop ink retains native page placement — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `f5903ffaa29f5ce8f1bc223cdeb1d96f236f2264` plus compositor-bound mapping; Ink Away **4.4.0 patched rolling**, original surface implementation `d87e2b097d6345085f9aa3ea0412bef23775ce10`, unchanged.
+
+### Investigation, tests and outcome by step
+
+1. Reproduced **4 edge-placement failures** before the source fix.
+2. Compared ink with actual render/blit/scale placements, exercising all page edges, rotations, pan/zoom and cross-panel drawing through selected target modules. Runbook **A** passed **5 / 5 / 23**.
+3. Source general suite passed **539**; formatter/linter/whitespace checks passed. The target was not rebuilt. The cross-cutting editing/live limitations below still apply.
+
+### Recorded implementation and notes
+
+The user reported that ink drawn beyond the focused panel was correct on the
+ordinary page but shifted when another panel was focused in No crop. This mode
+composites page content into a larger screen-shaped canvas, with padding at page
+edges. The annotation adapter had treated the clipped page-content rectangle as
+the complete canvas, changing the apparent scale and position of existing ink.
+
+Panels+ now records the complete canvas's native bounds using the actual content
+bitmap dimensions and blit offsets, and uses those bounds for annotation mapping.
+The render/transition crop rectangle stays separate. This preserves out-of-panel
+drawing and does not modify existing annotation data or the installed target.
+
+Four new checks reproduce the fault before the fix and cover all page edges,
+four rotations, zoom/pan and cross-panel navigation. They compare projected ink
+with the actual compositor's placement rather than only testing inverse mapping.
+The modified-target suite now passes **23 checks**; original stable/upstream
+fallback checks pass **5 each**, and the general Panels+ suite passes **539**.
+Live No crop validation requires restarting KOReader.
+
+
+### Limits and live checks (cross-cutting)
+
+The editable canvas maps strokes and shape outlines through joined folds. Text
+boxes, pictures and pixel-run fills spanning the removed strip use a local
+affine transform while editing. Choose **Show original fold while annotating**
+for accurate editing of these objects across a fold. The reading overlay uses
+the clipped native regions for their retained content.
+
+Native reader highlight-erasure boxes describe the underlying viewport. The
+external surface deliberately does not reuse those boxes; ink erasing remains
+available. This is not a reflowing embedded-image annotation implementation.
+
+Live validation remains required: enter annotation mode through the real menu
+and configured gesture; draw with the actual finger/stylus; verify palm rejection,
+eraser/undo, both fold options, both sides and rotations, next/previous panel and
+page crossings, closing/reopening and ordinary-page alignment after saving. Also
+check device rotation, interrupted navigation, book closure and plugin disabling.
+Automated tests do not establish input-driver behavior or refresh quality.
+
+## 2026-10-31 — 04: Local implementation commits — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, integration commit `0af707c2b168da63ca37a10d06b9ae039a5b6ceb`, fold settings `c93912ab4d05e96e39a48c4b046b1fca492feb9e`; Ink Away **4.4.0 patched rolling**, implementation commit `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
+
+### Investigation, tests and outcome by step
+
+1. Committed the already-tested source and target changes locally in separate commits.
+2. No new test execution was recorded for this commit-only step. The preceding **23** patched integration and **539** source results apply to the unchanged runtime bytes. No new deployment or push was recorded.
+
+### Recorded implementation and notes
+
+- Generic target interface: `d87e2b097d6345085f9aa3ea0412bef23775ce10` on `feature/annotation-surfaces`.
+- Panels+ runtime integration: `0af707c2b168da63ca37a10d06b9ae039a5b6ceb`.
+- Panels+ fold settings: `c93912ab4d05e96e39a48c4b046b1fca492feb9e`.
+- Source branch: `feat/ink-away-compatibility`. No commits were pushed.
+
+## 2026-10-31 — 05: Annotations follow Smooth animation frames — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `a51b870892b94aadb1932b7e1f968128e8d9f8dc` plus animated geometry; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10`, unchanged.
+
+### Investigation, tests and outcome by step
+
+1. Reproduced **3 failures**: interpolated pan/zoom, Classic canvas pan and cross-page movement.
+2. Drove actual camera callbacks and selected target modules; expected positions came from the render/copy/blit/scale fixture chain at intermediate repaints. Runbook **A** passed **5 / 5 / 30**.
+3. Source general suite passed **539**; Meguru stable/rolling geometry checks passed **14 each**. Only source changed; target build/install was not repeated. Physical refresh remained unverified.
+
+### Recorded implementation and notes
+
+The user reported that ink stayed at the starting position during Smooth motion,
+then jumped at handoff. The animated page uses temporary bitmaps while the
+annotation surface had retained the original panel's geometry.
+
+Panels+ now supplies geometry tied to the actual animation image: native bounds
+for each scaled viewport frame or shared Classic canvas, and separate clipped
+page regions for a cross-page canvas. Ink uses the same viewport offsets and
+zoom as the displayed pixels. Temporary fold metadata is not reused, and normal
+panel geometry resumes at handoff or preview return. The No crop compositor and
+animation paths share the same native-canvas calculation.
+
+Three new checks failed before the fix. Expanded checks now validate intermediate
+ink positions against the actual render/blit/scale call chain with framebuffer
+and widget fixtures, including both pages, margin changes, No crop, reading
+direction, preview return, failures and close cleanup. The target-worktree suite
+passes **30 checks**, the original stable/rolling fallback suites pass **5 each**,
+the general suite passes **539**, and Meguru stable/rolling geometry suites pass
+**14 each**. Only Panels+ source changed; the installed target remains the
+implementation preserved in `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
+
+Restart KOReader for live validation that annotations follow the page continuously
+during Smooth navigation. The automated checks do not validate physical refresh
+behavior or input drivers.
+
+## 2026-11-01 — 06: Smooth annotator navigation and reading flow — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `a51b870892b94aadb1932b7e1f968128e8d9f8dc` plus source animation changes; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus `annotation-navigation.patch`.
+
+### Investigation, tests and outcome by step
+
+1. Exercised real ReaderInkView arrow/action handlers and source camera timers, including both reading flows, modal live frames, No crop/page boundaries and close/repeat-input cleanup. A numeric failing-before result was not recorded for this feature.
+2. Runbook **A** passed **5 stable / 5 original rolling / 34 patched**; source general suite **539** and target reader/surface suites **236 / 49** passed. UI/layout/pixel buffers remained fixtures.
+3. Built/installed `build.n2v16RYh`; the following text records the backup and remaining live check. This build has since been superseded.
+
+### Recorded implementation and notes
+
+The annotator now uses Panels+'s Smooth panel/page navigation and paints the live
+surface during movement, retaining its own stationary toolbar. Drawing and repeat
+turns are blocked until handoff, when editable operations are loaded at the new
+position. Closing the editor cancels its subscriptions and late completions cannot
+reactivate it. Reading visibility preferences do not hide editable ink in motion.
+
+Physical arrows and unbound navigation swipes follow the supplied reading flow:
+Manga (RTL) uses `<` to advance and `>` to go back; Comic (LTR) uses `>` to advance
+and `<` to go back. Named next/previous actions remain logical forward/backward.
+Ink Away obtains this through optional `readingDirection()` and progress callbacks
+on its generic surface contract; it has no Panels+ identifiers or panel logic.
+
+The target delta against `d87e2b097d6345085f9aa3ea0412bef23775ce10` is preserved in
+`annotation-navigation.patch`, SHA-256
+`0d6490942dea41afe1c54bfbb6261c7d88c87a5b8067067f404d59092d091735`.
+Apply it after the original surface patch when reconstructing from upstream.
+The target worktree remains on `feature/annotation-surfaces`, with this follow-up
+uncommitted. Original stable and rolling references are unchanged.
+
+Verification: stable **5**, upstream rolling **5**, patched worktree **34** checks
+pass. The real target canvas suites pass **236** and **49** checks; Panels+ general
+tests pass **539**. The new cases cover arrow flow, named actions, live modal
+editor frames, cross-page/No crop motion, repeated input, input blocking and late
+completion after close. Physical reader refresh/input behavior requires live use.
+
+Installed development build:
+`.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.n2v16RYh/ink-away.koplugin/`.
+Previous managed copy backed up at
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.8rAuMrL4/ink-away.koplugin/`.
+Restart KOReader to load both current sources.
+
+## 2026-11-01 — 07: Shared fixed-page comic export — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, unchanged runtime at source commit `49c4b1ce84fd340acadc5aa102c354e9412c69ee`; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus navigation/export patches; native KOReader **v2026.07.1**, Linux x86_64, in addition to the pinned host source reference.
+
+### Investigation, tests and outcome by step
+
+1. Inspected format routing and streaming; found that MuPDF provider `is_pdf` also covers comic archives and that raster quality depended on editor dimensions.
+2. Added host-fixture export checks (**42**) for routing, geometry, bounded quality, selection and failure cleanup; annotation checks **21**, view **1462**, reader **236**, surface **49** passed. Runbook **A** passed **5 / 5 / 34**.
+3. Runbook **D** used native MuPDF/blitter/encoders with adapted host UI/registry: PDF-edit **15**, streaming PDF **18**, small comics **13**, large comics **17** passed. Both synthetic 100-page ~144 MB archives exported; measured CPU/RSS and remaining archive/device limits are below.
+4. Installed `build.yGg8gD1F`, now historical. These native library tests did not cover the real filename input widget, which failed later and was fixed in the next entry.
+
+### Recorded implementation and notes
+
+Export is owned by Ink Away and uses KOReader's original document pages. No new
+Panels+ runtime code or export interface was added. Native saved coordinates
+place ink on full pages even when it was drawn across panels or joined folds.
+Fixed-page dispatch is separated from actual-PDF eligibility; comic archives
+cannot enter the editable-copy writer merely because MuPDF sets `is_pdf`.
+The shared fixed-page PDF/PNG path offers Compact and Detailed raster quality,
+independent of editor canvas size, retaining page-by-page streaming and scopes.
+Comic annotations are flattened in the exported PDF; originals stay unchanged.
+
+The independent `fixed-page-export.patch`, SHA-256
+`e8ee5d332e91df477bcb0034d0e103e9c38eeb693e171bf4cd852d79e84bcc28`, applies
+to original upstream rolling without requiring the integration patches. It also
+contains target documentation, host-mock tests and synthetic native archive tests.
+Existing integration work is retained separately and remains uncommitted in the
+target worktree.
+
+New host-mock export checks: **42**; annotation/export checks **21**; view checks
+**1462**; reader checks **236**; generic-surface checks **49**. Original stable and
+rolling fallback checks pass **5 each**, modified-target integration **34**.
+Installed KOReader `v2026.07.1` native suites pass **15** PDF-edit, **18** streaming
+PDF, **13** small comic and **17** large comic checks. Both synthetic 100-page,
+144 MB archives export to valid PDFs with correctly placed ink. Desktop CPU time
+was about 6.6 seconds each and sampled peak RSS below 47 MB for the large test.
+The native suite adapts host UI/registry/cache behavior; compressed/solid RAR,
+physical-reader timing and live toolbar export remain unverified.
+
+Current installed artifact is `build.yGg8gD1F`. Previous installation backup:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.7fBmIc2j/`.
+All 285 installed payload checksums were verified. Restart KOReader and export
+from the annotation toolbar to validate real comics. The target's
+`docs/fixed-page-export.md` documents quality limits, commands and remaining limits.
+
+Other notes (added by KristanLaimon):
+Implemented and installed, entirely in Ink Away.
+
+- CBZ/CBR share full-page PDF/PNG export with correctly positioned annotations.
+- Editable export requires an actual PDF.
+- Export → Page quality offers Compact or Detailed, independently of panel zoom.
+- Processing remains page by page, with progress and cancellation.
+
+Both synthetic 144 MB, 100-page CBZ/CBR archives exported successfully. Desktop tests took about 6.6 CPU seconds each, with sampled peak memory below 47 MB. Integration checks also pass.
+
+Restart KOReader to try toolbar export on your comics. Changes remain uncommit
+
+## 2026-11-01 — 08: Export filename prompt owns keyboard focus — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, runtime unchanged by this target-only fix (a new source HEAD was not recorded for this step); Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus navigation/export/focus patches; native KOReader **v2026.07.1**, Linux x86_64.
+
+### Investigation, tests and outcome by step
+
+1. Recovered the actual `inputtext.lua:161` Lua traceback from the crash core.
+2. Loaded real host InputText tap/FocusManager code with rendering/keyboard/event adapters; filename and range prompt taps reproduced the missing-method failure. After the fix, **7** native focus checks passed.
+3. Target view **1462**, reader **236**, surface **49**, export **42** and runbook **A** **5 / 5 / 34** passed. Installed `build.jOs0emGa`, now superseded. Physical input and full live export confirmation remained separate.
+
+### Recorded implementation and notes
+
+The user's live export attempt crashed before rendering, on tapping the filename
+field. A Lua traceback recovered from the 06:39:52 PST core dump reports
+`inputtext.lua:161: attempt to call method 'getFocusableWidgetXY' (a nil value)`.
+Ink Away's prompt sheet supplied an InputContainer parent where the desktop
+InputText expected FocusManager methods. The core's final native Wayland-thread
+SIGSEGV does not establish a PDF encoder fault.
+
+IconMenu now uses the host FocusManager; text prompts register their input in
+its layout and retain their Back/page bindings. Panels+ and KOReader are unchanged.
+A regression loads actual host InputText/FocusManager code, reproduces the exact
+failure before this correction, and passes **7 checks** afterward. Existing target
+view/dialog **1462**, reader **236**, surface **49**, export **42**, and patched
+compatibility **34** checks pass. Original stable/rolling fallback checks pass
+**5 each**. Rendering, keyboard display and event delivery remain adapted in the
+new test; live validation is still required.
+
+Retained `prompt-focus.patch`, SHA-256
+`906b4e8c568235a3bd6d88de8742005d3daccaa2df1401a8bd64d84d80ed28f3`, applies
+after the export patch. Current installation: `build.jOs0emGa`; previous build
+backed up at `~/.config/koreader/.panelsplus-plugin-backups/ink-away.OJO4z7UN/`.
+Installed-file and 285 payload checksums verified. Restart KOReader, tap the
+export filename field, then submit to validate the full live path.
+
+## 2026-11-01 — 09: Crop-aware transition backgrounds and ink — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `08b17741455d650a3528cd277fb149a496373f85` plus crop masking; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus navigation/export/focus patches, unchanged for this source fix.
+
+### Investigation, tests and outcome by step
+
+1. Reproduced **2 independent integration failures**: unrelated ink clip coverage and neighboring source-row pixels; No crop was the passing control.
+2. Used real selected target modules and source animation/compositor calls with raster/UI fixtures. Final runbook **A** passed **5 / 5 / 38**, including an open annotator and both motion paths.
+3. Source focused tests passed **30**, full general suite **541**, including disjoint overlap coverage and allocation-failure cleanup. A global formatter touched references during an attempted default check; those incidental edits were restored and reference cleanliness verified. Target was not rebuilt.
+
+### Recorded implementation and notes
+
+Panels+-only correction: Tight/Loose/Margin transitions now retain only the
+source and destination crops, for both background pixels and annotation clips.
+Previously the rectangular union exposed neighboring source-row panels, while
+ink used the entire synthetic canvas as its clip. No crop keeps surrounding
+page/ink context as requested. Disjoint clip regions avoid double-compositing
+ink where Loose crops overlap; allocation estimates include the owned mask.
+
+Both failures were reproduced before the correction. Final modified-target
+integration checks pass **38**, original stable/rolling fallback checks **5 each**;
+source regression tests pass **541**, including **30** focused transition/viewport
+checks. Coverage includes eased and Classic motion, cropped modes, an open
+annotator, gutters/unrelated rows, overlap and mask-allocation failure. Rendering
+and host UI remain fixtures; live verification requires restarting KOReader.
+The target implementation and installation (`build.jOs0emGa`) are unchanged.
+
+## 2026-11-01 — 10: Opaque toolbar during live transitions — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source runtime unchanged at `8d44bd7c9ee7c1ae5fed63a32323e5b22e22074f`; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus navigation/export/focus/toolbar patches; native KOReader **v2026.07.1**, Linux x86_64.
+
+### Investigation, tests and outcome by step
+
+1. Native toolbar pixel comparisons reproduced **48 failures in 112 checks**.
+2. Restored only the toolbar backing, then expanded the real-blitter/layout/theme checks to **160 passed** across four sides, light/dark, grayscale/color, changing frames, hidden bars and stale canvas geometry. Widget/icon/input details were adapted; actual SVG/device refresh was not established by this test.
+3. Target reader/surface **236 / 49** and runbook **A** **5 / 5 / 38** passed. Source general tests were not repeated for this target-only runtime change. Installed `build.rgY5ggSs`, now superseded.
+
+### Recorded implementation and notes
+
+Target-only follow-up: the asynchronous live-page paint path now clears the
+visible toolbar's full rectangle before drawing its transparent button cells,
+icons, tool marks and dark-theme inversion. Previously page pixels showed
+through between icons because this path skipped the normal opaque backing.
+Only the toolbar rectangle is restored, so an old canvas clip cannot obscure
+moving content. Hidden toolbars do not paint a backing. Panels+ runtime and the
+generic surface contract are unchanged.
+
+The original code failed 48 native toolbar-pixel comparisons; the expanded final
+suite passes **160** checks across all four sides, light/dark, grayscale/color,
+changing frames, hidden bars and stale canvas geometry. Uses the actual C blitter
+and ReaderInkView layout/paint/theme, with host widgets/provider/input fixtures.
+Reader **236**, generic-surface **49**, patched compatibility **38** checks pass;
+original stable and rolling fallback suites pass **5 each**.
+
+Retained `surface-toolbar.patch`, SHA-256
+`f1e68065380059eb79d1ec1d728f55bf9dafe8367fcd30e9366a0aca466f85cf`, follows
+the navigation/export/focus patches. The full retained stack reconstructs the
+current worktree. Installed build: `build.rgY5ggSs`; previous copy backed up at
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.iwo1EpnM/`.
+All 285 installed payload checksums match. Restart KOReader for live validation.
+
+
+Notes: (by KristanLaimon)
+Ink Away uses a special paint path during Smooth transitions: it draws the moving page, then draws its toolbar on top.
+
+The toolbar’s button cells are intentionally transparent. Normal editor rendering paints an opaque background behind them, but the transition path skipped that step. That let the moving page show through between the icons.
+
+The fix belongs in Ink Away because it owns the toolbar and that paint path. Panels+ supplies the moving page and its coordinates; it shouldn’t need to know the toolbar’s size, position, visibility or theme.
+
+Ink Away now paints the toolbar’s background before its buttons and icons. The fix works for any viewer using the generic surface interface—there’s no Panels+ identification in it.
+
+## 2026-11-01 — 11: Default fit beside annotator toolbar — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `b682d9ac83be0fee2fd939d1def6051d34a464df` plus uncommitted fit-viewport changes; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus navigation/export/focus/toolbar/viewport patches; native KOReader **v2026.07.1**.
+
+### Investigation, tests and outcome by step
+
+1. Added source viewport/settings tests and a generic-provider target test that rejects clip access before a fresh snapshot. The test caught a provider-preference refresh ordering problem during implementation; fixed before deployment.
+2. Source full **546**, focused viewport/settings **41**, focused navigation/viewport **31**, target viewport **38**, reader **236**, surface **49**, native toolbar **160** passed. Runbook **A** passed **5 / 5 / 41**.
+3. These animation integration tests supplied widget dimensions via fixtures and missed replacement of a real unpainted ImageWidget after handoff. Installed `build.7eiLxb4a`; the user subsequently reported the crash described in the next entry. Do not treat that build as the current fixed installation.
+
+### Recorded implementation and notes
+
+Panels+ now defaults to fitting panels into the space beside the annotator's
+visible toolbar. More Config → Ink-away Settings… → **Panel viewport** cycles
+**Fit beside toolbar** / **Full viewport**. The first follows left/right/top/bottom
+placement and collapse; the second keeps the previous overlay framing. Closing
+the annotator restores ordinary panel layout. Source controls and the annotator
+viewport are intersected so overlapping bottom bars are not subtracted twice.
+
+Ink Away's optional generic `setViewport(rect, refresh)` report supplies free
+screen space; Panels+ owns fit/centering and Smooth camera geometry. No target
+plugin identity or panel-specific behavior is added. Edits are anchored before
+reflow; snapshot primes new widget bounds before clip lookup; editable operations
+are then reloaded. Provider-side preference changes use the same transaction.
+Saved native coordinates and untouched items are retained; local canvas editing
+history is replaced when reloaded, as on a page load.
+
+The `surface-viewport.patch`, SHA-256
+`024dd32bebb363fa72055a0d704f46ee5f5eb0aba40ed247fb740d9de85bd92e`, follows
+the navigation/export/focus/toolbar patches. The full stack reconstructs current
+target source and tests. Stable/original rolling references remain unchanged.
+
+Source regressions **546**, patched integration **41**, original stable/rolling
+fallback **5 each** pass. Target generic viewport **38**, reader **236**, existing
+surface **49**, native toolbar pixel **160** checks pass. Source integration
+covers all edges, eased/Classic motion, No crop/margins, setting cycles while
+open and page crossings. Host widgets/rasterization remain fixtures; physical
+reader behavior requires live validation.
+
+Installed artifact: `build.7eiLxb4a`. Previous copy:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.YON9nsjt/`.
+Installed viewport code and 285 payload checksums verified. Restart KOReader.
+
+## 2026-11-01 — 12: Prime replacement widgets before reading their clip — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ **1.5.1 development**, source base `b682d9ac83be0fee2fd939d1def6051d34a464df` plus the same pending viewport changes; Ink Away **4.4.0 patched rolling**, `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus the complete patch chain through `surface-viewport-reload.patch`; native KOReader **v2026.07.1**, Linux x86_64.
+
+### Investigation, tests and outcome by step
+
+1. Inspected the 08:07:29 PST core: final native cursor-thread fault during exit, with no retained Lua traceback. Reproduced independently with real host widgets.
+2. Runbook **C** against the exact old artifact `build.7eiLxb4a` failed on the first completed arrow turn at `_annotationsurface.lua:198` (`d` is nil). The same test against corrected target source passed **32 cases / 800 checks**, including **128 real arrow callbacks**. It uses real UI/layout/blitter code; document pixels and timer delivery are fixtures.
+3. Target portable viewport **42**, reader **236**, generic surface **49** and runbook **A** **5 / 5 / 41** passed. Source general **546** was carried forward from the preceding source change, not rerun for this target-only correction.
+4. Installed `build.1nDooCiZ`, verified all **285** payload hashes and the changed runtime file. Latest live confirmation is still pending.
+
+### Recorded implementation and notes
+
+The reported Fit beside toolbar crash was reproduced with real KOReader widgets:
+a completed turn creates a fresh ImageWidget whose `.dimen` is still nil. Ink
+Away's pre-snapshot placement queried its clip because the toolbar rectangle
+had not changed. `loadBookPage` now always marks that preliminary phase pending,
+paints the snapshot, then reads the landed widget's clip. This is a target-only
+reload-order correction; the original viewport feature source remains intact.
+
+The exact old artifact `build.7eiLxb4a` fails in this native reproduction at
+`_annotationsurface.lua:198`; fixed code passes **32 cases / 800 checks**, covering
+128 real arrow callbacks across four toolbar sides, Comic/Manga, eased/Classic
+and Tight/Margin. The target portable viewport test adds the unchanged-rectangle
+widget replacement and passes **42** checks; reader **236**, surface **49**, patched
+integration **41**, original stable/rolling fallback **5 each** pass.
+
+For layout/navigation changes, run the real-widget regression from a KOReader
+runtime, with an existing isolated scratch home and library folder:
+
+```
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/inkaway-native-viewport ./luajit \
+  SOURCE/tests/plugin-compatibility/shared/inkaway_native_viewport.lua SOURCE TARGET
+```
+
+`SOURCE` is the Panels+ root; `TARGET` is the exact modified Ink Away source or
+built artifact. The script uses real KOReader UI/layout/painting; document pixels
+and timer delivery are fixtures. It does not test physical input/refresh behavior.
+
+Retained `surface-viewport-reload.patch`, SHA-256
+`2e2f3d1f21782d5edecd6647afbc5791f437b77e0438816e1d3ca4166c0a80c3`, follows
+the viewport patch. Current installed artifact: `build.1nDooCiZ`; backup:
+`~/.config/koreader/.panelsplus-plugin-backups/ink-away.0MgfotSR/`.
+Installed reload code and 285 payload checksums verified. Restart for live testing.
+
+Notes: (KristanLaimon)
+Reproduced and fixed. Ink Away was reading the new panel widget’s clip before its first paint. It now paints the snapshot before reading the clip.
+
+Installed the corrected build. Passed 800 real KOReader widget checks, including 128 arrow turns across all toolbar positions and Manga/Comic flow.
+
+Restart KOReader and try < / > again
+
+## 2026-11-01 — 13: Durable workflow history standard — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Documentation-only change over Panels+ **1.5.1
+development**, final observed HEAD `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd`
+(the source viewport implementation is now committed); Ink Away **4.4.0 patched rolling**, HEAD
+`d87e2b097d6345085f9aa3ea0412bef23775ce10` plus the seven retained patches.
+This task changed no runtime version, source code, installation or Git staging.
+The source commit observed during the task is recorded above; historical entry
+versions and test executions retain their original bases.
+
+The user requested this backlog as the standard for every cross-plugin task,
+with versions and test evidence at each step so a new AI session can resume
+from the file alone. The old per-feature backlog became `history-changes.md`.
+The cross-plugin skill now requires creation/maintenance of the per-plugin
+history, reading it when resuming, updating evidence during work and leaving
+a current-state handoff before ending. Its supporting reference defines the
+narrative style, per-entry fields and evidence boundaries.
+
+### Investigation, tests and outcome by step
+
+1. Read the original backlog, relationship evidence and actual metadata/repository
+   state. Migrated **12 existing milestones**, preserving all **323 original
+   non-heading, nonblank lines**, including KristanLaimon's notes. Added version
+   provenance and step-level evidence from the existing records; unavailable
+   historical facts are explicitly marked. Added current state, patch hashes,
+   test commands, installation/backup and remaining live checks at the top.
+2. Renamed the backlog, updated its two relationship links, and added discovery
+   from `releases.md`. The target's generic API document
+   `docs/annotation-surfaces.md` and retained runtime patches keep their names.
+3. The bundled skill-creator checker could not run because its Python dependency
+   PyYAML is not installed. Direct validation passed for this skill's simple
+   two-scalar frontmatter, local Markdown links, code fences, every chronological
+   entry's version/provenance/test fields, original-prose preservation, all seven
+   patch hashes and unchanged Git staging. `git diff --check` passed. No runtime
+   suite was rerun for this documentation-only work; runtime evidence remains
+   dated in the preceding entries.
+4. Applied the prepared rule and style reference to
+   `.agents/skills/panelsplus-crossplugin-dev/`; the installed skill passed the
+   same direct checks. Next session: read Current state, verify actual working
+   copies/provenance, then continue the user's task. The last runtime fix still
+   awaits live confirmation; this documentation task does not establish it.
+5. Refreshed repository identities before handoff: source HEAD is now
+   `22ef1e3e62f6c53d2fc1ca49b76798db38fcbefd`, with the viewport implementation
+   committed. The target remains dirty over `d87e2b097d6345085f9aa3ea0412bef23775ce10`.
+   This is an observed state update, not a commit made by this documentation task
+   or a fresh runtime test result.
+
+
+
+## 2026-11-02 — 14: Explicit extension boundary — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`,
+branch `feat/ink-away-compatibility`; Ink Away worktree HEAD
+`d87e2b097d6345085f9aa3ea0412bef23775ce10`, branch `feature/annotation-surfaces`,
+with the existing seven-patch stack (staged before this task). Original stable
+4.4.0 and rolling `8dda5407e05446dddb20ba5d6fbac263955d0db3` remain immutable.
+Host reference remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`.
+
+User authorized refactoring both working copies while preserving behavior and
+consolidating only the target worktree's docs into FEATURES.md, Arquitecture.md
+and Plugin-integration.md. Preserve unrelated export/focus fixes. No installation
+or publication requested.
+
+### Investigation, tests and outcome by step
+
+1. Read-only review found a generic surface contract, but native behavior remained
+   inline and lifecycle/provider registration were not public abstractions.
+2. Before edits, created and reapplied one backup in each repository. Ink Away
+   stash `12e139c5ef9e34d8bd9b23399f0ef31643776f9c` restored with `--index`.
+   Panels+ was clean; normal stash reported no changes, so recorded its exact
+   clean HEAD/index trees as stash `a039b65dd0fa791cc94234b1b01f1e4e21d23530`
+   and applied it once. Both stash entries are retained. Initial sandbox attempts
+   could not write Git metadata; approved escalation completed the backups.
+3. Extracted the existing native placement/pages/layout implementation into a
+   default viewer adapter. External providers implement the same internal
+   viewer contract. Added widget-owned public registration with duplicate-owner
+   rejection, visibility selection, lifecycle listeners and isolated callbacks.
+   Panels+ registers once and unregisters on close; version-1 discovery remains
+   available to existing consumers. Editor navigation now uses one callback path.
+4. Initial stable-first/original-rolling checks passed **5 / 5**. Existing patched
+   integration passed **41**, then **42** with explicit registered-provider
+   selection and actual Panels+ close/unregister coverage. Initial native widget
+   regression passed **32 cases / 800 checks**. New public API test passed **25**.
+   First storage regression failed because its fixtures bypassed Book.new and
+   injected the old private _doc field; updated those fixtures to construct Book
+   normally and inject the native adapter's placement fixture. Storage **133**
+   then passed. New facade test initially lacked the host Dispatcher module;
+   added an explicit dispatcher fixture (dispatch itself is not exercised).
+   Two early test invocations used the wrong cwd; no dependent files changed
+   in those failed commands. Expanded tests and final native checks in progress.
+5. Consolidated only the target docs directory into unchanged FEATURES.md,
+   Arquitecture.md and Plugin-integration.md. Removed the five added feature/fix
+   documents; consumer contract/viewport details were consolidated, while testing
+   commands moved into tests/README.md. Existing detailed investigation/export
+   evidence remains in this history and the retained historical patches/backups.
+   Existing installed build `build.1nDooCiZ` is unchanged. No live result yet.
+
+6. Final automated results from the source root, runbook A: original stable
+   **5**, original rolling **5**, patched worktree **42**. Full source
+   `./run-tests.sh --quicker`: **546**, Go OCR checks passed; Python tests skipped
+   because that environment is not synced. Target cwd portable commands in B:
+   reader **236**, storage **133**, generic surface **49**, viewport **43**,
+   public integration API **30**, book export **42**, annots **21**, view **1462**
+   passed. The final API checks include failed construction/show without fake
+   events, duplicate owners, independent listeners, selection without discovery,
+   late callbacks, wrong-document handoff and stale-editor ownership. The core
+   and new API/editor use real selected modules; UI/document rendering is mocked.
+7. Runbook C on installed KOReader **v2026.07.1**, Linux x86_64:
+   `KO_HOME=/tmp/inkaway-refactor-native` plus dummy SDL variables, real-widget
+   regression **32 cases / 800 checks** passed. It now registers the actual
+   target facade on the reader UI, exercising explicit provider registration
+   through real Panels+ widgets. Real blitter toolbar **160** and native focus
+   **7** passed. Physical input/refresh and real user comics remain unverified;
+   this task did not repeat native export/large-archive measurements.
+8. Source targeted StyLua and Luacheck **3 files**, target Luacheck **11 files**
+   and both whitespace checks passed. Original stable/rolling reference content
+   and pointers remain unchanged. FEATURES.md and all unrelated export/focus
+   runtime files are byte-identical to the pre-refactor stash. Target formatting
+   retains its existing upstream style; no global formatter ran over references.
+9. Retained patch 8, SHA-256
+   `6238cffd35f77e51be8f55e1f93f3a1f408a1bc318f7f252ceff9e08bb0d63d2`,
+   is the exact delta after the old seven-patch stack. An initial reconstruction
+   using `git archive` omitted tests due to upstream export-ignore attributes;
+   its apply check failed on missing test files, without changing either source.
+   Reconstructing from Git blobs succeeded. All **eight** patches also apply in
+   order to a scratch copy of original rolling source, and reconstruct every
+   tracked/new current target file, including doc deletions. Scratch validation
+   path: `/tmp/inkaway-extension-stack-temk9zmh/`. Do not reapply to the current
+   worktree, which already contains the entire stack.
+10. Final state: backups retained; source edits unstaged; pre-existing target
+    staging preserved with new refactor edits unstaged/untracked. No metadata
+    version bump, commit, push, build or installation. Existing installed build
+    remains `build.1nDooCiZ`. Next review entry 14 and the target's
+    `docs/Arquitecture.md` / `docs/Plugin-integration.md`; after an authorized
+    installation run the existing live checklist. Do not interpret automated
+    test success as physical-reader confirmation.
+
+
+## 2026-11-02 — 15: Architecture diagram — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Same source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`
+and target worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor. User requested an ASCII diagram in the target's `docs/Arquitecture.md`.
+Documentation-only follow-up; existing runtime, staging and installation remain
+unchanged. Added a consumer/public/private diagram showing registration, lifecycle events
+and both viewer adapters. Corrected one initial box-width mismatch; verified
+ASCII-only content, aligned boxes and closed Markdown fences. No runtime tests
+rerun for this documentation-only edit. This follow-up is not included in retained
+patch 8; apply it separately when reproducing the current documentation. The
+runtime patch stack remains unchanged.
+
+
+Entry 15 refinement: at the user's request, replaced the stacked overview with
+a wide side-by-side ASCII diagram. It shows a **generic plugin** outside the
+Ink Away PR scope, its private internals, event subscription/data arrows, viewer
+registration/unregister arrows, and adjacent public API/private core areas with
+the two adaptation scopes. Method names and return semantics match the actual
+API; the diagram does not claim published PRs or generic-consumer test evidence.
+Checked ASCII content, consumer naming, layout bounds and Markdown fences.
+Documentation-only; no runtime tests, staging, build or installation changes.
+
+
+## 2026-11-02 — 16: Consumer API reference — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+target worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor and subsequent documentation edits. User requested REST-reference-style
+documentation for the in-process Lua API: hookup example first, initialization
+timing, all public methods, parameters, results, errors and edge cases.
+
+Read the actual facade, registry, model/editor lifecycle and surface adapters
+before writing. Recommended consumer timing is after obtaining the loaded
+instance and before opening annotation; pre-init registration is supported but
+not required. Rewrote the target reference with a beginning-to-end hookup example, recommended
+initialization order, version/method index, parameter/result/error tables for
+all six documented instance methods (including the existing annotate action),
+and required/optional surface methods. Added a complete affine surface example,
+asynchronous navigation/reflow examples, selection/cleanup edge cases and
+persistence limits. Method names and actual return/error behavior were checked
+against the current source; no HTTP endpoints or invented status codes added.
+
+Verified all **16 Lua snippets compile**, every local link/heading anchor and
+Markdown code fences. Executed the documented hookup and minimal surface in a
+scratch harness: coordinate round-trip, callback hookup, release/unregister/
+unsubscribe ordering, repeated disposal and unavailable/wrong-document guards
+passed. The harness initially loaded its logger fixture after importing the
+example; moved that fixture before import, with no example change required.
+This uses a facade/logger fixture and is documentation-example evidence only,
+not a new plugin compatibility or physical-reader result. Existing runtime
+suites were not rerun for this documentation-only edit. Whitespace checks pass.
+
+No code, staging, build or installation changed. Like entry 15, this documentation
+follow-up is outside retained patch 8. The runtime patch stack and installation
+remain unchanged.
+
+
+## 2026-11-02 — 17: Loading-order handshake — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`,
+Ink Away worktree HEAD `d87e2b097d6345085f9aa3ea0412bef23775ce10` plus entry 14's
+refactor and entries 15–16's documentation. User authorized the readiness-instance
+handshake, per-widget pending configuration queue and composite integration
+installation/cleanup, including both loading orders. Original pins are unchanged.
+
+KOReader's actual ReaderUI creates each plugin instance before registerModule
+publishes its directory-name UI key. Therefore deferred callbacks must receive
+the ready Ink Away instance directly, rather than looking up that key during init.
+Preserve existing staged user work (including newly staged documentation and
+.foxnvim/pins.json); index snapshots and pre-edit target files are saved under
+`/tmp/inkaway-loading-order-baseline/`. No additional stash was requested or made.
+Implementation and validation completed in the canonical rolling source after
+entry 18 migration; see entry 20 for final results. No installation/publication
+was authorized.
+
+
+## 2026-11-02 — 18: Move active changes to rolling checkout — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+new active target HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch `main`,
+at `references-repos/plugins/ink-away/rolling.koplugin/`. Frozen backup HEAD
+`d87e2b097d6345085f9aa3ea0412bef23775ce10`, branch `feature/annotation-surfaces`,
+in `.cache/plugin-compatibility/worktrees/ink-away-annotation-surfaces/`.
+
+User explicitly rejected further worktree/patch maintenance and authorized direct
+rolling-checkout edits. This overrides the generic skill's immutable-rolling rule
+for Ink Away. Preserve the old worktree as a backup; no further source changes
+or builds there. Stable release snapshots remain read-only.
+
+1. Verified the rolling checkout was completely clean at the shared upstream
+   base. Transferred the entire current diff, including the committed original
+   surface feature, staged/unstaged changes and untracked loading-order test.
+   Included the user's `.foxnvim/pins.json` exactly as present in the source.
+   Used a transient `/tmp/inkaway-transfer-to-rolling.diff` solely to move bytes;
+   no new retained Git patch or worktree was created. Transfer SHA-256
+   `bb8fddb4cac5537b0b29c9e34d32f425b9590639da0d46f9c490789ad27559d2`.
+2. Compared **509 files**, executable modes and deletions against the backup.
+   All match. Both Git indexes remain unchanged, so original user staging stays
+   in the frozen backup and new rolling changes are unstaged. No commit, branch
+   switch, fetch, submodule-pointer change, build or installation. Frozen bytes
+   manifest: `/tmp/inkaway-backup-frozen-manifest.json`.
+3. Continue entry 17 in the active rolling checkout, including final docs/tests.
+   Default rolling compatibility now exercises modified source. Historical clean
+   rolling results remain historical evidence, not results for the changed tree.
+
+
+## 2026-11-02 — 19: Direct rolling workflow skill — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Same source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`. User clarified
+that no repository update should occur while current work is ongoing and asked
+to make the rolling/local-branch/no-commit rule permanent in the skill.
+
+1. Created local branch `feature/plugin-integration` at the existing target HEAD
+   with all current changes preserved. Git metadata required approved sandbox
+   escalation; no commit, checkout to another revision, fetch, pull, sync, merge,
+   rebase or push occurred. Future upstream integration needs an explicit request.
+2. Used skill-creator guidance to update the cross-plugin skill and its workflow
+   and history references. Target development always uses canonical rolling on a
+   local feature branch; default worktrees, new laboratory copies and retained
+   patch artifacts are removed. Existing backups remain intact. Builds/tests use
+   canonical rolling, stable pins remain immutable and local changes/staging must
+   be preserved. Branch creation does not authorize commits or remote updates.
+3. The bundled quick validator still cannot import PyYAML. Direct checks passed
+   for this skill's simple frontmatter, linked references and consistent ownership/
+   Git rules. No dependencies were installed. Existing user Git staging unchanged.
+
+## 2026-11-02 — 20: Handshake validation and handoff — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Source HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`
+on `feat/ink-away-compatibility`, uncommitted consumer/test/history changes. Active
+target HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3` on local branch
+`feature/plugin-integration`, uncommitted transferred/refactored source and the
+new handshake. Host reference `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; native
+runtime **v2026.07.1**, Linux x86_64. No metadata version bump.
+
+The ready instance is `ui.inkAwayIntegrationAPI`. Before readiness, consumers put
+independent `configure(ink)` requests in `ui.inkAwayPendingIntegrations[widget]`.
+Ink Away publishes only after its reader setup is usable, drains/cancels safely
+and isolates failures. Newly created composite installs are rolled back when a
+configuration throws. Reader shutdown unpublishes and disposes consumer state.
+`installPluginIntegration(widget, surface, options)` supplies one idempotent
+provider/scoped-listener cleanup. Repeated same-widget/surface configuration
+retains the original callbacks; a different surface requires prior cleanup.
+`cleanup(false)` supports outgoing navigation handoffs without closing the
+landing session. The low-level APIs and old discovery path stay compatible.
+
+Panels+ queues setup from its viewer lifecycle, accepts the ready instance before
+the directory key exists, removes pending setup when closed, and uses composite
+cleanup while preserving in-flight handoffs. The new docs quick start can be used
+in either order and cancels even when Ink Away never loads. Architecture and API
+method/state/return/error references reflect the implemented behavior.
+
+### Investigation, tests and outcome by step
+
+1. Target `luajit tests/loading_order.lua` loads real Ink Away init, Book, public
+   facade/registry/editor, with explicit host menu, pen/shelf, framebuffer/widget
+   fixtures. **47 checks passed**: both orders, missing directory-key publication,
+   multiple consumers, cancellation before/during drain, failed callback rollback,
+   failed init without readiness, shutdown during drain, duplicate setup, cleanup
+   and reinstallation. Against the pre-handshake modules saved in
+   `/tmp/inkaway-loading-order-baseline`, the same test fails at
+   `consumer-first: hookup completed`, establishing the missing behavior.
+2. An early source edit left a trailing fragment of its previous registration
+   lambda. Targeted StyLua and stable test loading caught the syntax error before
+   execution; fixed the edit boundary and reran successfully. Source lint later
+   caught a shadowed local pending variable; renamed it. No reference formatting
+   or runtime adjustment was used to suppress those checks.
+3. Stable-first compatibility command from runbook A: **5 passed**. Before the
+   migration, original clean rolling fallback **5** and modified-worktree **44**
+   passed. After migration, normal `rollingrelease` selection against canonical
+   rolling **44 passed**, including actual Panels+ setup without directory-key
+   lookup, both orders and cancellation on source close. These use real selected
+   target/source modules with host/document/raster fixtures; not full loader or
+   physical-reader evidence.
+4. Target cwd runbook B: loading order **47**, existing public API **30**, generic
+   surface **49**, viewport **43**, reader **236**, storage **133**, book export
+   **42**, annots **21** passed. Source `./run-tests.sh --quicker`: **546 passed**
+   and Go OCR passed; Python skipped because its environment is not synced.
+   Unrelated target view/native-export benchmarks were not repeated.
+5. Native runbook C selected the canonical rolling directory, with
+   `KO_HOME=/tmp/inkaway-loading-native` and dummy SDL drivers: **32 cases /
+   800 checks passed**, all toolbar sides, reading directions, eased/Classic
+   transitions and Tight/Margin crops. Actual KOReader layout/widgets/blitter and
+   both runtime modules execute; source bitmaps and timer delivery are synthetic.
+6. Source targeted StyLua/Luacheck and target handshake/facade/test Luacheck pass;
+   whitespace checks pass. All **17 API Lua examples compile**, internal links/
+   anchors/fences validate. Executed the documented hookup and affine surface
+   against actual Ink Away init/API in both orders, with the host fixtures from
+   the 47-check suite: no directory-name key required, cancellation works.
+7. No new retained patch, worktree, build or installation. Existing frozen backup
+   remains at its migration snapshot; original stash backups stay retained. Git
+   base and user staging are preserved. Next: review canonical rolling diffs and
+   the updated skill/docs. A build/install and eventual upstream rebase remain
+   separate explicit user actions; live input/refresh confirmation remains open.
+
+
+Final entry 20 audit: canonical HEAD remains `8dda5407e05446dddb20ba5d6fbac263955d0db3`,
+branch `feature/plugin-integration`; canonical index has no staged changes and
+the parent gitlink was not staged/updated. Frozen backup payload and its original
+index match the migration manifest exactly. Root-level unrelated staged additions
+(CODE_OF_CONDUCT.md, SECURITY.md) and README.nightly.md deletion appeared during
+the session; preserved as observed, without staging/resetting them. An initial
+audit comparing the entire root index to its earlier snapshot stopped on that
+concurrent staging difference; no source changes were rolled back. Final checks
+verify ownership/base/backup independently of those unrelated edits. Wide diagram
+alignment, documentation links/fences and both whitespace checks pass.
+
+
+## 2026-11-02 — 21: Remove obsolete integration patch archives — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, branch
+`feature/plugin-integration`. User explicitly authorized removing generated
+integration patch archives now that development uses canonical rolling diffs.
+
+Inventory found one such archive: Ink Away's eight `.patch` files. Their exact
+filenames/hashes are preserved in the historical change-identity table above,
+with original base commits, scope and test evidence in the dated entries. Kobo's
+nested stable/rolling `patches/` contain shipped Lua code included by the existing
+builder; those are plugin runtime inputs and remain unchanged. The frozen Ink
+Away worktree remains a backup.
+
+Removed all eight generated artifacts and the empty Ink Away `patches/` folder.
+Converted artifact links in this history and relationships.md to historical
+filename identifiers, preserving all eight hashes and original revision/test
+records. Updated the skill and history reference to keep provenance in the
+history instead of requiring patch archives; retained the frozen-worktree rule
+and distinguished shipped runtime patch code.
+
+Validation: no top-level plugin integration archives remain; all relevant
+Markdown file links and code fences resolve; all eight removed identities remain
+in the history; whitespace check passes. Compared pre/post Git HEADs/indexes and
+all tracked/new active target and frozen backup file hashes: unchanged. Kobo's
+three Lua runtime patch files remain in each stable/rolling location. No runtime
+suite rerun because only obsolete artifacts/docs/skill instructions changed.
+No staging, commit, remote update, source change, build or installation.
+
+
+## 2026-11-02 — 22: Separate mock consumer entry points — Panels+ 1.5.1 dev / Ink Away 4.4.0 patched rolling
+
+**Versions and provenance:** Panels+ HEAD `b648faf4ade09ea22b06716406ba2288a3389c0d`;
+active Ink Away HEAD/base `8dda5407e05446dddb20ba5d6fbac263955d0db3`, local branch
+`feature/plugin-integration`, existing uncommitted integration changes. User
+requested replacing the long opening Markdown helper with two separate examples
+beside the document: `main-connect-before.lua` and `main-connect-after.lua`.
+Both must be illustrative mocks of YourPlugin, not functional/installable
+plugins. Show coherent real API calls, event handling, painting, annotation
+opening and cleanup; link/explain both files from Plugin-integration.md.
+Added both illustrative files directly under the active target's `docs/`,
+using a mock `YourPlugin` table with clearly omitted viewer/surface rendering.
+The before-ready case queues a cancellable configure callback and uses composite
+installation/scoped callbacks. The after-ready case uses explicit registration,
+reader-wide event filtering and release/unregister/unsubscribe ordering. Both
+show annotation action, background-first saved-ink painting, status changes,
+error handling, repeated-setup guards and close lifecycle. No mock is loaded by
+Ink Away or added to a runtime/test runner.
+
+Replaced the opening inline helper with links, scenario comparison and lifecycle
+walkthroughs. Clarified that composite versus manual ownership is independent
+of loading order, and that the init arguments/methods are mock YourPlugin
+interfaces. Updated stale helper references elsewhere in the API reference.
+
+Validation: both Lua mock files and remaining inline snippets compile;
+Luacheck passes for both files with zero warnings. Markdown links, local anchors,
+code fences and whitespace checks pass; the old connectInkAway helper is gone.
+One initial edit command used the wrong cwd and changed nothing; corrected it,
+then addressed the unused mock arguments found by lint. No runtime suite rerun
+or functionality claim for these nonfunctional examples. Runtime sources,
+installation, staging and Git base remain unchanged; no commit/remote update.
+
+
+## 23 — 2026-11-02 — Consumer-role documentation mocks
+
+User requested event-only and rendering-consumer examples, each handling both
+loading orders. Source Panels+ 1.5.1 remains at b648faf4ade09ea22b06716406ba2288a3389c0d
+on feat/ink-away-compatibility; target Ink Away 4.4.0 modified rolling remains
+at 8dda5407e05446dddb20ba5d6fbac263955d0db3 on feature/plugin-integration,
+with the existing uncommitted diff. Stable and frozen backup are untouched.
+
+Replaced the two before/after docs mocks with main-event-only.lua and
+main-rendering-consumer.lua beside Plugin-integration.md. Event-only uses its
+plugin table as a readiness-queue key and subscribes/unsubscribes without viewer,
+surface, surface version check or surface release. Rendering keeps the viewer
+and surface injection with optional scoped callbacks. Both handle ready and
+queued paths, cancellation and disposal. Updated guide links, registration flow
+and queue terminology; consumer roles may coexist in one plugin. The runtime
+queue already accepts table keys, so no runtime change is needed.
+
+Validation: both Lua mocks compile with LuaJIT; Luacheck reports zero warnings/errors.
+Guide local file links, code fences and both repositories' diff whitespace checks
+pass. Runtime suites were not rerun for this documentation-only change.
+No runtime installation, staging, commits or remote updates.
+
+
+## 24 — 2026-11-02 — Direct configureInkAway consumer method
+
+User authorized replacing callback wrappers with consumer:configureInkAway(ink).
+Lua method names cannot contain hyphens; configureInkAway names the integration
+explicitly. Same source/target versions, branches and bases as entry 23; all
+changes remain uncommitted in Panels+ and canonical rolling Ink Away.
+Queue contract becomes pending[consumer] = true; publication invokes the method
+with consumer as self. Updated Panels+ and documentation mocks, retaining queue
+cancellation, initialization ordering, failure isolation and shutdown guards.
+Validation from canonical rolling: `luajit tests/loading_order.lua` passes 57
+checks (47 existing plus 10 event-only checks for both load orders, method self,
+no provider registration, native event payload and unsubscribe);
+`luajit tests/integration.lua` passes 30. These load actual Ink Away modules with
+host menus/shelf/pen/UI fixtures; event-only checks emit native-style lifecycle
+payloads through the actual registry rather than exercising physical input.
+From Panels+ root, stable-first `./run-tests.sh --compatibility-plugin=ink-away
+--compatibility-plugin-version=4.4.0` passes 5 fallback checks, followed by
+`rollingrelease` passing 44 integration checks, including actual Panels+ ready,
+deferred and cancellation paths. Target registry, both mocks and Panels+ viewer
+Luacheck pass with zero warnings/errors; both repositories' whitespace checks
+pass. No pre-change failure run or live/device validation claimed. No deployment,
+staging, commits or remote operations. This replaces the unpublished callback-valued
+queue contract; older queued callback values are rejected/logged. Installed build
+and frozen backup remain unchanged.
+
+
+## 25 — 2026-11-02 — Atomic Ink Away commits and fork branch push
+
+User explicitly authorized commits and push to
+`git@github.com:KristanLaimon/ink-away.koplugin-fork.git`, using another remote
+`kristanlaimonorigin` as default. This overrides the usual no-commit/no-push
+policy for the Ink Away task changes only. Panels+ remains uncommitted.
+Same metadata versions and host/test provenance as entry 24.
+
+Created four Conventional Commits, without co-author trailers:
+- 704353b: feat(integration): expose annotation events and injectable rendering views
+- d811eb8: fix(export): render fixed-page books at bounded native page dimensions
+- 917ff54: fix(ui): restore text prompt focus on devices with directional keys
+- b5b83b2: docs(integration): document consumer roles and the public extension API
+
+Each code commit includes its tests and only its runner registrations. All
+original modified/untracked file bytes were hashed before committing and verified
+unchanged afterward. Local editor .foxnvim/pins.json was excluded and remains
+untracked. No co-author trailers occur in the four commit messages.
+
+Added the fork remote, set remote.pushDefault and branch pushRemote to it, then
+`git push --set-upstream kristanlaimonorigin feature/plugin-integration` succeeded
+as a new branch. HEAD and upstream tracking ref both resolve to
+b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2. Existing origin still points to
+EmirErtorer upstream. No fetch/pull/rebase/merge, main branch change or force push.
+No source logic changed during commit preparation; entry 24 test evidence carries
+forward, not claimed as rerun. Git staged-whitespace checks passed for each commit.
+No installation. Frozen backup and retained stashes remain intact.
+
+
+## 26 — 2026-11-02 — Standalone Fumadocs documentation submodule
+
+User initially requested reusing their cloned WhatsBotCord documentation, then
+explicitly replaced that plan with removing all template code and using Fumadocs.
+Also requested integration guides and complete public API pages. Bun only, no
+npx/pnpm. No commits or push authorized for this documentation work.
+
+Renamed the clone to references-repos/plugins/ink-away/Ink-away-documentation,
+registered it as a submodule, absorbed its gitdir, removed the old origin, and
+added https://github.com/KristanLaimon/Ink-away-documentation.git. Registration
+staged only .gitmodules and the new gitlink as Git requires, without commits.
+The clone history is retained; all old site source/config/content was removed.
+Used official create-fumadocs-app via bunx with static Next.js/MDX, local search,
+no Git initialization; generated in /tmp and transferred into the submodule.
+An earlier npx scaffold request was aborted before execution; Bun did the work.
+
+Built 22 documentation articles from the canonical rolling public API text,
+including guides and complete Lua mocks for both consumer roles, all public
+methods with parameter/return/edge-case tables, surface contract and optional
+methods, errors, compatibility and architecture. Added a new Ink-away.koplugin
+landing page and Bun scripts. No WhatsBotCord runtime, chat playground, branding
+or deployment workflow is retained. The frozen Ink Away backup is untouched.
+Validation: `bun install` generated bun.lock using Bun 1.4.3. `bun run
+types:check` passes. Initial `bun run build` (Turbopack) failed because this
+environment blocks its local worker-port binding, including an escalated retry.
+Changed the build script to supported `next build --webpack`; `bun run build`
+then passed TypeScript, compilation and all 50 static route outputs (22 docs,
+Markdown endpoints, search, homepage and support routes). Webpack reported
+upstream dynamic-import cache-dependency warnings, with a successful exit.
+Parsed generated HTML to verify cross-page documentation anchors; source links,
+code fences, exported search and exact downloadable Lua bytes pass. Both site
+and parent diff whitespace checks pass. No browser/device claim.
+
+Standalone docs HEAD remains inherited template commit
+733a00240c3141e504f9f985e0c984b0907a4844 on main. All replacement source is
+uncommitted/deleted/new; no remotes were fetched or pushed. Runtime Ink Away
+remains at b5b83b2; Panels+ runtime changes are untouched. To resume:
+`cd references-repos/plugins/ink-away/Ink-away-documentation`, `bun run dev`.
+Production output is out/; no deployment or GitHub Pages settings were changed.
+
+
+## 27 — 2026-11-02 — Ink Away title artwork and green documentation theme
+
+User requested the upstream ink-away-title.svg as homepage title, with
+readme-divider.svg immediately underneath, and green documentation styling.
+Same standalone docs HEAD 733a00240c3141e504f9f985e0c984b0907a4844 and
+uncommitted replacement as entry 26. Downloaded both original SVGs unchanged
+from raw.githubusercontent.com/EmirErtorer/ink-away.koplugin/main/assets/
+into public/assets/. Recorded their origin links in that directory's README.
+ink-away-title.svg SHA-256 751f0568a314d4025aa30e70c13c5f52eca211ba9a015f5d6b281729005f118e
+readme-divider.svg SHA-256 8430ee9792ddd43f9108359287c7dd47577faaa3fc56a0c6b15129efe7f7720d
+
+Replaced the homepage text heading with responsive local SVG artwork and
+placed the decorative divider directly below it. Kept an accessible title
+label and intrinsic image dimensions. Switched the Fumadocs preset to emerald
+and customized primary colors to match Ink Away lime lettering, with forest
+backgrounds in dark mode and green accents in light mode. No new packages.
+First download attempt failed sandbox DNS; authorized escalation succeeded.
+Validation: `bun run build` passes compilation, TypeScript and all 50 static
+route outputs. Parsed SVGs successfully; exported assets match downloaded
+bytes exactly. Generated homepage places title then divider then introduction.
+Diff whitespace checks pass. No browser screenshot/visual-device claim.
+No commits, push or deployment.
+
+
+## 28 — 2026-11-02 — Restore homepage and publish atomic documentation commits
+
+User rejected a homepage redesign and requested restoring the previous page.
+Restored the original SVG title/divider layout, removed the added CSS module
+and hero artwork, and rebuilt successfully with Bun. The resulting production
+build passes compilation, TypeScript and all 50 static outputs; no rejected
+design files are committed.
+
+User then explicitly authorized atomic commits with no co-author trailers and
+push. Documentation repo only: created three Conventional Commits:
+- 0d8e78c chore(docs): replace legacy site with Fumadocs and Bun
+- 7c2a17e docs(api): add integration guides and the complete public API reference
+- 9df86c2 feat(home): add Ink Away title artwork and green documentation theme
+
+The first commit has a minimal coherent homepage/docs index; the second adds
+all guides/API content, and the third adds the final homepage/theme. Used staged
+blob versions without modifying working-file bytes; SHA-256 manifest confirms
+final working contents unchanged. All staged whitespace checks pass. Removed
+the obsolete README statement that the documentation was intentionally uncommitted.
+No co-author trailers occur in these commit messages.
+
+Remote branch check found no heads. HTTPS push initially failed because no
+interactive GitHub username could be read. Set only origin's push URL to
+git@github.com:KristanLaimon/Ink-away-documentation.git and pushed main using
+SSH; fetch URL remains the requested HTTPS URL. New branch push succeeded and
+main tracks origin/main. Both refs resolve to
+9df86c28ed4aa9acb6112877391a36a52feb5113. Documentation checkout is clean.
+Updated only the documentation gitlink in the parent index to this pushed HEAD;
+no parent commit or push. Preserve all other user staging. No runtime plugin
+changes, deployment, rebase, or force push.
+
+
+## 29 — 2026-11-02 — Entry-only crayon drawing animation
+
+User requested three crayons (two left, one right) drawing randomized paths
+on homepage entry while keeping the center clear. Documentation base remains
+9df86c28ed4aa9acb6112877391a36a52feb5113 on main; no runtime plugin changes.
+Added a small client component with original inline SVG crayons and scoped CSS.
+Random cubic paths are generated only after mount to avoid hydration mismatch.
+Each path and its moving crayon stay inside a bounded side rail; content has
+reserved spacing. requestAnimationFrame synchronizes the wax tip and line
+reveal, staggers the three drawings, then stops and lifts/fades the crayons.
+Finished marks remain. There are no scroll/repeat triggers. Cleanup cancels
+the frame and removes the media listener; reduced-motion preference suppresses
+this decorative animation. Rails scale on mobile. No animation dependency added.
+
+`bun run build` passes compilation, TypeScript and all 50 static outputs.
+Headless Chromium desktop/mobile screenshots inspected. Browser timing checks
+initially measured before hydration; corrected the verification wait. An initial
+bounds selector also included the CTA arrow SVG; restricted it to the three
+crayon SVGs. No production logic workaround was needed. Final browser checks pass:
+all three crayons draw, finish with zero remaining line offset, and remain
+stopped; mobile rails do not intersect the content or cause horizontal overflow;
+reduced motion runs no path animation. Both diff whitespace checks pass.
+Temporary localhost preview required permission after sandbox socket denial.
+No commits, push, or deployment requested for this addition.
+
+
+## 30 — 2026-11-02 — Larger crayons at outer viewport edges
+
+User clarified that the drawing crayons were too small and too near the center.
+Changed the homepage hero to span the available viewport rather than the narrow
+max-width content container. Kept the title/text centered in a reserved column,
+while guide cards retain their previous max-width container. Side rail widths
+now grow to 240px (previously 148px), with viewport-edge insets; mobile uses
+48–64px rails and protected content spacing. No change to timing, random path
+generation, one-shot behavior or reduced-motion handling. Same documentation
+base/main and uncommitted addition as entry 29.
+
+`bun run build` passes compilation, TypeScript and all 50 static route outputs.
+Headless Chromium verifies all three desktop rails lie within the outer
+viewport quarters, at 228px width for a 1440px viewport (previous cap 148px).
+Desktop screenshot inspected. Mobile rails remain outside the content, with
+no horizontal overflow. One-shot completion and reduced-motion checks pass.
+Diff whitespace check passes. No commits or push.
+
+
+## 31 — 2026-11-02 — Push crayons and simplify developer onboarding
+
+User explicitly requested commit/push of the animation, then a documentation
+rewrite for developers unfamiliar with Ink Away. Created c19a2a7
+feat(home): animate three crayons within the outer hero margins, without
+co-author trailers, and pushed main to the documentation origin successfully.
+This includes the size/placement adjustment from entry 30. No parent commit.
+
+For the subsequent rewrite, read Panels+ docs/INTRO.md, WORD-LOOKUP.md and
+EMBEDDED-IMAGES.md as writing references: define terms first, show concrete
+behavior, then explain relevant details. Replaced 22 documentation articles
+with 14: one introduction, two guided examples, seven public Ink Away methods
+and four public version/readiness fields. Surface callback contracts are
+kept with the rendering registration reference, not extra conceptual pages.
+Removed architecture, duplicate indexes, generic loading-order/conventions,
+standalone errors/persistence and surface essays; retained necessary rules on
+the corresponding method/field pages.
+
+Introduction defines Ink Away's user workflow and ui/ink/consumer/viewer/surface.
+Examples explain objects before code, handle both loading orders, show teardown
+and a complete minimal surface for a uniformly scaled fixed page. Renamed the
+downloadable mock setup method to connectInkAway to avoid implying that its
+arguments are a standard KOReader init signature. configureInkAway is unchanged.
+Home/nav now lead beginners to the introduction; API links go to its member
+index. Canonical runtime source and its existing docs are unchanged.
+
+Validation: `bun run build` passes compilation, TypeScript and all 34 static
+outputs (14 documentation articles, their Markdown exports and support routes).
+All 22 inline Lua snippets and both downloadable mocks compile with LuaJIT;
+Luacheck reports zero warnings/errors on both mocks. An initial lint command
+used the parent cwd and found no files; reran in the site directory successfully.
+Parsed exported HTML to verify every home/sidebar/article documentation link
+and local anchor, exactly 14 articles, removal of the architecture route, both
+native expandable surface-contract sections, and exact downloadable mock bytes.
+Both whitespace checks pass. Later small wording/expandable-reference changes
+triggered fresh final builds; no stale earlier build is used as final evidence.
+No new runtime plugin tests or device validation claimed for prose changes.
+The readability rewrite remains local and uncommitted after the separately
+requested animation push. No parent commit/push or runtime source modification.
+
+
+## 32 — 2026-11-02 — Explicit documentation index route
+
+User reported Next 16.4.2 Turbopack's missing-generateStaticParams-param error
+for the optional /docs/[[...slug]] page. Source's Fumadocs generator already
+includes index slugs as []; production /docs was present and warm dev requests
+succeeded. The existing dev log preserved the reported startup error. A second
+temporary dev server refused to start because the user's server owns the
+project lock; did not stop or modify that user process. Checked its existing
+localhost:3000 endpoints instead.
+
+Made /docs an explicit static app/docs/page.tsx. Named articles now use the
+required app/docs/[...slug]/page.tsx route, exclude empty slugs from generated
+params and set dynamicParams=false. Shared rendering/metadata moved into
+components/documentation-page.tsx so both paths display identical Fumadocs
+content. No disabling of static export, no dependency update, no new document
+articles. Same c19a2a7 base and local readability rewrite as entry 31.
+
+Validation: bun run build passes compilation, TypeScript and all 34 outputs;
+route summary now lists /docs separately and 13 named article paths. On the
+existing Turbopack dev server, /docs, an API article and both example guides
+return 200 without the missing-param error; an unknown article returns 404.
+Diff whitespace checks pass. The exact original cold-start failure was present
+in the user log but not reproducible after warm-up; this change removes the
+empty optional-catch-all case rather than claiming a dependency-level fix.
+No commits/push, no parent or runtime-plugin source changes.
+
+## 2026-11-07 — Rebase onto main-nightly — Panels+ 1.6.0 dev / Ink Away 4.4.0-derived rolling
+
+User requested baseline tests, rebasing `feat/ink-away-compatibility` onto
+`main-nightly`, conflict resolution and matching non-Ink Away results. Source
+base: `cbfe8825f287c00b0a313b5e98b05f6b6ffb240a`; original feature tip:
+`7a18a3325fb93a56298e6a21271a3d26c7df2e47`, retained in
+`backup/ink-away-before-main-nightly-rebase-20261107`. Only Panels+ is changed.
+Ink Away reference remains at `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`
+with its original staged `.foxnvim/pins.json`; KOReader source pin remains
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. Runtime/device version was not
+inspected; no build, installation or publication is authorized by this task.
+
+Baseline from project root: `UV_CACHE_DIR=/tmp/panelsplus-uv-cache
+./run-tests.sh --quick --strict` passes Python 101 (one skip), Go and all 13
+Lua/dataset jobs, including 588 unit checks (three skips). Explicit owned-file
+StyLua/Luacheck checks pass. Compatibility commands select Meguru and Kobo
+(all pins: 14 and 2 checks per pin) and Ink Away rolling (12 checks). The
+default check script formats reference trees; its formatting-only changes were
+verified against StyLua output of Git originals and undone before rebasing.
+
+Old reference-layout commits were superseded by main-nightly. Ink Away methods
+were merged into the split panelviewer/controller modules, retaining other
+plugin adapters and current rendering/resource fixes. The focused first run
+exposed two regressions: transition masks used white instead of the current
+night-mode background, and a page-less viewer stopped queuing optional Ink Away
+readiness. Both are corrected without changing their existing tests. Original
+Ink Away suites now pass stable fallback (5) and rolling integration (44),
+using actual target modules with fixture host rendering/storage. Review also
+retained the fixed-page-only registration guard: extracted reflow images never
+install a fixed-page surface. Optional API version checks and painting/release
+error containment remain covered.
+
+Final validation from the project root on 2026-11-07:
+
+- `UV_CACHE_DIR=/tmp/panelsplus-uv-cache ./run-tests.sh --quick --strict`:
+  Python 101 (one skip), Go and all **13 jobs pass**. After the final registration
+  guard, reran the same unit job with `tests/run_parallel.py`'s discovery/job
+  functions: **600 passed, zero failed, three skipped**, versus 588 before.
+- Compared passing-check names with the baseline: none removed or lost; all
+  **12 additional checks** concern Ink Away. All **26 dataset metric lines**
+  are identical, as are the skipped-check names. Dataset records, targets and
+  detection algorithms remain unchanged from main-nightly.
+- `./run-tests.sh --compatibility-plugin=ink-away`: **5 stable fallback** and
+  **44 rolling integration** checks pass. Meguru/Kobo commands above still pass
+  **14/2 per stable and rolling pin**.
+- Owned-file `stylua --check` and `luacheck`: **146 files**, no warnings/errors.
+  `bash tests/plugin_workflow_spec.sh`: **23 checks** pass.
+  `GOCACHE=/tmp/panelsplus-go-build-cache go test -tags ocr_native
+  ./tools/ocr_worker` passes. `git diff --check main-nightly` passes.
+
+The original target staged diff was compared byte-for-byte and preserved. The
+backup branch retains the original feature tip. Rebase conflict resolutions
+and this validation are committed locally; no push, build or install was
+performed. Physical reader/stylus validation was not rerun; prior device limits
+remain. Next action, if desired, is live KOReader validation of annotation
+navigation, toolbar fitting and night-mode transitions. Logs are retained under
+`/tmp/panelsplus-*` for this session.
+
+
+## 2026-11-07 — Smooth toolbar fit and Draw shortcut — Panels+ 1.6.0 dev / Ink Away 4.4.0-derived rolling
+
+User requests keeping Smooth transitions beside the open annotation toolbar and adding a conditional Draw (Ink-away) action immediately after Inverted. Panels+ owns both changes. The user explicitly requested avoiding reads of this large history; no historical content was read for this task.
+
+Source: Panels+ `d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4`, branch `feat/ink-away-compatibility`, initially clean except target submodule dirty marker. Target: canonical `rolling.koplugin/`, `b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2`, branch `feature/plugin-integration`; pre-existing staged `.foxnvim/pins.json` preserved. Stable v4_4_0 remains read-only. Host source `035e00b21d0286325ef2e8a7e3b6326f340e2ded`. Investigation underway; no build/install or commit requested. Live validation pending.
+
+### Investigation, implementation and validation
+
+1. User confirmed the symptom is **No crop**. Existing viewport sizing already excludes toolbar space. The mismatch is in the camera zoom: No crop first renders its clipped content and pads it to a screen-aspect canvas. Smooth fit the clipped content directly into the available rectangle; the stationary image instead uniformly fits the padded canvas. `src/panelviewer/animations.lua` now uses the same canvas fit for both camera endpoints. Cropped modes keep their prior formula. Existing cross-page animation already fits the actual landing tile and required no runtime change.
+2. Added **Draw (Ink-away)** after Inverted in the quick controls. `src/_quicktoolbar.lua` skips unavailable optional actions and sizes the row/rail by the actual control count. It reuses the existing pen icon. `controls.lua` exposes Draw only after a successful surface registration with a cleanup callback and an annotation action. The adapter rebuilds controls after registration so either readiness order works. Draw calls the target's existing `onInkAwayAnnotate`; tools/storage remain entirely owned by Ink Away. Absent, incompatible or failed registration hides the button. No target runtime changes.
+3. Unit regression with mocked bitmaps: before the fix, the final crop width was **49 instead of 53** in the left-toolbar No crop case (28 passed / 1 failed in `panelviewer_navtransition_spec.lua`). It now passes for eased and bounded Classic frames. An earlier test draft read a nonexistent fixture field and failed with nil; corrected the fixture to use `getWidth()`/`getHeight()` before evaluating the real mismatch. Button tests cover hidden-before-registration, failed registration, annotation dispatch and all eight tiles fitting the portrait row; existing seven-action behavior remains covered.
+4. Real-widget reproduction: extended `tests/compatibility_support/inkaway_native_viewport.lua` to include padded No crop panels at page edges, per-frame toolbar bounds, endpoint zoom, and opening through Draw. Initial native fixture needed KOReader's base document `_document:openPage`/`mod_time` fields; adding them fixed the fixture failure. The former tight/margin-only 32-case test passed before the fix but did not exercise padded No crop geometry. With the new geometry, loading the original HEAD animation module from `/tmp/panelsplus-before-animations.lua` fails case 3 (left / comic / ease / none): **Smooth lands at the stationary panel's toolbar-fit zoom**. The modified source passes **48 cases / 2592 checks**, including 192 physical-arrow callback turns. Real KOReader ImageViewer/ImageWidget/layout/blitter, Panels+, Ink Away Book/ReaderInkView and registry run; document pixels/native-page metadata and timer delivery remain fixtures. No physical stylus/device input was tested.
+
+Commands run from the Panels+ project root:
+
+```bash
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+./run-tests.sh --quicker
+```
+
+Results: stable original 4.4.0 **5 passed**, current modified rolling reference **44 passed** (now dispatching Draw through the real target action in both readiness orders), general Lua suite **579 passed**, Go OCR worker tests passed. Python was skipped by the runner because its uv environment is not synced. Dataset/benchmark suites were intentionally skipped for this viewer/UI change. Targeted StyLua, Luacheck (9 changed Lua files), and `git diff --check` passed.
+
+Native command, cwd `/usr/lib/koreader`, installed runtime **v2026.07.1**, Linux x86_64:
+
+```bash
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-inkaway-after ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+All task changes remain uncommitted in Panels+. Ink Away's staged `.foxnvim/pins.json` is untouched. No build, installation, backup, fetch or publication performed; no prior artifact identity was investigated. This Panels+ project is the live development plugin, so restart KOReader to load it. Next live check: No crop with Fit beside toolbar, all toolbar sides, eased/Classic movement, Draw opening the current panel, and absence of Draw when Ink Away is disabled. Live validation remains pending.
+
+
+## 2026-11-07 — Draw hidden with installed legacy surface API — Panels+ 1.6.0 dev / Ink Away 4.4.0-derived installed
+
+User reports the new Draw icon is missing. Actual installed `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin/` advertises document_surface_version=1 with paint/release/action methods, and `ink/reader/surface.lua` discovers Panels+ via getAnnotationSurface. It predates integration_api_version/installPluginIntegration and registerRenderingView. The initial Draw gate incorrectly required the newer registry's cleanup callback. Investigating a Panels+-only correction; no replacement of the installed plugin is needed. Source base remains d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4 on feat/ink-away-compatibility. Prior task changes are now staged by the user; preserve staging and add follow-up changes unstaged. Canonical target b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 and its staged pins.json remain untouched. Earlier history remains unread per user request.
+
+User clarified that KOReader should use the current rolling API and explicitly selected **Install current rolling Ink Away**. The exploratory legacy-support runtime/test changes were removed by restoring only those files to their already-staged task contents; no user staging was changed. Final runtime code is the original newer-API Draw implementation and No crop Smooth fix. The missing button was a deployment mismatch, not failure of the current registry API.
+
+The previously installed manifest identified a former frozen worktree build based on d87e2b097d6345085f9aa3ea0412bef23775ce10, with retained old patches. Its main.lua SHA256 was 99448e56d52da3d56a973a0fa1a6e41838e63ae15bf186d8b85e36a993f8074f. A temporary legacy-support experiment passed the portable unit and native checks but was discarded in favor of the user's requested current deployment.
+
+Executed from Panels+ root, with filesystem escalation for the external installation:
+
+```bash
+./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install
+```
+
+Built canonical rolling b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2, branch feature/plugin-integration; only staged .foxnvim/pins.json makes its source dirty. Artifact `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.uCHGAckH/ink-away.koplugin/` installed at `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin/`. Previous managed copy backed up at `/home/kristanlaimon/.config/koreader/.panelsplus-plugin-backups/ink-away.3nm5FqK3/`. All **288 payload checksums verified** with `sha256sum --quiet -c .panelsplus-deployment/SHA256SUMS`, cwd installed directory. Confirmed installed main.lua now has integration_api_version=1 and installPluginIntegration. Process lookup before installation was sandbox-limited; host process closure was not independently established. Restart KOReader before live testing to guarantee loaded modules match installed files.
+
+Validation: stable fallback 5 and rolling integration 44 pass. Final restored Panels+ plugin-support/control units: **20 passed**. Native command from the preceding entry, with KO_HOME=/tmp/panelsplus-installed-current and TARGET=/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin, verifies the **actual newly installed payload**: **48 cases / 2592 checks passed**, including Draw opening annotation, all toolbar sides, eased/Classic, No crop/Tight/Margin, and Comic/Manga. Output `/tmp/panelsplus-installed-current.log`. The prior full 579-unit result still applies to unchanged final runtime sources; it was not rerun solely for installation. No fetch, commit or push. Next: restart KOReader, open Panels+ controls, confirm the pen icon/Draw (Ink-away) after Inverted and live No crop toolbar fitting.
+
+
+## 2026-11-07 — Draw visibility with KOReader HandlerSandbox — Panels+ 1.6.0 dev / installed rolling Ink Away
+
+User still cannot see Draw and suspects an old duplicate. Read-only inspection finds exactly one active Ink Away folder across /usr/lib/koreader/plugins and the configured extra_plugin_paths (/home/kristanlaimon/.config/koreader/plugins/). It is the verified current build.uCHGAckH; the former copy is already outside plugin discovery in ink-away.3nm5FqK3. No deletion is appropriate. Host reader process was started at 07:12:49, after the update.
+
+Found an independent runtime gate bug: actual KOReader pluginloader.lua `_load` calls sandboxPluginEventHandlers, replacing onInkAwayAnnotate with a HandlerSandbox callable table. Panels+ tested type(handler)==function, hiding the button even with a successful modern registration. Earlier native tests directly loaded main.lua and missed this host wrapping. Correct the button gate and load the actual plugin through KOReader PluginLoader in the native regression. Versions/bases unchanged: Panels+ 1.6.0 d7b2f3408f8b4671e9afe2fd32f84d40e827b7e4, feat/ink-away-compatibility; target installed and canonical rolling 4.4.0-derived b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2, feature/plugin-integration. Existing staged task changes and target staged pins.json remain preserved; this follow-up is unstaged.
+
+Changed only the action-presence gate in `src/panelviewer/controls.lua`: a successfully registered provider and its callable onInkAwayAnnotate handler enable Draw, whether the handler is a plain function or KOReader's callable table. The callback still invokes the target-owned action. No target change, replacement or deletion.
+
+Failing-before evidence: native test now calls actual KOReader PluginLoader:_load on the installed Ink Away (rather than dofile), so sandboxPluginEventHandlers runs. The first scenario fails at **successful integration offers Draw**. With the gate fix, the same test passes **48 cases / 2592 checks** and invokes the sandbox-wrapped Draw callback to open annotation. Unit coverage now also models a callable-table action and verifies its dispatch. Existing presence/registration-failure coverage remains.
+
+Validation commands: `lua tests/run_tests.lua tests/plugin_support_spec.lua tests/panelviewer_controls_spec.lua` (**20 passed**); stable-first `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0` (**5 passed**), then rollingrelease (**44 passed**). Native command uses the earlier documented `/usr/lib/koreader` cwd/environment, KO_HOME=/tmp/panelsplus-loader-after and the actual installed target `/home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin`; output `/tmp/panelsplus-loader-after.log`. Targeted StyLua, Luacheck (3 changed Lua files) and whitespace checks pass. Previous full 579-unit run predates this one-condition correction; full suite not rerun because focused failure-before/pass-after checks and native loader coverage exercise the issue directly. Live physical UI remains unverified.
+
+No old active plugin was found to delete. Previous installed copy remains backed up outside `/plugins`. No new deployment, staging, commit or push; source fix and tests are unstaged alongside earlier user-staged work. Next action: fully restart KOReader to load the updated Panels+ action gate, then show controls and check Draw immediately after Inverted. The installation mismatch and this host-wrapper bug were separate causes; installation alone could not correct the wrapper gate.
+
+## 2026-11-07 — Typed viewer contract and reusable event delegates — Panels+ 1.6.0 / Ink Away 4.4.0-derived rolling
+
+Versions, branches, base revisions, preserved work, install and authorization are recorded in the current-state summary above. User reviewed the four PR commits and requested explicit LuaLS contracts, PR-scoped function documentation, reusable delegate subscription logic and removal of external.lua's redundant interface translation.
+
+Investigation: Panels+ `src/_annotationsurface.lua` implements the public pages/key/transform contract. The smallest compatible unification is to make Native use pages/key too and have Book consume surfaces directly; retain Ink Away's drawing conversion in surface.lua. Public surface version remains 1. No consumer changes or duplicate consumer-side ink conversion are needed. Stable fallback passed 5 checks before edits; no failing-before runtime result claimed.
+
+### Implementation and validation outcome
+
+1. Extracted ordered multicast subscriptions from integration.lua into delegate.lua, used by both opened/closed events. Kept per-listener payload isolation, callback error reporting, immediate unsubscribe, deferred new subscribers and disposal during dispatch. New delegate suite has 10 checks; expanded actual registry/editor integration suite has 36 (formerly 30), including direct viewer identity, optional navigation/direction defaults and disposal during emission. An initial standalone invocation from Panels+ root failed module lookup; running from the target source directory is required and passed. No failing-before functional regression is claimed.
+2. Removed external.lua by aligning Native with the already-public pages/key contract and selecting the surface directly in Book. Retained Ink Away's operation conversion in surface.lua. Defaults/cache identity/host repaint are explicit Book responsibilities. Added a nil-page guard before reverse mapping. No public contract rename, consumer modifications, stored-ink schema change, version bump or new dependency. Existing native highlight protection, synchronous/native turns and asynchronous surface handoff remain covered.
+3. Added LuaLS contracts for the viewer, coordinate map, external surface, internal placement document, drawing anchors, event payloads, registration/facade callbacks and export options/specification. Applied annotations only around the four-commit PR's runtime boundaries and its Lua examples; host-owned UI/FFI objects remain opaque. Existing placement fixtures now assert successful anchor creation before passing nonoptional items. Updated Plugin-integration.md/tests README; preserved author's architecture edits and PR observation files.
+4. Target checks (cwd `references-repos/plugins/ink-away/rolling.koplugin`): `luajit tests/delegate.lua` 10; `tests/integration.lua` 36; `tests/loading_order.lua` 57; `tests/annotation_surface.lua` 49; `tests/surface_viewport.lua` 43; `tests/readerview.lua` 236; `tests/bookink.lua` 133; `tests/bookexport.lua` 42; `tests/annots.lua` 21; `tests/view.lua` 1462. Each was run as `luajit <file>`. These load actual target modules with KOReader host fixtures. Focused Luacheck passed all 22 modified/new Lua runtime/example/test files. Scoped `git diff --check -- . ':!docs/Arquitecture.md' ':!.foxnvim/pins.json'` passes; pre-existing author Arquitecture.md EOF warning is excluded, not fixed.
+5. Panels+ root stable-first commands `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0`, then `--compatibility-plugin-version=rollingrelease`: 5 / 44 passed, repeated after runtime changes. Actual selected target code and actual Panels+ consumer are loaded with host geometry/UI fixtures; this includes both loading orders, disabled/absent API, folds, navigation and cleanup.
+6. Native command below passed 48 cases / 2592 checks using real KOReader widgets, loader, blitter and both plugins. Document pixels/metadata and timer delivery remain fixtures, not physical reader evidence. Full target suite, Panels+ full units/Go/Python, native PDF pixel tests and large-archive measurements were not rerun because no encoders, panel implementation or workers changed. No build/install/commit/staging/push occurred.
+
+```bash
+# cwd /usr/lib/koreader
+SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-typed-contract ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+### Static typing evidence and limits
+
+Initial LuaLS scan found 706 diagnostics. The first baseline assembled through git archive omitted export-ignored tests (156 files / 59 diagnostics), so it was **not a comparable baseline**. Completed a temporary analysis-only snapshot of all tracked HEAD Lua files with `git ls-tree`/`git show` under `/tmp/ink-types-before`; no worktree/branch or retained patch was created. Both full scans use the same parent `.luarc.json` and actual host/mock source inference. Baseline: 296 files / 653 diagnostics; final: 298 files / 631 diagnostics. Comparing diagnostic counts by relative file, diagnostic code and full message yields zero additions. Existing global host/mock warnings are not suppressed or claimed fixed. Intermediate annotation errors (generic delegate binding, nil anchor results, range conversion and factory error/result mixing) were corrected before this result.
+
+```bash
+# Panels+ root; baseline uses --check=/tmp/ink-types-before with the same config.
+lua-language-server --check=references-repos/plugins/ink-away/rolling.koplugin \
+  --check_format=json --check_out_path=/tmp/ink-types-complete-report \
+  --logpath=/tmp/ink-types-complete-log --metapath=/tmp/ink-types-complete-meta \
+  --configpath=/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/.luarc.json
+```
+
+Full static scans exit nonzero because existing diagnostics remain. A separate temporary workspace containing only contracts.lua, delegate.lua and tests/delegate.lua reports no problems. A negative fixture annotated an incomplete `{version=1, document={}}` as InkSurface and assigned event.document to a string: LuaLS reported exactly the missing required methods and assignment mismatch, proving the interfaces and generic payload are checked. Negative fixture is not committed or part of the runtime test suite. Temporary analysis reports are not durable artifacts; repeat the commands/snapshot if needed.
+
+Final source ownership, exact bases, dirty/staged state and installed artifact are in the current-state summary. Public surface version 1 remains compatible; new runtime behavior is uninstalled pending review and an explicit deployment request. Physical stylus/device validation remains pending.
+
+## 2026-11-07 — Rename the built-in viewer to KOReaderSurface
+
+User requested `KOReaderSurface.lua` instead of native.lua. Same Panels+ 1.6.0 and Ink Away 4.4.0-derived rolling bases/branches and existing uncommitted refactor as the preceding entry. Renamed the canonical target file, Lua implementation/class and Book require/type references; updated the active API documentation. The private `_native` Book field remains unchanged so callers/fixtures are unaffected. No behavior change, staging, commit or installation. Historical mentions of native.lua above describe the implementation at that point. Validation from canonical target cwd: `luajit tests/integration.lua` (36 checks), `luajit tests/readerview.lua` (236 checks), and `luacheck ink/reader/KOReaderSurface.lua ink/reader/book.lua` all pass. No remaining runtime requires or type references use the old name. Broader/native/static comparison results from the preceding refactor were not rerun for this rename.
+
+User-requested reader-suite rerun after the rename: `luajit tests/readerview.lua` from canonical rolling source passed **236 checks, 0 failures**, exit 0. Same bases/branches and uncommitted state as above. This is the reader suite with host mocks, not a full plugin/native/device run.
+
+Investigation-only clarification: Panels+ already supplies standalone KOReader/FFI mocks through `tests/helper.lua`, loaded by `tests/run_tests.lua`; cross-plugin geometry tests add target-specific fixtures in `tests/compatibility_support/inkaway_surface.lua`. No mock copying or runtime changes performed. Installed execution uses actual KOReader APIs; native viewport tests exercise real widgets/blitter with documented document/timer fixtures. This was source inspection, not a new test run. Same current bases/branches and dirty state as above.
+
+## 2026-11-07 — Atomic commits for the rolling refactor
+
+User explicitly authorized committing the existing Ink Away rolling diff, excluding editor config (.krsnvim/.foxnvim) and PR Markdown files. Target starts at b5b83b2f6b67f2503e1fb4dada92dffc2a60d1c2 on feature/plugin-integration; Panels+ remains ec6673472a57e1c9fd997fac2324aa0b1517cea3 on feat/ink-away-compatibility. All 26 allowed target files were already staged; exclusions are untracked. A temporary Git index preserves the original staging and working bytes while splitting event delegates, direct surfaces, type annotations and documentation. The author architecture introduction contains a URL placeholder and will be preserved separately. Initial sandbox blocked Git metadata index.lock; escalated preparation succeeded. The exact first event snapshot passes delegate 10, integration 32 and loading-order 57 plus Luacheck. Commit sequence in progress; no push/install requested.
+
+### Commit outcome and verification
+
+- `b99a43e349fa0c7f94e8704518acf53ff35e720e` — refactor(events): extract reusable multicast delegates
+- `2ec85a5a2351e162e4ade2714041848558fa7118` — refactor(integration): consume viewer surfaces directly
+- `153a4517e215a348f3b4dbae350098ae162186e9` — docs(types): annotate integration and export contracts
+- `392bc7fdbb2727cfc27443b2e91a0a3492407de1` — docs(integration): explain typed surfaces and delegate lifecycle
+- `9925fd954e30f832fd617c467d19b4ae8ce5195a` — docs(integration): revise the architecture guide introduction
+
+Used a temporary Git index, leaving the user's original staging intact. Before each behavioral commit, exported the exact proposed index to an analysis-only temporary snapshot and ran actual target modules with host mocks: events 10 delegate / 32 integration / 57 loading-order; direct surfaces 36 integration / 49 surface / 43 viewport / 236 reader / 133 book ink; types 10 delegate / 36 integration / 133 book ink / 42 export / 21 annots. Luacheck passed the event files and all 17 selected runtime/type/fixture files in the typing snapshot. Whitespace checks passed except the deliberately preserved architecture draft's known EOF warning. No new live/native/full static run claimed for this commit-only task.
+
+Verified the combined final tree equals the originally staged payload, every original working-file hash is unchanged and excluded files retain their original hashes. Target status now contains only the three excluded untracked entries (.foxnvim/, PR-observations.md, PR.md). Existing staged content was incorporated without resetting the original index; its tree now matches HEAD. No parent commits or remote operations. User review files and editor config remain available locally.
+
+
+## 2026-11-07 — Deploy pinned stable Ink Away 4.4.0
+
+User requested deploying the stable version to the parent plugins directory. Selected the immutable local `stable/v4_4_0/` pin, not the modified rolling source. Deployment plan targets `../ink-away.koplugin` using `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=stable --version=4.4.0 --install` from the Panels+ root. No running KOReader/LuaJIT process was found. Installation and checksum verification are pending; existing source changes remain untouched.
+
+Deployment completed successfully with the planned `--install` command (filesystem escalation required for the parent directory). Artifact `build.msp8BSpU`; destination `../ink-away.koplugin`; backup directory `ink-away.LDlMfV3D` is empty because no existing copy was found. Verified all 284 manifest checksums and exact payload equality with the stable pin using Python hashlib. No runtime or compatibility suites rerun for this deployment; live reader behavior remains pending. No source edits, commits, staging or upstream updates.
+
+
+## 2026-11-07 — Deploy canonical rolling after stable comparison
+
+User requested replacing the stable install with current local rolling. Canonical source is `rolling.koplugin/`, branch `feature/plugin-integration`, HEAD `356f40367a032fe5e2808abb8ff4aacb68e4674e`, metadata 4.4.0. Status contains staged `PR.md` and untracked `.foxnvim/`; preserve both. No running KOReader/LuaJIT process found. Plan targets `../ink-away.koplugin`; use `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --install` from Panels+ root. Build, replacement and verification pending. No upstream update requested.
+
+User explicitly directed no backup. Built with `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --build-only`, artifact `build.R1Rcoavc/ink-away.koplugin`. Since the install helper always backs up, used Python shutil to replace `../ink-away.koplugin` directly after verifying both source and existing installed payload against their manifests, plugin identity, and absence of a Git checkout/symlink at destination. Installed rolling payload verified: 289 checksums. No backup created. Parent-directory write required filesystem escalation. No runtime tests rerun for deployment; restart KOReader for live validation. Staged PR.md and untracked .foxnvim/ are excluded by the runtime build recipe and preserved in source. No commits, staging or upstream operations.
+
+
+## 2026-11-07 — Kindle Draw keeps the options-sized panel — investigation
+
+User reports opening Draw from visible Panels+ options hides the options but leaves the panel at their reduced size. Investigating Panels+ ownership first. Source Panels+ 1.6.0, ec6673472a57e1c9fd997fac2324aa0b1517cea3, feat/ink-away-compatibility; target canonical rolling Ink Away 4.4.0-derived 356f40367a032fe5e2808abb8ff4aacb68e4674e, feature/plugin-integration. Existing parent staged history/relationships/submodule pointer and target staged PR.md, modified ink/l10n/ink-away.pot, untracked editor/log files are preserved. Stable v4_4_0 is present and immutable; host reference 035e00b21d0286325ef2e8a7e3b6326f340e2ded. Kindle runtime version unknown. No build/install/commit/update requested. Investigation and stable-first tests pending.
+
+### Investigation and outcome
+
+The native regression previously always constructed Panels+ with `buttons_visible=false`, missing entry through its visible Draw tile. Changing the regression to start with visible controls and asserting controls/rail removal fails before the runtime correction at “Draw hides Panels+ options before editor layout”. Panels+ kept reserving options space in its layout while Ink Away painted its own editor over the snapshot. Fix belongs in Panels+ surface begin/finish, so it also applies to target-owned annotation actions, preserves controls on failed editor creation, and avoids any Ink Away source change. Unit coverage checks visible/hidden initial states, repeat begin during navigation, finish without a toolbar inset (including editor-init failure), and repeat finish without duplicate refreshes.
+
+From Panels+ root, stable-first commands before/after the runtime edit:
+
+```bash
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+lua tests/run_tests.lua tests/panelviewer_annotationviewport_spec.lua tests/panelviewer_controls_spec.lua tests/plugin_support_spec.lua tests/panelviewer_highlight_spec.lua
+stylua --check src/_annotationsurface.lua tests/panelviewer_annotationviewport_spec.lua tests/compatibility_support/inkaway_native_viewport.lua
+luacheck src/_annotationsurface.lua tests/panelviewer_annotationviewport_spec.lua tests/compatibility_support/inkaway_native_viewport.lua
+git diff --check
+```
+
+Stable 5 and rolling 44 passed after the fix (stable also passed before investigation). These load actual selected counterpart code with KOReader host fixtures, retaining absence, load-order and lifecycle coverage. Focused units 39 passed. All scoped style/lint/whitespace checks passed. No full-suite rerun: changed behavior is confined to annotation lifecycle and exercised directly.
+
+Native before/after command from `/usr/lib/koreader`, using separate isolated KO_HOME directories `/tmp/panelsplus-draw-options-before` and `/tmp/panelsplus-draw-options-after`:
+
+```bash
+env SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-draw-options-after ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+After fix: 48 cases / 2736 checks passed, all four toolbar sides, Comic/Manga, ease/Classic, Tight/Margin/No crop, navigation and close restoration. Real widgets, loader HandlerSandbox, bitmap blitter and plugin modules; synthetic document and manual timer delivery. Host source pin remains `035e00b21d0286325ef2e8a7e3b6326f340e2ded`; runtime uses the existing `/usr/lib/koreader` installation, whose exact version was not queried in this task. This is not physical Kindle/input/refresh evidence. No new builds/installations; the existing Downloads archives contain the earlier code. No target source changes. Finish handoff: only source/tests/history/index changes are uncommitted alongside preserved prior work; package Panels+ and validate the reported Kindle flow next.
+
+
+## 2026-11-07 — Kindle live brush square fades panel shading — investigation
+
+User reports a blank square around the moving brush over a Panels+ panel on Kindle; final ink is correct, desktop is unaffected. Investigating live waveform selection and background preservation. Source Panels+ 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3, feat/ink-away-compatibility, existing staged surface/options fix preserved. Target canonical Ink Away 4.4.0-derived rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e, feature/plugin-integration; staged PR.md, modified translation and untracked editor/log files preserved. Stable v4_4_0 immutable; host reference 035e00b21d0286325ef2e8a7e3b6326f340e2ded. Requested Kindle model and whether lift/full refresh restores shading; answer pending. No device pixel damage conclusion yet. Inspection finds pure black pen selects fast even over books, while KOReader Kindle DU flags force monochrome for the entire dirty rectangle. Target-owned correction may be required; stable-first verification pending.
+
+### Paperwhite investigation and regression
+
+User clarified Paperwhite 12th generation and fading persists after lifting their hand. Relevant source is target `InkAwayView:beginStroke`: pureBlackPen alone enabled fast, regardless of the book's grayscale background. Host `/usr/lib/koreader/ffi/framebuffer_mxcfb.lua` explicitly sets FORCE_MONOCHROME for Kindle DU refresh rectangles. Existing stroke finalization assumes black ink needs no settling refresh on ordinary grayscale devices, explaining persistent background fading as a source-supported hypothesis. Physical framebuffer contents and refresh recovery were not captured; no claim that saved artwork was erased.
+
+Small correction is target-owned and generic to reader_mode, not a special Panels+ hook. Exclude grayscale book drawing from the pure-black fast condition; keep desktop instantColour and colour/externally driven policies. All other live pen logic and eraser behavior remain unchanged. The new `tests/readerview.lua` regression supplies a gray book snapshot and exercises actual beginStroke plus refresh requests for grayscale e-ink, desktop, colour e-ink and driven Android fixtures. Before change: 241 checks, 2 failures (“grey e-ink book: live black ink uses ui” and “brush rectangle does not force shading to monochrome”). After: 241 checks, 0 failures. An initial test-edit command used an incorrect working-directory-relative path and made no changes; the original 236-check suite ran unchanged, then the path was corrected to create the regression.
+
+Stable-first checks, from Panels+ root: `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0` passed 5 before edits; repeated after edits, followed by `--compatibility-plugin-version=rollingrelease`, passed 5 / 44. Selected actual counterpart code with KOReader host fixtures; not physical refresh evidence. Target commands from canonical rolling cwd: `luajit tests/readerview.lua`, `luajit tests/view.lua`, `luacheck ink/view/stroke.lua tests/readerview.lua`, `git diff --check`. Reader suite passes 241. Remaining command outcomes recorded below. No new Panels+ changes for this symptom, no target install or archive rebuild; prior sizing changes remain staged. Native SDL layout test not rerun: it cannot model physical e-ink waveform conversion. Full suites and physical device measurements not performed; Kindle validation and any speed tradeoff remain pending.
+
+Final validation: canonical rolling `luajit tests/view.lua` passed **1462 checks, 0 failures**; `luacheck ink/view/stroke.lua tests/readerview.lua` passed with zero warnings/errors; target `git diff --check` passed. These retain notebook and existing pen/eraser regressions. No global formatter was applied to the target, preserving its established style. Final handoff unchanged: uncommitted target runtime/test correction; prior staged work preserved; no deployment. Kindle drawing speed and visual recovery remain the next live checks.
+
+
+## 2026-11-07 — Add image file picker hidden behind annotation editor
+
+User reports Add image → From this reader does nothing and requests checking other options. Investigating child-window stacking; Panels+ 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 feat/ink-away-compatibility; target rolling Ink Away 4.4.0-derived 356f40367a032fe5e2808abb8ff4aacb68e4674e feature/plugin-integration. Preserve existing staged options fix, target drawing fix/tests, PR.md, translation and untracked files. Stable v4_4_0 immutable. Host pin 035e00b21d0286325ef2e8a7e3b6326f340e2ded. No builds/deployment requested. Found modal annotation editor and nonmodal file/image/folder pickers; actual host stacks nonmodal windows below modal ones, unlike target UI mock. Stable-first and native reproduction pending.
+
+### Picker investigation and outcome
+
+Actual host UIManager:show sorts modal windows above nonmodal ones. Book annotation over Panels+ is modal; ThumbGrid and PathChooser children were not. Target UIManager mock blindly appended windows and missed that bug. Fix only caller modal inheritance in ink/view/dialogs.lua (shared file/folder and file-list browsers), images.lua (sent pictures), textformat.lua (font picker), settings.lua (pen/touch test). Nonmodal notebook behavior is retained. Other image-source sheets (online/receive) route through existing modal sheets; successful network retrieval/transfer was not tested.
+
+Extended tests/compatibility_support/inkaway_native_viewport.lua using actual host window stack, actual selected plugin loader and widgets. Before: fails “From this reader opens above the modal annotator”. Initial after-run reached file-list creation then failed on missing ReaderUI.instance.folder_shortcuts in the synthetic host fixture; actual PathChooser acquires the global ReaderUI instance. Added that fixture temporarily, restored afterward; no runtime workaround was appropriate. Final run checks local image picker, folder picker, sent-picture grid, file list, font picker and pen/touch test. All six open above and close back to the annotator. It also retains 48 navigation/layout scenarios; **2742 checks pass**. Documents/timers/folder-shortcut service are fixtures; real UIManager, widgets, blitter, loader and plugins execute. No physical Kindle, file-import end-to-end or Wi-Fi service result is claimed.
+
+Native command: from /usr/lib/koreader, `env SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy KO_HOME=/tmp/panelsplus-picker-complete ./luajit <Panels+>/tests/compatibility_support/inkaway_native_viewport.lua <Panels+> <Panels+>/references-repos/plugins/ink-away/rolling.koplugin`; substitute the full project path. Output /tmp/panelsplus-picker-complete.log. Earlier isolated dirs picker-before, picker-after (fixture error), picker-after2, picker-final record intermediate runs.
+
+Stable-first root commands `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0`, then rollingrelease: 5 / 44 pass (stable also ran before editing). Target cwd `luajit tests/readerview.lua` passes 241. `luajit tests/view.lua`, targeted Luacheck and whitespace outcomes recorded below. Parent native test formatted with StyLua; scoped Luacheck passes. No target-wide reformat. No build/install, staging, commit, fetch or upstream update. This checks shared picker failures, not every tool or a guarantee of live Kindle behavior.
+
+Final picker validation: target view suite **1462 checks, 0 failures**; targeted Luacheck four changed target Lua files zero warnings/errors; target whitespace check passes. Native test StyLua formatting applied after behavioral run, no logic change. No deployment. Next live check remains rebuilt rolling target on Kindle.
+
+
+## 2026-11-07 — Text edit buttons follow panel clip and text drags crush shading
+
+User reports Format/Done misplaced in focused panel rather than viewport, plus monochrome rectangles while moving text on Paperwhite. Panels+ 1.6.0 ec6673472a57e1c9fd997fac2324aa0b1517cea3 feat/ink-away-compatibility; target canonical 4.4.0-derived rolling 356f40367a032fe5e2808abb8ff4aacb68e4674e feature/plugin-integration, prior staged and unstaged fixes preserved. Stable v4_4_0 immutable, host pin 035e00b21d0286325ef2e8a7e3b6326f340e2ded. Investigation: text buttons use drawing area clipped to panel pixels; move/turn/resize explicitly request fast via liveBox. Target owns both corrections. Tests and implementation pending; no build/install/commit/update.
+
+### Text investigation and outcome
+
+textEditButtons used self.view.area_* after ReaderInkView narrowed it to the actual panel content clip. Keep a separate reader viewport captured after toolbar layout and before clip intersection, and use that only for editing-button geometry. Target InkAwayView:onIaTouch previously rejected everything outside inArea before text hit testing; now routes only the two active edit buttons there, leaving drawing clipped. Explicit fast text move/turn/resize requests go through shared liveBox, which now promotes them to ui on ordinary grayscale e-ink reader sessions. This also avoids the same background damage for other liveBox previews. Desktop/colour/driven policies remain intact. Grey-capable updates may cost drag speed; no waveform speed measurement claimed.
+
+New target tests/readerview.lua regression uses a narrow external surface clip, checks both control positions, touch routing outside clip and refresh mode for a moving rectangle on grayscale e-ink. Before source correction: **244 checks, 3 failures**. After correction plus touch regression: **245 checks, 0 failures**. Target host/input/device services are mocks; actual editor/layout/refresh logic executes. This is not physical e-ink evidence.
+
+Commands: from Panels+ root stable-first `./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0` then rollingrelease: **5 / 44 passed** (stable also ran before edits). From target canonical rolling cwd: `luajit tests/readerview.lua`, `luajit tests/view.lua`, `luacheck ink/view.lua ink/reader/inkview.lua ink/view/textedit.lua ink/view/display.lua tests/readerview.lua`, `git diff --check`. First intermediate full view run (before adding outside-clip touch routing) passes 1462; final result follows. No native SDL rerun for these edits: focused tests exercise geometry and waveform selection, while physical Kindle validation remains necessary. No builds, installations, staging, commits or upstream changes. Keep all earlier fixes for the next rebuild.
+
+Final text validation: **1462 view checks, 0 failures** after outside-clip touch routing; Luacheck all five affected target files zero warnings/errors; target whitespace check passes. No deployment. Live Kindle validation remains pending.
+
+
+## 2026-11-07 — Build patched folders for VMS SHARED
+
+User explicitly requests only installable folders in `/home/kristanlaimon/VMS SHARED/ZIP_OMG_YEAH/PARCHED/`; artifact-only request, no live plugin installation. Built current Panels+ 1.6.0 via `./build.sh` (English/Spanish OCR checksums pass), selecting `dist/with_ocrmodels/panelsplus.koplugin`. Built canonical Ink Away rolling 4.4.0-derived 356f40367a032fe5e2808abb8ff4aacb68e4674e feature/plugin-integration plus all current uncommitted fixes via `bash tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=rolling --build-only`: artifact `.cache/plugin-compatibility/builds/ink-away/v4_4_0/build.CuljImxP/ink-away.koplugin`. Same Panels+ base ec6673472a57e1c9fd997fac2324aa0b1517cea3, feat/ink-away-compatibility; existing staged and unrelated work preserved. Initial shared-drive copy failed on Unix metadata (EPERM during shutil.copytree/copy2); content-only shutil.copyfile retry preserves runtime bytes without unsupported timestamps/permissions. Whole-payload relative path/SHA256 comparison runs after each folder. Copy/verification outcome pending below. No runtime tests rerun for packaging; preceding text/picker/refresh results remain the relevant evidence. No commit, staging, upstream update or live installation.
+
+Export completed: both folders verified byte-for-byte and relative file sets match the builds (93 Panels+, 293 Ink Away files); both OCR traineddata files present. No ZIPs copied, no source staging/commit or live installation. Shared-drive metadata retry succeeded.
+
+
+## 2026-11-07 — Atomic commits for Kindle fixes
+
+User requests atomic commits in canonical rolling.koplugin. Starting target 356f40367a032fe5e2808abb8ff4aacb68e4674e feature/plugin-integration. Eleven files staged, no unstaged tracked changes; untracked PR.md excluded. Plan split pen refresh, modal children, text viewport/drag, and translation template. Temporary Git index preserves working bytes and original index; test exact code snapshots before commits. Parent repository is not being committed or staged. No push/update/deployment requested. Commit outcome pending.
+
+### Atomic commit outcome
+
+- 4a6111b9afa0ababb0c364d6876f40754bbf1dc4 — fix(reader): preserve grayscale backgrounds while drawing
+- 516475f38c544a9cfd29793b5a3f0e9a1c0cc565 — fix(ui): show child pickers above the modal annotator
+- 145cb5a7c5996cf050c85015aa425ee8768bfb98 — fix(text): anchor edit controls to the viewport and preserve drag shading
+- e9f0eb39e2c744f4438609f095d63e4dd3cdd752 — chore(l10n): add missing export quality strings
+
+Used /tmp/commit-inkaway-atomic.py with a temporary index, git checkout-index snapshots and `luajit tests/readerview.lua` against each exact runtime commit tree: 241 / 241 / 245 checks, zero failures. Scoped staged whitespace checks passed before each commit. First sandbox attempt stopped at git write-tree index.lock (read-only metadata); authorized escalated execution succeeded. Final HEAD tree equals the original index tree; original working-file bytes preserved, final target status only untracked PR.md. No source code edits beyond splitting tests in temporary index; final source bytes unchanged. Earlier native/view/integration checks are carried forward for unchanged combined runtime, not rerun during commit-only work. Parent changes are not committed/staged, no push or new deployment.
+
+
+## 2026-11-15 — Audit merged PR #80 against upstream Ink Away 4.5.0
+
+Provenance and ownership: see current-state summary above. Existing Panels+ adapter first inspected; target publishes a restricted integration facade rather than its entire plugin object. Public API and surface versions remain 1. Exact effects on settings, painting, navigation, cleanup and native fixtures are under investigation. Run existing stable 4.4.0 fallback before canonical 4.5.0 rolling integration. Missing 4.5.0 stable pin means rolling results must not be described as release-artifact validation. GitHub page retrieval via web failed (cache miss); local real target source is available. No fetch/sync performed.
+
+### Findings and completed checks
+
+The API and surface versions remain 1. Upstream moved public consumer methods behind `InkAway:integrationFacade()` and injects `Integration.new()` into `Book.new(ui, integration)` instead of having Book own an `extensions` registry. Raw plugin members no longer advertise API versions or `installPluginIntegration`; obsolete implicit surface discovery is gone. The actual Panels+ adapter already consumes `ui.inkAwayIntegrationAPI`, queues `configureInkAway` before readiness, validates versions, registers its surface explicitly, and uses only public methods on that path. Surface geometry, annotation lifecycle, Draw and settings remain compatible. Keeping the existing public boundary meets the requested SOLID responsibility separation without adding layers or copying Ink Away behavior. Legacy optional fallback code in Panels+ was left alone because it is not selected by 4.5.0 and no runtime fix is needed.
+
+The old test harness incorrectly checked raw plugin metadata, selected its “API absent” path and failed 1 of 5 cases (no editor), despite a real public API being present. After facade selection/injected registry correction, 25 passed / 19 failed: logging showed missing host horizontal widgets. Adding those host fixtures and bitmap dimensions exposed 27 passed / 17 failed: the harness had relied on removed implicit discovery, omitted the storage `empty` fixture, and asserted a screen copy that upstream deliberately removed. Correcting setup to explicitly register the viewer, adding the storage fixture, and asserting ink placement without an unnecessary copy produced 44 passing cases with no runtime edits. One diagnostic invocation lacked Lua `arg[0]` and stopped in the runner; rerunning with the normal runner path exposed the target warnings. No swallowed runtime failures were changed to passes. Readiness tests reset only fixture registrations to exercise both loading orders and cancellation. Rolling now explicitly requires a facade so an absent API cannot silently downgrade to fallback-only coverage.
+
+Final commands from Panels+ root, stable first then rolling:
+
+```bash
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=4.4.0
+./run-tests.sh --compatibility-plugin=ink-away --compatibility-plugin-version=rollingrelease
+lua tests/run_tests.lua tests/plugin_support_spec.lua tests/panelviewer_annotationviewport_spec.lua tests/panelviewer_controls_spec.lua tests/panelviewer_highlight_spec.lua
+stylua --check tests/compatibility_support/inkaway_surface.lua tests/compatibility_support/inkaway_native_viewport.lua tests/plugin-compatibility/ink-away__rollingrelease/surface_spec.lua
+luacheck tests/compatibility_support/inkaway_surface.lua tests/compatibility_support/inkaway_native_viewport.lua tests/plugin-compatibility/ink-away__rollingrelease/surface_spec.lua
+git diff --check
+```
+
+Results: stable **5 passed**, rolling **44 passed**, focused units **39 passed**, zero style/lint/whitespace issues. Stable also passed before edits. Stable/rolling suites load actual selected Book/Place/Canvas/reader/editor/plugin and integration modules; host UI/device, pixel painting, persistence and rendering services are fixtures. Coverage retains absent/incompatible plugin behavior, both readiness orders, canceled pending configuration, repeated registration, close/error cleanup, Draw, ink anchoring/painting, rotations, panning, asynchronous cross-page handoffs, Comic/Manga arrows, folds, Tight/Margin/No crop, animation and toolbar fit/full viewport.
+
+Native command from `/usr/lib/koreader` (source and target arguments are absolute project root and its `references-repos/plugins/ink-away/rolling.koplugin`):
+
+```bash
+env SDL_VIDEODRIVER=dummy SDL_RENDER_DRIVER=software SDL_AUDIODRIVER=dummy \
+KO_HOME=/tmp/panelsplus-inkaway-450-audit ./luajit \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/tests/compatibility_support/inkaway_native_viewport.lua \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin \
+/home/kristanlaimon/.config/koreader/plugins/panels_plus_development.koplugin/references-repos/plugins/ink-away/rolling.koplugin
+```
+
+Native runtime version read from `/usr/lib/koreader/git-rev`: **v2026.07.1**. Result **48 cases / 2742 checks passed**, all toolbar sides, Comic/Manga, ease/Classic, Tight/Margin/No crop, Draw/options hide/restore, navigation, and six child-picker stacking checks. Actual host UIManager/widgets/PluginLoader HandlerSandbox/blitter and target editor execute; synthetic document pixels, timer delivery and folder-shortcut service remain fixtures. The harness composes Book/Integration/facade as actual main.lua does; it does not claim full plugin-init execution. StyLua later adjusted only source formatting, not native scenario behavior. No physical Kindle, saved-file end-to-end, Wi-Fi/sync/export, pen latency or waveform result claimed. Full source/target suites were not rerun because only compatibility fixtures/docs changed. Final target remains clean and unchanged; no deployment. The existing 4.4.0 pin provides fallback evidence, not 4.5.0 feature validation. Live validation remains the next step.
+
+
+## 2026-11-15 — Follow-up: what upstream changed in PR #80
+
+User asks for the concrete author changes. Same source/target versions, branches, HEADs and uncommitted Panels+ tests/docs as the preceding entry; target remains read-only/clean. Read local commit `4a8568a5dd0413442588aa095a502e106a7ef0f2` (integration rework) and `a3c4aa4dfe9e340d875f5bb13a30ea0aa222771a` (same-surface handoff/native-method optimization), plus original PR tip `65ef9d1d52e3febb8eb6096f4b6da1c72380469b` and integrated first parent `b24a8440f37df3a7ddb1eeae97e242643749721a`. Merge `0e639690de9e4d336a0bfff634c72dcf16d7edc4` records the original commits while retaining the reworked implementation. Broad PR-tip-to-main diffs also contain unrelated upstream work; do not attribute all those features to the integration rewrite.
+
+Confirmed changes: restricted public facade preserves required method names/version 1; explicit registration replaces implicit getAnnotationSurface discovery; `ink/IntegrationAPI.lua` becomes `ink/integration.lua`, Book.extensions becomes injected Book.integration; removed KOReaderSurface adapter restores native methods, with per-instance overrides only during surface sessions; painting no longer copies the full framebuffer, instead preserving only ink overflow outside clips; guarded external calls and same-surface `done()` navigation; runtime contracts moved/trimmed into docs/integration-types.lua and INTEGRATION.md, with examples/tests. Existing PDF header validation is retained rather than introduced by the author. No new runtime tests run for this history/code comparison.
+
+Material correction to the earlier answer's scope: PR tip contains grayscale protection in ink/view/stroke.lua (`fast_black` excludes ordinary grayscale reader drawing) and ink/view/display.lua (liveBox promotes fast overlays to ui in ordinary grayscale reader sessions). Both guards are absent in integrated upstream and still absent at current 4.5.0 HEAD: pureBlackPen again directly selects fast, and liveBox has no reader-mode promotion. This proves those fixes were not retained; it does not prove a physical symptom on current Kindle firmware. Existing native SDL geometry checks cannot validate e-ink waveform behavior. The prior “no target changes required” conclusion applies to public-API compatibility and exercised integration, not preservation of every Kindle correction. Potential brush/drag shading regression needs physical testing or a targeted refresh-policy regression before recommending a target fix. No source changes, deployment, staging or commits made for this follow-up.
+
+
+## 2026-11-15 — Deploy upstream 4.5.0 canonical rolling
+
+User explicitly requests installing the audited rolling using deploy. Panels+ 1.6.0 HEAD 898635a70b26831994b158f75da99a1d9a5ed484, feat/ink-away-compatibility; the six audit test/docs files are now staged by the user and are preserved. Ink Away canonical rolling metadata 4.5.0, clean main at 0015691669e74baeb4b0d3e13f61f3e629279fb7 (exact v4.5.0 tag), unchanged since audit. No fetch/source edit/branch switch needed. Deploy preview targets /home/kristanlaimon/.config/koreader/plugins/ink-away.koplugin. Process-name check for KOReader/Lua/LuaJIT performed before installation; no matching process found. Build/install and backup verification pending; use standard deploy --plugin=ink-away --mode=rolling --install. Prior audit checks apply to identical runtime bytes; no new test result claimed.
+
+
+### Deployment outcome
+
+Initial sandboxed deploy built artifact build.6TBT8aRq but stopped before replacement at the external KOReader deployment lock (read-only filesystem). Retried the same `--install` command with explicit filesystem escalation, which succeeded and produced build.2Plwja9Q. Standard deploy verified the old installation, moved it to backup ink-away.W6nytsQ8 and installed one canonical ink-away.koplugin. Independent Python hashlib verification checked all 340 installed payload files and exact relative file-set equality against `.panelsplus-deployment/SHA256SUMS`; manifest provenance reports rolling 4.5.0 at 0015691669e74baeb4b0d3e13f61f3e629279fb7 with no dirty source. No runtime test repeated; previous source test evidence remains unchanged. No physical Kindle validation or GUI launch performed. User can open/restart KOReader and exercise Panels+ Draw; separately check grayscale artwork during pen strokes and text dragging. No agent staging or commits; concurrent user-side parent commit recorded in current state.
+
+## 2026-11-15 — Test-suite rerun — Panels+ 1.6.0 / ink-away 4.5.0
+
+User requested running all tests and checking green. Source: Panels+ 1.6.0,
+`main-nightly`, HEAD `b966904dd0ce1937549a57ab5e02e1657a256f85`;
+initial working tree clean. Dataset metadata changed during the broader run;
+those changes were preserved. Target canonical `rolling.koplugin/`:
+`0015691669e74baeb4b0d3e13f61f3e629279fb7`, main, clean working tree and index.
+Host source pin: `035e00b21d0286325ef2e8a7e3b6326f340e2ded`;
+installed reader/device version was not inspected.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=ink-away`
+ran retained immutable stable references first, then the existing local rolling
+checkout. Passed counts: 4.5.0: 44; rolling: 44; zero failures or skips in each suite.
+These are the existing reference-backed desktop Lua tests with mocked KOReader
+services; their established scenario scope and physical-device limits remain
+as documented above. No counterpart source changes, updates, builds, deployment,
+commits or publication. User-facing defaults unchanged. Live reader validation
+was not rerun; further device validation remains separate from this test rerun.
+
+Broader validation completed: `./run-tests.sh --strict --quick` passed all 13
+Lua/dataset jobs (plain Lua); Python ran 101 tests with one skip and Go passed.
+Separate read-only StyLua and gofmt checks passed; Luacheck reported zero
+warnings/errors in 150 files. Workflow shell checks: 26 passed.
+
+
+## 2026-11-27 — Refresh stable and rolling compatibility
+
+Panels+ 1.6.0, clean `main-nightly` at
+`da9619b36d735d9cdc215561fbedc440fbe089e5`; KOReader source pin
+`035e00b21d0286325ef2e8a7e3b6326f340e2ded`. GitHub's release API reports
+[4.5.4](https://github.com/EmirErtorer/ink-away.koplugin/releases/tag/v4.5.4), published 2026-11-26T16:30:28Z.
+
+Before the sync, rolling was clean on `main` at
+`0015691669e74baeb4b0d3e13f61f3e629279fb7` (4.5.0). The new release ZIP
+matches GitHub's SHA-256, recorded in [releases.md](releases.md). The
+superseded active 4.5.0 pin and its suite were removed after both passed.
+
+The first 4.5.4 suite failed all 44 cases because its mocked storage omitted
+`BookInk.hasAside`, which the new release calls when the fixture has no
+saved ink. The headless native run with real BookInk passed independently.
+The fixture now returns false for both storage-existence checks. The
+versioned 4.5.4 suite and rolling then passed 44 cases each, including both
+loading orders, Draw, ink placement, toolbar fit, navigation and cleanup.
+
+From `/usr/lib/koreader` (v2026.07.1), ran
+`./luajit <Panels+>/tests/compatibility_support/inkaway_native_viewport.lua <Panels+> <reference>`
+once for each reference with isolated `KO_HOME` under /tmp, dummy SDL video
+and audio, and software SDL rendering. Each passed 48 scenarios and 2742
+checks using real KOReader widgets, loader and blitter, synthetic documents
+and timers. Physical Kindle input and refresh remain unverified.
+
+From the Panels+ root, `./run-tests.sh --compatibility-plugin=ink-away`
+ran stable first and rolling last with zero failures and zero skips after
+the refresh. Scoped `run-sync-submodules.sh` checked the four upstream
+references and staged only the three changed parent pointers. The target
+working trees and indexes are clean. No plugin runtime edits, installation,
+commit, or push.
+
+
+## 2026-11-27 — Install stable 4.5.4
+
+Installed the unmodified stable 4.5.4 reference into
+`~/.config/koreader/plugins/ink-away.koplugin` with KOReader closed.
+The generated artifact is `build.MIeA8Sdq`. The previous managed 4.5.0
+installation is in `~/.config/koreader/.panelsplus-plugin-backups/ink-away.bFkKN3AI/`.
+Verified the complete set of 343 installed files against both the pinned
+payload and the deployment manifest.
+
+Ran `./tools/plugin-compatibility/deploy.sh --plugin=ink-away --mode=stable --version=4.5.4 --install`
+from the Panels+ root. The source and reference revisions are the same as
+in the preceding refresh entry. KOReader has one discoverable directory for
+this plugin under the install root. No live launch or device check was performed.

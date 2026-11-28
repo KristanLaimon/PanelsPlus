@@ -6,7 +6,8 @@ zoom/pan, number badges, and full-page panel shortcuts.
 
 from typing import List, Optional, Tuple
 import math
-from PyQt6.QtCore import Qt, QRect, QRectF, QPoint, QPointF, pyqtSignal
+from collections import OrderedDict
+from PyQt6.QtCore import Qt, QRect, QRectF, QPoint, QPointF, pyqtSignal, QVariantAnimation, QEasingCurve
 from PyQt6.QtGui import (
     QPainter, QPen, QBrush, QColor, QFont, QPixmap, QImage, QCursor,
     QPaintEvent, QMouseEvent, QWheelEvent, QKeyEvent, QFontMetrics
@@ -57,6 +58,16 @@ class MangaCanvas(QWidget):
         self.setMouseTracking(True)
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
 
+        self._strip_reader = None
+        self._last_strip_page = None
+        self._strip_layout = None
+        self._strip_cache = OrderedDict()
+        self._preview_cache = OrderedDict()
+        self._strip_thumbnail_cache = OrderedDict()
+        self._pan_animation = QVariantAnimation(self)
+        self._pan_animation.setDuration(220)
+        self._pan_animation.setEasingCurve(QEasingCurve.Type.InOutCubic)
+        self._pan_animation.valueChanged.connect(self._animate_pan)
         self._pixmap: Optional[QPixmap] = None
         self.native_w = 0
         self.native_h = 0
@@ -111,6 +122,9 @@ class MangaCanvas(QWidget):
         self._pan_start_pos: Optional[QPoint] = None
 
     def set_wordless(self, enabled: bool):
+        if self._strip_reader:
+            self.status_message.emit("Wordless markers apply to individual pages; switch book type to edit them.")
+            return
         """Mark or unmark the page as wordless (no OCR text/dialogue)."""
         new_val = bool(enabled)
         if new_val and (self.get_phrases() or self.get_words()):
@@ -401,6 +415,13 @@ class MangaCanvas(QWidget):
         other_double_illustration: bool = False,
     ):
         """Update current page pixmap and panels."""
+        self._pan_animation.stop()
+        self._strip_reader = None
+        self._last_strip_page = None
+        self._strip_layout = None
+        self._strip_cache.clear()
+        self._preview_cache.clear()
+        self._strip_thumbnail_cache.clear()
         self.other_panels = [p.copy() for p in (other_panels or [])]
         self.other_double_illustration = bool(other_double_illustration)
         self._edit_both = False
@@ -443,12 +464,109 @@ class MangaCanvas(QWidget):
             self.fit_to_width(self.rect())
         self.update()
 
+    def set_strip(self, reader, layout):
+        """Draw visible source pages only, without allocating a chapter-sized bitmap."""
+        self._strip_reader = reader
+        self._strip_layout = layout
+        self.native_w, self.native_h = layout.width, layout.height
+        self.update()
+
+    def _strip_pixmap(self, index):
+        if index not in self._strip_cache:
+            page = self._strip_reader.pages[index]
+            image = page.get_pil_image().convert("RGBA")
+            raw = image.tobytes()
+            qimage = QImage(raw, image.width, image.height, QImage.Format.Format_RGBA8888)
+            self._strip_cache[index] = QPixmap.fromImage(qimage)
+            page._cached_pil = None
+            if len(self._strip_cache) > 4:
+                del self._strip_cache[next(iter(self._strip_cache))]
+        self._strip_cache.move_to_end(index)
+        return self._strip_cache[index]
+
+    strip_position_changed = pyqtSignal(int)
+
+    def _animate_pan(self, value):
+        self.offset_y = float(value)
+        if self._mode == "drawing" and self._current_mouse_pos is not None:
+            self._update_drawing_endpoint(self._current_mouse_pos, QApplication.keyboardModifiers())
+        elif self._mode == "resizing" and self._current_mouse_pos is not None:
+            self._update_resize_endpoint(self._current_mouse_pos, QApplication.keyboardModifiers())
+        self.update()
+
+    def pan_half_screen(self, direction):
+        if not self._strip_reader or self._mode not in ("idle", "drawing", "resizing"):
+            return
+        target = (float(self._pan_animation.endValue())
+                  if self._pan_animation.state() == QVariantAnimation.State.Running
+                  else self.offset_y)
+        self.pan_to(target - direction * self.height() / 2)
+
+    def pan_to(self, target):
+        self._pan_animation.stop()
+        target = max(min(0.0, self.height() - self.native_h * self.zoom_factor),
+                     min(0.0, target))
+        self._pan_animation.setStartValue(float(self.offset_y))
+        self._pan_animation.setEndValue(float(target))
+        self._pan_animation.start()
+
+    def cached_panel_preview(self, panel):
+        return self._preview_cache.get((panel.x, panel.y, panel.w, panel.h))
+
+    def _strip_thumbnail(self, index):
+        """Small preview sources never evict the full-resolution viewport cache."""
+        if index not in self._strip_thumbnail_cache:
+            if index in self._strip_cache:
+                pixmap = self._strip_cache[index].scaled(
+                    256, 512, Qt.AspectRatioMode.KeepAspectRatio,
+                    Qt.TransformationMode.SmoothTransformation,
+                )
+            else:
+                page = self._strip_reader.pages[index]
+                image = page.get_pil_image().convert("RGBA")
+                page._cached_pil = None
+                image.thumbnail((256, 512))
+                raw = image.tobytes()
+                pixmap = QPixmap.fromImage(QImage(raw, image.width, image.height, QImage.Format.Format_RGBA8888))
+            self._strip_thumbnail_cache[index] = pixmap
+            if len(self._strip_thumbnail_cache) > 32:
+                self._strip_thumbnail_cache.popitem(last=False)
+        self._strip_thumbnail_cache.move_to_end(index)
+        return self._strip_thumbnail_cache[index]
+
+    def panel_preview(self, panel):
+        if not self._strip_reader:
+            return self._pixmap.copy(QRect(panel.x, panel.y, panel.w, panel.h)) if self._pixmap else QPixmap()
+        key = (panel.x, panel.y, panel.w, panel.h)
+        if key in self._preview_cache:
+            self._preview_cache.move_to_end(key)
+            return self._preview_cache[key]
+        # Render directly into a thumbnail, even for very tall panels.
+        scale = min(96 / max(1, panel.w), 72 / max(1, panel.h))
+        preview = QPixmap(max(1, int(panel.w * scale)), max(1, int(panel.h * scale)))
+        preview.fill(Qt.GlobalColor.white)
+        painter = QPainter(preview)
+        painter.setRenderHint(QPainter.RenderHint.SmoothPixmapTransform, True)
+        for index in self._strip_layout.intersecting(panel.y, panel.y + panel.h):
+            offset = self._strip_layout.offsets[index]
+            page = self._strip_reader.pages[index]
+            thumbnail = self._strip_thumbnail(index)
+            painter.drawPixmap(QRectF(-panel.x * scale, (offset - panel.y) * scale,
+                                      page.native_w * scale, page.native_h * scale),
+                               thumbnail, QRectF(thumbnail.rect()))
+        painter.end()
+        self._preview_cache[key] = preview
+        if len(self._preview_cache) > 512:
+            self._preview_cache.popitem(last=False)
+        return preview
+
     def resizeEvent(self, event):
         super().resizeEvent(event)
         if getattr(self, "_pending_fit_width", False) and self.native_w > 0:
             self.fit_to_width(self.rect())
 
     def set_zoom(self, zoom: float):
+        self._pan_animation.stop()
         """Set zoom factor clamped between 0.05 and 10.0."""
         self.zoom_factor = max(0.05, min(10.0, float(zoom)))
         self.zoom_changed.emit(self.zoom_factor)
@@ -710,6 +828,9 @@ class MangaCanvas(QWidget):
         return HANDLE_NONE, -1
 
     def add_full_page_panel(self):
+        if self._strip_reader:
+            self.status_message.emit("Draw a rectangle for a manhwa illustration in the continuous canvas.")
+            return
         """Add a bounding box covering the entire page."""
         if self.native_w == 0 or self.native_h == 0:
             return
@@ -723,7 +844,37 @@ class MangaCanvas(QWidget):
         self.panel_selected.emit(self.selected_panel_index)
         self.update()
 
+    def set_strip_page_panel(self, page_index):
+        """Replace one source page's panels, keeping all other strip annotations."""
+        if not self._strip_reader or self._mode != "idle":
+            return False
+        if not 1 <= page_index <= self._strip_reader.total_pages:
+            return False
+        self._pan_animation.stop()
+        self.set_annotation_mode("panel")
+        self.push_undo()
+        index = page_index - 1
+        page = self._strip_reader.pages[index]
+        # Ownership follows a rectangle's top edge, including seam-spanning boxes.
+        replaced = [i for i, panel in enumerate(self.panels)
+                    if self._strip_layout.owner(panel.y) == index]
+        insertion = (replaced[0] if replaced else
+                     next((i for i, panel in enumerate(self.panels)
+                           if self._strip_layout.owner(panel.y) > index), len(self.panels)))
+        self.panels[:] = [panel for panel in self.panels
+                          if self._strip_layout.owner(panel.y) != index]
+        self.panels.insert(insertion, Panel(0, self._strip_layout.offsets[index],
+                                           page.native_w, page.native_h))
+        self.selected_panel_index = insertion
+        self.panels_changed.emit()
+        self.panel_selected.emit(insertion)
+        self.update()
+        return True
+
     def set_full_page_panel(self, double_illustration: bool = False):
+        if self._strip_reader:
+            self.status_message.emit("Draw a rectangle for a manhwa illustration in the continuous canvas.")
+            return
         """Replace this page's annotations with one full-page panel."""
         if self.native_w == 0 or self.native_h == 0:
             return
@@ -739,6 +890,9 @@ class MangaCanvas(QWidget):
         self.update()
 
     def toggle_double_illustration(self):
+        if self._strip_reader:
+            self.status_message.emit("Draw a rectangle for a manhwa illustration in the continuous canvas.")
+            return
         """Mark the whole image as one illustration, or remove that label."""
         if self.native_w == 0 or self.native_h == 0:
             return
@@ -899,6 +1053,7 @@ class MangaCanvas(QWidget):
         elif event.key() in (Qt.Key.Key_Delete, Qt.Key.Key_Backspace):
             self.delete_selected_panel()
         elif event.key() == Qt.Key.Key_Escape:
+            self._pan_animation.stop()
             if self._mode != "idle":
                 if self._mode in ("moving", "resizing"):
                     self.panels[:] = [p.copy() for p in self._panels_at_drag_start]
@@ -917,6 +1072,7 @@ class MangaCanvas(QWidget):
         super().keyReleaseEvent(event)
 
     def wheelEvent(self, event: QWheelEvent):
+        self._pan_animation.stop()
         delta = event.angleDelta().y()
         if delta == 0:
             delta = event.angleDelta().x()
@@ -1024,6 +1180,7 @@ class MangaCanvas(QWidget):
         self.update()
 
     def mousePressEvent(self, event: QMouseEvent):
+        self._pan_animation.stop()
         pos = event.position().toPoint()
 
         # Middle click or Space+Left click -> Pan
@@ -1077,9 +1234,79 @@ class MangaCanvas(QWidget):
 
         self.update()
 
+    def _update_drawing_endpoint(self, pos, modifiers):
+        """Keep the image-space origin fixed while the cursor or viewport moves."""
+        start_ix, start_iy = self._drag_start_image_x, self._drag_start_image_y
+        curr_ix, curr_iy = self.widget_to_image(pos.x(), pos.y())
+        is_alt = bool(modifiers & Qt.KeyboardModifier.AltModifier)
+        if self.precision_mouse_enabled and not is_alt:
+            side_x = "right" if curr_ix >= start_ix else "left"
+            side_y = "bottom" if curr_iy >= start_iy else "top"
+            curr_ix, curr_iy = self._apply_precision_snap(
+                curr_ix, curr_iy, is_alt_held=is_alt, side_x=side_x, side_y=side_y,
+            )
+        else:
+            self._snap_guide_x = self._snap_guide_y = None
+        self._current_image_box = (start_ix, start_iy, curr_ix, curr_iy)
+        self._active_ix, self._active_iy = curr_ix, curr_iy
+        self.update()
+
+    def _update_resize_endpoint(self, pos, modifiers):
+        """Apply the active handle's displacement in image coordinates."""
+        ix, iy = self.widget_to_image(pos.x(), pos.y())
+        is_alt = bool(modifiers & Qt.KeyboardModifier.AltModifier)
+        use_precision = self.precision_mouse_enabled and not is_alt
+        orig = self._panel_before_drag
+        start_ix = self._drag_start_image_x
+        start_iy = self._drag_start_image_y
+        dx = ix - start_ix
+        dy = iy - start_iy
+
+        x, y, w, h = orig.x, orig.y, orig.w, orig.h
+
+        if self._active_handle in (HANDLE_TL, HANDLE_L, HANDLE_BL):
+            new_x = min(orig.x + orig.w - MIN_BOX_SIZE, max(0, orig.x + dx))
+            w = orig.x + orig.w - new_x
+            x = new_x
+        if self._active_handle in (HANDLE_TR, HANDLE_R, HANDLE_BR):
+            w = max(MIN_BOX_SIZE, min(self.native_w - orig.x, orig.w + dx))
+        if self._active_handle in (HANDLE_TL, HANDLE_T, HANDLE_TR):
+            new_y = min(orig.y + orig.h - MIN_BOX_SIZE, max(0, orig.y + dy))
+            h = orig.y + orig.h - new_y
+            y = new_y
+        if self._active_handle in (HANDLE_BL, HANDLE_B, HANDLE_BR):
+            h = max(MIN_BOX_SIZE, min(self.native_h - orig.y, orig.h + dy))
+
+        if use_precision:
+            if self._active_handle in (HANDLE_TR, HANDLE_R, HANDLE_BR):
+                snapped_right, _ = self._apply_precision_snap(x + w, y, is_alt_held=is_alt, side_x="right", side_y="none")
+                w = max(MIN_BOX_SIZE, min(self.native_w - x, snapped_right - x))
+            elif self._active_handle in (HANDLE_TL, HANDLE_L, HANDLE_BL):
+                snapped_left, _ = self._apply_precision_snap(x, y, is_alt_held=is_alt, side_x="left", side_y="none")
+                new_x = min(orig.x + orig.w - MIN_BOX_SIZE, max(0, snapped_left))
+                w = orig.x + orig.w - new_x
+                x = new_x
+
+            if self._active_handle in (HANDLE_BL, HANDLE_B, HANDLE_BR):
+                _, snapped_bottom = self._apply_precision_snap(x, y + h, is_alt_held=is_alt, side_x="none", side_y="bottom")
+                h = max(MIN_BOX_SIZE, min(self.native_h - y, snapped_bottom - y))
+            elif self._active_handle in (HANDLE_TL, HANDLE_T, HANDLE_TR):
+                _, snapped_top = self._apply_precision_snap(x, y, is_alt_held=is_alt, side_x="none", side_y="top")
+                new_y = min(orig.y + orig.h - MIN_BOX_SIZE, max(0, snapped_top))
+                h = orig.y + orig.h - new_y
+                y = new_y
+        else:
+            self._snap_guide_x = None
+            self._snap_guide_y = None
+
+        p = self.panels[self.selected_panel_index]
+        p.x, p.y, p.w, p.h = x, y, w, h
+        self._active_ix = ix
+        self._active_iy = iy
+        self.update()
+
     def mouseMoveEvent(self, event: QMouseEvent):
         pos = event.position().toPoint()
-        is_alt = bool(event.modifiers() & Qt.KeyboardModifier.AltModifier)
 
         ix, iy = self.widget_to_image(pos.x(), pos.y())
         self.cursor_position.emit(ix, iy)
@@ -1095,24 +1322,8 @@ class MangaCanvas(QWidget):
                 self.update()
             return
 
-        use_precision = self.precision_mouse_enabled and not is_alt
-
         if self._mode == "drawing" and self._drag_start_pos:
-            start_ix = self._drag_start_image_x
-            start_iy = self._drag_start_image_y
-            curr_ix = ix
-            curr_iy = iy
-            if use_precision:
-                side_x = "right" if curr_ix >= start_ix else "left"
-                side_y = "bottom" if curr_iy >= start_iy else "top"
-                curr_ix, curr_iy = self._apply_precision_snap(curr_ix, curr_iy, is_alt_held=is_alt, side_x=side_x, side_y=side_y)
-            else:
-                self._snap_guide_x = None
-                self._snap_guide_y = None
-            self._current_image_box = (start_ix, start_iy, curr_ix, curr_iy)
-            self._active_ix = curr_ix
-            self._active_iy = curr_iy
-            self.update()
+            self._update_drawing_endpoint(pos, event.modifiers())
             return
 
         if self._mode == "moving" and self._panel_before_drag and 0 <= self.selected_panel_index < len(self.panels):
@@ -1134,54 +1345,7 @@ class MangaCanvas(QWidget):
             return
 
         if self._mode == "resizing" and self._panel_before_drag and 0 <= self.selected_panel_index < len(self.panels):
-            orig = self._panel_before_drag
-            start_ix = self._drag_start_image_x
-            start_iy = self._drag_start_image_y
-            dx = ix - start_ix
-            dy = iy - start_iy
-
-            x, y, w, h = orig.x, orig.y, orig.w, orig.h
-
-            if self._active_handle in (HANDLE_TL, HANDLE_L, HANDLE_BL):
-                new_x = min(orig.x + orig.w - MIN_BOX_SIZE, max(0, orig.x + dx))
-                w = orig.x + orig.w - new_x
-                x = new_x
-            if self._active_handle in (HANDLE_TR, HANDLE_R, HANDLE_BR):
-                w = max(MIN_BOX_SIZE, min(self.native_w - orig.x, orig.w + dx))
-            if self._active_handle in (HANDLE_TL, HANDLE_T, HANDLE_TR):
-                new_y = min(orig.y + orig.h - MIN_BOX_SIZE, max(0, orig.y + dy))
-                h = orig.y + orig.h - new_y
-                y = new_y
-            if self._active_handle in (HANDLE_BL, HANDLE_B, HANDLE_BR):
-                h = max(MIN_BOX_SIZE, min(self.native_h - orig.y, orig.h + dy))
-
-            if use_precision:
-                if self._active_handle in (HANDLE_TR, HANDLE_R, HANDLE_BR):
-                    snapped_right, _ = self._apply_precision_snap(x + w, y, is_alt_held=is_alt, side_x="right", side_y="none")
-                    w = max(MIN_BOX_SIZE, min(self.native_w - x, snapped_right - x))
-                elif self._active_handle in (HANDLE_TL, HANDLE_L, HANDLE_BL):
-                    snapped_left, _ = self._apply_precision_snap(x, y, is_alt_held=is_alt, side_x="left", side_y="none")
-                    new_x = min(orig.x + orig.w - MIN_BOX_SIZE, max(0, snapped_left))
-                    w = orig.x + orig.w - new_x
-                    x = new_x
-
-                if self._active_handle in (HANDLE_BL, HANDLE_B, HANDLE_BR):
-                    _, snapped_bottom = self._apply_precision_snap(x, y + h, is_alt_held=is_alt, side_x="none", side_y="bottom")
-                    h = max(MIN_BOX_SIZE, min(self.native_h - y, snapped_bottom - y))
-                elif self._active_handle in (HANDLE_TL, HANDLE_T, HANDLE_TR):
-                    _, snapped_top = self._apply_precision_snap(x, y, is_alt_held=is_alt, side_x="none", side_y="top")
-                    new_y = min(orig.y + orig.h - MIN_BOX_SIZE, max(0, snapped_top))
-                    h = orig.y + orig.h - new_y
-                    y = new_y
-            else:
-                self._snap_guide_x = None
-                self._snap_guide_y = None
-
-            p = self.panels[self.selected_panel_index]
-            p.x, p.y, p.w, p.h = x, y, w, h
-            self._active_ix = curr_ix if 'curr_ix' in locals() else ix
-            self._active_iy = curr_iy if 'curr_iy' in locals() else iy
-            self.update()
+            self._update_resize_endpoint(pos, event.modifiers())
             return
 
         # Update visible cursor based on hover and trigger update
@@ -1189,6 +1353,8 @@ class MangaCanvas(QWidget):
         self.update()
 
     def mouseReleaseEvent(self, event: QMouseEvent):
+        if self._mode in ("drawing", "resizing") and event.button() == Qt.MouseButton.LeftButton:
+            self._pan_animation.stop()
         pos = event.position().toPoint()
         self._snap_guide_x = None
         self._snap_guide_y = None
@@ -1304,6 +1470,39 @@ class MangaCanvas(QWidget):
 
     # --- Rendering ---
 
+    def _paint_page_boundaries(self, painter):
+        if not self._strip_layout:
+            return
+        left = max(0.0, self.offset_x)
+        right = min(float(self.width()), self.offset_x + self.native_w * self.zoom_factor)
+        if right - left < 24:
+            return
+        painter.save()
+        painter.setFont(QFont("Sans Serif", 8))
+        top = -self.offset_y / self.zoom_factor
+        bottom = (self.height() - self.offset_y) / self.zoom_factor
+        for index in self._strip_layout.intersecting(top, bottom):
+            if index == 0:
+                continue
+            offset = self._strip_layout.offsets[index]
+            y = self.offset_y + offset * self.zoom_factor
+            if not 0 <= y <= self.height():
+                continue
+            painter.setPen(QPen(QColor(155, 165, 175, 150), 1))
+            painter.drawLine(QPointF(left + 1, y), QPointF(left + 11, y))
+            painter.drawLine(QPointF(right - 11, y), QPointF(right - 1, y))
+            if right - left >= 180:
+                label = f"p{index} / p{index + 1}"
+                metrics = painter.fontMetrics()
+                width = metrics.horizontalAdvance(label) + 8
+                rect = QRectF(right - width - 5, y - metrics.height() - 3, width, metrics.height() + 2)
+                painter.setPen(Qt.PenStyle.NoPen)
+                painter.setBrush(QColor(25, 28, 32, 145))
+                painter.drawRoundedRect(rect, 3, 3)
+                painter.setPen(QColor(195, 200, 205, 210))
+                painter.drawText(rect, Qt.AlignmentFlag.AlignCenter, label)
+        painter.restore()
+
     def paintEvent(self, event: QPaintEvent):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.RenderHint.Antialiasing, True)
@@ -1315,6 +1514,31 @@ class MangaCanvas(QWidget):
         # Dimensions
         img_w = self.native_w * self.zoom_factor
         img_h = self.native_h * self.zoom_factor
+
+        # Render only pages intersecting the viewport, at native coordinates.
+        if self._strip_reader:
+            page_number = self._strip_layout.owner(-self.offset_y / self.zoom_factor) + 1
+            if page_number != self._last_strip_page:
+                self._last_strip_page = page_number
+                self.strip_position_changed.emit(page_number)
+            # Adjacent images must share an opaque device-pixel boundary.
+            # Antialiased fractional edges otherwise expose the background as a seam.
+            painter.save()
+            painter.setRenderHint(QPainter.RenderHint.Antialiasing, False)
+            pixel_ratio = self.devicePixelRatioF()
+            view_top = -self.offset_y / self.zoom_factor
+            view_bottom = (self.height() - self.offset_y) / self.zoom_factor
+            for index in self._strip_layout.intersecting(view_top, view_bottom):
+                offset = self._strip_layout.offsets[index]
+                page = self._strip_reader.pages[index]
+                top = round((self.offset_y + offset * self.zoom_factor) * pixel_ratio) / pixel_ratio
+                bottom = round((self.offset_y + (offset + page.native_h) * self.zoom_factor)
+                               * pixel_ratio) / pixel_ratio
+                if bottom >= 0 and top <= self.height():
+                    painter.drawPixmap(QRectF(self.offset_x, top, page.native_w * self.zoom_factor, bottom - top),
+                                       self._strip_pixmap(index), QRectF(0, 0, page.native_w, page.native_h))
+            painter.restore()
+            self._paint_page_boundaries(painter)
 
         # Draw Image
         if self._pixmap and not self._pixmap.isNull():
@@ -1355,6 +1579,9 @@ class MangaCanvas(QWidget):
             painter.setBrush(Qt.BrushStyle.NoBrush)
             for rectangle in rectangles:
                 wx, wy = self.image_to_widget(rectangle.x, rectangle.y)
+                if (wy + rectangle.h * self.zoom_factor < 0 or wy > self.height()
+                        or wx + rectangle.w * self.zoom_factor < 0 or wx > self.width()):
+                    continue
                 painter.drawRect(QRectF(
                     wx, wy, rectangle.w * self.zoom_factor, rectangle.h * self.zoom_factor
                 ))
@@ -1370,6 +1597,8 @@ class MangaCanvas(QWidget):
             ww = panel.w * self.zoom_factor
             wh = panel.h * self.zoom_factor
             box_rect = QRectF(wx, wy, ww, wh)
+            if not box_rect.adjusted(-10, -10, 10, 10).intersects(QRectF(self.rect())):
+                continue
 
             # Box fill & outline
             if is_selected:

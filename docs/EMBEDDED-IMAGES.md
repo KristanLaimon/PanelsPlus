@@ -52,11 +52,12 @@ On an image-to-image boundary, Panels+ keeps only the already-rendered current
 crop on screen. It immediately releases the old full source bitmap, its lazy
 crop closures, and any stale queued page search before scanning later reflow
 pages. This prevents one large EPUB/KEPUB/MOBI image from staying resident throughout
-an arbitrarily long search. Intermediate reader-page turns also cancel stale
-one-shot hardware animation state. In **Nav. Animated**, once the destination
-image and its first (or last) panel are ready, Panels+ arms one framebuffer
-animation immediately before replacing the viewer. The same boundary effect is
-available for fixed-layout PDF, CBZ, and CBR documents.
+an arbitrarily long search. Hidden reader-page turns skip screen refreshes and
+cancel one-shot hardware swipes. **Refresh on full page change** controls the
+full flash when the destination panel opens. In **Nav. Animated**, Panels+ arms
+one framebuffer animation when the destination panel is ready, immediately
+before replacing the viewer. The same boundary effect is available for
+fixed-layout PDF, CBZ, and CBR documents.
 
 Long-pressing **Nav. Animated** opens two independent, default-on controls:
 **Animate between panels** and **Animate between pages**. Classic remains an
@@ -82,13 +83,16 @@ the same embedded image. The mode preference is separate from fixed-layout
 documents, and Smooth's source-union cap falls back to an instant panel switch
 before making a large temporary bitmap.
 
-Smooth animation **between images** is a separate, more expensive problem:
-the images may be on different reflow pages, have unrelated sizes, and require
-a page turn plus an asynchronous search before the next image is known. The
-camera-pan scope therefore remains limited to panels of the same image.
-In Animated mode, image-to-image boundaries use the framebuffer effect when
-**Animate between pages** is enabled; otherwise they use the classic instant
-handoff.
+In **Nav. Smooth**, **Animate page-to-page transitions** also pans between
+embedded images. Panels+ keeps the outgoing crop visible while searching,
+skips pages without an image, and pans once the landing panel is ready.
+Forward navigation opens the first panel of the next image, and backward
+navigation opens the last panel of the previous image. The transition falls
+back to an instant switch if memory is too low, the current crop is zoomed,
+or either crop is rotated.
+
+In **Nav. Animated**, **Animate between pages** controls the framebuffer
+effect for image-to-image boundaries.
 
 ## What remains available
 

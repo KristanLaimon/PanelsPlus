@@ -304,8 +304,8 @@ msgstr "（长按设置）"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "调整分镜间镜头平移的耗时，单位毫秒。"
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "翻页时，从当前页最后分镜平移至下页第一分镜，而非瞬间切换。仅当相邻页已在后台完成检测时才执行动画，否则仍为瞬间切换。"
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "从一页或一张图像的最后一个分镜平移至下一页或下一张图像的第一个分镜。固定版式页面需要预先缓存分镜。对于可重排版式的电子书，Panels+ 找到下一张图像后开始平移。"
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "翻页动画（实际："
@@ -593,6 +593,29 @@ msgstr "This is the last panel of the last page. Continue to KOReader’s end-of
 # The following msgids have no entries in the current English catalog.
 # Existing translations are retained here, outside the active screen groups.
 
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "分镜刷新…"
+
+msgid "Panel refresh"
+msgstr "分镜刷新"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "每 N 个分镜（当前：%1）| 点击此处设置"
+
+msgid "Every panel"
+msgstr "每个分镜"
+
+msgid "Never"
+msgstr "从不"
+
+msgid "Follow KOReader settings"
+msgstr "跟随 KOReader 设置"
+
+msgid "Full refresh every N panels"
+msgstr "每 N 个分镜全屏刷新"
+
 # Legacy: Shared actions and status values
 # Related screen: Shared dialog buttons, language names and enabled/disabled values.
 # Related path (context only; these entries are unused): Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.
@@ -818,3 +841,33 @@ msgstr "旋转跨页（实际："
 
 msgid "Spread direction (Actual: "
 msgstr "跨页方向（实际："
+
+msgid "Refresh on full page change"
+msgstr "切换整页时刷新"
+
+msgid "Fit Panel"
+msgstr "适应分镜"
+
+msgid "Original Size Panel"
+msgstr "分镜原始大小"
+
+msgid "Restore zoom"
+msgstr "恢复缩放"
+
+msgid "Spread gesture"
+msgstr "双指张开"
+
+msgid "Activated"
+msgstr "已启用"
+
+msgid "Deactivated"
+msgstr "已停用"
+
+msgid "Panel gesture zoom"
+msgstr "分镜手势缩放"
+
+msgid "Enable panel gesture zoom"
+msgstr "启用分镜手势缩放"
+
+msgid "Zoom gesture"
+msgstr "缩放手势"

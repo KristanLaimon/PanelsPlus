@@ -206,16 +206,22 @@ local function extractImage(document, pos)
     return nil
 end
 
---- Move ReaderRolling while an embedded-image boundary search is hidden by
---- the still-open panel viewer. ReaderRolling emits `PageChangeAnimation` for
---- every `GotoPage`; on supported e-ink devices that arms a one-shot hardware
---- swipe for the next refresh. Cancel that one-shot after the synchronous
---- event dispatch so intervening text pages do not each animate underneath
---- the overlay. The successful replacement explicitly arms one final swipe.
+--- Keep ReaderRolling's page state and events while scanning under the viewer.
+--- ReaderView's partial refresh request reaches the framebuffer even when its
+--- widget is hidden, and KOReader can promote it to a full flash. Drop refresh
+--- requests during this synchronous turn and cancel any armed hardware swipe.
 local function gotoSearchPage(ui, page)
-    ui:handleEvent(Event:new("GotoPage", page))
+    local set_dirty = UIManager.setDirty
+    UIManager.setDirty = function() end
+    local ok, err = pcall(function()
+        ui:handleEvent(Event:new("GotoPage", page))
+    end)
+    UIManager.setDirty = set_dirty
     if type(Screen.setSwipeAnimations) == "function" then
         Screen:setSwipeAnimations(false)
+    end
+    if not ok then
+        error(err, 0)
     end
 end
 
@@ -269,7 +275,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
     if not panels then
         local detector_or_reason
         panels, detector_or_reason = detectPanels(image, self.settings)
-        if not panels then
+        if not panels or #panels == 0 then
             Timing.log("embedded image detector rejected: " .. tostring(detector_or_reason))
             freeImage(image)
             return false
@@ -286,7 +292,8 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
 
     local images = { image_disposable = true }
     local image_rects, full_page_flags = {}, {}
-    for _, panel in ipairs(panels) do
+    local landing_rotated = self.settings.image_rotation
+    for index, panel in ipairs(panels) do
         local image_rect = expandRect(panel, width, height, self.settings)
         table.insert(image_rects, image_rect)
         local is_full_page = panel.w * panel.h >= (self.settings.full_page_panel_ratio or 0.92) * width * height
@@ -294,6 +301,9 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         local direct_spread = self.settings.auto_rotate_double_pages ~= false
             and self.settings.image_rotation == nil
             and DoubleSpread.shouldRotate(panel, is_full_page, #panels == 1)
+        if index == initial_image_num and direct_spread then
+            landing_rotated = true
+        end
         if self.settings.crop_mode == "none" and not direct_spread then
             local image_func, viewport_rect = buildNoCropImage(image, panel, { w = width, h = height }, self.ui)
             image_rects[#image_rects] = viewport_rect
@@ -309,7 +319,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         end
     end
 
-    local viewer = PanelViewer:new({
+    local viewer_options = {
         image = images,
         image_disposable = true,
         images_list_nb = #images,
@@ -318,6 +328,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         image_rects = image_rects,
         panel_is_full_page = full_page_flags,
         reader_ui = self.ui,
+        panel_refresh_settings = self.settings,
         embedded_source_image = image,
         reading_mode = self.settings.mode,
         crop_mode = self.settings.crop_mode,
@@ -339,6 +350,13 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         progress_bar_visible = self.settings.progress_bar_visible ~= false,
         page = 1, -- OCR coordinates refer to the extracted image, not a reflow page.
         hold_text_selection = self.settings.hold_text_selection ~= false,
+        panel_zoom_settings = require("src._panelzoom").proxy(self.settings),
+        panel_zoom_save_callback = function()
+            self:saveSettings()
+        end,
+        zoom_config_callback = function(current_viewer)
+            return self:showPanelZoomMenu(current_viewer)
+        end,
         ocr_bundled_language = self:getSelectedOcrModel(),
         image_rotation = self.settings.image_rotation,
         auto_rotate_double_pages = self.settings.auto_rotate_double_pages ~= false,
@@ -350,7 +368,7 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         nav_animated_panels = self.settings.nav_animated_panels ~= false,
         nav_animated_pages = self.settings.nav_animated_pages ~= false,
         nav_transition_duration = self.settings.nav_transition_duration or Settings.defaults.nav_transition_duration,
-        nav_transition_cross_page = false,
+        nav_transition_cross_page = self.settings.nav_transition_cross_page ~= false,
         nav_transition_frames = self.settings.nav_transition_frames or Settings.defaults.nav_transition_frames,
         image_union_renderer = function(union, zoom)
             return renderImageUnion(image, union, zoom)
@@ -465,18 +483,47 @@ function EmbeddedImage:showEmbeddedImagePanelsForImage(image, options)
         more_config_callback = function(current_viewer)
             return self:showMoreConfigMenu(current_viewer)
         end,
-    })
-    if options.replace_viewer then
-        -- All search-page turns were deliberately silent. Arm one animation
-        -- only now, immediately before the old crop is replaced by the
-        -- destination crop. The shared controller applies the Panels+/KOReader
-        -- sync preference and suppresses this while Smooth mode is selected.
-        if options.boundary_direction then
-            self:armPageTurnAnimation(options.boundary_direction, options.replace_viewer)
+    }
+    local previous_viewer = options.replace_viewer
+    local direction = options.boundary_direction
+    local function showViewer()
+        local viewer = PanelViewer:new(viewer_options)
+        if previous_viewer then
+            -- Search turns were silent. The shared controller arms a hardware
+            -- swipe here when appropriate for the selected navigation mode.
+            if direction then
+                self:armPageTurnAnimation(direction, previous_viewer)
+            end
+            previous_viewer._panels_plus_replacing = true
+            UIManager:close(previous_viewer)
         end
-        UIManager:close(options.replace_viewer)
+        UIManager:show(viewer)
     end
-    UIManager:show(viewer)
+    if
+        direction
+        and previous_viewer
+        and previous_viewer.nav_transition_mode == "smooth"
+        and previous_viewer.nav_transition_cross_page
+        and not landing_rotated
+        and previous_viewer:animateEmbeddedBoundaryTransition(
+            direction,
+            images[initial_image_num],
+            image_rects[initial_image_num],
+            full_page_flags[initial_image_num],
+            function()
+                previous_viewer._panels_plus_transition_cleanup = nil
+                showViewer()
+            end
+        )
+    then
+        -- The destination viewer does not exist yet. Closing during the pan
+        -- cancels its scheduled handoff and releases its decoded source here.
+        previous_viewer._panels_plus_transition_cleanup = function()
+            freeImage(image)
+        end
+        return true
+    end
+    showViewer()
     return true
 end
 

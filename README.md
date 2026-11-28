@@ -1,17 +1,22 @@
 <p align="center">
-  <img width="99%" height="auto" alt="PanelsPlus_Cover" src="https://github.com/user-attachments/assets/16887793-0bd2-4712-9b1e-75d832152b55" />
+  <img width="99%" height="auto" alt="PanelsPlus_Cover" src="https://github.com/user-attachments/assets/06bda505-6c5f-4110-8b47-380e686d8e33" />
+
+
+
   <br>
   <strong>Panels+</strong>
   <br>
-  <span style="display:block;font-size:1.25rem;">Read manga and comics <strong>panel by panel</strong>, without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
-  <br><br>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?color=blue&style=flat-square" alt="Latest Release"></a>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://flat.badgen.net/github/assets-dl/KristanLaimon/PanelsPlus/total?color=green&label=downloads" alt="Downloads"></a>
-  <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-006699?style=flat-square" alt="KOReader Compatibility"></a>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-informational?style=flat-square" alt="MIT License"></a>
-  <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus.svg?style=flat-square&cacheSeconds=300" alt="GitHub Stars"></a>
-  <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/badge/Sponsor-GitHub%20Sponsors-ea4aaa?logo=github&style=flat-square" alt="Sponsor on GitHub"></a>
-  <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20Package%20Manager-Available-purple?style=flat-square" alt="ZEN Package Manager"></a>
+  <span style="display:block;font-size:1.25rem;">Read manga and comics without losing the page and other panel zooming utilities with no setup required. Read them the way they were intended: <strong>Panel by Panel</strong></span>
+  <br><a href="#what-this-plugin-does">Overview</a> | <a href="#installation">Installation</a> | <a href="#compatibility">Compatibility</a> | <a href="#features">Features</a> | <a href="#prs-and-building">PR's &amp; Building</a> | <a href="https://panelsplus.site">Website</a><br><br>
+<p align="center">
+    <a href="https://github.com/KristanLaimon/PanelsPlus/releases/latest"><img src="https://img.shields.io/github/v/release/KristanLaimon/PanelsPlus?style=flat-square&logo=kitsu&logoColor=EE6123&label=LATEST%20RELEASE&labelColor=ffffff&color=333333" alt="Latest Release"></a>
+    <a href="https://github.com/KristanLaimon/PanelsPlus/releases"><img src="https://img.shields.io/github/downloads/KristanLaimon/PanelsPlus/total?style=flat-square&logo=fireship&logoColor=EB844E&label=TOTAL%20DOWNLOADS&labelColor=ffffff&color=333333" alt="Total Downloads"></a>
+    <a href="https://koreader.rocks"><img src="https://img.shields.io/badge/KOReader-v2025.04%20--%20v2026.07.1%20%26%20Newer-333333?style=flat-square&logo=gitbook&logoColor=179287&labelColor=ffffff" alt="KOReader Compatibility"></a> <br>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/LICENSE-MIT-333333?style=flat-square&logo=opensourcehardware&logoColor=black&labelColor=ffffff" alt="MIT License"></a>
+    <a href="https://github.com/KristanLaimon/PanelsPlus/stargazers"><img src="https://img.shields.io/github/stars/KristanLaimon/PanelsPlus?style=flat-square&logo=fontawesome&logoColor=FFC233&label=GITHUB%20STARS&labelColor=ffffff&color=333333&cacheSeconds=300" alt="GitHub Stars"></a>
+    <a href="https://github.com/sponsors/KristanLaimon"><img src="https://img.shields.io/static/v1?label=SPONSORS&message=%20&color=ffffff&labelColor=ffffff&style=flat-square&logo=githubsponsors&logoColor=red" alt="Sponsors"></a>
+    <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/ZEN%20PACKAGE%20MANAGER-AVAILABLE-333333?style=flat-square&logo=zend&logoColor=black&labelColor=ffffff" alt="ZEN Package Manager"></a>
+    <a href="https://github.com/AnthonyGress/zen_ui.koplugin"><img src="https://img.shields.io/badge/APPSTORE-AVAILABLE-333333?style=flat-square&logo=nanostores&logoColor=black&labelColor=ffffff" alt="Appstore Package Manager"></a>
 </p>
 
 <div align="center">
@@ -35,13 +40,18 @@
   </tr>
 </table>
 
+> No nightly builds at the moment.
+
+> Panels+ has an official website!. Here: https://www.panelsplus.site/ | Warning: This is the only official page, any other page aren't from official Panels+ devs and could be malicious.
+
+<a id="what-this-plugin-does"></a>
+
 Panels+ is a KOReader plugin that improves manga and comic reading by replacing the default KOReader single-panel zoom flow with a custom direction-aware panel reader with in-live panel scanning. No complex pre-mangas-scanning setup, external scripts, JSON files required, install Panels+ and *it just works*.
 
 ### Features
 
 - Includes 3 panel transition modes:
 <table>
-  <!-- Videos (mismo alto y centrados) -->
   <tr valign="middle">
     <td width="33%" align="center">
       <video height="180" src="https://github.com/user-attachments/assets/7200f3e1-74d8-4b24-bd64-c775600d35ed"></video>
@@ -83,12 +93,30 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 
 > Currently we're looking for translators. If you'd like to help us translate this plugin to your native language, check our [Translation Quick Guide](docs/translations/README.md).
 
+<a id="compatibility"></a>
+
 ## 🧩 Compatibility
 
+### Devices
 <div align="center">
-<img width="100%" height="auto" alt="image" src="https://github.com/user-attachments/assets/9a1643e5-1b29-40f8-8eea-2ce1950972b2" />
+    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/9a1643e5-1b29-40f8-8eea-2ce1950972b2" />
 </div>
 
+### KOReader Plugins Ecosystem
+*Panels+*, only focuses in Panels from mangas & comics (and soon manhwas) as you can see. It won't include outer-futures non-related
+to panels, but still, mangas and comics aren't 100% panels right?.
+
+To improve your experience, this plugin has tested/garanteed compatibility with the following:
+
+<div align="center">
+    <img width="99%" height="auto" alt="image" src="https://github.com/user-attachments/assets/e3b7d73e-97d3-493d-80bf-01411d239093" />
+</div>
+
+Download/Repos:
+- Ink-away: https://github.com/EmirErtorer/ink-away.koplugin
+- Meguru: https://github.com/Craftwork2720/meguru
+- kobo.koplugin: https://github.com/OGKevin/kobo.koplugin
+- LiveLight: https://github.com/ironicsans/livelight.koplugin
 
 ### KOReader versions
 
@@ -123,6 +151,8 @@ This could work with even older versions, but not personally tested. If any issu
     </td>
   </tr>
 </table>
+
+<a id="installation"></a>
 
 ## 📦 Installation
 
@@ -206,17 +236,50 @@ Configuration is as easy as just using the plugin itself!
   - Cropped panel? No cropped? Margin?, already got in.
   - Smooth animations (Recommended in no ink-devices)
 
-### 🎬 Developer's Personal Tip: The Cinematic Experience
+### Showcase
 
-For a more fluent and immersive navigation, my personal recommendation is to set KOReader to **landscape (horizontal) rotation** and enable **strict-crop mode** in Panels+ with classic navigation for e-ink based devices and smooth navigation for android and non-e-ink devices. <br>
-While playing and testing this pluging from months of usage I found this setup the most convenient way to experience your manga (and probably the way it was intended).
+<table>
+  <tr>
+    <td align="center" valign="top" width="50%">
+      <video
+        src="https://github.com/user-attachments/assets/40d19a65-8bef-4e0e-b48b-575e0ab8fdb7"
+        controls
+        width="420">
+      </video>
+      <br>
+      <sub>
+        Panels+ v1.6.0 running on a Kindle. All features in 1 video.
+        <br><br>
+        This demo includes v1.7.0-nightly ink-away integration which is
+        not released yet until the next stable release of Ink-Away.
+        You can check the status
+        <a href="https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly">here</a>.
+      </sub>
+    </td>
+    <td align="center" valign="top" width="50%">
+      <video
+        src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4"
+        controls
+        width="420">
+      </video>
+      <br>
+      <sub>
+        Panels+ v1.3.0 (Old, video but the advice is the same).
+        For a more fluent and immersive navigation, my personal
+        recommendation is to set KOReader to
+        <strong>landscape (horizontal) rotation</strong> and enable
+        <strong>strict-crop mode</strong> in Panels+ with classic
+        navigation for e-ink based devices and smooth navigation
+        for Android and non-e-ink devices.
+        <br><br>
+        While playing and testing this plugin from months of usage,
+        I found this setup the most convenient way to experience
+        your manga (and probably the way it was intended).
+      </sub>
+    </td>
+  </tr>
+</table>
 
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/ca4de34b-c9e4-4045-932a-8831cea1a2b4" controls width="420"></video>
-  <br>
-  <em>Panels+ running on a Kindle</em>
-</div>
-<br>
 Of course if you prefer vertical, with margin, loose cropped or even animated, then use it that way!. I've made all this config fully customizable to make this plugin `adapt to you`, not you to the plugin. Your manga, your rules.
 
 ### 🔍 OCR Word Lookup Setup
@@ -264,15 +327,30 @@ Currently supported languages are ***English***, ***Spanish***, ***Simplified Ch
 
 ---
 
+<a id="prs-and-building"></a>
+
 ## 🛠️ Pull Requests\Developer Setup
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructions, project documentation, and contribution guidelines.
+
+Working on another KOReader plugin? The [plugin compatibility guide](docs/PLUGIN-COMPATIBILITY.md)
+explains how to use reference repositories, change compatibility tests, and add
+support for your plugin.
 
 ---
 
 ### 🏗️ Building From Source
 
-You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), just clone or download this repository, then run:
+You don't need to do any of the setup from [CONTRIBUTING.md](CONTRIBUTING.md), just clone this repository either in windows or linux:
+
+```bash
+git clone https://github.com/KristanLaimon/PanelsPlus.git --depth 1  # --depth 1 to make the cloning faster. Only downloading the last commit.
+git branch # By default you'll bee in main-nightly. If you run ./build.sh here, you'll get the latest update possible (cutting-edge) but could be unstable.
+git switch main-stable  # You can go to stable version and run ./build.sh there instead.
+
+```
+
+then run:
 
 ```bash
 ./build.sh
@@ -315,11 +393,15 @@ Check "LICENSE" file in this repository.
 
 ---
 
-<h3 align="center">Sponsors</h3>
+<h1 align="center">Sponsors</h1>
 
+<img width="99%" height="auto" alt="image" src="https://github.com/user-attachments/assets/72b5c4cd-3081-4707-8647-27f69e07f86e" />
+
+<p align="center">Thanks for all the sponsors. This helps me a lot to continue with this project, and motivates me to release faster releases.</p>
+
+<!--
 ![sponsors_tier_gold_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part1.png)
-
 ![sponsors_bakers_actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.part2.png)
-
 ![past_sponsors_not actual](https://raw.githubusercontent.com/KristanLaimon/StaticStuff/refs/heads/main/sponsors.past.png)
+-->
 

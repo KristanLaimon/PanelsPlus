@@ -22,6 +22,6 @@ if command -v gofmt &> /dev/null && [ -d "tools/ocr_worker" ]; then
 fi
 
 echo "Linting Lua files with Luacheck..."
-luacheck .
+luacheck ./*.lua src tests tools
 
 echo "All checks passed!"

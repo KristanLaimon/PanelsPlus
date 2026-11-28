@@ -1,4 +1,30 @@
 {
+  "annotation_baseline_history": [
+    {
+      "archived_at": "2026-11-07",
+      "key": "smart_full_volume",
+      "metrics": {
+        "f1": 0.7264,
+        "false_positives": 125,
+        "gap_tolerance": 35,
+        "iou_threshold": 0.5,
+        "mean_iou": 0.8722,
+        "pages_evaluated": 179,
+        "precision": 0.8035,
+        "reading_order_accuracy": 0.3575,
+        "reading_order_pages": 179,
+        "reading_order_pages_correct": 64,
+        "reading_order_pair_accuracy": 1,
+        "reading_order_pairs": 891,
+        "reading_order_pairs_correct": 891,
+        "recall": 0.6628,
+        "total_detected": 636,
+        "total_ground_truth": 771,
+        "true_positives": 511
+      },
+      "reason": "User-approved current Smart baseline; compare future results against these measurements instead of fixed accuracy targets"
+    }
+  ],
   "book_title": "SHY_Vol_01",
   "components_conservative_full_volume": {
     "f1": 0.7259,
@@ -32,26 +58,6 @@
     "total_ground_truth": 771,
     "true_positives": 418
   },
-  "smart_full_volume": {
-    "f1": 0.7264,
-    "false_positives": 125,
-    "gap_tolerance": 35,
-    "iou_threshold": 0.5,
-    "mean_iou": 0.8722,
-    "pages_evaluated": 179,
-    "precision": 0.8035,
-    "reading_order_accuracy": 0.3575,
-    "reading_order_pages": 179,
-    "reading_order_pages_correct": 64,
-    "reading_order_pair_accuracy": 1,
-    "reading_order_pairs": 891,
-    "reading_order_pairs_correct": 891,
-    "recall": 0.6628,
-    "total_detected": 636,
-    "total_ground_truth": 771,
-    "true_positives": 511
-  },
-  "updated_at": "2026-10-12",
   "legacy_safe_against_smart_full_volume": {
     "f1": 0.4814,
     "false_positives": 109,
@@ -71,5 +77,25 @@
     "total_ground_truth": 771,
     "true_positives": 279
   },
-  "safe_mapping_status": "pending"
+  "safe_mapping_status": "pending",
+  "smart_full_volume": {
+    "f1": 0.7231,
+    "false_positives": 119,
+    "gap_tolerance": 35,
+    "iou_threshold": 0.5,
+    "mean_iou": 0.8757,
+    "pages_evaluated": 179,
+    "precision": 0.809,
+    "reading_order_accuracy": 0.3296,
+    "reading_order_pages": 179,
+    "reading_order_pages_correct": 59,
+    "reading_order_pair_accuracy": 1.0,
+    "reading_order_pairs": 884,
+    "reading_order_pairs_correct": 884,
+    "recall": 0.6537,
+    "total_detected": 623,
+    "total_ground_truth": 771,
+    "true_positives": 504
+  },
+  "updated_at": "2026-11-07"
 }

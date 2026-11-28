@@ -1,0 +1,637 @@
+--[[
+Panels+
+File: src/viewer_controller/menus.lua
+Name: ViewerController
+Description: Viewer orchestration: menus.
+Author: KristanLaimon
+Year: 2026
+Copyright (c) 2026 KristanLaimon
+License: MIT; see the repository LICENSE file.
+SPDX-License-Identifier: MIT
+]]
+local Device = require("device")
+local CenterContainer = require("ui/widget/container/centercontainer")
+local Geom = require("ui/geometry")
+local DoubleSpread = require("src._doublespread")
+local PanelViewer = require("src._panelviewer")
+local UIManager = require("ui/uimanager")
+local Screen = Device.screen
+
+--- @param ViewerController PanelsPlus|PPViewerControllerMethods
+return function(ViewerController)
+    --- @param viewer PanelViewer
+    --- @param parent_page integer|nil Page to restore in More Config.
+    function ViewerController:showPanelRefreshSettings(viewer, parent_page)
+        local _ = require("gettext")
+        local menu
+        local items = {}
+        --- @type { [1]: PPPanelRefreshMode, [2]: string }[]
+        local choices = {
+            {
+                "interval",
+                _("Every N panels (current: %1) | Tap here to config"):gsub(
+                    "%%1",
+                    tostring(self.settings.panel_refresh_interval or 6)
+                ),
+            },
+            { "every", _("Every panel") },
+            { "never", _("Never") },
+            { "koreader", _("Follow KOReader settings") },
+        }
+        for choice_index, choice in ipairs(choices) do
+            local mode = choice[1]
+            items[choice_index] = {
+                text = (self.settings.panel_refresh_mode == mode and "◉ " or "○ ") .. choice[2],
+                callback = function()
+                    --- @param interval integer|nil New custom interval, if changed.
+                    local function save(interval)
+                        self.settings.panel_refresh_mode = mode
+                        if interval then
+                            self.settings.panel_refresh_interval = interval
+                        end
+                        viewer.panel_refresh_settings = self.settings
+                        viewer._panel_refresh_count = 0
+                        self:saveSettings()
+                        menu.close_callback = nil
+                        UIManager:close(menu)
+                        self:showPanelRefreshSettings(viewer, parent_page)
+                    end
+                    if mode == "interval" then
+                        menu.close_callback = nil
+                        UIManager:close(menu)
+                        UIManager:nextTick(function()
+                            UIManager:show(require("ui/widget/spinwidget"):new({
+                                title_text = _("Full refresh every N panels"),
+                                value = self.settings.panel_refresh_interval or 6,
+                                value_min = 1,
+                                value_max = 200,
+                                value_step = 1,
+                                value_hold_step = 10,
+                                default_value = 6,
+                                precision = "%d",
+                                ok_always_enabled = true,
+                                callback = function(spin)
+                                    save(spin.value)
+                                end,
+                                cancel_callback = function()
+                                    self:showPanelRefreshSettings(viewer, parent_page)
+                                end,
+                            }))
+                        end)
+                    else
+                        save()
+                    end
+                end,
+            }
+        end
+        items[#items + 1] = {
+            text = (self.settings.panel_refresh_on_page_change ~= false and "☑ " or "☐ ")
+                .. _("Refresh on full page change"),
+            callback = function()
+                self.settings.panel_refresh_on_page_change = self.settings.panel_refresh_on_page_change == false
+                viewer.panel_refresh_settings = self.settings
+                self:saveSettings()
+                menu.close_callback = nil
+                UIManager:close(menu)
+                self:showPanelRefreshSettings(viewer, parent_page)
+            end,
+        }
+        menu = require("ui/widget/menu"):new({
+            title = _("Panel refresh"),
+            item_table = items,
+            close_callback = function()
+                UIManager:close(menu)
+                self:showMoreConfigMenu(viewer, parent_page)
+            end,
+        })
+        UIManager:show(menu)
+    end
+
+    function ViewerController:showInkAwaySettings(viewer, parent_page)
+        local _ = require("gettext")
+        local menu
+        local items = {}
+        for _, choice in ipairs({
+            { true, _("Keep spread fold joined while annotating") },
+            { false, _("Show original fold while annotating") },
+        }) do
+            local joined = choice[1]
+            items[#items + 1] = {
+                text = ((self.settings.inkaway_join_spread_fold ~= false) == joined and "◉ " or "○ ") .. choice[2],
+                callback = function()
+                    self.settings.inkaway_join_spread_fold = joined
+                    viewer.inkaway_join_spread_fold = joined
+                    self:saveSettings()
+                    menu.close_callback = nil
+                    UIManager:close(menu)
+                    self:showInkAwaySettings(viewer, parent_page)
+                end,
+            }
+        end
+        items[#items + 1] = {
+            id = "inkaway_fit_viewport",
+            help_text = _(
+                "Cycle between fitting panels beside the annotator toolbar and keeping the full viewport. Fitting follows the toolbar when it moves or hides."
+            ),
+            text = _("Panel viewport: ")
+                .. (self.settings.inkaway_fit_viewport ~= false and _("Fit beside toolbar") or _("Full viewport")),
+            callback = function()
+                local fit = self.settings.inkaway_fit_viewport == false
+                self.settings.inkaway_fit_viewport = fit
+                if viewer.setInkAwayFitViewport then
+                    viewer:setInkAwayFitViewport(fit)
+                else
+                    viewer.inkaway_fit_viewport = fit
+                end
+                self:saveSettings()
+                menu.close_callback = nil
+                UIManager:close(menu)
+                self:showInkAwaySettings(viewer, parent_page)
+            end,
+        }
+        menu = require("ui/widget/menu"):new({
+            title = _("Ink-away Settings…"),
+            item_table = items,
+            close_callback = function()
+                UIManager:close(menu)
+                self:showMoreConfigMenu(viewer, parent_page)
+            end,
+        })
+        UIManager:show(menu)
+        return true
+    end
+
+    --- Find a live viewer, including embedded-image viewers which are not tracked
+    --- by active_panel_viewer. The explicit context also supports menus in tests.
+    function ViewerController:getOpenPanelViewer()
+        for i = #(UIManager._window_stack or {}), 1, -1 do
+            local widget = UIManager._window_stack[i].widget
+            if
+                widget
+                and widget.reader_ui == self.ui
+                and widget.name == PanelViewer.name
+                and not widget._panels_plus_closed
+            then
+                return widget
+            end
+        end
+        local viewer = self._panels_plus_config_viewer or self.active_panel_viewer
+        return viewer and not viewer._panels_plus_closed and viewer or nil
+    end
+
+    local function submenuPath(items, predicate)
+        for index, item in ipairs(items or {}) do
+            item.idx = index
+            if predicate(item) then
+                return { item }
+            end
+            local children = item.sub_item_table or item
+            if children ~= items then
+                local path = submenuPath(children, predicate)
+                if path then
+                    table.insert(path, 1, item)
+                    return path
+                end
+            end
+        end
+    end
+
+    --- Enter the real reader menu before showing it; no translated labels or
+    --- hardcoded tab positions. Both TouchMenu and keyboard Menu keep their own
+    --- normal Back stack through onMenuSelect.
+    function ViewerController:showAdvancedOptions(viewer, section, page)
+        local reader_menu = self.ui and self.ui.menu
+        if not reader_menu then
+            return false
+        end
+        self._panels_plus_config_viewer = viewer
+        reader_menu:onShowMenu(nil, true)
+        local container = reader_menu.menu_container
+        local menu = container[1]
+        local predicate = function(item)
+            return section and item.panels_plus_section == section or (not section and item.panels_plus_menu)
+        end
+        local path
+        if menu.switchMenuTab then
+            for tab, items in ipairs(menu.tab_item_table) do
+                path = submenuPath(items, predicate)
+                if path then
+                    menu.bar:switchToTab(tab)
+                    break
+                end
+            end
+        else
+            path = submenuPath(menu.item_table, predicate)
+        end
+        if not path then
+            reader_menu:onCloseReaderMenu()
+            self._panels_plus_config_viewer = nil
+            UIManager:show(require("ui/widget/infomessage"):new({
+                text = require("gettext")("Panels+ advanced options are unavailable."),
+            }))
+            return false
+        end
+        for _, item in ipairs(path) do
+            menu:onMenuSelect(item)
+        end
+        if page and page > 1 then
+            menu.page = page
+            menu:updateItems()
+        end
+        local original_close = menu.close_callback
+        menu.close_callback = function()
+            original_close()
+            local current = self:getOpenPanelViewer()
+            self._panels_plus_config_viewer = nil
+            local rebuild = self._panels_plus_spread_options_changed
+            self._panels_plus_spread_options_changed = nil
+            if rebuild and current then
+                self:rebuildViewerForSpreadOptions(current)
+            end
+        end
+        menu.not_shown = false
+        UIManager:show(container)
+        return true
+    end
+
+    --- Show a multi-options menu popup for miscellaneous panel viewer settings
+    --- that don't need their own dedicated button.
+    ---
+    --- @param viewer PanelViewer Active panel viewer instance.
+    --- @return boolean handled Always true for viewer callback dispatch.
+    function ViewerController:showMoreConfigMenu(viewer, page)
+        local _ = require("gettext")
+        local container = CenterContainer:new({
+            dimen = Geom:new({ w = Screen:getWidth(), h = Screen:getHeight() }),
+        })
+        local menu
+        local function close()
+            -- A selection callback may open a replacement menu. Prevent KOReader's
+            -- trailing close callback from closing or reopening that replacement.
+            menu.close_callback = nil
+            UIManager:close(container)
+        end
+        local function reopen(current_viewer)
+            close()
+            self:showMoreConfigMenu(current_viewer or viewer, menu.page)
+        end
+        local function toggle(id, text, key, callback)
+            return {
+                id = id,
+                text = _(text),
+                mandatory = self.settings[key] ~= false and _("On") or _("Off"),
+                callback = function()
+                    callback()
+                    reopen()
+                end,
+            }
+        end
+        local tap = toggle("tap", "Tap screen sides to navigate", "tap_navigation", function()
+            self:toggleViewerTapNavigation(viewer)
+        end)
+        tap.mandatory = self.settings.tap_navigation == true and _("On") or _("Off")
+        local invert_swipe = toggle("invert_swipe", "Invert panel swipe direction", "invert_swipe", function()
+            self:setInvertSwipe(self.settings.invert_swipe ~= true)
+            viewer.invert_swipe = self.settings.invert_swipe
+        end)
+        invert_swipe.mandatory = self.settings.invert_swipe == true and _("On") or _("Off")
+        local invert_taps = toggle("invert_taps", "Invert tap direction", "invert_taps", function()
+            self:setInvertTaps(self.settings.invert_taps ~= true)
+            viewer.invert_taps = self.settings.invert_taps
+        end)
+        invert_taps.mandatory = self.settings.invert_taps == true and _("On") or _("Off")
+        local labels = { off = _("Off"), viewer = _("Viewer"), reading = _("Reading"), both = _("Viewer + reading") }
+        local items = {
+            tap,
+            toggle("swipe", "Swipe to navigate", "swipe_navigation", function()
+                self:toggleViewerSwipeNavigation(viewer)
+            end),
+            invert_swipe,
+            invert_taps,
+            {
+                id = "panel_gesture",
+                text = _("Open panels with"),
+                mandatory = self.settings.panel_gesture == "two_finger_tap" and _("Two-finger tap") or _("Long press"),
+                callback = function()
+                    close()
+                    local picker
+                    picker = require("ui/widget/menu"):new({
+                        title = _("Open panels with"),
+                        item_table = require("src.menu").panelGestureItems(self),
+                        close_callback = function()
+                            UIManager:close(picker)
+                            self:showMoreConfigMenu(viewer, menu.page)
+                        end,
+                    })
+                    UIManager:show(picker)
+                end,
+            },
+            {
+                id = "rotate",
+                text = _("Rotate spreads"),
+                mandatory = labels[DoubleSpread.rotationMode(self.settings)],
+                callback = function()
+                    close()
+                    self:showMoreConfigMenu(self:cycleViewerSpreadRotationMode(viewer), menu.page)
+                end,
+            },
+            {
+                id = "fold",
+                text = _("Remove spread fold line"),
+                mandatory = self.settings.join_spread_fold ~= false and _("On") or _("Off"),
+                callback = function()
+                    close()
+                    self:showMoreConfigMenu(self:toggleViewerJoinSpreadFold(viewer), menu.page)
+                end,
+            },
+            toggle("text_selection", "Touch & hold text selection", "hold_text_selection", function()
+                self:setHoldTextSelection(self.settings.hold_text_selection == false)
+                viewer.hold_text_selection = self.settings.hold_text_selection
+                viewer:replaceButtonTable()
+                viewer:update()
+            end),
+            {
+                id = "panel_refresh",
+                text = _("Panel refresh…"),
+                callback = function()
+                    close()
+                    self:showPanelRefreshSettings(viewer, menu.page)
+                end,
+            },
+            {
+                id = "scale",
+                text = _("Zoom settings"),
+                mandatory = self.settings.panel_zoom_enabled == true and _("On") or _("Off"),
+                callback = function()
+                    close()
+                    self:showPanelZoomMenu(viewer, function()
+                        self:showMoreConfigMenu(viewer, menu.page)
+                    end)
+                end,
+            },
+            {
+                id = "advanced",
+                text = _("Open advanced options"),
+                bold = true,
+                mandatory = "›",
+                separator = true,
+                callback = function()
+                    close()
+                    self:showAdvancedOptions(viewer)
+                end,
+            },
+        }
+        if self.ui and (self.ui["ink-away"] or self.ui.inkaway) then
+            table.insert(items, #items, {
+                id = "inkaway_settings",
+                text = _("Ink-away Settings…"),
+                mandatory = "›",
+                callback = function()
+                    close()
+                    self:showInkAwaySettings(viewer, menu.page)
+                end,
+            })
+        end
+        menu = require("src._configmenu").new({
+            title = _("More Config"),
+            item_table = items,
+            show_parent = container,
+            close_callback = function()
+                UIManager:close(container)
+            end,
+        })
+        container[1] = menu
+        if page and page > 1 then
+            -- Menu:init() always starts at page one. Restore after construction;
+            -- updateItems also clamps the page if a rotation changed pagination.
+            menu.page = page
+            menu:updateItems()
+        end
+        UIManager:show(container)
+        return true
+    end
+
+    --- Open Zoom settings using the OCR picker's centered radio-choice layout.
+    --- @param viewer PanelViewer|nil Viewer to repaint when settings change.
+    --- @param return_callback fun()|nil Reopens the parent configuration menu.
+    --- @return boolean handled
+    function ViewerController:showPanelZoomMenu(viewer, return_callback)
+        local container = CenterContainer:new({
+            dimen = Geom:new({ w = Screen:getWidth(), h = Screen:getHeight() }),
+        })
+        local menu
+        local items = require("src.menu").panelZoomItems(self)
+        for _, item in ipairs(items) do
+            if item.hold_callback then
+                item.hold_callback = function()
+                    menu.close_callback = nil
+                    UIManager:close(container)
+                    self:showZoomSliderOptions(viewer, return_callback)
+                end
+            end
+            local callback = item.callback
+            if callback then
+                item.callback = function()
+                    callback()
+                    if viewer and viewer.update then
+                        viewer:update()
+                    end
+                    menu.close_callback = nil
+                    UIManager:close(container)
+                    self:showPanelZoomMenu(viewer, return_callback)
+                end
+            end
+        end
+        menu = require("ui/widget/menu"):new({
+            title = require("gettext")("Zoom settings"),
+            item_table = items,
+            width = math.min(math.floor(Screen:getWidth() * 0.88), math.floor(Screen:getHeight() * 0.9)),
+            height = math.floor(Screen:getHeight() * 0.82),
+            items_per_page = math.min(#items, 8),
+            show_parent = container,
+            close_callback = function()
+                UIManager:close(container)
+                if return_callback then
+                    return_callback()
+                end
+            end,
+        })
+        function menu.onMenuHold(_, item)
+            if item.hold_callback then
+                item.hold_callback()
+            end
+            return true
+        end
+        container[1] = menu
+        UIManager:show(container)
+        return true
+    end
+
+    --- Open slider range, geometry, transparency, and reset controls.
+    --- @param viewer PanelViewer|nil Viewer used for live previews and geometry editing.
+    --- @param return_callback fun()|nil Parent callback retained when reopening Zoom settings.
+    function ViewerController:showZoomSliderOptions(viewer, return_callback)
+        local _ = require("gettext")
+        local zoom = require("src._panelzoom")
+        local can_position = viewer ~= nil and type(viewer.startZoomSliderPositioning) == "function"
+        local dialog
+        local function reopenSliderOptions()
+            self:showZoomSliderOptions(viewer, return_callback)
+        end
+        local function repaintViewer()
+            if viewer then
+                UIManager:setDirty(viewer, "ui")
+            end
+        end
+        local function saveSliderRange()
+            local settings = self.settings
+            local min, max = zoom.range(settings)
+            local factor = math.max(min, math.min(max, zoom.factor(settings.panel_zoom_factor)))
+            settings.panel_zoom_factor = factor
+            self:saveSettings()
+            local saved = viewer and viewer._gesture_zoom_restore
+            if settings.panel_zoom_mode ~= "in_config" and saved and saved.base_scale and saved.base_scale > 0 then
+                viewer.scale_factor = saved.base_scale * factor
+                viewer:update()
+            else
+                repaintViewer()
+            end
+        end
+        dialog = require("ui/widget/buttondialog"):new({
+            title = _("Slider settings"),
+            buttons = {
+                {
+                    {
+                        text = _("Change Max & Min values"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            local min, max = zoom.range(self.settings)
+                            UIManager:show(require("ui/widget/doublespinwidget"):new({
+                                title_text = _("Zoom slider range"),
+                                left_text = _("Minimum"),
+                                right_text = _("Maximum"),
+                                left_min = 0.1,
+                                left_max = 7.9,
+                                left_value = min,
+                                left_step = 0.1,
+                                left_precision = "%.1f",
+                                right_min = 0.2,
+                                right_max = 8,
+                                right_value = max,
+                                right_step = 0.1,
+                                right_precision = "%.1f",
+                                unit = "×",
+                                ok_always_enabled = true,
+                                callback = function(low, high)
+                                    if low < high then
+                                        low, high = math.floor(low * 10 + 0.5) / 10, math.floor(high * 10 + 0.5) / 10
+                                        self.settings.panel_zoom_slider_min = low
+                                        self.settings.panel_zoom_slider_max = high
+                                        saveSliderRange()
+                                    else
+                                        UIManager:show(require("ui/widget/infomessage"):new({
+                                            text = _("Minimum must be less than maximum."),
+                                        }))
+                                    end
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                                cancel_callback = function()
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                            }))
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Change positioning"),
+                        enabled = can_position,
+                        callback = can_position and function()
+                            UIManager:close(dialog)
+                            viewer:startZoomSliderPositioning(reopenSliderOptions)
+                        end or nil,
+                    },
+                },
+                {
+                    {
+                        text = _("Transparency"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            local original_opacity = self.settings.panel_zoom_slider_opacity
+                            local settings = self.settings
+                            local applied = false
+                            local spin = require("ui/widget/spinwidget"):new({
+                                title_text = _("Transparency"),
+                                value = 100 - (self.settings.panel_zoom_slider_opacity or 100),
+                                value_min = 0,
+                                value_max = 100,
+                                value_step = 5,
+                                unit = "%",
+                                default_value = 0,
+                                callback = function(spin)
+                                    self.settings.panel_zoom_slider_opacity = 100 - spin.value
+                                    applied = true
+                                    self:saveSettings()
+                                end,
+                                close_callback = function()
+                                    if not applied then
+                                        self.settings.panel_zoom_slider_opacity = original_opacity
+                                    end
+                                    repaintViewer()
+                                    UIManager:nextTick(reopenSliderOptions)
+                                end,
+                            })
+                            local update = spin.update
+                            function spin.update(widget, value, index)
+                                if value ~= nil then
+                                    settings.panel_zoom_slider_opacity = 100 - value
+                                    repaintViewer()
+                                end
+                                return update(widget, value, index)
+                            end
+                            UIManager:show(spin)
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Size"),
+                        enabled = can_position,
+                        callback = can_position and function()
+                            UIManager:close(dialog)
+                            viewer:startZoomSliderPositioning(reopenSliderOptions, true)
+                        end or nil,
+                    },
+                },
+                {
+                    {
+                        text = _("Restore defaults"),
+                        callback = function()
+                            local defaults = require("src._settings").defaults
+                            self.settings.panel_zoom_slider_min = defaults.panel_zoom_slider_min
+                            self.settings.panel_zoom_slider_max = defaults.panel_zoom_slider_max
+                            self.settings.panel_zoom_slider_opacity = defaults.panel_zoom_slider_opacity
+                            self.settings.panel_zoom_slider_x = nil
+                            self.settings.panel_zoom_slider_y = nil
+                            self.settings.panel_zoom_slider_width = nil
+                            self.settings.panel_zoom_slider_height = nil
+                            saveSliderRange()
+                            UIManager:close(dialog)
+                            reopenSliderOptions()
+                        end,
+                    },
+                },
+                {
+                    {
+                        text = _("Back"),
+                        callback = function()
+                            UIManager:close(dialog)
+                            self:showPanelZoomMenu(viewer, return_callback)
+                        end,
+                    },
+                },
+            },
+        })
+        UIManager:show(dialog)
+    end
+end

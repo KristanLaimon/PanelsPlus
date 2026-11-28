@@ -344,7 +344,7 @@ measured ordering fields when the current run passes the existing baseline.
 ./run-tests.sh --check-only
 
 # Run a specific spec file
-./run-tests.sh tests/dataset-mangas/dataset/Bloom_Into_You_Vol_8/bloom_into_you_spec.lua
+./run-tests.sh tests/bloom_into_you_spec.lua
 ```
 
 ## Safe and Smart panel mappings

@@ -9,13 +9,14 @@ Copyright (c) 2026 KristanLaimon
 License: MIT; see the repository LICENSE file.
 SPDX-License-Identifier: MIT
 ]]
+local NavCapabilities = require("src._navcapabilities")
+
 --- Settings persistence and default normalization.
 ---
 --- @class PPSettingsModule
 --- @field key string Current KOReader settings key.
 --- @field legacy_keys string[] Previous settings keys used for migration.
 --- @field defaults PPSettings Default setting values.
-local NavCapabilities = require("src._navcapabilities")
 local Settings = {
     key = "panels_plus",
     legacy_keys = {
@@ -23,6 +24,7 @@ local Settings = {
         "mangacomicsmoother",
         "manga_smooth_reading",
     },
+    --- @type PPSettings
     defaults = {
         enabled = true,
         mode = "manga",
@@ -35,6 +37,13 @@ local Settings = {
         swipe_navigation = true,
         kobo_vertical_gesture = true,
         panel_gesture = "hold",
+        panel_zoom_enabled = false,
+        panel_zoom_gesture_type = "spread",
+        panel_zoom_mode = "slider",
+        panel_zoom_factor = 1.5,
+        panel_zoom_slider_min = 0.3,
+        panel_zoom_slider_max = 3,
+        panel_zoom_slider_opacity = 100,
         remember_doc_settings = true,
         doc_settings = {},
         progress_bar_visible = true,
@@ -42,6 +51,8 @@ local Settings = {
         rotate_screen_for_double_pages = false,
         spread_rotation_direction = "auto",
         join_spread_fold = true,
+        inkaway_join_spread_fold = true,
+        inkaway_fit_viewport = true,
         hold_text_selection = true,
         prefer_native_text_layer = true,
         nav_transition_mode = "classic",
@@ -65,6 +76,9 @@ local Settings = {
         panel_bleed_min = 8,
         panel_prefetch_delay = 0.75,
         panel_cache_pages = 12,
+        panel_refresh_mode = "koreader",
+        panel_refresh_interval = 6,
+        panel_refresh_on_page_change = true,
         panel_prerender = true,
         panel_prerender_delay = 0.25,
         prefetch_min_free_bytes = 15 * 1024 * 1024,
@@ -113,6 +127,17 @@ end
 --- @return PPSettings settings Normalized settings table.
 function Settings.withDefaults(settings)
     settings = settings or {}
+    for old, new in pairs({
+        panel_gesture_zoom = "panel_zoom_enabled",
+        panel_zoom_gesture = "panel_zoom_gesture_type",
+        panel_gesture_zoom_factor = "panel_zoom_factor",
+    }) do
+        if settings[new] == nil then
+            settings[new] = settings[old]
+        end
+        settings[old] = nil
+    end
+    settings.doc_settings = settings.doc_settings or {}
     if settings.nav_transition_frames == nil then
         settings.nav_transition_frames = NavCapabilities.defaultFrames()
     end

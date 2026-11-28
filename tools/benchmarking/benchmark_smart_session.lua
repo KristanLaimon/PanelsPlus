@@ -15,7 +15,7 @@ SPDX-License-Identifier: MIT
 -- timings. The heap includes input maps, dataset metadata, and JIT state;
 -- it does not measure KOReader rendering, framebuffer work, or device RSS.
 require("ffi")
-require("tests.spec.helper")
+require("tests.helper")
 io.stdout:setvbuf("line")
 local detector = arg[1] and dofile(arg[1]) or require("src._smartcomponentdetector")
 local Loader = require("tests.dataset-mangas.dataset_loader")

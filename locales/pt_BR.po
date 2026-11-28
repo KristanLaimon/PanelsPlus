@@ -295,8 +295,8 @@ msgstr "(Config. de toque longo)"
 msgid "Adjust how long the camera pan between panels takes in milliseconds."
 msgstr "Ajusta a duração (ms) do movimento da câmera entre painéis."
 
-msgid "Also pan across the boundary between the last panel of a page and the first panel of the next, instead of cutting instantly. Only animates when the adjacent page has already been detected in the background; otherwise the crossing stays an instant cut."
-msgstr "Também desloca a câmera pela borda entre o último painel de uma página e o primeiro da seguinte, em vez de corte instantâneo. Só anima quando a página adjacente já foi detectada em segundo plano; caso contrário, a transição continua como corte instantâneo."
+msgid "Pan between the last panel of one page or image and the first panel of the next. Fixed-layout pages need cached panels. In reflowable books, the pan starts when Panels+ finds the next image."
+msgstr "Desloca a câmera entre o último painel de uma página ou imagem e o primeiro da seguinte. Páginas de layout fixo precisam ter os painéis em cache. Em livros com texto ajustável, o movimento começa quando o Panels+ encontra a próxima imagem."
 
 msgid "Animate page-to-page transitions (Actual: "
 msgstr "Animar transições entre páginas (Atual: "
@@ -584,6 +584,29 @@ msgstr "Este é o último painel da última página. Continuar com a ação de f
 # The following msgids have no entries in the current English catalog.
 # Existing translations are retained here, outside the active screen groups.
 
+# Panel viewer > More Config > Panel refresh
+
+msgid "Panel refresh…"
+msgstr "Atualização da tela…"
+
+msgid "Panel refresh"
+msgstr "Atualização da tela"
+
+msgid "Every N panels (current: %1) | Tap here to config"
+msgstr "A cada N painéis (atual: %1) | Toque aqui para configurar"
+
+msgid "Every panel"
+msgstr "A cada painel"
+
+msgid "Never"
+msgstr "Nunca"
+
+msgid "Follow KOReader settings"
+msgstr "Seguir as configurações do KOReader"
+
+msgid "Full refresh every N panels"
+msgstr "Atualização completa a cada N painéis"
+
 # Legacy: Shared actions and status values
 # Related screen: Shared dialog buttons, language names and enabled/disabled values.
 # Related path (context only; these entries are unused): Panel viewer > More config...; panel viewer > OCR icon; panel viewer > Settings Profile: > Manage profiles... > select a profile.
@@ -809,3 +832,33 @@ msgstr "Girar páginas duplas (Atual: "
 
 msgid "Spread direction (Actual: "
 msgstr "Direção da página dupla (Atual: "
+
+msgid "Refresh on full page change"
+msgstr "Atualizar ao mudar de página inteira"
+
+msgid "Fit Panel"
+msgstr "Ajustar painel"
+
+msgid "Original Size Panel"
+msgstr "Tamanho original do painel"
+
+msgid "Restore zoom"
+msgstr "Restaurar zoom"
+
+msgid "Spread gesture"
+msgstr "Gesto de afastar os dedos"
+
+msgid "Activated"
+msgstr "Ativado"
+
+msgid "Deactivated"
+msgstr "Desativado"
+
+msgid "Panel gesture zoom"
+msgstr "Zoom do painel por gestos"
+
+msgid "Enable panel gesture zoom"
+msgstr "Ativar zoom do painel por gestos"
+
+msgid "Zoom gesture"
+msgstr "Gesto de zoom"
