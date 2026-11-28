@@ -99,7 +99,7 @@ Panels+ is a KOReader plugin that improves manga and comic reading by replacing 
 
 ### Devices
 <div align="center">
-    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/5c0a4702-d82e-4764-8632-368046ae3754" />
+    <img width="95%" height="auto" alt="image" src="https://github.com/user-attachments/assets/9a1643e5-1b29-40f8-8eea-2ce1950972b2" />
 </div>
 
 ### KOReader Plugins Ecosystem
