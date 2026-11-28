@@ -248,12 +248,8 @@ Configuration is as easy as just using the plugin itself!
       </video>
       <br>
       <sub>
-        Panels+ v1.6.0 running on a Kindle. All features in 1 video.
-        <br><br>
-        This demo includes v1.7.0-nightly ink-away integration which is
-        not released yet until the next stable release of Ink-Away.
-        You can check the status
-        <a href="https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly">here</a>.
+        Panels+ v1.6.0 <br></br>
+        <em> All features in 1 video + v1.7.0 Ink-away integration</em>
       </sub>
     </td>
     <td align="center" valign="top" width="50%">
@@ -264,7 +260,8 @@ Configuration is as easy as just using the plugin itself!
       </video>
       <br>
       <sub>
-        Panels+ v1.3.0 (Old, video but the advice is the same).
+        Panels+ v1.3.0. <br></br>
+        <em>(Old video but the advice is the same)</em>
         For a more fluent and immersive navigation, my personal
         recommendation is to set KOReader to
         <strong>landscape (horizontal) rotation</strong> and enable
@@ -333,9 +330,8 @@ Currently supported languages are ***English***, ***Spanish***, ***Simplified Ch
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for development setup, testing instructions, project documentation, and contribution guidelines.
 
-Working on another KOReader plugin? The [plugin compatibility guide](docs/PLUGIN-COMPATIBILITY.md)
-explains how to use reference repositories, change compatibility tests, and add
-support for your plugin.
+Are you a KOReader plugin dev and want to integrate Panels+ with your project (or viceversa)? You can read the [plugin compatibility guide](docs/PLUGIN-COMPATIBILITY.md)
+explains how to add/change compatibility tests, support for your plugin and how Panels+ manages testing across multiple external plugins.
 
 ---
 
