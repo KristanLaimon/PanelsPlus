@@ -40,7 +40,7 @@
   </tr>
 </table>
 
-> Want to know what's coming for the next release v1.7.0?, you can check the latest news and builds [here](https://github.com/KristanLaimon/PanelsPlus/releases/tag/v1.7.0-nightly)
+> No nightly builds at the moment. If any, It will be showed here!
 
 > Panels+ has an official website!. Here: https://www.panelsplus.site/ | Warning: This is the only official page, any other page aren't from official Panels+ devs and could be malicious.
 
